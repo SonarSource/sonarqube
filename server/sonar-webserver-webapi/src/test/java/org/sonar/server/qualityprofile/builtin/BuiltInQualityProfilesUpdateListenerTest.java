@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.core.config.CorePropertyDefinitions.DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -157,7 +157,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
   }
 
   private Tuple addProfile(Multimap<QProfileName, ActiveRuleChange> profiles, Languages languages, ActiveRuleChange.Type type) {

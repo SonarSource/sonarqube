@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -64,7 +64,7 @@ public class IndexActionTest {
 
     TestResponse result = call(null, DateUtils.formatDateTime(aBitLater));
 
-    verifyZeroInteractions(i18n);
+    verifyNoInteractions(i18n);
     verify(server).getStartedAt();
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NOT_MODIFIED);
   }

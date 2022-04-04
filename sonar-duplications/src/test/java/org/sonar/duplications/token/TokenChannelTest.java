@@ -23,8 +23,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -69,7 +69,7 @@ public class TokenChannelTest {
     CodeReader codeReader = new CodeReader("123");
 
     assertThat(channel.consume(new CodeReader("123"), output), is(false));
-    verifyZeroInteractions(output);
+    verifyNoInteractions(output);
     assertThat(codeReader.getLinePosition(), is(1));
     assertThat(codeReader.getColumnPosition(), is(0));
   }

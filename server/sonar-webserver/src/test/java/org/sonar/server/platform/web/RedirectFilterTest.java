@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class RedirectFilterTest {
@@ -66,7 +66,7 @@ public class RedirectFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect(expectedRedirection);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
     reset(response, chain);
   }
 
@@ -78,7 +78,7 @@ public class RedirectFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
-    verifyZeroInteractions(response);
+    verifyNoInteractions(response);
     reset(response, chain);
   }
 }

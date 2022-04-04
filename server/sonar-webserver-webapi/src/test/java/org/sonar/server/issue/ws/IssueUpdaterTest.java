@@ -52,7 +52,7 @@ import org.sonar.server.rule.DefaultRuleFinder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -198,7 +198,7 @@ public class IssueUpdaterTest {
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
   }
 
   @Test
@@ -212,7 +212,7 @@ public class IssueUpdaterTest {
 
     underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
   }
 
   @Test

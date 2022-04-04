@@ -40,8 +40,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
@@ -190,7 +190,7 @@ public class CredentialsExternalAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -206,7 +206,7 @@ public class CredentialsExternalAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
 
   }
 
@@ -224,7 +224,7 @@ public class CredentialsExternalAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.realm(BASIC_TOKEN, REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test

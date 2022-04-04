@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
@@ -53,7 +53,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -97,7 +97,7 @@ public class IssuePublisherTest {
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(reportPublisher);
+    verifyNoInteractions(reportPublisher);
   }
 
   @Test
@@ -112,7 +112,7 @@ public class IssuePublisherTest {
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(reportPublisher);
+    verifyNoInteractions(reportPublisher);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class IssuePublisherTest {
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(reportPublisher);
+    verifyNoInteractions(reportPublisher);
   }
 
   @Test
@@ -222,7 +222,7 @@ public class IssuePublisherTest {
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(reportPublisher);
+    verifyNoInteractions(reportPublisher);
   }
 
   @Test

@@ -74,7 +74,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
@@ -119,7 +118,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    verifyZeroInteractions(builtInQualityProfilesNotification);
+    verifyNoInteractions(builtInQualityProfilesNotification);
   }
 
   @Test

@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class QProfileCopierTest {
 
@@ -90,7 +90,7 @@ public class QProfileCopierTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Source and target profiles are equal: " + source.getName());
-      verifyZeroInteractions(backuper);
+      verifyNoInteractions(backuper);
     }
   }
 

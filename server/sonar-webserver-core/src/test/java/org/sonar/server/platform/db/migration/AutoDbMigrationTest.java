@@ -36,7 +36,7 @@ import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class AutoDbMigrationTest {
@@ -84,7 +84,7 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verifyZeroInteractions(migrationEngine);
+    verifyNoInteractions(migrationEngine);
     assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
 
@@ -108,7 +108,7 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verifyZeroInteractions(migrationEngine);
+    verifyNoInteractions(migrationEngine);
     assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
 

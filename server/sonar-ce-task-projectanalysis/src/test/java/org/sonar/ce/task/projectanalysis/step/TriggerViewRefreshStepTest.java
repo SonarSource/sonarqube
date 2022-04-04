@@ -27,7 +27,7 @@ import org.sonar.server.project.Project;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class TriggerViewRefreshStepTest {
@@ -39,7 +39,7 @@ public class TriggerViewRefreshStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(analysisMetadataHolder);
+    verifyNoInteractions(analysisMetadataHolder);
   }
 
   @Test
@@ -48,7 +48,7 @@ public class TriggerViewRefreshStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(analysisMetadataHolder);
+    verifyNoInteractions(analysisMetadataHolder);
   }
 
   @Test

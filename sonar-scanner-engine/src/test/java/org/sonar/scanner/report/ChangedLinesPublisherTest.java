@@ -47,7 +47,7 @@ import org.sonar.scanner.scm.ScmConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ChangedLinesPublisherTest {
@@ -85,7 +85,7 @@ public class ChangedLinesPublisherTest {
   public void skip_if_scm_is_disabled() {
     when(scmConfiguration.isDisabled()).thenReturn(true);
     publisher.publish(writer);
-    verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
+    verifyNoInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();
   }
 
@@ -93,7 +93,7 @@ public class ChangedLinesPublisherTest {
   public void skip_if_not_pr() {
     when(branchConfiguration.isPullRequest()).thenReturn(false);
     publisher.publish(writer);
-    verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
+    verifyNoInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();
   }
 
@@ -101,7 +101,7 @@ public class ChangedLinesPublisherTest {
   public void skip_if_target_branch_is_null() {
     when(branchConfiguration.targetBranchName()).thenReturn(null);
     publisher.publish(writer);
-    verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
+    verifyNoInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();
   }
 
@@ -109,7 +109,7 @@ public class ChangedLinesPublisherTest {
   public void skip_if_no_scm_provider() {
     when(scmConfiguration.provider()).thenReturn(null);
     publisher.publish(writer);
-    verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
+    verifyNoInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();
   }
 

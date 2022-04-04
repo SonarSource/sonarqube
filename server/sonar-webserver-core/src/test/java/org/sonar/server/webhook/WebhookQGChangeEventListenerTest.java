@@ -60,7 +60,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -94,7 +94,7 @@ public class WebhookQGChangeEventListenerTest {
     mockedUnderTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
     verify(webHooks).isEnabled(qualityGateEvent.getProject());
-    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
+    verifyNoInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
   @DataProvider
@@ -121,7 +121,7 @@ public class WebhookQGChangeEventListenerTest {
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
+    verifyNoInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class WebhookQGChangeEventListenerTest {
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
+    verifyNoInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
   @Test

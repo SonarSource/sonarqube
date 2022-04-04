@@ -27,7 +27,7 @@ import org.junit.Test;
 import static java.lang.String.format;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class CacheControlFilterTest {
@@ -88,7 +88,7 @@ public class CacheControlFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verifyZeroInteractions(response);
+    verifyNoInteractions(response);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class CacheControlFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verifyZeroInteractions(response);
+    verifyNoInteractions(response);
   }
 
   private static HttpServletRequest newRequest(String path) {

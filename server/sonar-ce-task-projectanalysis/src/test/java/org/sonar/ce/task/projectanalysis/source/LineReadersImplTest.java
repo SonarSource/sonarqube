@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LineReadersImplTest {
@@ -62,7 +62,7 @@ public class LineReadersImplTest {
     verify(c1).close();
     verify(c2).close();
     verifyNoMoreInteractions(c1, c2);
-    verifyZeroInteractions(r1, r2);
+    verifyNoInteractions(r1, r2);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class LineReadersImplTest {
     verify(r1).read(builder);
     verify(r2).read(builder);
     verifyNoMoreInteractions(r1, r2);
-    verifyZeroInteractions(c1, c2);
+    verifyNoInteractions(c1, c2);
   }
 
   @Test

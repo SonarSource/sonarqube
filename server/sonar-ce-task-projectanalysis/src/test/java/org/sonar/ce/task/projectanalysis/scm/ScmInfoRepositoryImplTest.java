@@ -52,8 +52,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
@@ -105,9 +105,9 @@ public class ScmInfoRepositoryImplTest {
     underTest.getScmInfo(FILE);
     assertThat(logTester.logs(TRACE)).isEmpty();
 
-    verifyZeroInteractions(dbLoader);
-    verifyZeroInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(dbLoader);
+    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -124,9 +124,9 @@ public class ScmInfoRepositoryImplTest {
 
     assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from report for file 'FILE_KEY'");
 
-    verifyZeroInteractions(dbLoader);
-    verifyZeroInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(dbLoader);
+    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -144,7 +144,7 @@ public class ScmInfoRepositoryImplTest {
 
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -163,7 +163,7 @@ public class ScmInfoRepositoryImplTest {
 
     verifyNoMoreInteractions(dbLoader);
     verifyNoMoreInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -178,8 +178,8 @@ public class ScmInfoRepositoryImplTest {
 
     verify(dbLoader).getScmInfo(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyZeroInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -195,8 +195,8 @@ public class ScmInfoRepositoryImplTest {
 
     verify(dbLoader).getScmInfo(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyZeroInteractions(sourceHashRepository);
-    verifyZeroInteractions(diff);
+    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(diff);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class ScmInfoRepositoryImplTest {
     verify(dbLoader).getScmInfo(FILE);
     verify(diff).computeMatchingLines(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyZeroInteractions(sourceHashRepository);
+    verifyNoInteractions(sourceHashRepository);
     verifyNoMoreInteractions(diff);
   }
 
@@ -233,7 +233,7 @@ public class ScmInfoRepositoryImplTest {
 
     assertThat(underTest.getScmInfo(component)).isEmpty();
 
-    verifyZeroInteractions(batchReportReader, dbLoader);
+    verifyNoInteractions(batchReportReader, dbLoader);
   }
 
   @DataProvider

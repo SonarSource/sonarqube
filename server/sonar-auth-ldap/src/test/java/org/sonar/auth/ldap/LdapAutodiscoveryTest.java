@@ -73,7 +73,7 @@ public class LdapAutodiscoveryTest {
     Attribute attribute = mock(Attribute.class);
     NamingEnumeration namingEnumeration = mock(NamingEnumeration.class);
 
-    when(context.getAttributes(Mockito.anyString(), Mockito.anyObject())).thenReturn(attributes);
+    when(context.getAttributes(Mockito.anyString(), Mockito.any())).thenReturn(attributes);
     when(attributes.get("srv")).thenReturn(attribute);
     when(attribute.getAll()).thenReturn(namingEnumeration);
     when(namingEnumeration.hasMore()).thenReturn(true, true, true, true, true, false);

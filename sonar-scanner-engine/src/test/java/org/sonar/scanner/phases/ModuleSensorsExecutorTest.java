@@ -53,8 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
@@ -113,7 +113,7 @@ public class ModuleSensorsExecutorTest {
     verify(perModuleSensor).analyse();
     verify(perModuleSensor).wrappedSensor();
 
-    verifyZeroInteractions(globalSensor);
+    verifyNoInteractions(globalSensor);
     verifyNoMoreInteractions(perModuleSensor, globalSensor);
   }
 

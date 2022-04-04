@@ -38,8 +38,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class MovedIssueVisitorTest {
@@ -69,7 +69,7 @@ public class MovedIssueVisitorTest {
     DefaultIssue issue = mock(DefaultIssue.class);
     underTest.onIssue(ReportComponent.builder(Component.Type.DIRECTORY, 1).build(), issue);
 
-    verifyZeroInteractions(issue);
+    verifyNoInteractions(issue);
   }
 
   @Test

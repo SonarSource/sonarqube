@@ -57,8 +57,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -115,7 +115,7 @@ public class MeasureRepositoryImplTest {
       underTestWithMock.getBaseMeasure(null, metric1);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyZeroInteractions(mockedDbClient);
+      verifyNoInteractions(mockedDbClient);
     }
   }
 
@@ -125,7 +125,7 @@ public class MeasureRepositoryImplTest {
       underTestWithMock.getBaseMeasure(FILE_COMPONENT, null);
       fail("an NPE should have been raised");
     } catch (NullPointerException e) {
-      verifyZeroInteractions(mockedDbClient);
+      verifyNoInteractions(mockedDbClient);
     }
   }
 

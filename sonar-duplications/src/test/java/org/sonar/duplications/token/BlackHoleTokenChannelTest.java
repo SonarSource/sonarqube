@@ -24,7 +24,7 @@ import org.sonar.channel.CodeReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class BlackHoleTokenChannelTest {
 
@@ -37,7 +37,7 @@ public class BlackHoleTokenChannelTest {
     assertThat(channel.consume(codeReader, output)).isTrue();
     assertThat(codeReader.getLinePosition()).isOne();
     assertThat(codeReader.getColumnPosition()).isEqualTo(3);
-    verifyZeroInteractions(output);
+    verifyNoInteractions(output);
   }
 
 }

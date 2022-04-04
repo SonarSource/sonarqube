@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.startsWith;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ConsoleLoggerTest {
 
@@ -66,7 +66,7 @@ public class ConsoleLoggerTest {
     underTest.debug("message {}", "foo");
     underTest.debug("message {} {}", "foo", "bar");
     underTest.debug("message {} {} {}", "foo", "bar", "baz");
-    verifyZeroInteractions(stream);
+    verifyNoInteractions(stream);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class ConsoleLoggerTest {
     underTest.trace("message {}", "foo");
     underTest.trace("message {} {}", "foo", "bar");
     underTest.trace("message {} {} {}", "foo", "bar", "baz");
-    verifyZeroInteractions(stream);
+    verifyNoInteractions(stream);
   }
 
   @Test

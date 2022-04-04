@@ -28,7 +28,7 @@ import javax.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class NullJarScannerTest {
   @Test
@@ -39,7 +39,7 @@ public class NullJarScannerTest {
     NullJarScanner scanner = new NullJarScanner();
 
     scanner.scan(JarScanType.PLUGGABILITY, context, callback);
-    verifyZeroInteractions(context, callback);
+    verifyNoInteractions(context, callback);
     scanner.setJarScanFilter(mock(JarScanFilter.class));
     assertThat(scanner.getJarScanFilter()).isNull();
   }

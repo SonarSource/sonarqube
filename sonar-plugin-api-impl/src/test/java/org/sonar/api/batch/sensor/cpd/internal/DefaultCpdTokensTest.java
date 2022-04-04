@@ -21,17 +21,16 @@ package org.sonar.api.batch.sensor.cpd.internal;
 
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class DefaultCpdTokensTest {
   private final SensorStorage sensorStorage = mock(SensorStorage.class);
@@ -77,7 +76,7 @@ public class DefaultCpdTokensTest {
 
     tokens.save();
 
-    verifyZeroInteractions(sensorStorage);
+    verifyNoInteractions(sensorStorage);
 
     assertThat(tokens.getTokenLines()).isEmpty();
   }
@@ -97,7 +96,7 @@ public class DefaultCpdTokensTest {
       .addToken(testInputFile.newRange(1, 2, 1, 5), "foo");
 
     tokens.save();
-    verifyZeroInteractions(sensorStorage);
+    verifyNoInteractions(sensorStorage);
     assertThat(tokens.getTokenLines()).isEmpty();
   }
 

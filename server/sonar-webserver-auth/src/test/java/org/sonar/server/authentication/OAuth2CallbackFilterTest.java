@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
@@ -136,7 +136,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Not an OAuth2IdentityProvider: class org.sonar.server.authentication.FakeBasicIdentityProvider");
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Failed to retrieve IdentityProvider for key 'github'");
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -222,7 +222,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("No provider key found in URI");
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   private void assertCallbackCalled(FakeOAuth2IdentityProvider oAuth2IdentityProvider) {

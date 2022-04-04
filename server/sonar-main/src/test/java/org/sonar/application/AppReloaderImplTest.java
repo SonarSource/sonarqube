@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
@@ -72,9 +72,9 @@ public class AppReloaderImplTest {
     assertThatThrownBy(() -> {
       underTest.reload(settings);
 
-      verifyZeroInteractions(logging);
-      verifyZeroInteractions(state);
-      verifyZeroInteractions(fs);
+      verifyNoInteractions(logging);
+      verifyNoInteractions(state);
+      verifyNoInteractions(fs);
     })
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Restart is not possible with cluster mode");
@@ -101,9 +101,9 @@ public class AppReloaderImplTest {
     assertThatThrownBy(() -> {
       underTest.reload(settings);
 
-      verifyZeroInteractions(logging);
-      verifyZeroInteractions(state);
-      verifyZeroInteractions(fs);
+      verifyNoInteractions(logging);
+      verifyNoInteractions(state);
+      verifyNoInteractions(fs);
     })
       .isInstanceOf(MessageException.class)
       .hasMessage("Property [" + propertyKey + "] cannot be changed on restart: [val1] => [val2]");

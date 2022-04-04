@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
 import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
@@ -281,7 +281,7 @@ public class InternalCeQueueImplTest {
     underTest.cancelWornOuts();
 
     assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid())).isPresent();
-    verifyZeroInteractions(queueStatusMock);
+    verifyNoInteractions(queueStatusMock);
   }
 
   private static class TypedExceptionImpl extends RuntimeException implements TypedException {

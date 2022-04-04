@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.ERROR;
@@ -91,7 +91,7 @@ public class HealthStateRefresherTest {
     underTest.stop();
 
     verify(sharedHealthState).clearMine();
-    verifyZeroInteractions(executorService, nodeHealthProvider);
+    verifyNoInteractions(executorService, nodeHealthProvider);
   }
 
   @Test

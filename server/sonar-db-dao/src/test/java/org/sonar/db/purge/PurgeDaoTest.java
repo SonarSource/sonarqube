@@ -44,8 +44,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -92,7 +92,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
@@ -1443,7 +1443,7 @@ public class PurgeDaoTest {
 
     underTest.deleteNonRootComponentsInView(dbSession, Collections.emptyList());
 
-    verifyZeroInteractions(dbSession);
+    verifyNoInteractions(dbSession);
   }
 
   @Test
@@ -1483,7 +1483,7 @@ public class PurgeDaoTest {
     Collections.shuffle(componentDtos); // order of collection must not matter
     underTest.deleteNonRootComponentsInView(dbSession, componentDtos);
 
-    verifyZeroInteractions(dbSession);
+    verifyNoInteractions(dbSession);
   }
 
   @Test

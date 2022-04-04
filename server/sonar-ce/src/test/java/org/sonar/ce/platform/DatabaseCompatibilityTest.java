@@ -30,8 +30,8 @@ import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.FRESH_INSTALL;
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.UP_TO_DATE;
@@ -84,6 +84,6 @@ public class DatabaseCompatibilityTest {
   public void stop_has_no_effect() {
     underTest.stop();
 
-    verifyZeroInteractions(databaseVersion);
+    verifyNoInteractions(databaseVersion);
   }
 }

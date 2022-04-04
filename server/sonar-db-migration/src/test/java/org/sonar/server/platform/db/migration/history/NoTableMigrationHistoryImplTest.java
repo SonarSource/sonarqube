@@ -25,7 +25,7 @@ import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class NoTableMigrationHistoryImplTest {
   @Rule
@@ -38,7 +38,7 @@ public class NoTableMigrationHistoryImplTest {
   public void start_fails_with_ISE_if_table_history_does_not_exist() {
     assertThatThrownBy(() -> {
       underTest.start();
-      verifyZeroInteractions(migrationHistoryMeddler);
+      verifyNoInteractions(migrationHistoryMeddler);
     })
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Migration history table is missing");

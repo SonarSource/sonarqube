@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class OracleCharsetHandlerTest {
@@ -52,7 +52,7 @@ public class OracleCharsetHandlerTest {
   public void upgrade_does_not_verify_utf8_charset() throws Exception {
     underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verifyZeroInteractions(sqlExecutor);
+    verifyNoInteractions(sqlExecutor);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class OracleCharsetHandlerTest {
   @Test
   public void does_nothing_if_regular_startup() throws Exception {
     underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP);
-    verifyZeroInteractions(sqlExecutor);
+    verifyNoInteractions(sqlExecutor);
   }
 
   private void answerCharset(@Nullable String charset) throws SQLException {

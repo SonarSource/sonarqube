@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.CI;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.HOME;
@@ -82,7 +82,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(uuidFactory, reportReader, treeRootHolder, dbClient);
+    verifyNoInteractions(uuidFactory, reportReader, treeRootHolder, dbClient);
   }
 
   @Test

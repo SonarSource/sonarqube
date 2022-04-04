@@ -53,8 +53,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
@@ -286,6 +286,6 @@ public class QualityGateEventsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService);
+    verifyNoInteractions(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService);
   }
 }

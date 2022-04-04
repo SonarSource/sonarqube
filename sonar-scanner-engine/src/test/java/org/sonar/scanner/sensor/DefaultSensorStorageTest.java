@@ -65,8 +65,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultSensorStorageTest {
@@ -201,7 +201,7 @@ public class DefaultSensorStorageTest {
     DefaultIssue issue = new DefaultIssue(project).at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
 
-    verifyZeroInteractions(moduleIssues);
+    verifyNoInteractions(moduleIssues);
   }
 
   @Test

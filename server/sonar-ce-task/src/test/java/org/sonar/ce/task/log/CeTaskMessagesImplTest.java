@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class CeTaskMessagesImplTest {
@@ -113,7 +113,7 @@ public class CeTaskMessagesImplTest {
 
     underTest.addAll(Collections.emptyList());
 
-    verifyZeroInteractions(dbClientMock, uuidFactoryMock, ceTaskMock);
+    verifyNoInteractions(dbClientMock, uuidFactoryMock, ceTaskMock);
   }
 
   @Test

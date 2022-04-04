@@ -38,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
@@ -98,7 +98,7 @@ public class BasicAuthenticationTest {
   public void does_not_authenticate_when_no_authorization_header() {
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthentication, authenticationEvent);
+    verifyNoInteractions(credentialsAuthentication, authenticationEvent);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class BasicAuthenticationTest {
 
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthentication, authenticationEvent);
+    verifyNoInteractions(credentialsAuthentication, authenticationEvent);
   }
 
   @Test
@@ -118,7 +118,7 @@ public class BasicAuthenticationTest {
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC));
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class BasicAuthenticationTest {
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class BasicAuthenticationTest {
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -181,7 +181,7 @@ public class BasicAuthenticationTest {
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   private static String toBase64(String text) {

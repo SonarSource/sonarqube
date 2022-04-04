@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -207,7 +207,7 @@ public class HttpHeadersAuthenticationTest {
     // User is not updated
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1);
     verifyTokenIsNotUpdated();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -255,7 +255,7 @@ public class HttpHeadersAuthenticationTest {
     // User is not updated
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1);
     verifyTokenIsNotUpdated();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -325,7 +325,7 @@ public class HttpHeadersAuthenticationTest {
 
     verifyUserNotAuthenticated();
     verifyTokenIsNotUpdated();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -335,7 +335,7 @@ public class HttpHeadersAuthenticationTest {
     underTest.authenticate(createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
 
     verifyUserNotAuthenticated();
-    verifyZeroInteractions(jwtHttpHandler, authenticationEvent);
+    verifyNoInteractions(jwtHttpHandler, authenticationEvent);
   }
 
   @Test
@@ -348,7 +348,7 @@ public class HttpHeadersAuthenticationTest {
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.sso());
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   private void startWithSso() {

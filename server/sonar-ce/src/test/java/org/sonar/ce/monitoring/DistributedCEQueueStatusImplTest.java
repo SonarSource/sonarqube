@@ -26,7 +26,7 @@ import org.sonar.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class DistributedCEQueueStatusImplTest extends CommonCEQueueStatusImplTest {
   private DistributedCEQueueStatusImpl underTest = new DistributedCEQueueStatusImpl(getDbClient(), mock(System2.class));
@@ -44,6 +44,6 @@ public class DistributedCEQueueStatusImplTest extends CommonCEQueueStatusImplTes
   public void getPendingCount_returns_0_without_querying_database() {
     assertThat(underTest.getPendingCount()).isZero();
 
-    verifyZeroInteractions(getDbClient());
+    verifyNoInteractions(getDbClient());
   }
 }

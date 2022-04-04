@@ -36,7 +36,7 @@ import org.sonar.process.Props;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 public class TomcatAccessLogTest {
@@ -69,7 +69,7 @@ public class TomcatAccessLogTest {
 
     LifecycleEvent event = new LifecycleEvent(mock(Lifecycle.class), "before_init", null);
     listener.lifecycleEvent(event);
-    verifyZeroInteractions(logger);
+    verifyNoInteractions(logger);
 
     event = new LifecycleEvent(mock(Lifecycle.class), "after_start", null);
     listener.lifecycleEvent(event);

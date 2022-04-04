@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
 import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.SYMBOLS;
@@ -103,7 +103,7 @@ public class FileSourceDataWarningsTest {
 
     underTest.addWarning(file, readError);
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -125,7 +125,7 @@ public class FileSourceDataWarningsTest {
 
     Arrays.stream(readErrors).forEach(readError -> underTest.addWarning(file, readError));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -148,7 +148,7 @@ public class FileSourceDataWarningsTest {
     Arrays.stream(files).forEach(file -> IntStream.range(0, 1 + random.nextInt(10))
       .forEach(i -> underTest.addWarning(file, new LineReader.ReadError(HIGHLIGHTING, line + i))));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -173,7 +173,7 @@ public class FileSourceDataWarningsTest {
     Arrays.stream(files).forEach(file -> IntStream.range(0, 1 + random.nextInt(10))
       .forEach(i -> underTest.addWarning(file, new LineReader.ReadError(HIGHLIGHTING, line + i))));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -195,7 +195,7 @@ public class FileSourceDataWarningsTest {
 
     underTest.addWarning(file, readError);
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -217,7 +217,7 @@ public class FileSourceDataWarningsTest {
 
     Arrays.stream(readErrors).forEach(readError -> underTest.addWarning(file, readError));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -240,7 +240,7 @@ public class FileSourceDataWarningsTest {
     Arrays.stream(files).forEach(file -> IntStream.range(0, 1 + random.nextInt(10))
       .forEach(i -> underTest.addWarning(file, new LineReader.ReadError(SYMBOLS, line + i))));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -265,7 +265,7 @@ public class FileSourceDataWarningsTest {
     Arrays.stream(files).forEach(file -> IntStream.range(0, 1 + random.nextInt(10))
       .forEach(i -> underTest.addWarning(file, new LineReader.ReadError(SYMBOLS, line + i))));
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
@@ -288,11 +288,11 @@ public class FileSourceDataWarningsTest {
 
     underTest.addWarning(file, readError);
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
 
     underTest.commitWarnings();
 
-    verifyZeroInteractions(taskMessages);
+    verifyNoInteractions(taskMessages);
   }
 
   @DataProvider

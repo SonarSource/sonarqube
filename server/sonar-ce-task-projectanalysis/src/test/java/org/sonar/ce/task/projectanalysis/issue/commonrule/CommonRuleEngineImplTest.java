@@ -28,7 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 
@@ -62,7 +62,7 @@ public class CommonRuleEngineImplTest {
     Collection<DefaultIssue> issues = underTest.process(file);
 
     assertThat(issues).isEmpty();
-    verifyZeroInteractions(rule1, rule2);
+    verifyNoInteractions(rule1, rule2);
   }
 
   @Test
@@ -70,6 +70,6 @@ public class CommonRuleEngineImplTest {
     Collection<DefaultIssue> issues = underTest.process(DUMB_PROJECT);
 
     assertThat(issues).isEmpty();
-    verifyZeroInteractions(rule1, rule2);
+    verifyNoInteractions(rule1, rule2);
   }
 }

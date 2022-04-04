@@ -40,7 +40,7 @@ import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class JavaCpdBlockIndexerSensorTest {
 
@@ -73,7 +73,7 @@ public class JavaCpdBlockIndexerSensorTest {
   public void testExclusions() {
     file.setExcludedForDuplication(true);
     new JavaCpdBlockIndexerSensor(index).execute(context);
-    verifyZeroInteractions(index);
+    verifyNoInteractions(index);
   }
 
   @Test

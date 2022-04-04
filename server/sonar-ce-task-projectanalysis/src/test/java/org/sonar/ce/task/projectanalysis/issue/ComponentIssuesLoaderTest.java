@@ -51,7 +51,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -215,7 +215,7 @@ public class ComponentIssuesLoaderTest {
 
     assertThat(underTest.loadClosedIssues(componentUuid)).isEmpty();
 
-    verifyZeroInteractions(dbClient, system2);
+    verifyNoInteractions(dbClient, system2);
   }
 
   @Test
@@ -226,7 +226,7 @@ public class ComponentIssuesLoaderTest {
 
     underTest.loadLatestDiffChangesForReopeningOfClosedIssues(emptyList());
 
-    verifyZeroInteractions(dbClient, system2);
+    verifyNoInteractions(dbClient, system2);
   }
 
   @Test

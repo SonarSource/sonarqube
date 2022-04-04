@@ -57,8 +57,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
@@ -120,10 +120,10 @@ public class FPOrWontFixNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isZero();
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
-    notifications.forEach(Mockito::verifyZeroInteractions);
+    notifications.forEach(Mockito::verifyNoInteractions);
   }
 
   @Test
@@ -176,9 +176,9 @@ public class FPOrWontFixNotificationHandlerTest {
 
     assertThat(deliver).isZero();
     verify(serializer, times(notifications.size())).from(any(IssuesChangesNotification.class));
-    verifyZeroInteractions(changeMock);
+    verifyNoInteractions(changeMock);
     verifyNoMoreInteractions(serializer);
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
   }
@@ -198,9 +198,9 @@ public class FPOrWontFixNotificationHandlerTest {
 
     assertThat(deliver).isZero();
     verify(serializer, times(notifications.size())).from(any(IssuesChangesNotification.class));
-    verifyZeroInteractions(changeMock);
+    verifyNoInteractions(changeMock);
     verifyNoMoreInteractions(serializer);
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
   }
@@ -257,7 +257,7 @@ public class FPOrWontFixNotificationHandlerTest {
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
-    verifyZeroInteractions(changeMock);
+    verifyNoInteractions(changeMock);
   }
 
   @Test

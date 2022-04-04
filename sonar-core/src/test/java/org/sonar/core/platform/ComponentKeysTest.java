@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ComponentKeysTest {
 
@@ -51,7 +51,7 @@ public class ComponentKeysTest {
   public void should_log_warning_if_toString_is_not_overridden() {
     Logger log = mock(Logger.class);
     keys.of(new Object(), log);
-    verifyZeroInteractions(log);
+    verifyNoInteractions(log);
 
     // only on non-first runs, to avoid false-positives on singletons
     keys.of(new Object(), log);

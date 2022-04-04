@@ -91,8 +91,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
@@ -284,7 +284,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verifyZeroInteractions(notificationService, newIssuesNotificationMock);
+    verifyNoInteractions(notificationService, newIssuesNotificationMock);
   }
 
   private DefaultIssue createIssue() {

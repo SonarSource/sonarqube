@@ -26,7 +26,7 @@ import org.sonar.ce.task.CeTaskCanceledException;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class SimpleCeTaskInterrupterTest {
 
@@ -60,7 +60,7 @@ public class SimpleCeTaskInterrupterTest {
 
     underTest.onStart(ceTask);
 
-    verifyZeroInteractions(ceTask);
+    verifyNoInteractions(ceTask);
   }
 
   @Test
@@ -69,6 +69,6 @@ public class SimpleCeTaskInterrupterTest {
 
     underTest.onEnd(ceTask);
 
-    verifyZeroInteractions(ceTask);
+    verifyNoInteractions(ceTask);
   }
 }

@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class PostgresCharsetHandlerTest {
@@ -56,7 +56,7 @@ public class PostgresCharsetHandlerTest {
     underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
     // no errors, charset has been verified
     verify(metadata).getDefaultCharset(same(connection));
-    verifyZeroInteractions(sqlExecutor);
+    verifyNoInteractions(sqlExecutor);
   }
 
   @Test

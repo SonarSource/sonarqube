@@ -55,8 +55,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
@@ -116,7 +116,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(Collections.emptyList());
 
     assertThat(deliver).isZero();
-    verifyZeroInteractions(notificationManager, emailNotificationChannel);
+    verifyNoInteractions(notificationManager, emailNotificationChannel);
   }
 
   @Test
@@ -129,10 +129,10 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isZero();
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
-    notifications.forEach(Mockito::verifyZeroInteractions);
+    notifications.forEach(Mockito::verifyNoInteractions);
   }
 
   @Test
@@ -151,7 +151,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(ImmutableSet.of(serializer.serialize(builder)));
 
     assertThat(deliver).isZero();
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
   }
@@ -182,7 +182,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isZero();
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
   }

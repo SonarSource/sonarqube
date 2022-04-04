@@ -48,7 +48,7 @@ import org.sonar.updatecenter.common.Version;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class AnalysisContextReportPublisherTest {
@@ -99,7 +99,7 @@ public class AnalysisContextReportPublisherTest {
     assertThat(writer.getFileStructure().analysisLog()).exists();
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).contains("Xoo 1.0 (xoo)");
 
-    verifyZeroInteractions(system2);
+    verifyNoInteractions(system2);
   }
 
   @Test

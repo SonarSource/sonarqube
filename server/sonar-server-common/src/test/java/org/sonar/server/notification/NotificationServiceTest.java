@@ -40,8 +40,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class NotificationServiceTest {
@@ -75,7 +75,7 @@ public class NotificationServiceTest {
     NotificationService underTest = new NotificationService(dbClient);
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
-    verifyZeroInteractions(dbClient);
+    verifyNoInteractions(dbClient);
   }
 
   @Test
@@ -87,8 +87,8 @@ public class NotificationServiceTest {
     NotificationService underTest = new NotificationService(dbClient, new NotificationDispatcher[] {dispatcher});
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
-    verifyZeroInteractions(dispatcher);
-    verifyZeroInteractions(dbClient);
+    verifyNoInteractions(dispatcher);
+    verifyNoInteractions(dbClient);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class NotificationServiceTest {
       new NotificationHandler[] {handler1, handler2});
 
     assertThat(underTest.deliverEmails(Collections.emptyList())).isZero();
-    verifyZeroInteractions(handler1, handler2);
+    verifyNoInteractions(handler1, handler2);
   }
 
   @Test

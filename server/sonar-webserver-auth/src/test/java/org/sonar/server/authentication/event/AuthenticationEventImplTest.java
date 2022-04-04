@@ -35,7 +35,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -80,7 +80,7 @@ public class AuthenticationEventImplTest {
 
     underTest.loginSuccess(request, "login", Source.sso());
 
-    verifyZeroInteractions(request);
+    verifyNoInteractions(request);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class AuthenticationEventImplTest {
 
     underTest.loginFailure(request, exception);
 
-    verifyZeroInteractions(request, exception);
+    verifyNoInteractions(request, exception);
   }
 
   @Test
@@ -252,7 +252,7 @@ public class AuthenticationEventImplTest {
 
     underTest.logoutSuccess(request, "foo");
 
-    verifyZeroInteractions(request);
+    verifyNoInteractions(request);
   }
 
   @Test
@@ -317,7 +317,7 @@ public class AuthenticationEventImplTest {
 
     underTest.logoutFailure(request, "bad csrf");
 
-    verifyZeroInteractions(request);
+    verifyNoInteractions(request);
   }
 
   @Test

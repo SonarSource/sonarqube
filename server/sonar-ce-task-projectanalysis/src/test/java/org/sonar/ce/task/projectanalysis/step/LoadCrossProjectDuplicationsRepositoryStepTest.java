@@ -59,7 +59,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -285,7 +284,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(integrateCrossProjectDuplications);
+    verifyNoInteractions(integrateCrossProjectDuplications);
   }
 
   @Test

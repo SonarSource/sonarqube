@@ -36,8 +36,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class BuiltInQPChangeNotificationHandlerTest {
@@ -76,8 +76,8 @@ public class BuiltInQPChangeNotificationHandlerTest {
     assertThat(deliver).isZero();
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
-    verifyZeroInteractions(dbClient);
-    notifications.forEach(Mockito::verifyZeroInteractions);
+    verifyNoInteractions(dbClient);
+    notifications.forEach(Mockito::verifyNoInteractions);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class BuiltInQPChangeNotificationHandlerTest {
     verifyNoMoreInteractions(dbClient);
     verify(authorizationDao).selectQualityProfileAdministratorLogins(dbSession);
     verifyNoMoreInteractions(authorizationDao);
-    notifications.forEach(Mockito::verifyZeroInteractions);
+    notifications.forEach(Mockito::verifyNoInteractions);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class BuiltInQPChangeNotificationHandlerTest {
     verifyNoMoreInteractions(dbClient);
     verify(authorizationDao).selectQualityProfileAdministratorLogins(dbSession);
     verifyNoMoreInteractions(authorizationDao);
-    notifications.forEach(Mockito::verifyZeroInteractions);
+    notifications.forEach(Mockito::verifyNoInteractions);
   }
 
 }

@@ -38,7 +38,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -90,7 +90,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
-    verifyZeroInteractions(issueLifecycle);
+    verifyNoInteractions(issueLifecycle);
     CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }
@@ -99,7 +99,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   public void do_nothing_on_directory() {
     underTest.visit(ReportComponent.builder(DIRECTORY, 1).build());
 
-    verifyZeroInteractions(issueLifecycle);
+    verifyNoInteractions(issueLifecycle);
     CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }
@@ -108,7 +108,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   public void do_nothing_on_file() {
     underTest.visit(ReportComponent.builder(FILE, 1).build());
 
-    verifyZeroInteractions(issueLifecycle);
+    verifyNoInteractions(issueLifecycle);
     CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }

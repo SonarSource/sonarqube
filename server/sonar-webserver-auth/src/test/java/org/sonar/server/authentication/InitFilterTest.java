@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class InitFilterTest {
@@ -97,7 +97,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertOAuth2InitCalled();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertOAuth2InitCalled();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertBasicInitCalled();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -150,8 +150,8 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("No provider key found in URI");
-    verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(auth2AuthenticationParameters);
+    verifyNoInteractions(authenticationEvent);
+    verifyNoInteractions(auth2AuthenticationParameters);
   }
 
   @Test
@@ -161,8 +161,8 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("No provider key found in URI");
-    verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(auth2AuthenticationParameters);
+    verifyNoInteractions(authenticationEvent);
+    verifyNoInteractions(auth2AuthenticationParameters);
   }
 
   @Test
@@ -175,8 +175,8 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Unsupported IdentityProvider class: class org.sonar.server.authentication.InitFilterTest$UnsupportedIdentityProvider");
-    verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(auth2AuthenticationParameters);
+    verifyNoInteractions(authenticationEvent);
+    verifyNoInteractions(auth2AuthenticationParameters);
   }
 
   @Test

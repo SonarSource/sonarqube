@@ -34,7 +34,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ClosedIssuesInputFactoryTest {
@@ -51,7 +51,7 @@ public class ClosedIssuesInputFactoryTest {
 
     Input<DefaultIssue> input = underTest.create(component);
 
-    verifyZeroInteractions(dbClient, issuesLoader);
+    verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue(), new DefaultIssue());
     when(issuesLoader.loadClosedIssues(componentUuid)).thenReturn(issues);
@@ -69,7 +69,7 @@ public class ClosedIssuesInputFactoryTest {
 
     Input<DefaultIssue> input = underTest.create(component);
 
-    verifyZeroInteractions(dbClient, issuesLoader);
+    verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of();
     when(issuesLoader.loadClosedIssues(originalComponentUuid)).thenReturn(issues);
@@ -85,7 +85,7 @@ public class ClosedIssuesInputFactoryTest {
 
     Input<DefaultIssue> input = underTest.create(component);
 
-    verifyZeroInteractions(dbClient, issuesLoader);
+    verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue());
     when(issuesLoader.loadClosedIssues(componentUuid)).thenReturn(issues);
@@ -95,6 +95,6 @@ public class ClosedIssuesInputFactoryTest {
     reset(issuesLoader);
 
     assertThat(input.getIssues()).isSameAs(issues);
-    verifyZeroInteractions(issuesLoader);
+    verifyNoInteractions(issuesLoader);
   }
 }

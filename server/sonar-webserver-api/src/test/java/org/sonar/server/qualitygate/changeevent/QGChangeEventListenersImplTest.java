@@ -56,8 +56,8 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class QGChangeEventListenersImplTest {
@@ -83,14 +83,14 @@ public class QGChangeEventListenersImplTest {
   public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
     underTest.broadcastOnIssueChange(emptyList(), singletonList(component1QGChangeEvent));
 
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_changeEvent() {
     underTest.broadcastOnIssueChange(oneIssueOnComponent1, emptySet());
 
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
@@ -171,7 +171,7 @@ public class QGChangeEventListenersImplTest {
 
     underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test

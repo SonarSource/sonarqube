@@ -47,6 +47,7 @@ import org.junit.rules.Timeout;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
+import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
@@ -75,12 +76,12 @@ public class DefaultHttpDownloaderTest {
 
   @BeforeClass
   public static void startServer() throws IOException {
-    socketConnection = new SocketConnection(new Container() {
+    socketConnection = new SocketConnection(new ContainerServer(new Container() {
       public void handle(Request req, Response resp) {
         try {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
-            resp.add("Location", "/");
+            resp.setValue("Location", "/");
           } else {
             if (req.getPath().getPath().contains("/timeout/")) {
               try {
@@ -93,7 +94,7 @@ public class DefaultHttpDownloaderTest {
               if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
                 throw new IllegalStateException("Should accept gzip");
               }
-              resp.set("Content-Encoding", "gzip");
+              resp.setValue("Content-Encoding", "gzip");
               GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
               gzipOutputStream.write("GZIP response".getBytes());
               gzipOutputStream.close();
@@ -110,7 +111,7 @@ public class DefaultHttpDownloaderTest {
           }
         }
       }
-    });
+    }));
     SocketAddress address = socketConnection.connect(new InetSocketAddress("localhost", 0));
 
     baseUrl = String.format("http://%s:%d", ((InetSocketAddress) address).getAddress().getHostAddress(), ((InetSocketAddress) address).getPort());

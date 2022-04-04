@@ -52,10 +52,10 @@ import org.sonar.api.utils.log.LogTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.Matchers.startsWith;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
@@ -291,7 +291,7 @@ public class JGitBlameCommandTest {
 
     assertThat(logTester.logs()).first()
       .matches(s -> s.contains("Shallow clone detected, no blame information will be provided."));
-    verifyZeroInteractions(output);
+    verifyNoInteractions(output);
 
     verify(analysisWarnings).addUnique(startsWith("Shallow clone detected"));
   }
@@ -322,7 +322,7 @@ public class JGitBlameCommandTest {
     assertThat(output.blame).containsKey(inputFile);
     assertThat(output.blame.get(inputFile).stream().map(BlameLine::revision))
       .containsOnly("6b3aab35a3ea32c1636fee56f996e677653c48ea", "843c7c30d7ebd9a479e8f1daead91036c75cbc4e", "0d269c1acfb8e6d4d33f3c43041eb87e0df0f5e7");
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
   }
 
   private File createNewTempFolder() throws IOException {

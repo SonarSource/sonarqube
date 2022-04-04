@@ -48,7 +48,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.FORM;
 
@@ -116,8 +116,8 @@ public class LoginActionTest {
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
     verify(credentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, FORM);
     verify(jwtHttpHandler).generateToken(user, request, response);
-    verifyZeroInteractions(chain);
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(chain);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -126,8 +126,8 @@ public class LoginActionTest {
 
     underTest.doFilter(request, response, chain);
 
-    verifyZeroInteractions(credentialsAuthentication, jwtHttpHandler, chain);
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(credentialsAuthentication, jwtHttpHandler, chain);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class LoginActionTest {
 
     verify(response).setStatus(401);
     assertThat(threadLocalUserSession.hasSession()).isFalse();
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test

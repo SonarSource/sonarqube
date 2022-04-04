@@ -69,7 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
@@ -128,7 +128,7 @@ public class CeWorkerImplTest {
 
     assertThat(underTest.call()).isEqualTo(DISABLED);
 
-    verifyZeroInteractions(taskProcessor, executionListener1, executionListener2);
+    verifyNoInteractions(taskProcessor, executionListener1, executionListener2);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class CeWorkerImplTest {
 
     assertThat(underTestNoListener.call()).isEqualTo(DISABLED);
 
-    verifyZeroInteractions(taskProcessor, executionListener1, executionListener2);
+    verifyNoInteractions(taskProcessor, executionListener1, executionListener2);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class CeWorkerImplTest {
 
     assertThat(underTest.call()).isEqualTo(NO_TASK);
 
-    verifyZeroInteractions(taskProcessor, executionListener1, executionListener2);
+    verifyNoInteractions(taskProcessor, executionListener1, executionListener2);
   }
 
   @Test
@@ -156,7 +156,7 @@ public class CeWorkerImplTest {
 
     assertThat(underTestNoListener.call()).isEqualTo(NO_TASK);
 
-    verifyZeroInteractions(taskProcessor, executionListener1, executionListener2);
+    verifyNoInteractions(taskProcessor, executionListener1, executionListener2);
   }
 
   @Test

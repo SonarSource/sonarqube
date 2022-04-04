@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -89,14 +89,14 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     fullMockedUnderTest.onStart(mockedCeTask);
 
-    verifyZeroInteractions(mockedCeTask, notificationService, dbClientMock, serializer, system2);
+    verifyNoInteractions(mockedCeTask, notificationService, dbClientMock, serializer, system2);
   }
 
   @Test
   public void onEnd_has_no_effect_if_status_is_SUCCESS() {
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.SUCCESS, randomDuration(), ceTaskResultMock, throwableMock);
 
-    verifyZeroInteractions(ceTaskMock, ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
+    verifyNoInteractions(ceTaskMock, ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
 
   @Test
@@ -105,7 +105,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
-    verifyZeroInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
+    verifyNoInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
 
   @Test
@@ -114,7 +114,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
-    verifyZeroInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
+    verifyNoInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
-    verifyZeroInteractions(ceTaskResultMock, throwableMock, dbClientMock, serializer, system2);
+    verifyNoInteractions(ceTaskResultMock, throwableMock, dbClientMock, serializer, system2);
   }
 
   @Test
@@ -263,7 +263,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
-    verifyZeroInteractions(ceTaskResultMock);
+    verifyNoInteractions(ceTaskResultMock);
   }
 
   @Test

@@ -57,7 +57,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class QProfileFactoryImplTest {
 
@@ -207,7 +207,7 @@ public class QProfileFactoryImplTest {
 
     underTest.delete(dbSession, Collections.emptyList());
 
-    verifyZeroInteractions(activeRuleIndexer);
+    verifyNoInteractions(activeRuleIndexer);
     assertQualityProfileFromDb(profile).isNotNull();
   }
 
