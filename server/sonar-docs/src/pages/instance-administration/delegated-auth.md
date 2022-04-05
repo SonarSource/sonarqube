@@ -57,10 +57,10 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 |
 | Configure the new client
 |
-| 1. in Settings
+| 1. In Settings
 |    1. Set"Client Signature Required" to OFF
 |    1. Set "Valid Redirect URIs" to "<Your SonarQube URL>/oauth2/callback/*, E.G https://sonarqube.mycompany.com/oauth2/callback/saml
-| 1. in Client Scopes > Default Client Scopes , remove "role_list" from "Assigned Default Client Scopes" (to prevent the error `com.onelogin.saml2.exception.ValidationError: Found an Attribute element with duplicated Name` during authentication)
+| 1. In Client Scopes > Default Client Scopes , remove "role_list" from "Assigned Default Client Scopes" (to prevent the error `com.onelogin.saml2.exception.ValidationError: Found an Attribute element with duplicated Name` during authentication)
 | 1. In Mappers create a mapper for each user attribute (Note that values provided below for Name, SAML Attribute Name, Role Attribute Name are only example values): 
 |    1. Create a mapper for the login: 
 |       * Name: Login
@@ -70,7 +70,7 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 |    1. Create a mapper for the name: 
 |       * Name: Name
 |       * Mapper Type: User Property
-|       * User Attribute: Username (It can also be another attribute you would previously have specified for the users)
+|       * Property: Username (It can also be another attribute you would previously have specified for the users)
 |       * SAML Attribute Name: name
 |    1. (Optional) Create a mapper for the email: 
 |       * Name: Email
@@ -89,7 +89,7 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 |       * Single Role Attribute: ON
 |       * Full Group Path: OFF
 |
-| Download the XML configuration file from Keycloak.
+| 1. In Realm Settings > General > Endpoints, click on "SAML 2.0 Identify Provider Metadata" to obtain the XML configuration file from Keycloak.
 
 [[collapse]]
 | ## In SonarQube, Configure SAML authentication

@@ -447,13 +447,14 @@ qa_saml_task:
     memory: 10Gb
     additional_containers:
       - name: keycloak
-        image: jboss/keycloak:16.1.1
+        image: quay.io/keycloak/keycloak:17.0.1
         port: 8080
         cpu: 1
         memory: 1Gb
+        command: "/opt/keycloak/bin/kc.sh start-dev --http-relative-path /auth"
         env:
-          KEYCLOAK_USER: admin
-          KEYCLOAK_PASSWORD: admin
+          KEYCLOAK_ADMIN: admin
+          KEYCLOAK_ADMIN_PASSWORD: admin
   env:
     QA_CATEGORY: SAML
   script:
