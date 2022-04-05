@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import { FetchMock } from 'jest-fetch-mock';
 import * as React from 'react';
+import { setImmediate } from 'timers';
 import { MarkdownRemark } from '../../@types/graphql-types';
 import Sidebar from '../Sidebar';
 

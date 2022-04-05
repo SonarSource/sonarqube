@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -17,7 +21,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const { cutAdditionalContent, cleanContent } = require('../index.js');
+
+const { cutAdditionalContent, cleanContent } = require('../index');
 
 it('should cut additional content properly', () => {
   const tag = 'special';

@@ -30,7 +30,7 @@
     "@swc/jest": "0.2.20",
     "@types/classnames": "2.3.0",
     "@types/enzyme": "3.10.5",
-    "@types/jest": "25.1.4",
+    "@types/jest": "27.4.1",
     "@types/lodash": "4.14.149",
     "@types/lunr": "2.3.4",
     "@types/react": "16.8.23",
@@ -53,7 +53,7 @@
     "eslint-plugin-sonarjs": "0.11.0",
     "fs-extra": "7.0.1",
     "glob-promise": "3.4.0",
-    "jest": "25.1.0",
+    "jest": "27.5.1",
     "jest-fetch-mock": "2.1.2",
     "prettier": "1.19.1",
     "react-test-renderer": "16.8.5",
@@ -102,6 +102,7 @@
       "<rootDir>/config",
       "<rootDir>/.cache"
     ],
+    "testEnvironment": "jsdom",
     "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$",
     "transform": {
       "^.+\\.(t|j)sx?$": [

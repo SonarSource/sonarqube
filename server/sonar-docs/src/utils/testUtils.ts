@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ReactWrapper, ShallowWrapper } from 'enzyme';
+import { setImmediate } from 'timers';
 
 export function click(element: ShallowWrapper | ReactWrapper, event = {}): void {
   // `type()` returns a component constructor for a composite element and string for DOM nodes
