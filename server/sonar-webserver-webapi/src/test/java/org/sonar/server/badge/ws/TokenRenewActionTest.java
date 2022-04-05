@@ -33,6 +33,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
+import org.sonar.server.usertoken.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -86,7 +87,7 @@ public class TokenRenewActionTest {
   public void should_add_token_when_no_token_yet_and_return_204() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    when(tokenGenerator.generate()).thenReturn("generated_token");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
 
     TestResponse response = ws.newRequest().setParam("project", project.getKey()).execute();
 
@@ -100,7 +101,7 @@ public class TokenRenewActionTest {
   public void should_replace_existing_token_when__token_already_present_and_update_update_at() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    when(tokenGenerator.generate()).thenReturn("generated_token");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
 
     ws.newRequest().setParam("project", project.getKey()).execute(); //inserting first token with updated at 1000
 

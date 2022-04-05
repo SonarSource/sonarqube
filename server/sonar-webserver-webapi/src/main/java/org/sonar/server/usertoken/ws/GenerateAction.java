@@ -29,6 +29,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.usertoken.TokenGenerator;
+import org.sonar.server.usertoken.TokenType;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
@@ -90,7 +91,7 @@ public class GenerateAction implements UserTokensWsAction {
       UserDto user = userTokenSupport.getUser(dbSession, request);
       checkTokenDoesNotAlreadyExists(dbSession, user, name);
 
-      String token = tokenGenerator.generate();
+      String token = tokenGenerator.generate(TokenType.USER_TOKEN);
       String tokenHash = hashToken(dbSession, token);
       UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, name, tokenHash);
       return buildResponse(userTokenDto, token, user);

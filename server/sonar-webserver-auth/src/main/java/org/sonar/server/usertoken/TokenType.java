@@ -19,28 +19,16 @@
  */
 package org.sonar.server.usertoken;
 
-import java.security.SecureRandom;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
+public enum TokenType {
+  USER_TOKEN("u");
 
-public class TokenGeneratorImpl implements TokenGenerator {
+  private final String identifier;
 
-  private static final String SONARQUBE_TOKEN_PREFIX = "sq";
-
-  @Override
-  public String generate(TokenType tokenType) {
-    SecureRandom random = new SecureRandom();
-    byte[] randomBytes = new byte[20];
-    random.nextBytes(randomBytes);
-    return buildIdentifiablePartOfToken(tokenType) + Hex.encodeHexString(randomBytes);
+  TokenType(String identifier) {
+    this.identifier = identifier;
   }
 
-  private static String buildIdentifiablePartOfToken(TokenType tokenType) {
-    return SONARQUBE_TOKEN_PREFIX + tokenType.getIdentifier() + "_";
-  }
-
-  @Override
-  public String hash(String token) {
-    return DigestUtils.sha384Hex(token);
+  public String getIdentifier() {
+    return identifier;
   }
 }

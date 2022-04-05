@@ -24,23 +24,30 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TokenGeneratorImplTest {
-  TokenGeneratorImpl underTest = new TokenGeneratorImpl();
+  private TokenGeneratorImpl underTest = new TokenGeneratorImpl();
 
   @Test
   public void generate_different_tokens() {
     // this test is not enough to ensure that generated strings are unique,
     // but it still does a simple and stupid verification
-    String firstToken = underTest.generate();
-    String secondToken = underTest.generate();
+    String firstToken = underTest.generate(TokenType.USER_TOKEN);
+    String secondToken = underTest.generate(TokenType.USER_TOKEN);
 
     assertThat(firstToken)
       .isNotEqualTo(secondToken)
-      .hasSize(40);
+      .hasSize(44);
+  }
+
+  @Test
+  public void generate_tokenShouldHaveSonarQubePrefix() {
+    String token = underTest.generate(TokenType.USER_TOKEN);
+
+    assertThat(token).matches("squ_.*");
   }
 
   @Test
   public void token_does_not_contain_colon() {
-    assertThat(underTest.generate()).doesNotContain(":");
+    assertThat(underTest.generate(TokenType.USER_TOKEN)).doesNotContain(":");
   }
 
   @Test

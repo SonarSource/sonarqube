@@ -29,6 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
+import org.sonar.server.usertoken.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -73,7 +74,7 @@ public class TokenActionTest {
   public void should_generate_token() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    when(tokenGenerator.generate()).thenReturn("generated_token");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
 
     TestResponse response = ws.newRequest().setParam("project", project.getKey()).execute();
 
@@ -84,14 +85,14 @@ public class TokenActionTest {
   public void should_reuse_generated_token() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    when(tokenGenerator.generate()).thenReturn("generated_token");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
 
     // first call, generating the token
     TestResponse firstResponse = ws.newRequest().setParam("project", project.getKey()).execute();
     firstResponse.assertJson("{\"token\":\"generated_token\"}");
 
     // 2nd call, reusing the existing token
-    when(tokenGenerator.generate()).thenReturn("never_generated_token");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("never_generated_token");
     TestResponse secondResponse = ws.newRequest().setParam("project", project.getKey()).execute();
 
     secondResponse.assertJson("{\"token\":\"generated_token\"}");

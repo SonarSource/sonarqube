@@ -35,7 +35,7 @@ public interface TokenGenerator {
    * must not contain colon character ":".
    *
    */
-  String generate();
+  String generate(TokenType tokenType);
 
   /**
    * Hash a token.<br/>

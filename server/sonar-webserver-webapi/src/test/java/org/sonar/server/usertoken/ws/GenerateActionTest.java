@@ -34,6 +34,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
+import org.sonar.server.usertoken.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -64,7 +65,7 @@ public class GenerateActionTest {
 
   @Before
   public void setUp() {
-    when(tokenGenerator.generate()).thenReturn("123456789");
+    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("123456789");
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
   }
 
