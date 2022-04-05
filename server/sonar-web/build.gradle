@@ -17,7 +17,7 @@ task yarn_run(type: Exec) {
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
-  ['babel.config.js', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+  ['package.json', 'tsconfig.json', 'yarn.lock'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir(webappDir)

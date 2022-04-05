@@ -16,17 +16,16 @@ module.exports = {
     '^Docs/(.*)': '<rootDir>/../sonar-docs/src/$1'
   },
   setupFiles: [
-    '<rootDir>/config/polyfills.js',
-    '<rootDir>/config/jest/SetupEnzyme.js',
+    '<rootDir>/config/polyfills.ts',
+    '<rootDir>/config/jest/SetupEnzyme.ts',
     '<rootDir>/config/jest/SetupTestEnvironment.ts'
   ],
-  setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.js'],
+  setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.ts'],
   snapshotSerializers: ['enzyme-to-json/serializer', 'jest-emotion'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {
-    '\\.js$': 'babel-jest',
     '^.+\\.tsx?$': [
       '@swc/jest',
       {

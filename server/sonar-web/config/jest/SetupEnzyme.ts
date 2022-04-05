@@ -17,21 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import util from 'mdast-util-toc';
-/**
- * This is a simplified version of the remark-toc plugin: https://github.com/remarkjs/remark-toc
- * It *only* renders the TOC, and leaves all the rest out.
- */
-export default function onlyToc() {
-  return transformer;
+import Enzyme from 'enzyme';
+import EZAdapter from 'enzyme-adapter-react-16';
 
-  function transformer(node) {
-    const result = util(node, { heading: 'doctoc', maxDepth: 2 });
+const Adapter = EZAdapter as () => void;
 
-    if (result.index === null || result.index === -1 || !result.map) {
-      node.children = [];
-    } else {
-      node.children = [result.map];
-    }
-  }
-}
+Enzyme.configure({ adapter: new Adapter() });
