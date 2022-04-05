@@ -47,7 +47,7 @@ public class AuditDaoTest {
 
     List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 20000, 1);
 
-    assertThat(auditDtos.size()).isEqualTo(10000);
+    assertThat(auditDtos).hasSize(10_000);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class AuditDaoTest {
 
     List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 101, 1);
 
-    assertThat(auditDtos.size()).isEqualTo(100);
+    assertThat(auditDtos).hasSize(100);
   }
 
   @Test

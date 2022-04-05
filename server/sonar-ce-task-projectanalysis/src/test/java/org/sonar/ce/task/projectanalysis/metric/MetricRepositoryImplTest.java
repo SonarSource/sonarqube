@@ -193,7 +193,7 @@ public class MetricRepositoryImplTest {
       .collect(Collectors.toList());
 
     underTest.start();
-    assertThat(underTest.getMetricsByType(Metric.MetricType.MILLISEC).size()).isZero();
+    assertThat(underTest.getMetricsByType(Metric.MetricType.MILLISEC)).isEmpty();
   }
 
   @Test
@@ -202,7 +202,7 @@ public class MetricRepositoryImplTest {
       .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("MILISEC")));
 
     underTest.start();
-    assertThat(underTest.getMetricsByType(Metric.MetricType.RATING).size()).isZero();
+    assertThat(underTest.getMetricsByType(Metric.MetricType.RATING)).isEmpty();
   }
 
   @Test

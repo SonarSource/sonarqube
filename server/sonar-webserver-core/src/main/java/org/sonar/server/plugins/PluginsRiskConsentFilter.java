@@ -44,7 +44,7 @@ public class PluginsRiskConsentFilter extends ServletFilter {
 
   private static final String PLUGINS_RISK_CONSENT_PATH = "/admin/plugin_risk_consent"; //NOSONAR this path will be the same in every environment
 
-  private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
+  private static final Set<String> SKIPPED_URLS = Set.of(
     PLUGINS_RISK_CONSENT_PATH,
     "/account/reset_password",
     "/admin/change_admin_password",
