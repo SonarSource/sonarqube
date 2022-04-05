@@ -196,7 +196,7 @@ subprojects {
         entry 'jackson-dataformat-yaml'
       }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-      dependencySet(group: 'com.github.scribejava', version: '6.9.0') {
+      dependencySet(group: 'com.github.scribejava', version: '8.3.1') {
         entry 'scribejava-apis'
         entry 'scribejava-core'
       }
