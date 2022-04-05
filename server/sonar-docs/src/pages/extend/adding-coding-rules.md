@@ -31,6 +31,7 @@ Importing [Generic Issue Reports](/analysis/generic-issue/) is a good solution w
 | HTML | - | - | ![](/images/check.svg) |  |
 | Java | - | ![](/images/check.svg) | ![](/images/check.svg) |  |
 | JavaScript / Typescript | - | - | ![](/images/check.svg) |  |
+| Kotlin | - | - | ![](/images/check.svg) |  |
 | PHP | - | ![](/images/check.svg) | ![](/images/check.svg) |  |
 | PL/SQL | ![](/images/check.svg) | - | ![](/images/check.svg) |  |
 | PL/I | ![](/images/check.svg) | - | ![](/images/check.svg) |  |
