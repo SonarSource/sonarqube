@@ -18,13 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {
-  addGroup,
-  addUser,
-  searchGroups,
-  searchUsers,
-  SearchUsersGroupsParameters
-} from '../../../api/quality-profiles';
+import { addGroup, addUser } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
@@ -97,28 +91,12 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     }
   };
 
-  handleSearch = (q: string) => {
-    const { profile } = this.props;
-    const parameters: SearchUsersGroupsParameters = {
-      language: profile.language,
-      q,
-      qualityProfile: profile.name,
-      selected: 'deselected'
-    };
-    return Promise.all([
-      searchUsers(parameters),
-      searchGroups(parameters)
-    ]).then(([usersResponse, groupsResponse]) => [
-      ...usersResponse.users,
-      ...groupsResponse.groups
-    ]);
-  };
-
   handleValueChange = (selected: UserSelected | Group) => {
     this.setState({ selected });
   };
 
   render() {
+    const { profile } = this.props;
     const header = translate('quality_profiles.grant_permissions_to_user_or_group');
     const submitDisabled = !this.state.selected || this.state.submitting;
     return (
@@ -132,11 +110,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
               <label htmlFor="change-profile-permission-input">
                 {translate('quality_profiles.search_description')}
               </label>
-              <ProfilePermissionsFormSelect
-                onChange={this.handleValueChange}
-                onSearch={this.handleSearch}
-                selected={this.state.selected}
-              />
+              <ProfilePermissionsFormSelect onChange={this.handleValueChange} profile={profile} />
             </div>
           </div>
           <footer className="modal-foot">

@@ -19,12 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { addGroup, addUser, searchGroups, searchUsers } from '../../../../api/quality-profiles';
+import { addGroup, addUser } from '../../../../api/quality-profiles';
 import { mockGroup, mockUser } from '../../../../helpers/testMocks';
 import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { UserSelected } from '../../../../types/types';
 import ProfilePermissionsForm from '../ProfilePermissionsForm';
-import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   addUser: jest.fn().mockResolvedValue(null),
@@ -46,7 +45,7 @@ it('correctly adds users', async () => {
 
   const user: UserSelected = { ...mockUser(), name: 'John doe', active: true, selected: true };
   wrapper.instance().handleValueChange(user);
-  expect(wrapper.find(ProfilePermissionsFormSelect).prop('selected')).toBe(user);
+  expect(wrapper.state().selected).toBe(user);
 
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot();
@@ -68,7 +67,7 @@ it('correctly adds groups', async () => {
 
   const group = mockGroup();
   wrapper.instance().handleValueChange(group);
-  expect(wrapper.find(ProfilePermissionsFormSelect).prop('selected')).toBe(group);
+  expect(wrapper.state().selected).toBe(group);
 
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot();
@@ -82,21 +81,6 @@ it('correctly adds groups', async () => {
 
   await waitAndUpdate(wrapper);
   expect(onGroupAdd).toBeCalledWith(group);
-});
-
-it('correctly handles search', () => {
-  const wrapper = shallowRender();
-  wrapper.instance().handleSearch('foo');
-
-  const parameters = {
-    language: PROFILE.language,
-    q: 'foo',
-    qualityProfile: PROFILE.name,
-    selected: 'deselected'
-  };
-
-  expect(searchUsers).toBeCalledWith(parameters);
-  expect(searchGroups).toBeCalledWith(parameters);
 });
 
 function shallowRender(props: Partial<ProfilePermissionsForm['props']> = {}) {

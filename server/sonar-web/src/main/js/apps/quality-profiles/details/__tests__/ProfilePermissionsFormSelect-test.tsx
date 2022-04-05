@@ -19,10 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { searchGroups, searchUsers } from '../../../../api/quality-profiles';
 import {
   mockReactSelectControlProps,
   mockReactSelectOptionProps
 } from '../../../../helpers/mocks/react-select';
+import { mockUser } from '../../../../helpers/testMocks';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
 jest.mock('lodash', () => {
@@ -31,40 +33,28 @@ jest.mock('lodash', () => {
   return lodash;
 });
 
-it('renders', () => {
-  expect(
-    shallow(
-      <ProfilePermissionsFormSelect
-        onChange={jest.fn()}
-        onSearch={jest.fn(() => Promise.resolve([]))}
-        selected={{ name: 'lambda' }}
-      />
-    )
-  ).toMatchSnapshot();
+jest.mock('../../../../api/quality-profiles', () => ({
+  searchGroups: jest.fn().mockResolvedValue([]),
+  searchUsers: jest.fn().mockResolvedValue([])
+}));
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('searches', () => {
-  const onSearch = jest.fn(() => Promise.resolve([]));
-  const wrapper = shallow(
-    <ProfilePermissionsFormSelect
-      onChange={jest.fn()}
-      onSearch={onSearch}
-      selected={{ name: 'lambda' }}
-    />
-  );
-  expect(onSearch).toBeCalledWith('');
-  onSearch.mockClear();
+it('should handle search', async () => {
+  (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [mockUser()] });
+  (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [{ name: 'group1' }] });
 
-  wrapper.prop<Function>('onInputChange')('f');
-  expect(onSearch).toBeCalled();
+  const wrapper = shallowRender();
+  const query = 'Waldo';
+  const results = await new Promise(resolve => {
+    wrapper.instance().handleSearch(query, resolve);
+  });
+  expect(searchUsers).toBeCalledWith(expect.objectContaining({ q: query }));
+  expect(searchGroups).toBeCalledWith(expect.objectContaining({ q: query }));
 
-  wrapper.prop<Function>('onInputChange')('foo');
-  expect(onSearch).toBeCalledWith('foo');
-
-  onSearch.mockClear();
-
-  wrapper.prop<Function>('onInputChange')('foo');
-  expect(onSearch).not.toBeCalled();
+  expect(results).toHaveLength(2);
 });
 
 it('should render option correctly', () => {
@@ -95,8 +85,7 @@ function shallowRender(overrides: Partial<ProfilePermissionsFormSelect['props']>
   return shallow<ProfilePermissionsFormSelect>(
     <ProfilePermissionsFormSelect
       onChange={jest.fn()}
-      onSearch={jest.fn(() => Promise.resolve([]))}
-      selected={{ name: 'lambda' }}
+      profile={{ language: 'Java', name: 'Sonar Way' }}
       {...overrides}
     />
   );

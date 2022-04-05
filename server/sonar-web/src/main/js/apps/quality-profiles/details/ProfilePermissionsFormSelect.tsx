@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, identity, omit } from 'lodash';
+import { debounce, omit } from 'lodash';
 import * as React from 'react';
 import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
-import Select from '../../../components/controls/Select';
+import {
+  searchGroups,
+  searchUsers,
+  SearchUsersGroupsParameters
+} from '../../../api/quality-profiles';
+import { SearchSelect } from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
@@ -32,57 +37,16 @@ type OptionWithValue = Option & { value: string };
 
 interface Props {
   onChange: (option: OptionWithValue) => void;
-  onSearch: (query: string) => Promise<Option[]>;
-  selected?: Option;
+  profile: { language: string; name: string };
 }
 
-interface State {
-  loading: boolean;
-  query: string;
-  searchResults: Option[];
-}
-
-export default class ProfilePermissionsFormSelect extends React.PureComponent<Props, State> {
+export default class ProfilePermissionsFormSelect extends React.PureComponent<Props> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
     this.handleSearch = debounce(this.handleSearch, 250);
-    this.state = { loading: false, query: '', searchResults: [] };
   }
-
-  componentDidMount() {
-    this.mounted = true;
-    this.handleSearch(this.state.query);
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleSearch = (query: string) => {
-    this.setState({ loading: true });
-    this.props.onSearch(query).then(
-      searchResults => {
-        if (this.mounted) {
-          this.setState({ loading: false, searchResults });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  handleInputChange = (newQuery: string) => {
-    const { query } = this.state;
-    if (query !== newQuery) {
-      this.setState({ query: newQuery });
-      this.handleSearch(newQuery);
-    }
-  };
 
   optionRenderer(props: OptionProps<OptionWithValue, false>) {
     const { data } = props;
@@ -105,44 +69,41 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     </components.Control>
   );
 
+  handleSearch = (q: string, resolve: (options: OptionWithValue[]) => void) => {
+    const { profile } = this.props;
+    const parameters: SearchUsersGroupsParameters = {
+      language: profile.language,
+      q,
+      qualityProfile: profile.name,
+      selected: 'deselected'
+    };
+    Promise.all([searchUsers(parameters), searchGroups(parameters)])
+      .then(([usersResponse, groupsResponse]) => [...usersResponse.users, ...groupsResponse.groups])
+      .then((options: Option[]) => options.map(opt => ({ ...opt, value: getStringValue(opt) })))
+      .then(resolve)
+      .catch(() => resolve([]));
+  };
+
   render() {
     const noResultsText = translate('no_results');
-    const { selected } = this.props;
-    // create a uniq string both for users and groups
-    const options = this.state.searchResults.map(r => ({ ...r, value: getStringValue(r) }));
-
-    // when user input is empty the options shows only top 30 names
-    // the below code add the selected user so that it appears too
-    if (
-      selected !== undefined &&
-      options.find(o => o.value === getStringValue(selected)) === undefined
-    ) {
-      options.unshift({ ...selected, value: getStringValue(selected) });
-    }
 
     return (
-      <Select
+      <SearchSelect
         className="Select-big width-100"
         autoFocus={true}
         isClearable={false}
         id="change-profile-permission"
         inputId="change-profile-permission-input"
         onChange={this.props.onChange}
-        onInputChange={this.handleInputChange}
+        defaultOptions={true}
+        loadOptions={this.handleSearch}
         placeholder=""
         noOptionsMessage={() => noResultsText}
-        isLoading={this.state.loading}
-        options={options}
-        isSearchable={true}
-        filterOptions={identity}
         components={{
           Option: this.optionRenderer,
           SingleValue: this.singleValueRenderer,
           Control: this.controlRenderer
         }}
-        value={options.filter(
-          o => o.value === (this.props.selected && getStringValue(this.props.selected))
-        )}
       />
     );
   }

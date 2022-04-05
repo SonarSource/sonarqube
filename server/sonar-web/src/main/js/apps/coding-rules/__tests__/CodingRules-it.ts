@@ -37,7 +37,7 @@ beforeAll(() => {
 
 afterEach(() => handler.reset());
 
-jest.setTimeout(10_000);
+jest.setTimeout(20_000);
 
 it('should list all rules', async () => {
   renderCodingRulesApp();

@@ -1,7 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
-<Select
+exports[`should render control correctly: control renderer 1`] = `
+<Control
+  className="abs-height-100 Select-control"
+/>
+`;
+
+exports[`should render correctly 1`] = `
+<SearchSelect
   autoFocus={true}
   className="Select-big width-100"
   components={
@@ -11,38 +17,14 @@ exports[`renders 1`] = `
       "SingleValue": [Function],
     }
   }
-  filterOptions={[Function]}
+  defaultOptions={true}
   id="change-profile-permission"
   inputId="change-profile-permission-input"
   isClearable={false}
-  isLoading={true}
-  isSearchable={true}
+  loadOptions={[Function]}
   noOptionsMessage={[Function]}
   onChange={[MockFunction]}
-  onInputChange={[Function]}
-  options={
-    Array [
-      Object {
-        "name": "lambda",
-        "value": "group:lambda",
-      },
-    ]
-  }
   placeholder=""
-  value={
-    Array [
-      Object {
-        "name": "lambda",
-        "value": "group:lambda",
-      },
-    ]
-  }
-/>
-`;
-
-exports[`should render control correctly: control renderer 1`] = `
-<Control
-  className="abs-height-100 Select-control"
 />
 `;
 

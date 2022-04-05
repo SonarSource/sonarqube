@@ -28,12 +28,10 @@ exports[`correctly adds groups 1`] = `
         </label>
         <ProfilePermissionsFormSelect
           onChange={[Function]}
-          onSearch={[Function]}
-          selected={
+          profile={
             Object {
-              "id": 1,
-              "membersCount": 1,
-              "name": "Foo",
+              "language": "js",
+              "name": "Sonar way",
             }
           }
         />
@@ -88,14 +86,10 @@ exports[`correctly adds users 1`] = `
         </label>
         <ProfilePermissionsFormSelect
           onChange={[Function]}
-          onSearch={[Function]}
-          selected={
+          profile={
             Object {
-              "active": true,
-              "local": true,
-              "login": "john.doe",
-              "name": "John doe",
-              "selected": true,
+              "language": "js",
+              "name": "Sonar way",
             }
           }
         />
@@ -150,7 +144,12 @@ exports[`should render correctly: default 1`] = `
         </label>
         <ProfilePermissionsFormSelect
           onChange={[Function]}
-          onSearch={[Function]}
+          profile={
+            Object {
+              "language": "js",
+              "name": "Sonar way",
+            }
+          }
         />
       </div>
     </div>
@@ -200,7 +199,12 @@ exports[`should render correctly: submitting 1`] = `
         </label>
         <ProfilePermissionsFormSelect
           onChange={[Function]}
-          onSearch={[Function]}
+          profile={
+            Object {
+              "language": "js",
+              "name": "Sonar way",
+            }
+          }
         />
       </div>
     </div>
