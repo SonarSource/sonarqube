@@ -273,6 +273,26 @@ public interface RulesDefinition {
     A1, A2, A3, A4, A5, A6, A7, A8, A9, A10
   }
 
+  enum PciDssVersion {
+    V3_2("3.2", "pciDss-3.2"), V4_0("4.0", "pciDss-4.0");
+
+    private final String label;
+    private final String prefix;
+
+    PciDssVersion(String label, String prefix) {
+      this.label = label;
+      this.prefix = prefix;
+    }
+
+    public String label() {
+      return label;
+    }
+
+    public String prefix() {
+      return prefix;
+    }
+  }
+
   interface ExtendedRepository {
     String key();
 
@@ -463,6 +483,11 @@ public interface RulesDefinition {
      * @since 9.3
      */
     public abstract NewRule addOwaspTop10(OwaspTop10Version version, OwaspTop10... standards);
+
+    /**
+     * @since 9.5
+     */
+    public abstract NewRule addPciDss(PciDssVersion version, String... requirements);
 
     /**
      * @since 7.3

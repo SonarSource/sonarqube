@@ -28,6 +28,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
+import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -88,6 +89,13 @@ public class DefaultNewRuleTest {
     assertThat(rule.securityStandards())
       .contains("owaspTop10:a1", "owaspTop10:a2", "owaspTop10:a4", "owaspTop10-2021:a3", "owaspTop10-2021:a5");
 
+    rule.addPciDss(PciDssVersion.V3_2, "6.5.1");
+    rule.addPciDss(PciDssVersion.V3_2, "6.5");
+    rule.addPciDss(PciDssVersion.V4_0, "6.5.2", "6.5.10");
+
+    assertThat(rule.securityStandards())
+      .contains("pciDss-3.2:6.5.1", "pciDss-3.2:6.5", "pciDss-4.0:6.5.2", "pciDss-4.0:6.5.10");
+
     rule.setType(RuleType.SECURITY_HOTSPOT);
     assertThat(rule.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
 
@@ -142,8 +150,22 @@ public class DefaultNewRuleTest {
 
   @Test
   public void fail_if_null_owasp_version() {
-    assertThatThrownBy(() -> rule.addOwaspTop10((OwaspTop10Version) null , OwaspTop10.A1))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessage("Owasp version must not be null");
+    assertThatThrownBy(() -> rule.addOwaspTop10((OwaspTop10Version) null, OwaspTop10.A1))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Owasp version must not be null");
+  }
+
+  @Test
+  public void fail_if_null_pci_dss_version() {
+    assertThatThrownBy(() -> rule.addPciDss(null, "6.5.1"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("PCI DSS version must not be null");
+  }
+
+  @Test
+  public void fail_if_null_pci_dss_array() {
+    assertThatThrownBy(() -> rule.addPciDss(PciDssVersion.V3_2, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Requirements for PCI DSS standard must not be null");
   }
 }

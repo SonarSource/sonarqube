@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
@@ -41,9 +40,11 @@ import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
+import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -234,10 +235,22 @@ class DefaultNewRule extends RulesDefinition.NewRule {
 
   @Override
   public DefaultNewRule addOwaspTop10(OwaspTop10Version owaspTop10Version, OwaspTop10... standards) {
-    Objects.requireNonNull(owaspTop10Version, "Owasp version must not be null");
+    requireNonNull(owaspTop10Version, "Owasp version must not be null");
 
     for (OwaspTop10 owaspTop10 : standards) {
       String standard = owaspTop10Version.prefix() + ":" + owaspTop10.name().toLowerCase(Locale.ENGLISH);
+      securityStandards.add(standard);
+    }
+    return this;
+  }
+
+  @Override
+  public DefaultNewRule addPciDss(PciDssVersion pciDssVersion, String... requirements) {
+    requireNonNull(pciDssVersion, "PCI DSS version must not be null");
+    requireNonNull(requirements, "Requirements for PCI DSS standard must not be null");
+
+    for (String requirement : requirements) {
+      String standard = pciDssVersion.prefix() + ":" + requirement;
       securityStandards.add(standard);
     }
     return this;
