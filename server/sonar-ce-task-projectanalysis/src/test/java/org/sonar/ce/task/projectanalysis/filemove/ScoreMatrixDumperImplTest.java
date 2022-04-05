@@ -29,8 +29,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
@@ -54,17 +54,17 @@ public class ScoreMatrixDumperImplTest {
   private Configuration configuration = settings.asConfig();
   private CeTask ceTask = mock(CeTask.class);
   private ScoreMatrixDumper underTest = new ScoreMatrixDumperImpl(configuration, ceTask);
-  private static Path tempDir;
+  private Path tempDir;
 
-  @BeforeClass
-  public static void lookupTempDir() throws IOException {
+  @Before
+  public void before() throws IOException {
     Path tempFile = Files.createTempFile("a", "b");
     Files.delete(tempFile);
     tempDir = tempFile.getParent();
   }
 
-  @Before
-  public void setUp() {
+  @After
+  public void cleanUp() {
     FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
       @Override
       public boolean accept(File file) {
@@ -119,7 +119,7 @@ public class ScoreMatrixDumperImplTest {
     };
   }
 
-  private static Collection<File> listDumpFilesForTaskUuid(String taskUuid) {
+  private Collection<File> listDumpFilesForTaskUuid(String taskUuid) {
     return FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
       @Override
       public boolean accept(File file) {
