@@ -21,14 +21,14 @@ import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 
 const routes = [
   {
-    component: lazyLoadComponent(() => import('./components/Account')),
+    component: lazyLoadComponent(() => import('./Account')),
     childRoutes: [
       {
         indexRoute: { component: lazyLoadComponent(() => import('./profile/Profile')) }
       },
       {
         path: 'security',
-        component: lazyLoadComponent(() => import('./components/Security'))
+        component: lazyLoadComponent(() => import('./security/Security'))
       },
       {
         path: 'projects',

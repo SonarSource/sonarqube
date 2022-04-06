@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { mockCurrentUser } from '../../../helpers/testMocks';
 import { Account } from '../Account';
 
-jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
+jest.mock('../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
