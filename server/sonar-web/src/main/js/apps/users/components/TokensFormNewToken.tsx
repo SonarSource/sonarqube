@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { ClipboardButton } from '../../../components/controls/clipboard';
 import { Alert } from '../../../components/ui/Alert';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   token: { name: string; token: string };
@@ -33,7 +33,9 @@ export default function TokensFormNewToken({ token }: Props) {
         {translateWithParameters('users.tokens.new_token_created', token.name)}
       </Alert>
       <ClipboardButton copyValue={token.token} />
-      <code className="big-spacer-left text-success">{token.token}</code>
+      <code aria-label={translate('users.new_token')} className="big-spacer-left text-success">
+        {token.token}
+      </code>
     </div>
   );
 }

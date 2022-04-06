@@ -431,18 +431,6 @@ export type NewCodePeriodSettingType =
   | 'SPECIFIC_ANALYSIS'
   | 'REFERENCE_BRANCH';
 
-export interface Notification {
-  channel: string;
-  project?: string;
-  projectName?: string;
-  type: string;
-}
-
-export interface NotificationProject {
-  project: string;
-  projectName: string;
-}
-
 export interface Paging {
   pageIndex: number;
   pageSize: number;

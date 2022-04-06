@@ -23,7 +23,15 @@ import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
-import { createMemoryHistory, Route, RouteComponent, RouteConfig, Router } from 'react-router';
+import {
+  createMemoryHistory,
+  Route,
+  RouteComponent,
+  RouteConfig,
+  Router,
+  withRouter,
+  WithRouterProps
+} from 'react-router';
 import { Store } from 'redux';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
@@ -46,6 +54,7 @@ interface RenderContext {
   appState?: AppState;
   languages?: Languages;
   currentUser?: CurrentUser;
+  navigateTo?: string;
 }
 
 export function renderAdminApp(
@@ -105,11 +114,20 @@ export function renderApp(
   );
 }
 
+const CatchAll = withRouter((props: WithRouterProps) => {
+  return (
+    <div>{`${props.location.pathname}?${new URLSearchParams(
+      props.location.query
+    ).toString()}`}</div>
+  );
+});
+
 function renderRoutedApp(
   children: React.ReactElement,
   indexPath: string,
   {
     currentUser = mockCurrentUser(),
+    navigateTo = indexPath,
     metrics = DEFAULT_METRICS,
     store = getStore(),
     appState = mockAppState(),
@@ -117,7 +135,7 @@ function renderRoutedApp(
     languages = {}
   }: RenderContext = {}
 ): RenderResult {
-  history.push(`/${indexPath}`);
+  history.push(`/${navigateTo}`);
   return render(
     <HelmetProvider context={{}}>
       <IntlProvider defaultLocale="en" locale="en">
@@ -126,7 +144,10 @@ function renderRoutedApp(
             <LanguagesContext.Provider value={languages}>
               <CurrentUserContextProvider currentUser={currentUser}>
                 <AppStateContextProvider appState={appState}>
-                  <Router history={history}>{children}</Router>
+                  <Router history={history}>
+                    {children}
+                    <Route path="*" component={CatchAll} />
+                  </Router>
                 </AppStateContextProvider>
               </CurrentUserContextProvider>
             </LanguagesContext.Provider>

@@ -148,6 +148,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
         </td>
       </tr>
     );
+
     return (
       <>
         <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import { translate } from '../../../helpers/l10n';
-import { Notification, NotificationProject } from '../../../types/types';
+import { Notification, NotificationProject } from '../../../types/notifications';
 import NotificationsList from './NotificationsList';
 
 interface Props {

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Notification } from '../../../types/types';
+import { Notification } from '../../../types/notifications';
 import NotificationsList from './NotificationsList';
 
 interface Props {

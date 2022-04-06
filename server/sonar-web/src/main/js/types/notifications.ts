@@ -17,18 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { Security, SecurityProps } from '../Security';
+export interface Notification {
+  channel: string;
+  project?: string;
+  projectName?: string;
+  type: string;
+}
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('local user');
-  expect(shallowRender({ currentUser: mockLoggedInUser({ local: false }) })).toMatchSnapshot(
-    'non-local user'
-  );
-});
+export interface NotificationProject {
+  project: string;
+  projectName: string;
+}
 
-function shallowRender(props: Partial<SecurityProps> = {}) {
-  return shallow(<Security currentUser={mockLoggedInUser({ local: true })} {...props} />);
+export interface NotificationsResponse {
+  channels: string[];
+  globalTypes: string[];
+  notifications: Notification[];
+  perProjectTypes: string[];
+}
+
+export interface AddRemoveNotificationParameters {
+  channel: string;
+  type: string;
+  project?: string;
 }

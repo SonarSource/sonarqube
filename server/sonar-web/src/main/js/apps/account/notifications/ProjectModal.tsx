@@ -27,7 +27,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { NotificationProject } from '../../../types/types';
+import { NotificationProject } from '../../../types/notifications';
 
 interface Props {
   addedProjects: NotificationProject[];

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
-import { Notification, NotificationProject } from '../../../types/types';
+import { Notification, NotificationProject } from '../../../types/notifications';
 import ProjectModal from './ProjectModal';
 import ProjectNotifications from './ProjectNotifications';
 
@@ -101,7 +101,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     const { notifications } = this.props;
     const { addedProjects, search } = this.state;
 
-    const projects = uniqBy(notifications, project => project.project).filter(
+    const projects = uniqBy(notifications, ({ project }) => project).filter(
       isNotificationProject
     ) as NotificationProject[];
     const notificationsByProject = groupBy(notifications, n => n.project);

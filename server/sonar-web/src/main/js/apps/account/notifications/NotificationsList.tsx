@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { hasMessage, translate } from '../../../helpers/l10n';
-import { Notification } from '../../../types/types';
+import { Notification } from '../../../types/notifications';
 
 interface Props {
   onAdd: (n: Notification) => void;

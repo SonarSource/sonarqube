@@ -19,21 +19,16 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post } from '../helpers/request';
-import { Notification } from '../types/types';
+import { AddRemoveNotificationParameters, NotificationsResponse } from '../types/notifications';
 
-export function getNotifications(): Promise<{
-  channels: string[];
-  globalTypes: string[];
-  notifications: Notification[];
-  perProjectTypes: string[];
-}> {
+export function getNotifications(): Promise<NotificationsResponse> {
   return getJSON('/api/notifications/list').catch(throwGlobalError);
 }
 
-export function addNotification(data: { channel: string; type: string; project?: string }) {
+export function addNotification(data: AddRemoveNotificationParameters) {
   return post('/api/notifications/add', data).catch(throwGlobalError);
 }
 
-export function removeNotification(data: { channel: string; type: string; project?: string }) {
+export function removeNotification(data: AddRemoveNotificationParameters) {
   return post('/api/notifications/remove', data).catch(throwGlobalError);
 }
