@@ -42,7 +42,7 @@ public class PopulateGroupsUsersGroupUuid extends DataChange {
     massUpdate.update("delete from groups_users where user_id = ? and group_id = ?");
 
     massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
+      update.setLong(1, row.getLong(1));
       update.setLong(2, row.getLong(2));
 
       return true;
