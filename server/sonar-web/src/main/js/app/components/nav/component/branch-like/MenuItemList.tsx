@@ -29,7 +29,7 @@ import MenuItem from './MenuItem';
 export interface MenuItemListProps {
   branchLikeTree: BranchLikeTree;
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   hasResults: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selectedBranchLike: BranchLike | undefined;
@@ -75,10 +75,14 @@ export function MenuItemList(props: MenuItemListProps) {
             <>
               <li className="item header">
                 <span className="big-spacer-left">
-                  {translate('branch_like_navigation.pull_requests')}
+                  {
+                    props.comparisonBranchesEnabled
+                        ? translate('branch_like_navigation.comparison_branches')
+                        : translate('branch_like_navigation.pull_requests')
+                  }
                 </span>
               </li>
-              {tree.pullRequests.map(pr => renderItem(pr, true))}
+              {tree.pullRequests.map(pr => renderItem({...pr, isComparisonBranch: props.comparisonBranchesEnabled}, true))}
             </>
           )}
           <hr />
@@ -89,11 +93,11 @@ export function MenuItemList(props: MenuItemListProps) {
       {branchLikeTree.parentlessPullRequests.length > 0 && (
         <>
           <li className="item header">{
-            props.projectAnalysis['config']['type'] === "metadata_api"
-                ? translate('branch_like_navigation.pull_requests.sf')
+            props.comparisonBranchesEnabled
+                ? translate('branch_like_navigation.comparison_branches')
                 : translate('branch_like_navigation.pull_requests')
           }</li>
-          {branchLikeTree.parentlessPullRequests.map(pr => renderItem(pr))}
+          {branchLikeTree.parentlessPullRequests.map(pr => renderItem({...pr, isComparisonBranch: props.comparisonBranchesEnabled}))}
         </>
       )}
 
@@ -107,7 +111,7 @@ export function MenuItemList(props: MenuItemListProps) {
               overlay={translate('branch_like_navigation.orphan_pull_requests.tooltip')}
             />
           </li>
-          {branchLikeTree.orphanPullRequests.map(pr => renderItem(pr))}
+          {branchLikeTree.orphanPullRequests.map(pr => renderItem({...pr, isComparisonBranch: props.comparisonBranchesEnabled}))}
         </>
       )}
     </ul>

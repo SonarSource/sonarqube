@@ -35,6 +35,7 @@ export interface CurrentBranchLikeProps {
   branchesEnabled: boolean;
   component: T.Component;
   currentBranchLike: BranchLike;
+  comparisonBranchesEnabled: boolean;
   hasManyBranches: boolean;
 }
 
@@ -47,7 +48,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
     hasManyBranches
   } = props;
 
-  const displayName = getBranchLikeDisplayName(currentBranchLike);
+  const displayName = getBranchLikeDisplayName({...currentBranchLike, isComparisonBranch: props.comparisonBranchesEnabled});
   const isApplication = component.qualifier === ComponentQualifier.Application;
   const canAdminComponent = configuration && configuration.showSettings;
 

@@ -40,6 +40,8 @@ public class ScannerProperties {
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
   public static final String PULL_REQUEST_BRANCH = "sonar.pullrequest.branch";
   public static final String PULL_REQUEST_BASE = "sonar.pullrequest.base";
+  public static final String COMPARISON_BRANCH = "sonar.comparison.branch";
+  public static final String COMPARISON_BASE = "sonar.comparison.base";
 
   public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
   public static final String DISABLE_PROJECT_AND_ORG_AUTODETECTION = "sonar.keys_autodetection.disabled";
@@ -83,6 +85,18 @@ public class ScannerProperties {
         .name("Optional name of target branch to merge into")
         .description(
           "Defines the target branch of the pull request being analyzed. "
+            + "If no target is defined, the main branch is used as the target.")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(COMPARISON_BRANCH)
+        .name("Optional name of comparison branch")
+        .description("Provide a name for the comparison branch being analyzed. It might match an existing comparison branch of the project, otherwise a new comparison branch will be created.")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(COMPARISON_BASE)
+        .name("Optional name of target branch to merge into")
+        .description(
+          "Defines the target branch of the comparison branch being analyzed. "
             + "If no target is defined, the main branch is used as the target.")
         .hidden()
         .build(),

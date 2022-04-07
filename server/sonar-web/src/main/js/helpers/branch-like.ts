@@ -48,7 +48,7 @@ export function sortPullRequests(pullRequests: PullRequest[]) {
 }
 
 export function getPullRequestDisplayName(pullRequest: PullRequest) {
-  return `${pullRequest.key} – ${pullRequest.title}`;
+  return pullRequest.isComparisonBranch ? `${pullRequest.title}` : `${pullRequest.key} – ${pullRequest.title}`;
 }
 
 export function getBranchLikeDisplayName(branchLike: BranchLike) {

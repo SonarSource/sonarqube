@@ -56,7 +56,7 @@ interface Props {
   branchLike: BranchLike | undefined;
   branchLikes: BranchLike[] | undefined;
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
   onToggleProjectInfo: () => void;
@@ -355,7 +355,7 @@ export class Menu extends React.PureComponent<Props> {
       <li key="branches">
         <Link activeClassName="active" to={{ pathname: '/project/branches', query }}>
           {
-            this.props.projectAnalysis && this.props.projectAnalysis['config']['type'] === "metadata_api"
+            this.props.comparisonBranchesEnabled
               ? translate('project_branches.page')
               : translate('project_branch_pull_request.page')
           }

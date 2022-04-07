@@ -25,7 +25,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
 export interface LifetimeInformationRendererProps {
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   branchAndPullRequestLifeTimeInDays?: string;
   canAdmin?: boolean;
   loading: boolean;
@@ -40,8 +40,8 @@ export function LifetimeInformationRenderer(props: LifetimeInformationRendererPr
         <p className="page-description">
           <FormattedMessage
             defaultMessage={
-              props.projectAnalysis && props.projectAnalysis['config']['type'] === "metadata_api"
-                  ? translate('project_branch_pull_request.lifetime_information.sf')
+              props.comparisonBranchesEnabled
+                  ? translate('project_comparison_branch_request.lifetime_information')
                   : translate('project_branch_pull_request.lifetime_information')
             }
             id="project_branch_pull_request.lifetime_information"

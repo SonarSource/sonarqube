@@ -46,8 +46,8 @@ public class InputProjectProvider extends ProviderAdapter {
       project = new DefaultInputProject(projectReactor.getRoot(), scannerComponentIdGenerator.getAsInt());
 
       LOG.info("Project key: {}", project.key());
-      LOG.info("Base dir: {}", project.getBaseDir().toAbsolutePath().toString());
-      LOG.info("Working dir: {}", project.getWorkDir().toAbsolutePath().toString());
+      LOG.debug("Base dir: {}", project.getBaseDir().toAbsolutePath().toString());
+      LOG.debug("Working dir: {}", project.getWorkDir().toAbsolutePath().toString());
       LOG.debug("Project global encoding: {}, default locale: {}", project.getEncoding().displayName(), Locale.getDefault());
     }
     return project;

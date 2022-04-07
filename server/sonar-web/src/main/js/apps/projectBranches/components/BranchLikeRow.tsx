@@ -76,7 +76,9 @@ export function BranchLikeRow(props: BranchLikeRowProps) {
             <ActionsDropdownItem className="js-delete" destructive={true} onClick={onDelete}>
               {translate(
                 isPullRequest(branchLike)
-                  ? 'project_branch_pull_request.pull_request.delete'
+                  ? (branchLike.isComparisonBranch
+                        ? 'project_branch_pull_request.comparison_branch.delete'
+                        : 'project_branch_pull_request.pull_request.delete')
                   : 'project_branch_pull_request.branch.delete'
               )}
             </ActionsDropdownItem>

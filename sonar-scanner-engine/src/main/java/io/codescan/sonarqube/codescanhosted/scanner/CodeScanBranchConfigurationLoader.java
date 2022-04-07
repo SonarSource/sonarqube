@@ -56,6 +56,9 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
             Arrays.asList(ScannerProperties.PULL_REQUEST_BRANCH, ScannerProperties.PULL_REQUEST_KEY,
                     ScannerProperties.PULL_REQUEST_BASE));
 
+    private static final Set<String> COMPARISON_BRANCH_ANALYSIS_PARAMETERS = new HashSet<>(
+            Arrays.asList(ScannerProperties.COMPARISON_BRANCH, ScannerProperties.COMPARISON_BASE));
+
     @Override
     public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches,
             ProjectPullRequests pullRequests) {
@@ -64,6 +67,8 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
             return createBranchConfiguration(projectSettings, branches);
         } else if (PULL_REQUEST_ANALYSIS_PARAMETERS.stream().anyMatch(projectSettings::containsKey)) {
             return createPullRequestConfiguration(projectSettings, branches);
+        } else if (COMPARISON_BRANCH_ANALYSIS_PARAMETERS.stream().anyMatch(projectSettings::containsKey)) {
+            return createComparisonBranchConfiguration(projectSettings, branches);
         }
 
         return new DefaultBranchConfiguration();
@@ -172,6 +177,22 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
                             .map(b -> pullRequestBase)
                             .orElse(null),
                     pullRequestBase, pullRequestKey);
+        }
+    }
+
+    private static BranchConfiguration createComparisonBranchConfiguration(Map<String, String> projectSettings, ProjectBranches branches) {
+        String comparisonBranchName = projectSettings.get(ScannerProperties.COMPARISON_BRANCH);
+        String comparisonBranchBase = projectSettings.get(ScannerProperties.COMPARISON_BASE);
+
+        if (null == comparisonBranchBase || comparisonBranchBase.isEmpty()) {
+            return new CodeScanBranchConfiguration(BranchType.PULL_REQUEST, comparisonBranchName,
+                    branches.defaultBranchName(), branches.defaultBranchName(), comparisonBranchName);
+        } else {
+            return new CodeScanBranchConfiguration(BranchType.PULL_REQUEST, comparisonBranchName,
+                    Optional.ofNullable(branches.get(comparisonBranchBase))
+                            .map(b -> comparisonBranchBase)
+                            .orElse(null),
+                    comparisonBranchBase, comparisonBranchName);
         }
     }
 

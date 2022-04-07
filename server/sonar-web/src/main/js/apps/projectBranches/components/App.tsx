@@ -26,7 +26,7 @@ import LifetimeInformation from './LifetimeInformation';
 export interface AppProps {
   branchLikes: BranchLike[];
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   onBranchesChange: () => void;
 }
 
@@ -37,17 +37,17 @@ export function App(props: AppProps) {
     <div className="page page-limited" id="project-branch-like">
       <header className="page-header">
         <h1>{
-            props.projectAnalysis['config']['type'] === "metadata_api"
+            props.comparisonBranchesEnabled
                 ? translate('project_branches.page')
                 : translate('project_branch_pull_request.page')
         }</h1>
-        <LifetimeInformation projectAnalysis={props.projectAnalysis} />
+        <LifetimeInformation comparisonBranchesEnabled={props.comparisonBranchesEnabled} />
       </header>
 
       <BranchLikeTabs
         branchLikes={branchLikes}
         component={component}
-        projectAnalysis={props.projectAnalysis}
+        comparisonBranchesEnabled={props.comparisonBranchesEnabled}
         onBranchesChange={onBranchesChange}
       />
     </div>

@@ -37,7 +37,7 @@ import RenameBranchModal from './RenameBranchModal';
 interface Props {
   branchLikes: BranchLike[];
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   onBranchesChange: () => void;
 }
 
@@ -109,7 +109,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     this.setState({ currentTab });
   };
 
-  onDeleteBranchLike = (branchLike: BranchLike) => this.setState({ deleting: branchLike });
+  onDeleteBranchLike = (branchLike: BranchLike) => this.setState({ deleting: {...branchLike, isComparisonBranch: this.props.comparisonBranchesEnabled} });
 
   onRenameBranchLike = (branchLike: BranchLike) => this.setState({ renaming: branchLike });
 
@@ -131,8 +131,8 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     const title = translate(
       isBranchMode
         ? 'project_branch_pull_request.table.branch'
-        : (this.props.projectAnalysis['config']['type'] === "metadata_api"
-            ? 'project_branch_pull_request.table.pull_request.sf'
+        : (this.props.comparisonBranchesEnabled
+            ? 'project_branch_pull_request.table.comparison_branch'
             : 'project_branch_pull_request.table.pull_request'
           )
     );
@@ -143,12 +143,13 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           className="branch-like-tabs"
           onSelect={this.onTabSelect}
           selected={currentTab}
-          tabs={this.props.projectAnalysis['config']['type'] === "metadata_api" ? TABS_SF : TABS}
+          tabs={this.props.comparisonBranchesEnabled ? TABS_SF : TABS}
         />
 
         <BranchLikeTable
           branchLikes={branchLikesToDisplay}
           component={component}
+          comparisonBranchesEnabled={this.props.comparisonBranchesEnabled}
           displayPurgeSetting={isBranchMode}
           onDelete={this.onDeleteBranchLike}
           onRename={this.onRenameBranchLike}

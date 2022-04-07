@@ -36,7 +36,7 @@ export interface ComponentNavProps {
   branchLikes: BranchLike[];
   currentBranchLike: BranchLike | undefined;
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
@@ -50,7 +50,7 @@ export default function ComponentNav(props: ComponentNavProps) {
   const {
     branchLikes,
     component,
-    projectAnalysis,
+    comparisonBranchesEnabled,
     currentBranchLike,
     currentTask,
     currentTaskOnSameBranch,
@@ -92,8 +92,6 @@ export default function ComponentNav(props: ComponentNavProps) {
 
   const contextNavHeight = notifComponent ? contextNavHeightRaw + 30 : contextNavHeightRaw;
 
-  console.log('projectAnalysis', projectAnalysis)
-
   return (
     <ContextNavBar height={contextNavHeight} id="context-navigation" notif={notifComponent}>
       <div
@@ -101,7 +99,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         <Header
           branchLikes={branchLikes}
           component={component}
-          projectAnalysis={projectAnalysis}
+          comparisonBranchesEnabled={comparisonBranchesEnabled}
           currentBranchLike={currentBranchLike}
         />
         <HeaderMeta
@@ -115,7 +113,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         branchLike={currentBranchLike}
         branchLikes={branchLikes}
         component={component}
-        projectAnalysis={projectAnalysis}
+        comparisonBranchesEnabled={comparisonBranchesEnabled}
         isInProgress={isInProgress}
         isPending={isPending}
         onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}

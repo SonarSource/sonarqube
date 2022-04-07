@@ -24,7 +24,7 @@ import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
-import { getProjectAnalysis } from '../../api/codescan';
+import { getValues } from '../../api/settings';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,
@@ -64,7 +64,7 @@ interface State {
   loading: boolean;
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -72,7 +72,7 @@ const FETCH_STATUS_WAIT_TIME = 3000;
 export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
-  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [], projectAnalysis: null };
+  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [], comparisonBranchesEnabled: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -122,7 +122,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
         this.props.fetchOrganization(component.organization);
 
-        this.fetchProjectAnalysis(component);
+        this.fetchProjectProperties(component);
 
         /*
          * There used to be a redirect from /dashboard to /portfolio which caused issues.
@@ -185,11 +185,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchProjectAnalysis = (
+  fetchProjectProperties = (
     component: T.Component
   ): void => {
-    getProjectAnalysis(component.organization, component.key).then((response: any) => {
-      this.setState({ projectAnalysis: response['integrations'][0] });
+    getValues({ keys: 'codescan.comparison.branches', component: component.key }).then(settings => {
+      this.setState({ comparisonBranchesEnabled: settings[0].value === "true" });
     });
   };
 
@@ -352,7 +352,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <PageUnavailableDueToIndexation component={component} />;
     }
 
-    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress, projectAnalysis } = this.state;
+    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress, comparisonBranchesEnabled } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
@@ -361,7 +361,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           <ComponentNav
             branchLikes={branchLikes}
             component={component}
-            projectAnalysis={projectAnalysis}
+            comparisonBranchesEnabled={comparisonBranchesEnabled}
             currentBranchLike={branchLike}
             currentTask={currentTask}
             currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
@@ -382,7 +382,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               branchLike,
               branchLikes,
               component,
-              projectAnalysis,
+              comparisonBranchesEnabled,
               isInProgress,
               isPending,
               onBranchesChange: this.handleBranchesChange,

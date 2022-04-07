@@ -30,7 +30,7 @@ export interface BranchLikeNavigationProps {
   appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLikes: BranchLike[];
   component: T.Component;
-  projectAnalysis: any;
+  comparisonBranchesEnabled: boolean;
   currentBranchLike: BranchLike;
 }
 
@@ -52,6 +52,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const currentBranchLikeElement = (
     <CurrentBranchLike
       branchesEnabled={Boolean(branchesEnabled)}
+      comparisonBranchesEnabled={props.comparisonBranchesEnabled}
       component={component}
       currentBranchLike={currentBranchLike}
       hasManyBranches={hasManyBranches}
@@ -72,7 +73,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
               branchLikes={branchLikes}
               canAdminComponent={canAdminComponent}
               component={component}
-              projectAnalysis={props.projectAnalysis}
+              comparisonBranchesEnabled={props.comparisonBranchesEnabled}
               currentBranchLike={currentBranchLike}
               onClose={() => setIsMenuOpen(false)}
             />
