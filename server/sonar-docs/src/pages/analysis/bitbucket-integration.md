@@ -98,7 +98,9 @@ After setting up pull request analysis, you can block pull requests from being m
 2. Add a **Required report** called `com.sonarsource.sonarqube`
 
 [[info]]
-|If your SonarQube project is configured as part of a mono repository in Enterprise Edition or above, you need to use a **Required report** that uses a SonarQube project key (`com.sonarsource.sonarqube_{sq-project-key}` instead of `com.sonarsource.sonarqube`).
+|If your SonarQube project is configured as part of a mono repository in Enterprise Edition or above, you need to use a **Required report**.
+This report will be in the format of `com.sonarsource.sonarqube_{hash}` (instead of `com.sonarsource.sonarqube`).
+This hash is a randomly computed value that can be discovered on Bitbucket after first PR analysis.
 
 3. Select **Must pass** as the **Required status**.
 4. Select **Must not have any annotations** as the **Annotation requirements**.
