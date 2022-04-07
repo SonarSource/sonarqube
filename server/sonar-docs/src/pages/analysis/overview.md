@@ -24,11 +24,11 @@ A project is created in SonarQube automatically on its first analysis. However, 
 
 
 ## What does analysis produce? 
-SonarQube can analyze up to 27 different languages depending on your edition. The outcome of this analysis will be quality measures and issues (instances where coding rules were broken). However, what gets analyzed will vary depending on the language:
+SonarQube can analyze up to 29 different languages depending on your edition. The outcome of this analysis will be quality measures and issues (instances where coding rules were broken). However, what gets analyzed will vary depending on the language:
 
 * On all languages, "blame" data will automatically be imported from supported SCM providers. [Git and SVN are supported automatically](/analysis/scm-integration/). Other providers require additional plugins.
 * On all languages, a static analysis of source code is performed (Java files, COBOL programs, etc.)
-* A static analysis of compiled code can be performed for certain languages (.class files in Java, .dll files in C#, etc.)
+* For certain languages, the static analysis should be done on compiled code ( .class files in Java, .dll files in C#, etc.)
 
 
 ## Will all files be analyzed?
