@@ -78,7 +78,7 @@ If your build is not compatible with Java 11 or 17, then you can override the `J
 
 ### Jenkins
 
-You can define a new JDK in **Manage Jenkins > Global Tool Configuration**, if you have the JDK Tool Plugin installed.
+You can define a new JDK in **Manage Jenkins > Global Tool Configuration**, if you have the [JDK Tool Plugin](https://plugins.jenkins.io/jdk-tool/) installed.
 
 
 #### Declarative Pipelines
@@ -149,7 +149,7 @@ All the other steps in the job will use the globally configured JDK.
 Jenkins does not offer functionality to switch JDKs when using a **Freestyle project** or **Maven project** configuration.
 To build your project using Java 8, you have to manually set the `JAVA_HOME` variable to Java 11 or 17 when running the analysis.
 
-To do this use the **Tool Environment Plugin**. This plugin lets expose the location of the JDK you added under **Manage Jenkins > Global Tool Configuration**.
+To do this use the [Tool Environment Plugin](https://plugins.jenkins.io/toolenv/). This plugin lets expose the location of the JDK you added under **Manage Jenkins > Global Tool Configuration**.
 The location of the JDK can then be used to set the `JAVA_HOME` variable in a post step command, like this:
 
 ```
