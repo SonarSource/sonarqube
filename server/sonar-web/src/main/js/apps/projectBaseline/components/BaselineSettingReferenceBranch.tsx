@@ -31,7 +31,6 @@ import { NewCodePeriodSettingType } from '../../../types/types';
 export interface BaselineSettingReferenceBranchProps {
   branchList: BranchOption[];
   className?: string;
-  configuredBranchName?: string;
   disabled?: boolean;
   onChangeReferenceBranch: (value: string) => void;
   onSelect: (selection: NewCodePeriodSettingType) => void;

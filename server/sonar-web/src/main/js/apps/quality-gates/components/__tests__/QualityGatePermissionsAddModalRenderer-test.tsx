@@ -27,13 +27,12 @@ import QualityGatePermissionsAddModalRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ query: 'a' })).toMatchSnapshot('short query');
   expect(shallowRender({ selection: mockUserBase() })).toMatchSnapshot('selection');
   expect(shallowRender({ selection: mockUserBase(), submitting: true })).toMatchSnapshot(
     'submitting'
   );
   expect(
-    shallowRender({ query: 'ab', searchResults: [mockUserBase(), { name: 'group name' }] })
+    shallowRender({ searchResults: [mockUserBase(), { name: 'group name' }] })
   ).toMatchSnapshot('query and results');
 });
 
@@ -52,7 +51,6 @@ function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRenderer
       onInputChange={jest.fn()}
       onSelection={jest.fn()}
       onSubmit={jest.fn()}
-      query=""
       searchResults={[]}
       submitting={false}
       {...overrides}

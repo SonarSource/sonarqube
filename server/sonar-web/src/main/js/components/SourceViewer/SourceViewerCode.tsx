@@ -48,7 +48,6 @@ const ZERO_LINE = {
 
 interface Props {
   branchLike: BranchLike | undefined;
-  componentKey: string;
   displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;

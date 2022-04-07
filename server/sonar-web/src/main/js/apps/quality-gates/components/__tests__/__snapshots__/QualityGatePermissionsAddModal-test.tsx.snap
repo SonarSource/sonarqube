@@ -7,7 +7,6 @@ exports[`should render correctly 1`] = `
   onInputChange={[Function]}
   onSelection={[Function]}
   onSubmit={[Function]}
-  query=""
   searchResults={Array []}
   submitting={false}
 />

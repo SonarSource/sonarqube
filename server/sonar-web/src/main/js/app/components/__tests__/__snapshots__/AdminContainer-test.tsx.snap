@@ -13,17 +13,6 @@ exports[`should render correctly 1`] = `
     extensions={Array []}
     fetchPendingPlugins={[Function]}
     fetchSystemStatus={[Function]}
-    location={
-      Object {
-        "action": "PUSH",
-        "hash": "",
-        "key": "key",
-        "pathname": "/path",
-        "query": Object {},
-        "search": "",
-        "state": Object {},
-      }
-    }
     pendingPlugins={
       Object {
         "installing": Array [],

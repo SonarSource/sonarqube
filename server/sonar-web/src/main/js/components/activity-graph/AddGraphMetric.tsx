@@ -29,7 +29,6 @@ import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {
   addMetric: (metric: string) => void;
-  className?: string;
   metrics: Metric[];
   metricsTypeFilter?: string[];
   removeMetric: (metric: string) => void;

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
@@ -41,7 +40,6 @@ interface Props {
   isInProgress?: boolean;
   isPending?: boolean;
   projectBinding?: ProjectAlmBindingResponse;
-  router: Pick<Router, 'replace'>;
 }
 
 export class App extends React.PureComponent<Props> {
@@ -94,4 +92,4 @@ export class App extends React.PureComponent<Props> {
   }
 }
 
-export default withRouter(withAppStateContext(App));
+export default withAppStateContext(App);

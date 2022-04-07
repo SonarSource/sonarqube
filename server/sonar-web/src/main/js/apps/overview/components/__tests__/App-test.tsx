@@ -50,12 +50,6 @@ it('should render BranchOverview', () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <App
-      appState={mockAppState()}
-      branchLikes={[]}
-      component={component}
-      router={{ replace: jest.fn() }}
-      {...props}
-    />
+    <App appState={mockAppState()} branchLikes={[]} component={component} {...props} />
   );
 }

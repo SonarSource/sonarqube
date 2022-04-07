@@ -588,7 +588,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     return (
       <SourceViewerCode
         branchLike={this.props.branchLike}
-        componentKey={this.props.component}
         displayAllIssues={this.props.displayAllIssues}
         displayIssueLocationsCount={this.props.displayIssueLocationsCount}
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}

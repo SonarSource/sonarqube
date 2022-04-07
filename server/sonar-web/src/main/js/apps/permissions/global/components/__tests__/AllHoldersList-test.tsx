@@ -84,7 +84,6 @@ function shallowRender(props: Partial<AllHoldersList['props']> = {}) {
       grantPermissionToGroup={jest.fn()}
       grantPermissionToUser={jest.fn()}
       groups={[mockPermissionGroup()]}
-      loadHolders={jest.fn()}
       onLoadMore={jest.fn()}
       onFilter={jest.fn()}
       onSearch={jest.fn()}

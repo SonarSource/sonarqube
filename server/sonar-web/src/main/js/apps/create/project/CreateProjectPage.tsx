@@ -23,12 +23,10 @@ import { WithRouterProps } from 'react-router';
 import { getAlmSettings } from '../../../api/alm-settings';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
-import { LoggedInUser } from '../../../types/users';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
@@ -42,7 +40,6 @@ import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
   appState: AppState;
-  currentUser: LoggedInUser;
 }
 
 interface State {
@@ -273,4 +270,4 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-export default whenLoggedIn(withAppStateContext(CreateProjectPage));
+export default withAppStateContext(CreateProjectPage);

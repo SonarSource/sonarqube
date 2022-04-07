@@ -32,7 +32,6 @@ import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { isProject } from '../../../types/component';
 import {
-  ComponentMeasure,
   ComponentMeasureEnhanced,
   ComponentMeasureIntern,
   Dict,
@@ -50,7 +49,6 @@ import EmptyResult from './EmptyResult';
 const HEIGHT = 500;
 
 interface Props {
-  component: ComponentMeasure;
   components: ComponentMeasureEnhanced[];
   domain: string;
   metrics: Dict<Metric>;

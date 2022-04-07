@@ -9,7 +9,6 @@ exports[`should render with tags and admin rights 1`] = `
     closeOnClickOutside={true}
     overlay={
       <MetaTagsSelector
-        project="my-second-project"
         selectedTags={
           Array [
             "foo",

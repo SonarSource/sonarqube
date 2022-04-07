@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockLocation } from '../../../../helpers/testMocks';
 import {
   ProjectAdminPageExtension,
   ProjectAdminPageExtensionProps
@@ -41,7 +40,6 @@ function shallowRender(props: Partial<ProjectAdminPageExtensionProps> = {}) {
   return shallow(
     <ProjectAdminPageExtension
       component={mockComponent()}
-      location={mockLocation()}
       params={{ extensionKey: 'bar', pluginKey: 'foo' }}
       {...props}
     />

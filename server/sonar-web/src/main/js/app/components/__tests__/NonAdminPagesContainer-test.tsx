@@ -57,12 +57,7 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<NonAdminPagesContainerProps> = {}) {
   return shallow<NonAdminPagesContainerProps>(
-    <NonAdminPagesContainer
-      branchLikes={[]}
-      component={mockComponent()}
-      onBranchesChange={jest.fn()}
-      onComponentChange={jest.fn()}
-      {...props}>
+    <NonAdminPagesContainer component={mockComponent()} {...props}>
       <Child />
     </NonAdminPagesContainer>
   );

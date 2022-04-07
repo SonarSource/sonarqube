@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAppState, mockLocation } from '../../../helpers/testMocks';
+import { mockAppState } from '../../../helpers/testMocks';
 import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 
 jest.mock('../../../api/plugins', () => ({
@@ -42,7 +42,6 @@ function shallowRender(props: Partial<AdminContainerProps> = {}) {
       appState={mockAppState({
         canAdmin: true
       })}
-      location={mockLocation()}
       {...props}>
       <div />
     </AdminContainer>

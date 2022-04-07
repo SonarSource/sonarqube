@@ -622,7 +622,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
       currentUser={mockLoggedInUser()}
       fetchBranchStatus={jest.fn()}
       location={mockLocation({ pathname: '/issues', query: {} })}
-      onBranchesChange={() => {}}
       router={mockRouter()}
       {...props}
     />

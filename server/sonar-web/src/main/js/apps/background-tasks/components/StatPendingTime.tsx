@@ -21,14 +21,12 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { Component } from '../../../types/types';
 
 // Do not display the pending time for values smaller than this threshold (in ms)
 const MIN_PENDING_TIME_THRESHOLD = 1000;
 
 export interface Props {
   className?: string;
-  component?: Pick<Component, 'key'>;
   pendingCount?: number;
   pendingTime?: number;
 }

@@ -27,7 +27,6 @@ import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 
 export interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;

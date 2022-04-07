@@ -26,7 +26,6 @@ import Extension from './Extension';
 export interface ProjectPageExtensionProps {
   branchLike?: BranchLike;
   component: Component;
-  location: { query: { id: string } };
   params: {
     extensionKey: string;
     pluginKey: string;

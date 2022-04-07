@@ -24,7 +24,7 @@ import LoginForm from '../LoginForm';
 
 it('logs in with simple credentials', () => {
   const onSubmit = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(<LoginForm onSubmit={onSubmit} returnTo="" />);
+  const wrapper = shallow(<LoginForm onSubmit={onSubmit} />);
   expect(wrapper).toMatchSnapshot();
 
   change(wrapper.find('#login'), 'admin');
@@ -36,7 +36,7 @@ it('logs in with simple credentials', () => {
 
 it('should display a spinner and disabled button while loading', async () => {
   const onSubmit = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(<LoginForm onSubmit={onSubmit} returnTo="" />);
+  const wrapper = shallow(<LoginForm onSubmit={onSubmit} />);
 
   change(wrapper.find('#login'), 'admin');
   change(wrapper.find('#password'), 'admin');
@@ -48,7 +48,7 @@ it('should display a spinner and disabled button while loading', async () => {
 });
 
 it('expands more options', () => {
-  const wrapper = shallow(<LoginForm collapsed={true} onSubmit={jest.fn()} returnTo="" />);
+  const wrapper = shallow(<LoginForm collapsed={true} onSubmit={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-more-options'));

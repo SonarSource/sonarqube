@@ -41,7 +41,6 @@ interface OwnProps {
   grantPermissionToUser: (login: string, permission: string) => Promise<void>;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
-  loadHolders: () => void;
   loading?: boolean;
   onLoadMore: () => void;
   onFilter: (filter: string) => void;

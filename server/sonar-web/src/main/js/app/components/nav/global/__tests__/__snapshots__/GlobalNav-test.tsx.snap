@@ -23,13 +23,7 @@ exports[`should render correctly: anonymous users 1`] = `
     className="global-navbar-menu global-navbar-menu-right"
   >
     <EmbedDocsPopupHelper />
-    <withRouter(Search)
-      currentUser={
-        Object {
-          "isLoggedIn": false,
-        }
-      }
-    />
+    <withRouter(Search) />
     <withRouter(GlobalNavUser)
       currentUser={
         Object {
@@ -64,13 +58,7 @@ exports[`should render correctly: logged in users 1`] = `
     className="global-navbar-menu global-navbar-menu-right"
   >
     <EmbedDocsPopupHelper />
-    <withRouter(Search)
-      currentUser={
-        Object {
-          "isLoggedIn": true,
-        }
-      }
-    />
+    <withRouter(Search) />
     <withRouter(GlobalNavUser)
       currentUser={
         Object {

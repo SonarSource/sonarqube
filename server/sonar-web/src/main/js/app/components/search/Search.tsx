@@ -35,19 +35,12 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
-import { CurrentUser } from '../../../types/users';
 import RecentHistory from '../RecentHistory';
 import './Search.css';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
 const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
 const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
-
-interface OwnProps {
-  currentUser: CurrentUser;
-}
-
-type Props = OwnProps & WithRouterProps;
 
 interface State {
   loading: boolean;
@@ -61,13 +54,13 @@ interface State {
   shortQuery: boolean;
 }
 
-export class Search extends React.PureComponent<Props, State> {
+export class Search extends React.PureComponent<WithRouterProps, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
   nodes: Dict<HTMLElement>;
   mounted = false;
 
-  constructor(props: Props) {
+  constructor(props: WithRouterProps) {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
@@ -95,7 +88,7 @@ export class Search extends React.PureComponent<Props, State> {
     this.nodes = {};
   }
 
-  componentDidUpdate(_prevProps: Props, prevState: State) {
+  componentDidUpdate(_prevProps: WithRouterProps, prevState: State) {
     if (prevState.selected !== this.state.selected) {
       this.scrollToSelected();
     }
@@ -402,4 +395,4 @@ export class Search extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter<OwnProps>(Search);
+export default withRouter<{}>(Search);

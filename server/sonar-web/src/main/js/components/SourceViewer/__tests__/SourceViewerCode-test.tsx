@@ -82,7 +82,6 @@ function shallowRender(props: Partial<SourceViewerCode['props']> = {}) {
   return shallow<SourceViewerCode>(
     <SourceViewerCode
       branchLike={mockBranch()}
-      componentKey="foo"
       duplications={[]}
       duplicationsByLine={[]}
       hasSourcesAfter={false}

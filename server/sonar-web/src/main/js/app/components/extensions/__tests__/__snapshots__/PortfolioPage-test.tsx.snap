@@ -24,17 +24,6 @@ exports[`should render correctly 1`] = `
       "tags": Array [],
     }
   }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
   params={
     Object {
       "extensionKey": "portfolio",

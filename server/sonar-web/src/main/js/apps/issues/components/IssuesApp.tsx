@@ -100,7 +100,6 @@ interface Props {
   currentUser: CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
   location: Location;
-  onBranchesChange?: () => void;
   router: Pick<Router, 'push' | 'replace'>;
 }
 

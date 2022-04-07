@@ -28,12 +28,11 @@ export interface PortfolioPageProps extends WithRouterProps {
   component: Component;
 }
 
-export function PortfolioPage({ component, location }: PortfolioPageProps) {
+export function PortfolioPage({ component }: PortfolioPageProps) {
   return (
     <ProjectPageExtension
       component={component}
       params={{ pluginKey: 'governance', extensionKey: 'portfolio' }}
-      location={location}
     />
   );
 }

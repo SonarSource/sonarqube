@@ -77,7 +77,6 @@ export default class GraphsHeader extends React.PureComponent<Props> {
           removeCustomMetric !== undefined && (
             <AddGraphMetric
               addMetric={addCustomMetric}
-              className="pull-left spacer-left"
               metrics={metrics}
               metricsTypeFilter={metricsTypeFilter}
               removeMetric={removeCustomMetric}

@@ -23,7 +23,6 @@ import { searchProjectTags } from '../../../../../../api/components';
 import TagsSelector from '../../../../../../components/tags/TagsSelector';
 
 interface Props {
-  project: string;
   selectedTags: string[];
   setProjectTags: (tags: string[]) => void;
 }

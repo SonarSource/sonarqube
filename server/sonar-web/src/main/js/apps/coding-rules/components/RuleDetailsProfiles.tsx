@@ -35,7 +35,6 @@ import RuleInheritanceIcon from './RuleInheritanceIcon';
 
 interface Props {
   activations: RuleActivation[] | undefined;
-  canWrite: boolean | undefined;
   onActivate: () => Promise<void>;
   onDeactivate: () => Promise<void>;
   referencedProfiles: Dict<Profile>;

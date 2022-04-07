@@ -333,7 +333,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
     return (
       <TreeMapView
-        branchLike={this.props.branchLike}
         components={this.state.components}
         handleSelect={this.onOpenComponent}
         metric={metric}

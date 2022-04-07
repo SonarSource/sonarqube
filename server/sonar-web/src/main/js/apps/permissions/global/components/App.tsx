@@ -271,7 +271,6 @@ export default class App extends React.PureComponent<{}, State> {
           grantPermissionToUser={this.grantPermissionToUser}
           groups={this.state.groups}
           groupsPaging={this.state.groupsPaging}
-          loadHolders={this.loadHolders}
           loading={this.state.loading}
           onFilter={this.onFilter}
           onLoadMore={this.onLoadMore}

@@ -271,7 +271,6 @@ exports[`should render correctly: loaded 1`] = `
         className="layout-page-main-inner"
       >
         <RuleListItem
-          canWrite={true}
           isLoggedIn={true}
           key="javascript:S1067"
           onActivate={[Function]}
@@ -299,7 +298,6 @@ exports[`should render correctly: loaded 1`] = `
           selected={true}
         />
         <RuleListItem
-          canWrite={true}
           isLoggedIn={true}
           key="javascript:S1067"
           onActivate={[Function]}

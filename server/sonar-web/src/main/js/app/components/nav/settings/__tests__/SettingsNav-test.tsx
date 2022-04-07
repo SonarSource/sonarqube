@@ -65,7 +65,6 @@ function shallowRender(props: Partial<SettingsNav['props']> = {}) {
       extensions={[{ key: 'foo', name: 'Foo' }]}
       fetchPendingPlugins={jest.fn()}
       fetchSystemStatus={jest.fn()}
-      location={{}}
       pendingPlugins={{ installing: [], removing: [], updating: [] }}
       systemStatus="UP"
       {...props}

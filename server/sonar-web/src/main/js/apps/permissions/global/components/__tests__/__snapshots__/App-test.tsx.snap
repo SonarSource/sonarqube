@@ -21,7 +21,6 @@ exports[`should render correctly 1`] = `
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
     groups={Array []}
-    loadHolders={[Function]}
     loading={true}
     onFilter={[Function]}
     onLoadMore={[Function]}
@@ -79,7 +78,6 @@ exports[`should render correctly 2`] = `
         "total": 2,
       }
     }
-    loadHolders={[Function]}
     loading={false}
     onFilter={[Function]}
     onLoadMore={[Function]}

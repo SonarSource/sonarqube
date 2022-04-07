@@ -28,6 +28,7 @@ import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
 
 interface Props {
+  // eslint-disable-next-line react/no-unused-prop-types
   component?: LightComponent;
 }
 

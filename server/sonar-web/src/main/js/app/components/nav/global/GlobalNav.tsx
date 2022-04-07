@@ -44,7 +44,7 @@ export function GlobalNav(props: GlobalNavProps) {
 
       <ul className="global-navbar-menu global-navbar-menu-right">
         <EmbedDocsPopupHelper />
-        <Search currentUser={currentUser} />
+        <Search />
         <GlobalNavUser currentUser={currentUser} />
       </ul>
     </NavBar>

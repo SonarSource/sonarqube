@@ -27,7 +27,6 @@ import './LoginForm.css';
 interface Props {
   collapsed?: boolean;
   onSubmit: (login: string, password: string) => Promise<void>;
-  returnTo: string;
 }
 
 interface State {

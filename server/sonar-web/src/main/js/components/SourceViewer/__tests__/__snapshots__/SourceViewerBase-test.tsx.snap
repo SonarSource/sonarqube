@@ -43,7 +43,6 @@ exports[`should render correctly 1`] = `
           "name": "master",
         }
       }
-      componentKey="my-component"
       displayAllIssues={false}
       displayIssueLocationsCount={true}
       displayIssueLocationsLink={true}

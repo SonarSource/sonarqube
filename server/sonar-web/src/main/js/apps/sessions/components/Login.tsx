@@ -54,11 +54,7 @@ export function Login(props: LoginProps) {
         <OAuthProviders identityProviders={identityProviders} returnTo={returnTo} />
       )}
 
-      <LoginForm
-        collapsed={identityProviders.length > 0}
-        onSubmit={props.onSubmit}
-        returnTo={returnTo}
-      />
+      <LoginForm collapsed={identityProviders.length > 0} onSubmit={props.onSubmit} />
 
       <GlobalMessagesContainer />
     </div>

@@ -33,7 +33,6 @@ import SettingsNav from './nav/settings/SettingsNav';
 
 export interface AdminContainerProps {
   appState: AppState;
-  location: {};
   children: React.ReactElement;
 }
 
@@ -128,7 +127,6 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           extensions={adminPages}
           fetchPendingPlugins={this.fetchPendingPlugins}
           fetchSystemStatus={this.fetchSystemStatus}
-          location={this.props.location}
           pendingPlugins={pendingPlugins}
           systemStatus={systemStatus}
         />

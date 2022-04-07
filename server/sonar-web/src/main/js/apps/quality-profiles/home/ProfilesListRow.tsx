@@ -98,7 +98,7 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       </td>
 
       <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
-        <ProfileActions fromList={true} profile={profile} updateProfiles={props.updateProfiles} />
+        <ProfileActions profile={profile} updateProfiles={props.updateProfiles} />
       </td>
     </tr>
   );

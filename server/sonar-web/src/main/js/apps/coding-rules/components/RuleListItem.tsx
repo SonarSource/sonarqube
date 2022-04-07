@@ -37,7 +37,6 @@ import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
   activation?: Activation;
-  canWrite?: boolean;
   isLoggedIn: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;

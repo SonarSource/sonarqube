@@ -29,6 +29,7 @@ export interface MultiSelectProps {
   allowNewElements?: boolean;
   allowSelection?: boolean;
   elements: string[];
+  // eslint-disable-next-line react/no-unused-prop-types
   filterSelected?: (query: string, selectedElements: string[]) => string[];
   footerNode?: React.ReactNode;
   listSize?: number;

@@ -37,7 +37,6 @@ interface Props {
   extensions: Extension[];
   fetchPendingPlugins: () => void;
   fetchSystemStatus: () => void;
-  location: {};
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
 }

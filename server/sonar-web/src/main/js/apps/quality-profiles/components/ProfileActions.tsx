@@ -43,7 +43,6 @@ import ProfileModalForm from './ProfileModalForm';
 
 interface Props {
   className?: string;
-  fromList?: boolean;
   profile: Profile;
   router: Pick<Router, 'push' | 'replace'>;
   updateProfiles: () => Promise<void>;

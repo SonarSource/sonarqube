@@ -111,7 +111,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
 
   render() {
     const { submitting } = this.props;
-    const { loading, query = '', searchResults, selection } = this.state;
+    const { loading, searchResults, selection } = this.state;
 
     return (
       <QualityGatePermissionsAddModalRenderer
@@ -120,7 +120,6 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
         onInputChange={this.handleInputChange}
         onSelection={this.handleSelection}
         onSubmit={this.handleSubmit}
-        query={query}
         searchResults={searchResults}
         selection={selection}
         submitting={submitting}

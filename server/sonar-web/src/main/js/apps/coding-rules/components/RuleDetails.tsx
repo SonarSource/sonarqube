@@ -238,7 +238,6 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           {!ruleDetails.isTemplate && (
             <RuleDetailsProfiles
               activations={this.state.actives}
-              canWrite={canWrite}
               onActivate={this.handleActivate}
               onDeactivate={this.handleDeactivate}
               referencedProfiles={referencedProfiles}

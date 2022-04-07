@@ -36,7 +36,6 @@ export interface QualityGatePermissionsAddModalRendererProps {
   onSelection: (selection: Option) => void;
   submitting: boolean;
   loading: boolean;
-  query: string;
   searchResults: Array<UserBase | Group>;
   selection?: UserBase | Group;
 }

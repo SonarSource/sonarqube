@@ -29,13 +29,11 @@ import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, ComponentMeasureIntern, Metric } from '../../../types/types';
 import EmptyResult from './EmptyResult';
 
 interface Props {
-  branchLike?: BranchLike;
   components: ComponentMeasureEnhanced[];
   handleSelect: (component: ComponentMeasureIntern) => void;
   metric: Metric;

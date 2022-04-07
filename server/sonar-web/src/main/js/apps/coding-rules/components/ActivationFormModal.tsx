@@ -36,6 +36,7 @@ interface Props {
   modalHeader: string;
   onClose: () => void;
   onDone: (severity: string) => Promise<void>;
+  // eslint-disable-next-line react/no-unused-prop-types
   profiles: Profile[];
   rule: Rule | RuleDetails;
 }

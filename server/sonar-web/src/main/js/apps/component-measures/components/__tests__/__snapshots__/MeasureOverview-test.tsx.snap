@@ -70,20 +70,6 @@ exports[`should render correctly: default 1`] = `
       loading={false}
     />
     <BubbleChart
-      component={
-        Object {
-          "key": "foo",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "12",
-            },
-          ],
-          "name": "Foo",
-          "qualifier": "TRK",
-        }
-      }
       components={Array []}
       domain="Reliability"
       metrics={
@@ -223,20 +209,6 @@ exports[`should render correctly: has leak period 1`] = `
       loading={false}
     />
     <BubbleChart
-      component={
-        Object {
-          "key": "foo",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "12",
-            },
-          ],
-          "name": "Foo",
-          "qualifier": "TRK",
-        }
-      }
       components={Array []}
       domain="Reliability"
       metrics={

@@ -22,7 +22,6 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
-  className?: string;
   count: number;
   showMore: () => void;
   showLess: (() => void) | undefined;

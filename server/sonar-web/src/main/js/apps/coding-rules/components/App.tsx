@@ -641,7 +641,6 @@ export class App extends React.PureComponent<Props, State> {
                   {rules.map(rule => (
                     <RuleListItem
                       activation={this.getRuleActivation(rule.key)}
-                      canWrite={this.state.canWrite}
                       isLoggedIn={isLoggedIn(this.props.currentUser)}
                       key={rule.key}
                       onActivate={this.handleRuleActivate}

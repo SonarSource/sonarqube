@@ -30,14 +30,11 @@ import BaselineSettingReferenceBranch, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('Project level');
-  expect(shallowRender({ settingLevel: 'branch', configuredBranchName: 'master' })).toMatchSnapshot(
-    'Branch level'
-  );
+  expect(shallowRender({ settingLevel: 'branch' })).toMatchSnapshot('Branch level');
   expect(
     shallowRender({
       branchList: [{ label: 'master', value: 'master', isMain: true }],
-      settingLevel: 'branch',
-      configuredBranchName: 'master'
+      settingLevel: 'branch'
     })
   ).toMatchSnapshot('Branch level - no other branches');
 });

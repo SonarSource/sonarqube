@@ -72,7 +72,6 @@ export default class MetaTags extends React.PureComponent<Props> {
   };
 
   render() {
-    const { key } = this.props.component;
     const tags = this.props.component.tags || [];
 
     if (this.canUpdateTags()) {
@@ -82,11 +81,7 @@ export default class MetaTags extends React.PureComponent<Props> {
             closeOnClick={false}
             closeOnClickOutside={true}
             overlay={
-              <MetaTagsSelector
-                project={key}
-                selectedTags={tags}
-                setProjectTags={this.handleSetProjectTags}
-              />
+              <MetaTagsSelector selectedTags={tags} setProjectTags={this.handleSetProjectTags} />
             }
             overlayPlacement={PopupPlacement.BottomLeft}>
             <ButtonLink innerRef={tagsList => (this.tagsList = tagsList)} stopPropagation={true}>
