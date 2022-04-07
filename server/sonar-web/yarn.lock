@@ -1687,13 +1687,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/clipboard@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@types/clipboard@npm:2.0.1"
-  checksum: 4ef5af19ac1055693a313194396e00a3f42326b45dd5ae90a2bb47a643957f313ce864c430f387fb16c78c9cd2cde44af84f0f7fd9f2695674a75161a7016937
-  languageName: node
-  linkType: hard
-
 "@types/color-name@npm:^1.1.1":
   version: 1.1.1
   resolution: "@types/color-name@npm:1.1.1"
@@ -2101,13 +2094,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-virtualized@npm:9.21.16":
-  version: 9.21.16
-  resolution: "@types/react-virtualized@npm:9.21.16"
+"@types/react-virtualized@npm:9.21.20":
+  version: 9.21.20
+  resolution: "@types/react-virtualized@npm:9.21.20"
   dependencies:
     "@types/prop-types": "*"
     "@types/react": "*"
-  checksum: 4769c7ba7877bd52d00aceed5847c8e0ad2ed3e5a3520f936433609ba5df3c5533a79c6a4a023a08043683a6b81f28bfa0ebf0556a36781484337843e39460c8
+  checksum: 70fd77d9a0fc498b4eb29a195f218fd10f6ca935025813d53d3937e1464580bfbfd3a0c84806530f21cf810c1f6cf1789656052a9714b23de46702b1ac1b73c5
   languageName: node
   linkType: hard
 
@@ -2358,7 +2351,6 @@ __metadata:
     "@testing-library/react": 12.1.4
     "@testing-library/user-event": 14.0.4
     "@types/classnames": 2.3.0
-    "@types/clipboard": 2.0.1
     "@types/d3-array": 1.2.4
     "@types/d3-hierarchy": 1.1.4
     "@types/d3-scale": 2.0.2
@@ -2379,7 +2371,7 @@ __metadata:
     "@types/react-router": 3.0.20
     "@types/react-select": 4.0.16
     "@types/react-select-legacy": "npm:@types/react-select@1.2.6"
-    "@types/react-virtualized": 9.21.16
+    "@types/react-virtualized": 9.21.20
     "@types/sanitize-html": 1.22.0
     "@types/valid-url": 1.0.3
     "@typescript-eslint/eslint-plugin": 4.33.0
@@ -2387,7 +2379,7 @@ __metadata:
     autoprefixer: 10.4.4
     chalk: 4.1.2
     classnames: 2.3.1
-    clipboard: 2.0.9
+    clipboard: 2.0.10
     core-js: 3.21.1
     d3-array: 2.4.0
     d3-hierarchy: 1.1.9
@@ -2396,7 +2388,7 @@ __metadata:
     d3-shape: 1.3.7
     d3-zoom: 1.8.3
     date-fns: 1.30.1
-    dompurify: 2.3.5
+    dompurify: 2.3.6
     enzyme: 3.11.0
     enzyme-adapter-react-16: 1.15.6
     enzyme-to-json: 3.6.2
@@ -2412,7 +2404,7 @@ __metadata:
     eslint-plugin-react-hooks: 4.4.0
     eslint-plugin-testing-library: 5.2.1
     formik: 1.2.0
-    fs-extra: 10.0.0
+    fs-extra: 10.0.1
     glob: 7.2.0
     glob-promise: 3.4.0
     history: 3.3.0
@@ -2434,7 +2426,7 @@ __metadata:
     react-day-picker: 7.4.10
     react-dom: 16.13.0
     react-draggable: 4.4.4
-    react-helmet-async: 1.2.2
+    react-helmet-async: 1.2.3
     react-intl: 3.12.1
     react-modal: 3.14.4
     react-redux: 5.1.1
@@ -3352,14 +3344,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clipboard@npm:2.0.9":
-  version: 2.0.9
-  resolution: "clipboard@npm:2.0.9"
+"clipboard@npm:2.0.10":
+  version: 2.0.10
+  resolution: "clipboard@npm:2.0.10"
   dependencies:
     good-listener: ^1.2.2
     select: ^1.1.2
     tiny-emitter: ^2.0.0
-  checksum: 98fc1878b76c10508002aa5737ee9e19aaa84ab00f18b8c9aa0a9a029056c3c6ad21ec0d068d659e0a1f64895a05f59789e646f0b5fa598b383144d8cfe117fd
+  checksum: 401ae9f27c9cb8f03f7a33e1a06ad8f1208a75dc36d037cc6542708c8e4a43974c4e4186d9154e0161541934bb2073ee2e078db80e5c7df3f0544aad2508262c
   languageName: node
   linkType: hard
 
@@ -4143,10 +4135,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:2.3.5":
-  version: 2.3.5
-  resolution: "dompurify@npm:2.3.5"
-  checksum: 06a7883b5ed0aed0da7c54606f3491d200ca427b8269834240110083c85908f96d7f7afdd56ee497fa6b2d500cb20b3026954219fec30b557cfea2535e0559c9
+"dompurify@npm:2.3.6":
+  version: 2.3.6
+  resolution: "dompurify@npm:2.3.6"
+  checksum: 4b2bbf6bc68ebd776aec4a533cef74a5ae30391eed528f3df748af71da318afdc298b6f40449bef093b7454ffd2ae82656636560474de5a3b34316b762c85b12
   languageName: node
   linkType: hard
 
@@ -5353,14 +5345,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:10.0.0":
-  version: 10.0.0
-  resolution: "fs-extra@npm:10.0.0"
+"fs-extra@npm:10.0.1":
+  version: 10.0.1
+  resolution: "fs-extra@npm:10.0.1"
   dependencies:
     graceful-fs: ^4.2.0
     jsonfile: ^6.0.1
     universalify: ^2.0.0
-  checksum: 5285a3d8f34b917cf2b66af8c231a40c1623626e9d701a20051d3337be16c6d7cac94441c8b3732d47a92a2a027886ca93c69b6a4ae6aee3c89650d2a8880c0a
+  checksum: c1faaa5eb9e1c5c7c7ff09f966e93922ecb068ae1b04801cfc983ef05fcc1f66bfbb8d8d0b745c910014c7a2e7317fb6cf3bfe7390450c1157e3cc1a218f221d
   languageName: node
   linkType: hard
 
@@ -9040,9 +9032,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-helmet-async@npm:1.2.2":
-  version: 1.2.2
-  resolution: "react-helmet-async@npm:1.2.2"
+"react-helmet-async@npm:1.2.3":
+  version: 1.2.3
+  resolution: "react-helmet-async@npm:1.2.3"
   dependencies:
     "@babel/runtime": ^7.12.5
     invariant: ^2.2.4
@@ -9052,7 +9044,7 @@ __metadata:
   peerDependencies:
     react: ^16.6.0 || ^17.0.0
     react-dom: ^16.6.0 || ^17.0.0
-  checksum: 3251ab596143a48f9380a78a9e71f451ef729e25081bb4c1476561a1689eee23d650964e1518792bd44a8d24d95da1f9774b9b7ed80cae8eccc8119d7f5dd3f3
+  checksum: af7041314f6ebaefa64f3c06f75cf1ad62602b93228798615c2ca3365065688ee2b8c58bde98a9ae0d728aecfda5a757e9fc7695da3af2a504ff7e5291c716c9
   languageName: node
   linkType: hard
 
