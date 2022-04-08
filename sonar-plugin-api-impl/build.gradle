@@ -11,8 +11,7 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'org.apache.commons:commons-csv'
-
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'junit:junit'

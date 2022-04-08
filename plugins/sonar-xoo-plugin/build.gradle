@@ -7,8 +7,9 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'org.apache.commons:commons-csv'
-  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+
   compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'

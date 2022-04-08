@@ -51,12 +51,12 @@ dependencies {
     compile 'org.slf4j:slf4j-api'
 
     compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+    compile 'org.sonarsource.api.plugin:sonar-plugin-api'
     compile project(':server:sonar-ce')
     compile project(':server:sonar-main')
     compile project(':server:sonar-process')
     compile project(':server:sonar-webserver')
     compile project(':sonar-core')
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
     compile project(':sonar-plugin-api-impl')
 
     compileOnly 'com.google.code.findbugs:jsr305'

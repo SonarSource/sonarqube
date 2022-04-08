@@ -33,6 +33,7 @@ dependencies {
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:log4j-over-slf4j'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
   compile 'org.springframework:spring-context'
 
@@ -41,9 +42,7 @@ dependencies {
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
   compile project(':sonar-duplications')
-
   compile project(':sonar-plugin-api-impl')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -58,7 +57,6 @@ dependencies {
   testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':plugins:sonar-xoo-plugin')
-  testCompile project(':sonar-plugin-api').sourceSets.test.output
 }
 
 license {

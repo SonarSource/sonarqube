@@ -15,10 +15,10 @@ dependencies {
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'com.google.code.gson:gson'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.annotation:javax.annotation-api'
-  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   testCompile 'com.squareup.okhttp3:mockwebserver'
   testCompile 'com.squareup.okio:okio'

@@ -1,15 +1,16 @@
 description = 'SonarQube :: ALM integrations :: Clients'
 
 dependencies {
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
     compile project(':sonar-ws')
     compile project(':server:sonar-webserver-api')
+
     compile 'com.google.code.gson:gson'
     compile 'com.google.guava:guava'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'commons-codec:commons-codec'
     compile 'com.auth0:java-jwt'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    compile'org.sonarsource.api.plugin:sonar-plugin-api'
 
     testCompile project(':sonar-plugin-api-impl')
 

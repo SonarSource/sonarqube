@@ -20,10 +20,10 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'io.jsonwebtoken:jjwt-api'
   compile 'io.jsonwebtoken:jjwt-impl'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':sonar-core')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile 'org.mindrot:jbcrypt'
 

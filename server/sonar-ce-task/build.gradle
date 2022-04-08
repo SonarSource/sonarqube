@@ -24,8 +24,8 @@ dependencies {
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
 
-  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   testCompile 'ch.qos.logback:logback-access'
   testCompile 'ch.qos.logback:logback-classic'
@@ -41,7 +41,6 @@ dependencies {
   testCompile testFixtures(project(':server:sonar-db-dao'))
 
   testFixturesApi 'org.assertj:assertj-core'
-  testFixturesApi project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

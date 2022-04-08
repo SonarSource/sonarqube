@@ -27,7 +27,7 @@ import org.sonar.api.server.ServerSide;
 
 @ServerSide
 @ComputeEngineSide
-public interface I18n extends org.sonar.api.i18n.I18n {
+public interface I18n {
 
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.

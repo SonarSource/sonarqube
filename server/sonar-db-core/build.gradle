@@ -15,8 +15,8 @@ dependencies {
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.mybatis:mybatis'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-process')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'

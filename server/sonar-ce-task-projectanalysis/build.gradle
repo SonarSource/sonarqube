@@ -29,6 +29,7 @@ dependencies {
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.googlecode.java-diff-utils:diffutils'
   compile 'org.mybatis:mybatis'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   compile project(':sonar-core')
   compile project(':server:sonar-ce-common')
@@ -36,7 +37,6 @@ dependencies {
   compile project(':server:sonar-db-migration')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile project(':sonar-duplications')
   compile project(':sonar-scanner-protocol')

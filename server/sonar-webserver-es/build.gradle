@@ -8,9 +8,9 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'com.google.guava:guava'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-server-common')
   compile project(':server:sonar-webserver-auth')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'

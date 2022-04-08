@@ -13,7 +13,7 @@ dependencies {
   compile 'commons-lang:commons-lang'
   compile 'net.jpountz.lz4:lz4'
   compile 'org.mybatis:mybatis'
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   compile project(':server:sonar-db-core')
   compile project(':server:sonar-db-migration')

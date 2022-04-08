@@ -16,12 +16,12 @@ dependencies {
   compile 'org.slf4j:slf4j-api'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-db-migration')
   compile project(':server:sonar-process')
   compile project(':sonar-core')
   compile project(':sonar-markdown')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'
@@ -39,7 +39,6 @@ dependencies {
   testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile testFixtures(project(':server:sonar-db-dao'))
-  testCompile project(path: ':sonar-plugin-api', configuration: 'shadow')
   testCompile project(':sonar-plugin-api-impl')
   testCompile project(':sonar-testing-harness')
     

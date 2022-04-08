@@ -31,6 +31,7 @@ dependencies {
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
   compile 'org.mindrot:jbcrypt'
 
@@ -47,7 +48,6 @@ dependencies {
   compile project(':sonar-duplications')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-markdown')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile project(':sonar-ws')
 

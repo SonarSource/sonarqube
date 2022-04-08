@@ -9,7 +9,7 @@ dependencies {
 
     compile 'com.google.code.gson:gson'
     compile 'junit:junit'
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+    compile 'org.sonarsource.api.plugin:sonar-plugin-api'
 
     compileOnly 'org.aspectj:aspectjtools'
 }

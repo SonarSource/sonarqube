@@ -29,13 +29,13 @@ public class StaxParserTest {
   @Test
   public void testXMLWithDTD() throws XMLStreamException {
     StaxParser parser = new StaxParser(getTestHandler());
-    parser.parse(getClass().getClassLoader().getResourceAsStream("org/sonar/api/utils/StaxParserTest/xml-dtd-test.xml"));
+    parser.parse(getClass().getClassLoader().getResourceAsStream("org/sonar/scanner/genericcoverage/xml-dtd-test.xml"));
   }
 
   @Test
   public void testXMLWithXSD() throws XMLStreamException {
     StaxParser parser = new StaxParser(getTestHandler());
-    parser.parse(getClass().getClassLoader().getResourceAsStream("org/sonar/api/utils/StaxParserTest/xml-xsd-test.xml"));
+    parser.parse(getClass().getClassLoader().getResourceAsStream("org/sonar/scanner/genericcoverage/xml-xsd-test.xml"));
   }
 
   private StaxParser.XmlStreamHandler getTestHandler() {

@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.Plugin;
-import org.sonar.api.task.Task;
-import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
@@ -39,7 +37,7 @@ public class TasksMediumTest {
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
-    .registerPlugin("faketask", new FakeTaskPlugin());
+    .registerPlugin("faketask", new FakePlugin());
 
   @Test
   public void failWhenCallingTask() {
@@ -67,24 +65,11 @@ public class TasksMediumTest {
     }
   }
 
-  private static class FakeTaskPlugin implements Plugin {
+  private static class FakePlugin implements Plugin {
 
     @Override
     public void define(Context context) {
-      context.addExtensions(FakeTask.DEF, FakeTask.class);
     }
-  }
-
-  private static class FakeTask implements Task {
-
-    public static final TaskDefinition DEF = TaskDefinition.builder().key("fake").description("Fake description").taskClass(FakeTask.class).build();
-
-    @Override
-    public void execute() {
-      // TODO Auto-generated method stub
-
-    }
-
   }
 
 }

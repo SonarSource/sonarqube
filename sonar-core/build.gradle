@@ -18,9 +18,9 @@ dependencies {
   compile 'javax.inject:javax.inject'
   compile 'org.codehaus.sonar:sonar-classloader'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
   compile 'org.springframework:spring-context'
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'

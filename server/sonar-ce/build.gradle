@@ -15,6 +15,7 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.nanohttpd:nanohttpd'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-ce-task-projectanalysis')
@@ -22,7 +23,6 @@ dependencies {
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile project(':sonar-ws')
   

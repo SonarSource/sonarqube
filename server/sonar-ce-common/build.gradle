@@ -34,10 +34,10 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 

@@ -1,11 +1,11 @@
 description = 'SonarQube :: Monitoring'
 
 dependencies {
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
     compile project(':server:sonar-webserver-api')
     compile project(':server:sonar-webserver-pushapi')
     compile project(':server:sonar-alm-client')
     compile 'io.prometheus:simpleclient'
+    compile'org.sonarsource.api.plugin:sonar-plugin-api'
 
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'
