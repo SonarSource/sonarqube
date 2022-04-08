@@ -26,6 +26,7 @@ it('should render', () => {
   const wrapper = shallow(
     <ComponentNavWarnings
       componentKey="foo"
+      isBranch={true}
       onWarningDismiss={jest.fn()}
       warnings={[mockTaskWarning({ message: 'warning 1' })]}
     />

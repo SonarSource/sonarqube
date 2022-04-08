@@ -31,6 +31,7 @@ const AnalysisWarningsModal = lazyLoadComponent(
 
 interface Props {
   componentKey: string;
+  isBranch: boolean;
   onWarningDismiss: () => void;
   warnings: TaskWarning[];
 }
@@ -60,6 +61,9 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
             defaultMessage={translate('component_navigation.last_analysis_had_warnings')}
             id="component_navigation.last_analysis_had_warnings"
             values={{
+              branchType: this.props.isBranch
+                ? translate('branches.branch')
+                : translate('branches.pr'),
               warnings: (
                 <a href="#" onClick={this.handleClick}>
                   <FormattedMessage

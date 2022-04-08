@@ -12,6 +12,7 @@ exports[`should render 1`] = `
       id="component_navigation.last_analysis_had_warnings"
       values={
         Object {
+          "branchType": "branches.branch",
           "warnings": <a
             href="#"
             onClick={[Function]}

@@ -10,6 +10,7 @@ exports[`should render correctly for a branch 1`] = `
     >
       <ComponentNavWarnings
         componentKey="my-project"
+        isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
           Array [
@@ -63,6 +64,7 @@ exports[`should render correctly for a main project branch 1`] = `
     >
       <ComponentNavWarnings
         componentKey="my-project"
+        isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
           Array [
@@ -116,6 +118,7 @@ exports[`should render correctly for a portfolio 1`] = `
     >
       <ComponentNavWarnings
         componentKey="foo"
+        isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
           Array [
@@ -156,6 +159,7 @@ exports[`should render correctly for a pull request 1`] = `
     >
       <ComponentNavWarnings
         componentKey="my-project"
+        isBranch={false}
         onWarningDismiss={[MockFunction]}
         warnings={
           Array [

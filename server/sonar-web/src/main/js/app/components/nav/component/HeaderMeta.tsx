@@ -45,6 +45,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
   const { branchLike, component, currentUser, warnings } = props;
 
   const isABranch = isBranch(branchLike);
+
   const currentPage = getCurrentPage(component, branchLike);
   const displayVersion = component.version !== undefined && isABranch;
 
@@ -54,6 +55,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
         {warnings.length > 0 && (
           <span className="header-meta-warnings">
             <ComponentNavWarnings
+              isBranch={isABranch}
               componentKey={component.key}
               onWarningDismiss={props.onWarningDismiss}
               warnings={warnings}
