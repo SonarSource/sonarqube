@@ -9,6 +9,16 @@
   "separateMinorPatch": false,
   "separateMajorMinor": false,
   "ignoreDeps": [
+    "remark-custom-blocks",
+    "mdast-util-toc",
+    "rehype-raw",
+    "rehype-react",
+    "rehype-slug",
+    "remark",
+    "remark-react",
+    "remark-rehype",
+    "unist-util-visit",
+    
     "io.spring.dependency-management",
     "com.jfrog.artifactory",
     "org.ajoberstar.grgit",
@@ -18,6 +28,7 @@
     "de.undercouch.download",
     "com.github.johnrengelman.shadow",
     "com.bmuschko.docker-remote-api",
+    
     "com.sonarsource.abap:sonar-abap-plugin",
     "com.sonarsource.cobol:sonar-cobol-plugin",
     "com.sonarsource.cpp:sonar-cfamily-plugin",
