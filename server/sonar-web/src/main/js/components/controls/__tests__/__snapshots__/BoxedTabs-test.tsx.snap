@@ -101,7 +101,163 @@ exports[`should render correctly 1`] = `
   <Styled(div)
     className="boxed-tabs"
   >
-    <Noop />
+    <Insertion
+      cache={
+        Object {
+          "insert": [Function],
+          "inserted": Object {
+            "1kg7pv0": true,
+            "60rv5s": true,
+            "ko9asm": true,
+            "o2j9ze": true,
+            "v2seq5": true,
+          },
+          "key": "css",
+          "nonce": undefined,
+          "registered": Object {},
+          "sheet": StyleSheet {
+            "_alreadyInsertedOrderInsensitiveRule": true,
+            "_insertTag": [Function],
+            "before": null,
+            "container": <head>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3:hover{background-color:#f8f8f8;}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+              </style>
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+              </style>
+            </head>,
+            "ctr": 8,
+            "insertionPoint": undefined,
+            "isSpeedy": false,
+            "key": "css",
+            "nonce": undefined,
+            "prepend": undefined,
+            "tags": Array [
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3:hover{background-color:#f8f8f8;}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+              </style>,
+              <style
+                data-emotion="css"
+                data-s=""
+              >
+                
+                .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+              </style>,
+            ],
+          },
+        }
+      }
+      isStringTag={true}
+      serialized={
+        Object {
+          "map": undefined,
+          "name": "o2j9ze",
+          "next": undefined,
+          "styles": "
+  display: flex;
+  flex-direction: row;
+",
+          "toString": [Function],
+        }
+      }
+    />
     <div
       className="boxed-tabs emotion-6"
     >
@@ -111,7 +267,179 @@ exports[`should render correctly 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <Noop />
+        <Insertion
+          cache={
+            Object {
+              "insert": [Function],
+              "inserted": Object {
+                "1kg7pv0": true,
+                "60rv5s": true,
+                "ko9asm": true,
+                "o2j9ze": true,
+                "v2seq5": true,
+              },
+              "key": "css",
+              "nonce": undefined,
+              "registered": Object {},
+              "sheet": StyleSheet {
+                "_alreadyInsertedOrderInsensitiveRule": true,
+                "_insertTag": [Function],
+                "before": null,
+                "container": <head>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                </head>,
+                "ctr": 8,
+                "insertionPoint": undefined,
+                "isSpeedy": false,
+                "key": "css",
+                "nonce": undefined,
+                "prepend": undefined,
+                "tags": Array [
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                ],
+              },
+            }
+          }
+          isStringTag={true}
+          serialized={
+            Object {
+              "map": undefined,
+              "name": "60rv5s",
+              "next": undefined,
+              "styles": "
+  position: relative;
+  background-color: white;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: none;
+  border-bottom: none;
+  margin-bottom: -1px;
+  min-width: 128px;
+  min-height: 56px;
+  
+  outline: 0;
+  padding: calc(2 * 8px);
+
+  
+
+  &:last-child {
+    border-right: 1px solid #e6e6e6;
+  }
+",
+              "toString": [Function],
+            }
+          }
+        />
         <button
           className="emotion-1"
           onClick={[Function]}
@@ -120,7 +448,168 @@ exports[`should render correctly 1`] = `
           <Styled(div)
             active={true}
           >
-            <Noop />
+            <Insertion
+              cache={
+                Object {
+                  "insert": [Function],
+                  "inserted": Object {
+                    "1kg7pv0": true,
+                    "60rv5s": true,
+                    "ko9asm": true,
+                    "o2j9ze": true,
+                    "v2seq5": true,
+                  },
+                  "key": "css",
+                  "nonce": undefined,
+                  "registered": Object {},
+                  "sheet": StyleSheet {
+                    "_alreadyInsertedOrderInsensitiveRule": true,
+                    "_insertTag": [Function],
+                    "before": null,
+                    "container": <head>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                    </head>,
+                    "ctr": 8,
+                    "insertionPoint": undefined,
+                    "isSpeedy": false,
+                    "key": "css",
+                    "nonce": undefined,
+                    "prepend": undefined,
+                    "tags": Array [
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                    ],
+                  },
+                }
+              }
+              isStringTag={true}
+              serialized={
+                Object {
+                  "map": undefined,
+                  "name": "ko9asm",
+                  "next": undefined,
+                  "styles": "
+  display: block;
+  background-color: #4b9fd5;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: -1px;
+",
+                  "toString": [Function],
+                }
+              }
+            />
             <div
               className="emotion-0"
             />
@@ -134,7 +623,183 @@ exports[`should render correctly 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <Noop />
+        <Insertion
+          cache={
+            Object {
+              "insert": [Function],
+              "inserted": Object {
+                "1kg7pv0": true,
+                "60rv5s": true,
+                "ko9asm": true,
+                "o2j9ze": true,
+                "v2seq5": true,
+              },
+              "key": "css",
+              "nonce": undefined,
+              "registered": Object {},
+              "sheet": StyleSheet {
+                "_alreadyInsertedOrderInsensitiveRule": true,
+                "_insertTag": [Function],
+                "before": null,
+                "container": <head>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                </head>,
+                "ctr": 8,
+                "insertionPoint": undefined,
+                "isSpeedy": false,
+                "key": "css",
+                "nonce": undefined,
+                "prepend": undefined,
+                "tags": Array [
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                ],
+              },
+            }
+          }
+          isStringTag={true}
+          serialized={
+            Object {
+              "map": undefined,
+              "name": "1kg7pv0",
+              "next": undefined,
+              "styles": "
+  position: relative;
+  background-color: #f3f3f3;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: none;
+  border-bottom: none;
+  margin-bottom: -1px;
+  min-width: 128px;
+  min-height: 56px;
+  cursor: pointer;
+  outline: 0;
+  padding: calc(2 * 8px);
+
+  
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+
+  &:last-child {
+    border-right: 1px solid #e6e6e6;
+  }
+",
+              "toString": [Function],
+            }
+          }
+        />
         <button
           className="emotion-3"
           onClick={[Function]}
@@ -143,7 +808,168 @@ exports[`should render correctly 1`] = `
           <Styled(div)
             active={false}
           >
-            <Noop />
+            <Insertion
+              cache={
+                Object {
+                  "insert": [Function],
+                  "inserted": Object {
+                    "1kg7pv0": true,
+                    "60rv5s": true,
+                    "ko9asm": true,
+                    "o2j9ze": true,
+                    "v2seq5": true,
+                  },
+                  "key": "css",
+                  "nonce": undefined,
+                  "registered": Object {},
+                  "sheet": StyleSheet {
+                    "_alreadyInsertedOrderInsensitiveRule": true,
+                    "_insertTag": [Function],
+                    "before": null,
+                    "container": <head>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                    </head>,
+                    "ctr": 8,
+                    "insertionPoint": undefined,
+                    "isSpeedy": false,
+                    "key": "css",
+                    "nonce": undefined,
+                    "prepend": undefined,
+                    "tags": Array [
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                    ],
+                  },
+                }
+              }
+              isStringTag={true}
+              serialized={
+                Object {
+                  "map": undefined,
+                  "name": "v2seq5",
+                  "next": undefined,
+                  "styles": "
+  display: none;
+  background-color: #4b9fd5;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: -1px;
+",
+                  "toString": [Function],
+                }
+              }
+            />
             <div
               className="emotion-2"
             />
@@ -157,7 +983,183 @@ exports[`should render correctly 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <Noop />
+        <Insertion
+          cache={
+            Object {
+              "insert": [Function],
+              "inserted": Object {
+                "1kg7pv0": true,
+                "60rv5s": true,
+                "ko9asm": true,
+                "o2j9ze": true,
+                "v2seq5": true,
+              },
+              "key": "css",
+              "nonce": undefined,
+              "registered": Object {},
+              "sheet": StyleSheet {
+                "_alreadyInsertedOrderInsensitiveRule": true,
+                "_insertTag": [Function],
+                "before": null,
+                "container": <head>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>
+                </head>,
+                "ctr": 8,
+                "insertionPoint": undefined,
+                "isSpeedy": false,
+                "key": "css",
+                "nonce": undefined,
+                "prepend": undefined,
+                "tags": Array [
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:hover{background-color:#f8f8f8;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                  </style>,
+                  <style
+                    data-emotion="css"
+                    data-s=""
+                  >
+                    
+                    .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                  </style>,
+                ],
+              },
+            }
+          }
+          isStringTag={true}
+          serialized={
+            Object {
+              "map": undefined,
+              "name": "1kg7pv0",
+              "next": undefined,
+              "styles": "
+  position: relative;
+  background-color: #f3f3f3;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: none;
+  border-bottom: none;
+  margin-bottom: -1px;
+  min-width: 128px;
+  min-height: 56px;
+  cursor: pointer;
+  outline: 0;
+  padding: calc(2 * 8px);
+
+  
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+
+  &:last-child {
+    border-right: 1px solid #e6e6e6;
+  }
+",
+              "toString": [Function],
+            }
+          }
+        />
         <button
           className="emotion-3"
           onClick={[Function]}
@@ -166,7 +1168,168 @@ exports[`should render correctly 1`] = `
           <Styled(div)
             active={false}
           >
-            <Noop />
+            <Insertion
+              cache={
+                Object {
+                  "insert": [Function],
+                  "inserted": Object {
+                    "1kg7pv0": true,
+                    "60rv5s": true,
+                    "ko9asm": true,
+                    "o2j9ze": true,
+                    "v2seq5": true,
+                  },
+                  "key": "css",
+                  "nonce": undefined,
+                  "registered": Object {},
+                  "sheet": StyleSheet {
+                    "_alreadyInsertedOrderInsensitiveRule": true,
+                    "_insertTag": [Function],
+                    "before": null,
+                    "container": <head>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>
+                    </head>,
+                    "ctr": 8,
+                    "insertionPoint": undefined,
+                    "isSpeedy": false,
+                    "key": "css",
+                    "nonce": undefined,
+                    "prepend": undefined,
+                    "tags": Array [
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1{position:relative;background-color:white;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-1:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3{position:relative;background-color:#f3f3f3;border-top:1px solid #e6e6e6;border-left:1px solid #e6e6e6;border-right:none;border-bottom:none;margin-bottom:-1px;min-width:128px;min-height:56px;cursor:pointer;outline:0;padding:calc(2 * 8px);}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:hover{background-color:#f8f8f8;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-3:last-child{border-right:1px solid #e6e6e6;}
+                      </style>,
+                      <style
+                        data-emotion="css"
+                        data-s=""
+                      >
+                        
+                        .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
+                      </style>,
+                    ],
+                  },
+                }
+              }
+              isStringTag={true}
+              serialized={
+                Object {
+                  "map": undefined,
+                  "name": "v2seq5",
+                  "next": undefined,
+                  "styles": "
+  display: none;
+  background-color: #4b9fd5;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: -1px;
+",
+                  "toString": [Function],
+                }
+              }
+            />
             <div
               className="emotion-2"
             />

@@ -5,8 +5,8 @@
   "repository": "SonarSource/sonarqube",
   "license": "LGPL-3.0",
   "dependencies": {
-    "@emotion/react": "11.7.1",
-    "@emotion/styled": "11.6.0",
+    "@emotion/react": "11.8.2",
+    "@emotion/styled": "11.8.1",
     "classnames": "2.3.1",
     "clipboard": "2.0.10",
     "core-js": "3.21.1",
@@ -50,7 +50,7 @@
     "whatwg-fetch": "3.6.2"
   },
   "devDependencies": {
-    "@emotion/jest": "11.7.1",
+    "@emotion/jest": "11.8.0",
     "@swc/core": "1.2.163",
     "@swc/jest": "0.2.20",
     "@testing-library/dom": "8.13.0",
