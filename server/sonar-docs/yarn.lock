@@ -2896,6 +2896,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/glob@npm:^7.1.3":
+  version: 7.2.0
+  resolution: "@types/glob@npm:7.2.0"
+  dependencies:
+    "@types/minimatch": "*"
+    "@types/node": "*"
+  checksum: 6ae717fedfdfdad25f3d5a568323926c64f52ef35897bcac8aca8e19bc50c0bd84630bbd063e5d52078b2137d8e7d3c26eabebd1a2f03ff350fff8a91e79fc19
+  languageName: node
+  linkType: hard
+
 "@types/graceful-fs@npm:^4.1.2":
   version: 4.1.5
   resolution: "@types/graceful-fs@npm:4.1.5"
@@ -10131,14 +10141,14 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"glob-promise@npm:3.4.0":
-  version: 3.4.0
-  resolution: "glob-promise@npm:3.4.0"
+"glob-promise@npm:4.2.2":
+  version: 4.2.2
+  resolution: "glob-promise@npm:4.2.2"
   dependencies:
-    "@types/glob": "*"
+    "@types/glob": ^7.1.3
   peerDependencies:
-    glob: "*"
-  checksum: 84a2c076e7581c9f8aa7a8a151ad5f9352c4118ba03c5673ecfcf540f4c53aa75f8d32fe493c2286d471dccd7a75932b9bfe97bf782564c1f4a50b9c7954e3b6
+    glob: ^7.1.6
+  checksum: c1a3d95f7c8393e4151d4899ec4e42bb2e8237160f840ad1eccbe9247407da8b6c13e28f463022e011708bc40862db87b9b77236d35afa3feb8aa86d518f2dfe
   languageName: node
   linkType: hard
 
@@ -19001,7 +19011,7 @@ fsevents@~2.1.2:
     gatsby-remark-custom-blocks: 2.1.27
     gatsby-source-filesystem: 2.1.57
     gatsby-transformer-remark: 2.6.59
-    glob-promise: 3.4.0
+    glob-promise: 4.2.2
     hast-util-select: 4.0.0
     jest: 27.5.1
     jest-fetch-mock: 2.1.2
