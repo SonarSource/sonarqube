@@ -502,7 +502,7 @@ deploy_docs_task:
 
 package_docker_task:
   depends_on: promote
-  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next' || $CIRRUS_BRANCH == 'master'
   gce_instance:
     image_project: sonarqube-team
     image_family: docker-builder
