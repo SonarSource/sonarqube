@@ -27,13 +27,9 @@ import QualityGatePermissionsAddModalRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ selection: mockUserBase() })).toMatchSnapshot('selection');
   expect(shallowRender({ selection: mockUserBase(), submitting: true })).toMatchSnapshot(
-    'submitting'
+    'with selection and submitting'
   );
-  expect(
-    shallowRender({ searchResults: [mockUserBase(), { name: 'group name' }] })
-  ).toMatchSnapshot('query and results');
 });
 
 it('should render options correctly', () => {
@@ -46,12 +42,10 @@ it('should render options correctly', () => {
 function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRendererProps> = {}) {
   return shallow(
     <QualityGatePermissionsAddModalRenderer
-      loading={false}
       onClose={jest.fn()}
-      onInputChange={jest.fn()}
       onSelection={jest.fn()}
       onSubmit={jest.fn()}
-      searchResults={[]}
+      handleSearch={jest.fn()}
       submitting={false}
       {...overrides}
     />

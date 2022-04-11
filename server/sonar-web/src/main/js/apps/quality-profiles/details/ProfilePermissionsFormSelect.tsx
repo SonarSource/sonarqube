@@ -40,12 +40,12 @@ interface Props {
   profile: { language: string; name: string };
 }
 
-export default class ProfilePermissionsFormSelect extends React.PureComponent<Props> {
-  mounted = false;
+const DEBOUNCE_DELAY = 250;
 
+export default class ProfilePermissionsFormSelect extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
-    this.handleSearch = debounce(this.handleSearch, 250);
+    this.handleSearch = debounce(this.handleSearch, DEBOUNCE_DELAY);
   }
 
   optionRenderer(props: OptionProps<OptionWithValue, false>) {

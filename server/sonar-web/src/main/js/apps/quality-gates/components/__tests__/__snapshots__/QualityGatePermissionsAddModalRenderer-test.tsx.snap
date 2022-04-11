@@ -24,7 +24,7 @@ exports[`should render correctly: default 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SearchSelect
           autoFocus={true}
           className="Select-big"
           components={
@@ -34,14 +34,12 @@ exports[`should render correctly: default 1`] = `
               "SingleValue": [Function],
             }
           }
-          filterOptions={[Function]}
+          defaultOptions={true}
+          getOptionValue={[Function]}
           isClearable={false}
-          isLoading={false}
-          isSearchable={true}
+          loadOptions={[MockFunction]}
           noOptionsMessage={[Function]}
           onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          options={Array []}
           placeholder=""
         />
       </div>
@@ -64,7 +62,7 @@ exports[`should render correctly: default 1`] = `
 </Modal>
 `;
 
-exports[`should render correctly: query and results 1`] = `
+exports[`should render correctly: with selection and submitting 1`] = `
 <Modal
   contentLabel="quality_gates.permissions.grant"
   onRequestClose={[MockFunction]}
@@ -88,7 +86,7 @@ exports[`should render correctly: query and results 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SearchSelect
           autoFocus={true}
           className="Select-big"
           components={
@@ -98,153 +96,12 @@ exports[`should render correctly: query and results 1`] = `
               "SingleValue": [Function],
             }
           }
-          filterOptions={[Function]}
+          defaultOptions={true}
+          getOptionValue={[Function]}
           isClearable={false}
-          isLoading={false}
-          isSearchable={true}
+          loadOptions={[MockFunction]}
           noOptionsMessage={[Function]}
           onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          options={
-            Array [
-              Object {
-                "login": "userlogin",
-                "value": "userlogin",
-              },
-              Object {
-                "name": "group name",
-                "value": "group name",
-              },
-            ]
-          }
-          placeholder=""
-        />
-      </div>
-    </div>
-    <footer
-      className="modal-foot"
-    >
-      <SubmitButton
-        disabled={true}
-      >
-        add_verb
-      </SubmitButton>
-      <ResetButtonLink
-        onClick={[MockFunction]}
-      >
-        cancel
-      </ResetButtonLink>
-    </footer>
-  </form>
-</Modal>
-`;
-
-exports[`should render correctly: selection 1`] = `
-<Modal
-  contentLabel="quality_gates.permissions.grant"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      quality_gates.permissions.grant
-    </h2>
-  </header>
-  <form
-    onSubmit={[MockFunction]}
-  >
-    <div
-      className="modal-body"
-    >
-      <div
-        className="modal-field"
-      >
-        <label>
-          quality_gates.permissions.search
-        </label>
-        <Select
-          autoFocus={true}
-          className="Select-big"
-          components={
-            Object {
-              "Control": [Function],
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
-          filterOptions={[Function]}
-          isClearable={false}
-          isLoading={false}
-          isSearchable={true}
-          noOptionsMessage={[Function]}
-          onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          options={Array []}
-          placeholder=""
-        />
-      </div>
-    </div>
-    <footer
-      className="modal-foot"
-    >
-      <SubmitButton
-        disabled={false}
-      >
-        add_verb
-      </SubmitButton>
-      <ResetButtonLink
-        onClick={[MockFunction]}
-      >
-        cancel
-      </ResetButtonLink>
-    </footer>
-  </form>
-</Modal>
-`;
-
-exports[`should render correctly: submitting 1`] = `
-<Modal
-  contentLabel="quality_gates.permissions.grant"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      quality_gates.permissions.grant
-    </h2>
-  </header>
-  <form
-    onSubmit={[MockFunction]}
-  >
-    <div
-      className="modal-body"
-    >
-      <div
-        className="modal-field"
-      >
-        <label>
-          quality_gates.permissions.search
-        </label>
-        <Select
-          autoFocus={true}
-          className="Select-big"
-          components={
-            Object {
-              "Control": [Function],
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
-          filterOptions={[Function]}
-          isClearable={false}
-          isLoading={false}
-          isSearchable={true}
-          noOptionsMessage={[Function]}
-          onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          options={Array []}
           placeholder=""
         />
       </div>

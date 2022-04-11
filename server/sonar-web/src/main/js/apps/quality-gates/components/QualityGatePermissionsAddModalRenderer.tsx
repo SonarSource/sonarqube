@@ -17,41 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { identity, omit } from 'lodash';
+import { omit } from 'lodash';
 import * as React from 'react';
 import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import { SearchSelect } from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
+import { OptionWithValue } from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;
-  onInputChange: (query: string) => void;
-  onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
-  onSelection: (selection: Option) => void;
-  submitting: boolean;
-  loading: boolean;
-  searchResults: Array<UserBase | Group>;
+  handleSearch: (q: string, resolve: (options: OptionWithValue[]) => void) => void;
+  onSelection: (selection: OptionWithValue) => void;
   selection?: UserBase | Group;
+  onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
+  submitting: boolean;
 }
-
-export type Option = (UserBase | Group) & { value: string };
 
 export default function QualityGatePermissionsAddModalRenderer(
   props: QualityGatePermissionsAddModalRendererProps
 ) {
-  const { loading, searchResults, selection, submitting } = props;
+  const { selection, submitting } = props;
 
   const header = translate('quality_gates.permissions.grant');
 
   const noResultsText = translate('no_results');
-
-  const options = searchResults.map(r => ({ ...r, value: getValue(r) }));
 
   return (
     <Modal contentLabel={header} onRequestClose={props.onClose}>
@@ -62,24 +57,21 @@ export default function QualityGatePermissionsAddModalRenderer(
         <div className="modal-body">
           <div className="modal-field">
             <label>{translate('quality_gates.permissions.search')}</label>
-            <Select
+            <SearchSelect
               className="Select-big"
               autoFocus={true}
               isClearable={false}
-              isSearchable={true}
               placeholder=""
-              isLoading={loading}
-              filterOptions={identity}
+              defaultOptions={true}
               noOptionsMessage={() => noResultsText}
               onChange={props.onSelection}
-              onInputChange={props.onInputChange}
+              loadOptions={props.handleSearch}
+              getOptionValue={opt => (isUser(opt) ? opt.login : opt.name)}
               components={{
                 Option: optionRenderer,
                 SingleValue: singleValueRenderer,
                 Control: controlRenderer
               }}
-              options={options}
-              value={options.find(o => o.value === (selection && getValue(selection)))}
             />
           </div>
         </div>
@@ -93,11 +85,7 @@ export default function QualityGatePermissionsAddModalRenderer(
   );
 }
 
-function getValue(option: UserBase | Group) {
-  return isUser(option) ? option.login : option.name;
-}
-
-export function customOptions(option: Option) {
+export function customOptions(option: OptionWithValue) {
   return (
     <>
       {isUser(option) ? (
@@ -111,7 +99,7 @@ export function customOptions(option: Option) {
   );
 }
 
-function optionRenderer(props: OptionProps<Option, false>) {
+function optionRenderer(props: OptionProps<OptionWithValue, false>) {
   return (
     <components.Option {...props} className="Select-option">
       {customOptions(props.data)}
@@ -119,7 +107,7 @@ function optionRenderer(props: OptionProps<Option, false>) {
   );
 }
 
-function singleValueRenderer(props: SingleValueProps<Option>) {
+function singleValueRenderer(props: SingleValueProps<OptionWithValue>) {
   return (
     <components.SingleValue {...props} className="Select-value-label">
       {customOptions(props.data)}
@@ -127,7 +115,7 @@ function singleValueRenderer(props: SingleValueProps<Option>) {
   );
 }
 
-function controlRenderer(props: ControlProps<Option, false>) {
+function controlRenderer(props: ControlProps<OptionWithValue, false>) {
   return (
     <components.Control {...omit(props, ['children'])} className="abs-height-100 Select-control">
       {props.children}

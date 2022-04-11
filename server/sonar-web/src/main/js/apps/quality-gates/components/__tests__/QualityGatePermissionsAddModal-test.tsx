@@ -22,8 +22,9 @@ import * as React from 'react';
 import { searchGroups, searchUsers } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../../../helpers/mocks/users';
-import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockEvent } from '../../../../helpers/testUtils';
 import QualityGatePermissionsAddModal from '../QualityGatePermissionsAddModal';
+import QualityGatePermissionsAddModalRenderer from '../QualityGatePermissionsAddModalRenderer';
 
 jest.mock('../../../../api/quality-gates', () => ({
   searchUsers: jest.fn().mockResolvedValue({ users: [] }),
@@ -44,71 +45,24 @@ it('should fetch users and groups on mount', async () => {
 
   const wrapper = shallowRender();
 
-  expect(wrapper.state().loading).toBe(true);
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().loading).toBe(false);
-  expect(searchUsers).toBeCalledWith({ gateName: 'qualitygate', q: '', selected: 'deselected' });
-  expect(searchGroups).toBeCalledWith({
-    gateName: 'qualitygate',
-    q: '',
-    selected: 'deselected'
-  });
-  expect(wrapper.state().searchResults).toHaveLength(2);
-});
-
-it('should fetch users and groups', async () => {
-  (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [mockUserBase()] });
-  (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [{ name: 'group' }] });
-
-  const wrapper = shallowRender();
-  const query = 'query';
-
-  wrapper.instance().handleSearch(query);
-
-  expect(wrapper.state().loading).toBe(true);
-  expect(searchUsers).toBeCalledWith({ gateName: 'qualitygate', q: query, selected: 'deselected' });
-  expect(searchGroups).toBeCalledWith({
-    gateName: 'qualitygate',
-    q: query,
-    selected: 'deselected'
+  const query = 'Waldo';
+  const results = await new Promise(resolve => {
+    wrapper.instance().handleSearch(query, resolve);
   });
 
-  await waitAndUpdate(wrapper);
+  expect(searchUsers).toBeCalledWith(expect.objectContaining({ q: query }));
+  expect(searchGroups).toBeCalledWith(expect.objectContaining({ q: query }));
 
-  expect(wrapper.state().loading).toBe(false);
-  expect(wrapper.state().searchResults).toHaveLength(2);
-});
-
-it('should handle input change', () => {
-  const wrapper = shallowRender();
-
-  wrapper.instance().handleSearch = jest.fn();
-  const { handleSearch } = wrapper.instance();
-
-  wrapper.instance().handleInputChange('a');
-
-  expect(wrapper.state().query).toBe('a');
-  expect(handleSearch).toBeCalled();
-
-  const query = 'query';
-  wrapper.instance().handleInputChange(query);
-
-  expect(wrapper.state().query).toBe(query);
-  expect(handleSearch).toBeCalledWith(query);
-
-  jest.clearAllMocks();
-  wrapper.instance().handleInputChange(query); // input change with same parameter
-
-  expect(wrapper.state().query).toBe(query);
-  expect(handleSearch).not.toBeCalled();
+  expect(results).toHaveLength(2);
 });
 
 it('should handleSelection', () => {
   const wrapper = shallowRender();
-  const selection = mockUserBase();
-  wrapper.instance().handleSelection(selection);
+  const selection = { ...mockUserBase(), value: 'value' };
+  wrapper
+    .find(QualityGatePermissionsAddModalRenderer)
+    .props()
+    .onSelection(selection);
   expect(wrapper.state().selection).toBe(selection);
 });
 

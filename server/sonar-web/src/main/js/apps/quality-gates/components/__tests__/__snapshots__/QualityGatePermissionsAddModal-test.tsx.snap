@@ -2,12 +2,10 @@
 
 exports[`should render correctly 1`] = `
 <QualityGatePermissionsAddModalRenderer
-  loading={true}
+  handleSearch={[Function]}
   onClose={[MockFunction]}
-  onInputChange={[Function]}
   onSelection={[Function]}
   onSubmit={[Function]}
-  searchResults={Array []}
   submitting={false}
 />
 `;
