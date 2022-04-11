@@ -200,6 +200,11 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
+  public ServletRegistration.Dynamic addJspFile(String servletName, String jspFile) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public <T extends Servlet> T createServlet(Class<T> aClass) {
     throw new UnsupportedOperationException();
   }
@@ -301,6 +306,36 @@ class AttributeHolderServletContext implements ServletContext {
 
   @Override
   public String getVirtualServerName() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getSessionTimeout() {
+    return 0;
+  }
+
+  @Override
+  public void setSessionTimeout(int sessionTimeout) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getRequestCharacterEncoding() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setRequestCharacterEncoding(String encoding) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getResponseCharacterEncoding() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setResponseCharacterEncoding(String encoding) {
     throw new UnsupportedOperationException();
   }
 }
