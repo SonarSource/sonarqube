@@ -1,19 +1,19 @@
 dependencies {    
-    bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin@jar"
-    bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin@jar"
-    bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'
-    bundledPlugin 'org.sonarsource.html:sonar-html-plugin@jar'
-    bundledPlugin 'org.sonarsource.java:sonar-java-plugin@jar'
-    bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin@jar'
-    bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin@jar'
-    bundledPlugin 'org.sonarsource.php:sonar-php-plugin@jar'
-    bundledPlugin 'org.sonarsource.python:sonar-python-plugin@jar'
-    bundledPlugin 'org.sonarsource.slang:sonar-go-plugin@jar'
-    bundledPlugin "org.sonarsource.kotlin:sonar-kotlin-plugin@jar"
-    bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin@jar"
-    bundledPlugin "org.sonarsource.slang:sonar-scala-plugin@jar"
-    bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin@jar'
-    bundledPlugin 'org.sonarsource.config:sonar-config-plugin@jar'
-    bundledPlugin 'org.sonarsource.iac:sonar-iac-plugin@jar'
-    bundledPlugin 'org.sonarsource.text:sonar-text-plugin@jar'
+    bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin"
+    bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin"
+    bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin'
+    bundledPlugin 'org.sonarsource.html:sonar-html-plugin'
+    bundledPlugin 'org.sonarsource.java:sonar-java-plugin'
+    bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin'
+    bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin'
+    bundledPlugin 'org.sonarsource.php:sonar-php-plugin'
+    bundledPlugin 'org.sonarsource.python:sonar-python-plugin'
+    bundledPlugin 'org.sonarsource.slang:sonar-go-plugin'
+    bundledPlugin "org.sonarsource.kotlin:sonar-kotlin-plugin"
+    bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin"
+    bundledPlugin "org.sonarsource.slang:sonar-scala-plugin"
+    bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin'
+    bundledPlugin 'org.sonarsource.config:sonar-config-plugin'
+    bundledPlugin 'org.sonarsource.iac:sonar-iac-plugin'
+    bundledPlugin 'org.sonarsource.text:sonar-text-plugin'
 }

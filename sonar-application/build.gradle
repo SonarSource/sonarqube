@@ -6,6 +6,7 @@ plugins {
   id "com.github.hierynomus.license-report"
   id "com.github.johnrengelman.shadow"
   id "de.undercouch.download"
+  id "org.cyclonedx.bom"
 }
 
 sonarqube {
@@ -32,8 +33,12 @@ configurations {
   bundledPlugin {
     transitive = false
   }
-
+  bundledPlugin_deps {
+    extendsFrom bundledPlugin
+    transitive = true
+  }
   appLicenses.extendsFrom(compile, web, scanner, jsw, jdbc_mssql, jdbc_postgresql, jdbc_h2)
+  cyclonedx
 }
 
 jar.enabled = false
@@ -63,6 +68,7 @@ dependencies {
 
     jsw 'tanukisoft:wrapper:3.2.3'
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
+    cyclonedx project(path: ':sonar-scanner-engine-shaded')
     web project(':server:sonar-web')
     shutdowner project(':sonar-shutdowner')
 
@@ -307,10 +313,26 @@ artifacts { zip zip }
 
 artifactoryPublish.skip = false
 
+def bomFile = layout.buildDirectory.file('reports/bom.json')
+cyclonedxBom {
+  includeConfigs += ["runtimeClasspath", "jsw", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
+                     "cyclonedx"]
+  outputs.file bomFile
+  outputs.upToDateWhen { false }
+}
+def bomArtifact = artifacts.add('archives', bomFile.get().asFile) {
+  type 'json'
+  classifier 'cyclonedx'
+  builtBy 'cyclonedxBom'
+}
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
       artifact zip
+    }
+    mavenJava(MavenPublication) {
+      artifact bomArtifact
     }
   }
 }
