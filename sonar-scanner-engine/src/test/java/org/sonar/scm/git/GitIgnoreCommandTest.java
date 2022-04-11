@@ -19,10 +19,12 @@
  */
 package org.sonar.scm.git;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.SubmoduleAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -112,6 +114,34 @@ public class GitIgnoreCommandTest {
     assertThat(underTest.isIgnored(projectDir.resolve("module1/folder_0_0/Foo.php"))).isFalse();
 
     int expectedIncludedFiles = 6;
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+  }
+
+  @Test
+  public void skip_submodules_if_not_cloned() throws IOException, GitAPIException {
+    Path projectDir = temp.newFolder().toPath();
+    Git git = Git.init().setDirectory(projectDir.toFile()).call();
+
+    createSubmoduleWithFiles(git, "module1");
+
+    Files.write(projectDir.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
+    createFolderStructure(projectDir, 1, 0, 1);
+
+    //clean submodule
+    FileUtils.cleanDirectory(new File(projectDir.toString(), "module1"));
+
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    underTest.init(projectDir);
+
+    assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.java"))).isTrue();
+    assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.php"))).isFalse();
+
+    // ignoring not cloned submodules
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Git submodule [module1] found, but has not been cloned, skipping.");
+
+    int expectedIncludedFiles = 3;
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 

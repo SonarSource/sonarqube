@@ -81,6 +81,10 @@ public class IncludedFilesRepository {
     try (SubmoduleWalk submoduleWalk = SubmoduleWalk.forIndex(repo)) {
       while (submoduleWalk.next()) {
         try (Repository submoduleRepo = submoduleWalk.getRepository()) {
+          if (submoduleRepo == null) {
+            LOG.debug("Git submodule [{}] found, but has not been cloned, skipping.", submoduleWalk.getPath());
+            continue;
+          }
           collectFilesIterative(submoduleRepo, baseDir);
         }
       }
