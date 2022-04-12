@@ -87,7 +87,7 @@ export default function QualityGatePermissionsAddModalRenderer(
 
 export function customOptions(option: OptionWithValue) {
   return (
-    <span className="display-flex-center">
+    <span className="display-flex-center" data-testid="qg-add-permission-option">
       {isUser(option) ? (
         <Avatar hash={option.avatar} name={option.name} size={16} />
       ) : (

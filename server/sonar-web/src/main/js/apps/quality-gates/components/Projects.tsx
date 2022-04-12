@@ -39,9 +39,16 @@ interface Props {
 interface State {
   needToReload: boolean;
   lastSearchParams?: SelectListSearchParams;
-  projects: Array<{ key: string; name: string; selected: boolean }>;
+  projects: Project[];
   projectsTotalCount?: number;
   selectedProjects: string[];
+}
+
+// exported for testing
+export interface Project {
+  key: string;
+  name: string;
+  selected: boolean;
 }
 
 export default class Projects extends React.PureComponent<Props, State> {

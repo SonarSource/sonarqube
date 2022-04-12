@@ -20,6 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
+import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -66,7 +67,6 @@ it('should be able to create a quality gate then delete it', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
-
   let createButton = await screen.findByRole('button', { name: 'create' });
 
   // Using keyboard
@@ -134,6 +134,18 @@ it('should be able to rename a quality gate', async () => {
   await user.keyboard('{Control>}a{/Control}New Name{Enter}');
 
   expect(await screen.findByRole('menuitem', { name: /New Name.*/ })).toBeInTheDocument();
+});
+
+it('should be able to set as default a quality gate', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+  await user.click(notDefaultQualityGate);
+  const setAsDefaultButton = screen.getByRole('button', { name: 'set_as_default' });
+  await user.click(setAsDefaultButton);
+  expect(screen.getAllByRole('menuitem')[1]).toHaveTextContent('default');
 });
 
 it('should be able to add a condition', async () => {
@@ -264,6 +276,202 @@ it('should explain condition on branch', async () => {
   expect(
     await screen.findByText('quality_gates.conditions.overall_code.description')
   ).toBeInTheDocument();
+});
+
+describe('The Project section', () => {
+  it('should render list of projects correctly in different tabs', async () => {
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+
+    await user.click(notDefaultQualityGate);
+    // by default it shows "selected" values
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+
+    // change tabs to show deselected projects
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+
+    // change tabs to show all projects
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
+    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+  });
+
+  it('should handle select and deselect correctly', async () => {
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+    await user.click(notDefaultQualityGate);
+
+    const checkedProjects = screen.getAllByRole('checkbox')[0];
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+    await user.click(checkedProjects);
+    const reloadButton = screen.getByRole('button', { name: 'reload' });
+    expect(reloadButton).toBeInTheDocument();
+    await user.click(reloadButton);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+
+    // change tabs to show deselected projects
+    await user.click(screen.getAllByRole('radio')[1]);
+
+    const uncheckedProjects = screen.getAllByRole('checkbox')[0];
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    await user.click(uncheckedProjects);
+    expect(reloadButton).toBeInTheDocument();
+    await user.click(reloadButton);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+  });
+
+  it('should handle the search of projects', async () => {
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+
+    await user.click(notDefaultQualityGate);
+
+    const searchInput = screen.getByRole('searchbox', { name: 'search_verb' });
+    expect(searchInput).toBeInTheDocument();
+    await user.click(searchInput);
+    await user.keyboard('test2{Enter}');
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+  });
+
+  it('should display show more button if there are multiple pages of data', async () => {
+    (searchProjects as jest.Mock).mockResolvedValueOnce({
+      paging: { pageIndex: 2, pageSize: 3, total: 55 },
+      results: []
+    });
+
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+    await user.click(notDefaultQualityGate);
+
+    expect(screen.getByRole('button', { name: 'show_more' })).toBeInTheDocument();
+  });
+});
+
+describe('The Permissions section', () => {
+  it('should not show button to grant permission when user is not admin', () => {
+    renderQualityGateApp();
+
+    expect(screen.queryByText('quality_gates.permissions')).not.toBeInTheDocument();
+  });
+  it('should show button to grant permission when user is admin', async () => {
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const grantPermissionButton = await screen.findByRole('button', {
+      name: 'quality_gates.permissions.grant'
+    });
+    expect(screen.getByText('quality_gates.permissions')).toBeInTheDocument();
+    expect(grantPermissionButton).toBeInTheDocument();
+  });
+
+  it('should assign permission to a user and delete it later', async () => {
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    expect(screen.queryByText('userlogin')).not.toBeInTheDocument();
+
+    // Granting permission to a user
+    const grantPermissionButton = await screen.findByRole('button', {
+      name: 'quality_gates.permissions.grant'
+    });
+    await user.click(grantPermissionButton);
+    const popup = screen.getByRole('dialog');
+    const searchUserInput = within(popup).getByRole('textbox');
+    expect(searchUserInput).toBeInTheDocument();
+    const addUserButton = screen.getByRole('button', {
+      name: 'add_verb'
+    });
+    expect(addUserButton).toBeDisabled();
+    await user.click(searchUserInput);
+    expect(screen.getAllByTestId('qg-add-permission-option')).toHaveLength(2);
+    await user.click(screen.getByText('userlogin'));
+    expect(addUserButton).toBeEnabled();
+    await user.click(addUserButton);
+    expect(screen.getByText('userlogin')).toBeInTheDocument();
+
+    // Cancel granting permission
+    await user.click(grantPermissionButton);
+    await user.click(searchUserInput);
+    await user.keyboard('test{Enter}');
+
+    const cancelButton = screen.getByRole('button', {
+      name: 'cancel'
+    });
+    await user.click(cancelButton);
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+
+    // Delete the user permission
+    const deleteButton = screen.getByTestId('permission-delete-button');
+    await user.click(deleteButton);
+    const deletePopup = screen.getByRole('dialog');
+    const dialogDeleteButton = within(deletePopup).getByRole('button', { name: 'remove' });
+    await user.click(dialogDeleteButton);
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+  });
+
+  it('should assign permission to a group and delete it later', async () => {
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    expect(screen.queryByText('userlogin')).not.toBeInTheDocument();
+
+    // Granting permission to a group
+    const grantPermissionButton = await screen.findByRole('button', {
+      name: 'quality_gates.permissions.grant'
+    });
+    await user.click(grantPermissionButton);
+    const popup = screen.getByRole('dialog');
+    const searchUserInput = within(popup).getByRole('textbox');
+    const addUserButton = screen.getByRole('button', {
+      name: 'add_verb'
+    });
+    await user.click(searchUserInput);
+    expect(screen.getAllByTestId('qg-add-permission-option')).toHaveLength(2);
+    await user.click(screen.getAllByTestId('qg-add-permission-option')[1]);
+    await user.click(addUserButton);
+    expect(screen.getByText('Foo')).toBeInTheDocument();
+
+    // Delete the group permission
+    const deleteButton = screen.getByTestId('permission-delete-button');
+    await user.click(deleteButton);
+    const deletePopup = screen.getByRole('dialog');
+    const dialogDeleteButton = within(deletePopup).getByRole('button', { name: 'remove' });
+    await user.click(dialogDeleteButton);
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+  });
+
+  it('should handle searchUser service failure', async () => {
+    (searchUsers as jest.Mock).mockRejectedValue('error');
+
+    const user = userEvent.setup();
+    handler.setIsAdmin(true);
+    renderQualityGateApp();
+
+    const grantPermissionButton = await screen.findByRole('button', {
+      name: 'quality_gates.permissions.grant'
+    });
+    await user.click(grantPermissionButton);
+    const popup = screen.getByRole('dialog');
+    const searchUserInput = within(popup).getByRole('textbox');
+    await user.click(searchUserInput);
+
+    expect(screen.getByText('no_results')).toBeInTheDocument();
+  });
 });
 
 function renderQualityGateApp(appState?: AppState) {

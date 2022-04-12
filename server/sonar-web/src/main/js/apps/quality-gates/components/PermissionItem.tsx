@@ -45,7 +45,10 @@ export default function PermissionItem(props: PermissionItemProps) {
         {isUser(item) && <div className="note">{item.login}</div>}
       </div>
 
-      <DeleteButton onClick={() => props.onClickDelete(item)} />
+      <DeleteButton
+        onClick={() => props.onClickDelete(item)}
+        data-testid="permission-delete-button"
+      />
     </div>
   );
 }

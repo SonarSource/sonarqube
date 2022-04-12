@@ -18,20 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, flatten, omit, remove } from 'lodash';
+import { Project } from '../../apps/quality-gates/components/Projects';
 import { mockQualityGate } from '../../helpers/mocks/quality-gates';
+import { mockUserBase } from '../../helpers/mocks/users';
+import { mockGroup } from '../../helpers/testMocks';
 import { Condition, QualityGate } from '../../types/types';
 import {
+  addGroup,
+  addUser,
+  associateGateWithProject,
   copyQualityGate,
   createCondition,
   createQualityGate,
   deleteCondition,
   deleteQualityGate,
+  dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
   renameQualityGate,
   searchGroups,
   searchProjects,
   searchUsers,
+  setQualityGateAsDefault,
   updateCondition
 } from '../quality-gates';
 
@@ -39,6 +47,7 @@ export class QualityGatesServiceMock {
   isAdmin = false;
   readOnlyList: QualityGate[];
   list: QualityGate[];
+  projects: Project[];
 
   constructor(list?: QualityGate[], defaultId = 'AWBWEMe2qGAMGEYPjJlm') {
     this.readOnlyList = list || [
@@ -117,6 +126,13 @@ export class QualityGatesServiceMock {
 
     this.list = cloneDeep(this.readOnlyList);
 
+    this.projects = [
+      { key: 'test1', name: 'test1', selected: false },
+      { key: 'test2', name: 'test2', selected: false },
+      { key: 'test3', name: 'test3', selected: true },
+      { key: 'test4', name: 'test4', selected: true }
+    ];
+
     (fetchQualityGate as jest.Mock).mockImplementation(this.showHandler);
     (fetchQualityGates as jest.Mock).mockImplementation(this.listHandler);
     (createQualityGate as jest.Mock).mockImplementation(this.createHandler);
@@ -126,18 +142,16 @@ export class QualityGatesServiceMock {
     (createCondition as jest.Mock).mockImplementation(this.createConditionHandler);
     (updateCondition as jest.Mock).mockImplementation(this.updateConditionHandler);
     (deleteCondition as jest.Mock).mockImplementation(this.deleteConditionHandler);
+    (searchProjects as jest.Mock).mockImplementation(this.searchProjectsHandler);
+    (searchUsers as jest.Mock).mockImplementation(this.searchUsersHandler);
+    (searchGroups as jest.Mock).mockImplementation(this.searchGroupsHandler);
+    (associateGateWithProject as jest.Mock).mockImplementation(this.selectHandler);
+    (dissociateGateWithProject as jest.Mock).mockImplementation(this.deSelectHandler);
+    (setQualityGateAsDefault as jest.Mock).mockImplementation(this.setDefaultHandler);
 
     // To be implemented.
-    (searchUsers as jest.Mock).mockResolvedValue({ users: [] });
-    (searchGroups as jest.Mock).mockResolvedValue({ groups: [] });
-    (searchProjects as jest.Mock).mockResolvedValue({
-      paging: {
-        pageIndex: 1,
-        pageSize: 100,
-        total: 0
-      },
-      results: []
-    });
+    (addUser as jest.Mock).mockResolvedValue({});
+    (addGroup as jest.Mock).mockResolvedValue({});
   }
 
   getCorruptedQualityGateName() {
@@ -247,6 +261,18 @@ export class QualityGatesServiceMock {
     });
   };
 
+  setDefaultHandler = ({ id }: { id: string }) => {
+    this.list.forEach(q => {
+      q.isDefault = false;
+    });
+    const selectedQG = this.list.find(q => q.id === id);
+    if (selectedQG === undefined) {
+      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+    }
+    selectedQG.isDefault = true;
+    return Promise.resolve();
+  };
+
   createConditionHandler = (
     data: {
       gateId: string;
@@ -285,6 +311,63 @@ export class QualityGatesServiceMock {
     this.list.forEach(q => {
       remove(q.conditions || [], c => c.id === id);
     });
+    return Promise.resolve();
+  };
+
+  searchProjectsHandler = ({
+    selected,
+    query
+  }: {
+    selected: string;
+    query: string | undefined;
+  }) => {
+    let filteredProjects = this.projects;
+    if (selected === 'selected') {
+      filteredProjects = this.projects.filter(p => p.selected);
+    } else if (selected === 'deselected') {
+      filteredProjects = this.projects.filter(p => !p.selected);
+    }
+
+    if (query !== '' && query !== undefined) {
+      filteredProjects = filteredProjects.filter(p => p.name.includes(query));
+    }
+
+    const response = {
+      paging: { pageIndex: 1, pageSize: 3, total: 55 },
+      results: filteredProjects
+    };
+    return this.reply(response);
+  };
+
+  searchUsersHandler = ({ selected }: { selected: string }) => {
+    if (selected === 'selected') {
+      return this.reply({ users: [] });
+    }
+
+    return this.reply({ users: [mockUserBase()] });
+  };
+
+  searchGroupsHandler = ({ selected }: { selected: string }) => {
+    if (selected === 'selected') {
+      return this.reply({ groups: [] });
+    }
+
+    return this.reply({ groups: [mockGroup()] });
+  };
+
+  selectHandler = ({ projectKey }: { projectKey: string }) => {
+    const changedProject = this.projects.find(p => p.key === projectKey);
+    if (changedProject) {
+      changedProject.selected = true;
+    }
+    return Promise.resolve();
+  };
+
+  deSelectHandler = ({ projectKey }: { projectKey: string }) => {
+    const changedProject = this.projects.find(p => p.key === projectKey);
+    if (changedProject) {
+      changedProject.selected = false;
+    }
     return Promise.resolve();
   };
 
