@@ -25,6 +25,7 @@ import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { createMemoryHistory, Route, RouteComponent, RouteConfig, Router } from 'react-router';
 import { Store } from 'redux';
+import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
@@ -33,7 +34,7 @@ import getStore from '../app/utils/getStore';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
 import { Store as State } from '../store/rootReducer';
 import { AppState } from '../types/appstate';
-import { Dict, Languages, Metric } from '../types/types';
+import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
@@ -45,6 +46,43 @@ interface RenderContext {
   appState?: AppState;
   languages?: Languages;
   currentUser?: CurrentUser;
+}
+
+export function renderAdminApp(
+  indexPath: string,
+  routes: RouteConfig,
+  context: RenderContext = {},
+  overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {}
+): RenderResult {
+  function MockAdminContainer(props: { children: React.ReactElement }) {
+    return (
+      <AdminContext.Provider
+        value={{
+          fetchSystemStatus: () => {
+            /*noop*/
+          },
+          fetchPendingPlugins: () => {
+            /*noop*/
+          },
+          pendingPlugins: { installing: [], removing: [], updating: [] },
+          systemStatus: overrides.systemStatus ?? 'UP'
+        }}>
+        {React.cloneElement(props.children, {
+          adminPages: overrides.adminPages ?? []
+        })}
+      </AdminContext.Provider>
+    );
+  }
+
+  const innerPath = indexPath.split('admin/').pop();
+
+  return renderRoutedApp(
+    <Route component={MockAdminContainer} path="admin">
+      <RouteWithChildRoutes path={innerPath} childRoutes={routes} />
+    </Route>,
+    indexPath,
+    context
+  );
 }
 
 export function renderComponentApp(
