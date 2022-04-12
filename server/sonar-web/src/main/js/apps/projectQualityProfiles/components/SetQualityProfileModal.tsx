@@ -110,9 +110,11 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                   className="display-flex-start"
                   checked={!hasSelectedSysDefault}
                   disabled={submitting}
-                  onCheck={() =>
-                    setSelected(!hasSelectedSysDefault ? selected : currentProfile.key)
-                  }
+                  onCheck={value => {
+                    if (hasSelectedSysDefault) {
+                      setSelected(value);
+                    }
+                  }}
                   value={currentProfile.key}>
                   <div className="spacer-left">
                     <div className="little-spacer-bottom">

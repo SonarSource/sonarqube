@@ -49,8 +49,12 @@ it('should correctly handle changes', () => {
     .at(1)
     .props()
     .onCheck('');
+  diveIntoSimpleModal(wrapper)
+    .find(Select)
+    .props()
+    .onChange({ value: 'bar' });
   submitSimpleModal(wrapper);
-  expect(onSubmit).toHaveBeenLastCalledWith('foo', 'foo');
+  expect(onSubmit).toHaveBeenLastCalledWith('bar', 'foo');
 
   const change = diveIntoSimpleModal(wrapper)
     .find(Select)
