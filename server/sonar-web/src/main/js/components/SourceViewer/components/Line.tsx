@@ -135,7 +135,6 @@ export default class Line extends React.PureComponent<Props> {
 
     // default is true
     const displayOptions = displayLineNumberOptions !== false;
-
     return (
       <tr className={className} data-line-number={line.line}>
         <LineNumber displayOptions={displayOptions} firstLineNumber={firstLineNumber} line={line} />

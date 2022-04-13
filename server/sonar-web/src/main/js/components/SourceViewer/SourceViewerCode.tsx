@@ -176,7 +176,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         issueLocations={this.getIssueLocationsForLine(line)}
         issuePopup={this.props.issuePopup}
         issues={issuesForLine}
-        key={line.line}
+        key={line.line || line.code}
         last={index === this.props.sources.length - 1 && !this.props.hasSourcesAfter}
         line={line}
         loadDuplications={this.props.loadDuplications}

@@ -55,13 +55,12 @@ export function LineSCM({ line, previousLine }: LineSCMProps) {
         </Dropdown>
       </td>
     );
-  } else {
-    return (
-      <td className="source-meta source-line-scm" data-line-number={line.line}>
-        {cell}
-      </td>
-    );
   }
+  return (
+    <td className="source-meta source-line-scm" data-line-number={line.line}>
+      {cell}
+    </td>
+  );
 }
 
 function isSCMChanged(s: SourceLine, p: SourceLine | undefined) {

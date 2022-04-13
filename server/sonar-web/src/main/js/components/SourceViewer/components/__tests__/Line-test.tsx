@@ -23,11 +23,6 @@ import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
 import Line from '../Line';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ displaySCM: false })).toMatchSnapshot('no SCM');
-});
-
 it('should render correctly for last, new, and highlighted lines', () => {
   expect(
     shallowRender({
@@ -36,27 +31,6 @@ it('should render correctly for last, new, and highlighted lines', () => {
       line: mockSourceLine({ isNew: true })
     })
   ).toMatchSnapshot();
-});
-
-it('should render correctly with coverage', () => {
-  expect(
-    shallowRender({
-      displayCoverage: true
-    })
-  ).toMatchSnapshot();
-});
-
-it('should render correctly with duplication information', () => {
-  expect(
-    shallowRender({
-      displayDuplications: true,
-      duplicationsCount: 3
-    })
-  ).toMatchSnapshot();
-});
-
-it('should render correctly with issues info', () => {
-  expect(shallowRender({ displayIssues: true })).toMatchSnapshot();
 });
 
 it('handles the opening and closing of issues', () => {

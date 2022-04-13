@@ -25,19 +25,6 @@ import { MetricKey } from '../../../types/metrics';
 import Line from '../components/Line';
 import SourceViewerCode from '../SourceViewerCode';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ issues: [mockIssue(false, { textRange: undefined })] })).toMatchSnapshot(
-    'has file level issues'
-  );
-  expect(shallowRender({ hasSourcesAfter: true, hasSourcesBefore: true })).toMatchSnapshot(
-    'has more sources'
-  );
-  expect(
-    shallowRender({ sources: [], issues: [mockIssue(false, { textRange: undefined })] })
-  ).toMatchSnapshot('only file issues');
-});
-
 it('should correctly flag a line for scrolling', () => {
   const sources = [
     mockSourceLine({ line: 1, coverageStatus: 'covered', isNew: false }),

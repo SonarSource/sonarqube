@@ -22,9 +22,6 @@ import * as React from 'react';
 import { LineNumber, LineNumberProps } from '../LineNumber';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ line: { line: 0 } })).toMatchSnapshot('no line number');
-  expect(shallowRender({ line: { line: 12 } })).toMatchSnapshot('first line');
   expect(shallowRender({ displayOptions: false, line: { line: 12 } })).toMatchSnapshot(
     'no options'
   );

@@ -57,16 +57,12 @@ it('should render correctly', async () => {
 });
 
 it('should use load props if provided', () => {
-  const loadComponent = jest.fn().mockResolvedValue({});
   const loadIssues = jest.fn().mockResolvedValue([]);
-  const loadSources = jest.fn().mockResolvedValue([]);
   const wrapper = shallowRender({
-    loadComponent,
-    loadIssues,
-    loadSources
+    loadIssues
   });
 
-  expect(wrapper.instance().loadComponent).toBe(loadComponent);
+  expect(wrapper.instance().loadIssues).toBe(loadIssues);
 });
 
 it('should reload', async () => {

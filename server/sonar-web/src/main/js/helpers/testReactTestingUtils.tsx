@@ -94,6 +94,18 @@ export function renderAdminApp(
   );
 }
 
+export function renderComponent(component: React.ReactElement) {
+  function Wrapper({ children }: { children: React.ReactElement }) {
+    return (
+      <IntlProvider defaultLocale="en" locale="en">
+        {children}
+      </IntlProvider>
+    );
+  }
+
+  return render(component, { wrapper: Wrapper });
+}
+
 export function renderComponentApp(
   indexPath: string,
   component: RouteComponent,

@@ -29,22 +29,6 @@ jest.mock('react', () => {
   };
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('covered');
-  expect(shallowRender({ line: { line: 3, coverageStatus: 'uncovered' } })).toMatchSnapshot(
-    'uncovered'
-  );
-  expect(shallowRender({ line: { line: 3, coverageStatus: 'partially-covered' } })).toMatchSnapshot(
-    'partially covered, 0 conditions'
-  );
-  expect(
-    shallowRender({ line: { line: 3, coverageStatus: 'partially-covered', coveredConditions: 10 } })
-  ).toMatchSnapshot('partially covered, 10 conditions');
-  expect(shallowRender({ line: { line: 3, coverageStatus: undefined } })).toMatchSnapshot(
-    'no data'
-  );
-});
-
 it('should correctly trigger a scroll', () => {
   const element = { current: {} };
   (React.useEffect as jest.Mock).mockImplementation(f => f());
