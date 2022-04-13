@@ -89,7 +89,7 @@ export const VISUALIZATIONS = [
   'duplications'
 ];
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 10;
 const PAGE_SIZE_VISUALIZATIONS = 99;
 
 const METRICS = [

@@ -50,7 +50,7 @@ interface State {
   paging?: T.Paging;
 }
 
-const BUBBLES_LIMIT = 500;
+const BUBBLES_LIMIT = 50;
 
 export default class MeasureOverview extends React.PureComponent<Props, State> {
   mounted = false;

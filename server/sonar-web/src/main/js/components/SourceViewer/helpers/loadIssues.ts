@@ -23,7 +23,7 @@ import { parseIssueFromResponse } from '../../../helpers/issues';
 import { BranchLike } from '../../../types/branch-like';
 
 // maximum possible value
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 50;
 
 function buildQuery(component: string, branchLike: BranchLike | undefined) {
   return {

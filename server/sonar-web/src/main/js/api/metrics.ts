@@ -43,7 +43,7 @@ export function getAllMetrics(data?: {
   return inner(data);
 
   function inner(
-    data: { p?: number; ps?: number } = { ps: 500 },
+    data: { p?: number; ps?: number } = { ps: 50 },
     prev?: MetricsResponse
   ): Promise<T.Metric[]> {
     return getMetrics(data).then(r => {

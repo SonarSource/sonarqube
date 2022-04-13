@@ -80,7 +80,7 @@ import PageActions from './PageActions';
 import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 25;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface StateToProps {

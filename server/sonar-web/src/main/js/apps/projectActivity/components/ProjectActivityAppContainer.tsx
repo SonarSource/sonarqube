@@ -221,7 +221,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
       return Promise.resolve(prevResult);
     }
     const nextPage = prevResult ? prevResult.paging.pageIndex + 1 : 1;
-    return this.fetchActivity(project, nextPage, 500).then(result => {
+    return this.fetchActivity(project, nextPage, 50).then(result => {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
       }
