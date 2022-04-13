@@ -127,6 +127,7 @@ export default class Workers extends React.PureComponent<{}, State> {
             <EditButton
               className="js-edit button-small spacer-left"
               onClick={this.handleChangeClick}
+              title={translate('edit')}
             />
           </Tooltip>
         )}
