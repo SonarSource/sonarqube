@@ -24,7 +24,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TokenGeneratorImplTest {
-  private TokenGeneratorImpl underTest = new TokenGeneratorImpl();
+  private final TokenGeneratorImpl underTest = new TokenGeneratorImpl();
 
   @Test
   public void generate_different_tokens() {
@@ -39,10 +39,24 @@ public class TokenGeneratorImplTest {
   }
 
   @Test
-  public void generate_tokenShouldHaveSonarQubePrefix() {
+  public void generated_userToken_should_have_squ_prefix() {
     String token = underTest.generate(TokenType.USER_TOKEN);
 
-    assertThat(token).matches("squ_.*");
+    assertThat(token).matches("squ_.{40}");
+  }
+
+  @Test
+  public void generated_projectAnalysisToken_should_have_sqp_prefix() {
+    String token = underTest.generate(TokenType.PROJECT_ANALYSIS_TOKEN);
+
+    assertThat(token).matches("sqp_.{40}");
+  }
+
+  @Test
+  public void generated_globalAnalysisToken_should_have_sqa_prefix() {
+    String token = underTest.generate(TokenType.GLOBAL_ANALYSIS_TOKEN);
+
+    assertThat(token).matches("sqa_.{40}");
   }
 
   @Test
