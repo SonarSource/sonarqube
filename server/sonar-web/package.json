@@ -122,7 +122,7 @@
     "format-check": "prettier --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
-    "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
+    "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn test --coverage --maxWorkers=4 --ci",
