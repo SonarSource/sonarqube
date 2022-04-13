@@ -27,7 +27,7 @@ public class GitScmSupportTest {
 
   @Test
   public void getClasses() {
-    assertThat(GitScmSupport.getObjects()).hasSize(3);
+    assertThat(GitScmSupport.getObjects()).isNotEmpty();
   }
 
 }

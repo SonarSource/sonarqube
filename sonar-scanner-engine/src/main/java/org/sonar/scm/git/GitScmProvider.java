@@ -64,14 +64,14 @@ public class GitScmProvider extends ScmProvider {
 
   private static final Logger LOG = Loggers.get(GitScmProvider.class);
   private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
-  private final JGitBlameCommand jgitBlameCommand;
+  private final BlameCommand blameCommand;
   private final AnalysisWarnings analysisWarnings;
   private final GitIgnoreCommand gitIgnoreCommand;
   private final System2 system2;
   private final String documentationLink;
 
-  public GitScmProvider(JGitBlameCommand jgitBlameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2) {
-    this.jgitBlameCommand = jgitBlameCommand;
+  public GitScmProvider(CompositeBlameCommand blameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2) {
+    this.blameCommand = blameCommand;
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
@@ -96,7 +96,7 @@ public class GitScmProvider extends ScmProvider {
 
   @Override
   public BlameCommand blameCommand() {
-    return this.jgitBlameCommand;
+    return this.blameCommand;
   }
 
   @CheckForNull

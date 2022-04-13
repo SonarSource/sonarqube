@@ -20,156 +20,143 @@
 package org.sonar.scm.git;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static java.util.Objects.requireNonNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GitBlameCommand {
-  private static final String AUTHOR = "author";
-  private static final String COMMIT = "commit";
-  private static final String TIMESTAMP = "timestamp";
-  private static final String TIMEZONE = "timezone";
-  private static final String LINE = "line";
+  private static final Logger LOG = Loggers.get(GitBlameCommand.class);
+  private static final Pattern EMAIL_PATTERN = Pattern.compile("<(\\S*?)>");
+  private static final String COMITTER_TIME = "committer-time ";
+  private static final String COMITTER_MAIL = "committer-mail ";
 
   private static final String GIT_COMMAND = "git";
   private static final String BLAME_COMMAND = "blame";
-  private static final String BLAME_LONG_FLAG = "-l";
-  private static final String BLAME_SHOW_EMAIL_FLAG = "--show-email";
-  private static final String BLAME_TIMESTAMP_FLAG = "-t";
+  private static final String BLAME_LINE_PORCELAIN_FLAG = "--line-porcelain";
+  private static final String IGNORE_WHITESPACES = "-w";
 
-  public static List<BlameLine> executeCommand(Path directory, String... command) throws IOException, InterruptedException {
-    requireNonNull(directory, "directory");
+  private final String gitCommand;
 
-    if (!Files.exists(directory)) {
-      throw new RuntimeException("Directory does not exist, unable to run git operations:'" + directory + "'");
+  @Autowired
+  public GitBlameCommand() {
+    this(GIT_COMMAND);
+  }
+
+  public GitBlameCommand(String gitCommand) {
+    this.gitCommand = gitCommand;
+  }
+
+  public boolean isEnabled(Path baseDir) {
+    try {
+      MutableString stdOut = new MutableString();
+      executeCommand(baseDir, l -> stdOut.string = l, gitCommand, "--version");
+      return stdOut.string != null && stdOut.string.startsWith("git version");
+    } catch (Exception e) {
+      LOG.debug("Failed to find git native client", e);
+      return false;
     }
+  }
 
+  public List<BlameLine> blame(Path baseDir, String fileName) {
+    BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
+    try {
+      executeCommand(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, fileName);
+      return outputProcessor.getBlameLines();
+    } catch (Exception e) {
+      LOG.debug("Blame failed for " + fileName, e);
+      return emptyList();
+    }
+  }
+
+  private void executeCommand(Path baseDir, Consumer<String> stdOutLineConsumer, String... command) throws Exception {
     ProcessBuilder pb = new ProcessBuilder()
       .command(command)
-      .directory(directory.toFile());
+      .directory(baseDir.toFile());
 
     Process p = pb.start();
-
-    List<String> commandOutput = new ArrayList<>();
-    InputStream processStdOutput = p.getInputStream();
-
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(processStdOutput))) {
+    try {
+      InputStream processStdOutput = p.getInputStream();
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(processStdOutput, UTF_8))) {
         String outputLine;
-
         while ((outputLine = br.readLine()) != null) {
-          commandOutput.add(outputLine);
+          stdOutLineConsumer.accept(outputLine);
         }
+      }
 
-        int exit = p.waitFor();
+      int exit = p.waitFor();
+      if (exit != 0) {
+        throw new IllegalStateException(String.format("Command execution exited with code: %d", exit));
+      }
 
-        if (exit != 0) {
-          throw new AssertionError(String.format("Command execution exited with code: %d", exit));
-        }
-
-    } catch (Exception e) {
-      e.printStackTrace();
     } finally {
       p.destroy();
     }
-
-    return commandOutput
-      .stream()
-      .map(GitBlameCommand::parseBlameLine)
-      .collect(Collectors.toList());
   }
 
-  private static Map<String, String> getBlameAuthoringData(String blameLine) {
-    String[] blameLineFormatted = blameLine.trim().split("\\s+", 2);
+  private static class BlameOutputProcessor {
+    private final List<BlameLine> blameLines = new ArrayList<>();
+    private String sha1;
+    private String committerTime;
+    private String committerMail;
 
-    String commit = blameLineFormatted[0];
-
-    if (commit.length() != 40) {
-      throw new IllegalStateException(String.format("Failed to fetch correct commit hash, must be of length 40: %s", commit));
+    public List<BlameLine> getBlameLines() {
+      return unmodifiableList(blameLines);
     }
 
-    String authoringData = StringUtils.substringBetween(blameLineFormatted[1], "(", ")");
-    String[] authoringDataFormatted = authoringData.trim().split("\\s+", 4);
-
-    String author = StringUtils.substringBetween(authoringDataFormatted[0], "<", ">");
-    String timestamp = authoringDataFormatted[1];
-    String timezone = authoringDataFormatted[2];
-    String line = authoringDataFormatted[3];
-
-    Map<String, String> blameData = new HashMap<>();
-
-    blameData.put(COMMIT, commit);
-    blameData.put(AUTHOR, author);
-    blameData.put(TIMESTAMP, timestamp);
-    blameData.put(TIMEZONE, timezone);
-    blameData.put(LINE, line);
-
-    return blameData;
-  }
-
-  private static BlameLine parseBlameLine(String blameLine) {
-    Map<String, String> blameData = getBlameAuthoringData(blameLine);
-
-    return new BlameLine()
-      .date(new Date(Long.parseLong(blameData.get(TIMESTAMP)))) // should also take timezone into consideration
-      .revision(blameData.get(COMMIT))
-      .author(blameData.get(AUTHOR));
-  }
-
-  public static void gitInit(Path directory) throws IOException, InterruptedException {
-    executeCommand(directory, "git", "init");
-  }
-
-  public static void gitStage(Path directory) throws IOException, InterruptedException {
-    executeCommand(directory, "git", "add", "-A");
-  }
-
-  public static void gitCommit(Path directory, String message) throws IOException, InterruptedException {
-    executeCommand(directory, GIT_COMMAND, COMMIT, "-m", message);
-  }
-
-  public static void gitClone(Path directory, String originUrl) throws IOException, InterruptedException {
-    executeCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
-  }
-
-  public static List<BlameLine> gitBlame(Path directory, String fileName) throws IOException, InterruptedException {
-    return executeCommand(directory, GIT_COMMAND, BLAME_COMMAND, BLAME_LONG_FLAG, BLAME_SHOW_EMAIL_FLAG, BLAME_TIMESTAMP_FLAG, fileName);
-  }
-
-  private static class StreamGobbler extends Thread {
-    private final InputStream is;
-    private final String type;
-
-    private StreamGobbler(InputStream is, String type) {
-      this.is = is;
-      this.type = type;
-    }
-
-    @Override
-    public void run() {
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(is));) {
-        List<String> commandOutput = new ArrayList<>();
-        String outputLine;
-
-        while ((outputLine = br.readLine()) != null) {
-          commandOutput.add(outputLine);
-          System.out.println(type + "> " + outputLine);
+    public void process(String line) {
+      if (sha1 == null) {
+        sha1 = line.split(" ")[0];
+      } else if (line.startsWith("\t")) {
+        saveEntry();
+      } else if (line.startsWith(COMITTER_TIME)) {
+        committerTime = line.substring(COMITTER_TIME.length());
+      } else if (line.startsWith(COMITTER_MAIL)) {
+        Matcher matcher = EMAIL_PATTERN.matcher(line);
+        if (!matcher.find(COMITTER_MAIL.length()) || matcher.groupCount() != 1) {
+          throw new IllegalStateException("Couldn't parse committer email from: " + line);
         }
-      } catch (IOException ioe) {
-        ioe.printStackTrace();
+        committerMail = matcher.group(1);
+        if (committerMail.equals("not.committed.yet")) {
+          throw new IllegalStateException("Uncommitted line found");
+        }
       }
     }
+
+    private void saveEntry() {
+      checkState(committerMail != null, "Did not find a committer email for an entry");
+      checkState(committerTime != null, "Did not find a committer time for an entry");
+      checkState(sha1 != null, "Did not find a commit sha1 for an entry");
+      try {
+        blameLines.add(new BlameLine()
+          .revision(sha1)
+          .author(committerMail)
+          .date(Date.from(Instant.ofEpochSecond(Long.parseLong(committerTime)))));
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException("Invalid committer time found: " + committerTime);
+      }
+      committerMail = null;
+      sha1 = null;
+      committerTime = null;
+    }
   }
 
+  private static class MutableString {
+    String string;
+  }
 }

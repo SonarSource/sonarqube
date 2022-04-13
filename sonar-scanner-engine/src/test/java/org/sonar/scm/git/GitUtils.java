@@ -19,22 +19,26 @@
  */
 package org.sonar.scm.git;
 
-import java.util.Arrays;
-import java.util.List;
-import org.eclipse.jgit.util.FS;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-public final class GitScmSupport {
-  private GitScmSupport() {
-    // static only
+public class GitUtils {
+  public static Git createRepository(Path worktree) throws IOException {
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    return new Git(repo);
   }
 
-  public static List<Object> getObjects() {
-    FS.FileStoreAttributes.setBackground(true);
-    return Arrays.asList(
-      JGitBlameCommand.class,
-      CompositeBlameCommand.class,
-      GitBlameCommand.class,
-      GitScmProvider.class,
-      GitIgnoreCommand.class);
+  public static void createFile(String relativePath, String content, Path worktree) throws IOException {
+    Path newFile = worktree.resolve(relativePath);
+    Files.createDirectories(newFile.getParent());
+    Files.write(newFile, content.getBytes(), StandardOpenOption.CREATE);
   }
+
+
 }

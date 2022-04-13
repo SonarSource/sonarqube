@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -73,6 +72,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.scm.git.GitUtils.createFile;
+import static org.sonar.scm.git.GitUtils.createRepository;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
 public class GitScmProviderTest {
@@ -136,8 +137,10 @@ public class GitScmProviderTest {
 
   @Test
   public void returnImplem() {
-    JGitBlameCommand jblameCommand = new JGitBlameCommand(new PathResolver(), analysisWarnings);
-    GitScmProvider gitScmProvider = new GitScmProvider(jblameCommand, analysisWarnings, gitIgnoreCommand, system2);
+    JGitBlameCommand jblameCommand = new JGitBlameCommand();
+    GitBlameCommand nativeBlameCommand = new GitBlameCommand();
+    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
+    GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(jblameCommand);
   }
@@ -176,8 +179,8 @@ public class GitScmProviderTest {
     assertThat(newScmProvider().supports(baseDir)).isTrue();
   }
 
-  private static JGitBlameCommand mockCommand() {
-    return mock(JGitBlameCommand.class);
+  private static CompositeBlameCommand mockCommand() {
+    return mock(CompositeBlameCommand.class);
   }
 
   @Test
@@ -303,12 +306,6 @@ public class GitScmProviderTest {
 
     assertThat(changedLines).hasSize(1);
     assertThat(changedLines.entrySet().iterator().next().getValue()).containsOnly(4, 5, 6);
-  }
-
-  private Git createRepository(Path worktree) throws IOException {
-    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
-    repo.create();
-    return new Git(repo);
   }
 
   private void addSubmodule(Git mainGit, String submoduleName, String uriToSubmodule) throws GitAPIException {
@@ -663,7 +660,7 @@ public class GitScmProviderTest {
   }
 
   private GitScmProvider newGitScmProvider() {
-    return new GitScmProvider(mock(JGitBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2);
+    return new GitScmProvider(mock(CompositeBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2);
   }
 
   @Test
@@ -758,12 +755,6 @@ public class GitScmProviderTest {
   private void createAndCommitFile(String relativePath, String content, Git git, Path worktree) throws IOException, GitAPIException {
     createFile(relativePath, content, worktree);
     commit(git, relativePath);
-  }
-
-  private void createFile(String relativePath, String content, Path worktree) throws IOException {
-    Path newFile = worktree.resolve(relativePath);
-    Files.createDirectories(newFile.getParent());
-    Files.write(newFile, content.getBytes(), StandardOpenOption.CREATE);
   }
 
   private void addLineToFile(String relativePath, int lineNumber) throws IOException {
