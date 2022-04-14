@@ -40,11 +40,15 @@ public class UserTokenNewValue extends NewValue {
   @Nullable
   private Long lastConnectionDate;
 
+  @Nullable
+  private String projectKey;
+
   public UserTokenNewValue(UserTokenDto userTokenDto, @Nullable String userLogin) {
     this.tokenUuid = userTokenDto.getUuid();
     this.tokenName = userTokenDto.getName();
     this.userUuid = userTokenDto.getUserUuid();
     this.lastConnectionDate = userTokenDto.getLastConnectionDate();
+    this.projectKey = userTokenDto.getProjectKey();
     this.userLogin = userLogin;
   }
 
@@ -82,6 +86,11 @@ public class UserTokenNewValue extends NewValue {
     return this.lastConnectionDate;
   }
 
+  @CheckForNull
+  public String getProjectKey() {
+    return this.projectKey;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
@@ -89,8 +98,8 @@ public class UserTokenNewValue extends NewValue {
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"tokenName\": ", this.tokenName, true);
-    addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
-      "" : DateUtils.formatDateTime(this.lastConnectionDate), false);
+    addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ? "" : DateUtils.formatDateTime(this.lastConnectionDate), false);
+    addField(sb, "\"projectKey\": ", this.projectKey, true);
     endString(sb);
     return sb.toString();
   }

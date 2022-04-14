@@ -39,6 +39,8 @@ public class UserTokenDto {
 
   private Long createdAt;
 
+  private String projectKey;
+
   public String getUuid() {
     return uuid;
   }
@@ -90,6 +92,15 @@ public class UserTokenDto {
 
   public UserTokenDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+    return this;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public UserTokenDto setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 }

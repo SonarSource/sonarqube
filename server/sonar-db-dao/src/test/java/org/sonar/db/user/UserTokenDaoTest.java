@@ -28,18 +28,19 @@ import org.sonar.db.DbTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTokenTesting.newProjectAnalysisToken;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserTokenDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
+  private final DbSession dbSession = db.getSession();
 
-  private UserTokenDao underTest = db.getDbClient().userTokenDao();
+  private final UserTokenDao underTest = db.getDbClient().userTokenDao();
 
   @Test
-  public void insert_token() {
+  public void insert_user_token() {
     UserTokenDto userToken = newUserToken();
 
     underTest.insert(db.getSession(), userToken, "login");
@@ -51,6 +52,22 @@ public class UserTokenDaoTest {
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
     assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
+  }
+
+  @Test
+  public void insert_project_analysis_token() {
+    UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
+
+    underTest.insert(db.getSession(), projectAnalysisToken, "login");
+
+    UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());
+    assertThat(projectAnalysisTokenFromDb).isNotNull();
+    assertThat(projectAnalysisTokenFromDb.getUuid()).isEqualTo(projectAnalysisToken.getUuid());
+    assertThat(projectAnalysisTokenFromDb.getName()).isEqualTo(projectAnalysisToken.getName());
+    assertThat(projectAnalysisTokenFromDb.getCreatedAt()).isEqualTo(projectAnalysisToken.getCreatedAt());
+    assertThat(projectAnalysisTokenFromDb.getTokenHash()).isEqualTo(projectAnalysisToken.getTokenHash());
+    assertThat(projectAnalysisTokenFromDb.getUserUuid()).isEqualTo(projectAnalysisToken.getUserUuid());
+    assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
   }
 
   @Test

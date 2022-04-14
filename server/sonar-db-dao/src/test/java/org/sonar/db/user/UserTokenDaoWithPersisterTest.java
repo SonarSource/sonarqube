@@ -66,8 +66,8 @@ public class UserTokenDaoWithPersisterTest {
     assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
     UserTokenNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
-      .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate());
+      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate, UserTokenNewValue::getProjectKey)
+      .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate(), userToken.getProjectKey());
     assertThat(newValue.toString())
       .contains("tokenUuid")
       .contains(DateUtils.formatDateTime(userToken.getLastConnectionDate()));

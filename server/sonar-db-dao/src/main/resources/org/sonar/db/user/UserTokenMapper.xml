@@ -9,7 +9,8 @@
     t.name as "name",
     t.token_hash as "tokenHash",
     t.last_connection_date as "lastConnectionDate",
-    t.created_at as "createdAt"
+    t.created_at as "createdAt",
+    t.project_key as "projectKey"
   </sql>
 
   <insert id="insert" parameterType="UserToken" useGeneratedKeys="false">
@@ -18,13 +19,15 @@
     user_uuid,
     name,
     token_hash,
-    created_at
+    created_at,
+    project_key
     ) values (
     #{uuid, jdbcType=VARCHAR},
     #{userUuid, jdbcType=VARCHAR},
     #{name, jdbcType=VARCHAR},
     #{tokenHash, jdbcType=VARCHAR},
-    #{createdAt, jdbcType=BIGINT}
+    #{createdAt, jdbcType=BIGINT},
+    #{projectKey, jdbcType=VARCHAR}
     )
   </insert>
 
