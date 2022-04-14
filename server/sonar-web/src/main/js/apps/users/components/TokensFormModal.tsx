@@ -48,6 +48,7 @@ export default function TokensFormModal(props: Props) {
           deleteConfirmation="inline"
           login={props.user.login}
           updateTokensCount={props.updateTokensCount}
+          displayTokenTypeInput={false}
         />
       </div>
       <footer className="modal-foot">

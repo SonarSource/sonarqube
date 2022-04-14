@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { revokeToken } from '../../../../api/user-tokens';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
-import { UserToken } from '../../../../types/types';
+import { UserToken } from '../../../../types/token';
 import TokensFormItem from '../TokensFormItem';
 
 jest.mock('../../../../components/intl/DateFormatter');

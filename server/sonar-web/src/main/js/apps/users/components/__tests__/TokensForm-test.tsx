@@ -20,8 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
-import TokensForm from '../TokensForm';
+import { TokenType } from '../../../../types/token';
+import { TokensForm } from '../TokensForm';
 
 jest.mock('../../../../api/user-tokens', () => ({
   generateToken: jest.fn().mockResolvedValue({
@@ -63,7 +65,7 @@ it('should create new tokens', async () => {
   submit(wrapper.find('form'));
 
   await waitAndUpdate(wrapper);
-  expect(generateToken).toHaveBeenCalledWith({ name: 'baz', login: 'luke' });
+  expect(generateToken).toHaveBeenCalledWith({ name: 'baz', login: 'luke', type: TokenType.User });
   expect(wrapper.find('TokensFormItem')).toHaveLength(3);
 });
 
@@ -80,6 +82,13 @@ it('should revoke tokens', async () => {
 
 function shallowRender(props: Partial<TokensForm['props']> = {}) {
   return shallow<TokensForm>(
-    <TokensForm deleteConfirmation="inline" login="luke" updateTokensCount={jest.fn()} {...props} />
+    <TokensForm
+      deleteConfirmation="inline"
+      login="luke"
+      updateTokensCount={jest.fn()}
+      displayTokenTypeInput={false}
+      currentUser={mockCurrentUser()}
+      {...props}
+    />
   );
 }

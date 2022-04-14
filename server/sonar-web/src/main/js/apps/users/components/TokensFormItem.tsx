@@ -28,7 +28,7 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { limitComponentName } from '../../../helpers/path';
-import { UserToken } from '../../../types/types';
+import { UserToken } from '../../../types/token';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 

@@ -25,7 +25,7 @@ import { Button, DeleteButton, SubmitButton } from '../../../components/controls
 import Radio from '../../../components/controls/Radio';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate } from '../../../helpers/l10n';
-import { UserToken } from '../../../types/types';
+import { UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';

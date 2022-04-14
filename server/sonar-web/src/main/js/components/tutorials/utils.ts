@@ -19,7 +19,7 @@
  */
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
-import { UserToken } from '../../types/types';
+import { UserToken } from '../../types/token';
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;

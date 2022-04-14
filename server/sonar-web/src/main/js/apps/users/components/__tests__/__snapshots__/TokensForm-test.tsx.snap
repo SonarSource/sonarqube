@@ -10,11 +10,10 @@ exports[`should render correctly 1`] = `
   <form
     autoComplete="off"
     className="display-flex-center"
-    id="generate-token-form"
     onSubmit={[Function]}
   >
     <input
-      className="input-large spacer-right"
+      className="input-large spacer-right it__token-name"
       maxLength={100}
       onChange={[Function]}
       placeholder="users.enter_token_name"
@@ -23,7 +22,7 @@ exports[`should render correctly 1`] = `
       value=""
     />
     <SubmitButton
-      className="js-generate-token"
+      className="it__generate-token"
       disabled={true}
     >
       users.generate
@@ -85,11 +84,10 @@ exports[`should render correctly 2`] = `
   <form
     autoComplete="off"
     className="display-flex-center"
-    id="generate-token-form"
     onSubmit={[Function]}
   >
     <input
-      className="input-large spacer-right"
+      className="input-large spacer-right it__token-name"
       maxLength={100}
       onChange={[Function]}
       placeholder="users.enter_token_name"
@@ -98,7 +96,7 @@ exports[`should render correctly 2`] = `
       value=""
     />
     <SubmitButton
-      className="js-generate-token"
+      className="it__generate-token"
       disabled={true}
     >
       users.generate

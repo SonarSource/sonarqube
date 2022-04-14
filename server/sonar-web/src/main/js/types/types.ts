@@ -767,17 +767,6 @@ export interface UserSelected extends UserActive {
   selected: boolean;
 }
 
-export interface UserToken {
-  name: string;
-  createdAt: string;
-  lastConnectionDate?: string;
-}
-
-export interface NewUserToken extends UserToken {
-  login: string;
-  token: string;
-}
-
 export type Visibility = 'public' | 'private';
 
 export interface Webhook {

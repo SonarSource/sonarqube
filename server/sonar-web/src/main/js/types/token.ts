@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
-import { NewUserToken, UserToken } from '../types/token';
 
-/** List tokens for given user login */
-export function getTokens(login: string): Promise<UserToken[]> {
-  return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
+export enum TokenType {
+  Project = 'PROJECT_ANALYSIS_TOKEN',
+  Global = 'GLOBAL_ANALYSIS_TOKEN',
+  User = 'USER_TOKEN'
 }
 
-export function generateToken(data: {
+export interface UserToken {
   name: string;
-  projectKey?: string;
-  type?: string;
-  login?: string;
-}): Promise<NewUserToken> {
-  return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
+  createdAt: string;
+  lastConnectionDate?: string;
+  type?: TokenType;
+  project?: { name: string; key: string };
 }
 
-export function revokeToken(data: { name: string; login?: string }) {
-  return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
+export interface NewUserToken extends UserToken {
+  login: string;
+  token: string;
 }

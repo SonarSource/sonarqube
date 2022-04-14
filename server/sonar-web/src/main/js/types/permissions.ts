@@ -21,5 +21,6 @@ export enum Permissions {
   Admin = 'admin',
   ProjectCreation = 'provisioning',
   ApplicationCreation = 'applicationcreator',
-  QualityGateAdmin = 'gateadmin'
+  QualityGateAdmin = 'gateadmin',
+  Scan = 'scan'
 }

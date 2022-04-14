@@ -19,7 +19,7 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { NewUserToken, UserToken } from '../../types/types';
+import { NewUserToken, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
 
 const RANDOM_RADIX = 36;

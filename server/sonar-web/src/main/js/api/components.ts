@@ -299,3 +299,12 @@ export function getTests(
 ): Promise<any> {
   return getJSON('/api/tests/list', data).then(r => r.tests);
 }
+
+interface ProjectResponse {
+  key: string;
+  name: string;
+}
+
+export function getScannableProjects(): Promise<{ projects: ProjectResponse[] }> {
+  return getJSON('/api/projects/search_my_scannable_projects').catch(throwGlobalError);
+}

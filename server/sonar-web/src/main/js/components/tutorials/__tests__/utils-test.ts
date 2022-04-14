@@ -22,7 +22,7 @@ import {
   mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse
 } from '../../../helpers/mocks/alm-settings';
-import { UserToken } from '../../../types/types';
+import { UserToken } from '../../../types/token';
 import { buildBitbucketCloudLink, buildGithubLink, getUniqueTokenName } from '../utils';
 
 describe('getUniqueTokenName', () => {
