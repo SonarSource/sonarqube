@@ -15,7 +15,7 @@ Links
 * [SonarSource](https://www.sonarsource.com), author of SonarQube
 * [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
 * [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)
-* [Dogfood](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
+* [Next](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
 
 Have Question or Feedback?
 --------------------------
