@@ -68,7 +68,7 @@ public class MetadataLoaderTest {
 
     assertThatThrownBy(() -> MetadataLoader.loadVersion(system))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Can not load /sonar-api-version.txt from classpath");
+      .hasMessageContaining("Can not load /sq-version.txt from classpath");
   }
 
 }

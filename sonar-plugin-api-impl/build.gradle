@@ -25,6 +25,13 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+  filter ReplaceTokens, tokens: [
+          'project.version': project.version
+  ]
+}
+
 artifactoryPublish.skip = false
 
 publishing {

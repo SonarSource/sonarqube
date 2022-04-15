@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import static java.lang.String.format;
 
 public class SonarQubeVersionHelper {
-  private static final String SONARQUBE_VERSION_PATH = "/sonarqube-version.txt";
+  private static final String SONARQUBE_VERSION_PATH = "/sq-version.txt";
 
   private static String sonarqubeVersion;
 

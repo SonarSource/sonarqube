@@ -37,7 +37,7 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
  */
 public class MetadataLoader {
 
-  private static final String VERSION_FILE_PATH = "/sonar-api-version.txt";
+  private static final String SQ_VERSION_FILE_PATH = "/sq-version.txt";
   private static final String EDITION_FILE_PATH = "/sonar-edition.txt";
 
   private MetadataLoader() {
@@ -45,13 +45,13 @@ public class MetadataLoader {
   }
 
   public static Version loadVersion(System2 system) {
-    URL url = system.getResource(VERSION_FILE_PATH);
+    URL url = system.getResource(SQ_VERSION_FILE_PATH);
 
     try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8.name())) {
       String versionInFile = scanner.nextLine();
       return Version.parse(versionInFile);
     } catch (IOException e) {
-      throw new IllegalStateException("Can not load " + VERSION_FILE_PATH + " from classpath ", e);
+      throw new IllegalStateException("Can not load " + SQ_VERSION_FILE_PATH + " from classpath ", e);
     }
   }
 
