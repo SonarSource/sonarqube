@@ -45,6 +45,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    this.setState({ loading: false });
   }
 
   handleSelectTutorial = (selectedTutorial: TutorialModes) => {

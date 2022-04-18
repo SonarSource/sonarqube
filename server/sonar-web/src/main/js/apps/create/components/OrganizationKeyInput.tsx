@@ -24,6 +24,7 @@ import { getOrganization } from '../../../api/organizations';
 import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 
 interface Props {
   initialValue?: string;
@@ -112,7 +113,7 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
         isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}
         required={true}>
-        <div className="display-inline-flex-baseline">
+        <div className="display-inline-flex-center">
           <span className="little-spacer-right nowrap">
             {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
           </span>
@@ -127,6 +128,14 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
             onChange={this.handleChange}
             type="text"
             value={this.state.value}
+          />
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={
+              <div className="big-padded-top big-padded-bottom">
+                {translate('organization.key.description')}
+              </div>
+            }
           />
         </div>
       </ValidationInput>
