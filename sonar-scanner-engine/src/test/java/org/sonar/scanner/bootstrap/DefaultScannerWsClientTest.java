@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,8 +31,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.MockWsResponse;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,17 +45,24 @@ public class DefaultScannerWsClientTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+
+  private final ScannerProperties scannerProperties = mock(ScannerProperties.class);
+
+  @Before
+  public void before() {
+    when(scannerProperties.getProjectKey()).thenReturn("projectKey");
+  }
 
   @Test
   public void log_and_profile_request_if_debug_level() {
-    WsRequest request = newRequest();
+    GetRequest request = newGetRequest();
     WsResponse response = newResponse().setRequestUrl("https://local/api/issues/search");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     logTester.setLevel(LoggerLevel.DEBUG);
-    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(
-      new ScannerProperties(Collections.emptyMap())));
+    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(scannerProperties),
+      scannerProperties);
 
     WsResponse result = underTest.call(request);
 
@@ -66,6 +73,21 @@ public class DefaultScannerWsClientTest {
     List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
     assertThat(debugLogs).hasSize(1);
     assertThat(debugLogs.get(0)).contains("GET 200 https://local/api/issues/search | time=");
+  }
+
+  @Test
+  public void call_alwaysAddContextHeaders() {
+    GetRequest getRequest = newGetRequest();
+    PostRequest postRequest = newPostRequest();
+
+    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(scannerProperties),
+      scannerProperties);
+
+    underTest.call(getRequest);
+    underTest.call(postRequest);
+
+    assertThat(getRequest.getHeaders().getValue("PROJECT_KEY")).contains("projectKey");
+    assertThat(postRequest.getHeaders().getValue("PROJECT_KEY")).contains("projectKey");
   }
 
   @Test
@@ -88,12 +110,12 @@ public class DefaultScannerWsClientTest {
 
   @Test
   public void fail_if_requires_credentials() {
-    WsRequest request = newRequest();
+    GetRequest request = newGetRequest();
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, false,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      new GlobalAnalysisMode(scannerProperties), scannerProperties).call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other " +
         "credentials in sonar.login and sonar.password.");
@@ -101,39 +123,39 @@ public class DefaultScannerWsClientTest {
 
   @Test
   public void fail_if_credentials_are_not_valid() {
-    WsRequest request = newRequest();
+    GetRequest request = newGetRequest();
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      new GlobalAnalysisMode(scannerProperties), scannerProperties).call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
   }
 
   @Test
   public void fail_if_requires_permission() {
-    WsRequest request = newRequest();
+    GetRequest request = newGetRequest();
     WsResponse response = newResponse()
       .setCode(403);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      new GlobalAnalysisMode(scannerProperties), scannerProperties).call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("You're not authorized to run analysis. Please contact the project administrator.");
   }
 
   @Test
   public void fail_if_bad_request() {
-    WsRequest request = newRequest();
+    GetRequest request = newGetRequest();
     WsResponse response = newResponse()
       .setCode(400)
       .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      new GlobalAnalysisMode(scannerProperties), scannerProperties).call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Boo! bad request! bad!");
   }
@@ -142,7 +164,11 @@ public class DefaultScannerWsClientTest {
     return new MockWsResponse().setRequestUrl("https://local/api/issues/search");
   }
 
-  private WsRequest newRequest() {
+  private GetRequest newGetRequest() {
     return new GetRequest("api/issues/search");
+  }
+
+  private PostRequest newPostRequest() {
+    return new PostRequest("api/ce/task");
   }
 }

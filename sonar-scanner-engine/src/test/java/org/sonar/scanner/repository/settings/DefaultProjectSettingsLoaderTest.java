@@ -60,7 +60,7 @@ public class DefaultProjectSettingsLoaderTest {
       .writeTo(out);
     out.close();
     when(response.contentStream()).thenReturn(in);
-    when(wsClient.call(any())).thenReturn(response);
+    when(wsClient.call(any(GetRequest.class))).thenReturn(response);
     when(properties.getProjectKey()).thenReturn("project_key");
 
     Map<String, String> result = underTest.loadProjectSettings();

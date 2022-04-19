@@ -39,7 +39,8 @@ public class ScannerWsClientProviderTest {
   public void provide_client_with_default_settings() {
     ScannerProperties settings = new ScannerProperties(new HashMap<>());
 
-    DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), mock(System2.class));
+    DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())),
+      mock(System2.class));
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
@@ -59,7 +60,8 @@ public class ScannerWsClientProviderTest {
     props.put("sonar.ws.timeout", "42");
     ScannerProperties settings = new ScannerProperties(props);
 
-    DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), mock(System2.class));
+    DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())),
+      mock(System2.class));
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();

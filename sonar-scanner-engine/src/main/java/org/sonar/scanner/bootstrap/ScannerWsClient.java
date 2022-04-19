@@ -19,11 +19,14 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.sonarqube.ws.client.WsRequest;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 public interface ScannerWsClient {
-  WsResponse call(WsRequest request);
+  WsResponse call(GetRequest request);
+
+  WsResponse call(PostRequest request);
 
   String baseUrl();
 

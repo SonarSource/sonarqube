@@ -35,9 +35,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.scan.branch.BranchType;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +60,7 @@ public class AnalysisCacheLoaderTest {
   @Before
   public void before() {
     when(project.key()).thenReturn("myproject");
-    when(wsClient.call(any())).thenReturn(response);
+    when(wsClient.call(any(GetRequest.class))).thenReturn(response);
   }
 
   @Test
@@ -92,13 +91,13 @@ public class AnalysisCacheLoaderTest {
 
   @Test
   public void returns_empty_if_404() {
-    when(wsClient.call(any())).thenThrow(new HttpException("url", 404, "content"));
+    when(wsClient.call(any(GetRequest.class))).thenThrow(new HttpException("url", 404, "content"));
     assertThat(loader.load()).isEmpty();
   }
 
   @Test
   public void throw_error_if_http_exception_not_404() {
-    when(wsClient.call(any())).thenThrow(new HttpException("url", 401, "content"));
+    when(wsClient.call(any(GetRequest.class))).thenThrow(new HttpException("url", 401, "content"));
     assertThatThrownBy(loader::load)
       .isInstanceOf(MessageException.class)
       .hasMessage("Failed to download analysis cache: HTTP code 401: content");
@@ -113,7 +112,7 @@ public class AnalysisCacheLoaderTest {
   }
 
   private void assertRequestPath(String expectedPath) {
-    ArgumentCaptor<WsRequest> requestCaptor = ArgumentCaptor.forClass(WsRequest.class);
+    ArgumentCaptor<GetRequest> requestCaptor = ArgumentCaptor.forClass(GetRequest.class);
     verify(wsClient).call(requestCaptor.capture());
     assertThat(requestCaptor.getValue().getPath()).isEqualTo(expectedPath);
   }

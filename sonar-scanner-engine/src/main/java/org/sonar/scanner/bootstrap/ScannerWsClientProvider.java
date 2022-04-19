@@ -36,7 +36,8 @@ public class ScannerWsClientProvider {
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
   @Bean("DefaultScannerWsClient")
-  public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
+  public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode,
+    System2 system) {
     String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
     HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
@@ -56,6 +57,7 @@ public class ScannerWsClientProvider {
       connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
     }
 
-    return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
+    return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null,
+      globalMode, scannerProps);
   }
 }
