@@ -73,3 +73,13 @@ message SearchWsResponse {
     optional string revision = 8;
   }
 }
+
+// WS api/projects/search_my_scannable_projects
+message SearchMyScannableProjectsResponse {
+  message Project {
+    optional string key = 1;
+    optional string name = 2;
+  }
+
+  repeated Project projects = 1;
+}

@@ -33,6 +33,7 @@ public class ProjectsWsModule extends Module {
   protected void configureModule() {
     add(
       ProjectDefaultVisibility.class,
+      ProjectFinder.class,
       ProjectLifeCycleListenersImpl.class,
       ProjectsWs.class,
       CreateAction.class,
@@ -41,6 +42,7 @@ public class ProjectsWsModule extends Module {
       UpdateKeyAction.class,
       SearchMyProjectsAction.class,
       SearchAction.class,
+      SearchMyScannableProjectsAction.class,
       UpdateVisibilityAction.class,
       UpdateDefaultVisibilityAction.class);
   }

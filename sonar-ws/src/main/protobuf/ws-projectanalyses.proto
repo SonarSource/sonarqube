@@ -87,3 +87,4 @@ message Project {
   optional string oldBranch = 5;
   optional string newBranch = 6;
 }
+
