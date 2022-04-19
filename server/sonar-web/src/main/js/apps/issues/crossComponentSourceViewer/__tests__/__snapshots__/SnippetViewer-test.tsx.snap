@@ -21,14 +21,6 @@ exports[`should render correctly 1`] = `
     >
       <tbody>
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -56,8 +48,6 @@ exports[`should render correctly 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -70,14 +60,6 @@ exports[`should render correctly 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -105,8 +87,6 @@ exports[`should render correctly 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -132,14 +112,6 @@ exports[`should render correctly 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -167,8 +139,6 @@ exports[`should render correctly 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -231,14 +201,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
     >
       <tbody>
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -266,8 +228,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -280,14 +240,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -315,8 +267,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -342,14 +292,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -377,8 +319,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -404,14 +344,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -439,8 +371,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -492,14 +422,6 @@ exports[`should render correctly when at the top of the file 1`] = `
     >
       <tbody>
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -527,8 +449,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -541,14 +461,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -576,8 +488,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -603,14 +513,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -638,8 +540,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -665,14 +565,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -700,8 +592,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -727,14 +617,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -762,8 +644,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -789,14 +669,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -824,8 +696,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -851,14 +721,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -886,8 +748,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -950,14 +810,6 @@ exports[`should render correctly with no SCM 1`] = `
     >
       <tbody>
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -986,8 +838,6 @@ exports[`should render correctly with no SCM 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -1000,14 +850,6 @@ exports[`should render correctly with no SCM 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -1036,8 +878,6 @@ exports[`should render correctly with no SCM 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}
@@ -1063,14 +903,6 @@ exports[`should render correctly with no SCM 1`] = `
           verticalBuffer={0}
         />
         <Line
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
@@ -1099,8 +931,6 @@ exports[`should render correctly with no SCM 1`] = `
             }
           }
           loadDuplications={[MockFunction]}
-          onIssueChange={[MockFunction]}
-          onIssuePopupToggle={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
           onIssuesClose={[MockFunction]}

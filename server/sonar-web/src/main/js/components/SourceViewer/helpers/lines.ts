@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { intersection } from 'lodash';
-import { Issue, LinearIssueLocation } from '../../../types/types';
+import { LinearIssueLocation } from '../../../types/types';
 
 export const LINES_TO_LOAD = 500;
 
@@ -40,11 +40,5 @@ export function optimizeLocationMessage(
       location => location.index === highlightedLocationMessage.index
     )
     ? highlightedLocationMessage
-    : undefined;
-}
-
-export function optimizeSelectedIssue(selectedIssue: string | undefined, issuesForLine: Issue[]) {
-  return selectedIssue !== undefined && issuesForLine.find(issue => issue.key === selectedIssue)
-    ? selectedIssue
     : undefined;
 }

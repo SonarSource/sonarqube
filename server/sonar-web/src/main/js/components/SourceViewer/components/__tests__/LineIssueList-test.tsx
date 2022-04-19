@@ -19,34 +19,33 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSourceLine } from '../../../../helpers/testMocks';
-import LineCode from '../LineCode';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
+import LineIssuesList, { LineIssuesListProps } from '../LineIssuesList';
 
-it('render code', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ children: <div>additional child</div> })).toMatchSnapshot(
-    'with additional child'
-  );
-  expect(
-    shallowRender({
-      secondaryIssueLocations: [
-        { index: 1, from: 5, to: 6, line: 16, startLine: 16, text: 'secondary-location-msg' }
-      ]
-    })
-  ).toMatchSnapshot('with secondary location');
+it('shoule render issues', () => {
+  const wrapper = shallowRender({
+    selectedIssue: 'issue',
+    issueLocationsByLine: { '1': [{ from: 1, to: 1, line: 1 }] },
+    line: mockSourceLine({ line: 1 }),
+    issuesForLine: [mockIssue(false, { key: 'issue' })]
+  });
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<LineCode['props']> = {}) {
+function shallowRender(props: Partial<LineIssuesListProps> = {}) {
   return shallow(
-    <LineCode
-      displayLocationMarkers={true}
-      highlightedLocationMessage={{ index: 0, text: 'location description' }}
-      highlightedSymbols={['sym-9']}
-      issueLocations={[{ from: 0, to: 5, line: 16 }]}
+    <LineIssuesList
+      selectedIssue=""
+      onIssueChange={jest.fn()}
+      onIssueClick={jest.fn()}
+      onIssuePopupToggle={jest.fn()}
+      openIssuesByLine={{}}
+      branchLike={mockBranch()}
+      issueLocationsByLine={{}}
       line={mockSourceLine()}
-      onLocationSelect={jest.fn()}
-      onSymbolClick={jest.fn()}
-      secondaryIssueLocations={[]}
+      issuePopup={undefined}
+      issuesForLine={[]}
       {...props}
     />
   );

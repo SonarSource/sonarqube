@@ -21,6 +21,7 @@ import { noop } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../api/components';
 import Issue from '../../../components/issue/Issue';
+import LineIssuesList from '../../../components/SourceViewer/components/LineIssuesList';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
@@ -315,6 +316,39 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     return this.props.renderDuplicationPopup(this.props.snippetGroup.component, index, line);
   };
 
+  renderIssuesList = (line: SourceLine) => {
+    const { openIssuesByLine } = this.state;
+
+    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
+    const locations =
+      issue.component === snippetGroup.component.key && issue.textRange !== undefined
+        ? locationsByLine([issue])
+        : {};
+
+    const isFlow = issue.secondaryLocations.length === 0;
+    const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
+
+    const issuesForLine = issuesByLine[line.line] || [];
+
+    const selectedIssue = issuesForLine.find(i => i.key === issue.key)?.key;
+
+    const issueLocationsByLine = includeIssueLocation ? locations : {};
+    return (
+      <LineIssuesList
+        issueLocationsByLine={issueLocationsByLine}
+        issuesForLine={issuesForLine}
+        line={line}
+        openIssuesByLine={openIssuesByLine}
+        branchLike={this.props.branchLike}
+        issuePopup={this.props.issuePopup}
+        onIssueChange={this.props.onIssueChange}
+        onIssueClick={noop}
+        onIssuePopupToggle={this.props.onIssuePopupToggle}
+        selectedIssue={selectedIssue}
+      />
+    );
+  };
+
   renderSnippet({
     index,
     issuesByLine,
@@ -330,7 +364,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   }) {
     return (
       <SnippetViewer
-        branchLike={this.props.branchLike}
+        renderAdditionalChildInLine={this.renderIssuesList}
         component={this.props.snippetGroup.component}
         duplications={this.props.duplications}
         duplicationsByLine={this.props.duplicationsByLine}
@@ -342,14 +376,11 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         highlightedSymbols={this.state.highlightedSymbols}
         index={index}
         issue={this.props.issue}
-        issuePopup={this.props.issuePopup}
         issuesByLine={issuesByLine}
         lastSnippetOfLastGroup={lastSnippetOfLastGroup}
         loadDuplications={this.loadDuplications}
         locations={this.props.locations}
         locationsByLine={locationsByLine}
-        onIssueChange={this.props.onIssueChange}
-        onIssuePopupToggle={this.props.onIssuePopupToggle}
         onLocationSelect={this.props.onLocationSelect}
         openIssuesByLine={this.state.openIssuesByLine}
         renderDuplicationPopup={this.renderDuplicationPopup}

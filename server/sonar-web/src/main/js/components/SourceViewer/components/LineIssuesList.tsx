@@ -19,27 +19,51 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
-import { Issue as TypeIssue } from '../../../types/types';
+import { Issue as TypeIssue, LinearIssueLocation, SourceLine } from '../../../types/types';
 import Issue from '../../issue/Issue';
 
-interface Props {
+export interface LineIssuesListProps {
   branchLike: BranchLike | undefined;
+  displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
+  issuesForLine: TypeIssue[];
   issuePopup: { issue: string; name: string } | undefined;
-  issues: TypeIssue[];
+  issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
+  line: SourceLine;
   onIssueChange: (issue: TypeIssue) => void;
   onIssueClick: (issueKey: string) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
+  openIssuesByLine: { [line: number]: boolean };
   selectedIssue: string | undefined;
 }
 
-export default function LineIssuesList(props: Props) {
-  const { issuePopup } = props;
+export default function LineIssuesList(props: LineIssuesListProps) {
+  const {
+    line,
+    displayAllIssues,
+    openIssuesByLine,
+    selectedIssue,
+    issuesForLine,
+    issueLocationsByLine,
+    issuePopup
+  } = props;
 
+  const showIssues = openIssuesByLine[line.line] || displayAllIssues;
+  const issueLocations = issueLocationsByLine[line.line] || [];
+  let displayedIssue: TypeIssue[] = [];
+  if (showIssues && issuesForLine.length > 0) {
+    displayedIssue = issuesForLine;
+  } else if (selectedIssue && !showIssues && issueLocations.length) {
+    displayedIssue = issuesForLine.filter(i => i.key === selectedIssue);
+  }
+
+  if (displayedIssue.length === 0) {
+    return null;
+  }
   return (
     <div className="issue-list">
-      {props.issues.map(issue => (
+      {displayedIssue.map(issue => (
         <Issue
           branchLike={props.branchLike}
           displayLocationsCount={props.displayIssueLocationsCount}

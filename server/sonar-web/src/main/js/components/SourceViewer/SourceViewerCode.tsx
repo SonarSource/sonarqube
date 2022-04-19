@@ -30,12 +30,9 @@ import {
   SourceLine
 } from '../../types/types';
 import Line from './components/Line';
+import LineIssuesList from './components/LineIssuesList';
 import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
-import {
-  optimizeHighlightedSymbols,
-  optimizeLocationMessage,
-  optimizeSelectedIssue
-} from './helpers/lines';
+import { optimizeHighlightedSymbols, optimizeLocationMessage } from './helpers/lines';
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -124,9 +121,12 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
   }) => {
     const {
       highlightedLocationMessage,
+      selectedIssue,
+      openIssuesByLine,
+      issueLocationsByLine,
+      displayAllIssues,
       highlightedLocations,
       metricKey,
-      selectedIssue,
       sources
     } = this.props;
 
@@ -152,12 +152,9 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
 
     return (
       <Line
-        branchLike={this.props.branchLike}
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}
-        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayIssues={displayIssues}
         displayLocationMarkers={this.props.displayLocationMarkers}
         displaySCM={sources.length > 0}
@@ -174,14 +171,11 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
           this.props.highlightedSymbols
         )}
         issueLocations={this.getIssueLocationsForLine(line)}
-        issuePopup={this.props.issuePopup}
         issues={issuesForLine}
         key={line.line || line.code}
         last={index === this.props.sources.length - 1 && !this.props.hasSourcesAfter}
         line={line}
         loadDuplications={this.props.loadDuplications}
-        onIssueChange={this.props.onIssueChange}
-        onIssuePopupToggle={this.props.onIssuePopupToggle}
         onIssueSelect={this.props.onIssueSelect}
         onIssueUnselect={this.props.onIssueUnselect}
         onIssuesClose={this.props.onIssuesClose}
@@ -193,9 +187,23 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         scroll={this.props.scroll}
         scrollToUncoveredLine={scrollToUncoveredLine}
-        secondaryIssueLocations={secondaryIssueLocations}
-        selectedIssue={optimizeSelectedIssue(selectedIssue, issuesForLine)}
-      />
+        secondaryIssueLocations={secondaryIssueLocations}>
+        <LineIssuesList
+          displayAllIssues={displayAllIssues}
+          issueLocationsByLine={issueLocationsByLine}
+          issuesForLine={issuesForLine}
+          line={line}
+          openIssuesByLine={openIssuesByLine}
+          branchLike={this.props.branchLike}
+          displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+          displayIssueLocationsLink={this.props.displayIssueLocationsLink}
+          issuePopup={this.props.issuePopup}
+          onIssueChange={this.props.onIssueChange}
+          onIssueClick={this.props.onIssueSelect}
+          onIssuePopupToggle={this.props.onIssuePopupToggle}
+          selectedIssue={selectedIssue}
+        />
+      </Line>
     );
   };
 

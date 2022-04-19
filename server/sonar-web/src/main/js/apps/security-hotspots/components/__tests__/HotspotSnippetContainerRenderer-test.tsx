@@ -51,8 +51,8 @@ it('should render a HotspotPrimaryLocationBox', () => {
 
   const { renderAdditionalChildInLine } = wrapper.find(SnippetViewer).props();
 
-  expect(renderAdditionalChildInLine!(10)).toBeUndefined();
-  expect(renderAdditionalChildInLine!(42)).not.toBeUndefined();
+  expect(renderAdditionalChildInLine!(mockSourceLine({ line: 10 }))).toBeUndefined();
+  expect(renderAdditionalChildInLine!(mockSourceLine({ line: 42 }))).not.toBeUndefined();
 });
 
 it('should render correctly when secondary location is selected', () => {

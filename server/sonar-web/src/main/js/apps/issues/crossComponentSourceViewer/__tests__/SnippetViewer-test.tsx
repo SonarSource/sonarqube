@@ -20,7 +20,6 @@
 import { mount, shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { scrollHorizontally } from '../../../../helpers/scrolling';
 import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import SnippetViewer from '../SnippetViewer';
@@ -59,7 +58,7 @@ it('should render additional child in line', () => {
   const renderAdditionalChildInLine = jest.fn().mockReturnValue(child);
   const wrapper = shallowRender({ renderAdditionalChildInLine, snippet: [sourceline] });
 
-  const renderedLine = wrapper.instance().renderLine({
+  wrapper.instance().renderLine({
     displayDuplications: false,
     index: 1,
     issuesForLine: [],
@@ -70,8 +69,7 @@ it('should render additional child in line', () => {
     verticalBuffer: 5
   });
 
-  expect(renderAdditionalChildInLine).toBeCalledWith(42);
-  expect(renderedLine.props.additionalChild).toBe(child);
+  expect(renderAdditionalChildInLine).toBeCalledWith(sourceline);
 });
 
 it('should render correctly when at the top of the file', () => {
@@ -143,7 +141,6 @@ it('should handle scrolling to expanded row', () => {
 function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
   return shallow<SnippetViewer>(
     <SnippetViewer
-      branchLike={mockMainBranch()}
       component={mockSourceViewerFile()}
       duplications={undefined}
       duplicationsByLine={undefined}
@@ -160,8 +157,6 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
-      onIssueChange={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       openIssuesByLine={{}}
       renderDuplicationPopup={jest.fn()}
@@ -175,7 +170,6 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
 function mountRender(props: Partial<SnippetViewer['props']> = {}) {
   return mount<SnippetViewer>(
     <SnippetViewer
-      branchLike={mockMainBranch()}
       component={mockSourceViewerFile()}
       duplications={undefined}
       duplicationsByLine={undefined}
@@ -192,8 +186,6 @@ function mountRender(props: Partial<SnippetViewer['props']> = {}) {
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
-      onIssueChange={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       openIssuesByLine={{}}
       renderDuplicationPopup={jest.fn()}

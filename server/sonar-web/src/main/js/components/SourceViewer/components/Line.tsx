@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import { times } from 'lodash';
 import * as React from 'react';
-import { BranchLike } from '../../../types/branch-like';
 import { Issue, LinearIssueLocation, SourceLine } from '../../../types/types';
 import './Line.css';
 import LineCode from './LineCode';
@@ -31,13 +30,10 @@ import LineNumber from './LineNumber';
 import LineSCM from './LineSCM';
 
 interface Props {
-  additionalChild?: React.ReactNode;
-  branchLike: BranchLike | undefined;
+  children?: React.ReactNode;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
   displayDuplications: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayIssues: boolean;
   displayLineNumberOptions?: boolean;
   displayLocationMarkers?: boolean;
@@ -49,13 +45,10 @@ interface Props {
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
   issueLocations: LinearIssueLocation[];
-  issuePopup: { issue: string; name: string } | undefined;
   issues: Issue[];
   last: boolean;
   line: SourceLine;
   loadDuplications: (line: SourceLine) => void;
-  onIssueChange: (issue: Issue) => void;
-  onIssuePopupToggle: (issueKey: string, popupName: string, open?: boolean) => void;
   onIssuesClose: (line: SourceLine) => void;
   onIssueSelect: (issueKey: string) => void;
   onIssuesOpen: (line: SourceLine) => void;
@@ -68,7 +61,6 @@ interface Props {
   scroll?: (element: HTMLElement) => void;
   scrollToUncoveredLine?: boolean;
   secondaryIssueLocations: LinearIssueLocation[];
-  selectedIssue: string | undefined;
   verticalBuffer?: number;
 }
 
@@ -91,13 +83,10 @@ export default class Line extends React.PureComponent<Props> {
 
   render() {
     const {
-      additionalChild,
-      branchLike,
+      children,
       displayAllIssues,
       displayCoverage,
       displayDuplications,
-      displayIssueLocationsCount,
-      displayIssueLocationsLink,
       displayLineNumberOptions,
       displayLocationMarkers,
       highlightedLocationMessage,
@@ -109,7 +98,6 @@ export default class Line extends React.PureComponent<Props> {
       highlighted,
       highlightedSymbols,
       issueLocations,
-      issuePopup,
       issues,
       last,
       line,
@@ -117,7 +105,6 @@ export default class Line extends React.PureComponent<Props> {
       previousLine,
       scrollToUncoveredLine,
       secondaryIssueLocations,
-      selectedIssue,
       verticalBuffer
     } = this.props;
 
@@ -186,28 +173,18 @@ export default class Line extends React.PureComponent<Props> {
         )}
 
         <LineCode
-          additionalChild={additionalChild}
-          branchLike={branchLike}
-          displayIssueLocationsCount={displayIssueLocationsCount}
-          displayIssueLocationsLink={displayIssueLocationsLink}
           displayLocationMarkers={displayLocationMarkers}
           highlightedLocationMessage={highlightedLocationMessage}
           highlightedSymbols={highlightedSymbols}
           issueLocations={issueLocations}
-          issuePopup={issuePopup}
-          issues={issues}
           line={line}
-          onIssueChange={this.props.onIssueChange}
-          onIssuePopupToggle={this.props.onIssuePopupToggle}
-          onIssueSelect={this.props.onIssueSelect}
           onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
           padding={bottomPadding}
           scroll={this.props.scroll}
-          secondaryIssueLocations={secondaryIssueLocations}
-          selectedIssue={selectedIssue}
-          showIssues={openIssues || displayAllIssues}
-        />
+          secondaryIssueLocations={secondaryIssueLocations}>
+          {children}
+        </LineCode>
       </tr>
     );
   }

@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
 import Line from '../Line';
 
@@ -64,7 +63,6 @@ it('handles the opening and closing of issues', () => {
 function shallowRender(props: Partial<Line['props']> = {}) {
   return shallow<Line>(
     <Line
-      branchLike={mockPullRequest()}
       displayAllIssues={false}
       displayCoverage={false}
       displayDuplications={false}
@@ -77,13 +75,10 @@ function shallowRender(props: Partial<Line['props']> = {}) {
       highlightedLocationMessage={undefined}
       highlightedSymbols={undefined}
       issueLocations={[]}
-      issuePopup={undefined}
       issues={[mockIssue(), mockIssue(false, { type: 'VULNERABILITY' })]}
       last={false}
       line={mockSourceLine()}
       loadDuplications={jest.fn()}
-      onIssueChange={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
       onIssuesClose={jest.fn()}
       onIssueSelect={jest.fn()}
       onIssuesOpen={jest.fn()}
@@ -95,7 +90,6 @@ function shallowRender(props: Partial<Line['props']> = {}) {
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
       secondaryIssueLocations={[]}
-      selectedIssue={undefined}
       {...props}
     />
   );

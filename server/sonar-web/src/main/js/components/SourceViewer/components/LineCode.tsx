@@ -19,8 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { BranchLike } from '../../../types/branch-like';
-import { Issue, LinearIssueLocation, SourceLine } from '../../../types/types';
+import { LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
 import {
@@ -29,37 +28,26 @@ import {
   splitByTokens,
   Token
 } from '../helpers/highlight';
-import LineIssuesList from './LineIssuesList';
 
 interface Props {
-  additionalChild?: React.ReactNode;
-  branchLike: BranchLike | undefined;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
+  className?: string;
   displayLocationMarkers?: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
   issueLocations: LinearIssueLocation[];
-  issuePopup: { issue: string; name: string } | undefined;
-  issues: Issue[];
   line: SourceLine;
-  onIssueChange: (issue: Issue) => void;
-  onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
-  onIssueSelect: (issueKey: string) => void;
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: Array<string>) => void;
   padding?: number;
   scroll?: (element: HTMLElement) => void;
   secondaryIssueLocations: LinearIssueLocation[];
-  selectedIssue: string | undefined;
-  showIssues?: boolean;
 }
 
 interface State {
   tokens: Token[];
 }
 
-export default class LineCode extends React.PureComponent<Props, State> {
+export default class LineCode extends React.PureComponent<React.PropsWithChildren<Props>, State> {
   activeMarkerNode?: HTMLElement | null;
   codeNode?: HTMLElement | null;
   symbols?: NodeListOf<HTMLElement>;
@@ -157,17 +145,14 @@ export default class LineCode extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      additionalChild,
+      children,
+      className,
       highlightedLocationMessage,
       highlightedSymbols,
-      issues,
       issueLocations,
       line,
-      onIssueSelect,
       padding,
-      secondaryIssueLocations,
-      selectedIssue,
-      showIssues
+      secondaryIssueLocations
     } = this.props;
 
     let tokens = [...this.state.tokens];
@@ -194,10 +179,6 @@ export default class LineCode extends React.PureComponent<Props, State> {
         }
       }
     }
-
-    const className = classNames('source-line-code', 'code', {
-      'has-issues': issues.length > 0
-    });
 
     const renderedTokens: React.ReactNode[] = [];
 
@@ -226,38 +207,17 @@ export default class LineCode extends React.PureComponent<Props, State> {
     });
 
     const style = padding ? { paddingBottom: `${padding}px` } : undefined;
-    const filteredSelectedIssues = issues.filter(i => i.key === selectedIssue);
 
     return (
-      <td className={className} data-line-number={line.line} style={style}>
+      <td
+        className={classNames('source-line-code code', className)}
+        data-line-number={line.line}
+        style={style}>
         <div className="source-line-code-inner">
           <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
         </div>
-        {showIssues && issues.length > 0 && (
-          <LineIssuesList
-            branchLike={this.props.branchLike}
-            displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-            displayIssueLocationsLink={this.props.displayIssueLocationsLink}
-            issuePopup={this.props.issuePopup}
-            issues={issues}
-            onIssueChange={this.props.onIssueChange}
-            onIssueClick={onIssueSelect}
-            onIssuePopupToggle={this.props.onIssuePopupToggle}
-            selectedIssue={selectedIssue}
-          />
-        )}
-        {selectedIssue && !showIssues && issueLocations.length > 0 && (
-          <LineIssuesList
-            branchLike={this.props.branchLike}
-            issuePopup={this.props.issuePopup}
-            issues={filteredSelectedIssues}
-            onIssueChange={this.props.onIssueChange}
-            onIssueClick={onIssueSelect}
-            onIssuePopupToggle={this.props.onIssuePopupToggle}
-            selectedIssue={selectedIssue}
-          />
-        )}
-        {additionalChild}
+
+        {children}
       </td>
     );
   }

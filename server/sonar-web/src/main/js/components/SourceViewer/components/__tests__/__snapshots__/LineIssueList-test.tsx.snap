@@ -1,42 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<div
-  className="component-source-container"
->
-  <SourceViewerHeaderSlim
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
-      }
-    }
-    expandable={true}
-    loading={false}
-    onExpand={[Function]}
-    sourceViewerFile={
-      Object {
-        "key": "foo",
-        "measures": Object {
-          "coverage": "85.2",
-          "duplicationDensity": "1.0",
-          "issues": "12",
-          "lines": "56",
-        },
-        "path": "foo/bar.ts",
-        "project": "my-project",
-        "projectName": "MyProject",
-        "q": "FIL",
-        "uuid": "foo-bar",
-      }
-    }
-  />
-</div>
-`;
-
-exports[`should render correctly line with issue 1`] = `
+exports[`shoule render issues 1`] = `
 <div
   className="issue-list"
 >
@@ -45,8 +9,8 @@ exports[`should render correctly line with issue 1`] = `
       Object {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
+        "isMain": false,
+        "name": "branch-6.7",
       }
     }
     issue={
@@ -59,7 +23,7 @@ exports[`should render correctly line with issue 1`] = `
         "creationDate": "2017-03-01T09:36:01+0100",
         "flows": Array [],
         "fromHotspot": false,
-        "key": "AVsae-CQS-9G3txfbFN2",
+        "key": "issue",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
         "project": "myproject",
@@ -71,18 +35,18 @@ exports[`should render correctly line with issue 1`] = `
         "severity": "MAJOR",
         "status": "OPEN",
         "textRange": Object {
-          "endLine": 1,
-          "endOffset": 1,
-          "startLine": 1,
+          "endLine": 26,
+          "endOffset": 15,
+          "startLine": 25,
           "startOffset": 0,
         },
         "transitions": Array [],
         "type": "BUG",
       }
     }
-    key="AVsae-CQS-9G3txfbFN2"
+    key="issue"
     onChange={[MockFunction]}
-    onClick={[Function]}
+    onClick={[MockFunction]}
     onPopupToggle={[MockFunction]}
     selected={true}
   />

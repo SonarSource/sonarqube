@@ -25,12 +25,10 @@ import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
 import {
   optimizeHighlightedSymbols,
-  optimizeLocationMessage,
-  optimizeSelectedIssue
+  optimizeLocationMessage
 } from '../../../components/SourceViewer/helpers/lines';
 import { translate } from '../../../helpers/l10n';
 import { scrollHorizontally } from '../../../helpers/scrolling';
-import { BranchLike } from '../../../types/branch-like';
 import {
   Dict,
   Duplication,
@@ -46,7 +44,6 @@ import './SnippetViewer.css';
 import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 
 interface Props {
-  branchLike: BranchLike | undefined;
   component: SourceViewerFile;
   displayLineNumberOptions?: boolean;
   displaySCM?: boolean;
@@ -60,17 +57,14 @@ interface Props {
   highlightedSymbols: string[];
   index: number;
   issue: Pick<Issue, 'key' | 'textRange' | 'line'>;
-  issuePopup?: { issue: string; name: string };
   issuesByLine: IssuesByLine;
   lastSnippetOfLastGroup: boolean;
   loadDuplications?: (line: SourceLine) => void;
   locations: FlowLocation[];
   locationsByLine: { [line: number]: LinearIssueLocation[] };
-  onIssueChange: (issue: Issue) => void;
-  onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
   openIssuesByLine: Dict<boolean>;
-  renderAdditionalChildInLine?: (lineNumber: number) => React.ReactNode | undefined;
+  renderAdditionalChildInLine?: (line: SourceLine) => React.ReactNode | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement, offset?: number) => void;
   snippet: SourceLine[];
@@ -154,11 +148,6 @@ export default class SnippetViewer extends React.PureComponent<Props> {
 
     return (
       <Line
-        additionalChild={
-          this.props.renderAdditionalChildInLine &&
-          this.props.renderAdditionalChildInLine(line.line)
-        }
-        branchLike={this.props.branchLike}
         displayAllIssues={false}
         displayCoverage={true}
         displayDuplications={displayDuplications}
@@ -176,14 +165,11 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         )}
         highlightedSymbols={optimizeHighlightedSymbols(symbols, this.props.highlightedSymbols)}
         issueLocations={issueLocations}
-        issuePopup={this.props.issuePopup}
         issues={issuesForLine}
         key={line.line}
         last={false}
         line={line}
         loadDuplications={this.props.loadDuplications || noop}
-        onIssueChange={this.props.onIssueChange}
-        onIssuePopupToggle={this.props.onIssuePopupToggle}
         onIssueSelect={noop}
         onIssueUnselect={noop}
         onIssuesClose={this.props.handleCloseIssues}
@@ -195,9 +181,9 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         scroll={this.doScroll}
         secondaryIssueLocations={secondaryIssueLocations}
-        selectedIssue={optimizeSelectedIssue(this.props.issue.key, issuesForLine)}
-        verticalBuffer={verticalBuffer}
-      />
+        verticalBuffer={verticalBuffer}>
+        {this.props.renderAdditionalChildInLine && this.props.renderAdditionalChildInLine(line)}
+      </Line>
     );
   }
 

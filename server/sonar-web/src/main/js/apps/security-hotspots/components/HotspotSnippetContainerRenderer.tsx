@@ -108,8 +108,8 @@ export default function HotspotSnippetContainerRenderer(
     [hotspot, secondaryLocationSelected, props.onCommentButtonClick]
   );
 
-  const renderHotspotBoxInLine = (lineNumber: number) =>
-    lineNumber === hotspot.line ? hotspotPrimaryLocationBox : undefined;
+  const renderHotspotBoxInLine = (line: SourceLine) =>
+    line.line === hotspot.line ? hotspotPrimaryLocationBox : undefined;
 
   const highlightedLocation =
     selectedHotspotLocation !== undefined
@@ -126,7 +126,6 @@ export default function HotspotSnippetContainerRenderer(
         <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
             <SnippetViewer
-              branchLike={undefined}
               component={sourceViewerFile}
               displayLineNumberOptions={false}
               displaySCM={false}
@@ -142,8 +141,6 @@ export default function HotspotSnippetContainerRenderer(
               lastSnippetOfLastGroup={false}
               locations={secondaryLocations}
               locationsByLine={primaryLocations}
-              onIssueChange={noop}
-              onIssuePopupToggle={noop}
               onLocationSelect={props.onLocationSelect}
               openIssuesByLine={{}}
               renderAdditionalChildInLine={renderHotspotBoxInLine}

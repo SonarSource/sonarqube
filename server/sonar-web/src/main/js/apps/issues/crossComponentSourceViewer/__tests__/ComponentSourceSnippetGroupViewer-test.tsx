@@ -291,6 +291,19 @@ it('should correctly handle lines actions', () => {
   );
 });
 
+it('should render correctly line with issue', () => {
+  const issue = mockIssue(false, {
+    textRange: { endLine: 1, startLine: 1, endOffset: 1, startOffset: 0 }
+  });
+  const wrapper = shallowRender({
+    issue,
+    issuesByLine: { '1': [issue] }
+  });
+  wrapper.instance().setState({ openIssuesByLine: { '1': true } });
+  const wrapperLine = shallow(wrapper.instance().renderIssuesList(mockSourceLine({ line: 1 })));
+  expect(wrapperLine).toMatchSnapshot();
+});
+
 describe('getNodes', () => {
   const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
