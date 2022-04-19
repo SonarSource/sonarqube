@@ -24,12 +24,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GitBlameCommand {
@@ -62,10 +62,10 @@ public class GitBlameCommand {
     this.gitCommand = gitCommand;
   }
 
-  public boolean isEnabled(Path baseDir) {
+  public boolean isEnabled() {
     try {
       MutableString stdOut = new MutableString();
-      executeCommand(baseDir, l -> stdOut.string = l, gitCommand, "--version");
+      executeCommand(null, l -> stdOut.string = l, gitCommand, "--version");
       return stdOut.string != null && stdOut.string.startsWith("git version");
     } catch (Exception e) {
       LOG.debug("Failed to find git native client", e);
@@ -73,21 +73,21 @@ public class GitBlameCommand {
     }
   }
 
-  public List<BlameLine> blame(Path baseDir, String fileName) {
+  public List<BlameLine> blame(Path baseDir, String fileName) throws Exception {
     BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
     try {
       executeCommand(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, fileName);
-      return outputProcessor.getBlameLines();
-    } catch (Exception e) {
-      LOG.debug("Blame failed for " + fileName, e);
+    } catch (UncommittedLineException e) {
+      LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
       return emptyList();
     }
+    return outputProcessor.getBlameLines();
   }
 
-  private void executeCommand(Path baseDir, Consumer<String> stdOutLineConsumer, String... command) throws Exception {
+  private static void executeCommand(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) throws Exception {
     ProcessBuilder pb = new ProcessBuilder()
       .command(command)
-      .directory(baseDir.toFile());
+      .directory(baseDir != null ? baseDir.toFile() : null);
 
     Process p = pb.start();
     try {
@@ -103,20 +103,19 @@ public class GitBlameCommand {
       if (exit != 0) {
         throw new IllegalStateException(String.format("Command execution exited with code: %d", exit));
       }
-
     } finally {
       p.destroy();
     }
   }
 
   private static class BlameOutputProcessor {
-    private final List<BlameLine> blameLines = new ArrayList<>();
-    private String sha1;
-    private String committerTime;
-    private String committerMail;
+    private final List<BlameLine> blameLines = new LinkedList<>();
+    private String sha1 = null;
+    private String committerTime = null;
+    private String committerMail = null;
 
     public List<BlameLine> getBlameLines() {
-      return unmodifiableList(blameLines);
+      return blameLines;
     }
 
     public void process(String line) {
@@ -133,7 +132,7 @@ public class GitBlameCommand {
         }
         committerMail = matcher.group(1);
         if (committerMail.equals("not.committed.yet")) {
-          throw new IllegalStateException("Uncommitted line found");
+          throw new UncommittedLineException();
         }
       }
     }
@@ -158,5 +157,9 @@ public class GitBlameCommand {
 
   private static class MutableString {
     String string;
+  }
+
+  private static class UncommittedLineException extends RuntimeException {
+
   }
 }

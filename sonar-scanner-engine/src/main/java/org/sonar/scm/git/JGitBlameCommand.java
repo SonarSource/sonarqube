@@ -34,7 +34,6 @@ public class JGitBlameCommand {
   private static final Logger LOG = Loggers.get(JGitBlameCommand.class);
 
   public List<BlameLine> blame(Git git, String filename) {
-    LOG.debug("Blame file {}", filename);
     BlameResult blameResult;
     try {
       blameResult = git.blame()

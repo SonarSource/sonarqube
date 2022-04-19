@@ -19,7 +19,6 @@
  */
 package org.sonar.scm.git;
 
-import java.util.concurrent.ForkJoinPool;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,9 +27,9 @@ public class GitThreadFactoryTest {
   @Test
   public void testName() {
     GitThreadFactory factory = new GitThreadFactory();
-    ForkJoinPool pool = new ForkJoinPool();
-    assertThat(factory.newThread(pool).getName()).isEqualTo("git-scm-0");
-    assertThat(factory.newThread(pool).getName()).isEqualTo("git-scm-1");
-
+    assertThat(factory.newThread(() -> {
+    }).getName()).isEqualTo("git-scm-0");
+    assertThat(factory.newThread(() -> {
+    }).getName()).isEqualTo("git-scm-1");
   }
 }

@@ -50,6 +50,7 @@ import org.sonar.api.utils.log.LogTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,30 +89,54 @@ public class CompositeBlameCommandTest {
   }
 
   @Test
-  public void fallback_to_jgit_if_native_git_fails() throws IOException {
+  public void fallback_to_jgit_if_native_git_fails() throws Exception {
     GitBlameCommand gitCmd = mock(GitBlameCommand.class);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
     File baseDir = new File(projectDir, "dummy-git");
-    when(gitCmd.isEnabled(baseDir.toPath())).thenReturn(true);
+    when(gitCmd.isEnabled()).thenReturn(true);
     when(gitCmd.blame(baseDir.toPath(), DUMMY_JAVA)).thenThrow(new IllegalStateException());
     setUpBlameInputWithFile(baseDir.toPath());
     TestBlameOutput output = new TestBlameOutput();
     blameCmd.blame(input, output);
     assertThat(output.blame).hasSize(1);
     assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
+
+    // only tried once
+    verify(gitCmd).blame(any(Path.class), any(String.class));
+    assertThat(logTester.logs()).contains("Native git blame failed. Falling back to jgit: src/main/java/org/dummy/Dummy.java");
+  }
+
+  @Test
+  public void skip_files_not_committed() throws Exception {
+    // skip if git not installed
+    assumeTrue(gitBlameCommand.isEnabled());
+
+    JGitBlameCommand jgit = mock(JGitBlameCommand.class);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    File projectDir = createNewTempFolder();
+    javaUnzip("dummy-git.zip", projectDir);
+
+    File baseDir = new File(projectDir, "dummy-git");
+    setUpBlameInputWithFile(baseDir.toPath());
+    TestBlameOutput output = new TestBlameOutput();
+    blameCmd.blame(input, output);
+    assertThat(output.blame).hasSize(1);
+    assertThat(output.blame.get(input.filesToBlame().iterator().next())).hasSize(29);
+
+    // never had to fall back to jgit
+    verifyNoInteractions(jgit);
   }
 
   @Test
   public void use_native_git_by_default() throws IOException {
+    // skip test if git is not installed
+    assumeTrue(gitBlameCommand.isEnabled());
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
     File baseDir = new File(projectDir, "dummy-git");
-
-    // skip test if git is not installed
-    assumeTrue(gitBlameCommand.isEnabled(baseDir.toPath()));
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
@@ -187,7 +212,6 @@ public class CompositeBlameCommandTest {
     TestBlameOutput output = new TestBlameOutput();
     blameCommand.blame(input, output);
   }
-
 
   @Test
   public void return_early_when_clone_with_reference_detected() throws IOException {

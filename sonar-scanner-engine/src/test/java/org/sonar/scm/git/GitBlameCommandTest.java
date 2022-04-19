@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,6 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 import static org.sonar.scm.git.GitUtils.createFile;
 import static org.sonar.scm.git.GitUtils.createRepository;
@@ -53,8 +55,13 @@ public class GitBlameCommandTest {
   public LogTester logTester = new LogTester();
   private final GitBlameCommand blameCommand = new GitBlameCommand();
 
+  @Before
+  public void skipTestsIfNoGitFound() {
+    assumeTrue(blameCommand.isEnabled());
+  }
+
   @Test
-  public void blame_collects_all_lines() throws IOException {
+  public void blame_collects_all_lines() throws Exception {
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
     File baseDir = new File(projectDir, "dummy-git");
@@ -85,7 +92,7 @@ public class GitBlameCommandTest {
   }
 
   @Test
-  public void modified_file_returns_no_blame() throws IOException {
+  public void modified_file_returns_no_blame() throws Exception {
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -98,22 +105,7 @@ public class GitBlameCommandTest {
   }
 
   @Test
-  public void new_file_returns_no_blame() throws IOException {
-    File projectDir = createNewTempFolder();
-    javaUnzip("dummy-git.zip", projectDir);
-
-    File baseDir = new File(projectDir, "dummy-git");
-    String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
-
-    // Emulate a new file
-    FileUtils.copyFile(new File(baseDir, DUMMY_JAVA), new File(baseDir, relativePath2));
-
-    assertThat(blameCommand.blame(baseDir.toPath(), DUMMY_JAVA)).hasSize(29);
-    assertThat(blameCommand.blame(baseDir.toPath(), relativePath2)).isEmpty();
-  }
-
-  @Test
-  public void symlink_doesnt_fail() throws IOException {
+  public void throw_exception_if_symlink_found() throws Exception {
     assumeTrue(!System2.INSTANCE.isOsWindows());
     File projectDir = temp.newFolder();
     javaUnzip("dummy-git.zip", projectDir);
@@ -125,32 +117,30 @@ public class GitBlameCommandTest {
     Files.createSymbolicLink(baseDir.resolve(relativePath2), baseDir.resolve(DUMMY_JAVA));
 
     blameCommand.blame(baseDir, DUMMY_JAVA);
-    blameCommand.blame(baseDir, relativePath2);
+    assertThatThrownBy(() -> blameCommand.blame(baseDir, relativePath2)).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void git_should_be_detected() throws IOException {
-    Path baseDir = temp.newFolder().toPath();
+  public void git_should_be_detected() {
     GitBlameCommand blameCommand = new GitBlameCommand();
-    assertThat(blameCommand.isEnabled(baseDir)).isTrue();
+    assertThat(blameCommand.isEnabled()).isTrue();
   }
 
   @Test
-  public void git_should_not_be_detected() throws IOException {
+  public void git_should_not_be_detected() {
+    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound");
+    assertThat(blameCommand.isEnabled()).isFalse();
+  }
+
+  @Test
+  public void throw_exception_if_command_fails() throws Exception {
     Path baseDir = temp.newFolder().toPath();
     GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound");
-    assertThat(blameCommand.isEnabled(baseDir)).isFalse();
+    assertThatThrownBy(() -> blameCommand.blame(baseDir, "file")).isInstanceOf(IOException.class);
   }
 
   @Test
-  public void return_empty_if_command_fails() throws IOException {
-    Path baseDir = temp.newFolder().toPath();
-    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound");
-    assertThat(blameCommand.blame(baseDir, "file")).isEmpty();
-  }
-
-  @Test
-  public void blame_without_email_doesnt_fail() throws IOException, GitAPIException {
+  public void blame_without_email_doesnt_fail() throws Exception {
     Path baseDir = temp.newFolder().toPath();
     Git git = createRepository(baseDir);
     String filePath = "file.txt";

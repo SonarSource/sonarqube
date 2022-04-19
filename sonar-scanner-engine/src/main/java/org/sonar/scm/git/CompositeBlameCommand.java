@@ -20,14 +20,20 @@
 package org.sonar.scm.git;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
@@ -60,29 +66,60 @@ public class CompositeBlameCommand extends BlameCommand {
       if (cloneIsInvalid(gitBaseDir)) {
         return;
       }
-      nativeGitEnabled = nativeCmd.isEnabled(basedir.toPath());
-      Stream<InputFile> stream = StreamSupport.stream(input.filesToBlame().spliterator(), true);
-      ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors(), new GitThreadFactory(), null, false);
-      // exceptions thrown by the blame method will be ignored
-      forkJoinPool.submit(() -> stream.forEach(inputFile -> blame(output, git, gitBaseDir, inputFile)));
+
+      Set<String> committedFiles = collectAllCommittedFiles(repo);
+      nativeGitEnabled = nativeCmd.isEnabled();
+      ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new GitThreadFactory());
+
+      for (InputFile inputFile : input.filesToBlame()) {
+        String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
+        if (filename == null || !committedFiles.contains(filename)) {
+          continue;
+        }
+        // exceptions thrown by the blame method will be ignored
+        executorService.submit(() -> blame(output, git, gitBaseDir, inputFile, filename));
+      }
+
+      executorService.shutdown();
       try {
-        forkJoinPool.shutdown();
-        forkJoinPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         LOG.info("Git blame interrupted");
       }
     }
   }
 
-  private void blame(BlameOutput output, Git git, File gitBaseDir, InputFile inputFile) {
-    String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
+  private static Set<String> collectAllCommittedFiles(Repository repo) {
+    try {
+      Set<String> files = new HashSet<>();
+
+      try (RevWalk revWalk = new RevWalk(repo)) {
+        RevCommit head = revWalk.parseCommit(repo.resolve(Constants.HEAD));
+        try (TreeWalk treeWalk = new TreeWalk(repo)) {
+          treeWalk.addTree(head.getTree());
+          treeWalk.setRecursive(true);
+
+          while (treeWalk.next()) {
+            String path = treeWalk.getPathString();
+            files.add(path);
+          }
+        }
+      }
+      return files;
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to find all committed files", e);
+    }
+  }
+
+  private void blame(BlameOutput output, Git git, File gitBaseDir, InputFile inputFile, String filename) {
     LOG.debug("Blame file {}", filename);
     List<BlameLine> blame = null;
     if (nativeGitEnabled) {
       try {
         blame = nativeCmd.blame(gitBaseDir.toPath(), filename);
       } catch (Exception e) {
-        // fallback to jgit
+        LOG.debug("Native git blame failed. Falling back to jgit: " + filename, e);
+        nativeGitEnabled = false;
       }
     }
 
@@ -92,7 +129,7 @@ public class CompositeBlameCommand extends BlameCommand {
 
     if (!blame.isEmpty()) {
       if (blame.size() == inputFile.lines() - 1) {
-        // SONARPLUGINS-3097 Git do not report blame on last empty line
+        // SONARPLUGINS-3097 Git does not report blame on last empty line
         blame.add(blame.get(blame.size() - 1));
       }
       output.blameResult(inputFile, blame);
@@ -106,10 +143,8 @@ public class CompositeBlameCommand extends BlameCommand {
     }
 
     if (Files.isRegularFile(gitBaseDir.toPath().resolve(".git/shallow"))) {
-      LOG.warn("Shallow clone detected, no blame information will be provided. "
-        + "You can convert to non-shallow with 'git fetch --unshallow'.");
-      analysisWarnings.addUnique("Shallow clone detected during the analysis. "
-        + "Some files will miss SCM information. This will affect features like auto-assignment of issues. "
+      LOG.warn("Shallow clone detected, no blame information will be provided. " + "You can convert to non-shallow with 'git fetch --unshallow'.");
+      analysisWarnings.addUnique("Shallow clone detected during the analysis. " + "Some files will miss SCM information. This will affect features like auto-assignment of issues. "
         + "Please configure your build to disable shallow clone.");
       return true;
     }
