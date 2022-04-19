@@ -142,7 +142,7 @@ public class GitScmProviderTest {
     CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
     GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2);
 
-    assertThat(gitScmProvider.blameCommand()).isEqualTo(jblameCommand);
+    assertThat(gitScmProvider.blameCommand()).isEqualTo(compositeBlameCommand);
   }
 
   /**

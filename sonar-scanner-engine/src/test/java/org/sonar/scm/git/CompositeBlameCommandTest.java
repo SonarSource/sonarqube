@@ -170,6 +170,8 @@ public class CompositeBlameCommandTest {
     javaUnzip("dummy-git.zip", projectDir);
 
     File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
     String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
     DefaultInputFile inputFile = new TestInputFileBuilder("foo", DUMMY_JAVA)
       .setModuleBaseDir(baseDir.toPath())
