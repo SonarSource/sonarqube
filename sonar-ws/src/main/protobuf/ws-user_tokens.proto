@@ -31,6 +31,7 @@ message GenerateWsResponse {
   optional string token = 3;
   optional string createdAt = 4;
   optional string type = 5;
+  optional string projectKey = 6;
 }
 
 // WS api/user_tokens/search

@@ -19,16 +19,22 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class UserTokenSupport {
 
@@ -38,6 +44,8 @@ public class UserTokenSupport {
   static final String ACTION_GENERATE = "generate";
   static final String PARAM_LOGIN = "login";
   static final String PARAM_NAME = "name";
+  static final String PARAM_TYPE = "type";
+  static final String PARAM_PROJECT_KEY = "projectKey";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -56,6 +64,10 @@ public class UserTokenSupport {
     return user;
   }
 
+  boolean sameLoginAsConnectedUser(Request request) {
+    return request.param(PARAM_LOGIN) == null || isLoggedInUser(userSession, request.param(PARAM_LOGIN));
+  }
+
   private static void validate(UserSession userSession, @Nullable String requestLogin) {
     userSession.checkLoggedIn();
     if (userSession.isSystemAdministrator() || isLoggedInUser(userSession, requestLogin)) {
@@ -66,5 +78,27 @@ public class UserTokenSupport {
 
   private static boolean isLoggedInUser(UserSession userSession, @Nullable String requestLogin) {
     return requestLogin != null && requestLogin.equals(userSession.getLogin());
+  }
+
+  public void validateGlobalScanPermission() {
+    if (userSession.hasPermission(SCAN)){
+      return;
+    }
+    throw insufficientPrivilegesException();
+  }
+
+  public void validateProjectScanPermission(DbSession dbSession, String projecKeyFromRequest) {
+    Optional<ProjectDto> projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projecKeyFromRequest);
+    if (projectDto.isEmpty()) {
+      throw new NotFoundException(format("Project key '%s' not found", projecKeyFromRequest));
+    }
+    validateProjectScanPermission(projectDto.get());
+  }
+
+  private void validateProjectScanPermission(ProjectDto projectDto) {
+    if (userSession.hasProjectPermission(UserRole.SCAN, projectDto) || userSession.hasPermission(SCAN)) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 }
