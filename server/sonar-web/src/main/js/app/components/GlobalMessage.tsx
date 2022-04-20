@@ -20,69 +20,32 @@
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import * as React from 'react';
-import { colors, sizes, zIndexes } from '../../app/theme';
+import { ClearButton } from '../../components/controls/buttons';
 import { cutLongWords } from '../../helpers/path';
-import { ClearButton } from './buttons';
+import { Message } from '../../types/globalMessages';
+import { colors, sizes } from '../theme';
 
-interface IMessage {
-  id: string;
-  level: 'ERROR' | 'SUCCESS';
-  message: string;
-}
-
-export interface GlobalMessagesProps {
+export interface GlobalMessageProps {
   closeGlobalMessage: (id: string) => void;
-  messages: IMessage[];
+  message: Message;
 }
 
-export default function GlobalMessages({ closeGlobalMessage, messages }: GlobalMessagesProps) {
-  if (messages.length === 0) {
-    return null;
-  }
-
+export default function GlobalMessage(props: GlobalMessageProps) {
+  const { message } = props;
   return (
-    <MessagesContainer>
-      {messages.map(message => (
-        <GlobalMessage closeGlobalMessage={closeGlobalMessage} key={message.id} message={message} />
-      ))}
-    </MessagesContainer>
-  );
-}
-
-const MessagesContainer = styled.div`
-  position: fixed;
-  z-index: ${zIndexes.processContainerZIndex};
-  top: 0;
-  left: 50%;
-  width: 350px;
-  margin-left: -175px;
-`;
-
-export class GlobalMessage extends React.PureComponent<{
-  closeGlobalMessage: (id: string) => void;
-  message: IMessage;
-}> {
-  handleClose = () => {
-    this.props.closeGlobalMessage(this.props.message.id);
-  };
-
-  render() {
-    const { message } = this.props;
-    return (
-      <Message
-        data-test={`global-message__${message.level}`}
+    <MessageBox
+      data-test={`global-message__${message.level}`}
+      level={message.level}
+      role={message.level === 'SUCCESS' ? 'status' : 'alert'}>
+      {cutLongWords(message.text)}
+      <CloseButton
+        className="button-small"
+        color="#fff"
         level={message.level}
-        role={message.level === 'SUCCESS' ? 'status' : 'alert'}>
-        {cutLongWords(message.message)}
-        <CloseButton
-          className="button-small"
-          color="#fff"
-          level={message.level}
-          onClick={this.handleClose}
-        />
-      </Message>
-    );
-  }
+        onClick={() => props.closeGlobalMessage(message.id)}
+      />
+    </MessageBox>
+  );
 }
 
 const appearAnim = keyframes`
@@ -94,7 +57,7 @@ const appearAnim = keyframes`
   }
 `;
 
-const Message = styled.div<Pick<IMessage, 'level'>>`
+const MessageBox = styled.div<Pick<Message, 'level'>>`
   position: relative;
   padding: 0 30px 0 10px;
   line-height: ${sizes.controlHeight};
@@ -112,13 +75,13 @@ const Message = styled.div<Pick<IMessage, 'level'>>`
   }
 `;
 
-const CloseButton = styled(ClearButton)<Pick<IMessage, 'level'>>`
+const CloseButton = styled(ClearButton)<Pick<Message, 'level'>>`
   position: absolute;
   top: calc(${sizes.gridSize} / 4);
   right: calc(${sizes.gridSize} / 4);
 
-  &:hover svg,
-  &:focus svg {
+  &.button-icon:hover svg,
+  &.button-icon:focus svg {
     color: ${({ level }) => (level === 'SUCCESS' ? colors.green : colors.red)};
   }
 `;

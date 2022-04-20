@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { IntlShape } from 'react-intl';
-import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
-import { Store } from '../store/rootReducer';
 import { AppState } from './appstate';
 import { L10nBundle } from './l10nBundle';
 import { Dict } from './types';
@@ -41,7 +39,6 @@ export interface ExtensionStartMethod {
 
 export interface ExtensionStartMethodParameter {
   appState: AppState;
-  store: ReduxStore<Store, any>;
   el: HTMLElement | undefined | null;
   currentUser: CurrentUser;
   intl: IntlShape;

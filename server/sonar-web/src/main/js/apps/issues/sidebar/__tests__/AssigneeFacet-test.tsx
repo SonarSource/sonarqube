@@ -22,8 +22,6 @@ import * as React from 'react';
 import { Query } from '../../utils';
 import AssigneeFacet from '../AssigneeFacet';
 
-jest.mock('../../../../store/rootReducer', () => ({}));
-
 it('should render', () => {
   expect(shallowRender({ assignees: ['foo'] })).toMatchSnapshot();
 });

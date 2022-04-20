@@ -62,7 +62,9 @@ jest.mock('../../../api/quality-gates', () => {
   };
 });
 
-jest.mock('../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
+jest.mock('../../../app/utils/globalMessagesService', () => ({
+  addGlobalSuccessMessage: jest.fn()
+}));
 
 jest.mock('../../../app/utils/handleRequiredAuthorization', () => jest.fn());
 

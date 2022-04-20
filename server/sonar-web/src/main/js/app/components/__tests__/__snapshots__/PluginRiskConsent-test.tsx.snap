@@ -4,7 +4,6 @@ exports[`should render correctly: default 1`] = `
 <div
   className="plugin-risk-consent-page"
 >
-  <Connect(GlobalMessages) />
   <div
     className="plugin-risk-consent-content boxed-group"
   >

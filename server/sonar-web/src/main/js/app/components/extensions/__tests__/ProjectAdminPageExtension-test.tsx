@@ -20,8 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import {
-  ProjectAdminPageExtension,
+import ProjectAdminPageExtension, {
   ProjectAdminPageExtensionProps
 } from '../ProjectAdminPageExtension';
 

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { combineReducers } from 'redux';
-import globalMessages, * as fromGlobalMessages from './globalMessages';
+import { screen } from '@testing-library/react';
+import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../utils/globalMessagesService';
+import GlobalMessagesContainer from '../GlobalMessagesContainer';
 
-export type Store = {
-  globalMessages: fromGlobalMessages.State;
-};
+it('should display messages', () => {
+  renderComponentApp('sonarqube', GlobalMessagesContainer);
 
-export default combineReducers<Store>({
-  globalMessages
+  addGlobalErrorMessage('This is an error');
+  addGlobalSuccessMessage('This was a triumph!');
+
+  expect(screen.getByRole('alert')).toHaveTextContent('This is an error');
+  expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
 });
-
-export function getGlobalMessages(state: Store) {
-  return fromGlobalMessages.getGlobalMessages(state.globalMessages);
-}

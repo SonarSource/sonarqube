@@ -22,7 +22,6 @@ import { History } from 'history';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
-import { Provider } from 'react-redux';
 import {
   createMemoryHistory,
   Route,
@@ -32,15 +31,12 @@ import {
   withRouter,
   WithRouterProps
 } from 'react-router';
-import { Store } from 'redux';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
-import getStore from '../app/utils/getStore';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
-import { Store as State } from '../store/rootReducer';
 import { AppState } from '../types/appstate';
 import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
@@ -49,7 +45,6 @@ import { mockAppState, mockCurrentUser } from './testMocks';
 
 interface RenderContext {
   metrics?: Dict<Metric>;
-  store?: Store<State, any>;
   history?: History;
   appState?: AppState;
   languages?: Languages;
@@ -141,7 +136,6 @@ function renderRoutedApp(
     currentUser = mockCurrentUser(),
     navigateTo = indexPath,
     metrics = DEFAULT_METRICS,
-    store = getStore(),
     appState = mockAppState(),
     history = createMemoryHistory(),
     languages = {}
@@ -152,18 +146,16 @@ function renderRoutedApp(
     <HelmetProvider context={{}}>
       <IntlProvider defaultLocale="en" locale="en">
         <MetricsContext.Provider value={metrics}>
-          <Provider store={store}>
-            <LanguagesContext.Provider value={languages}>
-              <CurrentUserContextProvider currentUser={currentUser}>
-                <AppStateContextProvider appState={appState}>
-                  <Router history={history}>
-                    {children}
-                    <Route path="*" component={CatchAll} />
-                  </Router>
-                </AppStateContextProvider>
-              </CurrentUserContextProvider>
-            </LanguagesContext.Provider>
-          </Provider>
+          <LanguagesContext.Provider value={languages}>
+            <CurrentUserContextProvider currentUser={currentUser}>
+              <AppStateContextProvider appState={appState}>
+                <Router history={history}>
+                  {children}
+                  <Route path="*" component={CatchAll} />
+                </Router>
+              </AppStateContextProvider>
+            </CurrentUserContextProvider>
+          </LanguagesContext.Provider>
         </MetricsContext.Provider>
       </IntlProvider>
     </HelmetProvider>

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GlobalMessagesContainer from '../../app/components/GlobalMessagesContainer';
 import { SubmitButton } from '../../components/controls/buttons';
 import { Location } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';
@@ -70,8 +69,6 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
           </Alert>
         ) : (
           <>
-            <GlobalMessagesContainer />
-
             <h1 className="text-center bg-danger big padded">
               {translate('users.change_admin_password.instance_is_at_risk')}
             </h1>

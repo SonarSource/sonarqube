@@ -17,15 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Store } from 'redux';
-import rootReducer, { Store as State } from '../../store/rootReducer';
-import configureStore from '../../store/utils/configureStore';
+import { MessageLevel } from '../../../types/globalMessages';
+import {
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
+  registerListener
+} from '../globalMessagesService';
 
-let store: Store<State, any>;
+it('should work as expected', () => {
+  const listener1 = jest.fn();
+  registerListener(listener1);
 
-const createStore = () => {
-  store = configureStore(rootReducer);
-  return store;
-};
+  addGlobalErrorMessage('test');
 
-export default () => (store ? store : createStore());
+  expect(listener1).toBeCalledWith(
+    expect.objectContaining({ text: 'test', level: MessageLevel.Error })
+  );
+
+  listener1.mockClear();
+  const listener2 = jest.fn();
+  registerListener(listener2);
+
+  addGlobalSuccessMessage('test');
+
+  expect(listener1).toBeCalledWith(
+    expect.objectContaining({ text: 'test', level: MessageLevel.Success })
+  );
+  expect(listener2).toBeCalledWith(
+    expect.objectContaining({ text: 'test', level: MessageLevel.Success })
+  );
+});

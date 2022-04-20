@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { addGlobalSuccessMessage } from '../../../app/utils/globalMessagesService';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { Alert } from '../../../components/ui/Alert';

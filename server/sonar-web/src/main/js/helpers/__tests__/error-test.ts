@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from '../../app/utils/getStore';
+import { addGlobalErrorMessage } from '../../app/utils/globalMessagesService';
 import { throwGlobalError } from '../error';
+
+jest.mock('../../app/utils/globalMessagesService', () => ({
+  addGlobalErrorMessage: jest.fn()
+}));
 
 beforeAll(() => {
   jest.useFakeTimers();
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 afterAll(() => {
@@ -29,7 +37,7 @@ afterAll(() => {
   jest.useRealTimers();
 });
 
-it('should put the error message in the store', async () => {
+it('should display the error message', async () => {
   const response = new Response();
   response.json = jest.fn().mockResolvedValue({ errors: [{ msg: 'error 1' }] });
 
@@ -40,13 +48,10 @@ it('should put the error message in the store', async () => {
     })
     .catch(() => {});
 
-  expect(getStore().getState().globalMessages[0]).toMatchObject({
-    level: 'ERROR',
-    message: 'error 1'
-  });
+  expect(addGlobalErrorMessage).toBeCalledWith('error 1');
 });
 
-it('should put a default error messsage in the store', async () => {
+it('should display the default error messsage', async () => {
   const response = new Response();
   response.json = jest.fn().mockResolvedValue({});
 
@@ -57,10 +62,7 @@ it('should put a default error messsage in the store', async () => {
     })
     .catch(() => {});
 
-  expect(getStore().getState().globalMessages[0]).toMatchObject({
-    level: 'ERROR',
-    message: 'default_error_message'
-  });
+  expect(addGlobalErrorMessage).toBeCalledWith('default_error_message');
 });
 
 it('should handle weird response types', () => {

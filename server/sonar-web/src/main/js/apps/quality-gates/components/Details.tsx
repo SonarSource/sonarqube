@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { fetchQualityGate } from '../../../api/quality-gates';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { addGlobalSuccessMessage } from '../../../app/utils/globalMessagesService';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { Condition, QualityGate } from '../../../types/types';

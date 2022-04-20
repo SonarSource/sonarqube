@@ -34,7 +34,6 @@ exports[`should render correctly: with authorization error 1`] = `
     collapsed={true}
     onSubmit={[MockFunction]}
   />
-  <Connect(GlobalMessages) />
 </div>
 `;
 
@@ -65,7 +64,6 @@ exports[`should render correctly: with identity providers 1`] = `
     collapsed={true}
     onSubmit={[MockFunction]}
   />
-  <Connect(GlobalMessages) />
 </div>
 `;
 
@@ -83,6 +81,5 @@ exports[`should render correctly: without any identity providers 1`] = `
     collapsed={false}
     onSubmit={[MockFunction]}
   />
-  <Connect(GlobalMessages) />
 </div>
 `;

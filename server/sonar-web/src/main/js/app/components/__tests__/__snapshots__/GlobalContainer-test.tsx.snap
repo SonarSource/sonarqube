@@ -33,7 +33,6 @@ exports[`should render correctly 1`] = `
                           }
                         }
                       />
-                      <Connect(GlobalMessages) />
                       <withCurrentUserContext(withIndexationContext(IndexationNotification)) />
                       <withCurrentUserContext(withAppStateContext(UpdateNotification))
                         dismissable={true}

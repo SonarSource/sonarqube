@@ -36,7 +36,6 @@ exports[`should render React extensions correctly 1`] = `
       "state": Object {},
     }
   }
-  onFail={[MockFunction]}
   router={
     Object {
       "createHref": [MockFunction],
@@ -96,7 +95,6 @@ exports[`should render React extensions correctly 2`] = `
       "state": Object {},
     }
   }
-  onFail={[MockFunction]}
   router={
     Object {
       "createHref": [MockFunction],

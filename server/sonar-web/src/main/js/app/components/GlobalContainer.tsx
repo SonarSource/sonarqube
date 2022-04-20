@@ -24,7 +24,6 @@ import A11ySkipLinks from './a11y/A11ySkipLinks';
 import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import GlobalFooter from './GlobalFooter';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
@@ -57,7 +56,6 @@ export default function GlobalContainer(props: Props) {
                       <LanguagesContextProvider>
                         <MetricsContextProvider>
                           <GlobalNav location={props.location} />
-                          <GlobalMessagesContainer />
                           <IndexationNotification />
                           <UpdateNotification dismissable={true} />
                           {props.children}

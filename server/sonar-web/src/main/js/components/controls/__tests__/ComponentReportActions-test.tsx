@@ -24,7 +24,7 @@ import {
   subscribeToEmailReport,
   unsubscribeFromEmailReport
 } from '../../../api/component-report';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { addGlobalSuccessMessage } from '../../../app/utils/globalMessagesService';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockComponentReportStatus } from '../../../helpers/mocks/component-report';
@@ -49,7 +49,9 @@ jest.mock('../../../helpers/system', () => ({
   getBaseUrl: jest.fn().mockReturnValue('baseUrl')
 }));
 
-jest.mock('../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
+jest.mock('../../../app/utils/globalMessagesService', () => ({
+  addGlobalSuccessMessage: jest.fn()
+}));
 
 beforeEach(jest.clearAllMocks);
 

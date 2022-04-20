@@ -23,7 +23,6 @@ import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { LoggedInUser } from '../../types/users';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export interface ResetPasswordProps {
   currentUser: LoggedInUser;
@@ -33,8 +32,6 @@ export function ResetPassword({ currentUser }: ResetPasswordProps) {
   return (
     <div className="page-wrapper-simple">
       <div className="page-simple">
-        <GlobalMessagesContainer />
-
         <h1 className="text-center huge">{translate('my_account.reset_password')}</h1>
         <p className="text-center huge-spacer-top huge-spacer-bottom">
           {translate('my_account.reset_password.explain')}

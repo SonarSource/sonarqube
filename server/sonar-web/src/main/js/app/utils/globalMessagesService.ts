@@ -17,22 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { applyMiddleware, compose, createStore } from 'redux';
-import thunk, { ThunkMiddleware } from 'redux-thunk';
 
-type RootReducer = typeof import('../rootReducer').default;
-type State = import('../rootReducer').Store;
+import { uniqueId } from 'lodash';
+import { Message, MessageLevel } from '../../types/globalMessages';
 
-const middlewares = [thunk as ThunkMiddleware<State, any>];
-const composed = [];
+const listeners: Array<(message: Message) => void> = [];
 
-if (process.env.NODE_ENV === 'development') {
-  const { __REDUX_DEVTOOLS_EXTENSION__ } = window as any;
-  composed.push(__REDUX_DEVTOOLS_EXTENSION__ ? __REDUX_DEVTOOLS_EXTENSION__() : (f: Function) => f);
+export function registerListener(callback: (message: Message) => void) {
+  listeners.push(callback);
 }
 
-const finalCreateStore = compose(applyMiddleware(...middlewares), ...composed)(createStore);
+export function unregisterListener(callback: (message: Message) => void) {
+  const index = listeners.indexOf(callback);
 
-export default function configureStore(rootReducer: RootReducer, initialState?: State) {
-  return finalCreateStore(rootReducer, initialState);
+  if (index > -1) {
+    listeners.splice(index, 1);
+  }
+}
+
+function addMessage(text: string, level: MessageLevel) {
+  listeners.forEach(listener =>
+    listener({
+      id: uniqueId('global-message-'),
+      level,
+      text
+    })
+  );
+}
+
+export function addGlobalErrorMessage(text: string) {
+  addMessage(text, MessageLevel.Error);
+}
+
+export function addGlobalSuccessMessage(text: string) {
+  addMessage(text, MessageLevel.Success);
 }

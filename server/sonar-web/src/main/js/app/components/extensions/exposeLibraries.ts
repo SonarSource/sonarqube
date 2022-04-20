@@ -117,7 +117,7 @@ import {
   getMeasureHistoryUrl,
   getRulesUrl
 } from '../../../helpers/urls';
-import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
+import { addGlobalSuccessMessage } from '../../utils/globalMessagesService';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
 import Suggestions from '../embed-docs-modal/Suggestions';
 

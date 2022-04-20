@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
@@ -55,8 +54,6 @@ export function Login(props: LoginProps) {
       )}
 
       <LoginForm collapsed={identityProviders.length > 0} onSubmit={props.onSubmit} />
-
-      <GlobalMessagesContainer />
     </div>
   );
 }

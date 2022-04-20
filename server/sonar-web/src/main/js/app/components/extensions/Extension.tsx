@@ -20,19 +20,17 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
-import { connect } from 'react-redux';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentL10nBundle } from '../../../helpers/l10nBundle';
 import { getBaseUrl } from '../../../helpers/system';
-import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import { AppState } from '../../../types/appstate';
 import { ExtensionStartMethod } from '../../../types/extension';
 import { Dict, Extension as TypeExtension } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
 import * as theme from '../../theme';
-import getStore from '../../utils/getStore';
+import { addGlobalErrorMessage } from '../../utils/globalMessagesService';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
@@ -41,7 +39,6 @@ interface Props extends WrappedComponentProps {
   currentUser: CurrentUser;
   extension: TypeExtension;
   location: Location;
-  onFail: (message: string) => void;
   options?: Dict<any>;
   router: Router;
 }
@@ -73,10 +70,8 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 
   handleStart = (start: ExtensionStartMethod) => {
-    const store = getStore();
     const result = start({
       appState: this.props.appState,
-      store,
       el: this.container,
       currentUser: this.props.currentUser,
       intl: this.props.intl,
@@ -98,7 +93,7 @@ export class Extension extends React.PureComponent<Props, State> {
   };
 
   handleFailure = () => {
-    this.props.onFail(translate('page_extension_failed'));
+    addGlobalErrorMessage(translate('page_extension_failed'));
   };
 
   startExtension() {
@@ -128,10 +123,4 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 }
 
-export default injectIntl(
-  withRouter(
-    withAppStateContext(
-      withCurrentUserContext(connect(null, { onFail: addGlobalErrorMessage })(Extension))
-    )
-  )
-);
+export default injectIntl(withRouter(withAppStateContext(withCurrentUserContext(Extension))));

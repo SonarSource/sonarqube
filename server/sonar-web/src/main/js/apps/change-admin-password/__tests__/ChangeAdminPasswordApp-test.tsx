@@ -25,10 +25,6 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import { ChangeAdminPasswordApp } from '../ChangeAdminPasswordApp';
 import { DEFAULT_ADMIN_LOGIN, DEFAULT_ADMIN_PASSWORD } from '../constants';
 
-jest.mock('react-redux', () => ({
-  connect: jest.fn(() => (a: any) => a)
-}));
-
 jest.mock('../../../api/users', () => ({
   changePassword: jest.fn().mockResolvedValue(null)
 }));

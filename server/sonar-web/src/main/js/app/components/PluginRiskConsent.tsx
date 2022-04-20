@@ -28,7 +28,6 @@ import { Permissions } from '../../types/permissions';
 import { RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
 import { LoggedInUser } from '../../types/users';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
 import './PluginRiskConsent.css';
 
 export interface PluginRiskConsentProps {
@@ -59,8 +58,6 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
 
   return (
     <div className="plugin-risk-consent-page">
-      <GlobalMessagesContainer />
-
       <div className="plugin-risk-consent-content boxed-group">
         <div className="boxed-group-inner text-center">
           <h1 className="big-spacer-bottom">{translate('plugin_risk_consent.title')}</h1>

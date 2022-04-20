@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import {
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage
+} from '../../../app/utils/globalMessagesService';
 import { Button } from '../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import Toggler from '../../../components/controls/Toggler';

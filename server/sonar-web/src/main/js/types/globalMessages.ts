@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as globalMessages from '../../store/globalMessages';
-import getStore from './getStore';
+export enum MessageLevel {
+  Error = 'ERROR',
+  Success = 'SUCCESS'
+}
 
-export default function addGlobalErrorMessage(message: string): void {
-  const store = getStore();
-  store.dispatch(globalMessages.addGlobalErrorMessage(message));
+export interface Message {
+  id: string;
+  level: MessageLevel;
+  text: string;
 }

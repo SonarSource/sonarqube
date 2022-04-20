@@ -17,15 +17,85 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import GlobalMessages from '../../components/controls/GlobalMessages';
-import { closeGlobalMessage } from '../../store/globalMessages';
-import { getGlobalMessages, Store } from '../../store/rootReducer';
+import styled from '@emotion/styled';
+import React from 'react';
+import { Message } from '../../types/globalMessages';
+import { zIndexes } from '../theme';
+import { registerListener, unregisterListener } from '../utils/globalMessagesService';
+import GlobalMessage from './GlobalMessage';
 
-const mapStateToProps = (state: Store) => ({
-  messages: getGlobalMessages(state)
-});
+const MESSAGE_DISPLAY_TIME = 5000;
+const MAX_MESSAGES = 3;
 
-const mapDispatchToProps = { closeGlobalMessage };
+interface State {
+  messages: Message[];
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(GlobalMessages);
+export default class GlobalMessagesContainer extends React.Component<{}, State> {
+  mounted = false;
+
+  constructor(props: {}) {
+    super(props);
+
+    this.state = {
+      messages: []
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+    registerListener(this.handleAddMessage);
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    unregisterListener(this.handleAddMessage);
+  }
+
+  handleAddMessage = (message: Message) => {
+    if (this.mounted) {
+      this.setState(({ messages }) => ({ messages: [...messages, message].slice(-MAX_MESSAGES) }));
+
+      setTimeout(() => {
+        this.closeMessage(message.id);
+      }, MESSAGE_DISPLAY_TIME);
+    }
+  };
+
+  closeMessage = (messageId: string) => {
+    if (this.mounted) {
+      this.setState(({ messages }) => {
+        return { messages: messages.filter(m => m.id !== messageId) };
+      });
+    }
+  };
+
+  render() {
+    const { messages } = this.state;
+
+    if (messages.length === 0) {
+      return null;
+    }
+
+    return (
+      <MessagesContainer>
+        {messages.map(message => (
+          <GlobalMessage
+            closeGlobalMessage={this.closeMessage}
+            key={message.id}
+            message={message}
+          />
+        ))}
+      </MessagesContainer>
+    );
+  }
+}
+
+const MessagesContainer = styled.div`
+  position: fixed;
+  z-index: ${zIndexes.processContainerZIndex};
+  top: 0;
+  left: 50%;
+  width: 350px;
+  margin-left: -175px;
+`;

@@ -19,7 +19,6 @@
  */
 import { Location, LocationDescriptor } from 'history';
 import { InjectedRouter } from 'react-router';
-import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { AppState } from '../types/appstate';
@@ -710,10 +709,6 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
     Plugins: {},
     ...overrides
   };
-}
-
-export function mockStore(state: any = {}, reducer = (state: any) => state): Store {
-  return createStore(reducer, state);
 }
 
 export function mockUser(overrides: Partial<User> = {}): User {

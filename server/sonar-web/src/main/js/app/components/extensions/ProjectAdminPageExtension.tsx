@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import { Component } from '../../../types/types';
 import NotFound from '../NotFound';
 import Extension from './Extension';
@@ -29,7 +27,7 @@ export interface ProjectAdminPageExtensionProps {
   params: { extensionKey: string; pluginKey: string };
 }
 
-export function ProjectAdminPageExtension(props: ProjectAdminPageExtensionProps) {
+export default function ProjectAdminPageExtension(props: ProjectAdminPageExtensionProps) {
   const {
     component,
     params: { extensionKey, pluginKey }
@@ -45,7 +43,3 @@ export function ProjectAdminPageExtension(props: ProjectAdminPageExtensionProps)
     <NotFound withContainer={false} />
   );
 }
-
-const mapDispatchToProps = { onFail: addGlobalErrorMessage };
-
-export default connect(null, mapDispatchToProps)(ProjectAdminPageExtension);

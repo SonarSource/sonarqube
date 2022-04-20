@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from '../app/utils/getStore';
-import { addGlobalErrorMessage } from '../store/globalMessages';
+import { addGlobalErrorMessage } from '../app/utils/globalMessagesService';
 import { parseError } from './request';
 
 export function throwGlobalError(param: Response | any): Promise<Response | any> {
-  const store = getStore();
-
   if (param.response instanceof Response) {
     /* eslint-disable-next-line no-console */
     console.warn('DEPRECATED: response should not be wrapped, pass it directly.');
@@ -32,12 +29,9 @@ export function throwGlobalError(param: Response | any): Promise<Response | any>
 
   if (param instanceof Response) {
     return parseError(param)
-      .then(
-        message => {
-          store.dispatch(addGlobalErrorMessage(message));
-        },
-        () => {}
-      )
+      .then(addGlobalErrorMessage, () => {
+        /* ignore parsing errors */
+      })
       .then(() => Promise.reject(param));
   }
 

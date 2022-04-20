@@ -22,10 +22,6 @@ import * as React from 'react';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { GlobalNav, GlobalNavProps } from '../GlobalNav';
 
-// Solve redux warning issue "No reducer provided for key":
-// https://stackoverflow.com/questions/43375079/redux-warning-only-appearing-in-tests
-jest.mock('../../../../../store/rootReducer');
-
 const location = { pathname: '' };
 
 it('should render correctly', async () => {

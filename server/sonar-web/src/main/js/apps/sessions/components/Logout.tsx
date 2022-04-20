@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import { logOut } from '../../../api/auth';
-import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import RecentHistory from '../../../app/components/RecentHistory';
-import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
+import { addGlobalErrorMessage } from '../../../app/utils/globalMessagesService';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
-export class Logout extends React.PureComponent<{}> {
+export default class Logout extends React.PureComponent<{}> {
   componentDidMount() {
     logOut()
       .then(() => {
@@ -33,18 +32,15 @@ export class Logout extends React.PureComponent<{}> {
         window.location.replace(getBaseUrl() + '/');
       })
       .catch(() => {
-        addGlobalErrorMessage('Logout failed');
+        addGlobalErrorMessage(translate('login.logout_failed'));
       });
   }
 
   render() {
     return (
       <div className="page page-limited">
-        <GlobalMessagesContainer />
         <div className="text-center">{translate('logging_out')}</div>
       </div>
     );
   }
 }
-
-export default Logout;

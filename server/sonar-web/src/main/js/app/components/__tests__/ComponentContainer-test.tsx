@@ -77,9 +77,6 @@ jest.mock('../../../api/alm-settings', () => ({
   validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
 }));
 
-// mock this, because some of its children are using redux store
-jest.mock('../nav/component/ComponentNav', () => () => null);
-
 jest.mock('../../utils/handleRequiredAuthorization', () => ({
   __esModule: true,
   default: jest.fn()

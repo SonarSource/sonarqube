@@ -21,7 +21,8 @@ import { Location } from 'history';
 import * as React from 'react';
 import { logIn } from '../../../api/auth';
 import { getIdentityProviders } from '../../../api/users';
-import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
+import { addGlobalErrorMessage } from '../../../app/utils/globalMessagesService';
+import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import Login from './Login';
@@ -66,7 +67,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
     return logIn(id, password)
       .then(this.handleSuccessfulLogin)
       .catch(() => {
-        addGlobalErrorMessage('Authentication failed');
+        addGlobalErrorMessage(translate('login.authentication_failed'));
         return Promise.reject();
       });
   };

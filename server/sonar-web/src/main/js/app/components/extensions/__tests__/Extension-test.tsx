@@ -19,6 +19,7 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
+import { IntlShape } from 'react-intl';
 import { getExtensionStart } from '../../../../helpers/extensions';
 import {
   mockAppState,
@@ -93,9 +94,8 @@ function shallowRender(props: Partial<Extension['props']> = {}) {
       appState={mockAppState()}
       currentUser={mockCurrentUser()}
       extension={{ key: 'foo', name: 'Foo' }}
-      intl={{} as any}
+      intl={{} as IntlShape}
       location={mockLocation()}
-      onFail={jest.fn()}
       router={mockRouter()}
       {...props}
     />
