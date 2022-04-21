@@ -21,5 +21,5 @@ import { configure } from '@testing-library/dom';
 import '@testing-library/jest-dom';
 
 configure({
-  asyncUtilTimeout: 2000
+  asyncUtilTimeout: 3000
 });

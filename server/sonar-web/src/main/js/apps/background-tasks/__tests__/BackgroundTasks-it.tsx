@@ -27,6 +27,7 @@ import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
 
 jest.mock('../../../api/ce');
+jest.setTimeout(30_000);
 
 let computeEngineServiceMock: ComputeEngineServiceMock;
 
