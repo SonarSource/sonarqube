@@ -65,15 +65,19 @@ public class ScoreMatrixDumperImplTest {
 
   @After
   public void cleanUp() {
-    FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
-      @Override
-      public boolean accept(File file) {
-        if (file.getName().contains("score-matrix-")) {
-          file.delete();
+    try {
+      FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
+        @Override
+        public boolean accept(File file) {
+          if (file.getName().contains("score-matrix-")) {
+            file.delete();
+          }
+          return false;
         }
-        return false;
-      }
-    }, null);
+      }, null);
+    } catch (Exception e) {
+      System.out.println("Cleaning up temp directory failed. Details: " + e.getMessage());
+    }
   }
 
   @Test
