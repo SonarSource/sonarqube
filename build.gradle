@@ -315,7 +315,7 @@ subprojects {
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.37.0.87'
-      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.27.0.956'
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.27.1.963'
       dependency('org.springframework:spring-context:5.3.18') {
         exclude 'commons-logging:commons-logging'
       }
