@@ -33,7 +33,8 @@ public class UserTokenTesting {
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
-      .setCreatedAt(nextLong());
+      .setCreatedAt(nextLong())
+      .setType("USER_TOKEN");
   }
 
   public static UserTokenDto newProjectAnalysisToken() {
@@ -42,7 +43,8 @@ public class UserTokenTesting {
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
       .setProjectKey("projectUuid_" + randomAlphanumeric(40))
-      .setCreatedAt(nextLong());
+      .setCreatedAt(nextLong())
+      .setType("PROJECT_ANALYSIS_TOKEN");
   }
 
 }

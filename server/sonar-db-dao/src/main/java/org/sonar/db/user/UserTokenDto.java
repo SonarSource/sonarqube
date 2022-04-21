@@ -41,6 +41,8 @@ public class UserTokenDto {
 
   private String projectKey;
 
+  private String type;
+
   public String getUuid() {
     return uuid;
   }
@@ -101,6 +103,15 @@ public class UserTokenDto {
 
   public UserTokenDto setProjectKey(String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public UserTokenDto setType(String type) {
+    this.type = type;
     return this;
   }
 }

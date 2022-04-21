@@ -29,16 +29,16 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.server.usertoken.TokenType;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.usertoken.TokenType.USER_TOKEN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_GENERATE;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GenerateAction implements UserTokensWsAction {
@@ -91,7 +91,7 @@ public class GenerateAction implements UserTokensWsAction {
       UserDto user = userTokenSupport.getUser(dbSession, request);
       checkTokenDoesNotAlreadyExists(dbSession, user, name);
 
-      String token = tokenGenerator.generate(TokenType.USER_TOKEN);
+      String token = tokenGenerator.generate(USER_TOKEN);
       String tokenHash = hashToken(dbSession, token);
       UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, name, tokenHash);
       return buildResponse(userTokenDto, token, user);
@@ -117,7 +117,8 @@ public class GenerateAction implements UserTokensWsAction {
       .setUserUuid(user.getUuid())
       .setName(name)
       .setTokenHash(tokenHash)
-      .setCreatedAt(system.now());
+      .setCreatedAt(system.now())
+      .setType(USER_TOKEN.name());
     dbClient.userTokenDao().insert(dbSession, userTokenDto, user.getLogin());
     dbSession.commit();
     return userTokenDto;
@@ -129,6 +130,7 @@ public class GenerateAction implements UserTokensWsAction {
       .setName(userTokenDto.getName())
       .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()))
       .setToken(token)
+      .setType(userTokenDto.getType())
       .build();
   }
 

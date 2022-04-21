@@ -52,6 +52,7 @@ public class UserTokenDaoTest {
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
     assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
+    assertThat(userTokenFromDb.getType()).isEqualTo(userToken.getType());
   }
 
   @Test
@@ -68,6 +69,7 @@ public class UserTokenDaoTest {
     assertThat(projectAnalysisTokenFromDb.getTokenHash()).isEqualTo(projectAnalysisToken.getTokenHash());
     assertThat(projectAnalysisTokenFromDb.getUserUuid()).isEqualTo(projectAnalysisToken.getUserUuid());
     assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
+    assertThat(projectAnalysisTokenFromDb.getType()).isEqualTo(projectAnalysisToken.getType());
   }
 
   @Test
