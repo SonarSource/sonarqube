@@ -21,6 +21,9 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -33,6 +36,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.unmodifiableCollection;
 
 public class RuleDefinitionDto {
 
@@ -42,10 +46,7 @@ public class RuleDefinitionDto {
   private String repositoryKey;
   private String ruleKey;
 
-  /**
-   * Description can be null on external rule, otherwise it should never be null
-   */
-  private String description;
+  private Map<String, RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashMap<>();
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
@@ -166,13 +167,32 @@ public class RuleDefinitionDto {
     return this;
   }
 
-  @CheckForNull
-  public String getDescription() {
-    return description;
+  public Collection<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
+    return unmodifiableCollection(ruleDescriptionSectionDtos.values());
   }
 
-  public RuleDefinitionDto setDescription(@Nullable String description) {
-    this.description = description;
+  @CheckForNull
+  public RuleDescriptionSectionDto getRuleDescriptionSectionDto(String ruleDescriptionSectionKey) {
+    return ruleDescriptionSectionDtos.get(ruleDescriptionSectionKey);
+  }
+
+  @CheckForNull
+  public RuleDescriptionSectionDto getDefaultRuleDescriptionSectionDto() {
+    return ruleDescriptionSectionDtos.get(RuleDescriptionSectionDto.DEFAULT_KEY);
+  }
+
+  public RuleDefinitionDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    checkArgument(!isSectionKeyUsed(ruleDescriptionSectionDto.getKey()), "A section with key %s already exists", ruleDescriptionSectionDto.getKey());
+    this.ruleDescriptionSectionDtos.put(ruleDescriptionSectionDto.getKey(), ruleDescriptionSectionDto);
+    return this;
+  }
+
+  private boolean isSectionKeyUsed(String sectionKey) {
+    return ruleDescriptionSectionDtos.containsKey(sectionKey);
+  }
+
+  public RuleDefinitionDto addOrReplaceRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    this.ruleDescriptionSectionDtos.put(ruleDescriptionSectionDto.getKey(), ruleDescriptionSectionDto);
     return this;
   }
 
@@ -434,7 +454,7 @@ public class RuleDefinitionDto {
       "uuid=" + uuid +
       ", repositoryKey='" + repositoryKey + '\'' +
       ", ruleKey='" + ruleKey + '\'' +
-      ", description='" + description + '\'' +
+      ", ruleDescriptionSections='" + ruleDescriptionSectionDtos + '\'' +
       ", descriptionFormat=" + descriptionFormat +
       ", status=" + status +
       ", name='" + name + '\'' +

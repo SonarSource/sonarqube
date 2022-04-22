@@ -55,6 +55,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
@@ -95,7 +96,7 @@ public class RuleCreatorTest {
     assertThat(rule.getPluginKey()).isEqualTo("sonarjava");
     assertThat(rule.getTemplateUuid()).isEqualTo(templateRule.getUuid());
     assertThat(rule.getName()).isEqualTo("My custom");
-    assertThat(rule.getDescription()).isEqualTo("Some description");
+    assertThat(rule.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Some description");
     assertThat(rule.getSeverityString()).isEqualTo("MAJOR");
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule.getLanguage()).isEqualTo("java");
@@ -288,7 +289,7 @@ public class RuleCreatorTest {
       .setRuleKey(key)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
-      .setDescription("Old description")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO);
     dbTester.rules().insert(rule.getDefinition());
@@ -310,7 +311,7 @@ public class RuleCreatorTest {
 
     // These values should be the same than before
     assertThat(result.getName()).isEqualTo("Old name");
-    assertThat(result.getDescription()).isEqualTo("Old description");
+    assertThat(result.getDefaultRuleDescriptionSectionDto().getDescription()).isEqualTo("Old description");
     assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
@@ -328,7 +329,7 @@ public class RuleCreatorTest {
       .setRuleKey(key)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
-      .setDescription("Old description")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
       .setSeverity(Severity.INFO);
     dbTester.rules().insert(rule.getDefinition());
     dbTester.rules().insertRuleParam(rule.getDefinition(), param -> param.setDefaultValue("a.*"));

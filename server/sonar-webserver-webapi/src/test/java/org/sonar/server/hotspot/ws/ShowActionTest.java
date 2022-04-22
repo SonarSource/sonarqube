@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -89,6 +90,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 
 @RunWith(DataProviderRunner.class)
@@ -431,9 +433,9 @@ public class ShowActionTest {
 
     String description = "== Title\n<div>line1\nline2</div>";
 
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT,
+    RuleDefinitionDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
       r -> r.setTemplateUuid("123")
-        .setDescription(description)
+        .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(description))
         .setDescriptionFormat(MARKDOWN));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
@@ -452,7 +454,7 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
 
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123").setDescription(null));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123"));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
@@ -1024,11 +1026,18 @@ public class ShowActionTest {
   }
 
   private RuleDefinitionDto newRule(RuleType ruleType, Consumer<RuleDefinitionDto> populate) {
-    RuleDefinitionDto ruleDefinition = RuleTesting.newRule()
-      .setType(ruleType);
-    populate.accept(ruleDefinition);
-    dbTester.rules().insert(ruleDefinition);
-    return ruleDefinition;
+    return newRule(ruleType, RuleTesting::newRule, populate);
+  }
+
+  private RuleDefinitionDto newRuleWithoutSection(RuleType ruleType, Consumer<RuleDefinitionDto> populate) {
+    return newRule(ruleType, RuleTesting::newRuleWithoutSection, populate);
+  }
+
+  private RuleDefinitionDto newRule(RuleType ruleType, Supplier<RuleDefinitionDto> ruleDefinitionDtoSupplier, Consumer<RuleDefinitionDto> populate) {
+    RuleDefinitionDto ruleDefinitionDto = ruleDefinitionDtoSupplier.get().setType(ruleType);
+    populate.accept(ruleDefinitionDto);
+    dbTester.rules().insert(ruleDefinitionDto);
+    return ruleDefinitionDto;
   }
 
   private static class IssueDtoSetArgumentMatcher implements ArgumentMatcher<Set<IssueDto>> {

@@ -36,6 +36,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -94,7 +95,8 @@ public class QualityProfileExportDaoTest {
     assertThat(exportCustomRuleDto).isNotNull();
     assertThat(exportCustomRuleDto.isCustomRule()).isTrue();
     assertThat(exportCustomRuleDto.getParams()).isEmpty();
-    assertThat(exportCustomRuleDto.getDescription()).isEqualTo(customRule.getDescription());
+    //FIXME SONAR-16314
+    assertThat(exportCustomRuleDto.getDescription()).isEqualTo(customRule.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
     assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRuleMetadata.getNoteData());
     assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
     assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
@@ -110,7 +112,8 @@ public class QualityProfileExportDaoTest {
     assertThat(exportRuleDto).isNotNull();
     assertThat(exportRuleDto.isCustomRule()).isFalse();
     assertThat(exportRuleDto.getParams()).isEmpty();
-    assertThat(exportRuleDto.getDescription()).isEqualTo(rule.getDescription());
+    //FIXME SONAR-16314
+    assertThat(exportRuleDto.getDescription()).isEqualTo(rule.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
     assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(ruleMetadata.getNoteData());
     assertThat(exportRuleDto.getName()).isEqualTo(rule.getName());
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());

@@ -54,6 +54,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class QProfileBackuperImplTest {
 
@@ -141,7 +142,7 @@ public class QProfileBackuperImplTest {
     RuleDefinitionDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDefinitionDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
-      .setDescription("custom rule description")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("custom rule description"))
       .setName("custom rule name")
       .setStatus(RuleStatus.READY)
       .setTemplateUuid(templateRule.getUuid()));
@@ -163,7 +164,7 @@ public class QProfileBackuperImplTest {
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
-      "<description>" + rule.getDescription() + "</description>" +
+      "<description>" + rule.getDefaultRuleDescriptionSectionDto().getDescription() + "</description>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +

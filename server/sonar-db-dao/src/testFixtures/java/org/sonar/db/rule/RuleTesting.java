@@ -32,7 +32,6 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.user.UserDto;
 
@@ -43,6 +42,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 /**
  * Utility class for tests involving rules
@@ -65,13 +65,22 @@ public class RuleTesting {
   }
 
   public static RuleDefinitionDto newRule(RuleKey key) {
+    RuleDefinitionDto ruleDefinitionDto = newRuleWithoutSection(key);
+    ruleDefinitionDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("description_" + randomAlphabetic(5)));
+    return ruleDefinitionDto;
+  }
+
+  public static RuleDefinitionDto newRuleWithoutSection() {
+    return newRuleWithoutSection(randomRuleKey());
+  }
+
+  public static RuleDefinitionDto newRuleWithoutSection(RuleKey ruleKey) {
     return new RuleDefinitionDto()
-      .setRepositoryKey(key.repository())
-      .setRuleKey(key.rule())
+      .setRepositoryKey(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
       .setUuid("rule_uuid_" + randomAlphanumeric(5))
       .setName("name_" + randomAlphanumeric(5))
-      .setDescription("description_" + randomAlphanumeric(5))
-      .setDescriptionFormat(Format.HTML)
+      .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(RuleType.values()[nextInt(RuleType.values().length)])
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + randomAlphanumeric(5))
@@ -171,8 +180,8 @@ public class RuleTesting {
       .setRuleKey(ruleKey.rule())
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
-      .setDescription("Description " + ruleKey.rule())
-      .setDescriptionFormat(Format.HTML)
+      .setDescriptionFormat(RuleDto.Format.HTML)
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Description" + ruleKey.rule()))
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)

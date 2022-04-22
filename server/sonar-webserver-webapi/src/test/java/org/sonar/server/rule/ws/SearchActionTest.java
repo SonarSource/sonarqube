@@ -79,6 +79,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
@@ -232,7 +233,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_description() {
-    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setDescription("This is the <bold>best</bold> rule now&amp;for<b>ever</b>"));
+    RuleDefinitionDto rule1 = db.rules()
+      .insert(r1 -> r1.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("This is the <bold>best</bold> rule now&amp;for<b>ever</b>")));
     RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
     indexRules();
 
@@ -243,8 +245,10 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
-    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setDescription("This is a good rule"));
-    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setDescription("Another thing"));
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("This is a good rule")));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Another thing")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Another thing")));
     indexRules();
 
     verify(r -> r.setParam("q", "Best good"), rule1);

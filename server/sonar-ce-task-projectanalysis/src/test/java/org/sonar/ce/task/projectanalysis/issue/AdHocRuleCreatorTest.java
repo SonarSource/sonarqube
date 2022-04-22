@@ -61,7 +61,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.getUuid()).isNotBlank();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
-    assertThat(rule.getDescription()).isNull();
+    assertThat(rule.getRuleDescriptionSectionDtos()).isEmpty();
     assertThat(rule.getSeverity()).isNull();
     assertThat(rule.getType()).isZero();
     assertThat(rule.getMetadata().getAdHocName()).isNull();
@@ -89,7 +89,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.getUuid()).isNotBlank();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
-    assertThat(rule.getDescription()).isNull();
+    assertThat(rule.getRuleDescriptionSectionDtos()).isEmpty();
     assertThat(rule.getSeverity()).isNull();
     assertThat(rule.getType()).isZero();
     assertThat(rule.getMetadata().getAdHocName()).isEqualTo("No condition assigned");
@@ -144,7 +144,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getUuid()).isNotBlank();
     assertThat(ruleUpdated.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(ruleUpdated.getName()).isEqualTo("eslint:no-cond-assign");
-    assertThat(ruleUpdated.getDescription()).isNull();
+    assertThat(ruleUpdated.getRuleDescriptionSectionDtos()).isEmpty();
     assertThat(ruleUpdated.getSeverity()).isNull();
     assertThat(ruleUpdated.getType()).isZero();
     assertThat(ruleUpdated.getMetadata().getAdHocName()).isEqualTo("No condition assigned updated");
@@ -175,7 +175,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.isAdHoc()).isTrue();
     assertThat(ruleUpdated.getKey()).isEqualTo(rule.getKey());
     assertThat(ruleUpdated.getName()).isEqualTo(rule.getName());
-    assertThat(ruleUpdated.getDescription()).isEqualTo(rule.getDescription());
+    assertThat(ruleUpdated.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator().isEqualTo(rule.getRuleDescriptionSectionDtos());
     assertThat(ruleUpdated.getSeverity()).isEqualTo(rule.getSeverity());
     assertThat(ruleUpdated.getType()).isEqualTo(rule.getType());
     assertThat(ruleUpdated.getDefinition().getCreatedAt()).isEqualTo(rule.getCreatedAt());

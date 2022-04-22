@@ -39,6 +39,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
@@ -50,6 +51,7 @@ import org.sonar.server.util.TypeValidations;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -189,8 +191,6 @@ public class RuleCreator {
       .setTemplateUuid(templateRuleDto.getUuid())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
-      .setDescription(newRule.markdownDescription())
-      .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
       .setType(newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant())
@@ -206,6 +206,13 @@ public class RuleCreator {
       .setIsAdHoc(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
+
+    if (newRule.markdownDescription() != null) {
+      RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(newRule.markdownDescription());
+      ruleDefinition.setDescriptionFormat(Format.MARKDOWN);
+      ruleDefinition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    }
+
     dbClient.ruleDao().insert(dbSession, ruleDefinition);
 
     Set<String> tags = templateRuleDto.getTags();

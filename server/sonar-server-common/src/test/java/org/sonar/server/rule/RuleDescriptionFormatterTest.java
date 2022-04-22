@@ -21,37 +21,42 @@ package org.sonar.server.rule;
 
 import org.junit.Test;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class RuleDescriptionFormatterTest {
 
+  private static final RuleDescriptionSectionDto HTML_SECTION = createDefaultRuleDescriptionSection("<span class=\"example\">*md* ``description``</span>");
+  private static final RuleDescriptionSectionDto MARKDOWN_SECTION = createDefaultRuleDescriptionSection("*md* ``description``");
+
   @Test
   public void getMarkdownDescriptionAsHtml() {
-    RuleDefinitionDto rule = new RuleDefinitionDto().setDescription("*md* ``description``").setDescriptionFormat(RuleDto.Format.MARKDOWN);
+    RuleDefinitionDto rule = new RuleDefinitionDto().setDescriptionFormat(RuleDto.Format.MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo("<strong>md</strong> <code>description</code>");
   }
 
   @Test
   public void getHtmlDescriptionAsIs() {
-    String description = "<span class=\"example\">*md* ``description``</span>";
-    RuleDefinitionDto rule = new RuleDefinitionDto().setDescription(description).setDescriptionFormat(RuleDto.Format.HTML);
+    RuleDefinitionDto rule = new RuleDefinitionDto().setDescriptionFormat(RuleDto.Format.HTML).addRuleDescriptionSectionDto(HTML_SECTION);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(html).isEqualTo(description);
+    assertThat(html).isEqualTo(HTML_SECTION.getDescription());
   }
 
   @Test
-  public void handleNullDescription() {
-    RuleDefinitionDto rule = new RuleDefinitionDto().setDescription(null).setDescriptionFormat(RuleDto.Format.HTML);
+  public void handleEmptyDescription() {
+    RuleDefinitionDto rule = new RuleDefinitionDto().setDescriptionFormat(RuleDto.Format.HTML);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }
 
   @Test
   public void handleNullDescriptionFormat() {
-    RuleDefinitionDto rule = new RuleDefinitionDto().setDescription("whatever").setDescriptionFormat(null);
+    RuleDescriptionSectionDto sectionWithNullFormat = createDefaultRuleDescriptionSection("whatever");
+    RuleDefinitionDto rule = new RuleDefinitionDto().addRuleDescriptionSectionDto(sectionWithNullFormat);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }

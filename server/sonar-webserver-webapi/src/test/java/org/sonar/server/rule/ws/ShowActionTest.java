@@ -50,6 +50,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
@@ -284,7 +285,7 @@ public class ShowActionTest {
     db.rules().insert(templateRule.getDefinition());
     // Custom rule
     RuleDefinitionDto customRule = newCustomRule(templateRule.getDefinition())
-      .setDescription("<div>line1\nline2</div>")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>line1\nline2</div>"))
       .setDescriptionFormat(MARKDOWN);
     db.rules().insert(customRule);
     doReturn("&lt;div&gt;line1<br/>line2&lt;/div&gt;").when(macroInterpreter).interpret("<div>line1\nline2</div>");
@@ -342,7 +343,7 @@ public class ShowActionTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName("predefined name")
-      .setDescription("<div>predefined desc</div>")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>predefined desc</div>"))
       .setSeverity(Severity.BLOCKER)
       .setType(RuleType.VULNERABILITY));
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(externalRule, m -> m
@@ -370,7 +371,6 @@ public class ShowActionTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName(null)
-      .setDescription(null)
       .setDescriptionFormat(null)
       .setSeverity((String) null)
       .setType(0));

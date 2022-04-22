@@ -48,7 +48,7 @@ public class HotspotRuleDescription {
   }
 
   public static HotspotRuleDescription from(RuleDefinitionDto dto) {
-    String description = dto.isCustomRule() ? RuleDescriptionFormatter.getDescriptionAsHtml(dto) : dto.getDescription();
+    String description = RuleDescriptionFormatter.getDescriptionAsHtml(dto);
     return from(description);
   }
 

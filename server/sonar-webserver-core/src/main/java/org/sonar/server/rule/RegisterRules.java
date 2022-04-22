@@ -75,9 +75,11 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 /**
  * Register rules at server startup
@@ -261,10 +263,10 @@ public class RegisterRules implements Startable {
 
     private Stream<RuleDefinitionDto> getAllModified() {
       return Stream.of(
-        created.stream(),
-        updated.stream(),
-        removed.stream(),
-        renamed.keySet().stream())
+          created.stream(),
+          updated.stream(),
+          removed.stream(),
+          renamed.keySet().stream())
         .flatMap(s -> s);
     }
 
@@ -398,13 +400,14 @@ public class RegisterRules implements Startable {
       .setIsAdHoc(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
-    if (ruleDef.htmlDescription() != null) {
-      ruleDto.setDescription(ruleDef.htmlDescription());
+    if (isNotEmpty(ruleDef.htmlDescription())) {
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(ruleDef.htmlDescription()));
       ruleDto.setDescriptionFormat(Format.HTML);
-    } else {
-      ruleDto.setDescription(ruleDef.markdownDescription());
+    } else if (isNotEmpty(ruleDef.markdownDescription())) {
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(ruleDef.markdownDescription()));
       ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
+
     DebtRemediationFunction debtRemediationFunction = ruleDef.debtRemediationFunction();
     if (debtRemediationFunction != null) {
       ruleDto.setDefRemediationFunction(debtRemediationFunction.type().name());
@@ -481,18 +484,28 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private static boolean mergeDescription(RulesDefinition.Rule def, RuleDefinitionDto dto) {
+  private static boolean mergeDescription(RulesDefinition.Rule rule, RuleDefinitionDto ruleDefinitionDto) {
     boolean changed = false;
-    if (def.htmlDescription() != null && !Objects.equals(dto.getDescription(), def.htmlDescription())) {
-      dto.setDescription(def.htmlDescription());
-      dto.setDescriptionFormat(Format.HTML);
+
+    String currentDescription = ruleDefinitionDto.getDefaultRuleDescriptionSectionDto() != null ? ruleDefinitionDto.getDefaultRuleDescriptionSectionDto().getDescription() : null;
+    if (isHtmlDescriptionUpdated(rule, currentDescription)) {
+      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(rule.htmlDescription()));
+      ruleDefinitionDto.setDescriptionFormat(Format.HTML);
       changed = true;
-    } else if (def.markdownDescription() != null && !Objects.equals(dto.getDescription(), def.markdownDescription())) {
-      dto.setDescription(def.markdownDescription());
-      dto.setDescriptionFormat(Format.MARKDOWN);
+    } else if (isMarkdownDescriptionUpdated(rule, currentDescription)) {
+      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(rule.markdownDescription()));
+      ruleDefinitionDto.setDescriptionFormat(Format.MARKDOWN);
       changed = true;
     }
     return changed;
+  }
+
+  private static boolean isMarkdownDescriptionUpdated(RulesDefinition.Rule rule, @Nullable String currentDescription) {
+    return isNotEmpty(rule.markdownDescription()) && !Objects.equals(rule.markdownDescription(), currentDescription);
+  }
+
+  private static boolean isHtmlDescriptionUpdated(RulesDefinition.Rule def, @Nullable String currentDescription) {
+    return isNotEmpty(def.htmlDescription()) && !Objects.equals(def.htmlDescription(), currentDescription);
   }
 
   private static boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDefinitionDto dto) {

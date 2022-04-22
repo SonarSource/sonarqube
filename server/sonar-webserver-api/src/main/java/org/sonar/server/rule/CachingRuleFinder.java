@@ -41,9 +41,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.markdown.Markdown;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
@@ -147,8 +145,6 @@ public class CachingRuleFinder implements ServerRuleFinder {
 
   private static Rule toRule(RuleDefinitionDto ruleDefinition, List<RuleParamDto> params) {
     String severity = ruleDefinition.getSeverityString();
-    String description = ruleDefinition.getDescription();
-    RuleDto.Format descriptionFormat = ruleDefinition.getDescriptionFormat();
 
     Rule apiRule = new Rule();
     apiRule
@@ -163,14 +159,9 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(ruleDefinition.getStatus().name())
       .setSystemTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
-      .setTags(new String[0]);
-    if (description != null && descriptionFormat != null) {
-      if (RuleDto.Format.HTML.equals(descriptionFormat)) {
-        apiRule.setDescription(description);
-      } else {
-        apiRule.setDescription(Markdown.convertToHtml(description));
-      }
-    }
+      .setTags(new String[0])
+      .setDescription(RuleDescriptionFormatter.getDescriptionAsHtml(ruleDefinition));
+
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {

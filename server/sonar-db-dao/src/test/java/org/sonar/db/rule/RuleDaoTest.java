@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
@@ -48,15 +49,18 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRuleMetadata;
 
 public class RuleDaoTest {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
+  private static final RuleDescriptionSectionDto RULE_DESCRIPTION_SECTION_1 = createDefaultRuleDescriptionSection("new description");
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -244,8 +248,6 @@ public class RuleDaoTest {
     assertThat(actual.getRepositoryKey()).isEqualTo(expected.getRepositoryKey());
     assertThat(actual.getRuleKey()).isEqualTo(expected.getRuleKey());
     assertThat(actual.getKey()).isEqualTo(expected.getKey());
-    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
-    assertThat(actual.getDescriptionFormat()).isEqualTo(expected.getDescriptionFormat());
     assertThat(actual.getStatus()).isEqualTo(expected.getStatus());
     assertThat(actual.getName()).isEqualTo(expected.getName());
     assertThat(actual.getConfigKey()).isEqualTo(expected.getConfigKey());
@@ -262,6 +264,9 @@ public class RuleDaoTest {
     assertThat(actual.getSystemTags()).isEqualTo(expected.getSystemTags());
     assertThat(actual.getSecurityStandards()).isEqualTo(expected.getSecurityStandards());
     assertThat(actual.getType()).isEqualTo(expected.getType());
+    assertThat(actual.getDescriptionFormat()).isEqualTo(expected.getDescriptionFormat());
+    assertThat(actual.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
+      .isEqualTo(expected.getRuleDescriptionSectionDtos());
   }
 
   private static void verifyMetadata(RuleMetadataDto metadata, RuleMetadataDto expected) {
@@ -427,8 +432,8 @@ public class RuleDaoTest {
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
       .setName("new name")
-      .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_1)
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -453,8 +458,6 @@ public class RuleDaoTest {
     RuleDefinitionDto ruleDto = underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getUuid()).isNotNull();
     assertThat(ruleDto.getName()).isEqualTo("new name");
-    assertThat(ruleDto.getDescription()).isEqualTo("new description");
-    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
@@ -475,6 +478,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
+      .containsOnly(RULE_DESCRIPTION_SECTION_1);
   }
 
   @Test
@@ -485,8 +491,8 @@ public class RuleDaoTest {
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
       .setName("new name")
-      .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(randomAlphabetic(5)))
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -510,8 +516,6 @@ public class RuleDaoTest {
 
     RuleDefinitionDto ruleDto = underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getName()).isEqualTo("new name");
-    assertThat(ruleDto.getDescription()).isEqualTo("new description");
-    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
@@ -532,6 +536,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
+      .containsOnly(RULE_DESCRIPTION_SECTION_1);
   }
 
   @Test
@@ -798,7 +805,8 @@ public class RuleDaoTest {
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(firstRule.getName()).isEqualTo(r1.getName());
-    assertThat(firstRule.getDescription()).isEqualTo(r1.getDescription());
+    //FIXME SONAR-16309
+    assertThat(firstRule.getDescription()).isEqualTo(r1.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
@@ -877,7 +885,8 @@ public class RuleDaoTest {
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(firstRule.getName()).isEqualTo(r1.getName());
-    assertThat(firstRule.getDescription()).isEqualTo(r1.getDescription());
+    //FIXME SONAR-16309
+    assertThat(firstRule.getDescription()).isEqualTo(r1.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getSeverityAsString()).isEqualTo(SeverityUtil.getSeverityFromOrdinal(r1.getSeverity()));

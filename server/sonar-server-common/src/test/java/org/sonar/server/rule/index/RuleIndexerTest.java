@@ -28,7 +28,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleTesting;
@@ -55,6 +55,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
@@ -62,11 +63,14 @@ import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDER
 @RunWith(DataProviderRunner.class)
 public class RuleIndexerTest {
 
-  public static final String VALID_HOTSPOT_RULE_DESCRIPTION = "acme\n" +
+  private static final String VALID_HOTSPOT_RULE_DESCRIPTION = "acme\n" +
     "<h2>Ask Yourself Whether</h2>\n" +
     "bar\n" +
     "<h2>Recommended Secure Coding Practices</h2>\n" +
     "foo";
+
+  private static final RuleDescriptionSectionDto RULE_DESCRIPTION_SECTION_DTO = createDefaultRuleDescriptionSection(VALID_HOTSPOT_RULE_DESCRIPTION);
+
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -83,8 +87,8 @@ public class RuleIndexerTest {
     .setRepositoryKey("xoo")
     .setConfigKey("S1")
     .setName("Null Pointer")
-    .setDescription("S001 desc")
     .setDescriptionFormat(RuleDto.Format.HTML)
+    .addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO)
     .setLanguage("xoo")
     .setSeverity(Severity.BLOCKER)
     .setStatus(RuleStatus.READY)
@@ -127,7 +131,8 @@ public class RuleIndexerTest {
   @Test
   public void index_long_rule_description() {
     String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(joining(" "));
-    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
+    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(description);
+    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.addRuleDescriptionSectionDto(ruleDescriptionSectionDto));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isOne();
@@ -143,7 +148,7 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setSecurityStandards(standards)
-      .setDescription(VALID_HOTSPOT_RULE_DESCRIPTION));
+      .addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -174,11 +179,9 @@ public class RuleIndexerTest {
   }
 
   @Test
-  @UseDataProvider("nullEmptyOrNoTitleDescription")
-  public void log_debug_when_hotspot_rule_description_is_null_or_empty(@Nullable String description) {
-    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .setDescription(description));
+  public void log_debug_when_hotspot_rule_no_description () {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutSection()
+      .setType(RuleType.SECURITY_HOTSPOT));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -188,19 +191,11 @@ public class RuleIndexerTest {
         rule.getKey()));
   }
 
-  @DataProvider
-  public static Object[][] nullEmptyOrNoTitleDescription() {
-    return new Object[][] {
-      {null},
-      {""},
-    };
-  }
-
   @Test
   public void log_debug_when_hotspot_rule_description_has_none_of_the_key_titles() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setDescription(randomAlphabetic(30)));
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(randomAlphabetic(30))));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -214,9 +209,9 @@ public class RuleIndexerTest {
   public void log_debug_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setDescription("bar\n" +
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("bar\n" +
         "<h2>Ask Yourself Whether</h2>\n" +
-        "foo"));
+        "foo")));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -230,10 +225,10 @@ public class RuleIndexerTest {
   public void log_debug_when_hotspot_rule_description_is_missing_risk_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setDescription("<h2>Ask Yourself Whether</h2>\n" +
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<h2>Ask Yourself Whether</h2>\n" +
         "bar\n" +
         "<h2>Recommended Secure Coding Practices</h2>\n" +
-        "foo"));
+        "foo")));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -247,9 +242,9 @@ public class RuleIndexerTest {
   public void log_debug_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setDescription("bar\n" +
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("bar\n" +
         "<h2>Recommended Secure Coding Practices</h2>\n" +
-        "foo"));
+        "foo")));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);

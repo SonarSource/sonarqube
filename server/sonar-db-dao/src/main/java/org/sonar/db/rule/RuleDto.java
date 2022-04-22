@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Collection;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -100,12 +101,27 @@ public class RuleDto {
     return this;
   }
 
-  public String getDescription() {
-    return definition.getDescription();
+  @CheckForNull
+  public RuleDescriptionSectionDto getRuleDescriptionSection(String ruleDescriptionSectionKey) {
+    return definition.getRuleDescriptionSectionDto(ruleDescriptionSectionKey);
   }
 
-  public RuleDto setDescription(String description) {
-    definition.setDescription(description);
+  @CheckForNull
+  public RuleDescriptionSectionDto getDefaultRuleDescriptionSection() {
+    return definition.getDefaultRuleDescriptionSectionDto();
+  }
+
+  public Collection<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
+    return definition.getRuleDescriptionSectionDtos();
+  }
+
+  public RuleDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    definition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    return this;
+  }
+
+  public RuleDto addOrReplaceRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    definition.addOrReplaceRuleDescriptionSectionDto(ruleDescriptionSectionDto);
     return this;
   }
 

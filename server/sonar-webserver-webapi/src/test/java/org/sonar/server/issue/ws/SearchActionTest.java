@@ -100,6 +100,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.Common.RuleType.BUG;
 import static org.sonarqube.ws.Common.RuleType.SECURITY_HOTSPOT_VALUE;
@@ -1441,7 +1442,7 @@ public class SearchActionTest {
   private RuleDto newIssueRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
-      .setDescription("Rule desc")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Rule desc"))
       .setStatus(RuleStatus.READY);
     db.rules().insert(rule.getDefinition());
     return rule;
@@ -1450,7 +1451,7 @@ public class SearchActionTest {
   private RuleDto newHotspotRule() {
     RuleDto rule = RuleTesting.newXooX2()
       .setName("Rule name")
-      .setDescription("Rule desc")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Rule desc"))
       .setStatus(RuleStatus.READY)
       .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule.getDefinition());

@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -73,8 +73,8 @@ public class QualityProfileChangeEventServiceImplTest {
       .setLanguage("xoo")
       .setRepositoryKey("repo")
       .setRuleKey("ruleKey")
-      .setDescription("<div>line1\nline2</div>")
-      .setDescriptionFormat(MARKDOWN);
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>line1\nline2</div>"));
     db.rules().insert(rule1);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(qualityProfileDto, rule1);

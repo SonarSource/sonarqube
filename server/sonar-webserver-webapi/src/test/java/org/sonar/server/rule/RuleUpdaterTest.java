@@ -57,6 +57,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.CRITICAL;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
 import static org.sonar.server.rule.RuleUpdate.createForPluginRule;
@@ -341,7 +342,7 @@ public class RuleUpdaterTest {
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
       .setName("Old name")
-      .setDescription("Old description")
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .getDefinition();
@@ -364,7 +365,7 @@ public class RuleUpdaterTest {
     RuleDto customRuleReloaded = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
-    assertThat(customRuleReloaded.getDescription()).isEqualTo("New description");
+    assertThat(customRuleReloaded.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("New description");
     assertThat(customRuleReloaded.getSeverityString()).isEqualTo("MAJOR");
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
 
@@ -389,7 +390,7 @@ public class RuleUpdaterTest {
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
       .setName("Old name")
-      .setDescription("Old description")
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .getDefinition();

@@ -53,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFSET;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
@@ -107,7 +108,7 @@ public class UpdateActionTest {
     RuleDefinitionDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.setDescription("Old description"),
+      r -> r.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description")),
       r -> r.setSeverity(Severity.MINOR),
       r -> r.setStatus(RuleStatus.BETA),
       r -> r.setTemplateUuid(templateRule.getUuid()),
@@ -243,7 +244,7 @@ public class UpdateActionTest {
     RuleDefinitionDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.setDescription("Old description"),
+      r -> r.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description")),
       r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));

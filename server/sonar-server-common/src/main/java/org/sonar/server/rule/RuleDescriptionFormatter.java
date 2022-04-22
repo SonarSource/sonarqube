@@ -19,30 +19,49 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.markdown.Markdown;
 
+import static com.google.common.collect.MoreCollectors.toOptional;
 import static java.lang.String.format;
 
 public class RuleDescriptionFormatter {
 
   private RuleDescriptionFormatter() { /* static helpers */ }
 
-  public static String getDescriptionAsHtml(RuleDefinitionDto ruleDto) {
-    String description = ruleDto.getDescription();
-    RuleDto.Format descriptionFormat = ruleDto.getDescriptionFormat();
-    if (description != null && descriptionFormat != null) {
-      switch (descriptionFormat) {
-        case MARKDOWN:
-          return Markdown.convertToHtml(description);
-        case HTML:
-          return description;
-        default:
-          throw new IllegalStateException(format("Rule description format '%s' is unknown for key '%s'", descriptionFormat, ruleDto.getKey().toString()));
-      }
+  public static String getDescriptionAsHtml(RuleDefinitionDto ruleDefinitionDto) {
+    if (ruleDefinitionDto.getDescriptionFormat() == null) {
+      return null;
     }
-    return null;
+    Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleDefinitionDto.getRuleDescriptionSectionDtos();
+    Optional<RuleDescriptionSectionDto> ruleDescriptionSectionDto = findDefaultDescription(ruleDescriptionSectionDtos);
+    return ruleDescriptionSectionDto
+      .map(ruleDescriptionSection -> toHtml(ruleDefinitionDto, ruleDescriptionSection))
+      .orElse(null);
+  }
+
+  private static Optional<RuleDescriptionSectionDto> findDefaultDescription(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
+    return ruleDescriptionSectionDtos.stream()
+      .filter(RuleDescriptionSectionDto::isDefault)
+      .collect(toOptional());
+  }
+
+  private static String toHtml(RuleDefinitionDto ruleDefinitionDto, RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    RuleDto.Format descriptionFormat = Objects.requireNonNull(ruleDefinitionDto.getDescriptionFormat(),
+      "Rule " + ruleDefinitionDto.getDescriptionFormat() + " contains section(s) but has no format set");
+    switch (descriptionFormat) {
+      case MARKDOWN:
+        return Markdown.convertToHtml(ruleDescriptionSectionDto.getDescription());
+      case HTML:
+        return ruleDescriptionSectionDto.getDescription();
+      default:
+        throw new IllegalStateException(format("Rule description section format '%s' is unknown for rule key '%s'", descriptionFormat, ruleDefinitionDto.getKey()));
+    }
   }
 
 }

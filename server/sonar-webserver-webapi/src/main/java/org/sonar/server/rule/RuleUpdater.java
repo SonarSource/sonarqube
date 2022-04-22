@@ -43,6 +43,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -53,6 +54,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 @ServerSide
 public class RuleUpdater {
@@ -136,8 +138,9 @@ public class RuleUpdater {
     if (isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
     }
-    rule.setDescription(description);
+    RuleDescriptionSectionDto descriptionSectionDto = createDefaultRuleDescriptionSection(description);
     rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
+    rule.addOrReplaceRuleDescriptionSectionDto(descriptionSectionDto);
   }
 
   private static void updateSeverity(RuleUpdate update, RuleDto rule) {

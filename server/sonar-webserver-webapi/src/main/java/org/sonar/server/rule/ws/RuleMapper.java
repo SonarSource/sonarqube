@@ -34,6 +34,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
@@ -47,6 +48,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
 
+import static java.util.stream.Collectors.joining;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
@@ -329,10 +331,17 @@ public class RuleMapper {
       }
     }
 
-    String description = ruleDto.getDescription();
-    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION) && description != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION)
+      && !ruleDto.getRuleDescriptionSectionDtos().isEmpty()) {
+      String description = concatenateSectionTemporaryForSonar16302(ruleDto);
       ruleResponse.setMdDesc(description);
     }
+  }
+
+  private static String concatenateSectionTemporaryForSonar16302(RuleDefinitionDto ruleDto) {
+    return ruleDto.getRuleDescriptionSectionDtos().stream()
+      .map(RuleDescriptionSectionDto::getDescription)
+      .collect(joining());
   }
 
   private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
