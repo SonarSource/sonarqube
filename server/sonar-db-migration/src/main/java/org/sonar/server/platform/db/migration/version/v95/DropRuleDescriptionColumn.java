@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v94;
+package org.sonar.server.platform.db.migration.version.v95;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-public class DropIssuesAttributesIssueColumn extends DropColumnChange {
+public class DropRuleDescriptionColumn extends DropColumnChange {
 
-  public static final String TABLE_NAME = "issues";
-  public static final String COLUMN_NAME = "issue_attributes";
+  public static final String TABLE_NAME = "rules";
+  public static final String COLUMN_NAME = "description";
 
-  public DropIssuesAttributesIssueColumn(Database db) {
+  public DropRuleDescriptionColumn(Database db) {
     super(db, TABLE_NAME, COLUMN_NAME);
   }
 

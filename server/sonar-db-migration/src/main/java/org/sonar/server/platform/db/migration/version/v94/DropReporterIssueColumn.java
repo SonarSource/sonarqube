@@ -20,8 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v94;
 
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-public class DropReporterIssueColumn extends AbstractDropColumn {
+public class DropReporterIssueColumn extends DropColumnChange {
 
   public static final String TABLE_NAME = "issues";
   public static final String COLUMN_NAME = "reporter";

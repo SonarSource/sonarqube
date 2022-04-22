@@ -29,6 +29,11 @@ public class DbVersion95 implements DbVersion {
       .add(6401, "Add column 'project_key' to 'user_tokens'", AddProjectKeyColumnToUserTokens.class)
       .add(6402, "Add column 'type' to 'user_tokens'", AddTypeColumnToUserTokens.class)
       .add(6403, "Upsert value of type in 'user_tokens'", UpsertUserTokensTypeValue.class)
-      .add(6404, "Make column 'type' in 'user_tokens' not nullable", MakeTypeColumnNotNullableOnUserTokens.class);
+      .add(6404, "Make column 'type' in 'user_tokens' not nullable", MakeTypeColumnNotNullableOnUserTokens.class)
+      .add(6405, "Create table RULE_DESC_SECTIONS", CreateRuleDescSectionsTable.class)
+      .add(6406, "Insert descriptions from RULES into RULE_DESC_SECTIONS", InsertRuleDescriptionIntoRuleDescSections.class)
+      .add(6407, "Create index for RULE_DESC_SECTIONS", CreateIndexForRuleDescSections.class)
+      .add(6408, "Drop column DESCRIPTIONS from RULES table", DropRuleDescriptionColumn.class)
+    ;
   }
 }

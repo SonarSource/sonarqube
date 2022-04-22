@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v94;
+package org.sonar.server.platform.db.migration.step;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public abstract class AbstractDropColumn extends DdlChange {
+public abstract class DropColumnChange extends DdlChange {
 
   private final String tableName;
   private final String columnName;
 
-  protected AbstractDropColumn(Database db, String tableName, String columnName) {
+  protected DropColumnChange(Database db, String tableName, String columnName) {
     super(db);
     this.tableName = tableName;
     this.columnName = columnName;
