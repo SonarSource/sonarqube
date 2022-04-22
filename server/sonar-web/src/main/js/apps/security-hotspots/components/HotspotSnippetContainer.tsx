@@ -56,7 +56,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     secondaryLocations: []
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     this.mounted = true;
     await this.initializeSecondaryLocations();
     this.fetchSources();
