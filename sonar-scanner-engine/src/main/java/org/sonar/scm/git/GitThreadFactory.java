@@ -19,9 +19,6 @@
  */
 package org.sonar.scm.git;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
-import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +30,7 @@ public class GitThreadFactory implements ThreadFactory {
   public Thread newThread(Runnable r) {
     Thread t = new Thread(r);
     t.setName(NAME_PREFIX + count.getAndIncrement());
+    t.setDaemon(true);
     return t;
   }
 }

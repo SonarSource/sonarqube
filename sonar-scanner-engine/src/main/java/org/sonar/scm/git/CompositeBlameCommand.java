@@ -41,6 +41,7 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 public class CompositeBlameCommand extends BlameCommand {
   private static final Logger LOG = Loggers.get(CompositeBlameCommand.class);
@@ -66,8 +67,10 @@ public class CompositeBlameCommand extends BlameCommand {
       if (cloneIsInvalid(gitBaseDir)) {
         return;
       }
-
+      Profiler profiler = Profiler.create(LOG);
+      profiler.startDebug("Collecting committed files");
       Set<String> committedFiles = collectAllCommittedFiles(repo);
+      profiler.stopDebug();
       nativeGitEnabled = nativeCmd.isEnabled();
       ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new GitThreadFactory());
 
@@ -113,10 +116,10 @@ public class CompositeBlameCommand extends BlameCommand {
   }
 
   private void blame(BlameOutput output, Git git, File gitBaseDir, InputFile inputFile, String filename) {
-    LOG.debug("Blame file {}", filename);
     List<BlameLine> blame = null;
     if (nativeGitEnabled) {
       try {
+        LOG.debug("Blame file (native) {}", filename);
         blame = nativeCmd.blame(gitBaseDir.toPath(), filename);
       } catch (Exception e) {
         LOG.debug("Native git blame failed. Falling back to jgit: " + filename, e);
@@ -125,6 +128,7 @@ public class CompositeBlameCommand extends BlameCommand {
     }
 
     if (blame == null) {
+      LOG.debug("Blame file (JGit) {}", filename);
       blame = jgitCmd.blame(git, filename);
     }
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.scm.git;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
@@ -27,6 +26,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,10 +92,11 @@ public class GitBlameCommand {
     Process p = pb.start();
     try {
       InputStream processStdOutput = p.getInputStream();
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(processStdOutput, UTF_8))) {
-        String outputLine;
-        while ((outputLine = br.readLine()) != null) {
-          stdOutLineConsumer.accept(outputLine);
+      // don't use BufferedReader#readLine because it will also parse CR, which may be part of the actual source code line
+      try (Scanner scanner = new Scanner(new InputStreamReader(processStdOutput, UTF_8))) {
+        scanner.useDelimiter("\n");
+        while (scanner.hasNext()) {
+          stdOutLineConsumer.accept(scanner.next());
         }
       }
 

@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
@@ -58,6 +57,19 @@ public class GitBlameCommandTest {
   @Before
   public void skipTestsIfNoGitFound() {
     assumeTrue(blameCommand.isEnabled());
+  }
+
+  @Test
+  public void should_read_lines_only_based_on_new_line() throws Exception {
+    Path baseDir = createNewTempFolder().toPath();
+    String filePath = "file.txt";
+    createFile(filePath, "test1\rtest2\r\ttest3", baseDir);
+    Git git = createRepository(baseDir);
+    createFile(filePath, "line", baseDir);
+    commit(git, filePath);
+
+    List<BlameLine> blame = blameCommand.blame(baseDir, "file.txt");
+    assertThat(blame).hasSize(1);
   }
 
   @Test
@@ -145,7 +157,7 @@ public class GitBlameCommandTest {
     Git git = createRepository(baseDir);
     String filePath = "file.txt";
     createFile(filePath, "line", baseDir);
-    commitWithNoEamil(git, filePath);
+    commitWithNoEmail(git, filePath);
 
     GitBlameCommand blameCommand = new GitBlameCommand();
     List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
@@ -156,9 +168,14 @@ public class GitBlameCommandTest {
     assertThat(blameLine.date()).isNotNull();
   }
 
-  private void commitWithNoEamil(Git git, String path) throws GitAPIException {
+  private void commitWithNoEmail(Git git, String path) throws GitAPIException {
     git.add().addFilepattern(path).call();
     git.commit().setCommitter("joe", "").setMessage("msg").call();
+  }
+
+  private void commit(Git git, String path) throws GitAPIException {
+    git.add().addFilepattern(path).call();
+    git.commit().setCommitter("joe", "email@email.com").setMessage("msg").call();
   }
 
   private File createNewTempFolder() throws IOException {
