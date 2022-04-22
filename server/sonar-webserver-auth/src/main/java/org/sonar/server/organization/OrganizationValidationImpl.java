@@ -19,8 +19,12 @@
  */
 package org.sonar.server.organization;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.regex.Matcher;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -58,6 +62,7 @@ public class OrganizationValidationImpl implements OrganizationValidation {
   @Override
   public String checkUrl(@Nullable String urlCandidate) {
     checkParamMaxLength(urlCandidate, "Url", URL_MAX_LENGTH);
+    checkUrlValidation(urlCandidate);
 
     return urlCandidate;
   }
@@ -73,6 +78,13 @@ public class OrganizationValidationImpl implements OrganizationValidation {
   private static void checkParamMaxLength(@Nullable String value, String label, int maxLength) {
     if (value != null) {
       checkArgument(value.length() <= maxLength, "%s '%s' must be at most %s chars long", label, value, maxLength);
+    }
+  }
+
+  private static void checkUrlValidation(@Nullable String value) {
+    if (StringUtils.isNotEmpty(value)) {
+      Matcher matcher = URL_PATTERN.matcher(value);
+      checkArgument(matcher.matches(), "Url must be valid");
     }
   }
 

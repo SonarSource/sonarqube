@@ -29,9 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class OrganizationValidationImplTest {
+  private static final String STRING_32_CHARS_PREFIX = "https://aaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String STRING_32_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String STRING_64_CHARS = STRING_32_CHARS + STRING_32_CHARS;
-  private static final String STRING_256_CHARS = STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS;
+  private static final String STRING_256_CHARS =
+          STRING_32_CHARS_PREFIX + STRING_32_CHARS + STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS;
 
   private static final String STRING_255_CHARS = Strings.repeat("a", 255);
 
@@ -174,8 +176,8 @@ public class OrganizationValidationImplTest {
 
   @Test
   public void checkValidUrl_does_not_fail_if_arg_is_1_to_256_chars_long() {
-    String str = "1";
-    for (int i = 0; i < 256; i++) {
+    String str = "https://a";
+    for (int i = 0; i < 248; i++) {
       underTest.checkUrl(str);
       str += "a";
     }
@@ -193,6 +195,17 @@ public class OrganizationValidationImplTest {
       } catch (IllegalArgumentException e) {
         assertThat(e).hasMessage("Url '" + str + "' must be at most 256 chars long");
       }
+    }
+  }
+
+  @Test
+  public void checkValidUrl_throws_IAE_if_arg_is_not_valid_url() {
+    String str = "invalidUrl";
+    try {
+      underTest.checkUrl(str);
+      fail("A IllegalArgumentException should have been thrown");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Url must be valid");
     }
   }
 

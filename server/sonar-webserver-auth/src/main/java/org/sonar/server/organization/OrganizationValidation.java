@@ -21,6 +21,7 @@ package org.sonar.server.organization;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.regex.Pattern;
 
 public interface OrganizationValidation {
   int KEY_MIN_LENGTH = 1;
@@ -29,6 +30,7 @@ public interface OrganizationValidation {
   int NAME_MAX_LENGTH = 255;
   int DESCRIPTION_MAX_LENGTH = 256;
   int URL_MAX_LENGTH = 256;
+  Pattern URL_PATTERN = Pattern.compile("((http|https)://)(www.)?[a-zA-Z0-9@:%._\\+~#?&-//=]{1,256}");
 
   /**
    * Ensures the specified argument is a valid key by failing with an exception if it is not so.

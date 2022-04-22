@@ -210,8 +210,8 @@ public class UpdateActionTest {
     OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
     logInAsAdministrator(org);
 
-    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", "moo", "doo", "boo");
-    verifyResponseAndDb(response, org, "bar", "moo", "doo", "boo", DATE_2);
+    Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", "moo", "http://doo", "boo");
+    verifyResponseAndDb(response, org, "bar", "moo", "http://doo", "boo", DATE_2);
   }
 
   @Test
@@ -247,7 +247,7 @@ public class UpdateActionTest {
   @Test
   public void request_succeeds_if_url_is_256_chars_long() {
     OrganizationDto org = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    String url = STRING_257_CHARS_LONG.substring(0, 256);
+    String url = "http://" + STRING_257_CHARS_LONG.substring(0, 248);
     logInAsAdministrator(org);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(org.getKey(), "bar", null, url, null);

@@ -130,19 +130,19 @@ public class CreateActionTest {
     CreateWsResponse response = wsTester.newRequest()
       .setParam("name", "orgFoo")
       .setParam("description", "My org desc")
-      .setParam("url", "my url")
+      .setParam("url", "http://myurl")
       .setParam("avatar", "my avatar")
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getOrganization().getKey()).isEqualTo("orgfoo");
     assertThat(response.getOrganization().getName()).isEqualTo("orgFoo");
     assertThat(response.getOrganization().getDescription()).isEqualTo("My org desc");
-    assertThat(response.getOrganization().getUrl()).isEqualTo("my url");
+    assertThat(response.getOrganization().getUrl()).isEqualTo("http://myurl");
     assertThat(response.getOrganization().getAvatar()).isEqualTo("my avatar");
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
     assertThat(organization.getName()).isEqualTo("orgFoo");
     assertThat(organization.getDescription()).isEqualTo("My org desc");
-    assertThat(organization.getUrl()).isEqualTo("my url");
+    assertThat(organization.getUrl()).isEqualTo("http://myurl");
     assertThat(organization.getAvatarUrl()).isEqualTo("my avatar");
     assertThat(organization.getSubscription()).isEqualTo(OrganizationDto.Subscription.FREE);
   }
@@ -370,8 +370,8 @@ public class CreateActionTest {
     createUserAndLogInAsSystemAdministrator();
     db.qualityGates().insertBuiltInQualityGate();
 
-    CreateWsResponse response = executeRequest("foo", "bar", "moo", "doo", "boo");
-    verifyResponseAndDb(response, "foo", "bar", "moo", "doo", "boo", NOW);
+    CreateWsResponse response = executeRequest("foo", "bar", "moo", "http://doo", "boo");
+    verifyResponseAndDb(response, "foo", "bar", "moo", "http://doo", "boo", NOW);
   }
 
   @Test
@@ -398,7 +398,7 @@ public class CreateActionTest {
   @Test
   public void request_succeeds_if_url_is_256_chars_long() {
     createUserAndLogInAsSystemAdministrator();
-    String url = STRING_257_CHARS_LONG.substring(0, 256);
+    String url = "https://" + STRING_257_CHARS_LONG.substring(0, 248);
     db.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", null, url, null);
