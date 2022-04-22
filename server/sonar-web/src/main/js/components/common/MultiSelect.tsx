@@ -51,6 +51,7 @@ interface State {
 }
 
 interface DefaultProps {
+  // eslint-disable-next-line react/no-unused-prop-types
   filterSelected: (query: string, selectedElements: string[]) => string[];
   listSize: number;
   renderLabel: (element: string) => React.ReactNode;
@@ -59,7 +60,7 @@ interface DefaultProps {
 
 type PropsWithDefault = MultiSelectProps & DefaultProps;
 
-export default class MultiSelect extends React.PureComponent<MultiSelectProps, State> {
+export default class MultiSelect extends React.PureComponent<PropsWithDefault, State> {
   container?: HTMLDivElement | null;
   searchInput?: HTMLInputElement | null;
   mounted = false;
@@ -72,7 +73,7 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
     validateSearchInput: (value: string) => value
   };
 
-  constructor(props: MultiSelectProps) {
+  constructor(props: PropsWithDefault) {
     super(props);
     this.state = {
       activeIdx: 0,
@@ -93,22 +94,20 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
     }
   }
 
-  componentWillReceiveProps(nextProps: PropsWithDefault) {
+  componentDidUpdate(prevProps: PropsWithDefault) {
     if (
-      this.props.elements !== nextProps.elements ||
-      this.props.selectedElements !== nextProps.selectedElements
+      prevProps.elements !== this.props.elements ||
+      prevProps.selectedElements !== this.props.selectedElements
     ) {
-      this.updateSelectedElements(nextProps);
-      this.updateUnselectedElements(nextProps);
+      this.updateSelectedElements(this.props);
+      this.updateUnselectedElements(this.props);
 
-      const totalElements = this.getAllElements(nextProps, this.state).length;
+      const totalElements = this.getAllElements(this.props, this.state).length;
       if (this.state.activeIdx >= totalElements) {
         this.setState({ activeIdx: totalElements - 1 });
       }
     }
-  }
 
-  componentDidUpdate() {
     if (this.searchInput) {
       this.searchInput.focus();
     }
@@ -177,7 +176,7 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
 
   onUnselectItem = (item: string) => this.props.onUnselect(item);
 
-  isNewElement = (elem: string, { selectedElements, elements }: MultiSelectProps) =>
+  isNewElement = (elem: string, { selectedElements, elements }: PropsWithDefault) =>
     elem.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
   updateSelectedElements = (props: PropsWithDefault) => {
@@ -209,7 +208,7 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
     });
   };
 
-  getAllElements = (props: MultiSelectProps, state: State) => {
+  getAllElements = (props: PropsWithDefault, state: State) => {
     if (this.isNewElement(state.query, props)) {
       return [...state.selectedElements, ...state.unselectedElements, state.query];
     } else {
@@ -219,7 +218,7 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
 
   setElementActive = (idx: number) => this.setState({ activeIdx: idx });
 
-  selectNextElement = (state: State, props: MultiSelectProps) => {
+  selectNextElement = (state: State, props: PropsWithDefault) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx < 0 || activeIdx >= allElements.length - 1) {
@@ -229,7 +228,7 @@ export default class MultiSelect extends React.PureComponent<MultiSelectProps, S
     }
   };
 
-  selectPreviousElement = (state: State, props: MultiSelectProps) => {
+  selectPreviousElement = (state: State, props: PropsWithDefault) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx <= 0) {
