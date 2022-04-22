@@ -3,15 +3,22 @@
   "userTokens": [
     {
       "name": "Project scan on AppVeyor",
-      "createdAt": "2015-08-02T15:44:27+0200"
+      "createdAt": "2015-08-02T15:44:27+0200",
+      "type": "USER_TOKEN"
     },
     {
       "name": "Project scan on Jenkins",
-      "createdAt": "2015-04-08T21:57:47+0200"
+      "createdAt": "2015-04-08T21:57:47+0200",
+      "type": "PROJECT_ANALYSIS_TOKEN",
+      "project": {
+        "key": "project-1",
+        "name": "Project 1"
+      }
     },
     {
       "name": "Project scan on Travis",
-      "createdAt": "2015-11-26T08:31:07+0100"
+      "createdAt": "2015-11-26T08:31:07+0100",
+      "type": "USER_TOKEN"
     }
   ]
 }

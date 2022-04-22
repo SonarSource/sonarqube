@@ -29,12 +29,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
+import org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken;
 
 import static java.util.Optional.ofNullable;
+import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_SEARCH;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken.Project;
+import static org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken.newBuilder;
 
 public class SearchAction implements UserTokensWsAction {
 
@@ -80,14 +84,22 @@ public class SearchAction implements UserTokensWsAction {
 
   private static SearchWsResponse buildResponse(UserDto user, List<UserTokenDto> userTokensDto) {
     SearchWsResponse.Builder searchWsResponse = SearchWsResponse.newBuilder();
-    SearchWsResponse.UserToken.Builder userTokenBuilder = SearchWsResponse.UserToken.newBuilder();
+    UserToken.Builder userTokenBuilder = newBuilder();
     searchWsResponse.setLogin(user.getLogin());
     for (UserTokenDto userTokenDto : userTokensDto) {
       userTokenBuilder
         .clear()
         .setName(userTokenDto.getName())
-        .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()));
+        .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()))
+        .setType(userTokenDto.getType());
       ofNullable(userTokenDto.getLastConnectionDate()).ifPresent(date -> userTokenBuilder.setLastConnectionDate(formatDateTime(date)));
+
+      if (!isNullOrEmpty(userTokenDto.getProjectKey()) && !isNullOrEmpty(userTokenDto.getProjectName())) {
+        Project.Builder projectBuilder = newBuilder().getProjectBuilder()
+          .setKey(userTokenDto.getProjectKey())
+          .setName(userTokenDto.getProjectName());
+        userTokenBuilder.setProject(projectBuilder.build());
+      }
       searchWsResponse.addUserTokens(userTokenBuilder);
     }
 

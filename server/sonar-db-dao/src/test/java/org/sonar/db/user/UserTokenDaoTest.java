@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +59,7 @@ public class UserTokenDaoTest {
   @Test
   public void insert_project_analysis_token() {
     UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
-
+    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey(projectAnalysisToken.getProjectKey()));
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
 
     UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());
@@ -70,6 +71,7 @@ public class UserTokenDaoTest {
     assertThat(projectAnalysisTokenFromDb.getUserUuid()).isEqualTo(projectAnalysisToken.getUserUuid());
     assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
     assertThat(projectAnalysisTokenFromDb.getType()).isEqualTo(projectAnalysisToken.getType());
+    assertThat(projectAnalysisTokenFromDb.getProjectName()).isEqualTo(project.name());
   }
 
   @Test

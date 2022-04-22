@@ -43,6 +43,8 @@ public class UserTokenDto {
 
   private String type;
 
+  private String projectName;
+
   public String getUuid() {
     return uuid;
   }
@@ -112,6 +114,16 @@ public class UserTokenDto {
 
   public UserTokenDto setType(String type) {
     this.type = type;
+    return this;
+  }
+
+  @CheckForNull
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public UserTokenDto setProjectName(@Nullable String projectName) {
+    this.projectName = projectName;
     return this;
   }
 }

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -67,12 +68,18 @@ public class SearchActionTest {
 
   @Test
   public void search_json_example() {
+    ComponentDto project1 = db.components().insertPublicProject(p -> p.setDbKey("project-1").setName("Project 1"));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("grace.hopper"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("ada.lovelace"));
     db.users().insertToken(user1, t -> t.setName("Project scan on Travis").setCreatedAt(1448523067221L));
     db.users().insertToken(user1, t -> t.setName("Project scan on AppVeyor").setCreatedAt(1438523067221L));
-    db.users().insertToken(user1, t -> t.setName("Project scan on Jenkins").setCreatedAt(1428523067221L));
-    db.users().insertToken(user2, t -> t.setName("Project scan on Travis").setCreatedAt(141456787123L));
+    db.users().insertProjectAnalysisToken(user1, t -> t.setName("Project scan on Jenkins")
+      .setCreatedAt(1428523067221L)
+      .setProjectKey(project1.getKey()));
+    db.users().insertProjectAnalysisToken(user2, t -> t.setName("Project scan on Travis")
+      .setCreatedAt(141456787123L)
+      .setProjectKey(project1.getKey()));
+
     logInAsSystemAdministrator();
 
     String response = ws.newRequest()

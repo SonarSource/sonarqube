@@ -43,6 +43,7 @@ public class UserTokenTesting {
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
       .setProjectKey("projectUuid_" + randomAlphanumeric(40))
+      .setProjectName("Project " + randomAlphanumeric(40))
       .setCreatedAt(nextLong())
       .setType("PROJECT_ANALYSIS_TOKEN");
   }

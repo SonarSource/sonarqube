@@ -335,6 +335,17 @@ public class UserDbTester {
     return dto;
   }
 
+  // PROJECT ANALYSIS TOKEN
+
+  @SafeVarargs
+  public final UserTokenDto insertProjectAnalysisToken(UserDto user, Consumer<UserTokenDto>... populators) {
+    UserTokenDto dto = UserTokenTesting.newProjectAnalysisToken().setUserUuid(user.getUuid());
+    stream(populators).forEach(p -> p.accept(dto));
+    db.getDbClient().userTokenDao().insert(db.getSession(), dto, user.getLogin());
+    db.commit();
+    return dto;
+  }
+
   // SESSION TOKENS
 
   @SafeVarargs

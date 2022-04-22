@@ -11,7 +11,8 @@
     t.last_connection_date as "lastConnectionDate",
     t.created_at as "createdAt",
     t.project_key as "projectKey",
-    t.type as "type"
+    t.type as "type",
+    p.name as "projectName"
   </sql>
 
   <insert id="insert" parameterType="UserToken" useGeneratedKeys="false">
@@ -46,6 +47,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
+    LEFT JOIN projects p on t.project_key = p.kee
     WHERE t.token_hash=#{tokenHash, jdbcType=VARCHAR}
   </select>
 
@@ -53,6 +55,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
+    LEFT JOIN projects p on t.project_key = p.kee
     WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR} and t.name=#{name, jdbcType=VARCHAR}
   </select>
 
@@ -60,6 +63,7 @@
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
+    LEFT JOIN projects p on t.project_key = p.kee
     WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR}
   </select>
   
