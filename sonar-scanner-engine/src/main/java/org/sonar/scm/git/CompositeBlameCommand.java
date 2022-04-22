@@ -84,7 +84,8 @@ public class CompositeBlameCommand extends BlameCommand {
       try {
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        LOG.info("Git blame interrupted");
+        LOG.info("Git blame interrupted", e);
+        Thread.currentThread().interrupt();
       }
     }
   }
