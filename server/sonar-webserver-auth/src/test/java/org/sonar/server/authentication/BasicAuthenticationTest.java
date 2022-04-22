@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -36,14 +37,16 @@ import org.sonar.server.usertoken.UserTokenAuthentication;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class BasicAuthenticationTest {
 
@@ -55,6 +58,7 @@ public class BasicAuthenticationTest {
 
   private static final UserDto USER = UserTesting.newUserDto().setLogin(A_LOGIN);
 
+  private static final String EXAMPLE_ENDPOINT = "/api/ce/submit";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -69,6 +73,13 @@ public class BasicAuthenticationTest {
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
   private BasicAuthentication underTest = new BasicAuthentication(dbClient, credentialsAuthentication, userTokenAuthentication, authenticationEvent);
+
+  @Before
+  public void before() {
+    String contextPath = "localhost";
+    when(request.getRequestURI()).thenReturn(contextPath + EXAMPLE_ENDPOINT);
+    when(request.getContextPath()).thenReturn(contextPath);
+  }
 
   @Test
   public void authenticate_from_basic_http_header() {
@@ -134,7 +145,8 @@ public class BasicAuthenticationTest {
   @Test
   public void authenticate_from_user_token() {
     UserDto user = db.users().insertUser();
-    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
+    var result = new UserTokenAuthentication.UserTokenAuthenticationResult(user.getUuid(), "my-token");
+    when(userTokenAuthentication.authenticate("token", EXAMPLE_ENDPOINT, null)).thenReturn(result);
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     Optional<UserDto> userAuthenticated = underTest.authenticate(request);
@@ -142,11 +154,13 @@ public class BasicAuthenticationTest {
     assertThat(userAuthenticated).isPresent();
     assertThat(userAuthenticated.get().getLogin()).isEqualTo(user.getLogin());
     verify(authenticationEvent).loginSuccess(request, user.getLogin(), Source.local(BASIC_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME", "my-token");
   }
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_is_invalid() {
-    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.empty());
+    var result = new UserTokenAuthentication.UserTokenAuthenticationResult("Token doesn't exist");
+    when(userTokenAuthentication.authenticate("token", EXAMPLE_ENDPOINT, null)).thenReturn(result);
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     assertThatThrownBy(() -> underTest.authenticate(request))
@@ -155,11 +169,13 @@ public class BasicAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
+    verify(request, times(0)).setAttribute(anyString(), anyString());
   }
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_existing_user() {
-    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of("Unknown user"));
+    var result = new UserTokenAuthentication.UserTokenAuthenticationResult("unknown-user-uuid", "my-token");
+    when(userTokenAuthentication.authenticate("token", EXAMPLE_ENDPOINT, null)).thenReturn(result);
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     assertThatThrownBy(() -> underTest.authenticate(request))
@@ -173,7 +189,8 @@ public class BasicAuthenticationTest {
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
     UserDto user = db.users().insertDisabledUser();
-    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
+    var result = new UserTokenAuthentication.UserTokenAuthenticationResult(user.getUuid(), "my-token");
+    when(userTokenAuthentication.authenticate("token", EXAMPLE_ENDPOINT, null)).thenReturn(result);
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     assertThatThrownBy(() -> underTest.authenticate(request))

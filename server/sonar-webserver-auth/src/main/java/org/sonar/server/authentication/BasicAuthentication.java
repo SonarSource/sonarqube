@@ -33,6 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.StringUtils.startsWithIgnoreCase;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.usertoken.UserTokenAuthentication.PROJECT_KEY_SCANNER_HEADER;
 
 /**
  * HTTP BASIC authentication relying on tuple {login, password}.
@@ -42,6 +43,8 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
  * @see UserTokenAuthentication for user access token
  */
 public class BasicAuthentication {
+
+  private static final String ACCESS_LOG_TOKEN_NAME = "TOKEN_NAME";
 
   private final DbClient dbClient;
   private final CredentialsAuthentication credentialsAuthentication;
@@ -94,30 +97,33 @@ public class BasicAuthentication {
   }
 
   private UserDto authenticate(Credentials credentials, HttpServletRequest request) {
-    if (!credentials.getPassword().isPresent()) {
-      UserDto userDto = authenticateFromUserToken(credentials.getLogin());
+    if (credentials.getPassword().isEmpty()) {
+      String projectKeyScannerHeader = request.getHeader(PROJECT_KEY_SCANNER_HEADER);
+      UserDto userDto = authenticateFromUserToken(credentials.getLogin(), request, projectKeyScannerHeader);
       authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
       return userDto;
     }
     return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
   }
 
-  private UserDto authenticateFromUserToken(String token) {
-    Optional<String> authenticatedUserUuid = userTokenAuthentication.authenticate(token);
-    if (!authenticatedUserUuid.isPresent()) {
+  private UserDto authenticateFromUserToken(String token, HttpServletRequest request, String projectKey) {
+    String path = request.getRequestURI().substring(request.getContextPath().length());
+    UserTokenAuthentication.UserTokenAuthenticationResult result = userTokenAuthentication.authenticate(token, path, projectKey);
+    if (result.getErrorMessage() != null) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC_TOKEN))
-        .setMessage("Token doesn't exist")
+        .setMessage(result.getErrorMessage())
         .build();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, authenticatedUserUuid.get());
+      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, result.getAuthenticatedUserUuid());
       if (userDto == null || !userDto.isActive()) {
         throw AuthenticationException.newBuilder()
           .setSource(Source.local(Method.BASIC_TOKEN))
           .setMessage("User doesn't exist")
           .build();
       }
+      request.setAttribute(ACCESS_LOG_TOKEN_NAME, result.getTokenName());
       return userDto;
     }
   }

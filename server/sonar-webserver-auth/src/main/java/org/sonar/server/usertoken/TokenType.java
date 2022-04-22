@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken;
 
 public enum TokenType {
+
   USER_TOKEN("u"),
   GLOBAL_ANALYSIS_TOKEN("a"),
   PROJECT_ANALYSIS_TOKEN("p");
