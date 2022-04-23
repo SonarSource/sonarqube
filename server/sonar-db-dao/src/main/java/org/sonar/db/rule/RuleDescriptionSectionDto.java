@@ -25,12 +25,19 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class RuleDescriptionSectionDto {
   static final String DEFAULT_KEY = "default";
+
+  private final String uuid;
   private final String key;
   private final String description;
 
-  private RuleDescriptionSectionDto(String key, String description) {
+  private RuleDescriptionSectionDto(String uuid, String key, String description) {
+    this.uuid = uuid;
     this.key = key;
     this.description = description;
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 
   public String getKey() {
@@ -41,9 +48,10 @@ public class RuleDescriptionSectionDto {
     return description;
   }
 
-  public static RuleDescriptionSectionDto createDefaultRuleDescriptionSection(String description) {
+  public static RuleDescriptionSectionDto createDefaultRuleDescriptionSection(String uuid, String description) {
     return RuleDescriptionSectionDto.builder()
       .setDefault()
+      .uuid(uuid)
       .description(description)
       .build();
   }
@@ -59,16 +67,23 @@ public class RuleDescriptionSectionDto {
   @Override
   public String toString() {
     return new StringJoiner(", ", RuleDescriptionSectionDto.class.getSimpleName() + "[", "]")
+      .add("uuid='" + uuid + "'")
       .add("key='" + key + "'")
       .add("description='" + description + "'")
       .toString();
   }
 
   public static final class RuleDescriptionSectionDtoBuilder {
+    private String uuid;
     private String key = null;
     private String description;
 
     private RuleDescriptionSectionDtoBuilder() {
+    }
+
+    public RuleDescriptionSectionDtoBuilder uuid(String uuid) {
+      this.uuid = uuid;
+      return this;
     }
 
     public RuleDescriptionSectionDtoBuilder setDefault() {
@@ -83,14 +98,13 @@ public class RuleDescriptionSectionDto {
       return this;
     }
 
-
     public RuleDescriptionSectionDtoBuilder description(String description) {
       this.description = description;
       return this;
     }
 
     public RuleDescriptionSectionDto build() {
-      return new RuleDescriptionSectionDto(key, description);
+      return new RuleDescriptionSectionDto(uuid, key, description);
     }
   }
 }

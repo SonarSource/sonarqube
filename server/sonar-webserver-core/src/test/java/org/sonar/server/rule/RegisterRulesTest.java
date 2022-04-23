@@ -836,7 +836,7 @@ public class RegisterRulesTest {
       .setRepositoryKey("findbugs")
       .setName("Rule One")
       .setScope(Scope.ALL)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Rule one description"))
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule one description"))
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setSystemTags(newHashSet("tag1", "tag2")));
     db.getSession().commit();

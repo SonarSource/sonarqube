@@ -48,7 +48,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_returns_all_empty_fields_when_empty_description() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(""));
+    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", ""));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -60,7 +60,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   @UseDataProvider("descriptionsWithoutTitles")
   public void parse_to_risk_description_fields_when_desc_contains_no_section(String description) {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(description));
+    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", description));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -82,7 +82,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_return_null_risk_when_desc_starts_with_ask_yourself_title() {
     RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
-      createDefaultRuleDescriptionSection((ASKATRISK + RECOMMENTEDCODINGPRACTICE)));
+      createDefaultRuleDescriptionSection("uuid", (ASKATRISK + RECOMMENTEDCODINGPRACTICE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -94,7 +94,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_return_null_vulnerable_when_no_ask_yourself_whether_title() {
     RuleDefinitionDto dto = newRuleWithoutSection()
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection((DESCRIPTION + RECOMMENTEDCODINGPRACTICE)));
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + RECOMMENTEDCODINGPRACTICE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -106,7 +106,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_return_null_fixIt_when_desc_has_no_Recommended_Secure_Coding_Practices_title() {
     RuleDefinitionDto dto = newRuleWithoutSection()
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection((DESCRIPTION + ASKATRISK)));
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + ASKATRISK)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -118,7 +118,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_with_noncompliant_section_not_removed() {
     RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
-      createDefaultRuleDescriptionSection((DESCRIPTION + NONCOMPLIANTCODE + COMPLIANTCODE)));
+      createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + NONCOMPLIANTCODE + COMPLIANTCODE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -130,7 +130,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_moved_noncompliant_code() {
     RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
-      createDefaultRuleDescriptionSection((DESCRIPTION + RECOMMENTEDCODINGPRACTICE + NONCOMPLIANTCODE + SEE)));
+      createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + RECOMMENTEDCODINGPRACTICE + NONCOMPLIANTCODE + SEE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -144,7 +144,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   public void parse_moved_sensitivecode_code() {
     RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
-      createDefaultRuleDescriptionSection((DESCRIPTION + ASKATRISK + RECOMMENTEDCODINGPRACTICE + SENSITIVECODE + SEE)));
+      createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + ASKATRISK + RECOMMENTEDCODINGPRACTICE + SENSITIVECODE + SEE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -164,7 +164,7 @@ public class HotspotRuleDescriptionTest {
       .setTemplateUuid("123")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(
-        ruleDescription + "\n"
+        "uuid", ruleDescription + "\n"
           + "== Exceptions" + "\n"
           + exceptionsContent + "\n"
           + "== Ask Yourself Whether" + "\n"

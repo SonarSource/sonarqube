@@ -74,7 +74,7 @@ public class QualityProfileChangeEventServiceImplTest {
       .setRepositoryKey("repo")
       .setRuleKey("ruleKey")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>line1\nline2</div>"));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", "<div>line1\nline2</div>"));
     db.rules().insert(rule1);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(qualityProfileDto, rule1);

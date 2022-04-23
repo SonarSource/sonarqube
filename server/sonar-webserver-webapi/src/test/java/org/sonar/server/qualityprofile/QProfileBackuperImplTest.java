@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -142,7 +143,7 @@ public class QProfileBackuperImplTest {
     RuleDefinitionDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDefinitionDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("custom rule description"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
       .setName("custom rule name")
       .setStatus(RuleStatus.READY)
       .setTemplateUuid(templateRule.getUuid()));

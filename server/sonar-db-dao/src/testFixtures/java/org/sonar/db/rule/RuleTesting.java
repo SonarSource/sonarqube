@@ -66,7 +66,7 @@ public class RuleTesting {
 
   public static RuleDefinitionDto newRule(RuleKey key) {
     RuleDefinitionDto ruleDefinitionDto = newRuleWithoutSection(key);
-    ruleDefinitionDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("description_" + randomAlphabetic(5)));
+    ruleDefinitionDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
     return ruleDefinitionDto;
   }
 
@@ -181,7 +181,7 @@ public class RuleTesting {
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescriptionFormat(RuleDto.Format.HTML)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Description" + ruleKey.rule()))
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Description" + ruleKey.rule()))
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)

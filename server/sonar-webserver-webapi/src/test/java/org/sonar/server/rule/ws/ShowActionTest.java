@@ -27,6 +27,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -70,6 +72,7 @@ public class ShowActionTest {
   @org.junit.Rule
   public DbTester db = DbTester.create();
 
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final Languages languages = new Languages(newLanguage("xoo", "Xoo"));
   private final WsActionTester ws = new WsActionTester(
@@ -285,7 +288,7 @@ public class ShowActionTest {
     db.rules().insert(templateRule.getDefinition());
     // Custom rule
     RuleDefinitionDto customRule = newCustomRule(templateRule.getDefinition())
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>line1\nline2</div>"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>line1\nline2</div>"))
       .setDescriptionFormat(MARKDOWN);
     db.rules().insert(customRule);
     doReturn("&lt;div&gt;line1<br/>line2&lt;/div&gt;").when(macroInterpreter).interpret("<div>line1\nline2</div>");
@@ -343,7 +346,7 @@ public class ShowActionTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName("predefined name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<div>predefined desc</div>"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>predefined desc</div>"))
       .setSeverity(Severity.BLOCKER)
       .setType(RuleType.VULNERABILITY));
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(externalRule, m -> m

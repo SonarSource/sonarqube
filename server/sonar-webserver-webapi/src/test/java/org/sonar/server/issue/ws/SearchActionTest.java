@@ -40,6 +40,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -118,6 +119,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
 
 public class SearchActionTest {
 
+  private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
   @Rule
   public UserSessionRule userSession = standalone();
   @Rule
@@ -1442,7 +1444,7 @@ public class SearchActionTest {
   private RuleDto newIssueRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Rule desc"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY);
     db.rules().insert(rule.getDefinition());
     return rule;
@@ -1451,7 +1453,7 @@ public class SearchActionTest {
   private RuleDto newHotspotRule() {
     RuleDto rule = RuleTesting.newXooX2()
       .setName("Rule name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Rule desc"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY)
       .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule.getDefinition());

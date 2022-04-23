@@ -45,6 +45,8 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -113,6 +115,7 @@ public class ShowActionTest {
   private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
   private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport);
   private final WsActionTester actionTester = new WsActionTester(underTest);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Test
   public void ws_is_public() {
@@ -435,7 +438,7 @@ public class ShowActionTest {
 
     RuleDefinitionDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
       r -> r.setTemplateUuid("123")
-        .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(description))
+        .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), description))
         .setDescriptionFormat(MARKDOWN));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
@@ -454,7 +457,7 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
 
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123"));
+    RuleDefinitionDto rule = newRuleWithoutSection(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123"));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();

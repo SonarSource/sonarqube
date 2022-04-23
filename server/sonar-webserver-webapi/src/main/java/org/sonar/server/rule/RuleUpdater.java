@@ -37,6 +37,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -61,11 +62,13 @@ public class RuleUpdater {
 
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
+  private final UuidFactory uuidFactory;
   private final System2 system;
 
-  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system) {
+  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, UuidFactory uuidFactory, System2 system) {
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
+    this.uuidFactory = uuidFactory;
     this.system = system;
   }
 
@@ -133,12 +136,12 @@ public class RuleUpdater {
     rule.setName(name);
   }
 
-  private static void updateDescription(RuleUpdate update, RuleDto rule) {
+  private void updateDescription(RuleUpdate update, RuleDto rule) {
     String description = update.getMarkdownDescription();
     if (isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
     }
-    RuleDescriptionSectionDto descriptionSectionDto = createDefaultRuleDescriptionSection(description);
+    RuleDescriptionSectionDto descriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), description);
     rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
     rule.addOrReplaceRuleDescriptionSectionDto(descriptionSectionDto);
   }

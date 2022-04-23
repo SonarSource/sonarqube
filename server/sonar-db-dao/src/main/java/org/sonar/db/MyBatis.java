@@ -131,7 +131,6 @@ import org.sonar.db.qualityprofile.QProfileEditGroupsMapper;
 import org.sonar.db.qualityprofile.QProfileEditUsersMapper;
 import org.sonar.db.qualityprofile.QualityProfileExportMapper;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
@@ -221,7 +220,6 @@ public class MyBatis {
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);
-    confBuilder.loadAlias("Rule", RuleDto.class);
     confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
     confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
     confBuilder.loadAlias("ScrapAnalysisProperty", ScrapAnalysisPropertyDto.class);

@@ -125,6 +125,10 @@ public class RuleDto {
     return this;
   }
 
+  void setRuleDescriptionSectionDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
+    definition.setRuleDescriptionSectionDtos(ruleDescriptionSectionDtos);
+  }
+
   public Format getDescriptionFormat() {
     return definition.getDescriptionFormat();
   }
@@ -203,7 +207,7 @@ public class RuleDto {
     return definition.isAdHoc();
   }
 
-  public RuleDto setIsAdhoc(boolean isAdHoc) {
+  public RuleDto setIsAdHoc(boolean isAdHoc) {
     definition.setIsAdHoc(isAdHoc);
     return this;
   }
@@ -509,6 +513,8 @@ public class RuleDto {
     this.metadata.setTags(tags);
     return this;
   }
+
+
 
   @Override
   public boolean equals(Object obj) {

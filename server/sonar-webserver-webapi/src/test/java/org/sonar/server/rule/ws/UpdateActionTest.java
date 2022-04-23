@@ -26,9 +26,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
@@ -68,7 +70,6 @@ public class UpdateActionTest {
 
   private static final long PAST = 10000L;
 
-
   @Rule
   public DbTester db = DbTester.create();
 
@@ -84,7 +85,9 @@ public class UpdateActionTest {
   private Languages languages = new Languages();
   private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
-  private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
+  private UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
+
+  private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, uuidFactory, System2.INSTANCE);
   private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession));
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -108,7 +111,7 @@ public class UpdateActionTest {
     RuleDefinitionDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description")),
+      r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
       r -> r.setSeverity(Severity.MINOR),
       r -> r.setStatus(RuleStatus.BETA),
       r -> r.setTemplateUuid(templateRule.getUuid()),
@@ -244,7 +247,7 @@ public class UpdateActionTest {
     RuleDefinitionDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description")),
+      r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
       r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
@@ -298,6 +301,10 @@ public class UpdateActionTest {
     userSession
       .logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES);
+  }
+
+  private RuleDescriptionSectionDto createRuleDescriptionSectionDto() {
+    return createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description");
   }
 
   private static MacroInterpreter createMacroInterpreter() {

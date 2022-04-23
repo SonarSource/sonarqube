@@ -401,10 +401,10 @@ public class RegisterRules implements Startable {
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (isNotEmpty(ruleDef.htmlDescription())) {
-      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(ruleDef.htmlDescription()));
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), ruleDef.htmlDescription()));
       ruleDto.setDescriptionFormat(Format.HTML);
     } else if (isNotEmpty(ruleDef.markdownDescription())) {
-      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(ruleDef.markdownDescription()));
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), ruleDef.markdownDescription()));
       ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
 
@@ -433,7 +433,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private static boolean mergeRule(RulesDefinition.Rule def, RuleDefinitionDto dto) {
+  private boolean mergeRule(RulesDefinition.Rule def, RuleDefinitionDto dto) {
     boolean changed = false;
     if (!Objects.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -484,16 +484,16 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private static boolean mergeDescription(RulesDefinition.Rule rule, RuleDefinitionDto ruleDefinitionDto) {
+  private boolean mergeDescription(RulesDefinition.Rule rule, RuleDefinitionDto ruleDefinitionDto) {
     boolean changed = false;
 
     String currentDescription = ruleDefinitionDto.getDefaultRuleDescriptionSectionDto() != null ? ruleDefinitionDto.getDefaultRuleDescriptionSectionDto().getDescription() : null;
     if (isHtmlDescriptionUpdated(rule, currentDescription)) {
-      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(rule.htmlDescription()));
+      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), rule.htmlDescription()));
       ruleDefinitionDto.setDescriptionFormat(Format.HTML);
       changed = true;
     } else if (isMarkdownDescriptionUpdated(rule, currentDescription)) {
-      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(rule.markdownDescription()));
+      ruleDefinitionDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), rule.markdownDescription()));
       ruleDefinitionDto.setDescriptionFormat(Format.MARKDOWN);
       changed = true;
     }

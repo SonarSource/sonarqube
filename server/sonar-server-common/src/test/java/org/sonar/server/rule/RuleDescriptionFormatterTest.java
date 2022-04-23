@@ -29,8 +29,8 @@ import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescr
 
 public class RuleDescriptionFormatterTest {
 
-  private static final RuleDescriptionSectionDto HTML_SECTION = createDefaultRuleDescriptionSection("<span class=\"example\">*md* ``description``</span>");
-  private static final RuleDescriptionSectionDto MARKDOWN_SECTION = createDefaultRuleDescriptionSection("*md* ``description``");
+  private static final RuleDescriptionSectionDto HTML_SECTION = createDefaultRuleDescriptionSection("uuid", "<span class=\"example\">*md* ``description``</span>");
+  private static final RuleDescriptionSectionDto MARKDOWN_SECTION = createDefaultRuleDescriptionSection("uuid", "*md* ``description``");
 
   @Test
   public void getMarkdownDescriptionAsHtml() {
@@ -55,7 +55,7 @@ public class RuleDescriptionFormatterTest {
 
   @Test
   public void handleNullDescriptionFormat() {
-    RuleDescriptionSectionDto sectionWithNullFormat = createDefaultRuleDescriptionSection("whatever");
+    RuleDescriptionSectionDto sectionWithNullFormat = createDefaultRuleDescriptionSection("uuid", "whatever");
     RuleDefinitionDto rule = new RuleDefinitionDto().addRuleDescriptionSectionDto(sectionWithNullFormat);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();

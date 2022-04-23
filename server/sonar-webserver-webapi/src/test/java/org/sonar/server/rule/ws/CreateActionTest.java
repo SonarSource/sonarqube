@@ -142,7 +142,7 @@ public class CreateActionTest {
       .setRuleKey("MY_CUSTOM")
       .setStatus(RuleStatus.REMOVED)
       .setName("My custom rule")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Description"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Description"))
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .setSeverity(Severity.MAJOR);
     db.rules().insert(customRule);

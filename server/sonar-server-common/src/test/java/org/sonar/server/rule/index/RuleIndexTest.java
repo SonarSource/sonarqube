@@ -33,6 +33,8 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -103,7 +105,8 @@ public class RuleIndexTest {
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
 
   private RuleIndex underTest = new RuleIndex(es.client(), system2);
-
+  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  
   @Test
   public void search_all_rules() {
     createRule();
@@ -214,19 +217,20 @@ public class RuleIndexTest {
     // otherwise the generated random values may raise false-positives
     RuleDefinitionDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
       .setName("rule 123")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("My great rule CWE-123 which makes your code 1000 times better!")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "My great rule CWE-123 which makes your code 1000 times better!")));
     RuleDefinitionDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
       .setName("rule 124")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Another great and shiny rule CWE-124")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great and shiny rule CWE-124")));
     RuleDefinitionDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
       .setName("rule 1000")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Another great rule CWE-1000")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great rule CWE-1000")));
     RuleDefinitionDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
       .setName("rule 404")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(),
+        "<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>")));
     RuleDefinitionDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
       .setName("rule 405")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
     index();
 
     // partial match at word boundary

@@ -208,7 +208,7 @@ public class RuleCreator {
       .setUpdatedAt(system2.now());
 
     if (newRule.markdownDescription() != null) {
-      RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(newRule.markdownDescription());
+      RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), newRule.markdownDescription());
       ruleDefinition.setDescriptionFormat(Format.MARKDOWN);
       ruleDefinition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
     }

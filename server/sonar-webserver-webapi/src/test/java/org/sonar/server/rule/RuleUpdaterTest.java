@@ -35,6 +35,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -58,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
 import static org.sonar.server.rule.RuleUpdate.createForPluginRule;
@@ -67,7 +69,6 @@ public class RuleUpdaterTest {
   static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
 
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
-
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -82,7 +83,8 @@ public class RuleUpdaterTest {
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final DbSession dbSession = db.getSession();
 
-  private final RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, system2);
+  private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
+  private final RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, uuidFactory, system2);
 
   @Test
   public void do_not_update_rule_with_removed_status() {
@@ -340,9 +342,9 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("format").setType("STRING").setDescription("Format"));
 
     // Create custom rule
-    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
+    RuleDefinitionDto customRule = newCustomRule(templateRule)
       .setName("Old name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .getDefinition();
@@ -388,12 +390,11 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
     // Create custom rule
-    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
+    RuleDefinitionDto customRule = newCustomRule(templateRule.getDefinition())
       .setName("Old name")
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Old description"))
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
-      .setStatus(RuleStatus.BETA)
-      .getDefinition();
+      .setStatus(RuleStatus.BETA);
     db.rules().insert(customRule);
     db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
@@ -425,7 +426,7 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create custom rule
-    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
+    RuleDefinitionDto customRule = newCustomRule(templateRule)
       .setSeverity(Severity.MAJOR)
       .setLanguage("xoo")
       .getDefinition();
@@ -490,7 +491,7 @@ public class RuleUpdaterTest {
     db.rules().insert(templateRule);
 
     // Create custom rule
-    RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule);
+    RuleDefinitionDto customRule = newCustomRule(templateRule);
     db.rules().insert(customRule);
 
     dbSession.commit();
@@ -514,7 +515,7 @@ public class RuleUpdaterTest {
     db.rules().insert(templateRule.getDefinition());
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
+    RuleDto customRule = newCustomRule(templateRule);
     db.rules().insert(customRule.getDefinition());
 
     dbSession.commit();

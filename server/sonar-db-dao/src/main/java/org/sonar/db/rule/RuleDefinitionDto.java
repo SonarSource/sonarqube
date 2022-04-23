@@ -21,10 +21,9 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,7 +35,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.unmodifiableCollection;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleDefinitionDto {
 
@@ -46,7 +45,7 @@ public class RuleDefinitionDto {
   private String repositoryKey;
   private String ruleKey;
 
-  private Map<String, RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashMap<>();
+  private Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
@@ -167,33 +166,36 @@ public class RuleDefinitionDto {
     return this;
   }
 
-  public Collection<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
-    return unmodifiableCollection(ruleDescriptionSectionDtos.values());
-  }
-
   @CheckForNull
   public RuleDescriptionSectionDto getRuleDescriptionSectionDto(String ruleDescriptionSectionKey) {
-    return ruleDescriptionSectionDtos.get(ruleDescriptionSectionKey);
+    return findExistingSectionWithSameKey(ruleDescriptionSectionKey).orElse(null);
   }
 
   @CheckForNull
   public RuleDescriptionSectionDto getDefaultRuleDescriptionSectionDto() {
-    return ruleDescriptionSectionDtos.get(RuleDescriptionSectionDto.DEFAULT_KEY);
+    return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
   }
 
   public RuleDefinitionDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    checkArgument(!isSectionKeyUsed(ruleDescriptionSectionDto.getKey()), "A section with key %s already exists", ruleDescriptionSectionDto.getKey());
-    this.ruleDescriptionSectionDtos.put(ruleDescriptionSectionDto.getKey(), ruleDescriptionSectionDto);
+    checkArgument(sectionWithSameKeyShouldNotExist(ruleDescriptionSectionDto),
+      "A section with key %s already exists", ruleDescriptionSectionDto.getKey());
+    ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
     return this;
   }
 
-  private boolean isSectionKeyUsed(String sectionKey) {
-    return ruleDescriptionSectionDtos.containsKey(sectionKey);
+  private boolean sectionWithSameKeyShouldNotExist(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    return findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey()).isEmpty();
   }
 
   public RuleDefinitionDto addOrReplaceRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    this.ruleDescriptionSectionDtos.put(ruleDescriptionSectionDto.getKey(), ruleDescriptionSectionDto);
+    Optional<RuleDescriptionSectionDto> existingSectionWithSameKey = findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey());
+    existingSectionWithSameKey.ifPresent(ruleDescriptionSectionDtos::remove);
+    ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
     return this;
+  }
+
+  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
+    return ruleDescriptionSectionDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
   }
 
   @CheckForNull
@@ -429,6 +431,14 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  public Set<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
+    return ruleDescriptionSectionDtos;
+  }
+
+  void setRuleDescriptionSectionDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
+    this.ruleDescriptionSectionDtos = ruleDescriptionSectionDtos;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof RuleDefinitionDto)) {
@@ -475,4 +485,5 @@ public class RuleDefinitionDto {
       ", scope=" + scope +
       '}';
   }
+
 }

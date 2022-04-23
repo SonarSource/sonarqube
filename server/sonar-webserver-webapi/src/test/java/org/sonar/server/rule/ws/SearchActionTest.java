@@ -34,6 +34,8 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -116,6 +118,7 @@ public class SearchActionTest {
   private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
     qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Before
   public void before() {
@@ -234,7 +237,7 @@ public class SearchActionTest {
   @Test
   public void filter_by_rule_description() {
     RuleDefinitionDto rule1 = db.rules()
-      .insert(r1 -> r1.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("This is the <bold>best</bold> rule now&amp;for<b>ever</b>")));
+      .insert(r1 -> r1.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>")));
     RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
     indexRules();
 
@@ -246,9 +249,9 @@ public class SearchActionTest {
   @Test
   public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
     RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("This is a good rule")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is a good rule")));
     RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setName("Another thing")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("Another thing")));
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another thing")));
     indexRules();
 
     verify(r -> r.setParam("q", "Best good"), rule1);
@@ -931,8 +934,7 @@ public class SearchActionTest {
   private void verify(Consumer<TestRequest> requestPopulator, RuleDefinitionDto... expectedRules) {
     TestRequest request = ws.newRequest();
     requestPopulator.accept(request);
-    Rules.SearchResponse response = request
-      .executeProtobuf(Rules.SearchResponse.class);
+    Rules.SearchResponse response = request.executeProtobuf(Rules.SearchResponse.class);
 
     assertThat(response.getP()).isOne();
     RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()).toArray(new RuleKey[0]);

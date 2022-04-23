@@ -46,7 +46,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class CachingRuleFinderTest {
   @org.junit.Rule
@@ -423,7 +422,7 @@ public class CachingRuleFinderTest {
     assertThat(rule.getSeverity().name()).isEqualTo(ruleDefinition.getSeverityString());
     assertThat(rule.getSystemTags()).isEqualTo(ruleDefinition.getSystemTags().toArray(new String[0]));
     assertThat(rule.getTags()).isEmpty();
-    assertThat(rule.getDescription()).isEqualTo(createDefaultRuleDescriptionSection(randomAlphabetic(5)).getDescription());
+    assertThat(rule.getDescription()).isEqualTo(ruleDefinition.getDefaultRuleDescriptionSectionDto().getDescription());
 
     assertThat(rule.getParams()).hasSize(1);
     org.sonar.api.rules.RuleParam param = rule.getParams().iterator().next();

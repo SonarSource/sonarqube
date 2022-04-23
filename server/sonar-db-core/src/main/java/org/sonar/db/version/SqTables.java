@@ -90,6 +90,7 @@ public final class SqTables {
     "quality_gate_conditions",
     "saml_message_ids",
     "rules",
+    "rule_desc_sections",
     "rules_metadata",
     "rules_parameters",
     "rules_profiles",

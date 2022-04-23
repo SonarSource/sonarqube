@@ -33,7 +33,7 @@ public interface RuleMapper {
 
   List<RuleDefinitionDto> selectAllDefinitions();
 
-  void selectEnabled(ResultHandler<RuleDefinitionDto> resultHandler);
+  List<RuleDefinitionDto> selectEnabled();
 
   RuleDto selectByUuid(@Param("uuid") String uuid);
 
@@ -67,7 +67,11 @@ public interface RuleMapper {
 
   void insertDefinition(RuleDefinitionDto ruleDefinitionDto);
 
+  void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);
+
   void updateDefinition(RuleDefinitionDto ruleDefinitionDto);
+
+  void deleteRuleDescriptionSection(String ruleUuid);
 
   int countMetadata(RuleMetadataDto ruleMetadataDto);
 

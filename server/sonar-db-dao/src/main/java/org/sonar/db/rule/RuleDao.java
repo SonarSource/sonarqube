@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
@@ -34,7 +33,6 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
@@ -48,16 +46,15 @@ public class RuleDao implements Dao {
   }
 
   public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
-    RuleDto res = mapper(session).selectByKey(key);
-    return ofNullable(res);
+    return Optional.ofNullable(mapper(session).selectByKey(key));
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
-    return ofNullable(mapper(session).selectDefinitionByKey(key));
+    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key));
   }
 
   public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key) {
-    return ofNullable(mapper(session).selectMetadataByKey(key));
+    return Optional.ofNullable(mapper(session).selectMetadataByKey(key));
   }
 
   public List<RuleMetadataDto> selectMetadataByKeys(DbSession session, Collection<RuleKey> keys) {
@@ -68,28 +65,21 @@ public class RuleDao implements Dao {
   }
 
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
-    RuleDto rule = mapper(session).selectByKey(key);
-    if (rule == null) {
-      throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
-    }
-    return rule;
+    return Optional.ofNullable(mapper(session).selectByKey(key))
+      .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
   }
 
   public RuleDefinitionDto selectOrFailDefinitionByKey(DbSession session, RuleKey key) {
-    RuleDefinitionDto rule = mapper(session).selectDefinitionByKey(key);
-    if (rule == null) {
-      throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
-    }
-    return rule;
+    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key))
+      .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
   }
 
   public Optional<RuleDto> selectByUuid(String uuid, DbSession session) {
-    RuleDto res = mapper(session).selectByUuid(uuid);
-    return ofNullable(res);
+    return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByUuid(String uuid, DbSession session) {
-    return ofNullable(mapper(session).selectDefinitionByUuid(uuid));
+    return Optional.ofNullable(mapper(session).selectDefinitionByUuid(uuid));
   }
 
   public List<RuleDto> selectByUuids(DbSession session, List<String> uuids) {
@@ -120,8 +110,8 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
   }
 
-  public void selectEnabled(DbSession session, ResultHandler<RuleDefinitionDto> resultHandler) {
-    mapper(session).selectEnabled(resultHandler);
+  public List<RuleDefinitionDto> selectEnabled(DbSession session) {
+    return mapper(session).selectEnabled();
   }
 
   public List<RuleDto> selectAll(DbSession session) {
@@ -140,9 +130,11 @@ public class RuleDao implements Dao {
     return mapper(session).selectByQuery(ruleQuery);
   }
 
-  public void insert(DbSession session, RuleDefinitionDto dto) {
-    checkNotNull(dto.getUuid(), "RuleDefinitionDto has no 'uuid'.");
-    mapper(session).insertDefinition(dto);
+  public void insert(DbSession session, RuleDefinitionDto ruleDefinitionDto) {
+    checkNotNull(ruleDefinitionDto.getUuid(), "RuleDefinitionDto has no 'uuid'.");
+    RuleMapper mapper = mapper(session);
+    mapper.insertDefinition(ruleDefinitionDto);
+    insertRuleDescriptionSectionDtos(ruleDefinitionDto, mapper);
   }
 
   public void insert(DbSession session, RuleMetadataDto dto) {
@@ -150,8 +142,20 @@ public class RuleDao implements Dao {
     mapper(session).insertMetadata(dto);
   }
 
-  public void update(DbSession session, RuleDefinitionDto dto) {
-    mapper(session).updateDefinition(dto);
+  public void update(DbSession session, RuleDefinitionDto ruleDefinitionDto) {
+    RuleMapper mapper = mapper(session);
+    mapper.updateDefinition(ruleDefinitionDto);
+    updateRuleDescriptionDtos(ruleDefinitionDto, mapper);
+  }
+
+  private void updateRuleDescriptionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
+    mapper.deleteRuleDescriptionSection(ruleDefinitionDto.getUuid());
+    insertRuleDescriptionSectionDtos(ruleDefinitionDto, mapper);
+  }
+
+  private void insertRuleDescriptionSectionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
+    ruleDefinitionDto.getRuleDescriptionSectionDtos()
+      .forEach(section -> mapper.insertRuleDescriptionSection(ruleDefinitionDto.getUuid(), section));
   }
 
   public void insertOrUpdate(DbSession session, RuleMetadataDto dto) {

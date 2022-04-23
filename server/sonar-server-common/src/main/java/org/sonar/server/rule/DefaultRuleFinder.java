@@ -75,9 +75,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   @Override
   public Collection<RuleDefinitionDto> findAll() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDefinitionDto> list = new ArrayList<>();
-      ruleDao.selectEnabled(dbSession, r -> list.add(r.getResultObject()));
-      return list;
+      return ruleDao.selectEnabled(dbSession);
     }
   }
 
