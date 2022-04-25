@@ -38,7 +38,6 @@ interface Props {
 }
 
 interface State {
-  logLevel: string;
   openLogsLevelForm: boolean;
 }
 
@@ -46,23 +45,15 @@ export default class PageActions extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      logLevel: props.logLevel,
       openLogsLevelForm: false
     };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.logLevel !== this.state.logLevel) {
-      this.setState({ logLevel: nextProps.logLevel });
-    }
   }
 
   handleLogsLevelOpen = () => {
     this.setState({ openLogsLevelForm: true });
   };
 
-  handleLogsLevelChange = (logLevel: string) => {
-    this.setState({ logLevel });
+  handleLogsLevelChange = () => {
     this.props.onLogLevelChange();
     this.handleLogsLevelClose();
   };
@@ -84,7 +75,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
           <span className="text-middle">
             {translate('system.logs_level')}
             {':'}
-            <strong className="little-spacer-left">{this.state.logLevel}</strong>
+            <strong className="little-spacer-left">{this.props.logLevel}</strong>
           </span>
           <EditButton
             className="spacer-left button-small"
@@ -181,7 +172,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
             infoMsg={translate(
               this.props.cluster ? 'system.cluster_log_level.info' : 'system.log_level.info'
             )}
-            logLevel={this.state.logLevel}
+            logLevel={this.props.logLevel}
             onChange={this.handleLogsLevelChange}
             onClose={this.handleLogsLevelClose}
           />

@@ -28,7 +28,7 @@ import { LOGS_LEVELS } from '../utils';
 interface Props {
   infoMsg: string;
   logLevel: string;
-  onChange: (level: string) => void;
+  onChange: () => void;
   onClose: () => void;
 }
 
@@ -49,7 +49,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
     if (!this.state.updating) {
       this.setState({ updating: true });
       setLogLevel(newLevel).then(
-        () => this.props.onChange(newLevel),
+        () => this.props.onChange(),
         () => this.setState({ updating: false })
       );
     }
