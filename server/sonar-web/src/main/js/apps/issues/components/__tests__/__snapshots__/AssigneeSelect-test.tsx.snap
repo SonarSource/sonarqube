@@ -10,6 +10,7 @@ exports[`should render correctly: default 1`] = `
     }
   }
   defaultOptions={Array []}
+  inputId="id"
   isClearable={true}
   loadOptions={[Function]}
   noOptionsMessage={[Function]}
@@ -35,6 +36,7 @@ exports[`should render correctly: logged in & assignable issues 1`] = `
       },
     ]
   }
+  inputId="id"
   isClearable={true}
   loadOptions={[Function]}
   noOptionsMessage={[Function]}
@@ -52,6 +54,7 @@ exports[`should render correctly: logged in & no assignable issues 1`] = `
     }
   }
   defaultOptions={Array []}
+  inputId="id"
   isClearable={true}
   loadOptions={[Function]}
   noOptionsMessage={[Function]}
@@ -76,6 +79,7 @@ exports[`should render correctly: unassignable issues 1`] = `
       },
     ]
   }
+  inputId="id"
   isClearable={true}
   loadOptions={[Function]}
   noOptionsMessage={[Function]}

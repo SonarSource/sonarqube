@@ -42,6 +42,7 @@ export interface AssigneeSelectProps {
   currentUser: CurrentUser;
   issues: Issue[];
   onAssigneeSelect: (assignee: AssigneeOption) => void;
+  inputId: string;
 }
 
 export default class AssigneeSelect extends React.Component<AssigneeSelectProps> {
@@ -117,9 +118,11 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
   );
 
   render() {
+    const { inputId } = this.props;
     return (
       <SearchSelect
         className="input-super-large"
+        inputId={inputId}
         components={{
           Option: this.renderAssigneeOption,
           SingleValue: this.renderSingleAssignee

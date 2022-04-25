@@ -140,6 +140,7 @@ it('should handle assignee search', async () => {
 function shallowRender(overrides: Partial<AssigneeSelectProps> = {}) {
   return shallow<AssigneeSelect>(
     <AssigneeSelect
+      inputId="id"
       currentUser={mockCurrentUser()}
       issues={[]}
       onAssigneeSelect={jest.fn()}

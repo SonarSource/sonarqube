@@ -79,6 +79,14 @@ interface State extends FormFields {
   submitting: boolean;
 }
 
+enum InputField {
+  addTags = 'bulk-change-addTags',
+  assignee = 'bulk-change-assignee',
+  removeTags = 'bulk-change-removeTags',
+  severity = 'bulk-change-severity',
+  type = 'bulk-change-type'
+}
+
 export const MAX_PAGE_SIZE = 500;
 
 export default class BulkChangeModal extends React.PureComponent<Props, State> {
@@ -132,7 +140,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       .catch(() => resolve([]));
   };
 
-  handleTagsSelect = (field: 'addTags' | 'removeTags') => (options: TagOption[]) => {
+  handleTagsSelect = (field: InputField.addTags | InputField.removeTags) => (
+    options: TagOption[]
+  ) => {
     this.setState<keyof FormFields>({ [field]: options });
   };
 
@@ -247,7 +257,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   );
 
   renderField = (
-    field: 'addTags' | 'assignee' | 'removeTags' | 'severity' | 'type',
+    field: InputField,
     label: string,
     affected: number | undefined,
     input: React.ReactNode
@@ -263,6 +273,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const { currentUser } = this.props;
     const { issues } = this.state;
     const affected = this.state.issues.filter(hasAction('assign')).length;
+    const field = InputField.assignee;
 
     if (affected === 0) {
       return null;
@@ -270,17 +281,19 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <AssigneeSelect
+        inputId={field}
         currentUser={currentUser}
         issues={issues}
         onAssigneeSelect={this.handleAssigneeSelect}
       />
     );
 
-    return this.renderField('assignee', 'issue.assign.formlink', affected, input);
+    return this.renderField(field, 'issue.assign.formlink', affected, input);
   };
 
   renderTypeField = () => {
     const affected = this.state.issues.filter(hasAction('set_type')).length;
+    const field = InputField.type;
 
     if (affected === 0) {
       return null;
@@ -302,6 +315,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const input = (
       <Select
         className="input-super-large"
+        inputId={field}
         isClearable={true}
         isSearchable={false}
         components={{
@@ -317,11 +331,12 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       />
     );
 
-    return this.renderField('type', 'issue.set_type', affected, input);
+    return this.renderField(field, 'issue.set_type', affected, input);
   };
 
   renderSeverityField = () => {
     const affected = this.state.issues.filter(hasAction('set_severity')).length;
+    const field = InputField.severity;
 
     if (affected === 0) {
       return null;
@@ -336,6 +351,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const input = (
       <Select
         className="input-super-large"
+        inputId={field}
         isClearable={true}
         isSearchable={false}
         onChange={this.handleSelectFieldChange('severity')}
@@ -355,10 +371,14 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       />
     );
 
-    return this.renderField('severity', 'issue.set_severity', affected, input);
+    return this.renderField(field, 'issue.set_severity', affected, input);
   };
 
-  renderTagsField = (field: 'addTags' | 'removeTags', label: string, allowCreate: boolean) => {
+  renderTagsField = (
+    field: InputField.addTags | InputField.removeTags,
+    label: string,
+    allowCreate: boolean
+  ) => {
     const { initialTags } = this.state;
     const affected = this.state.issues.filter(hasAction('set_tags')).length;
 
@@ -368,6 +388,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const props = {
       className: 'input-super-large',
+      inputId: field,
       isClearable: true,
       defaultOptions: this.state.initialTags,
       isMulti: true,
@@ -475,8 +496,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderAssigneeField()}
           {this.renderTypeField()}
           {this.renderSeverityField()}
-          {this.renderTagsField('addTags', 'issue.add_tags', true)}
-          {this.renderTagsField('removeTags', 'issue.remove_tags', false)}
+          {this.renderTagsField(InputField.addTags, 'issue.add_tags', true)}
+          {this.renderTagsField(InputField.removeTags, 'issue.remove_tags', false)}
           {this.renderTransitionsField()}
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
