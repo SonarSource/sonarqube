@@ -55,9 +55,9 @@ export class UsersApp extends React.PureComponent<Props, State> {
     this.fetchUsers();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.location.query.search !== this.props.location.query.search) {
-      this.fetchUsers(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.location.query.search !== this.props.location.query.search) {
+      this.fetchUsers();
     }
   }
 
@@ -78,7 +78,8 @@ export class UsersApp extends React.PureComponent<Props, State> {
       }
     });
 
-  fetchUsers = ({ location } = this.props) => {
+  fetchUsers = () => {
+    const { location } = this.props;
     this.setState({ loading: true });
     searchUsers({ q: parseQuery(location.query).search }).then(({ paging, users }) => {
       if (this.mounted) {
