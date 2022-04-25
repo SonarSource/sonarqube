@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken;
 
 import org.junit.Test;
+import org.sonar.db.user.TokenType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

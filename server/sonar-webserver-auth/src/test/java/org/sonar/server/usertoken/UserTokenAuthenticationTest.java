@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.UserLastConnectionDatesUpdater;

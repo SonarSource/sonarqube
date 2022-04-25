@@ -103,6 +103,14 @@ public class UserTokenDao implements Dao {
     }
   }
 
+  public void deleteByProjectKey(DbSession dbSession, String projectKey) {
+    int deletedRows = mapper(dbSession).deleteByProjectKey(projectKey);
+
+    if (deletedRows > 0) {
+      auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(projectKey));
+    }
+  }
+
   private static UserTokenMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(UserTokenMapper.class);
   }

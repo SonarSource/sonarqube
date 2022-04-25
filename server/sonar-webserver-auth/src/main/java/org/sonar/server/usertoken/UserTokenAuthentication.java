@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 

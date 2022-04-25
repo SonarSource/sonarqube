@@ -138,12 +138,46 @@ public class UserTokenDaoWithPersisterTest {
   }
 
   @Test
-  public void delete_token_by_user_and_name_without_affected_rows_is_persisted() {
+  public void delete_token_by_user_and_name_without_affected_rows_is_not_persisted() {
     UserDto user1 = db.users().insertUser();
 
     underTest.deleteByUserAndName(dbSession, user1, "name");
 
     verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+
+  @Test
+  public void delete_token_by_projectKey_is_persisted() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user1, t -> t.setProjectKey("projectToDelete"));
+    db.users().insertToken(user1, t -> t.setProjectKey("projectToKeep"));
+    db.users().insertToken(user2, t -> t.setProjectKey("projectToDelete"));
+
+    underTest.deleteByProjectKey(dbSession, "projectToDelete");
+
+    assertThat(underTest.selectByUser(dbSession, user1)).hasSize(1);
+    assertThat(underTest.selectByUser(dbSession, user2)).isEmpty();
+    verify(auditPersister).deleteUserToken(eq(db.getSession()), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue())
+      .extracting(UserTokenNewValue::getProjectKey, UserTokenNewValue::getType)
+      .containsExactly("projectToDelete", "PROJECT_ANALYSIS_TOKEN");
+  }
+
+  @Test
+  public void delete_token_by_projectKey_without_affected_rows_is_not_persisted() {
+    UserDto user1 = db.users().insertUser();
+
+    db.users().insertToken(user1, t -> t.setProjectKey("projectToKeep"));
+
+    underTest.deleteByProjectKey(dbSession, "projectToDelete");
+
+    assertThat(underTest.selectByUser(dbSession, user1)).hasSize(1);
+
+    verify(auditPersister).addUser(any(), any());
+    verify(auditPersister).addUserToken(any(), any());
     verifyNoMoreInteractions(auditPersister);
   }
 }

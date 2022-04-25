@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.server.usertoken.TokenType;
+import org.sonar.db.user.TokenType;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 

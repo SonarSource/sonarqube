@@ -85,4 +85,8 @@
     DELETE FROM user_tokens WHERE user_uuid=#{userUuid, jdbcType=VARCHAR} and name=#{name, jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByProjectKey">
+    DELETE FROM user_tokens WHERE project_key=#{projectKey, jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.usertoken;
 
+import org.sonar.db.user.TokenType;
+
 public interface TokenGenerator {
   /**
    * Generate a token. It must be unique and non deterministic.<br />

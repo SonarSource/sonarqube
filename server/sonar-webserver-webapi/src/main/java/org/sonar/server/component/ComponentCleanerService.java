@@ -68,6 +68,7 @@ public class ComponentCleanerService {
   public void delete(DbSession dbSession, ProjectDto project) {
     dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
+    dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
@@ -78,19 +79,20 @@ public class ComponentCleanerService {
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {
-    checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
+    checkArgument(hasProjectScope(project) && isDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
+    dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
-  private static boolean hasNotProjectScope(ComponentDto project) {
-    return !Scopes.PROJECT.equals(project.scope());
+  private static boolean hasProjectScope(ComponentDto project) {
+    return Scopes.PROJECT.equals(project.scope());
   }
 
-  private boolean isNotDeletable(ComponentDto project) {
+  private boolean isDeletable(ComponentDto project) {
     ResourceType resourceType = resourceTypes.get(project.qualifier());
     // this essentially means PROJECTS, VIEWS and APPS (not SUBVIEWS)
-    return resourceType == null || !resourceType.getBooleanProperty("deletable");
+    return resourceType != null && resourceType.getBooleanProperty("deletable");
   }
 }

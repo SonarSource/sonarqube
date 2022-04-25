@@ -22,6 +22,7 @@ package org.sonar.server.usertoken;
 import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.sonar.db.user.TokenType;
 
 public class TokenGeneratorImpl implements TokenGenerator {
 

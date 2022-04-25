@@ -29,7 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.server.usertoken.TokenType;
+import org.sonar.db.user.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;

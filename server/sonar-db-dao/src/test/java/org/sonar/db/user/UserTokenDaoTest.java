@@ -145,6 +145,21 @@ public class UserTokenDaoTest {
   }
 
   @Test
+  public void delete_tokens_by_projectKey() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user1, t -> t.setProjectKey("projectKey1"));
+    db.users().insertToken(user1, t -> t.setProjectKey("projectKey2"));
+    db.users().insertToken(user2, t -> t.setProjectKey("projectKey1"));
+
+    underTest.deleteByProjectKey(dbSession, "projectKey1");
+    db.commit();
+
+    assertThat(underTest.selectByUser(dbSession, user1)).hasSize(1);
+    assertThat(underTest.selectByUser(dbSession, user2)).isEmpty();
+  }
+
+  @Test
   public void count_tokens_by_user() {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user, t -> t.setName("name"));

@@ -22,6 +22,7 @@ package org.sonar.db.audit.model;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
@@ -29,6 +30,7 @@ public class UserTokenNewValue extends NewValue {
   @Nullable
   private String tokenUuid;
 
+  @Nullable
   private String userUuid;
 
   @Nullable
@@ -64,6 +66,11 @@ public class UserTokenNewValue extends NewValue {
   public UserTokenNewValue(UserDto userDto, String tokenName) {
     this(userDto);
     this.tokenName = tokenName;
+  }
+
+  public UserTokenNewValue(String projectKey) {
+    this.projectKey = projectKey;
+    this.type = TokenType.PROJECT_ANALYSIS_TOKEN.name();
   }
 
   @CheckForNull
