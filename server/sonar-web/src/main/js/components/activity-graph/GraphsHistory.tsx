@@ -56,9 +56,9 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!isEqual(nextProps.selectedDate, this.props.selectedDate)) {
-      this.setState({ selectedDate: nextProps.selectedDate });
+  componentDidUpdate(prevProps: Props) {
+    if (!isEqual(prevProps.selectedDate, this.props.selectedDate)) {
+      this.setState({ selectedDate: this.props.selectedDate });
     }
   }
 
