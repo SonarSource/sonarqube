@@ -53,10 +53,10 @@ export default class SearchResult extends React.PureComponent<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.props.selected && nextProps.selected) {
+  componentDidUpdate(prevProps: Props) {
+    if (!prevProps.selected && this.props.selected) {
       this.scheduleTooltip();
-    } else if (this.props.selected && !nextProps.selected) {
+    } else if (prevProps.selected && !this.props.selected) {
       this.unscheduleTooltip();
       this.setState({ tooltipVisible: false });
     }

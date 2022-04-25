@@ -84,10 +84,6 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
     });
   }
 
-  componentWillUpdate() {
-    this.nodes = {};
-  }
-
   componentDidUpdate(_prevProps: WithRouterProps, prevState: State) {
     if (prevState.selected !== this.state.selected) {
       this.scrollToSelected();
@@ -171,6 +167,7 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
         if (this.mounted && this.state.query === query) {
           const results: Results = {};
           const more: More = {};
+          this.nodes = {};
           response.results.forEach(group => {
             results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
             more[group.q] = group.more;
