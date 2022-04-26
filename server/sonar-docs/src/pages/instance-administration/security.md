@@ -82,7 +82,9 @@ When you create a user in SonarQube's own database, it is considered local and w
 
 Similarly, all non-local accounts will be authenticated only against the external tool. 
 
-An Administrator can manage tokens on a user's behalf via **[Administration > Security > Users](/#sonarqube-admin#/admin/users)**. From here, click in the user's **Tokens** column to see the user's existing tokens, and either revoke existing tokens or generate new ones. Once established, a token is the only credential needed to run an analysis. Tokens should be passed as the value of the `sonar.login` property.
+An Administrator can manage tokens on a user's behalf via **[Administration > Security > Users](/#sonarqube-admin#/admin/users)**. From here, click in the user's **Tokens** column to see the user's existing tokens, and either revoke existing tokens or generate new ones. 
+An Administrator can only create [user tokens](/user-guide/user-token/) on behalf of another user.
+Once established, a token is the only credential needed to run an analysis. Tokens should be passed as the value of the `sonar.login` property.
 
 ### Default Admin Credentials
 When installing SonarQube, a default user with Administer System permission is created automatically:
