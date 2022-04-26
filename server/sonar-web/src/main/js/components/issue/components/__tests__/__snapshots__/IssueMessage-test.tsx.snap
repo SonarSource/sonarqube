@@ -46,7 +46,7 @@ exports[`should render correctly: is deprecated rule 1`] = `
       <span
         className="spacer-right badge badge-error"
       >
-        rules.status.DEPRECATED
+        issue.resolution.DEPRECATED.rule_deprecated
       </span>
     </DocumentationTooltip>
   </div>
