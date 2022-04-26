@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client.usertokens;
 
 import javax.annotation.Generated;
+import javax.annotation.Nullable;
 
 /**
  * This is part of the internal API.
@@ -32,6 +33,8 @@ public class GenerateRequest {
 
   private String login;
   private String name;
+  private String type;
+  private String projectKey;
 
   /**
    * Example value: "g.hopper"
@@ -56,5 +59,23 @@ public class GenerateRequest {
 
   public String getName() {
     return name;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public GenerateRequest setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public GenerateRequest setProjectKey(@Nullable String projectKey) {
+    this.projectKey = projectKey;
+    return this;
   }
 }
