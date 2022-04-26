@@ -19,28 +19,34 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.server.rule.NewRuleDescriptionSection;
 
 class ImportedRule {
-  private RuleKey ruleKey = null;
-  private RuleKey templateKey = null;
+  private String key = null;
+
+  private String repository = null;
+
+  private String template = null;
   private String name = null;
   private String type = null;
   private String severity = null;
   private String description = null;
   private Map<String, String> parameters = null;
-
+  private Set<NewRuleDescriptionSection> ruleDescriptionSections = new HashSet<>();
   public Map<String, String> getParameters() {
     return parameters;
   }
 
   public RuleKey getRuleKey() {
-    return ruleKey;
+    return RuleKey.of(repository, key);
   }
 
   public RuleKey getTemplateKey() {
-    return templateKey;
+    return RuleKey.of(repository, template);
   }
 
   public String getName() {
@@ -57,16 +63,6 @@ class ImportedRule {
 
   public String getDescription() {
     return description;
-  }
-
-  ImportedRule setRuleKey(RuleKey ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
-  }
-
-  ImportedRule setTemplateKey(RuleKey templateKey) {
-    this.templateKey = templateKey;
-    return this;
   }
 
   ImportedRule setType(String type) {
@@ -95,6 +91,26 @@ class ImportedRule {
   }
 
   boolean isCustomRule() {
-    return templateKey != null;
+    return template != null;
+  }
+
+  public Set<NewRuleDescriptionSection> getRuleDescriptionSections() {
+    return ruleDescriptionSections;
+  }
+
+  public void addRuleDescriptionSection(NewRuleDescriptionSection ruleDescriptionSection) {
+    this.ruleDescriptionSections.add(ruleDescriptionSection);
+  }
+
+  public void setRepository(String repository) {
+    this.repository = repository;
+  }
+
+  public void setTemplate(String template) {
+    this.template = template;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
   }
 }

@@ -25,7 +25,7 @@ import java.util.StringJoiner;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class RuleDescriptionSectionDto {
-  static final String DEFAULT_KEY = "default";
+  public static final String DEFAULT_KEY = "default";
 
   private final String uuid;
   private final String key;

@@ -1033,7 +1033,7 @@ public class ShowActionTest {
   }
 
   private RuleDefinitionDto newRuleWithoutSection(RuleType ruleType, Consumer<RuleDefinitionDto> populate) {
-    return newRule(ruleType, RuleTesting::newRuleWithoutSection, populate);
+    return newRule(ruleType, RuleTesting::newRuleWithoutDescriptionSection, populate);
   }
 
   private RuleDefinitionDto newRule(RuleType ruleType, Supplier<RuleDefinitionDto> ruleDefinitionDtoSupplier, Consumer<RuleDefinitionDto> populate) {

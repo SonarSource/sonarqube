@@ -21,23 +21,30 @@ package org.sonar.db.qualityprofile;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.SeverityUtil;
+
+import static java.util.Optional.ofNullable;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class ExportRuleDto {
   private String activeRuleUuid = null;
   private String repository = null;
   private String rule = null;
   private String name = null;
-  private String description = null;
   private String extendedDescription = null;
   private String template = null;
   private Integer severity = null;
   private Integer type = null;
   private String tags = null;
 
-  private List<ExportRuleParamDto> params;
+  private List<ExportRuleParamDto> params = null;
+
+  private Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = null;
 
   public boolean isCustomRule() {
     return template != null;
@@ -71,10 +78,6 @@ public class ExportRuleDto {
     return tags;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
   public String getName() {
     return name;
   }
@@ -88,5 +91,18 @@ public class ExportRuleDto {
 
   void setParams(List<ExportRuleParamDto> params) {
     this.params = params;
+  }
+
+  public Set<RuleDescriptionSectionDto> getRuleDescriptionSections() {
+    return ruleDescriptionSectionDtos;
+  }
+
+  public Optional<RuleDescriptionSectionDto> getDefaultRuleDescriptionSectionDto() {
+    return findExistingSectionWithSameKey(DEFAULT_KEY);
+  }
+
+  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
+    return ofNullable(ruleDescriptionSectionDtos).flatMap(sections ->
+      sections.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny());
   }
 }

@@ -56,6 +56,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 
 public class QProfileBackuperImplTest {
 
@@ -166,6 +167,34 @@ public class QProfileBackuperImplTest {
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
       "<description>" + rule.getDefaultRuleDescriptionSectionDto().getDescription() + "</description>" +
+      "<descriptionSections><descriptionSection><key>default</key><content>" + rule.getDefaultRuleDescriptionSectionDto().getDescription() + "</content></descriptionSection></descriptionSections>" +
+      "<parameters><parameter>" +
+      "<key>" + param.getName() + "</key>" +
+      "<value>20</value>" +
+      "</parameter></parameters>" +
+      "</rule></rules></profile>");
+  }
+
+  @Test
+  public void backup_custom_rules_without_description_section() {
+    var rule = newRuleWithoutDescriptionSection();
+    db.rules().insert(rule);
+    RuleParamDto param = db.rules().insertRuleParam(rule);
+    QProfileDto profile = createProfile(rule.getLanguage());
+    ActiveRuleDto activeRule = activate(profile, rule, param);
+
+    StringWriter writer = new StringWriter();
+    underTest.backup(db.getSession(), profile, writer);
+
+    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+      "<profile>" +
+      "<name>" + profile.getName() + "</name>" +
+      "<language>" + profile.getLanguage() + "</language>" +
+      "<rules><rule>" +
+      "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
+      "<key>" + rule.getKey().rule() + "</key>" +
+      "<type>" + RuleType.valueOf(rule.getType()) + "</type>" +
+      "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +

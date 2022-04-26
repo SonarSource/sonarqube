@@ -44,6 +44,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -56,7 +57,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
-import static org.sonar.db.rule.RuleTesting.newRuleWithoutSection;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
@@ -147,7 +148,7 @@ public class RuleIndexerTest {
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(standards);
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setSecurityStandards(standards)
       .addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO));
@@ -182,7 +183,7 @@ public class RuleIndexerTest {
 
   @Test
   public void log_debug_when_hotspot_rule_no_description () {
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
@@ -195,7 +196,7 @@ public class RuleIndexerTest {
 
   @Test
   public void log_debug_when_hotspot_rule_description_has_none_of_the_key_titles() {
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), randomAlphabetic(30))));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
@@ -209,7 +210,7 @@ public class RuleIndexerTest {
 
   @Test
   public void log_debug_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "bar\n" +
         "<h2>Ask Yourself Whether</h2>\n" +
@@ -225,7 +226,7 @@ public class RuleIndexerTest {
 
   @Test
   public void log_debug_when_hotspot_rule_description_is_missing_risk_tab_content() {
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<h2>Ask Yourself Whether</h2>\n" +
         "bar\n" +
@@ -242,7 +243,7 @@ public class RuleIndexerTest {
 
   @Test
   public void log_debug_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
-    RuleDefinitionDto rule = dbTester.rules().insert(newRuleWithoutSection()
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
       .setType(RuleType.SECURITY_HOTSPOT)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "bar\n" +
         "<h2>Recommended Secure Coding Practices</h2>\n" +

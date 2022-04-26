@@ -3,14 +3,25 @@
 
 <mapper namespace="org.sonar.db.qualityprofile.QualityProfileExportMapper">
 
+  <sql id="selectRuleDescriptionSectionColumns">
+    rds.uuid as "rds_uuid",
+    rds.kee as "rds_kee",
+    rds.description as "rds_description",
+  </sql>
+
+  <sql id="leftOuterJoinRulesDescriptionSections">
+    left outer join rule_desc_sections rds on
+    rds.rule_uuid = r.uuid
+  </sql>
+
   <sql id="exportRuleColumns">
+    <include refid="selectRuleDescriptionSectionColumns"/>
     a.uuid as "activeRuleUuid",
     a.failure_level as "severity",
     r.plugin_rule_key as "rule",
     r.plugin_name as "repository",
     r.priority as "defaultSeverity",
     r.name,
-    r.description,
     r.description_format as "descriptionFormat",
     r.rule_type as "type",
     rt.plugin_rule_key as "template",
@@ -24,7 +35,27 @@
     p.value as value
   </sql>
 
-  <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ExportRuleDto">
+  <resultMap id="ruleDefinitionResultMap" type="org.sonar.db.qualityprofile.ExportRuleDto">
+    <id property="activeRuleUuid" column="activeRuleUuid"/>
+    <result property="ruleKey" column="ruleKey"/>
+    <result property="severity" column="severity"/>
+    <result property="rule" column="rule"/>
+    <result property="repository" column="repository"/>
+    <result property="name" column="name"/>
+    <result property="type" column="type"/>
+    <result property="template" column="template"/>
+    <result property="extendedDescription" column="extendedDescription"/>
+    <result property="tags" column="tags"/>
+
+    <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
+      <id property="uuid" column="rds_uuid"/>
+      <result property="key" column="rds_kee"/>
+      <result property="description" column="rds_description" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+    </collection>
+
+  </resultMap>
+
+  <select id="selectByProfileUuid" parameterType="string" resultMap="ruleDefinitionResultMap">
     select
     <include refid="exportRuleColumns"/>
     from active_rules a
@@ -33,6 +64,7 @@
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
     left join rules_metadata rm on rm.rule_uuid = r.uuid
+    <include refid="leftOuterJoinRulesDescriptionSections"/>
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 

@@ -85,7 +85,7 @@
 
     <result property="createdAtFromDefinition" column="createdAtFromDefinition"/>
     <result property="updatedAtFromDefinition" column="updatedAtFromDefinition"/>
-    <result property="noteData" column="noteData"/>
+    <result property="noteData" column="noteData" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     <result property="noteUserUuid" column="noteUserUuid"/>
     <result property="noteCreatedAt" column="noteCreatedAt"/>
     <result property="noteUpdatedAt" column="noteUpdatedAt"/>
@@ -94,7 +94,7 @@
     <result property="remediationBaseEffort" column="remediationBaseEffort"/>
     <result property="tagsField" column="tagsField"/>
     <result property="adHocName" column="adHocName"/>
-    <result property="adHocDescription" column="adHocDescription"/>
+    <result property="adHocDescription" column="adHocDescription" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     <result property="adHocSeverity" column="adHocSeverity"/>
     <result property="adHocType" column="adHocType"/>
     <result property="createdAtFromMetadata" column="createdAtFromMetadata"/>
@@ -127,7 +127,7 @@
     <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
       <id property="uuid" column="rds_uuid"/>
       <result property="key" column="rds_kee"/>
-      <result property="description" column="rds_description"/>
+      <result property="description" column="rds_description" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     </collection>
   </resultMap>
 
@@ -160,7 +160,7 @@
     <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
       <id property="uuid" column="rds_uuid"/>
       <result property="key" column="rds_kee"/>
-      <result property="description" column="rds_description"/>
+      <result property="description" column="rds_description" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     </collection>
 
   </resultMap>

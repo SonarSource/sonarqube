@@ -168,9 +168,16 @@ public class RuleCreator {
   }
 
   private static void validateDescription(List<String> errors, NewCustomRule newRule) {
-    if (Strings.isNullOrEmpty(newRule.htmlDescription()) && Strings.isNullOrEmpty(newRule.markdownDescription())) {
+    boolean missingDescription = newRule.getRuleDescriptionSections().isEmpty() ?
+      Strings.isNullOrEmpty(newRule.markdownDescription()) :
+      noDescriptionSectionHasContent(newRule);
+    if (missingDescription) {
       errors.add("The description is missing");
     }
+  }
+
+  private static boolean noDescriptionSectionHasContent(NewCustomRule newRule) {
+    return newRule.getRuleDescriptionSections().stream().map(NewRuleDescriptionSection::getDescription).allMatch(Strings::isNullOrEmpty);
   }
 
   private static void validateRuleKey(List<String> errors, String ruleKey) {
@@ -207,10 +214,20 @@ public class RuleCreator {
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
 
-    if (newRule.markdownDescription() != null) {
+    ruleDefinition.setDescriptionFormat(Format.MARKDOWN);
+
+    if (newRule.getRuleDescriptionSections().isEmpty() && newRule.markdownDescription() != null) {
       RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), newRule.markdownDescription());
-      ruleDefinition.setDescriptionFormat(Format.MARKDOWN);
       ruleDefinition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    } else {
+      for (NewRuleDescriptionSection ruleDescriptionSection : newRule.getRuleDescriptionSections()) {
+        RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
+          .uuid(uuidFactory.create())
+          .key(ruleDescriptionSection.getKey())
+          .description(ruleDescriptionSection.getDescription())
+          .build();
+        ruleDefinition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+      }
     }
 
     dbClient.ruleDao().insert(dbSession, ruleDefinition);

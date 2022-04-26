@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -32,6 +33,9 @@ import org.sonarqube.ws.Rules;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ListActionTest {
+
+  private static final String RULE_KEY_1 = "S001";
+  private static final String RULE_KEY_2 = "S002";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -48,8 +52,8 @@ public class ListActionTest {
 
   @Test
   public void return_rules_in_protobuf() {
-    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S001")).setConfigKey(null).setName(null));
-    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
+    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", RULE_KEY_1)).setConfigKey(null).setName(null));
+    dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", RULE_KEY_2)).setConfigKey("I002").setName("Rule Two"));
     dbTester.getSession().commit();
 
     Rules.ListResponse listResponse = tester.newRequest()
@@ -57,11 +61,22 @@ public class ListActionTest {
 
     assertThat(listResponse.getRulesCount()).isEqualTo(2);
 
-    assertThat(listResponse.getRules(0).getKey()).isEqualTo("S001");
-    assertThat(listResponse.getRules(0).getInternalKey()).isEmpty();
-    assertThat(listResponse.getRules(0).getName()).isEmpty();
-    assertThat(listResponse.getRules(1).getKey()).isEqualTo("S002");
-    assertThat(listResponse.getRules(1).getInternalKey()).isEqualTo("I002");
-    assertThat(listResponse.getRules(1).getName()).isEqualTo("Rule Two");
+    Rules.ListResponse.Rule ruleS001 = getRule(listResponse, RULE_KEY_1);
+    assertThat(ruleS001.getKey()).isEqualTo(RULE_KEY_1);
+    assertThat(ruleS001.getInternalKey()).isEmpty();
+    assertThat(ruleS001.getName()).isEmpty();
+
+    Rules.ListResponse.Rule ruleS002 = getRule(listResponse, RULE_KEY_2);
+    assertThat(ruleS002.getKey()).isEqualTo(RULE_KEY_2);
+    assertThat(ruleS002.getInternalKey()).isEqualTo("I002");
+    assertThat(ruleS002.getName()).isEqualTo("Rule Two");
+  }
+
+  private Rules.ListResponse.Rule getRule(Rules.ListResponse listResponse, String ruleKey) {
+    Optional<Rules.ListResponse.Rule> rule = listResponse.getRulesList().stream()
+      .filter(r -> ruleKey.equals(r.getKey()))
+      .findFirst();
+    assertThat(rule).isPresent();
+    return rule.get();
   }
 }

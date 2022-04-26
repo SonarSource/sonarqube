@@ -65,16 +65,16 @@ public class RuleTesting {
   }
 
   public static RuleDefinitionDto newRule(RuleKey key) {
-    RuleDefinitionDto ruleDefinitionDto = newRuleWithoutSection(key);
+    RuleDefinitionDto ruleDefinitionDto = newRuleWithoutDescriptionSection(key);
     ruleDefinitionDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
     return ruleDefinitionDto;
   }
 
-  public static RuleDefinitionDto newRuleWithoutSection() {
-    return newRuleWithoutSection(randomRuleKey());
+  public static RuleDefinitionDto newRuleWithoutDescriptionSection() {
+    return newRuleWithoutDescriptionSection(randomRuleKey());
   }
 
-  public static RuleDefinitionDto newRuleWithoutSection(RuleKey ruleKey) {
+  public static RuleDefinitionDto newRuleWithoutDescriptionSection(RuleKey ruleKey) {
     return new RuleDefinitionDto()
       .setRepositoryKey(ruleKey.repository())
       .setRuleKey(ruleKey.rule())

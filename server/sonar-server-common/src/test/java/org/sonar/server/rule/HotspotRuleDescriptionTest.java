@@ -26,18 +26,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
-import static org.sonar.db.rule.RuleTesting.newRuleWithoutSection;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 
 @RunWith(DataProviderRunner.class)
 public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_returns_all_empty_fields_when_no_description() {
-    RuleDefinitionDto dto = newRuleWithoutSection();
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection();
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -48,7 +49,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_returns_all_empty_fields_when_empty_description() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", ""));
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", ""));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -60,7 +61,7 @@ public class HotspotRuleDescriptionTest {
   @Test
   @UseDataProvider("descriptionsWithoutTitles")
   public void parse_to_risk_description_fields_when_desc_contains_no_section(String description) {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", description));
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", description));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
@@ -81,7 +82,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_return_null_risk_when_desc_starts_with_ask_yourself_title() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(
       createDefaultRuleDescriptionSection("uuid", (ASKATRISK + RECOMMENTEDCODINGPRACTICE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -93,7 +94,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_return_null_vulnerable_when_no_ask_yourself_whether_title() {
-    RuleDefinitionDto dto = newRuleWithoutSection()
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection()
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + RECOMMENTEDCODINGPRACTICE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -105,7 +106,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_return_null_fixIt_when_desc_has_no_Recommended_Secure_Coding_Practices_title() {
-    RuleDefinitionDto dto = newRuleWithoutSection()
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection()
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + ASKATRISK)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -117,7 +118,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_with_noncompliant_section_not_removed() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(
       createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + NONCOMPLIANTCODE + COMPLIANTCODE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -129,7 +130,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_moved_noncompliant_code() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(
       createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + RECOMMENTEDCODINGPRACTICE + NONCOMPLIANTCODE + SEE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -143,7 +144,7 @@ public class HotspotRuleDescriptionTest {
 
   @Test
   public void parse_moved_sensitivecode_code() {
-    RuleDefinitionDto dto = newRuleWithoutSection().addRuleDescriptionSectionDto(
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection().addRuleDescriptionSectionDto(
       createDefaultRuleDescriptionSection("uuid", (DESCRIPTION + ASKATRISK + RECOMMENTEDCODINGPRACTICE + SENSITIVECODE + SEE)));
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
@@ -160,7 +161,7 @@ public class HotspotRuleDescriptionTest {
     String askContent = "This is the ask section content";
     String recommendedContent = "This is the recommended section content";
 
-    RuleDefinitionDto dto = newRuleWithoutSection()
+    RuleDefinitionDto dto = RuleTesting.newRuleWithoutDescriptionSection()
       .setTemplateUuid("123")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(
