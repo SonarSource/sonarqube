@@ -22,12 +22,7 @@ import * as React from 'react';
 import { LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
-import {
-  highlightIssueLocations,
-  highlightSymbol,
-  splitByTokens,
-  Token
-} from '../helpers/highlight';
+import { highlightIssueLocations, highlightSymbol, splitByTokens } from '../helpers/highlight';
 
 interface Props {
   className?: string;
@@ -43,43 +38,17 @@ interface Props {
   secondaryIssueLocations: LinearIssueLocation[];
 }
 
-interface State {
-  tokens: Token[];
-}
-
-export default class LineCode extends React.PureComponent<React.PropsWithChildren<Props>, State> {
+export default class LineCode extends React.PureComponent<React.PropsWithChildren<Props>> {
   activeMarkerNode?: HTMLElement | null;
-  codeNode?: HTMLElement | null;
   symbols?: NodeListOf<HTMLElement>;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      tokens: splitByTokens(props.line.code || '')
-    };
-  }
-
   componentDidMount() {
-    this.attachEvents();
     if (this.props.highlightedLocationMessage && this.activeMarkerNode && this.props.scroll) {
       this.props.scroll(this.activeMarkerNode);
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.line.code !== this.props.line.code) {
-      this.setState({
-        tokens: splitByTokens(nextProps.line.code || '')
-      });
-    }
-  }
-
-  componentWillUpdate() {
-    this.detachEvents();
-  }
-
   componentDidUpdate(prevProps: Props) {
-    this.attachEvents();
     if (
       this.props.highlightedLocationMessage &&
       (!prevProps.highlightedLocationMessage ||
@@ -92,18 +61,20 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
     }
   }
 
-  componentWillUnmount() {
-    this.detachEvents();
-  }
+  nodeNodeRef = (el: HTMLElement | null) => {
+    if (el) {
+      this.attachEvents(el);
+    } else {
+      this.detachEvents();
+    }
+  };
 
-  attachEvents() {
-    if (this.codeNode) {
-      this.symbols = this.codeNode.querySelectorAll('.sym');
-      if (this.symbols) {
-        for (let i = 0; i < this.symbols.length; i++) {
-          const symbol = this.symbols[i];
-          symbol.addEventListener('click', this.handleSymbolClick);
-        }
+  attachEvents(codeNode: HTMLElement) {
+    this.symbols = codeNode.querySelectorAll('.sym');
+    if (this.symbols) {
+      for (let i = 0; i < this.symbols.length; i++) {
+        const symbol = this.symbols[i];
+        symbol.addEventListener('click', this.handleSymbolClick);
       }
     }
   }
@@ -155,7 +126,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
       secondaryIssueLocations
     } = this.props;
 
-    let tokens = [...this.state.tokens];
+    let tokens = splitByTokens(this.props.line.code || '');
 
     if (highlightedSymbols) {
       highlightedSymbols.forEach(symbol => {
@@ -214,7 +185,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
         data-line-number={line.line}
         style={style}>
         <div className="source-line-code-inner">
-          <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
+          <pre ref={this.nodeNodeRef}>{renderedTokens}</pre>
         </div>
 
         {children}

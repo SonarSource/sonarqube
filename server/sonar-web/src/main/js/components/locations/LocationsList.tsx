@@ -24,7 +24,6 @@ import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 interface Props {
   isCrossFile: boolean;
-  uniqueKey: string;
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
@@ -33,7 +32,7 @@ interface Props {
 
 export default class LocationsList extends React.PureComponent<Props> {
   render() {
-    const { isCrossFile, locations, uniqueKey, selectedLocationIndex } = this.props;
+    const { isCrossFile, locations, selectedLocationIndex } = this.props;
 
     if (!locations || locations.length === 0 || locations.every(location => !location.msg)) {
       return null;
@@ -42,7 +41,6 @@ export default class LocationsList extends React.PureComponent<Props> {
     if (isCrossFile) {
       return (
         <CrossFileLocationNavigator
-          uniqueKey={uniqueKey}
           locations={locations}
           onLocationSelect={this.props.onLocationSelect}
           scroll={this.props.scroll}

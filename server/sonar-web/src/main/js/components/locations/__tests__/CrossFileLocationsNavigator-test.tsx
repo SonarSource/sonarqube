@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../helpers/testUtils';
 import { mockFlowLocation } from '../../../helpers/testMocks';
+import { click } from '../../../helpers/testUtils';
 import { FlowLocation } from '../../../types/types';
 import CrossFileLocationsNavigator from '../CrossFileLocationNavigator';
 
@@ -77,20 +77,9 @@ it('should expand all locations', () => {
   expect(wrapper.find('SingleFileLocationNavigator').length).toBe(3);
 });
 
-it('should collapse locations when issue changes', () => {
-  const wrapper = shallowRender();
-
-  wrapper.setProps({ selectedLocationIndex: 1 });
-  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(3);
-
-  wrapper.setProps({ uniqueKey: 'def', selectedLocationIndex: undefined });
-  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(2);
-});
-
 function shallowRender(props: Partial<CrossFileLocationsNavigator['props']> = {}) {
   return shallow<CrossFileLocationsNavigator>(
     <CrossFileLocationsNavigator
-      uniqueKey="abcd"
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}

@@ -20,12 +20,11 @@
 import * as React from 'react';
 import { translateWithParameters } from '../../helpers/l10n';
 import { collapsePath } from '../../helpers/path';
-import SingleFileLocationNavigator from './SingleFileLocationNavigator';
-import './CrossFileLocationNavigator.css';
 import { FlowLocation } from '../../types/types';
+import './CrossFileLocationNavigator.css';
+import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 interface Props {
-  uniqueKey: string;
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
@@ -48,18 +47,14 @@ const MAX_PATH_LENGTH = 15;
 export default class CrossFileLocationNavigator extends React.PureComponent<Props, State> {
   state: State = { collapsed: true };
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.uniqueKey !== this.props.uniqueKey) {
-      this.setState({ collapsed: true });
-    }
-
-    // expand locations list as soon as a location in the middle of the list is selected
-    const { locations: nextLocations } = nextProps;
+  componentDidUpdate() {
+    const { locations, selectedLocationIndex } = this.props;
     if (
-      nextProps.selectedLocationIndex &&
-      nextProps.selectedLocationIndex > 0 &&
-      nextLocations !== undefined &&
-      nextProps.selectedLocationIndex < nextLocations.length - 1
+      selectedLocationIndex &&
+      selectedLocationIndex > 0 &&
+      locations !== undefined &&
+      selectedLocationIndex < locations.length - 1 &&
+      this.state.collapsed
     ) {
       this.setState({ collapsed: false });
     }

@@ -114,7 +114,6 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
         {selected && (
           <LocationsList
             locations={locations}
-            uniqueKey={issue.key}
             isCrossFile={isCrossFile}
             onLocationSelect={this.props.onLocationSelect}
             scroll={this.props.scroll}

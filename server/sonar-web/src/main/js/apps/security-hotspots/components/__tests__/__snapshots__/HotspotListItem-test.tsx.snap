@@ -62,7 +62,6 @@ exports[`should render correctly 2`] = `
     locations={Array []}
     onLocationSelect={[Function]}
     scroll={[MockFunction]}
-    uniqueKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
   />
 </a>
 `;

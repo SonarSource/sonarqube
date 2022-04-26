@@ -62,7 +62,6 @@ export default function HotspotListItem(props: HotspotListItemProps) {
         <LocationsList
           locations={locations}
           isCrossFile={false} // Currently we are not supporting cross file for security hotspot
-          uniqueKey={hotspot.key}
           onLocationSelect={props.onLocationClick}
           selectedLocationIndex={selectedHotspotLocation}
           scroll={props.onScroll}

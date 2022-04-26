@@ -46,23 +46,22 @@ const location3: FlowLocation = {
 
 it('should render locations in the same file', () => {
   const locations = [location1, location2];
-  expect(shallowRender({ uniqueKey: '', locations, isCrossFile: false })).toMatchSnapshot();
+  expect(shallowRender({ locations, isCrossFile: false })).toMatchSnapshot();
 });
 
 it('should render flow locations in different file', () => {
   const locations = [location1, location3];
-  expect(shallowRender({ uniqueKey: '', locations, isCrossFile: true })).toMatchSnapshot();
+  expect(shallowRender({ locations, isCrossFile: true })).toMatchSnapshot();
 });
 
 it('should not render locations', () => {
-  const wrapper = shallowRender({ uniqueKey: '', locations: [] });
+  const wrapper = shallowRender({ locations: [] });
   expect(wrapper.type()).toBeNull();
 });
 
 function shallowRender(overrides: Partial<LocationsList['props']> = {}) {
   return shallow<LocationsList>(
     <LocationsList
-      uniqueKey={mockIssue().key}
       locations={mockIssue().secondaryLocations}
       isCrossFile={true}
       onLocationSelect={jest.fn()}

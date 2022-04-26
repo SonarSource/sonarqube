@@ -52,15 +52,11 @@ export default class Issue extends React.PureComponent<Props> {
     }
   }
 
-  componentWillUpdate(nextProps: Props) {
-    if (!nextProps.selected && this.props.selected) {
-      this.unbindShortcuts();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.selected && this.props.selected) {
       this.bindShortcuts();
+    } else if (prevProps.selected && !this.props.selected) {
+      this.unbindShortcuts();
     }
   }
 

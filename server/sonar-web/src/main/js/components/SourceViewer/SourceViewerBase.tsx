@@ -156,24 +156,13 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     this.fetchComponent();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    // if a component or a branch has changed,
-    // set `loading: true` immediately to avoid unwanted scrolling in `LineCode`
-    if (
-      nextProps.component !== this.props.component ||
-      !isSameBranchLike(nextProps.branchLike, this.props.branchLike)
-    ) {
-      this.setState({ loading: true });
-    }
-    if (
-      nextProps.onIssueSelect !== undefined &&
-      nextProps.selectedIssue !== this.props.selectedIssue
-    ) {
-      this.setState({ selectedIssue: nextProps.selectedIssue });
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.onIssueSelect !== undefined &&
+      this.props.selectedIssue !== prevProps.selectedIssue
+    ) {
+      this.setState({ selectedIssue: this.props.selectedIssue });
+    }
     if (
       prevProps.component !== this.props.component ||
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike)

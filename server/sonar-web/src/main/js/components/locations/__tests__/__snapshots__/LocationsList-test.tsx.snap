@@ -30,7 +30,6 @@ exports[`should render flow locations in different file 1`] = `
   }
   onLocationSelect={[MockFunction]}
   scroll={[MockFunction]}
-  uniqueKey=""
 />
 `;
 

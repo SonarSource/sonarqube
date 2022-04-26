@@ -61,7 +61,6 @@ exports[`should render correctly 1`] = `
     onLocationSelect={[MockFunction]}
     scroll={[MockFunction]}
     selectedLocationIndex={0}
-    uniqueKey="AVsae-CQS-9G3txfbFN2"
   />
 </div>
 `;
@@ -226,7 +225,6 @@ exports[`should render correctly 2`] = `
     onLocationSelect={[MockFunction]}
     scroll={[MockFunction]}
     selectedLocationIndex={0}
-    uniqueKey="AVsae-CQS-9G3txfbFN2"
   />
 </div>
 `;

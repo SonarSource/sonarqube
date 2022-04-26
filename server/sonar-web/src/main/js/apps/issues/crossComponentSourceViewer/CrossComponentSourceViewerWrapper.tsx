@@ -88,9 +88,9 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     this.fetchIssueFlowSnippets(this.props.issue.key);
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.issue.key !== this.props.issue.key) {
-      this.fetchIssueFlowSnippets(newProps.issue.key);
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.issue.key !== this.props.issue.key) {
+      this.fetchIssueFlowSnippets(this.props.issue.key);
     }
   }
 
