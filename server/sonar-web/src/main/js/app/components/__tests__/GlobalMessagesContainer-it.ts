@@ -20,14 +20,23 @@
 import { screen } from '@testing-library/react';
 import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../utils/globalMessagesService';
-import GlobalMessagesContainer from '../GlobalMessagesContainer';
 
 it('should display messages', () => {
-  renderComponentApp('sonarqube', GlobalMessagesContainer);
+  jest.useFakeTimers();
+
+  // we render anything, the GlobalMesasgeContainer is rendered independently from routing
+  renderComponentApp('sonarqube', () => null);
 
   addGlobalErrorMessage('This is an error');
   addGlobalSuccessMessage('This was a triumph!');
 
   expect(screen.getByRole('alert')).toHaveTextContent('This is an error');
   expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
+
+  jest.runAllTimers();
+
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+  jest.useRealTimers();
 });

@@ -24,7 +24,7 @@ import { changeProjectDefaultVisibility } from '../../../api/permissions';
 import { getValues } from '../../../api/settings';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { App, Props } from '../App';
+import { ProjectManagementApp, Props } from '../ProjectManagementApp';
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
@@ -161,8 +161,8 @@ it('creates project', () => {
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
-  return shallow<App>(
-    <App
+  return shallow<ProjectManagementApp>(
+    <ProjectManagementApp
       currentUser={mockLoggedInUser({ login: 'foo', permissions: { global: ['provisioning'] } })}
       {...props}
     />

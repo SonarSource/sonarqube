@@ -34,6 +34,7 @@ import {
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
+import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
@@ -149,6 +150,7 @@ function renderRoutedApp(
           <LanguagesContext.Provider value={languages}>
             <CurrentUserContextProvider currentUser={currentUser}>
               <AppStateContextProvider appState={appState}>
+                <GlobalMessagesContainer />
                 <Router history={history}>
                   {children}
                   <Route path="*" component={CatchAll} />

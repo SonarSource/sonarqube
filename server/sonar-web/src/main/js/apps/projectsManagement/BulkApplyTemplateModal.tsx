@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
+import { addGlobalErrorMessageFromAPI } from '../../app/utils/globalMessagesService';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
@@ -105,7 +106,8 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             this.setState({ done: true, submitting: false });
           }
         },
-        () => {
+        error => {
+          addGlobalErrorMessageFromAPI(error);
           if (this.mounted) {
             this.setState({ submitting: false });
           }

@@ -45,6 +45,7 @@ exports[`render qualifiers filter 1`] = `
             id="projects-selection"
             onCheck={[Function]}
             thirdState={false}
+            title="check_all"
           />
         </td>
         <td
@@ -203,6 +204,7 @@ exports[`renders 1`] = `
             id="projects-selection"
             onCheck={[Function]}
             thirdState={false}
+            title="check_all"
           />
         </td>
         <td

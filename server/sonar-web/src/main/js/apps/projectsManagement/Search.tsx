@@ -132,6 +132,7 @@ export class Search extends React.PureComponent<Props, State> {
         id="projects-selection"
         onCheck={this.onCheck}
         thirdState={thirdState}
+        title={checked ? translate('uncheck_all') : translate('check_all')}
       />
     );
   };

@@ -57,9 +57,10 @@ interface State {
   visibility?: Visibility;
 }
 
+const DEBOUNCE_DELAY = 250;
 const PAGE_SIZE = 50;
 
-export class App extends React.PureComponent<Props, State> {
+export class ProjectManagementApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -75,7 +76,7 @@ export class App extends React.PureComponent<Props, State> {
       qualifiers: 'TRK',
       selection: []
     };
-    this.requestProjects = debounce(this.requestProjects, 250);
+    this.requestProjects = debounce(this.requestProjects, DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
@@ -259,4 +260,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(App);
+export default withCurrentUserContext(ProjectManagementApp);
