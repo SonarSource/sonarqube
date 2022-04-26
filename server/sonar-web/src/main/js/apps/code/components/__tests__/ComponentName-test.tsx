@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponentMeasure } from '../../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../../types/component';
-import ComponentName, { getTooltip, mostCommonPrefix, Props } from '../ComponentName';
+import ComponentName, { getTooltip, Props } from '../ComponentName';
 
 describe('#getTooltip', () => {
   it('should correctly format component information', () => {
@@ -30,14 +30,6 @@ describe('#getTooltip', () => {
     expect(getTooltip(mockComponentMeasure(true, { qualifier: 'UTS' }))).toMatchSnapshot();
     expect(getTooltip(mockComponentMeasure(true, { path: undefined }))).toMatchSnapshot();
     expect(getTooltip(mockComponentMeasure(false))).toMatchSnapshot();
-  });
-});
-
-describe('#mostCommonPrefix', () => {
-  it('should correctly find the common path prefix', () => {
-    expect(mostCommonPrefix(['src/main/ts/tests', 'src/main/java/tests'])).toEqual('src/main/');
-    expect(mostCommonPrefix(['src/main/ts/app', 'src/main/ts/app'])).toEqual('src/main/ts/');
-    expect(mostCommonPrefix(['src/main/ts', 'lib/main/ts'])).toEqual('');
   });
 });
 

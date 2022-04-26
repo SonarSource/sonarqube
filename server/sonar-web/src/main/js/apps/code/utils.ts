@@ -271,3 +271,18 @@ export function loadMoreChildren(
       return r;
     });
 }
+
+export function mostCommonPrefix(strings: string[]) {
+  const sortedStrings = strings.slice(0).sort();
+  const firstString = sortedStrings[0];
+  const firstStringLength = firstString.length;
+  const lastString = sortedStrings[sortedStrings.length - 1];
+  let i = 0;
+  while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
+    i++;
+  }
+  const prefix = firstString.slice(0, i);
+  const prefixTokens = prefix.split(/[\s\\/]/);
+  const lastPrefixPart = prefixTokens[prefixTokens.length - 1];
+  return prefix.slice(0, prefix.length - lastPrefixPart.length);
+}

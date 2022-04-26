@@ -28,6 +28,7 @@ import {
 import {
   getCodeMetrics,
   loadMoreChildren,
+  mostCommonPrefix,
   retrieveComponent,
   retrieveComponentChildren
 } from '../utils';
@@ -140,5 +141,13 @@ describe('loadMoreChildren', () => {
     expect(addComponentChildren).toHaveBeenCalledWith('key', components, 6, 1);
     expect(addComponent).toHaveBeenCalledTimes(3);
     expect(getComponentBreadcrumbs).toHaveBeenCalledWith('key');
+  });
+});
+
+describe('#mostCommonPrefix', () => {
+  it('should correctly find the common path prefix', () => {
+    expect(mostCommonPrefix(['src/main/ts/tests', 'src/main/java/tests'])).toEqual('src/main/');
+    expect(mostCommonPrefix(['src/main/ts/app', 'src/main/ts/app'])).toEqual('src/main/ts/');
+    expect(mostCommonPrefix(['src/main/ts', 'lib/main/ts'])).toEqual('');
   });
 });

@@ -2,6 +2,7 @@
 
 exports[`#ComponentName should render breadcrumb correctly for APP 1`] = `
 <span
+  aria-label="code.parent_folder"
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
 
@@ -19,6 +20,7 @@ foo"
 
 exports[`#ComponentName should render breadcrumb correctly for SVW 1`] = `
 <span
+  aria-label="code.parent_folder"
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
 
@@ -36,6 +38,7 @@ foo"
 
 exports[`#ComponentName should render breadcrumb correctly for TRK 1`] = `
 <span
+  aria-label="code.parent_folder"
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
 
@@ -53,6 +56,7 @@ foo"
 
 exports[`#ComponentName should render breadcrumb correctly for TRK 2`] = `
 <span
+  aria-label="code.parent_folder"
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
 
@@ -70,6 +74,7 @@ foo"
 
 exports[`#ComponentName should render breadcrumb correctly for VW 1`] = `
 <span
+  aria-label="code.parent_folder"
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
 

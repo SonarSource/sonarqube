@@ -33,6 +33,7 @@ import {
   isProject
 } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
+import { mostCommonPrefix } from '../utils';
 
 export function getTooltip(component: ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -42,21 +43,6 @@ export function getTooltip(component: ComponentMeasure) {
   }
 
   return [component.name, component.key, component.branch].filter(s => !!s).join('\n\n');
-}
-
-export function mostCommonPrefix(strings: string[]) {
-  const sortedStrings = strings.slice(0).sort();
-  const firstString = sortedStrings[0];
-  const firstStringLength = firstString.length;
-  const lastString = sortedStrings[sortedStrings.length - 1];
-  let i = 0;
-  while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
-    i++;
-  }
-  const prefix = firstString.substr(0, i);
-  const prefixTokens = prefix.split(/[\s\\/]/);
-  const lastPrefixPart = prefixTokens[prefixTokens.length - 1];
-  return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
 export interface Props {
@@ -76,21 +62,58 @@ export default function ComponentName({
   previous,
   canBrowse = false
 }: Props) {
-  const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
-  const prefix =
-    areBothDirs && previous !== undefined
-      ? mostCommonPrefix([component.name + '/', previous.name + '/'])
-      : '';
-  const name = prefix ? (
-    <span>
-      <span style={{ color: colors.secondFontColor }}>{prefix}</span>
-      <span>{component.name.substr(prefix.length)}</span>
-    </span>
-  ) : (
-    component.name
-  );
+  const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
-  let inner = null;
+  if (
+    [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
+      rootComponent.qualifier as ComponentQualifier
+    ) &&
+    [ComponentQualifier.Application, ComponentQualifier.Project].includes(
+      component.qualifier as ComponentQualifier
+    )
+  ) {
+    return (
+      <span className="max-width-100 display-inline-flex-center">
+        <span className="text-ellipsis" title={getTooltip(component)} aria-label={ariaLabel}>
+          {renderNameWithIcon(
+            branchLike,
+            component,
+            previous,
+            rootComponent,
+            unclickable,
+            canBrowse
+          )}
+        </span>
+        {component.branch ? (
+          <span className="text-ellipsis spacer-left">
+            <BranchIcon className="little-spacer-right" />
+            <span className="note">{component.branch}</span>
+          </span>
+        ) : (
+          <span className="spacer-left badge flex-1">{translate('branches.main_branch')}</span>
+        )}
+      </span>
+    );
+  }
+  return (
+    <span
+      className="max-width-100 display-inline-block text-ellipsis"
+      title={getTooltip(component)}
+      aria-label={ariaLabel}>
+      {renderNameWithIcon(branchLike, component, previous, rootComponent, unclickable, canBrowse)}
+    </span>
+  );
+}
+
+function renderNameWithIcon(
+  branchLike: BranchLike | undefined,
+  component: ComponentMeasure,
+  previous: ComponentMeasure | undefined,
+  rootComponent: ComponentMeasure,
+  unclickable = false,
+  canBrowse = false
+) {
+  const name = renderName(component, previous);
 
   if (
     !unclickable &&
@@ -103,7 +126,7 @@ export default function ComponentName({
     )
       ? component.branch
       : undefined;
-    inner = (
+    return (
       <Link
         className="link-with-icon"
         to={getComponentOverviewUrl(component.refKey || component.key, component.qualifier, {
@@ -117,49 +140,31 @@ export default function ComponentName({
     if (component.key !== rootComponent.key) {
       Object.assign(query, { selected: component.key });
     }
-    inner = (
+    return (
       <Link className="link-with-icon" to={{ pathname: '/code', query }}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );
-  } else {
-    inner = (
-      <span>
-        <QualifierIcon qualifier={component.qualifier} /> {name}
-      </span>
-    );
   }
+  return (
+    <span>
+      <QualifierIcon qualifier={component.qualifier} /> {name}
+    </span>
+  );
+}
 
-  if (
-    [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
-      rootComponent.qualifier as ComponentQualifier
-    ) &&
-    [ComponentQualifier.Application, ComponentQualifier.Project].includes(
-      component.qualifier as ComponentQualifier
-    )
-  ) {
-    return (
-      <span className="max-width-100 display-inline-flex-center">
-        <span className="text-ellipsis" title={getTooltip(component)}>
-          {inner}
-        </span>
-        {component.branch ? (
-          <span className="text-ellipsis spacer-left">
-            <BranchIcon className="little-spacer-right" />
-            <span className="note">{component.branch}</span>
-          </span>
-        ) : (
-          <span className="spacer-left badge flex-1">{translate('branches.main_branch')}</span>
-        )}
-      </span>
-    );
-  } else {
-    return (
-      <span
-        className="max-width-100 display-inline-block text-ellipsis"
-        title={getTooltip(component)}>
-        {inner}
-      </span>
-    );
-  }
+function renderName(component: ComponentMeasure, previous: ComponentMeasure | undefined) {
+  const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
+  const prefix =
+    areBothDirs && previous !== undefined
+      ? mostCommonPrefix([component.name + '/', previous.name + '/'])
+      : '';
+  return prefix ? (
+    <span>
+      <span style={{ color: colors.secondFontColor }}>{prefix}</span>
+      <span>{component.name.slice(prefix.length)}</span>
+    </span>
+  ) : (
+    component.name
+  );
 }
