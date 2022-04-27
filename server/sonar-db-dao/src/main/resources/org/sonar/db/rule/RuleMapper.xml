@@ -83,22 +83,22 @@
   <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto">
     <id property="uuid" column="r_uuid"/>
 
-    <result property="createdAtFromDefinition" column="createdAtFromDefinition" />
-    <result property="updatedAtFromDefinition" column="updatedAtFromDefinition" />
-    <result property="noteData" column="noteData" />
-    <result property="noteUserUuid" column="noteUserUuid" />
-    <result property="noteCreatedAt" column="noteCreatedAt" />
-    <result property="noteUpdatedAt" column="noteUpdatedAt" />
-    <result property="remediationFunction" column="remediationFunction" />
-    <result property="remediationGapMultiplier" column="remediationGapMultiplier" />
-    <result property="remediationBaseEffort" column="remediationBaseEffort" />
-    <result property="tagsField" column="tagsField" />
-    <result property="adHocName" column="adHocName" />
-    <result property="adHocDescription" column="adHocDescription" />
-    <result property="adHocSeverity" column="adHocSeverity" />
-    <result property="adHocType" column="adHocType" />
-    <result property="createdAtFromMetadata" column="createdAtFromMetadata" />
-    <result property="updatedAtFromMetadata" column="updatedAtFromMetadata"  />
+    <result property="createdAtFromDefinition" column="createdAtFromDefinition"/>
+    <result property="updatedAtFromDefinition" column="updatedAtFromDefinition"/>
+    <result property="noteData" column="noteData"/>
+    <result property="noteUserUuid" column="noteUserUuid"/>
+    <result property="noteCreatedAt" column="noteCreatedAt"/>
+    <result property="noteUpdatedAt" column="noteUpdatedAt"/>
+    <result property="remediationFunction" column="remediationFunction"/>
+    <result property="remediationGapMultiplier" column="remediationGapMultiplier"/>
+    <result property="remediationBaseEffort" column="remediationBaseEffort"/>
+    <result property="tagsField" column="tagsField"/>
+    <result property="adHocName" column="adHocName"/>
+    <result property="adHocDescription" column="adHocDescription"/>
+    <result property="adHocSeverity" column="adHocSeverity"/>
+    <result property="adHocType" column="adHocType"/>
+    <result property="createdAtFromMetadata" column="createdAtFromMetadata"/>
+    <result property="updatedAtFromMetadata" column="updatedAtFromMetadata"/>
 
     <result property="ruleKey" column="ruleKey"/>
     <result property="repositoryKey" column="repositoryKey"/>
@@ -163,6 +163,33 @@
       <result property="description" column="rds_description"/>
     </collection>
 
+  </resultMap>
+
+  <resultMap id="ruleForIndexingDtoResultMap" type="org.sonar.db.rule.RuleForIndexingDto">
+    <result property="uuid" column="uuid"/>
+    <result property="repository" column="repository"/>
+    <result property="pluginRuleKey" column="pluginRuleKey"/>
+    <result property="name" column="name"/>
+    <result property="descriptionFormat" column="descriptionFormat"/>
+    <result property="severity" column="severity"/>
+    <result property="status" column="status"/>
+    <result property="isTemplate" column="isTemplate"/>
+    <result property="isExternal" column="isExternal"/>
+    <result property="systemTags" column="systemTags"/>
+    <result property="securityStandards" column="securityStandards"/>
+    <result property="templateRuleKey" column="templateRuleKey"/>
+    <result property="templateRepository" column="templateRepository"/>
+    <result property="internalKey" column="internalKey"/>
+    <result property="language" column="language"/>
+    <result property="type" column="type"/>
+    <result property="createdAt" column="createdAt"/>
+    <result property="updatedAt" column="updatedAt"/>
+    <result property="tags" column="tags"/>
+    <collection property="ruleDescriptionSectionsDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
+      <id property="uuid" column="rds_uuid"/>
+      <result property="key" column="rds_kee"/>
+      <result property="description" column="rds_description"/>
+    </collection>
   </resultMap>
 
   <select id="selectAllDefinitions" resultMap="ruleDefinitionResultMap">
@@ -361,7 +388,7 @@
       </foreach>
   </select>
 
-  <select id="selectIndexingRulesByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
+  <select id="selectIndexingRulesByUuids" parameterType="map" resultMap="ruleForIndexingDtoResultMap">
     <include refid="sqlSelectIndexingRules"/>
     where
       <foreach collection="ruleUuids" index="index" item="ruleUuid" open="" separator=" or " close="">
@@ -370,10 +397,10 @@
     order by r.created_at asc
   </select>
 
-  <select id="scrollIndexingRules" resultType="org.sonar.db.rule.RuleForIndexingDto" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY">
+  <select id="scrollIndexingRules" resultMap="ruleForIndexingDtoResultMap" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
     <include refid="sqlSelectIndexingRules"/>
-    order by r.created_at asc
+    order by r.created_at,r.uuid asc
   </select>
 
   <sql id="sqlSelectIndexingRules">
@@ -396,10 +423,15 @@
       r.rule_type as "type",
       r.created_at as "createdAt",
       r.updated_at as "updatedAt",
-      rm.tags as "tags"
+      rm.tags as "tags",
+      rds.uuid as "rds_uuid",
+      rds.kee as "rds_kee",
+      rds.description as "rds_description"
     from rules r
     left outer join rules t on t.uuid = r.template_uuid
     left outer join rules_metadata rm on r.uuid = rm.rule_uuid
+    left outer join rule_desc_sections rds on
+      rds.rule_uuid = r.uuid
   </sql>
 
   <select id="selectByQuery" parameterType="map" resultMap="ruleResultMap">

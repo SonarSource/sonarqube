@@ -37,6 +37,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 
@@ -318,13 +319,8 @@ public class RuleDoc extends BaseDoc {
       ruleDoc.setTemplateKey(null);
     }
 
-    if (dto.getDescription() != null && dto.getDescriptionFormat() != null) {
-      if (RuleDto.Format.HTML == dto.getDescriptionFormat()) {
-        ruleDoc.setHtmlDescription(dto.getDescription());
-      } else {
-        ruleDoc.setHtmlDescription(Markdown.convertToHtml(dto.getDescription()));
-      }
-    }
+    String descriptionAsHtml = RuleDescriptionFormatter.getDescriptionAsHtml(dto);
+    ruleDoc.setHtmlDescription(descriptionAsHtml);
     return ruleDoc;
   }
 }

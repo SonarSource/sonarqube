@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -71,6 +72,23 @@ public class RuleDescriptionSectionDto {
       .add("key='" + key + "'")
       .add("description='" + description + "'")
       .toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RuleDescriptionSectionDto that = (RuleDescriptionSectionDto) o;
+    return Objects.equals(uuid, that.uuid) && Objects.equals(key, that.key) && Objects.equals(description, that.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid, key, description);
   }
 
   public static final class RuleDescriptionSectionDtoBuilder {

@@ -19,11 +19,16 @@
  */
 package org.sonar.db.rule;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleForIndexingDto {
 
@@ -31,7 +36,6 @@ public class RuleForIndexingDto {
   private String repository;
   private String pluginRuleKey;
   private String name;
-  private String description;
   private RuleDto.Format descriptionFormat;
   private Integer severity;
   private RuleStatus status;
@@ -48,6 +52,8 @@ public class RuleForIndexingDto {
   private long createdAt;
   private long updatedAt;
 
+  private Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos = new HashSet<>();
+
   public RuleForIndexingDto() {
     // nothing to do here
   }
@@ -60,20 +66,28 @@ public class RuleForIndexingDto {
     return repository;
   }
 
+  public void setRepository(String repository) {
+    this.repository = repository;
+  }
+
   public String getPluginRuleKey() {
     return pluginRuleKey;
+  }
+
+  public void setPluginRuleKey(String pluginRuleKey) {
+    this.pluginRuleKey = pluginRuleKey;
   }
 
   public String getName() {
     return name;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
   public RuleDto.Format getDescriptionFormat() {
     return descriptionFormat;
+  }
+
+  public void setDescriptionFormat(RuleDto.Format descriptionFormat) {
+    this.descriptionFormat = descriptionFormat;
   }
 
   public Integer getSeverity() {
@@ -143,5 +157,22 @@ public class RuleForIndexingDto {
 
   public RuleKey getRuleKey() {
     return RuleKey.of(repository, pluginRuleKey);
+  }
+
+  public Set<RuleDescriptionSectionDto> getRuleDescriptionSectionsDtos() {
+    return ruleDescriptionSectionsDtos;
+  }
+
+  public void setRuleDescriptionSectionsDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos) {
+    this.ruleDescriptionSectionsDtos = ruleDescriptionSectionsDtos;
+  }
+
+  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
+    return ruleDescriptionSectionsDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
+  }
+
+  @CheckForNull
+  public RuleDescriptionSectionDto getDefaultRuleDescriptionSectionDto() {
+    return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
   }
 }

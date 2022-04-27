@@ -53,7 +53,7 @@ public class HotspotRuleDescription {
   }
 
   public static HotspotRuleDescription from(RuleForIndexingDto dto) {
-    return from(dto.getDescription());
+    return from(RuleDescriptionFormatter.getDescriptionAsHtml(dto));
   }
 
   private static HotspotRuleDescription from(@Nullable String description) {

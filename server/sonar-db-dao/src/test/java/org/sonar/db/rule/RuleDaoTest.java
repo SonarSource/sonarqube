@@ -20,6 +20,7 @@
 package org.sonar.db.rule;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -833,7 +834,14 @@ public class RuleDaoTest {
   @Test
   public void scrollIndexingRules() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
-    RuleDefinitionDto r1 = db.rules().insert();
+    RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
+      .key("DESC")
+      .uuid("uuid")
+      .description("my description")
+      .build();
+    RuleDefinitionDto r1 = db.rules().insert(r -> {
+      r.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    });
     RuleDefinitionDto r2 = db.rules().insert(r -> r.setIsExternal(true));
 
     underTest.scrollIndexingRules(db.getSession(), accumulator);
@@ -847,8 +855,10 @@ public class RuleDaoTest {
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(firstRule.getName()).isEqualTo(r1.getName());
-    //FIXME SONAR-16309
-    //assertThat(firstRule.getDescription()).isEqualTo(r1.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
+    assertThat(firstRule.getRuleDescriptionSectionsDtos().stream()
+      .filter(s -> s.getKey().equals(ruleDescriptionSectionDto.getKey()))
+      .collect(MoreCollectors.onlyElement()))
+      .isEqualTo(ruleDescriptionSectionDto);
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
@@ -927,8 +937,7 @@ public class RuleDaoTest {
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(firstRule.getName()).isEqualTo(r1.getName());
-    //FIXME SONAR-16309
-    //assertThat(firstRule.getDescription()).isEqualTo(r1.getRuleDescriptionSectionDtos().stream().map(RuleDescriptionSectionDto::getDescription).collect(Collectors.joining()));
+    assertThat(firstRule.getRuleDescriptionSectionsDtos()).isEqualTo(r1.getRuleDescriptionSectionDtos());
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getSeverityAsString()).isEqualTo(SeverityUtil.getSeverityFromOrdinal(r1.getSeverity()));
