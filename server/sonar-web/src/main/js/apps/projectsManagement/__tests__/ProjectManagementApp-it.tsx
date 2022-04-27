@@ -26,8 +26,6 @@ import { renderAdminApp } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import routes from '../routes';
 
-jest.setTimeout(30_000);
-
 jest.mock('../../../api/permissions');
 
 jest.mock('../../../api/components', () => ({

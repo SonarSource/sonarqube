@@ -54,5 +54,6 @@ module.exports = {
         outputFilepath: '/tmp/ut-ts-web-monitoring.log'
       }
     ]
-  ]
+  ],
+  testTimeout: 30000
 };

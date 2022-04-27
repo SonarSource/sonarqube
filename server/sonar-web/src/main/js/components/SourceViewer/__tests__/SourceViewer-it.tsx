@@ -35,7 +35,6 @@ jest.mock('../helpers/lines', () => {
   };
 });
 
-jest.setTimeout(30_000);
 const handler = new SourceViewerServiceMock();
 
 it('should show a permalink on line number', async () => {

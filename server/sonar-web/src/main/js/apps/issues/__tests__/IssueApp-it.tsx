@@ -34,8 +34,6 @@ beforeAll(() => {
 
 afterEach(() => handler.reset());
 
-jest.setTimeout(10_000);
-
 it('should support OWASP Top 10 version 2021', async () => {
   const user = userEvent.setup();
   renderIssueApp();

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { renderAdminApp } from '../../../../helpers/testReactTestingUtils';
 import { screen } from '@testing-library/react';
-import { AdminPageExtension } from '../../../../types/extension';
-import routes from '../../routes';
 import userEvent from '@testing-library/user-event';
 import AuditLogsServiceMock from '../../../../api/mocks/AuditLogsServiceMock';
+import { renderAdminApp } from '../../../../helpers/testReactTestingUtils';
+import { AdminPageExtension } from '../../../../types/extension';
+import routes from '../../routes';
 
 jest.mock('../../../../api/settings');
 
@@ -39,8 +39,6 @@ beforeAll(() => {
 });
 
 afterEach(() => handler.resetSettingvalues());
-
-jest.setTimeout(30_000);
 
 it('should render audit logs page correctly', async () => {
   renderAuditLogs();

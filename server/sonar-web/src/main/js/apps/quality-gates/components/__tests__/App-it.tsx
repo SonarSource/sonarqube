@@ -20,8 +20,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
+import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../../types/appstate';
@@ -36,8 +36,6 @@ beforeAll(() => {
 });
 
 afterEach(() => handler.reset());
-
-jest.setTimeout(30_000);
 
 it('should open the default quality gates', async () => {
   renderQualityGateApp();
