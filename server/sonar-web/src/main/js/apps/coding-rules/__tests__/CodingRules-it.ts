@@ -26,6 +26,7 @@ import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
 jest.mock('../../../api/rules');
+jest.mock('../../../api/issues');
 jest.mock('../../../api/quality-profiles');
 
 let handler: CodingRulesMock;
@@ -36,6 +37,37 @@ beforeAll(() => {
 });
 
 afterEach(() => handler.reset());
+
+it('should select rules with keyboard navigation', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp();
+  let row = await screen.findByRole('row', { selected: true });
+  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  await user.keyboard('{ArrowDown}');
+  row = await screen.findByRole('row', { selected: true });
+  expect(within(row).getByRole('link', { name: 'Hot hotspot' })).toBeInTheDocument();
+  await user.keyboard('{ArrowUp}');
+  row = await screen.findByRole('row', { selected: true });
+  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  await user.keyboard('{ArrowRight}');
+  expect(screen.getByRole('heading', { level: 3, name: 'Awsome java rule' })).toBeInTheDocument();
+  await user.keyboard('{ArrowLeft}');
+  row = await screen.findByRole('row', { selected: true });
+  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+});
+
+it('should open with permalink', async () => {
+  renderCodingRulesApp(undefined, 'coding_rules?rule_key=rule1');
+  expect(await screen.findByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Hot hotspot' })).not.toBeInTheDocument();
+});
+
+it('should show open rule', async () => {
+  renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
+  expect(
+    await screen.findByRole('heading', { level: 3, name: 'Awsome java rule' })
+  ).toBeInTheDocument();
+});
 
 it('should list all rules', async () => {
   renderCodingRulesApp();
@@ -183,8 +215,9 @@ it('should be able to bulk deactivate quality profile', async () => {
   ).toBeInTheDocument();
 });
 
-function renderCodingRulesApp(currentUser?: CurrentUser) {
+function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
   renderApp('coding_rules', routes, {
+    navigateTo,
     currentUser,
     languages: {
       js: { key: 'js', name: 'JavaScript' },

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -58,6 +57,7 @@ import {
   Facets,
   getAppFacet,
   getOpen,
+  getSelected,
   getServerFacet,
   hasRuleKey,
   OpenFacets,
@@ -87,14 +87,10 @@ interface State {
   facets?: Facets;
   loading: boolean;
   openFacets: OpenFacets;
-  openRule?: Rule;
   paging?: Paging;
-  query: Query;
   referencedProfiles: Dict<Profile>;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   rules: Rule[];
-  selected?: string;
-  usingPermalink?: boolean;
 }
 
 export class App extends React.PureComponent<Props, State> {
@@ -118,7 +114,6 @@ export class App extends React.PureComponent<Props, State> {
         standards: shouldOpenStandardsFacet({}, query),
         types: true
       },
-      query,
       referencedProfiles: {},
       referencedRepositories: {},
       rules: []
@@ -133,26 +128,11 @@ export class App extends React.PureComponent<Props, State> {
     this.fetchInitialData();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState(({ rules, selected }) => {
-      const openRule = this.getOpenRule(nextProps, rules);
-      return {
-        openRule,
-        usingPermalink: hasRuleKey(nextProps.location.query),
-        query: parseQuery(nextProps.location.query),
-        selected: openRule ? openRule.key : selected
-      };
-    });
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (!areQueriesEqual(prevProps.location.query, this.props.location.query)) {
       this.fetchFirstRules();
     }
-    if (
-      !this.state.openRule &&
-      (prevState.selected !== this.state.selected || prevState.openRule)
-    ) {
+    if (this.getSelectedRuleKey(prevProps) !== this.getSelectedRuleKey(this.props)) {
       // if user simply selected another issue
       // or if user went from the source code back to the list of issues
       this.scrollToSelectedRule();
@@ -167,30 +147,40 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   attachShortcuts = () => {
-    key.setScope('coding-rules');
-    key('up', 'coding-rules', () => {
-      this.selectPreviousRule();
-      return false;
-    });
-    key('down', 'coding-rules', () => {
-      this.selectNextRule();
-      return false;
-    });
-    key('right', 'coding-rules', () => {
-      this.openSelectedRule();
-      return false;
-    });
-    key('left', 'coding-rules', () => {
-      this.handleBack();
-      return false;
-    });
+    document.addEventListener('keydown', this.handleKeyPress);
   };
 
-  detachShortcuts = () => key.deleteScope('coding-rules');
+  handleKeyPress = (event: KeyboardEvent) => {
+    switch (event.code) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        this.handleBack();
+        return;
+      case 'ArrowRight':
+        event.preventDefault();
+        this.openSelectedRule();
+        return;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.selectNextRule();
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.selectPreviousRule();
+    }
+  };
 
-  getOpenRule = (props: Props, rules: Rule[]) => {
-    const open = getOpen(props.location.query);
+  detachShortcuts = () => {
+    document.removeEventListener('keydown', this.handleKeyPress);
+  };
+
+  getOpenRule = (rules: Rule[]) => {
+    const open = getOpen(this.props.location.query);
     return open && rules.find(rule => rule.key === open);
+  };
+
+  getSelectedRuleKey = (props: Props) => {
+    return getSelected(props.location.query);
   };
 
   getFacetsToFetch = () => {
@@ -213,7 +203,7 @@ export class App extends React.PureComponent<Props, State> {
       'tags',
       'templateKey'
     ];
-    if (this.state.query.profile) {
+    if (parseQuery(this.props.location.query).profile) {
       fields.push('actives', 'params');
     }
     return fields;
@@ -224,7 +214,7 @@ export class App extends React.PureComponent<Props, State> {
     facets: this.getFacetsToFetch().join(),
     ps: PAGE_SIZE,
     s: 'name',
-    ...serializeQuery(this.state.query)
+    ...this.props.location.query
   });
 
   stopLoading = () => {
@@ -262,18 +252,15 @@ export class App extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     this.makeFetchRequest(query).then(({ actives, facets, paging, rules }) => {
       if (this.mounted) {
-        const openRule = this.getOpenRule(this.props, rules);
-        const usingPermalink = hasRuleKey(this.props.location.query);
-        const selected = rules.length > 0 ? (openRule && openRule.key) || rules[0].key : undefined;
+        const openRule = this.getOpenRule(rules);
+        const selected = rules.length > 0 && !openRule ? rules[0].key : undefined;
+        this.routeSelectedRulePath(selected);
         this.setState({
           actives,
           facets,
           loading: false,
-          openRule,
           paging,
-          rules,
-          selected,
-          usingPermalink
+          rules
         });
       }
     }, this.stopLoading);
@@ -308,7 +295,8 @@ export class App extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  getSelectedIndex = ({ selected, rules } = this.state) => {
+  getSelectedIndex = ({ rules } = this.state) => {
+    const selected = this.getSelectedRuleKey(this.props) || getOpen(this.props.location.query);
     const index = rules.findIndex(rule => rule.key === selected);
     return index !== -1 ? index : undefined;
   };
@@ -326,10 +314,10 @@ export class App extends React.PureComponent<Props, State> {
         this.fetchMoreRules();
       }
       if (rules && selectedIndex < rules.length - 1) {
-        if (this.state.openRule) {
+        if (this.getOpenRule(this.state.rules)) {
           this.openRule(rules[selectedIndex + 1].key);
         } else {
-          this.setState({ selected: rules[selectedIndex + 1].key });
+          this.routeSelectedRulePath(rules[selectedIndex + 1].key);
         }
       }
     }
@@ -339,22 +327,34 @@ export class App extends React.PureComponent<Props, State> {
     const { rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
     if (rules && selectedIndex !== undefined && selectedIndex > 0) {
-      if (this.state.openRule) {
+      if (this.getOpenRule(this.state.rules)) {
         this.openRule(rules[selectedIndex - 1].key);
       } else {
-        this.setState({ selected: rules[selectedIndex - 1].key });
+        this.routeSelectedRulePath(rules[selectedIndex - 1].key);
       }
     }
   };
 
   getRulePath = (rule: string) => ({
     pathname: this.props.location.pathname,
-    query: { ...serializeQuery(this.state.query), open: rule }
+    query: {
+      ...serializeQuery(parseQuery(this.props.location.query)),
+      open: rule
+    }
   });
+
+  routeSelectedRulePath = (rule?: string) => {
+    if (rule) {
+      this.props.router.replace({
+        pathname: this.props.location.pathname,
+        query: { ...serializeQuery(parseQuery(this.props.location.query)), selected: rule }
+      });
+    }
+  };
 
   openRule = (rule: string) => {
     const path = this.getRulePath(rule);
-    if (this.state.openRule) {
+    if (this.getOpenRule(this.state.rules)) {
       this.props.router.replace(path);
     } else {
       this.props.router.push(path);
@@ -362,7 +362,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   openSelectedRule = () => {
-    const { selected } = this.state;
+    const selected = this.getSelectedRuleKey(this.props);
     if (selected) {
       this.openRule(selected);
     }
@@ -372,15 +372,16 @@ export class App extends React.PureComponent<Props, State> {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
-        ...serializeQuery(this.state.query),
+        ...serializeQuery(parseQuery(this.props.location.query)),
+        selected: this.getOpenRule(this.state.rules)?.key || this.getSelectedRuleKey(this.props),
         open: undefined
       }
     });
     this.scrollToSelectedRule(false);
   };
 
-  scrollToSelectedRule = (smooth = true) => {
-    const { selected } = this.state;
+  scrollToSelectedRule = (smooth = false) => {
+    const selected = this.getSelectedRuleKey(this.props);
     if (selected) {
       const element = document.querySelector(`[data-rule="${selected}"]`);
       if (element) {
@@ -390,20 +391,18 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   getRuleActivation = (rule: string) => {
-    const { actives, query } = this.state;
+    const { actives } = this.state;
+    const query = parseQuery(this.props.location.query);
     if (actives && actives[rule] && query.profile) {
       return actives[rule][query.profile];
-    } else {
-      return undefined;
     }
   };
 
   getSelectedProfile = () => {
-    const { query, referencedProfiles } = this.state;
+    const { referencedProfiles } = this.state;
+    const query = parseQuery(this.props.location.query);
     if (query.profile) {
       return referencedProfiles[query.profile];
-    } else {
-      return undefined;
     }
   };
 
@@ -417,7 +416,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleBack = (event?: React.SyntheticEvent<HTMLAnchorElement>) => {
-    const { usingPermalink } = this.state;
+    const usingPermalink = hasRuleKey(this.props.location.query);
 
     if (event) {
       event.preventDefault();
@@ -434,7 +433,7 @@ export class App extends React.PureComponent<Props, State> {
   handleFilterChange = (changes: Partial<Query>) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
-      query: serializeQuery({ ...this.state.query, ...changes })
+      query: serializeQuery({ ...parseQuery(this.props.location.query), ...changes })
     });
 
     this.setState(({ openFacets }) => ({
@@ -458,7 +457,7 @@ export class App extends React.PureComponent<Props, State> {
       if (willOpenProperty && property === STANDARDS) {
         newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
           newState.openFacets,
-          state.query
+          parseQuery(this.props.location.query)
         );
         // Force loading of sonarsource security facet data
         property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
@@ -489,14 +488,15 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleRuleDelete = (ruleKey: string) => {
-    if (this.state.query.ruleKey === ruleKey) {
+    if (parseQuery(this.props.location.query).ruleKey === ruleKey) {
       this.handleReset();
     } else {
       this.setState(state => {
         const rules = state.rules.filter(rule => rule.key !== ruleKey);
         const selectedIndex = this.getSelectedIndex(state);
         const selected = this.pickRuleAround(rules, selectedIndex);
-        return { rules, selected };
+        this.routeSelectedRulePath(selected);
+        return { rules };
       });
       this.closeRule();
     }
@@ -525,11 +525,12 @@ export class App extends React.PureComponent<Props, State> {
 
   handleSearch = (searchQuery: string) => this.handleFilterChange({ searchQuery });
 
-  isFiltered = () => Object.keys(serializeQuery(this.state.query)).length > 0;
+  isFiltered = () => Object.keys(serializeQuery(parseQuery(this.props.location.query))).length > 0;
 
   renderBulkButton = () => {
     const { currentUser } = this.props;
-    const { canWrite, paging, query, referencedProfiles } = this.state;
+    const { canWrite, paging, referencedProfiles } = this.state;
+    const query = parseQuery(this.props.location.query);
     const canUpdate = canWrite || Object.values(referencedProfiles).some(p => p.actions?.edit);
 
     if (!isLoggedIn(currentUser) || !canUpdate) {
@@ -546,6 +547,10 @@ export class App extends React.PureComponent<Props, State> {
   render() {
     const { paging, rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
+    const query = parseQuery(this.props.location.query);
+    const openRule = this.getOpenRule(this.state.rules);
+    const usingPermalink = hasRuleKey(this.props.location.query);
+    const selected = this.getSelectedRuleKey(this.props);
 
     return (
       <>
@@ -572,14 +577,14 @@ export class App extends React.PureComponent<Props, State> {
                       minLength={2}
                       onChange={this.handleSearch}
                       placeholder={translate('search.search_for_rules')}
-                      value={this.state.query.searchQuery || ''}
+                      value={query.searchQuery || ''}
                     />
                     <FacetsList
                       facets={this.state.facets}
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
                       openFacets={this.state.openFacets}
-                      query={this.state.query}
+                      query={query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
                       selectedProfile={this.getSelectedProfile()}
@@ -596,20 +601,20 @@ export class App extends React.PureComponent<Props, State> {
                 <div className="layout-page-main-inner">
                   <A11ySkipTarget anchor="rules_main" />
                   <div className="display-flex-space-between">
-                    {this.state.openRule ? (
+                    {openRule ? (
                       <a
                         className="js-back display-inline-flex-center link-no-underline"
                         href="#"
                         onClick={this.handleBack}>
                         <BackIcon className="spacer-right" />
-                        {this.state.usingPermalink
+                        {usingPermalink
                           ? translate('coding_rules.see_all')
                           : translate('coding_rules.return_to_list')}
                       </a>
                     ) : (
                       this.renderBulkButton()
                     )}
-                    {!this.state.usingPermalink && (
+                    {!usingPermalink && (
                       <PageActions
                         loading={this.state.loading}
                         onReload={this.handleReload}
@@ -623,7 +628,7 @@ export class App extends React.PureComponent<Props, State> {
             </div>
 
             <div className="layout-page-main-inner">
-              {this.state.openRule ? (
+              {openRule ? (
                 <RuleDetails
                   allowCustomRules={true}
                   canWrite={this.state.canWrite}
@@ -633,25 +638,27 @@ export class App extends React.PureComponent<Props, State> {
                   onFilterChange={this.handleFilterChange}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
-                  ruleKey={this.state.openRule.key}
+                  ruleKey={openRule.key}
                   selectedProfile={this.getSelectedProfile()}
                 />
               ) : (
                 <>
-                  {rules.map(rule => (
-                    <RuleListItem
-                      activation={this.getRuleActivation(rule.key)}
-                      isLoggedIn={isLoggedIn(this.props.currentUser)}
-                      key={rule.key}
-                      onActivate={this.handleRuleActivate}
-                      onDeactivate={this.handleRuleDeactivate}
-                      onFilterChange={this.handleFilterChange}
-                      onOpen={this.handleRuleOpen}
-                      rule={rule}
-                      selected={rule.key === this.state.selected}
-                      selectedProfile={this.getSelectedProfile()}
-                    />
-                  ))}
+                  <div role="tab">
+                    {rules.map(rule => (
+                      <RuleListItem
+                        activation={this.getRuleActivation(rule.key)}
+                        isLoggedIn={isLoggedIn(this.props.currentUser)}
+                        key={rule.key}
+                        onActivate={this.handleRuleActivate}
+                        onDeactivate={this.handleRuleDeactivate}
+                        onFilterChange={this.handleFilterChange}
+                        onOpen={this.handleRuleOpen}
+                        rule={rule}
+                        selected={rule.key === selected}
+                        selectedProfile={this.getSelectedProfile()}
+                      />
+                    ))}
+                  </div>
                   {paging !== undefined && (
                     <ListFooter
                       count={rules.length}

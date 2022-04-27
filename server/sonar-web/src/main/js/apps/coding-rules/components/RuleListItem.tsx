@@ -198,12 +198,15 @@ export default class RuleListItem extends React.PureComponent<Props> {
     const { rule, selected } = this.props;
     const allTags = [...(rule.tags || []), ...(rule.sysTags || [])];
     return (
-      <div className={classNames('coding-rule', { selected })} data-rule={rule.key}>
+      <div
+        className={classNames('coding-rule', { selected })}
+        aria-selected={selected}
+        role="row"
+        data-rule={rule.key}>
         <table className="coding-rule-table">
           <tbody>
             <tr>
               {this.renderActivation()}
-
               <td>
                 <div className="coding-rule-title">
                   <Link

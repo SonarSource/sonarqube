@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, countBy } from 'lodash';
-import { mockQualityProfile, mockRule, mockRuleRepository } from '../../helpers/testMocks';
+import { cloneDeep, countBy, pick } from 'lodash';
+import { mockQualityProfile, mockRuleDetails, mockRuleRepository } from '../../helpers/testMocks';
 import { RuleRepository } from '../../types/coding-rules';
+import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
-import { Rule } from '../../types/types';
+import { Rule, RuleActivation, RuleDetails } from '../../types/types';
+import { getFacet } from '../issues';
 import {
   bulkActivateRules,
   bulkDeactivateRules,
@@ -30,7 +32,7 @@ import {
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse
 } from '../quality-profiles';
-import { getRulesApp, searchRules } from '../rules';
+import { getRuleDetails, getRulesApp, searchRules } from '../rules';
 
 interface FacetFilter {
   languages?: string;
@@ -41,8 +43,8 @@ const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
   types: 'type'
 };
 export default class CodingRulesMock {
-  defaultRules: Rule[] = [];
-  rules: Rule[] = [];
+  defaultRules: RuleDetails[] = [];
+  rules: RuleDetails[] = [];
   qualityProfile: Profile[] = [];
   repositories: RuleRepository[] = [];
   isAdmin = false;
@@ -60,29 +62,61 @@ export default class CodingRulesMock {
     ];
 
     this.defaultRules = [
-      mockRule({
+      mockRuleDetails({
         key: 'rule1',
         type: 'BUG',
         lang: 'java',
         langName: 'Java',
         name: 'Awsome java rule'
       }),
-      mockRule({ key: 'rule2', name: 'Hot hotspot', type: 'SECURITY_HOTSPOT' }),
-      mockRule({ key: 'rule3', name: 'Unknown rule' }),
-      mockRule({ key: 'rule4', type: 'BUG', lang: 'c', langName: 'C', name: 'Awsome C rule' })
+      mockRuleDetails({
+        key: 'rule2',
+        name: 'Hot hotspot',
+        type: 'SECURITY_HOTSPOT',
+        lang: 'js',
+        langName: 'JavaScript'
+      }),
+      mockRuleDetails({ key: 'rule3', name: 'Unknown rule', lang: 'js', langName: 'JavaScript' }),
+      mockRuleDetails({
+        key: 'rule4',
+        type: 'BUG',
+        lang: 'c',
+        langName: 'C',
+        name: 'Awsome C rule'
+      })
     ];
 
     (searchRules as jest.Mock).mockImplementation(this.handleSearchRules);
+    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
     (searchQualityProfiles as jest.Mock).mockImplementation(this.handleSearchQualityProfiles);
     (getRulesApp as jest.Mock).mockImplementation(this.handleGetRulesApp);
     (bulkActivateRules as jest.Mock).mockImplementation(this.handleBulkActivateRules);
     (bulkDeactivateRules as jest.Mock).mockImplementation(this.handleBulkDeactivateRules);
+    (getFacet as jest.Mock).mockImplementation(this.handleGetGacet);
 
     this.rules = cloneDeep(this.defaultRules);
   }
 
+  getRuleWithoutDetails() {
+    return this.rules.map(r =>
+      pick(r, [
+        'isTemplate',
+        'key',
+        'lang',
+        'langName',
+        'name',
+        'params',
+        'severity',
+        'status',
+        'sysTags',
+        'tags',
+        'type'
+      ])
+    );
+  }
+
   filterFacet({ languages }: FacetFilter) {
-    let filteredRules = this.rules;
+    let filteredRules = this.getRuleWithoutDetails();
     if (languages) {
       filteredRules = filteredRules.filter(r => r.lang && languages.includes(r.lang));
     }
@@ -111,7 +145,37 @@ export default class CodingRulesMock {
     return this.qualityProfile.filter(qp => qp.language === language);
   }
 
-  handleSearchRules = ({ facets, languages, p, ps }: SearchRulesQuery) => {
+  handleGetGacet = (): Promise<{
+    facet: { count: number; val: string }[];
+    response: RawIssuesResponse;
+  }> => {
+    return this.reply({
+      facet: [],
+      response: {
+        components: [],
+        effortTotal: 0,
+        facets: [],
+        issues: [],
+        languages: [],
+        paging: { total: 0, pageIndex: 1, pageSize: 1 }
+      }
+    });
+  };
+
+  handleGetRuleDetails = (parameters: {
+    actives?: boolean;
+    key: string;
+  }): Promise<{ actives?: RuleActivation[]; rule: RuleDetails }> => {
+    const rule = this.rules.find(r => r.key === parameters.key);
+    if (!rule) {
+      return Promise.reject({
+        errors: [{ msg: `No rule has been found for id ${parameters.key}` }]
+      });
+    }
+    return this.reply({ actives: parameters.actives ? [] : undefined, rule });
+  };
+
+  handleSearchRules = ({ facets, languages, p, ps, rule_key }: SearchRulesQuery) => {
     const countFacet = (facets || '').split(',').map((facet: keyof Rule) => {
       const facetCount = countBy(this.rules.map(r => r[FACET_RULE_MAP[facet] || facet] as string));
       return {
@@ -121,7 +185,12 @@ export default class CodingRulesMock {
     });
     const currentPs = ps || 10;
     const currentP = p || 1;
-    const filteredRules = this.filterFacet({ languages });
+    let filteredRules: Rule[] = [];
+    if (rule_key) {
+      filteredRules = this.getRuleWithoutDetails().filter(r => r.key === rule_key);
+    } else {
+      filteredRules = this.filterFacet({ languages });
+    }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({
       total: filteredRules.length,

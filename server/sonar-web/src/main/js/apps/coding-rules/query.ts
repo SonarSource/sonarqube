@@ -161,6 +161,10 @@ export function getOpen(query: RawQuery) {
   return query.open;
 }
 
+export function getSelected(query: RawQuery) {
+  return query.selected;
+}
+
 export function hasRuleKey(query: RawQuery) {
   return Boolean(query.rule_key);
 }

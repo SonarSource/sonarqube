@@ -26,8 +26,7 @@ import {
   mockCurrentUser,
   mockLocation,
   mockQualityProfile,
-  mockRouter,
-  mockRule
+  mockRouter
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
@@ -56,8 +55,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 }));
 
 jest.mock('../../../../helpers/system', () => ({
-  getReactDomContainerSelector: () => '#content',
-  isSonarCloud: jest.fn().mockResolvedValue(false)
+  getReactDomContainerSelector: () => '#content'
 }));
 
 it('should render correctly', async () => {
@@ -69,15 +67,6 @@ it('should render correctly', async () => {
   expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
     'loaded (ScreenPositionHelper)'
   );
-
-  wrapper.setState({ openRule: mockRule() });
-  expect(wrapper).toMatchSnapshot('open rule');
-  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
-    'open rule (ScreenPositionHelper)'
-  );
-
-  wrapper.setState({ usingPermalink: true });
-  expect(wrapper).toMatchSnapshot('using permalink');
 });
 
 describe('renderBulkButton', () => {

@@ -261,7 +261,6 @@ exports[`should render correctly: loaded 1`] = `
                     "total": 0,
                   }
                 }
-                selectedIndex={0}
               />
             </div>
           </div>
@@ -270,60 +269,64 @@ exports[`should render correctly: loaded 1`] = `
       <div
         className="layout-page-main-inner"
       >
-        <RuleListItem
-          isLoggedIn={true}
-          key="javascript:S1067"
-          onActivate={[Function]}
-          onDeactivate={[Function]}
-          onFilterChange={[Function]}
-          onOpen={[Function]}
-          rule={
-            Object {
-              "key": "javascript:S1067",
-              "lang": "js",
-              "langName": "JavaScript",
-              "name": "Use foo",
-              "severity": "MAJOR",
-              "status": "READY",
-              "sysTags": Array [
-                "a",
-                "b",
-              ],
-              "tags": Array [
-                "x",
-              ],
-              "type": "CODE_SMELL",
+        <div
+          role="tab"
+        >
+          <RuleListItem
+            isLoggedIn={true}
+            key="javascript:S1067"
+            onActivate={[Function]}
+            onDeactivate={[Function]}
+            onFilterChange={[Function]}
+            onOpen={[Function]}
+            rule={
+              Object {
+                "key": "javascript:S1067",
+                "lang": "js",
+                "langName": "JavaScript",
+                "name": "Use foo",
+                "severity": "MAJOR",
+                "status": "READY",
+                "sysTags": Array [
+                  "a",
+                  "b",
+                ],
+                "tags": Array [
+                  "x",
+                ],
+                "type": "CODE_SMELL",
+              }
             }
-          }
-          selected={true}
-        />
-        <RuleListItem
-          isLoggedIn={true}
-          key="javascript:S1067"
-          onActivate={[Function]}
-          onDeactivate={[Function]}
-          onFilterChange={[Function]}
-          onOpen={[Function]}
-          rule={
-            Object {
-              "key": "javascript:S1067",
-              "lang": "js",
-              "langName": "JavaScript",
-              "name": "Use foo",
-              "severity": "MAJOR",
-              "status": "READY",
-              "sysTags": Array [
-                "a",
-                "b",
-              ],
-              "tags": Array [
-                "x",
-              ],
-              "type": "CODE_SMELL",
+            selected={false}
+          />
+          <RuleListItem
+            isLoggedIn={true}
+            key="javascript:S1067"
+            onActivate={[Function]}
+            onDeactivate={[Function]}
+            onFilterChange={[Function]}
+            onOpen={[Function]}
+            rule={
+              Object {
+                "key": "javascript:S1067",
+                "lang": "js",
+                "langName": "JavaScript",
+                "name": "Use foo",
+                "severity": "MAJOR",
+                "status": "READY",
+                "sysTags": Array [
+                  "a",
+                  "b",
+                ],
+                "tags": Array [
+                  "x",
+                ],
+                "type": "CODE_SMELL",
+              }
             }
-          }
-          selected={true}
-        />
+            selected={false}
+          />
+        </div>
         <ListFooter
           count={2}
           loadMore={[Function]}
@@ -390,251 +393,9 @@ exports[`should render correctly: loading 1`] = `
       </div>
       <div
         className="layout-page-main-inner"
-      />
-    </div>
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly: open rule (ScreenPositionHelper) 1`] = `
-<div
-  className="layout-page-side"
-  style={
-    Object {
-      "top": 0,
-    }
-  }
->
-  <div
-    className="layout-page-side-inner"
-  >
-    <div
-      className="layout-page-filters"
-    >
-      <A11ySkipTarget
-        anchor="rules_filters"
-        label="coding_rules.skip_to_filters"
-        weight={10}
-      />
-      <FiltersHeader
-        displayReset={false}
-        onReset={[Function]}
-      />
-      <SearchBox
-        className="spacer-bottom"
-        id="coding-rules-search"
-        maxLength={200}
-        minLength={2}
-        onChange={[Function]}
-        placeholder="search.search_for_rules"
-        value=""
-      />
-      <FacetsList
-        facets={Object {}}
-        onFacetToggle={[Function]}
-        onFilterChange={[Function]}
-        openFacets={
-          Object {
-            "languages": true,
-            "owaspTop10": false,
-            "owaspTop10-2021": false,
-            "sansTop25": false,
-            "sonarsourceSecurity": false,
-            "standards": false,
-            "types": true,
-          }
-        }
-        query={
-          Object {
-            "activation": undefined,
-            "activationSeverities": Array [],
-            "availableSince": undefined,
-            "compareToProfile": undefined,
-            "cwe": Array [],
-            "inheritance": undefined,
-            "languages": Array [],
-            "owaspTop10": Array [],
-            "owaspTop10-2021": Array [],
-            "profile": undefined,
-            "repositories": Array [],
-            "ruleKey": undefined,
-            "sansTop25": Array [],
-            "searchQuery": undefined,
-            "severities": Array [],
-            "sonarsourceSecurity": Array [],
-            "statuses": Array [],
-            "tags": Array [],
-            "template": undefined,
-            "types": Array [],
-          }
-        }
-        referencedProfiles={Object {}}
-        referencedRepositories={Object {}}
-      />
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should render correctly: open rule 1`] = `
-<Fragment>
-  <Suggestions
-    suggestions="coding_rules"
-  />
-  <Helmet
-    defer={false}
-    encodeSpecialCharacters={true}
-    prioritizeSeoTags={false}
-    title="coding_rules.page"
-  >
-    <meta
-      content="noindex"
-      name="robots"
-    />
-  </Helmet>
-  <div
-    className="layout-page"
-    id="coding-rules-page"
-  >
-    <ScreenPositionHelper
-      className="layout-page-side-outer"
-    >
-      <Component />
-    </ScreenPositionHelper>
-    <div
-      className="layout-page-main"
-    >
-      <div
-        className="layout-page-header-panel layout-page-main-header"
       >
         <div
-          className="layout-page-header-panel-inner layout-page-main-header-inner"
-        >
-          <div
-            className="layout-page-main-inner"
-          >
-            <A11ySkipTarget
-              anchor="rules_main"
-            />
-            <div
-              className="display-flex-space-between"
-            >
-              <a
-                className="js-back display-inline-flex-center link-no-underline"
-                href="#"
-                onClick={[Function]}
-              >
-                <BackIcon
-                  className="spacer-right"
-                />
-                coding_rules.return_to_list
-              </a>
-              <PageActions
-                loading={false}
-                onReload={[Function]}
-                paging={
-                  Object {
-                    "pageIndex": 0,
-                    "pageSize": 100,
-                    "total": 0,
-                  }
-                }
-                selectedIndex={0}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        className="layout-page-main-inner"
-      >
-        <RuleDetails
-          allowCustomRules={true}
-          canWrite={true}
-          onActivate={[Function]}
-          onDeactivate={[Function]}
-          onDelete={[Function]}
-          onFilterChange={[Function]}
-          referencedProfiles={Object {}}
-          referencedRepositories={Object {}}
-          ruleKey="javascript:S1067"
-        />
-      </div>
-    </div>
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly: using permalink 1`] = `
-<Fragment>
-  <Suggestions
-    suggestions="coding_rules"
-  />
-  <Helmet
-    defer={false}
-    encodeSpecialCharacters={true}
-    prioritizeSeoTags={false}
-    title="coding_rules.page"
-  >
-    <meta
-      content="noindex"
-      name="robots"
-    />
-  </Helmet>
-  <div
-    className="layout-page"
-    id="coding-rules-page"
-  >
-    <ScreenPositionHelper
-      className="layout-page-side-outer"
-    >
-      <Component />
-    </ScreenPositionHelper>
-    <div
-      className="layout-page-main"
-    >
-      <div
-        className="layout-page-header-panel layout-page-main-header"
-      >
-        <div
-          className="layout-page-header-panel-inner layout-page-main-header-inner"
-        >
-          <div
-            className="layout-page-main-inner"
-          >
-            <A11ySkipTarget
-              anchor="rules_main"
-            />
-            <div
-              className="display-flex-space-between"
-            >
-              <a
-                className="js-back display-inline-flex-center link-no-underline"
-                href="#"
-                onClick={[Function]}
-              >
-                <BackIcon
-                  className="spacer-right"
-                />
-                coding_rules.see_all
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        className="layout-page-main-inner"
-      >
-        <RuleDetails
-          allowCustomRules={true}
-          canWrite={true}
-          onActivate={[Function]}
-          onDeactivate={[Function]}
-          onDelete={[Function]}
-          onFilterChange={[Function]}
-          referencedProfiles={Object {}}
-          referencedRepositories={Object {}}
-          ruleKey="javascript:S1067"
+          role="tab"
         />
       </div>
     </div>
