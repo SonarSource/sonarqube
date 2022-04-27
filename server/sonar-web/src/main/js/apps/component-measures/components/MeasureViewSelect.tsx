@@ -94,7 +94,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
     return (
       <Select
         aria-labelledby="measures-view-selection-label"
-        autoBlur={true}
+        blurInputOnSelect={true}
         className={className}
         onChange={this.handleChange}
         components={{

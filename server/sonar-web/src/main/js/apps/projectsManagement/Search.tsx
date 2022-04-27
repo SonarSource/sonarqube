@@ -153,7 +153,7 @@ export class Search extends React.PureComponent<Props, State> {
       <td className="thin nowrap text-middle">
         <Select
           className="input-medium it__project-qualifier-select"
-          disabled={!this.props.ready}
+          isDisabled={!this.props.ready}
           name="projects-qualifier"
           onChange={this.handleQualifierChange}
           isSearchable={false}
@@ -162,7 +162,6 @@ export class Search extends React.PureComponent<Props, State> {
             SingleValue: this.singleValueRenderer
           }}
           options={this.getQualifierOptions()}
-          searchable={false}
           value={options.find(option => option.value === this.props.qualifiers)}
         />
       </td>

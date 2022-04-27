@@ -282,7 +282,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           aria-labelledby="coding-rules-custom-rule-status"
           onChange={this.handleStatusChange}
           options={statusesOptions}
-          searchable={false}
+          isSearchable={false}
           value={statusesOptions.find(s => s.value === this.state.status)}
         />
       </div>

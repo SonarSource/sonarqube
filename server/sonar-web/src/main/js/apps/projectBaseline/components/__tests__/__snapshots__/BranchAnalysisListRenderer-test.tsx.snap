@@ -12,7 +12,7 @@ exports[`should render correctly: Analyses 1`] = `
       baseline.analysis_from
     </label>
     <Select
-      autoBlur={true}
+      blurInputOnSelect={true}
       className="input-medium spacer-left"
       inputId="branch-analysis-from-input"
       isSearchable={false}
@@ -320,7 +320,7 @@ exports[`should render correctly: empty 1`] = `
       baseline.analysis_from
     </label>
     <Select
-      autoBlur={true}
+      blurInputOnSelect={true}
       className="input-medium spacer-left"
       inputId="branch-analysis-from-input"
       isSearchable={false}
@@ -376,7 +376,7 @@ exports[`should render correctly: loading 1`] = `
       baseline.analysis_from
     </label>
     <Select
-      autoBlur={true}
+      blurInputOnSelect={true}
       className="input-medium spacer-left"
       inputId="branch-analysis-from-input"
       isSearchable={false}

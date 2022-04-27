@@ -24,8 +24,8 @@ import * as React from 'react';
 import ReactSelect, {
   GroupTypeBase,
   IndicatorProps,
+  NamedProps,
   OptionTypeBase,
-  Props,
   StylesConfig
 } from 'react-select';
 import AsyncReactSelect, { AsyncProps } from 'react-select/async';
@@ -99,7 +99,7 @@ export default class Select<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
-> extends React.Component<Props<Option, IsMulti, Group> & StyleExtensionProps> {
+> extends React.Component<NamedProps<Option, IsMulti, Group> & StyleExtensionProps> {
   render() {
     return (
       <ReactSelect
@@ -142,7 +142,7 @@ export function SearchSelect<
   Option,
   IsMulti extends boolean,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: Props<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps) {
+>(props: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps) {
   return (
     <AsyncReactSelect
       {...omit(props, 'className', 'large')}
@@ -161,7 +161,7 @@ export function SearchSelect<
 }
 
 export function selectStyle<Option, IsMulti extends boolean, Group extends GroupTypeBase<Option>>(
-  props?: Props<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps
+  props?: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps
 ): StylesConfig<Option, IsMulti, Group> {
   return {
     container: () => ({

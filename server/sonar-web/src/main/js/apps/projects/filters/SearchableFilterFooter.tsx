@@ -46,7 +46,7 @@ export default class SearchableFilterFooter extends React.PureComponent<Props> {
           isLoading={this.props.isLoading}
           onChange={this.handleOptionChange}
           onInputChange={this.props.onInputChange}
-          onOpen={this.props.onOpen}
+          onMenuOpen={this.props.onOpen}
           options={this.props.options}
           placeholder={translate('search_verb')}
         />

@@ -59,7 +59,7 @@ exports[`render qualifiers filter 1`] = `
                 "SingleValue": [Function],
               }
             }
-            disabled={false}
+            isDisabled={false}
             isSearchable={false}
             name="projects-qualifier"
             onChange={[Function]}
@@ -79,7 +79,6 @@ exports[`render qualifiers filter 1`] = `
                 },
               ]
             }
-            searchable={false}
             value={
               Object {
                 "label": "qualifiers.TRK",

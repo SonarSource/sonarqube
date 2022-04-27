@@ -143,6 +143,7 @@ exports[`should handle re-activation 1`] = `
             aria-labelledby="coding-rules-custom-rule-status"
             isClearable={false}
             isDisabled={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -160,7 +161,6 @@ exports[`should handle re-activation 1`] = `
                 },
               ]
             }
-            searchable={false}
             value={
               Object {
                 "label": "rules.status.READY",
@@ -398,6 +398,7 @@ exports[`should render correctly: default 1`] = `
             aria-labelledby="coding-rules-custom-rule-status"
             isClearable={false}
             isDisabled={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -415,7 +416,6 @@ exports[`should render correctly: default 1`] = `
                 },
               ]
             }
-            searchable={false}
             value={
               Object {
                 "label": "rules.status.READY",

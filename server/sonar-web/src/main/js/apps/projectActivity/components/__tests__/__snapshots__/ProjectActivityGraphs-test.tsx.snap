@@ -5,7 +5,6 @@ exports[`should render correctly the graph and legends 1`] = `
   className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
 >
   <GraphsHeader
-    addCustomMetric={[Function]}
     className="big-spacer-bottom"
     graph="issues"
     metrics={
@@ -18,7 +17,6 @@ exports[`should render correctly the graph and legends 1`] = `
         },
       ]
     }
-    removeCustomMetric={[Function]}
     selectedMetrics={Array []}
     updateGraph={[Function]}
   />
@@ -108,7 +106,6 @@ exports[`should render correctly the graph and legends 1`] = `
         },
       ]
     }
-    removeCustomMetric={[Function]}
     series={
       Array [
         Object {

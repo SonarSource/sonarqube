@@ -51,10 +51,10 @@ export default class TypesFilter extends React.PureComponent<Props> {
       <Select
         aria-labelledby="background-task-type-filter-label"
         className="input-large"
-        clearable={false}
+        isClearable={false}
         onChange={this.handleChange}
         options={allOptions}
-        searchable={false}
+        isSearchable={false}
         value={allOptions.find(o => o.value === value)}
       />
     );

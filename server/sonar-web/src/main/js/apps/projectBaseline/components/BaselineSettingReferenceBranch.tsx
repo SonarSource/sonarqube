@@ -112,8 +112,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
                 <strong>{translate('baseline.reference_branch.choose')}</strong>
                 <MandatoryFieldMarker />
               </label>
-              <Select<BranchOption>
-                autofocus={false}
+              <Select
                 className="little-spacer-top spacer-bottom"
                 options={branchList}
                 onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}

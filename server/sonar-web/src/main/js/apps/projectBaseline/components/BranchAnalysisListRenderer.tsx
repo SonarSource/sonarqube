@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
 import Radio from '../../../components/controls/Radio';
+import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -113,7 +113,7 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
           {translate('baseline.analysis_from')}
         </label>
         <Select
-          autoBlur={true}
+          blurInputOnSelect={true}
           inputId="branch-analysis-from-input"
           className="input-medium spacer-left"
           onChange={props.handleRangeChange}

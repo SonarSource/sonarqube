@@ -53,8 +53,8 @@ export default class StatusFilter extends React.PureComponent<Props> {
         className="input-medium"
         onChange={this.handleChange}
         options={options}
-        searchable={false}
         value={options.find(o => o.value === this.props.value)}
+        isSearchable={false}
       />
     );
   }
