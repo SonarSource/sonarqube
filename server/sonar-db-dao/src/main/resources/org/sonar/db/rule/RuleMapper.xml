@@ -165,33 +165,6 @@
 
   </resultMap>
 
-  <resultMap id="ruleForIndexingDtoResultMap" type="org.sonar.db.rule.RuleForIndexingDto">
-    <result property="uuid" column="uuid"/>
-    <result property="repository" column="repository"/>
-    <result property="pluginRuleKey" column="pluginRuleKey"/>
-    <result property="name" column="name"/>
-    <result property="descriptionFormat" column="descriptionFormat"/>
-    <result property="severity" column="severity"/>
-    <result property="status" column="status"/>
-    <result property="isTemplate" column="isTemplate"/>
-    <result property="isExternal" column="isExternal"/>
-    <result property="systemTags" column="systemTags"/>
-    <result property="securityStandards" column="securityStandards"/>
-    <result property="templateRuleKey" column="templateRuleKey"/>
-    <result property="templateRepository" column="templateRepository"/>
-    <result property="internalKey" column="internalKey"/>
-    <result property="language" column="language"/>
-    <result property="type" column="type"/>
-    <result property="createdAt" column="createdAt"/>
-    <result property="updatedAt" column="updatedAt"/>
-    <result property="tags" column="tags"/>
-    <collection property="ruleDescriptionSectionsDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
-      <id property="uuid" column="rds_uuid"/>
-      <result property="key" column="rds_kee"/>
-      <result property="description" column="rds_description"/>
-    </collection>
-  </resultMap>
-
   <select id="selectAllDefinitions" resultMap="ruleDefinitionResultMap">
     select
       <include refid="selectRuleTableColumns"/>
@@ -387,52 +360,6 @@
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
       </foreach>
   </select>
-
-  <select id="selectIndexingRulesByUuids" parameterType="map" resultMap="ruleForIndexingDtoResultMap">
-    <include refid="sqlSelectIndexingRules"/>
-    where
-      <foreach collection="ruleUuids" index="index" item="ruleUuid" open="" separator=" or " close="">
-        r.uuid=#{ruleUuid,jdbcType=VARCHAR}
-      </foreach>
-    order by r.created_at asc
-  </select>
-
-  <select id="scrollIndexingRules" resultMap="ruleForIndexingDtoResultMap" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY" resultOrdered="true">
-    <include refid="sqlSelectIndexingRules"/>
-    order by r.created_at,r.uuid asc
-  </select>
-
-  <sql id="sqlSelectIndexingRules">
-    select
-      r.uuid as "uuid",
-      r.plugin_name as "repository",
-      r.plugin_rule_key as "pluginRuleKey",
-      r.name as "name",
-      r.description_format as "descriptionFormat",
-      r.priority as "severity",
-      r.status as "status",
-      r.is_template as "isTemplate",
-      r.is_external as "isExternal",
-      r.system_tags as "systemTags",
-      r.security_standards as "securityStandards",
-      t.plugin_rule_key as "templateRuleKey",
-      t.plugin_name as "templateRepository",
-      r.plugin_config_key as "internalKey",
-      r.language as "language",
-      r.rule_type as "type",
-      r.created_at as "createdAt",
-      r.updated_at as "updatedAt",
-      rm.tags as "tags",
-      rds.uuid as "rds_uuid",
-      rds.kee as "rds_kee",
-      rds.description as "rds_description"
-    from rules r
-    left outer join rules t on t.uuid = r.template_uuid
-    left outer join rules_metadata rm on r.uuid = rm.rule_uuid
-    left outer join rule_desc_sections rds on
-      rds.rule_uuid = r.uuid
-  </sql>
 
   <select id="selectByQuery" parameterType="map" resultMap="ruleResultMap">
     select

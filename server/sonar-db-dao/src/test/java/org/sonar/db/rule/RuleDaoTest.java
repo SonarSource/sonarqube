@@ -826,7 +826,7 @@ public class RuleDaoTest {
   public void scrollIndexingRules_on_empty_table() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
 
-    underTest.scrollIndexingRules(db.getSession(), accumulator);
+    underTest.selectIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list).isEmpty();
   }
@@ -844,7 +844,7 @@ public class RuleDaoTest {
     });
     RuleDefinitionDto r2 = db.rules().insert(r -> r.setIsExternal(true));
 
-    underTest.scrollIndexingRules(db.getSession(), accumulator);
+    underTest.selectIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getUuid, RuleForIndexingDto::getRuleKey)
@@ -882,15 +882,17 @@ public class RuleDaoTest {
   public void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
+    RuleMetadataDto r1Metadatas = db.rules().insertOrUpdateMetadata(r1, r -> r.setTagsField("t1,t2"));
     RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateUuid(r1.getUuid()));
 
-    underTest.scrollIndexingRules(db.getSession(), accumulator);
+    underTest.selectIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
     RuleForIndexingDto firstRule = accumulator.list.get(0);
     RuleForIndexingDto secondRule = accumulator.list.get(1);
 
     assertRuleDefinitionFieldsAreEquals(r1, firstRule);
+    assertRuleMetadataFieldsAreEquals(r1Metadatas, firstRule);
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
     assertRuleDefinitionFieldsAreEquals(r2, secondRule);
@@ -898,13 +900,14 @@ public class RuleDaoTest {
     assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
   }
 
+
   @Test
   public void scrollIndexingRulesByKeys() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
     db.rules().insert();
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getUuid()), accumulator);
+    underTest.selectIndexingRulesByKeys(db.getSession(), singletonList(r1.getUuid()), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getUuid, RuleForIndexingDto::getRuleKey)
@@ -917,7 +920,7 @@ public class RuleDaoTest {
     RuleDefinitionDto r1 = db.rules().insert();
     RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateUuid(r1.getUuid()));
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getUuid(), r2.getUuid()), accumulator);
+    underTest.selectIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getUuid(), r2.getUuid()), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
     RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getUuid().equals(r1.getUuid())).findFirst().get();
@@ -953,13 +956,17 @@ public class RuleDaoTest {
     assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
   }
 
+  private static void assertRuleMetadataFieldsAreEquals(RuleMetadataDto r1Metadatas, RuleForIndexingDto firstRule) {
+    assertThat(r1Metadatas.getTags()).isEqualTo(firstRule.getTags());
+  }
+
   @Test
   public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     db.rules().insert();
     String nonExistingRuleUuid = "non-existing-uuid";
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(nonExistingRuleUuid), accumulator);
+    underTest.selectIndexingRulesByKeys(db.getSession(), singletonList(nonExistingRuleUuid), accumulator);
 
     assertThat(accumulator.list).isEmpty();
   }

@@ -20,10 +20,15 @@
 package org.sonar.db.rule;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
@@ -33,6 +38,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
@@ -175,20 +181,47 @@ public class RuleDao implements Dao {
         .forEach(consumer));
   }
 
-  public void scrollIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {
+  public void selectIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
     executeLargeInputsWithoutOutput(ruleUuids,
-      pageOfRuleUuids -> mapper
-        .selectIndexingRulesByUuids(pageOfRuleUuids)
-        .forEach(consumer));
+      pageOfRuleUuids -> {
+        List<RuleDto> ruleDtos = mapper.selectByUuids(pageOfRuleUuids);
+        processRuleDtos(ruleDtos, consumer, mapper);
+      });
   }
 
-  public void scrollIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
-    mapper(dbSession).scrollIndexingRules(context -> {
-      RuleForIndexingDto dto = context.getResultObject();
-      consumer.accept(dto);
-    });
+  public void selectIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
+    RuleMapper mapper = mapper(dbSession);
+    executeLargeInputsWithoutOutput(mapper.selectAll(),
+      ruleDtos -> processRuleDtos(ruleDtos, consumer, mapper));
+  }
+
+  private static RuleForIndexingDto toRuleForIndexingDto(RuleDto r, Map<String, RuleDto> templateDtos) {
+    RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(r);
+    if (templateDtos.containsKey(r.getTemplateUuid())) {
+      ruleForIndexingDto.setTemplateRuleKey(templateDtos.get(r.getTemplateUuid()).getRuleKey());
+      ruleForIndexingDto.setTemplateRepository(templateDtos.get(r.getTemplateUuid()).getRepositoryKey());
+    }
+    return ruleForIndexingDto;
+  }
+
+  private static void processRuleDtos(List<RuleDto> ruleDtos, Consumer<RuleForIndexingDto> consumer, RuleMapper mapper) {
+    List<String> templateRuleUuids = ruleDtos.stream()
+      .map(RuleDto::getTemplateUuid)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
+
+    Map<String, RuleDto> templateDtos = findTemplateDtos(mapper, templateRuleUuids);
+    ruleDtos.stream().map(r -> toRuleForIndexingDto(r, templateDtos)).forEach(consumer);
+  }
+
+  private static Map<String, RuleDto> findTemplateDtos(RuleMapper mapper, List<String> templateRuleUuids) {
+    if (!templateRuleUuids.isEmpty()) {
+      return mapper.selectByUuids(templateRuleUuids).stream().collect(toMap(RuleDto::getUuid, Function.identity()));
+    }else{
+      return Collections.emptyMap();
+    }
   }
 
   private static RuleMapper mapper(DbSession session) {
