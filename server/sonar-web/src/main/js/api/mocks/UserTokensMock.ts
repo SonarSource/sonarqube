@@ -19,22 +19,23 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { NewUserToken, UserToken } from '../../types/token';
+import { mockUserToken } from '../../helpers/mocks/token';
+import { NewUserToken, TokenType, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
 
 const RANDOM_RADIX = 36;
 const RANDOM_PREFIX = 2;
 
 const defaultTokens = [
-  {
+  mockUserToken({
     name: 'local-scanner',
     createdAt: '2022-03-07T09:02:59+0000',
     lastConnectionDate: '2022-04-07T09:51:48+0000'
-  },
-  {
+  }),
+  mockUserToken({
     name: 'test',
     createdAt: '2020-01-23T19:25:19+0000'
-  }
+  })
 ];
 
 export default class UserTokensMock {
@@ -52,10 +53,22 @@ export default class UserTokensMock {
     return Promise.resolve(cloneDeep(this.tokens));
   };
 
-  handleGenerateToken = ({ name, login }: { name: string; login?: string }) => {
+  handleGenerateToken = ({
+    name,
+    login,
+    type,
+    projectKey
+  }: {
+    name: string;
+    login?: string;
+    type: TokenType;
+    projectKey: string;
+  }) => {
     const token = {
       name,
       login,
+      type,
+      projectKey,
       token: Math.random()
         .toString(RANDOM_RADIX)
         .slice(RANDOM_PREFIX),

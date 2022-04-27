@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { revokeToken } from '../../../../api/user-tokens';
+import { mockUserToken } from '../../../../helpers/mocks/token';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
-import { UserToken } from '../../../../types/token';
 import TokensFormItem from '../TokensFormItem';
 
 jest.mock('../../../../components/intl/DateFormatter');
@@ -32,11 +32,11 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: jest.fn().mockResolvedValue(undefined)
 }));
 
-const userToken: UserToken = {
+const userToken = mockUserToken({
   name: 'foo',
   createdAt: '2019-01-15T15:06:33+0100',
   lastConnectionDate: '2019-01-18T15:06:33+0100'
-};
+});
 
 beforeEach(() => {
   (revokeToken as jest.Mock).mockClear();

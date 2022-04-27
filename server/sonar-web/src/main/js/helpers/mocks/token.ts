@@ -18,21 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export enum TokenType {
-  Project = 'PROJECT_ANALYSIS_TOKEN',
-  Global = 'GLOBAL_ANALYSIS_TOKEN',
-  User = 'USER_TOKEN'
-}
+import { TokenType, UserToken } from '../../types/token';
 
-export interface UserToken {
-  name: string;
-  createdAt: string;
-  lastConnectionDate?: string;
-  type: TokenType;
-  project?: { name: string; key: string };
-}
-
-export interface NewUserToken extends UserToken {
-  login: string;
-  token: string;
+export function mockUserToken(overrides: Partial<UserToken> = {}): UserToken {
+  return {
+    name: 'Token name',
+    createdAt: '2019-06-14T09:45:52+0200',
+    type: TokenType.User,
+    ...overrides
+  };
 }

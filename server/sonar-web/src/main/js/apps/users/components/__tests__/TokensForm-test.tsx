@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
+import { mockUserToken } from '../../../../helpers/mocks/token';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { TokenType } from '../../../../types/token';
@@ -75,7 +76,9 @@ it('should revoke tokens', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.find('TokensFormItem')).toHaveLength(2);
-  wrapper.instance().handleRevokeToken({ createdAt: '2019-01-15T15:06:33+0100', name: 'foo' });
+  wrapper
+    .instance()
+    .handleRevokeToken(mockUserToken({ createdAt: '2019-01-15T15:06:33+0100', name: 'foo' }));
   expect(updateTokensCount).toHaveBeenCalledWith('luke', 1);
   expect(wrapper.find('TokensFormItem')).toHaveLength(1);
 });

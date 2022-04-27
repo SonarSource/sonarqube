@@ -29,12 +29,18 @@ exports[`should render correctly 1`] = `
     </SubmitButton>
   </form>
   <table
-    className="data zebra big-spacer-top"
+    className="data zebra big-spacer-top fixed"
   >
     <thead>
       <tr>
         <th>
           name
+        </th>
+        <th>
+          my_account.token_type
+        </th>
+        <th>
+          my_account.project_name
         </th>
         <th>
           my_account.tokens_last_usage
@@ -103,12 +109,18 @@ exports[`should render correctly 2`] = `
     </SubmitButton>
   </form>
   <table
-    className="data zebra big-spacer-top"
+    className="data zebra big-spacer-top fixed"
   >
     <thead>
       <tr>
         <th>
           name
+        </th>
+        <th>
+          my_account.token_type
+        </th>
+        <th>
+          my_account.project_name
         </th>
         <th>
           my_account.tokens_last_usage

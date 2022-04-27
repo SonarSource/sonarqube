@@ -22,6 +22,7 @@ import {
   mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse
 } from '../../../helpers/mocks/alm-settings';
+import { mockUserToken } from '../../../helpers/mocks/token';
 import { UserToken } from '../../../types/token';
 import { buildBitbucketCloudLink, buildGithubLink, getUniqueTokenName } from '../utils';
 
@@ -35,15 +36,15 @@ describe('getUniqueTokenName', () => {
   });
 
   it('should generate a token with the given name', () => {
-    const userTokens = [{ name: initialTokenName, createdAt: '2019-06-14T09:45:52+0200' }];
-
-    expect(getUniqueTokenName(userTokens, 'Analyze "project"')).toBe('Analyze "project"');
+    expect(
+      getUniqueTokenName([mockUserToken({ name: initialTokenName })], 'Analyze "project"')
+    ).toBe('Analyze "project"');
   });
 
   it('should generate a unique token when the name already exists', () => {
     const userTokens = [
-      { name: initialTokenName, createdAt: '2019-06-15T09:45:52+0200' },
-      { name: `${initialTokenName} 1`, createdAt: '2019-06-15T09:45:53+0200' }
+      mockUserToken({ name: initialTokenName }),
+      mockUserToken({ name: `${initialTokenName} 1` })
     ];
 
     expect(getUniqueTokenName(userTokens, initialTokenName)).toBe('Analyze "lightsaber" 2');

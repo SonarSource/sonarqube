@@ -48,7 +48,7 @@ interface State {
   newTokenType?: TokenType;
   tokens: UserToken[];
   projects: BasicSelectOption[];
-  selectedProjectkey?: string;
+  selectedProject: { key: string; name: string };
 }
 
 export class TokensForm extends React.PureComponent<Props, State> {
@@ -58,7 +58,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
     loading: true,
     newTokenName: '',
     newTokenType: this.props.displayTokenTypeInput ? undefined : TokenType.User,
-    selectedProjectkey: '',
+    selectedProject: { key: '', name: '' },
     tokens: [],
     projects: []
   };
@@ -105,7 +105,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
   handleGenerateToken = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { login } = this.props;
-    const { newTokenName, newTokenType, selectedProjectkey } = this.state;
+    const { newTokenName, newTokenType = TokenType.User, selectedProject } = this.state;
     this.setState({ generating: true });
 
     try {
@@ -113,17 +113,27 @@ export class TokensForm extends React.PureComponent<Props, State> {
         name: newTokenName,
         login,
         type: newTokenType,
-        ...(newTokenType === TokenType.Project && { projectKey: selectedProjectkey })
+        ...(newTokenType === TokenType.Project && { projectKey: selectedProject.key })
       });
 
       if (this.mounted) {
         this.setState(state => {
-          const tokens = [...state.tokens, { name: newToken.name, createdAt: newToken.createdAt }];
+          const tokens = [
+            ...state.tokens,
+            {
+              name: newToken.name,
+              createdAt: newToken.createdAt,
+              type: newTokenType,
+              ...(newTokenType === TokenType.Project && {
+                project: { key: selectedProject.key, name: selectedProject.name }
+              })
+            }
+          ];
           return {
             generating: false,
             newToken,
             newTokenName: '',
-            selectedProjectkey: '',
+            selectedProject: { key: '', name: '' },
             newTokenType: undefined,
             tokens
           };
@@ -147,7 +157,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
 
   isSubmitButtonDisabled = () => {
     const { displayTokenTypeInput } = this.props;
-    const { generating, newTokenName, newTokenType, selectedProjectkey } = this.state;
+    const { generating, newTokenName, newTokenType, selectedProject } = this.state;
 
     if (!displayTokenTypeInput) {
       return generating || newTokenName.length <= 0;
@@ -157,7 +167,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
       return true;
     }
     if (newTokenType === TokenType.Project) {
-      return !selectedProjectkey;
+      return !selectedProject.key;
     }
 
     return !newTokenType;
@@ -174,12 +184,12 @@ export class TokensForm extends React.PureComponent<Props, State> {
     this.setState({ newTokenType: value });
   };
 
-  handleProjectChange = ({ value }: { value: string }) => {
-    this.setState({ selectedProjectkey: value });
+  handleProjectChange = ({ value, label }: { value: string; label: string }) => {
+    this.setState({ selectedProject: { key: value, name: label } });
   };
 
   renderForm() {
-    const { newTokenName, newTokenType, projects, selectedProjectkey } = this.state;
+    const { newTokenName, newTokenType, projects, selectedProject } = this.state;
     const { displayTokenTypeInput, currentUser } = this.props;
 
     const tokenTypeOptions = [
@@ -207,7 +217,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
         {displayTokenTypeInput && (
           <>
             <Select
-              className="input-medium spacer-right it__token-type"
+              className="input-large spacer-right it__token-type"
               isSearchable={false}
               onChange={this.handleNewTokenTypeChange}
               options={tokenTypeOptions}
@@ -216,11 +226,11 @@ export class TokensForm extends React.PureComponent<Props, State> {
             />
             {newTokenType === TokenType.Project && (
               <Select
-                className="input-medium spacer-right it__project"
+                className="input-large spacer-right it__project"
                 onChange={this.handleProjectChange}
                 options={projects}
                 placeholder={translate('users.select_token_project')}
-                value={projects.find(project => project.value === selectedProjectkey)}
+                value={projects.find(project => project.value === selectedProject.key)}
               />
             )}
           </>
@@ -271,10 +281,12 @@ export class TokensForm extends React.PureComponent<Props, State> {
         {this.renderForm()}
         {newToken && <TokensFormNewToken token={newToken} />}
 
-        <table className="data zebra big-spacer-top">
+        <table className="data zebra big-spacer-top fixed">
           <thead>
             <tr>
               <th>{translate('name')}</th>
+              <th>{translate('my_account.token_type')}</th>
+              <th>{translate('my_account.project_name')}</th>
               <th>{translate('my_account.tokens_last_usage')}</th>
               <th className="text-right">{translate('created')}</th>
               <th />

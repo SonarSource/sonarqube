@@ -2,17 +2,23 @@
 
 exports[`should render correctly 1`] = `
 <tr>
-  <td>
-    <Tooltip
-      overlay="foo"
-    >
-      <span>
-        foo
-      </span>
-    </Tooltip>
+  <td
+    className="hide-overflow nowrap"
+    title="foo"
+  >
+    foo
   </td>
   <td
-    className="nowrap"
+    className="hide-overflow thin"
+    title="users.tokens.USER_TOKEN"
+  >
+    users.tokens.USER_TOKEN.short
+  </td>
+  <td
+    className="hide-overflow"
+  />
+  <td
+    className="thin nowrap"
   >
     <DateFromNow
       date="2019-01-18T15:06:33+0100"
@@ -50,17 +56,23 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <tr>
-  <td>
-    <Tooltip
-      overlay="foo"
-    >
-      <span>
-        foo
-      </span>
-    </Tooltip>
+  <td
+    className="hide-overflow nowrap"
+    title="foo"
+  >
+    foo
   </td>
   <td
-    className="nowrap"
+    className="hide-overflow thin"
+    title="users.tokens.USER_TOKEN"
+  >
+    users.tokens.USER_TOKEN.short
+  </td>
+  <td
+    className="hide-overflow"
+  />
+  <td
+    className="thin nowrap"
   >
     <DateFromNow
       date="2019-01-18T15:06:33+0100"

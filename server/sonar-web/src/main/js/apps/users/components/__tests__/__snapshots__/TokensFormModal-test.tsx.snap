@@ -4,6 +4,7 @@ exports[`should render correctly 1`] = `
 <Modal
   contentLabel="users.tokens"
   onRequestClose={[MockFunction]}
+  size="medium"
 >
   <header
     className="modal-head"

@@ -235,6 +235,7 @@ describe('security page', () => {
       expect(generateButton).toBeDisabled();
 
       const tokenTypeLabel = `users.tokens.${tokenTypeOption}`;
+      const tokenTypeShortLabel = `users.tokens.${tokenTypeOption}.short`;
 
       if (tokenTypeOption === TokenType.Project) {
         await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
@@ -260,11 +261,17 @@ describe('security page', () => {
 
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
 
-      // Revoke the token
-      const row = screen.getAllByRole('row', {
-        name: (n: string) => n.includes(newTokenName)
+      const row = screen.getByRole('row', {
+        name: new RegExp(`^${newTokenName}`)
       });
-      const revokeButtons = within(row[0]).getByRole('button', {
+
+      expect(await within(row).findByText(tokenTypeShortLabel)).toBeInTheDocument();
+      if (tokenTypeOption === TokenType.Project) {
+        expect(await within(row).findByText('Project Name 1')).toBeInTheDocument();
+      }
+
+      // Revoke the token
+      const revokeButtons = within(row).getByRole('button', {
         name: 'users.tokens.revoke_token'
       });
       await user.click(revokeButtons);
