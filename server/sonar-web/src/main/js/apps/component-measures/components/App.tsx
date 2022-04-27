@@ -292,7 +292,11 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     if (this.state.loading) {
-      return <i className="spinner spacer" />;
+      return (
+        <div className="display-flex-justify-center huge-spacer-top">
+          <i className="spinner" />
+        </div>
+      );
     }
 
     const { branchLike } = this.props;

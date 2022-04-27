@@ -55,6 +55,7 @@ export default function Projects(props: Props) {
         <ListFooter
           count={projects.length}
           loadMore={props.loadMore}
+          loading={props.loading}
           ready={!props.loading}
           total={props.total || 0}
         />
