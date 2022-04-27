@@ -22,11 +22,15 @@ exports[`should render correctly: changed value 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"
@@ -106,11 +110,15 @@ exports[`should render correctly: in error 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"
@@ -199,11 +207,15 @@ exports[`should render correctly: loading 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"
@@ -290,11 +302,15 @@ exports[`should render correctly: original value 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"
@@ -375,11 +391,15 @@ exports[`should render correctly: success 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"
@@ -466,11 +486,15 @@ exports[`should render correctly: with description 1`] = `
         }
       }
     />
-    <div
-      className="settings-definition-key note little-spacer-top"
+    <Tooltip
+      overlay="settings.key_x.foo"
     >
-      settings.key_x.foo
-    </div>
+      <div
+        className="settings-definition-key note little-spacer-top"
+      >
+        settings.key_x.foo
+      </div>
+    </Tooltip>
   </div>
   <div
     className="settings-definition-right"

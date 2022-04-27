@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -80,9 +81,11 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
           />
         )}
 
-        <div className="settings-definition-key note little-spacer-top">
-          {translateWithParameters('settings.key_x', definition.key)}
-        </div>
+        <Tooltip overlay={translateWithParameters('settings.key_x', definition.key)}>
+          <div className="settings-definition-key note little-spacer-top">
+            {translateWithParameters('settings.key_x', definition.key)}
+          </div>
+        </Tooltip>
       </div>
 
       <div className="settings-definition-right">

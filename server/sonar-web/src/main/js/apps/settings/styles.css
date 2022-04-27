@@ -102,10 +102,6 @@
   white-space: nowrap;
 }
 
-.settings-definition-key:hover {
-  overflow: visible;
-}
-
 .settings-definition-state {
   min-height: 32px;
   padding-bottom: 4px;
