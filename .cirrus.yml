@@ -473,7 +473,7 @@ qa_ldap_task:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 promote_task:
-  only_if: $CIRRUS_BRANCH != "public_master" || $CIRRUS_BRANCH != "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "branch-nightly-build"
   depends_on:
     - build
     - validate
