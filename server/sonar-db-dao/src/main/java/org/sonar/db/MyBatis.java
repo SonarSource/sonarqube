@@ -131,6 +131,7 @@ import org.sonar.db.qualityprofile.QProfileEditGroupsMapper;
 import org.sonar.db.qualityprofile.QProfileEditUsersMapper;
 import org.sonar.db.qualityprofile.QualityProfileExportMapper;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
+import org.sonar.db.report.RegulatoryReportMapper;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
@@ -292,6 +293,7 @@ public class MyBatis {
       QualityGateUserPermissionsMapper.class,
       QualityProfileMapper.class,
       QualityProfileExportMapper.class,
+      RegulatoryReportMapper.class,
       RoleMapper.class,
       RuleMapper.class,
       RuleRepositoryMapper.class,

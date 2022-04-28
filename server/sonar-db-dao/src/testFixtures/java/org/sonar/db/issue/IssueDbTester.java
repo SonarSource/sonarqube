@@ -226,4 +226,9 @@ public class IssueDbTester {
     db.commit();
   }
 
+  public void insertNewCodeReferenceIssue(IssueDto issue) {
+    db.getDbClient().issueDao().insertAsNewCodeOnReferenceBranch(db.getSession(), IssueTesting.newCodeReferenceIssue(issue));
+    db.commit();
+  }
+
 }

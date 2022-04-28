@@ -77,7 +77,7 @@ public class SettingsSection implements SystemInfoSection, Global {
   private void addDefaultNewCodeDefinition(Builder protobuf) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<NewCodePeriodDto> period = dbClient.newCodePeriodDao().selectGlobal(dbSession);
-      setAttribute(protobuf, "Default New Code Definition", parseDefaultNewCodeDefinition(period));
+      setAttribute(protobuf, "Default New Code Definition", parseDefaultNewCodeDefinition(period.orElse(NewCodePeriodDto.defaultInstance())));
     }
   }
 
@@ -95,15 +95,11 @@ public class SettingsSection implements SystemInfoSection, Global {
     return abbreviate(value, MAX_VALUE_LENGTH);
   }
 
-  private static String parseDefaultNewCodeDefinition(Optional<NewCodePeriodDto> period) {
-    if (!period.isPresent()) {
-      return "PREVIOUS_VERSION";
+  private static String parseDefaultNewCodeDefinition(NewCodePeriodDto period) {
+    if (period.getValue() == null) {
+      return period.getType().name();
     }
 
-    if (period.get().getValue() == null) {
-      return period.get().getType().name();
-    }
-
-    return period.get().getType().name() + ": " + period.get().getValue();
+    return period.getType().name() + ": " + period.getValue();
   }
 }

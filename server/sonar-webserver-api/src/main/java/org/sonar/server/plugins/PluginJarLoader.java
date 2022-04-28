@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
@@ -49,8 +50,6 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 import static org.sonar.server.plugins.PluginType.BUNDLED;
 import static org.sonar.server.plugins.PluginType.EXTERNAL;
-
-import javax.inject.Inject;
 
 public class PluginJarLoader {
   private static final Logger LOG = Loggers.get(PluginJarLoader.class);

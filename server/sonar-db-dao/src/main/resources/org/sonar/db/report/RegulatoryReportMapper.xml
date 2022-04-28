@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.report.RegulatoryReportMapper">
+  <sql id="issueColumns">
+    i.kee as kee,
+    i.severity as severity,
+    i.manual_severity as isManualSeverity,
+    i.message as message,
+    i.line as line,
+    i.status as status,
+    i.resolution as resolution,
+    p.kee as componentKey,
+    p.path as fileName,
+    i.issue_type as type,
+    r.plugin_name as ruleRepository,
+    r.plugin_rule_key as ruleKey,
+    r.security_standards as securityStandards,
+    r.name as ruleName,
+    i.issue_creation_date as creationDate,
+    <include refid="org.sonar.db.issue.IssueMapper.isNewCodeReferenceIssue"/>
+  </sql>
+
+  <select id="scrollIssues" parameterType="String" resultType="org.sonar.db.report.IssueFindingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.uuid=i.rule_uuid
+    inner join components p on p.uuid=i.component_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
+    where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
+    and i.status !='CLOSED'
+  </select>
+
+</mapper>

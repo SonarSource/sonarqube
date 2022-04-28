@@ -75,6 +75,7 @@ import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.qualityprofile.QProfileEditUsersDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileExportDao;
+import org.sonar.db.report.RegulatoryReportDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -122,6 +123,7 @@ public class DbClient {
   private final PermissionTemplateDao permissionTemplateDao;
   private final PermissionTemplateCharacteristicDao permissionTemplateCharacteristicDao;
   private final IssueDao issueDao;
+  private final RegulatoryReportDao regulatoryReportDao;
   private final IssueChangeDao issueChangeDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
@@ -219,6 +221,7 @@ public class DbClient {
     qualityGateGroupPermissionsDao = getDao(map, QualityGateGroupPermissionsDao.class);
     projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
     duplicationDao = getDao(map, DuplicationDao.class);
+    regulatoryReportDao = getDao(map, RegulatoryReportDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
     metricDao = getDao(map, MetricDao.class);
     groupDao = getDao(map, GroupDao.class);
@@ -288,6 +291,10 @@ public class DbClient {
 
   public IssueDao issueDao() {
     return issueDao;
+  }
+
+  public RegulatoryReportDao regulatoryReportDao() {
+    return regulatoryReportDao;
   }
 
   public IssueChangeDao issueChangeDao() {

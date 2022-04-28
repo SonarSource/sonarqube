@@ -90,6 +90,13 @@ public class NewCodePeriodDao implements Dao {
     return ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
   }
 
+  public NewCodePeriodDto selectBestMatchForBranch(DbSession dbSession, String projectUuid, String branchUuid) {
+    return selectByBranch(dbSession, projectUuid, branchUuid)
+      .or(() -> selectByProject(dbSession, projectUuid)
+        .or(() -> selectGlobal(dbSession)))
+      .orElse(NewCodePeriodDto.defaultInstance());
+  }
+
   public Set<String> selectBranchesReferencing(DbSession dbSession, String projectUuid, String referenceBranchName) {
     return mapper(dbSession).selectBranchesReferencing(projectUuid, referenceBranchName);
   }
