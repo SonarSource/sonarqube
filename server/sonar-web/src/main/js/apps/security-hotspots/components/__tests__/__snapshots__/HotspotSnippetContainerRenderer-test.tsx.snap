@@ -518,7 +518,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         openIssuesByLine={Object {}}
         renderAdditionalChildInLine={[Function]}
         renderDuplicationPopup={[Function]}
-        scroll={[Function]}
         snippet={
           Array [
             Object {

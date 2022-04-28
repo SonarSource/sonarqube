@@ -26,6 +26,7 @@ import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import SnippetViewer from '../../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotSnippetContainerRenderer, {
+  animateExpansion,
   getScrollHandler,
   HotspotSnippetContainerRendererProps
 } from '../HotspotSnippetContainerRenderer';
@@ -103,6 +104,57 @@ describe('scrolling', () => {
     jest.runAllTimers();
 
     expect(scrollToElement).not.toBeCalled();
+  });
+});
+
+describe('expand', () => {
+  it('should work as expected', async () => {
+    jest.useFakeTimers();
+    const onExpandBlock = jest.fn().mockResolvedValue({});
+
+    const scrollableNode = document.createElement('div');
+    scrollableNode.scrollTo = jest.fn();
+    const ref: RefObject<HTMLDivElement> = {
+      current: scrollableNode
+    };
+
+    jest.spyOn(React, 'useRef').mockReturnValue(ref);
+
+    const snippet = document.createElement('div');
+    const table = document.createElement('table');
+    snippet.appendChild(table);
+    scrollableNode.querySelector = jest.fn().mockReturnValue(snippet);
+
+    jest
+      .spyOn(table, 'getBoundingClientRect')
+      .mockReturnValueOnce({ height: 42 } as DOMRect)
+      .mockReturnValueOnce({ height: 99 } as DOMRect)
+      .mockReturnValueOnce({ height: 99 } as DOMRect)
+      .mockReturnValueOnce({ height: 112 } as DOMRect);
+
+    await animateExpansion(ref, onExpandBlock, 'up');
+    expect(onExpandBlock).toBeCalledWith('up');
+
+    expect(snippet.style.maxHeight).toBe('42px');
+    expect(table.style.marginTop).toBe('-57px');
+
+    jest.advanceTimersByTime(100);
+
+    expect(snippet.style.maxHeight).toBe('99px');
+    expect(table.style.marginTop).toBe('0px');
+
+    expect(scrollableNode.scrollTo).not.toBeCalled();
+
+    jest.runAllTimers();
+
+    await animateExpansion(ref, onExpandBlock, 'down');
+    expect(onExpandBlock).toBeCalledWith('down');
+    expect(snippet.style.maxHeight).toBe('112px');
+
+    jest.advanceTimersByTime(250);
+    expect(scrollableNode.scrollTo).toBeCalled();
+
+    jest.useRealTimers();
   });
 });
 
