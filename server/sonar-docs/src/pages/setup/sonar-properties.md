@@ -337,6 +337,8 @@ Possible values are:
 The login of authenticated user is not implemented with "%u" but with "%reqAttribute{LOGIN}" (since version 6.1).  
 The value displayed for anonymous users is "-".  
 
+The token name used for requests will be added to the access log if the "%reqAttribute{TOKEN_NAME}" is added (since version 9.5).
+
 The SonarQube's HTTP request ID can be added to the pattern with "%reqAttribute{ID}" (since version 6.2).  
 
 If SonarQube is behind a reverse proxy, then the following value allows to display the correct remote IP address:
