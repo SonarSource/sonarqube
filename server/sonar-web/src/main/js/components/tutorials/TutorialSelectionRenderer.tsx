@@ -24,6 +24,7 @@ import { getBaseUrl } from '../../helpers/system';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
+import { Alert } from '../ui/Alert';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -37,6 +38,7 @@ export interface TutorialSelectionRendererProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
+  currentUserCanScanProject: boolean;
   loading: boolean;
   onSelectTutorial: (mode: TutorialModes) => void;
   projectBinding?: ProjectAlmBindingResponse;
@@ -73,6 +75,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     baseUrl,
     component,
     currentUser,
+    currentUserCanScanProject,
     loading,
     projectBinding,
     selectedTutorial,
@@ -81,6 +84,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
   if (loading) {
     return <i className="spinner" />;
+  }
+
+  if (!currentUserCanScanProject) {
+    return <Alert variant="warning">{translate('onboarding.tutorial.no_scan_rights')}</Alert>;
   }
 
   let showGitHubActions = true;

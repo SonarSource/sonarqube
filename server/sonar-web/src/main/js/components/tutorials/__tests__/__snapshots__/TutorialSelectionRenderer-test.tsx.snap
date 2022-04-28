@@ -714,3 +714,11 @@ exports[`should render correctly: selection 1`] = `
   </div>
 </Fragment>
 `;
+
+exports[`should render correctly: user has no scan permission 1`] = `
+<Alert
+  variant="warning"
+>
+  onboarding.tutorial.no_scan_rights
+</Alert>
+`;

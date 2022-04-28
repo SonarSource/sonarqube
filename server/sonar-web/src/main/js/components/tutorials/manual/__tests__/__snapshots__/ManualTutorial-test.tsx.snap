@@ -33,6 +33,7 @@ exports[`renders correctly: default 1`] = `
     onContinue={[Function]}
     onOpen={[Function]}
     open={true}
+    projectKey="my-project"
     stepNumber={1}
   />
   <ProjectAnalysisStep

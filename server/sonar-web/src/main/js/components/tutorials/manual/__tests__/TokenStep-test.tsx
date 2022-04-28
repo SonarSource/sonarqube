@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
-import { LoggedInUser } from '../../../../types/users';
 import TokenStep from '../TokenStep';
 
 jest.mock('../../../../api/user-tokens', () => ({
@@ -29,19 +29,8 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: () => Promise.resolve()
 }));
 
-const currentUser: Pick<LoggedInUser, 'login'> = { login: 'user' };
-
 it('generates token', async () => {
-  const wrapper = shallow(
-    <TokenStep
-      currentUser={currentUser}
-      finished={false}
-      onContinue={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      stepNumber={1}
-    />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.dive()).toMatchSnapshot();
   change(wrapper.dive().find('input'), 'my token');
@@ -52,16 +41,7 @@ it('generates token', async () => {
 });
 
 it('revokes token', async () => {
-  const wrapper = shallow(
-    <TokenStep
-      currentUser={currentUser}
-      finished={false}
-      onContinue={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      stepNumber={1}
-    />
-  );
+  const wrapper = shallowRender();
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   expect(wrapper.dive()).toMatchSnapshot();
@@ -77,16 +57,7 @@ it('revokes token', async () => {
 
 it('continues', async () => {
   const onContinue = jest.fn();
-  const wrapper = shallow(
-    <TokenStep
-      currentUser={currentUser}
-      finished={false}
-      onContinue={onContinue}
-      onOpen={jest.fn()}
-      open={true}
-      stepNumber={1}
-    />
-  );
+  const wrapper = shallowRender({ onContinue });
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   click(wrapper.dive().find('[className="js-continue"]'));
@@ -95,18 +66,24 @@ it('continues', async () => {
 
 it('uses existing token', async () => {
   const onContinue = jest.fn();
-  const wrapper = shallow(
-    <TokenStep
-      currentUser={currentUser}
-      finished={false}
-      onContinue={onContinue}
-      onOpen={jest.fn()}
-      open={true}
-      stepNumber={1}
-    />
-  );
+  const wrapper = shallowRender({ onContinue });
   await new Promise(setImmediate);
   wrapper.setState({ existingToken: 'abcd1234', selection: 'use-existing' });
   click(wrapper.dive().find('[className="js-continue"]'));
   expect(onContinue).toBeCalledWith('abcd1234');
 });
+
+function shallowRender(props: Partial<TokenStep['props']> = {}) {
+  return shallow<TokenStep>(
+    <TokenStep
+      currentUser={mockLoggedInUser({ login: 'user' })}
+      finished={false}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      open={true}
+      projectKey="foo"
+      stepNumber={1}
+      {...props}
+    />
+  );
+}

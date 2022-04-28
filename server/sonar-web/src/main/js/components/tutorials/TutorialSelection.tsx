@@ -20,9 +20,12 @@
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
+import { getScannableProjects } from '../../api/components';
 import { getValues } from '../../api/settings';
 import { getHostUrl } from '../../helpers/urls';
+import { hasGlobalPermission } from '../../helpers/users';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
@@ -39,6 +42,7 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
 
 interface State {
   almBinding?: AlmSettingsInstance;
+  currentUserCanScanProject: boolean;
   baseUrl: string;
   loading: boolean;
 }
@@ -46,6 +50,7 @@ interface State {
 export class TutorialSelection extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
+    currentUserCanScanProject: false,
     baseUrl: getHostUrl(),
     loading: true
   };
@@ -53,7 +58,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   async componentDidMount() {
     this.mounted = true;
 
-    await Promise.all([this.fetchAlmBindings(), this.fetchBaseUrl()]);
+    await Promise.all([this.fetchAlmBindings(), this.fetchBaseUrl(), this.checkUserPermissions()]);
 
     if (this.mounted) {
       this.setState({ loading: false });
@@ -63,6 +68,22 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  checkUserPermissions = async () => {
+    const { component, currentUser } = this.props;
+
+    if (hasGlobalPermission(currentUser, Permissions.Scan)) {
+      this.setState({ currentUserCanScanProject: true });
+      return Promise.resolve();
+    }
+
+    const { projects } = await getScannableProjects();
+    this.setState({
+      currentUserCanScanProject: projects.find(p => p.key === component.key) !== undefined
+    });
+
+    return Promise.resolve();
+  };
 
   fetchAlmBindings = async () => {
     const { component, projectBinding } = this.props;
@@ -107,7 +128,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
       projectBinding,
       willRefreshAutomatically
     } = this.props;
-    const { almBinding, baseUrl, loading } = this.state;
+    const { almBinding, baseUrl, currentUserCanScanProject, loading } = this.state;
 
     const selectedTutorial: TutorialModes | undefined = location.query?.selectedTutorial;
 
@@ -117,6 +138,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
         baseUrl={baseUrl}
         component={component}
         currentUser={currentUser}
+        currentUserCanScanProject={currentUserCanScanProject}
         loading={loading}
         onSelectTutorial={this.handleSelectTutorial}
         projectBinding={projectBinding}

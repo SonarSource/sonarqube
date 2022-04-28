@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
+import { getScannableProjects } from '../../../api/components';
 import { getValues } from '../../../api/settings';
 import {
   mockAlmSettingsInstance,
@@ -29,6 +30,7 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLocation, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getHostUrl } from '../../../helpers/urls';
+import { Permissions } from '../../../types/permissions';
 import { SettingsKey } from '../../../types/settings';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
@@ -43,6 +45,10 @@ jest.mock('../../../api/alm-settings', () => ({
 
 jest.mock('../../../api/settings', () => ({
   getValues: jest.fn().mockResolvedValue([])
+}));
+
+jest.mock('../../../api/components', () => ({
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] })
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -107,6 +113,39 @@ it('should fetch the correct baseUrl', async () => {
   wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().baseUrl).toBe('http://host.url');
+});
+
+it("should correctly determine the user's permission", async () => {
+  const component = mockComponent({ key: 'bar', name: 'Bar' });
+  (getScannableProjects as jest.Mock)
+    .mockResolvedValueOnce({
+      projects: [
+        { key: 'foo', name: 'Foo' },
+        { key: component.key, name: component.name }
+      ]
+    })
+    .mockResolvedValueOnce({ projects: [{ key: 'foo', name: 'Foo' }] });
+
+  // Global scan permission.
+  let wrapper = shallowRender({
+    component,
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().currentUserCanScanProject).toBe(true);
+  expect(getScannableProjects).not.toBeCalled();
+
+  // Project scan permission.
+  wrapper = shallowRender({ component });
+  await waitAndUpdate(wrapper);
+  expect(getScannableProjects).toBeCalled();
+  expect(wrapper.state().currentUserCanScanProject).toBe(true);
+
+  // No scan permission.
+  wrapper = shallowRender({ component });
+  await waitAndUpdate(wrapper);
+  expect(getScannableProjects).toBeCalledTimes(2);
+  expect(wrapper.state().currentUserCanScanProject).toBe(false);
 });
 
 function shallowRender(props: Partial<TutorialSelection['props']> = {}) {

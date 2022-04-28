@@ -25,7 +25,7 @@ import { Button, DeleteButton, SubmitButton } from '../../../components/controls
 import Radio from '../../../components/controls/Radio';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate } from '../../../helpers/l10n';
-import { UserToken } from '../../../types/token';
+import { TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';
@@ -33,6 +33,7 @@ import { getUniqueTokenName } from '../utils';
 
 interface Props {
   currentUser: Pick<LoggedInUser, 'login'>;
+  projectKey: string;
   finished: boolean;
   initialTokenName?: string;
   open: boolean;
@@ -101,16 +102,25 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     this.setState({ tokenName: event.target.value });
   };
 
-  handleTokenGenerate = (event: React.FormEvent<HTMLFormElement>) => {
+  handleTokenGenerate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { tokenName } = this.state;
+    const { projectKey } = this.props;
+
     if (tokenName) {
       this.setState({ loading: true });
-      generateToken({ name: tokenName }).then(({ token }) => {
+      try {
+        const { token } = await generateToken({
+          name: tokenName,
+          type: TokenType.Project,
+          projectKey
+        });
         if (this.mounted) {
           this.setState({ loading: false, token });
         }
-      }, this.stopLoading);
+      } catch (e) {
+        this.stopLoading();
+      }
     }
   };
 
@@ -164,10 +174,10 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           checked={this.state.selection === 'generate'}
           onCheck={this.handleModeChange}
           value="generate">
-          {translate('onboarding.token.generate_token')}
+          {translate('onboarding.token.generate_project_token')}
         </Radio>
       ) : (
-        translate('onboarding.token.generate_token')
+        translate('onboarding.token.generate_project_token')
       )}
       {this.state.selection === 'generate' && (
         <div className="big-spacer-top">
@@ -176,7 +186,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
               autoFocus={true}
               className="input-super-large spacer-right text-middle"
               onChange={this.handleTokenNameChange}
-              placeholder={translate('onboarding.token.generate_token.placeholder')}
+              placeholder={translate('onboarding.token.generate_project_token.placeholder')}
               required={true}
               type="text"
               value={this.state.tokenName || ''}

@@ -27,6 +27,7 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import { getUniqueTokenName } from '../utils';
@@ -73,9 +74,16 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
   };
 
   getNewToken = async () => {
+    const {
+      component: { key }
+    } = this.props;
     const { tokenName } = this.state;
 
-    const { token } = await generateToken({ name: tokenName });
+    const { token } = await generateToken({
+      name: tokenName,
+      type: TokenType.Project,
+      projectKey: key
+    });
 
     if (this.mounted) {
       this.setState({
@@ -109,7 +117,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
   render() {
     const { loading, token, tokenName } = this.state;
 
-    const header = translate('onboarding.token.generate_token');
+    const header = translate('onboarding.token.generate_project_token');
 
     return (
       <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.props.onClose}>
@@ -122,8 +130,8 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
             <div className="modal-body">
               <p className="spacer-bottom">
                 <FormattedMessage
-                  defaultMessage={translate('onboarding.token.text')}
-                  id="onboarding.token.text"
+                  defaultMessage={translate('onboarding.project_token.text')}
+                  id="onboarding.project_token.text"
                   values={{
                     link: (
                       <Link target="_blank" to="/account/security">

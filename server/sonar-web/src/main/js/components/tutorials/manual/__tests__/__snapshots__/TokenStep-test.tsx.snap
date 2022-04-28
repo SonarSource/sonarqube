@@ -29,7 +29,7 @@ exports[`generates token 1`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_token
+            onboarding.token.generate_project_token
           </Radio>
           <div
             className="big-spacer-top"
@@ -41,7 +41,7 @@ exports[`generates token 1`] = `
                 autoFocus={true}
                 className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
-                placeholder="onboarding.token.generate_token.placeholder"
+                placeholder="onboarding.token.generate_project_token.placeholder"
                 required={true}
                 type="text"
                 value=""
@@ -121,7 +121,7 @@ exports[`generates token 2`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_token
+            onboarding.token.generate_project_token
           </Radio>
           <div
             className="big-spacer-top"
@@ -133,7 +133,7 @@ exports[`generates token 2`] = `
                 autoFocus={true}
                 className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
-                placeholder="onboarding.token.generate_token.placeholder"
+                placeholder="onboarding.token.generate_project_token.placeholder"
                 required={true}
                 type="text"
                 value="my token"
@@ -437,7 +437,7 @@ exports[`revokes token 3`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_token
+            onboarding.token.generate_project_token
           </Radio>
           <div
             className="big-spacer-top"
@@ -449,7 +449,7 @@ exports[`revokes token 3`] = `
                 autoFocus={true}
                 className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
-                placeholder="onboarding.token.generate_token.placeholder"
+                placeholder="onboarding.token.generate_project_token.placeholder"
                 required={true}
                 type="text"
                 value=""

@@ -74,6 +74,9 @@ it('should render correctly', () => {
       projectBinding: mockProjectAzureBindingResponse()
     })
   ).toMatchSnapshot('azure pipelines tutorial');
+  expect(shallowRender({ currentUserCanScanProject: false })).toMatchSnapshot(
+    'user has no scan permission'
+  );
 });
 
 it('should allow mode selection for Bitbucket', () => {
@@ -165,6 +168,7 @@ function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {
       baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
+      currentUserCanScanProject={true}
       loading={false}
       onSelectTutorial={jest.fn()}
       {...props}

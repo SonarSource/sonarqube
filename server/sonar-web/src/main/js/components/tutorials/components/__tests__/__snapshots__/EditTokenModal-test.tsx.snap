@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <SimpleModal
-  header="onboarding.token.generate_token"
+  header="onboarding.token.generate_project_token"
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
 >

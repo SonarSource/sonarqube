@@ -66,6 +66,7 @@ export default class ManualTutorial extends React.PureComponent<Props, State> {
 
         <TokenStep
           currentUser={currentUser}
+          projectKey={component.key}
           finished={Boolean(this.state.token)}
           initialTokenName={`Analyze "${component.name}"`}
           onContinue={this.handleTokenDone}
