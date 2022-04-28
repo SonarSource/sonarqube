@@ -71,9 +71,9 @@ public class RuleDescriptionFormatter {
       "Rule " + descriptionFormat + " contains section(s) but has no format set");
     switch (nonNullDescriptionFormat) {
       case MARKDOWN:
-        return Markdown.convertToHtml(ruleDescriptionSectionDto.getDescription());
+        return Markdown.convertToHtml(ruleDescriptionSectionDto.getContent());
       case HTML:
-        return ruleDescriptionSectionDto.getDescription();
+        return ruleDescriptionSectionDto.getContent();
       default:
         throw new IllegalStateException(format("Rule description section format '%s' is unknown for rule key '%s'", descriptionFormat, ruleKey));
     }

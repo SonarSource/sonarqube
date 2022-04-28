@@ -177,7 +177,7 @@ public class RuleCreator {
   }
 
   private static boolean noDescriptionSectionHasContent(NewCustomRule newRule) {
-    return newRule.getRuleDescriptionSections().stream().map(NewRuleDescriptionSection::getDescription).allMatch(Strings::isNullOrEmpty);
+    return newRule.getRuleDescriptionSections().stream().map(NewRuleDescriptionSection::getContent).allMatch(Strings::isNullOrEmpty);
   }
 
   private static void validateRuleKey(List<String> errors, String ruleKey) {
@@ -224,7 +224,7 @@ public class RuleCreator {
         RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
           .uuid(uuidFactory.create())
           .key(ruleDescriptionSection.getKey())
-          .description(ruleDescriptionSection.getDescription())
+          .content(ruleDescriptionSection.getContent())
           .build();
         ruleDefinition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
       }

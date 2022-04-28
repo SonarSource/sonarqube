@@ -340,7 +340,7 @@ public class RuleMapper {
 
   private static String concatenateSectionTemporaryForSonar16302(RuleDefinitionDto ruleDto) {
     return ruleDto.getRuleDescriptionSectionDtos().stream()
-      .map(RuleDescriptionSectionDto::getDescription)
+      .map(RuleDescriptionSectionDto::getContent)
       .collect(joining());
   }
 

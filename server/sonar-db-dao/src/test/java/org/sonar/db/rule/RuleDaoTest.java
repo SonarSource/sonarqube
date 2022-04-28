@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -547,7 +548,7 @@ public class RuleDaoTest {
     RuleDescriptionSectionDto newSection = RuleDescriptionSectionDto.builder()
       .uuid(randomAlphanumeric(20))
       .key("new_key")
-      .description(randomAlphanumeric(1000))
+      .content(randomAlphanumeric(1000))
       .build();
 
     rule.addRuleDescriptionSectionDto(newSection);
@@ -569,7 +570,7 @@ public class RuleDaoTest {
     RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
       .uuid(randomAlphanumeric(20))
       .key(existingSection.getKey())
-      .description(randomAlphanumeric(1000))
+      .content(randomAlphanumeric(1000))
       .build();
 
     rule.addOrReplaceRuleDescriptionSectionDto(replacingSection);
@@ -837,7 +838,7 @@ public class RuleDaoTest {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
       .key("DESC")
       .uuid("uuid")
-      .description("my description")
+      .content("my description")
       .build();
     RuleDefinitionDto r1 = db.rules().insert(r -> {
       r.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
@@ -846,11 +847,14 @@ public class RuleDaoTest {
 
     underTest.selectIndexingRules(db.getSession(), accumulator);
 
-    assertThat(accumulator.list)
+    RuleForIndexingDto firstRule = findRuleForIndexingWithUuid(accumulator, r1.getUuid());
+    RuleForIndexingDto secondRule = findRuleForIndexingWithUuid(accumulator, r2.getUuid());
+
+    assertThat(Arrays.asList(firstRule, secondRule))
       .extracting(RuleForIndexingDto::getUuid, RuleForIndexingDto::getRuleKey)
       .containsExactlyInAnyOrder(tuple(r1.getUuid(), r1.getKey()), tuple(r2.getUuid(), r2.getKey()));
     Iterator<RuleForIndexingDto> it = accumulator.list.iterator();
-    RuleForIndexingDto firstRule = it.next();
+
 
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
@@ -874,7 +878,6 @@ public class RuleDaoTest {
     assertThat(firstRule.getCreatedAt()).isEqualTo(r1.getCreatedAt());
     assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
 
-    RuleForIndexingDto secondRule = it.next();
     assertThat(secondRule.isExternal()).isTrue();
   }
 
@@ -888,8 +891,8 @@ public class RuleDaoTest {
     underTest.selectIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
-    RuleForIndexingDto firstRule = accumulator.list.get(0);
-    RuleForIndexingDto secondRule = accumulator.list.get(1);
+    RuleForIndexingDto firstRule = findRuleForIndexingWithUuid(accumulator, r1.getUuid());
+    RuleForIndexingDto secondRule = findRuleForIndexingWithUuid(accumulator, r2.getUuid());
 
     assertRuleDefinitionFieldsAreEquals(r1, firstRule);
     assertRuleMetadataFieldsAreEquals(r1Metadatas, firstRule);
@@ -898,6 +901,13 @@ public class RuleDaoTest {
     assertRuleDefinitionFieldsAreEquals(r2, secondRule);
     assertThat(secondRule.getTemplateRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
+  }
+
+  @NotNull
+  private static RuleForIndexingDto findRuleForIndexingWithUuid(Accumulator<RuleForIndexingDto> accumulator, String uuid) {
+    return accumulator.list.stream()
+      .filter(rule -> rule.getUuid().equals(uuid))
+      .findFirst().orElseThrow();
   }
 
 

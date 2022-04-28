@@ -17,23 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.db.rule;
 
-public class NewRuleDescriptionSection {
-  private final String key;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
 
-  private final String content;
+public class RuleDescriptionSectionDtoTest {
+  private static final RuleDescriptionSectionDto SECTION = RuleDescriptionSectionDto.builder()
+    .key("key")
+    .uuid("uuid")
+    .content("desc").build();
 
-  public NewRuleDescriptionSection(String key, String content) {
-    this.key = key;
-    this.content = content;
+  @Test
+  public void testEquals() {
+
+    Assertions.assertThat(RuleDescriptionSectionDto.builder()
+      .key("key")
+      .uuid("uuid")
+      .content("desc")
+      .build())
+      .isEqualTo(SECTION);
+
+    Assertions.assertThat(SECTION).isEqualTo(SECTION);
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public String getContent() {
-    return content;
+  @Test
+  public void testToString() {
+    Assertions.assertThat(SECTION).hasToString("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc']");
   }
 }

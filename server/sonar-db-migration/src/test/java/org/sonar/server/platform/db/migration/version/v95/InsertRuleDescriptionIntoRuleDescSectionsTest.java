@@ -96,12 +96,12 @@ public class InsertRuleDescriptionIntoRuleDescSectionsTest {
     assertThat(result1)
       .containsEntry("RULE_UUID", uuid1)
       .containsEntry("KEE", DEFAULT_DESCRIPTION_KEY)
-      .containsEntry("DESCRIPTION", description1)
+      .containsEntry("CONTENT", description1)
       .extractingByKey("UUID").isNotNull();
   }
 
   private Map<String, Object> findRuleSectionDescription(String uuid) {
-    return db.selectFirst("select uuid, kee, rule_uuid, description from "
+    return db.selectFirst("select uuid, kee, rule_uuid, content from "
       + RULE_DESCRIPTION_SECTIONS_TABLE + " where rule_uuid = '" + uuid + "'");
   }
 

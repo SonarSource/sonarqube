@@ -48,7 +48,7 @@ public class RuleDescriptionFormatterTest {
   public void getHtmlDescriptionAsIs() {
     RuleDefinitionDto rule = new RuleDefinitionDto().setDescriptionFormat(RuleDto.Format.HTML).addRuleDescriptionSectionDto(HTML_SECTION);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(html).isEqualTo(HTML_SECTION.getDescription());
+    assertThat(html).isEqualTo(HTML_SECTION.getContent());
   }
 
   @Test
@@ -69,10 +69,10 @@ public class RuleDescriptionFormatterTest {
   @Test
   public void getHtmlDescriptionForRuleForIndexingDtoAsIs() {
     Set<RuleDescriptionSectionDto> sectionsDtos = Sets.newHashSet(
-      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getDescription()));
+      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getContent()));
     RuleForIndexingDto rule = createRuleForIndexingDto(sectionsDtos, RuleDto.Format.HTML);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(html).isEqualTo(HTML_SECTION.getDescription());
+    assertThat(html).isEqualTo(HTML_SECTION.getContent());
   }
 
   @Test
@@ -85,7 +85,7 @@ public class RuleDescriptionFormatterTest {
   @Test
   public void handleNullDescriptionFormatForRuleForIndexingDto() {
     Set<RuleDescriptionSectionDto> sectionsDtos = Sets.newHashSet(
-      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getDescription()));
+      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getContent()));
     RuleForIndexingDto rule = createRuleForIndexingDto(sectionsDtos, null);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();

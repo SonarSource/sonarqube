@@ -42,7 +42,7 @@ public class CreateRuleDescSectionsTable extends CreateTableChange {
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(40).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(50).build())
-      .addColumn(newClobColumnDefBuilder().setColumnName("description").setIsNullable(false).build())
+      .addColumn(newClobColumnDefBuilder().setColumnName("content").setIsNullable(false).build())
       .build());
   }
 }

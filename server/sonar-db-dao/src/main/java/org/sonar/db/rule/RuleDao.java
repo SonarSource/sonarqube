@@ -159,7 +159,7 @@ public class RuleDao implements Dao {
     insertRuleDescriptionSectionDtos(ruleDefinitionDto, mapper);
   }
 
-  private void insertRuleDescriptionSectionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
+  private static void insertRuleDescriptionSectionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
     ruleDefinitionDto.getRuleDescriptionSectionDtos()
       .forEach(section -> mapper.insertRuleDescriptionSection(ruleDefinitionDto.getUuid(), section));
   }

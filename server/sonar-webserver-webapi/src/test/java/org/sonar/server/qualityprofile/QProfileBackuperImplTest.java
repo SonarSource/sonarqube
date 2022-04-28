@@ -166,8 +166,8 @@ public class QProfileBackuperImplTest {
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
-      "<description>" + rule.getDefaultRuleDescriptionSectionDto().getDescription() + "</description>" +
-      "<descriptionSections><descriptionSection><key>default</key><content>" + rule.getDefaultRuleDescriptionSectionDto().getDescription() + "</content></descriptionSection></descriptionSections>" +
+      "<description>" + rule.getDefaultRuleDescriptionSectionDto().getContent() + "</description>" +
+      "<descriptionSections><descriptionSection><key>default</key><content>" + rule.getDefaultRuleDescriptionSectionDto().getContent() + "</content></descriptionSection></descriptionSections>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +

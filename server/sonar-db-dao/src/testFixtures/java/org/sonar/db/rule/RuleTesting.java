@@ -75,6 +75,7 @@ public class RuleTesting {
   }
 
   public static RuleDefinitionDto newRuleWithoutDescriptionSection(RuleKey ruleKey) {
+    long currentTimeMillis = System.currentTimeMillis();
     return new RuleDefinitionDto()
       .setRepositoryKey(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -92,10 +93,11 @@ public class RuleTesting {
       .setLanguage("lang_" + randomAlphanumeric(3))
       .setGapDescription("gapDescription_" + randomAlphanumeric(5))
       .setDefRemediationBaseEffort(nextInt(10) + "h")
-      .setDefRemediationGapMultiplier(nextInt(10) + "h")
+      //voluntarily offset the remediation to be able to detect issues
+      .setDefRemediationGapMultiplier((nextInt(10) + 10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
-      .setCreatedAt(System.currentTimeMillis())
-      .setUpdatedAt(System.currentTimeMillis())
+      .setCreatedAt(currentTimeMillis)
+      .setUpdatedAt(currentTimeMillis + 5)
       .setScope(Scope.MAIN);
   }
 

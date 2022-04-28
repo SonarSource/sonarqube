@@ -72,7 +72,7 @@ public class CreateIndexForRuleDescSectionsTest {
     ruleParams.put("uuid", RandomStringUtils.randomAlphanumeric(40));
     ruleParams.put("rule_uuid", ruleUuid);
     ruleParams.put("kee", key);
-    ruleParams.put("description", "descriptions");
+    ruleParams.put("content", "content blablablabla");
 
     db.executeInsert("rule_desc_sections", ruleParams);
   }

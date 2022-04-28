@@ -422,7 +422,7 @@ public class CachingRuleFinderTest {
     assertThat(rule.getSeverity().name()).isEqualTo(ruleDefinition.getSeverityString());
     assertThat(rule.getSystemTags()).isEqualTo(ruleDefinition.getSystemTags().toArray(new String[0]));
     assertThat(rule.getTags()).isEmpty();
-    assertThat(rule.getDescription()).isEqualTo(ruleDefinition.getDefaultRuleDescriptionSectionDto().getDescription());
+    assertThat(rule.getDescription()).isEqualTo(ruleDefinition.getDefaultRuleDescriptionSectionDto().getContent());
 
     assertThat(rule.getParams()).hasSize(1);
     org.sonar.api.rules.RuleParam param = rule.getParams().iterator().next();

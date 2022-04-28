@@ -55,7 +55,7 @@ public class QProfileParser {
   private static final String ATTRIBUTE_DESCRIPTION_SECTIONS = "descriptionSections";
   private static final String ATTRIBUTE_DESCRIPTION_SECTION = "descriptionSection";
   private static final String ATTRIBUTE_DESCRIPTION_SECTION_KEY = "key";
-  private static final String ATTRIBUTE_DESCRIPTION_SECTION_DESCRIPTION = "content";
+  private static final String ATTRIBUTE_DESCRIPTION_SECTION_CONTENT = "content";
   private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
   private static final String ATTRIBUTE_KEY = "key";
   private static final String ATTRIBUTE_PRIORITY = "priority";
@@ -87,14 +87,14 @@ public class QProfileParser {
         xml.prop(ATTRIBUTE_TEMPLATE_KEY, ruleToExport.getTemplateRuleKey().rule());
         if (!ruleToExport.getRuleDescriptionSections().isEmpty()) {
           ruleToExport.getDefaultRuleDescriptionSectionDto()
-            .map(RuleDescriptionSectionDto::getDescription)
+            .map(RuleDescriptionSectionDto::getContent)
             .ifPresent(desc -> xml.prop(ATTRIBUTE_DESCRIPTION, desc));
         }
         xml.begin(ATTRIBUTE_DESCRIPTION_SECTIONS);
         for (RuleDescriptionSectionDto ruleDescriptionSection : ruleToExport.getRuleDescriptionSections()) {
           xml.begin(ATTRIBUTE_DESCRIPTION_SECTION)
             .prop(ATTRIBUTE_DESCRIPTION_SECTION_KEY, ruleDescriptionSection.getKey())
-            .prop(ATTRIBUTE_DESCRIPTION_SECTION_DESCRIPTION, ruleDescriptionSection.getDescription())
+            .prop(ATTRIBUTE_DESCRIPTION_SECTION_CONTENT, ruleDescriptionSection.getContent())
             .end();
         }
         xml.end(ATTRIBUTE_DESCRIPTION_SECTIONS);
@@ -234,7 +234,7 @@ public class QProfileParser {
         String nodeName = propCursor.getLocalName();
         if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTION_KEY, nodeName)) {
           key = StringUtils.trim(propCursor.collectDescendantText(false));
-        } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTION_DESCRIPTION, nodeName)) {
+        } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTION_CONTENT, nodeName)) {
           description = StringUtils.trim(propCursor.collectDescendantText(false));
         }
       }

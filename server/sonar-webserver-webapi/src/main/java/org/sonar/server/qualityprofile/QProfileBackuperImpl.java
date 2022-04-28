@@ -102,7 +102,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       importedRule.setType(exportRuleDto.getRuleType().name());
       exportRuleDto.getRuleDescriptionSections()
         .stream()
-        .map(r -> new NewRuleDescriptionSection(r.getKey(), r.getDescription()))
+        .map(r -> new NewRuleDescriptionSection(r.getKey(), r.getContent()))
         .forEach(importedRule::addRuleDescriptionSection);
       importedRule.setParameters(exportRuleDto.getParams().stream().collect(Collectors.toMap(ExportRuleParamDto::getKey, ExportRuleParamDto::getValue)));
       importedRules.add(importedRule);

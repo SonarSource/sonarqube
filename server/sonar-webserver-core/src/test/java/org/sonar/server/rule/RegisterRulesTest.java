@@ -49,6 +49,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
@@ -88,6 +89,7 @@ import static org.sonar.api.server.rule.RulesDefinition.NewRepository;
 import static org.sonar.api.server.rule.RulesDefinition.NewRule;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 @RunWith(DataProviderRunner.class)
@@ -140,7 +142,7 @@ public class RegisterRulesTest {
     assertThat(dbClient.ruleDao().selectAllDefinitions(db.getSession())).hasSize(3);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule1.getName()).isEqualTo("One");
-    assertThat(rule1.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Description of One");
+    assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(BLOCKER);
     assertThat(rule1.getTags()).isEmpty();
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
@@ -159,7 +161,7 @@ public class RegisterRulesTest {
 
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), HOTSPOT_RULE_KEY);
     assertThat(hotspotRule.getName()).isEqualTo("Hotspot");
-    assertThat(hotspotRule.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Minimal hotspot");
+    assertThat(hotspotRule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Minimal hotspot");
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
@@ -188,7 +190,7 @@ public class RegisterRulesTest {
     assertThat(dbClient.ruleDao().selectAllDefinitions(db.getSession())).hasSize(2);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), EXTERNAL_RULE_KEY1);
     assertThat(rule1.getName()).isEqualTo("One");
-    assertThat(rule1.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Description of One");
+    assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(BLOCKER);
     assertThat(rule1.getTags()).isEmpty();
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
@@ -207,7 +209,7 @@ public class RegisterRulesTest {
 
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), EXTERNAL_HOTSPOT_RULE_KEY);
     assertThat(hotspotRule.getName()).isEqualTo("Hotspot");
-    assertThat(hotspotRule.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Minimal hotspot");
+    assertThat(hotspotRule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Minimal hotspot");
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
@@ -334,18 +336,7 @@ public class RegisterRulesTest {
     verifyIndicesNotMarkedAsInitialized();
     // rule1 has been updated
     rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
-    assertThat(rule1.getName()).isEqualTo("One v2");
-    assertThat(rule1.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Description of One v2");
-    assertThat(rule1.getSeverityString()).isEqualTo(INFO);
-    assertThat(rule1.getTags()).containsOnly("usertag1", "usertag2");
-    assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
-    assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
-    assertThat(rule1.getNoteData()).isEqualTo("user *note*");
-    assertThat(rule1.getNoteUserUuid()).isEqualTo("marius");
-    assertThat(rule1.getStatus()).isEqualTo(READY);
-    assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
-    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
+    assertThatRule1IsV2(rule1);
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(db.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
@@ -368,6 +359,30 @@ public class RegisterRulesTest {
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
+
+    system.setNow(DATE3.getTime());
+    execute(new FakeRepositoryV3());
+    rule3 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY3);
+    assertThat(rule3.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Rule Three V2");
+    assertThat(rule3.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+  }
+
+  private void assertThatRule1IsV2(RuleDto rule1) {
+    assertThat(rule1.getName()).isEqualTo("One v2");
+    RuleDescriptionSectionDto defaultRuleDescriptionSection = rule1.getDefaultRuleDescriptionSection();
+    assertThat(defaultRuleDescriptionSection.getContent()).isEqualTo("Description of One v2");
+    assertThat(defaultRuleDescriptionSection.getKey()).isEqualTo(DEFAULT_KEY);
+    assertThat(rule1.getDescriptionFormat()).isEqualTo(RuleDto.Format.HTML);
+    assertThat(rule1.getSeverityString()).isEqualTo(INFO);
+    assertThat(rule1.getTags()).containsOnly("usertag1", "usertag2");
+    assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
+    assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
+    assertThat(rule1.getNoteData()).isEqualTo("user *note*");
+    assertThat(rule1.getNoteUserUuid()).isEqualTo("marius");
+    assertThat(rule1.getStatus()).isEqualTo(READY);
+    assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
   }
 
   @Test
@@ -449,7 +464,7 @@ public class RegisterRulesTest {
     // rule1 has been updated
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("fake", "rule"));
     assertThat(rule1.getName()).isEqualTo("Name2");
-    assertThat(rule1.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Description");
+    assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description");
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
@@ -528,7 +543,7 @@ public class RegisterRulesTest {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository, ruleKey2));
     assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo("Name2");
-    assertThat(rule2.getDefaultRuleDescriptionSection().getDescription()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getDescription());
+    assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
@@ -570,7 +585,7 @@ public class RegisterRulesTest {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository2, ruleKey));
     assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo("Name2");
-    assertThat(rule2.getDefaultRuleDescriptionSection().getDescription()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getDescription());
+    assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
@@ -610,7 +625,7 @@ public class RegisterRulesTest {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repo2, ruleKey2));
     assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo(rule1.getName());
-    assertThat(rule2.getDefaultRuleDescriptionSection().getDescription()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getDescription());
+    assertThat(rule2.getDefaultRuleDescriptionSection().getContent()).isEqualTo(rule1.getDefaultRuleDescriptionSection().getContent());
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
       .containsOnly(rule2.getUuid());
@@ -688,7 +703,7 @@ public class RegisterRulesTest {
     // rule1 has been updated
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("fake", "rule"));
     assertThat(rule1.getName()).isEqualTo("Name");
-    assertThat(rule1.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("Desc2");
+    assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Desc2");
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isZero();
@@ -702,7 +717,7 @@ public class RegisterRulesTest {
       NewRepository repo = context.createExternalRepository("fake", rule.getLanguage());
       repo.createRule(rule.getRuleKey())
         .setName(rule.getName())
-        .setHtmlDescription(rule.getDefaultRuleDescriptionSectionDto().getDescription());
+        .setHtmlDescription(rule.getDefaultRuleDescriptionSectionDto().getContent());
       repo.done();
     });
 
@@ -1095,6 +1110,19 @@ public class RegisterRulesTest {
       repo.createRule(RULE_KEY3.rule())
         .setName("Three")
         .setHtmlDescription("Rule Three");
+
+      repo.done();
+    }
+  }
+
+  static class FakeRepositoryV3 implements RulesDefinition {
+    @Override
+    public void define(Context context) {
+      NewRepository repo = context.createRepository("fake", "java");
+      // rule 3 is dropped
+      repo.createRule(RULE_KEY3.rule())
+        .setName("Three")
+        .setMarkdownDescription("Rule Three V2");
 
       repo.done();
     }

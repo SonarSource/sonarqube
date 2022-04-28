@@ -67,7 +67,7 @@ public class QProfileParserTest {
       "<priority>CRITICAL</priority>" +
       "<name>custom rule name</name>" +
       "<templateKey>rule_mc8</templateKey>" +
-      "<descriptionSections><descriptionSection><key>default</key><content>custom rule description</content></descriptionSection></descriptionSections>" +
+      "<descriptionSections><descriptionSection><key>default</key><content>custom rule section content</content></descriptionSection></descriptionSections>" +
       "<parameters><parameter>" +
       "<key>bar</key>" +
       "<value>baz</value>" +
@@ -81,6 +81,6 @@ public class QProfileParserTest {
     assertThat(importedRule.getRuleDescriptionSections()).hasSize(1);
     var section = importedRule.getRuleDescriptionSections().iterator().next();
     assertThat(section.getKey()).isEqualTo("default");
-    assertThat(section.getDescription()).isEqualTo("custom rule description");
+    assertThat(section.getContent()).isEqualTo("custom rule section content");
   }
 }

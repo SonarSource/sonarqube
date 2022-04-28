@@ -66,7 +66,7 @@ public class ListAction implements RulesWsAction {
     listResponseBuilder.build().writeTo(wsResponse.stream().output());
   }
 
-  private ListResponse.Rule toRule(ListResponse.Rule.Builder ruleBuilder, RuleDefinitionDto dto) {
+  private static ListResponse.Rule toRule(ListResponse.Rule.Builder ruleBuilder, RuleDefinitionDto dto) {
     return ruleBuilder
       .clear()
       .setRepository(dto.getRepositoryKey())

@@ -6,7 +6,7 @@
   <sql id="selectRuleDescriptionSectionColumns">
     rds.uuid as "rds_uuid",
     rds.kee as "rds_kee",
-    rds.description as "rds_description",
+    rds.content as "rds_content",
   </sql>
 
   <sql id="leftOuterJoinRulesDescriptionSections">
@@ -50,7 +50,7 @@
     <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
       <id property="uuid" column="rds_uuid"/>
       <result property="key" column="rds_kee"/>
-      <result property="description" column="rds_description" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+      <result property="content" column="rds_content" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     </collection>
 
   </resultMap>

@@ -29,12 +29,12 @@ public class RuleDescriptionSectionDto {
 
   private final String uuid;
   private final String key;
-  private final String description;
+  private final String content;
 
-  private RuleDescriptionSectionDto(String uuid, String key, String description) {
+  private RuleDescriptionSectionDto(String uuid, String key, String content) {
     this.uuid = uuid;
     this.key = key;
-    this.description = description;
+    this.content = content;
   }
 
   public String getUuid() {
@@ -45,15 +45,15 @@ public class RuleDescriptionSectionDto {
     return key;
   }
 
-  public String getDescription() {
-    return description;
+  public String getContent() {
+    return content;
   }
 
   public static RuleDescriptionSectionDto createDefaultRuleDescriptionSection(String uuid, String description) {
     return RuleDescriptionSectionDto.builder()
       .setDefault()
       .uuid(uuid)
-      .description(description)
+      .content(description)
       .build();
   }
 
@@ -70,7 +70,7 @@ public class RuleDescriptionSectionDto {
     return new StringJoiner(", ", RuleDescriptionSectionDto.class.getSimpleName() + "[", "]")
       .add("uuid='" + uuid + "'")
       .add("key='" + key + "'")
-      .add("description='" + description + "'")
+      .add("content='" + content + "'")
       .toString();
   }
 
@@ -83,18 +83,18 @@ public class RuleDescriptionSectionDto {
       return false;
     }
     RuleDescriptionSectionDto that = (RuleDescriptionSectionDto) o;
-    return Objects.equals(uuid, that.uuid) && Objects.equals(key, that.key) && Objects.equals(description, that.description);
+    return Objects.equals(uuid, that.uuid) && Objects.equals(key, that.key) && Objects.equals(content, that.content);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, key, description);
+    return Objects.hash(uuid, key, content);
   }
 
   public static final class RuleDescriptionSectionDtoBuilder {
     private String uuid;
     private String key = null;
-    private String description;
+    private String content;
 
     private RuleDescriptionSectionDtoBuilder() {
     }
@@ -116,13 +116,13 @@ public class RuleDescriptionSectionDto {
       return this;
     }
 
-    public RuleDescriptionSectionDtoBuilder description(String description) {
-      this.description = description;
+    public RuleDescriptionSectionDtoBuilder content(String content) {
+      this.content = content;
       return this;
     }
 
     public RuleDescriptionSectionDto build() {
-      return new RuleDescriptionSectionDto(uuid, key, description);
+      return new RuleDescriptionSectionDto(uuid, key, content);
     }
   }
 }

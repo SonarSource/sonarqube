@@ -36,7 +36,7 @@ public class InsertRuleDescriptionIntoRuleDescSections extends DataChange {
 
   private static final String SELECT_EXISTING_RULE_DESCRIPTIONS = "select uuid, description from rules where description is not null "
     + "and uuid not in (select rule_uuid from " + RULE_DESCRIPTION_SECTIONS_TABLE + ")";
-  private static final String INSERT_INTO_RULE_DESC_SECTIONS = "insert into " + RULE_DESCRIPTION_SECTIONS_TABLE + " (uuid, rule_uuid, kee, description) values "
+  private static final String INSERT_INTO_RULE_DESC_SECTIONS = "insert into " + RULE_DESCRIPTION_SECTIONS_TABLE + " (uuid, rule_uuid, kee, content) values "
     + "(?,?,?,?)";
 
   private final UuidFactory uuidFactory;
@@ -60,7 +60,7 @@ public class InsertRuleDescriptionIntoRuleDescSections extends DataChange {
     insertRuleDescSections(context, selectRuleDb);
   }
 
-  private List<RuleDb> findExistingRuleDescriptions(Context context) throws SQLException {
+  private static List<RuleDb> findExistingRuleDescriptions(Context context) throws SQLException {
     return context.prepareSelect(SELECT_EXISTING_RULE_DESCRIPTIONS)
       .list(r -> new RuleDb(r.getString(1), r.getString(2)));
   }

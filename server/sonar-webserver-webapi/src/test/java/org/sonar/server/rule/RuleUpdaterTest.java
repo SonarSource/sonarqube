@@ -367,7 +367,7 @@ public class RuleUpdaterTest {
     RuleDto customRuleReloaded = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
-    assertThat(customRuleReloaded.getDefaultRuleDescriptionSection().getDescription()).isEqualTo("New description");
+    assertThat(customRuleReloaded.getDefaultRuleDescriptionSection().getContent()).isEqualTo("New description");
     assertThat(customRuleReloaded.getSeverityString()).isEqualTo("MAJOR");
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
 
