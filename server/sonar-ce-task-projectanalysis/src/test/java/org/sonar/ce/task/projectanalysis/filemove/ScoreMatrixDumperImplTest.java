@@ -66,15 +66,13 @@ public class ScoreMatrixDumperImplTest {
   @After
   public void cleanUp() {
     try {
-      FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
-        @Override
-        public boolean accept(File file) {
-          if (file.getName().contains("score-matrix-")) {
-            file.delete();
-          }
-          return false;
+      Files.list(tempDir.toAbsolutePath()).filter(p -> p.getFileName().toString().contains("score-matrix-")).forEach((p) -> {
+        try {
+          Files.deleteIfExists(p);
+        } catch (Exception e) {
+          System.out.println("Could not delete file. Details: " + e.getMessage());
         }
-      }, null);
+      });
     } catch (Exception e) {
       System.out.println("Cleaning up temp directory failed. Details: " + e.getMessage());
     }
