@@ -142,14 +142,16 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
       .map(graph => graph[0].type);
   };
 
-  updateSelectedMetrics = (selectedMetrics: string[]) => {
-    saveActivityGraph(
-      PROJECT_ACTIVITY_GRAPH,
-      this.props.project,
-      GraphType.custom,
-      selectedMetrics
-    );
-    this.props.updateQuery({ customMetrics: selectedMetrics });
+  addCustomMetric = (metric: string) => {
+    const customMetrics = [...this.props.query.customMetrics, metric];
+    saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, GraphType.custom, customMetrics);
+    this.props.updateQuery({ customMetrics });
+  };
+
+  removeCustomMetric = (removedMetric: string) => {
+    const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
+    saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, GraphType.custom, customMetrics);
+    this.props.updateQuery({ customMetrics });
   };
 
   updateGraph = (graph: GraphType) => {
@@ -193,10 +195,12 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     return (
       <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
         <GraphsHeader
+          addCustomMetric={this.addCustomMetric}
           className="big-spacer-bottom"
           graph={query.graph}
           metrics={metrics}
           metricsTypeFilter={this.getMetricsTypeFilter()}
+          removeCustomMetric={this.removeCustomMetric}
           selectedMetrics={this.props.query.customMetrics}
           updateGraph={this.updateGraph}
         />
@@ -209,6 +213,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
           leakPeriodDate={leakPeriodDate}
           loading={loading}
           measuresHistory={this.props.measuresHistory}
+          removeCustomMetric={this.removeCustomMetric}
           selectedDate={this.props.query.selectedDate}
           series={series}
           updateGraphZoom={this.updateGraphZoom}
