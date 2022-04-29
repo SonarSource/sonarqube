@@ -75,6 +75,7 @@ import {
   areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
+  getOpenIssue,
   parseFacets,
   parseQuery,
   Query,
@@ -175,6 +176,18 @@ export default class App extends React.PureComponent<Props, State> {
     this.refreshBranchStatus = debounce(this.refreshBranchStatus, BRANCH_STATUS_REFRESH_INTERVAL);
   }
 
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const {
+      location: { query }
+    } = props;
+
+    return {
+      myIssues: areMyIssuesSelected(query),
+      query: parseQuery(query),
+      openIssue: getOpenIssue(props, state.issues)
+    };
+  }
+
   componentDidMount() {
     this.mounted = true;
 
@@ -189,33 +202,11 @@ export default class App extends React.PureComponent<Props, State> {
     this.fetchFirstIssues();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const { issues, selected } = this.state;
-    const openIssue = this.getOpenIssue(nextProps, issues);
-
-    if (openIssue && openIssue.key !== selected) {
-      this.setState({
-        locationsNavigator: false,
-        selected: openIssue.key,
-        selectedFlowIndex: undefined,
-        selectedLocationIndex: undefined
-      });
-    }
-
-    if (!openIssue) {
-      this.setState({ selectedFlowIndex: undefined, selectedLocationIndex: undefined });
-    }
-
-    this.setState({
-      myIssues: areMyIssuesSelected(nextProps.location.query),
-      openIssue,
-      query: parseQuery(nextProps.location.query)
-    });
-  }
-
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
+    const { openIssue } = this.state;
+
     if (
       prevProps.component !== this.props.component ||
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
@@ -231,6 +222,13 @@ export default class App extends React.PureComponent<Props, State> {
       // if user simply selected another issue
       // or if user went from the source code back to the list of issues
       this.scrollToSelectedIssue();
+    } else if (openIssue && openIssue.key !== this.state.selected) {
+      this.setState({
+        locationsNavigator: false,
+        selected: openIssue.key,
+        selectedFlowIndex: undefined,
+        selectedLocationIndex: undefined
+      });
     }
   }
 
@@ -307,11 +305,6 @@ export default class App extends React.PureComponent<Props, State> {
     const index = issues.findIndex(issue => issue.key === selected);
     return index !== -1 ? index : undefined;
   }
-
-  getOpenIssue = (props: Props, issues: Issue[]) => {
-    const open = getOpen(props.location.query);
-    return open ? issues.find(issue => issue.key === open) : undefined;
-  };
 
   selectNextIssue = () => {
     const { issues } = this.state;
@@ -477,7 +470,7 @@ export default class App extends React.PureComponent<Props, State> {
     return fetchPromise.then(
       ({ effortTotal, facets, issues, paging, ...other }) => {
         if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-          const openIssue = this.getOpenIssue(this.props, issues);
+          const openIssue = getOpenIssue(this.props, issues);
           let selected: string | undefined = undefined;
           if (issues.length > 0) {
             selected = openIssue ? openIssue.key : issues[0].key;
@@ -791,8 +784,7 @@ export default class App extends React.PureComponent<Props, State> {
   handleIssueChange = (issue: Issue) => {
     this.refreshBranchStatus();
     this.setState(state => ({
-      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate)),
-      openIssue: state.openIssue && state.openIssue.key === issue.key ? issue : state.openIssue
+      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
     }));
   };
 

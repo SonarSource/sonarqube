@@ -117,6 +117,11 @@ export function getOpen(query: RawQuery): string | undefined {
   return query.open;
 }
 
+export function getOpenIssue(props: { location: { query: RawQuery } }, issues: Issue[]) {
+  const open = getOpen(props.location.query);
+  return open ? issues.find(issue => issue.key === open) : undefined;
+}
+
 export const areMyIssuesSelected = (query: RawQuery) => query.myIssues === 'true';
 
 export function serializeQuery(query: Query): RawQuery {

@@ -546,15 +546,22 @@ it('should refresh branch status if issues are updated', async () => {
 });
 
 it('should update the open issue when it is changed', async () => {
+  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
+
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  wrapper.setState({ openIssue: ISSUES[0] });
+  const issue = wrapper.state().issues[0];
+  wrapper.setProps({ location: mockLocation({ query: { open: issue.key } }) });
+  await waitAndUpdate(wrapper);
 
-  const updatedIssue: Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
+  expect(wrapper.state().openIssue).toEqual(issue);
+
+  const updatedIssue: Issue = { ...issue, type: 'SECURITY_HOTSPOT' };
   wrapper.instance().handleIssueChange(updatedIssue);
 
-  expect(wrapper.state().openIssue).toBe(updatedIssue);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().openIssue).toEqual(updatedIssue);
 });
 
 it('should handle createAfter query param with time', async () => {
