@@ -29,4 +29,6 @@ export interface EnhancedWindow extends Window {
 
   registerExtension: (key: string, start: ExtensionStartMethod, providesCSSFile?: boolean) => void;
   setWebAnalyticsPageChangeHandler: (pageHandler: (pathname: string) => void) => void;
+  t: (...keys: string[]) => string;
+  tp: (messageKey: string, ...parameters: Array<string | number>) => string;
 }

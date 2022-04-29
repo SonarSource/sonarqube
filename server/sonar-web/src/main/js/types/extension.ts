@@ -21,7 +21,7 @@ import { IntlShape } from 'react-intl';
 import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from './appstate';
 import { L10nBundle } from './l10nBundle';
-import { Dict } from './types';
+import { Component, Dict } from './types';
 import { CurrentUser } from './users';
 
 export enum AdminPageExtension {
@@ -40,6 +40,7 @@ export interface ExtensionStartMethod {
 export interface ExtensionStartMethodParameter {
   appState: AppState;
   el: HTMLElement | undefined | null;
+  component?: Component;
   currentUser: CurrentUser;
   intl: IntlShape;
   location: Location;

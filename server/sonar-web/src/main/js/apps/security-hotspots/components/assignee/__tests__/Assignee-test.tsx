@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { assignSecurityHotspot } from '../../../../../api/security-hotspots';
-import { addGlobalSuccessMessage } from '../../../../../app/utils/globalMessagesService';
+import { addGlobalSuccessMessage } from '../../../../../helpers/globalMessages';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
@@ -33,7 +33,7 @@ jest.mock('../../../../../api/security-hotspots', () => ({
   assignSecurityHotspot: jest.fn()
 }));
 
-jest.mock('../../../../../app/utils/globalMessagesService', () => ({
+jest.mock('../../../../../helpers/globalMessages', () => ({
   addGlobalSuccessMessage: jest.fn()
 }));
 

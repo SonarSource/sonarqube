@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { logOut } from '../../../api/auth';
 import RecentHistory from '../../../app/components/RecentHistory';
-import { addGlobalErrorMessage } from '../../../app/utils/globalMessagesService';
+import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 

@@ -19,9 +19,9 @@
  */
 import styled from '@emotion/styled';
 import React from 'react';
+import { registerListener, unregisterListener } from '../../helpers/globalMessages';
 import { Message } from '../../types/globalMessages';
 import { zIndexes } from '../theme';
-import { registerListener, unregisterListener } from '../utils/globalMessagesService';
 import GlobalMessage from './GlobalMessage';
 
 const MESSAGE_DISPLAY_TIME = 5000;

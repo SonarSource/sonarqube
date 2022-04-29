@@ -25,7 +25,7 @@ import {
 } from '../../api/component-report';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { addGlobalSuccessMessage } from '../../app/utils/globalMessagesService';
+import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Branch } from '../../types/branch-like';

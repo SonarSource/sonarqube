@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../utils/globalMessagesService';
 
 it('should display messages', () => {
   jest.useFakeTimers();

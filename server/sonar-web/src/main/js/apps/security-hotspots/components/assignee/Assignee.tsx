@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { assignSecurityHotspot } from '../../../../api/security-hotspots';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
-import { addGlobalSuccessMessage } from '../../../../app/utils/globalMessagesService';
+import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { Hotspot, HotspotResolution, HotspotStatus } from '../../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn, UserActive } from '../../../../types/users';

@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {
-  addGlobalErrorMessage,
-  addGlobalSuccessMessage
-} from '../../../app/utils/globalMessagesService';
 import { Button } from '../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import Toggler from '../../../components/controls/Toggler';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';

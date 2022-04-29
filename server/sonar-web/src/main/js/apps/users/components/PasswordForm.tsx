@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { addGlobalSuccessMessage } from '../../../app/utils/globalMessagesService';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { throwGlobalError } from '../../../helpers/error';
+import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { User } from '../../../types/users';

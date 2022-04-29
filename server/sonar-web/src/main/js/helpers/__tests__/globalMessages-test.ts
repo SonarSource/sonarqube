@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MessageLevel } from '../../../types/globalMessages';
+import { MessageLevel } from '../../types/globalMessages';
 import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
   registerListener
-} from '../globalMessagesService';
+} from '../globalMessages';
 
 it('should work as expected', () => {
   const listener1 = jest.fn();

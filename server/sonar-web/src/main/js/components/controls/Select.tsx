@@ -22,9 +22,11 @@ import classNames from 'classnames';
 import { omit } from 'lodash';
 import * as React from 'react';
 import ReactSelect, {
+  components,
   GroupTypeBase,
   IndicatorProps,
   NamedProps,
+  OptionProps,
   OptionTypeBase,
   StylesConfig
 } from 'react-select';
@@ -93,6 +95,9 @@ export function multiValueRemove<
 >(props: MultiValueRemoveProps<Option, Group>) {
   return <div {...props.innerProps}>×</div>;
 }
+
+export type SelectOptionProps<T, IsMulti extends boolean> = OptionProps<T, IsMulti>;
+export const SelectOption = components.Option;
 
 /* Keeping it as a class to simplify a dozen tests */
 export default class Select<

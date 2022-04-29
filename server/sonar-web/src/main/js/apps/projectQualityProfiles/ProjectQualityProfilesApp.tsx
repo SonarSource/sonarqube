@@ -26,8 +26,8 @@ import {
   Profile,
   searchQualityProfiles
 } from '../../api/quality-profiles';
-import { addGlobalSuccessMessage } from '../../app/utils/globalMessagesService';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
+import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translateWithParameters } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
 import { Component } from '../../types/types';

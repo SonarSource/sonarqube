@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/components';
-import { addGlobalSuccessMessage } from '../../app/utils/globalMessagesService';
 import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../components/hoc/withRouter';
+import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isApplication, isPortfolioLike } from '../../types/component';
 import { Component } from '../../types/types';

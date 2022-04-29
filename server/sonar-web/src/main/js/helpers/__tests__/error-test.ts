@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { addGlobalErrorMessage } from '../../app/utils/globalMessagesService';
 import { throwGlobalError } from '../error';
+import { addGlobalErrorMessage } from '../globalMessages';
 
-jest.mock('../../app/utils/globalMessagesService', () => ({
+jest.mock('../../helpers/globalMessages', () => ({
   addGlobalErrorMessage: jest.fn()
 }));
 

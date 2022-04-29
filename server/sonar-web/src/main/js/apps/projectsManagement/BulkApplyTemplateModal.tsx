@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
-import { addGlobalErrorMessageFromAPI } from '../../app/utils/globalMessagesService';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
@@ -27,6 +26,7 @@ import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { toNotSoISOString } from '../../helpers/dates';
+import { addGlobalErrorMessageFromAPI } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { PermissionTemplate } from '../../types/types';
 

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { logOut } from '../../../../api/auth';
-import { addGlobalErrorMessage } from '../../../../app/utils/globalMessagesService';
+import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import Logout from '../Logout';
 
@@ -28,7 +28,7 @@ jest.mock('../../../../api/auth', () => ({
   logOut: jest.fn().mockResolvedValue(true)
 }));
 
-jest.mock('../../../../app/utils/globalMessagesService', () => ({
+jest.mock('../../../../helpers/globalMessages', () => ({
   addGlobalErrorMessage: jest.fn()
 }));
 

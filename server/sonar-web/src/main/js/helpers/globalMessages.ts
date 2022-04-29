@@ -19,8 +19,8 @@
  */
 
 import { uniqueId } from 'lodash';
-import { parseError } from '../../helpers/request';
-import { Message, MessageLevel } from '../../types/globalMessages';
+import { Message, MessageLevel } from '../types/globalMessages';
+import { parseError } from './request';
 
 const listeners: Array<(message: Message) => void> = [];
 
@@ -50,7 +50,7 @@ export function addGlobalErrorMessage(text: string) {
   addMessage(text, MessageLevel.Error);
 }
 
-export function addGlobalErrorMessageFromAPI(param: any) {
+export function addGlobalErrorMessageFromAPI(param: Response | string) {
   if (param instanceof Response) {
     return parseError(param).then(addGlobalErrorMessage, () => {
       /* ignore parsing errors */

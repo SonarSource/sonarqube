@@ -26,8 +26,8 @@ import {
   getGateForProject,
   searchProjects
 } from '../../api/quality-gates';
-import { addGlobalSuccessMessage } from '../../app/utils/globalMessagesService';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
+import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate } from '../../helpers/l10n';
 import { Component, QualityGate } from '../../types/types';
 import { USE_SYSTEM_DEFAULT } from './constants';
