@@ -51,7 +51,7 @@ git fetch --unshallow || true
 
 BUILD_START_DATETIME=$(date --utc +%FT%TZ)
 echo "$BUILD_START_DATETIME" > /tmp/build_start_time
-./gradlew build --no-daemon --console plain
+./gradlew build  --console plain
 
 # exclude external pull requests
 if [[ -n "${NEXT_TOKEN-}" ]]; then
@@ -65,7 +65,7 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
 
   if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo '======= Analyze pull request'
-    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --console plain \
       "${sonar_params[@]}" \
       -Dsonar.analysis.prNumber="$PULL_REQUEST_NUMBER" \
       -Dsonar.pullrequest.branch="$GIT_BRANCH" \
@@ -75,12 +75,12 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
       -Dsonar.pullrequest.github.repository="$TRAVIS_REPO_SLUG"
   elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     echo '======= Analyze master'
-    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --console plain \
       "${sonar_params[@]}" \
       -Dsonar.projectVersion="$INITIAL_VERSION"
   else
     echo '======= Analyze branch'
-    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --console plain \
       "${sonar_params[@]}" \
       -Dsonar.branch.name="$GIT_BRANCH" \
       -Dsonar.projectVersion="$INITIAL_VERSION"
