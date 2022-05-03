@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 import Breadcrumb from './Breadcrumb';
@@ -45,7 +45,7 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchBreadcrumbs();
-    this.attachShortcuts();
+    document.addEventListener('keydown', this.handleKeyDown);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -59,23 +59,19 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    this.detachShortcuts();
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  attachShortcuts() {
-    key('left', 'measures-files', () => {
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === KeyboardCodes.LeftArrow) {
+      event.preventDefault();
       const { breadcrumbs } = this.state;
       if (breadcrumbs.length > 1) {
         const idx = this.props.backToFirst ? 0 : breadcrumbs.length - 2;
         this.props.handleSelect(breadcrumbs[idx]);
       }
-      return false;
-    });
-  }
-
-  detachShortcuts() {
-    key.unbind('left', 'measures-files');
-  }
+    }
+  };
 
   fetchBreadcrumbs = () => {
     const { branchLike, component, rootComponent } = this.props;

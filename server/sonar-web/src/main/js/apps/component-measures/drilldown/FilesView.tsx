@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -58,8 +58,6 @@ interface State {
   showBestMeasures: boolean;
 }
 
-const keyScope = 'measures-files';
-
 export default class FilesView extends React.PureComponent<Props, State> {
   listContainer?: HTMLElement | null;
 
@@ -71,7 +69,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    this.attachShortcuts();
+    document.addEventListener('keydown', this.handleKeyDown);
     if (this.props.selectedComponent !== undefined) {
       this.scrollToElement();
     }
@@ -90,27 +88,21 @@ export default class FilesView extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    this.detachShortcuts();
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  attachShortcuts() {
-    key('up', keyScope, () => {
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === KeyboardCodes.UpArrow) {
+      event.preventDefault();
       this.selectPrevious();
-      return false;
-    });
-    key('down', keyScope, () => {
+    } else if (event.code === KeyboardCodes.DownArrow) {
+      event.preventDefault();
       this.selectNext();
-      return false;
-    });
-    key('right', keyScope, () => {
+    } else if (event.code === KeyboardCodes.RightArrow) {
+      event.preventDefault();
       this.openSelected();
-      return false;
-    });
-  }
-
-  detachShortcuts() {
-    ['up', 'down', 'right'].forEach(action => key.unbind(action, keyScope));
-  }
+    }
+  };
 
   getVisibleComponents = () => {
     const { components } = this.props;

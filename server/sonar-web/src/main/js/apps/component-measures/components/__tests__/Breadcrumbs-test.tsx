@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../../api/components';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { keydown, waitAndUpdate } from '../../../../helpers/testUtils';
 import Breadcrumbs from '../Breadcrumbs';
 
 jest.mock('../../../../api/components', () => ({
@@ -60,26 +61,32 @@ it('should display correctly for the list view', () => {
 });
 
 it('should display only the root component', () => {
-  const wrapper = mount(
-    <Breadcrumbs
-      backToFirst={false}
-      component={componentFoo}
-      handleSelect={() => {}}
-      rootComponent={componentFoo}
-    />
-  );
+  const wrapper = shallowRender({ component: componentFoo });
   expect(wrapper.state()).toMatchSnapshot();
 });
 
 it('should load the breadcrumb from the api', async () => {
-  const wrapper = mount(
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(getBreadcrumbs).toHaveBeenCalled();
+});
+
+it('should correctly handle keyboard action', async () => {
+  const handleSelect = jest.fn();
+  const wrapper = shallowRender({ handleSelect });
+  await waitAndUpdate(wrapper);
+  keydown({ code: KeyboardCodes.LeftArrow });
+  expect(handleSelect).toHaveBeenCalled();
+});
+
+function shallowRender(props: Partial<Breadcrumbs['props']> = {}) {
+  return shallow<Breadcrumbs>(
     <Breadcrumbs
       backToFirst={false}
       component={componentBar}
       handleSelect={() => {}}
       rootComponent={componentFoo}
+      {...props}
     />
   );
-  await waitAndUpdate(wrapper);
-  expect(getBreadcrumbs).toHaveBeenCalled();
-});
+}

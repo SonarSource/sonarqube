@@ -19,6 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { mockMetric } from '../../../../helpers/testMocks';
+import { keydown } from '../../../../helpers/testUtils';
 import FilesView from '../FilesView';
 
 const COMPONENTS = [
@@ -33,17 +36,17 @@ const COMPONENTS = [
 const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
 
 it('should renders correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render with best values hidden', () => {
   expect(
-    getWrapper({
+    shallowRender({
       components: [
         ...COMPONENTS,
         {
           key: 'bar',
-          measures: [{ bestValue: true, metric: { key: 'coverage' } }],
+          measures: [{ bestValue: true, metric: mockMetric({ key: 'coverage' }) }],
           name: 'Bar',
           qualifier: 'TRK'
         }
@@ -52,8 +55,49 @@ it('should render with best values hidden', () => {
   ).toMatchSnapshot();
 });
 
-function getWrapper(props = {}) {
-  return shallow(
+it('should correctly bind key events for file navigation', () => {
+  const handleSelect = jest.fn();
+  const handleOpen = jest.fn();
+  const FILES = [
+    {
+      key: 'foo',
+      measures: [],
+      name: 'Foo',
+      qualifier: 'TRK'
+    },
+    {
+      key: 'bar',
+      measures: [],
+      name: 'Bar',
+      qualifier: 'TRK'
+    },
+    {
+      key: 'yoo',
+      measures: [],
+      name: 'Yoo',
+      qualifier: 'TRK'
+    }
+  ];
+
+  shallowRender({
+    handleSelect,
+    handleOpen,
+    selectedComponent: FILES[0],
+    components: FILES
+  });
+
+  keydown({ code: KeyboardCodes.DownArrow });
+  expect(handleSelect).toBeCalledWith(FILES[0]);
+
+  keydown({ code: KeyboardCodes.UpArrow });
+  expect(handleSelect).toBeCalledWith(FILES[2]);
+
+  keydown({ code: KeyboardCodes.RightArrow });
+  expect(handleOpen).toBeCalled();
+});
+
+function shallowRender(props: Partial<FilesView['props']> = {}) {
+  return shallow<FilesView>(
     <FilesView
       components={COMPONENTS}
       defaultShowBestMeasures={false}

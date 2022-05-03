@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import key from 'keymaster';
 import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -104,7 +103,6 @@ export class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    key.setScope('measures-files');
     getAllMetrics().then(
       metrics => {
         const byKey = keyBy(metrics, 'key');
@@ -137,7 +135,6 @@ export class App extends React.PureComponent<Props, State> {
     this.mounted = false;
     removeWhitePageClass();
     removeSideBarClass();
-    key.deleteScope('measures-files');
   }
 
   fetchMeasures(metrics: State['metrics']) {
