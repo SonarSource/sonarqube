@@ -36,18 +36,15 @@ exports[`should render correctly 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <DeferredSpinner
-      loading={false}
-    >
-      <i
-        className="deferred-spinner-placeholder"
-      />
-    </DeferredSpinner>
     <Button
-      className="button-red input-small spacer-left"
+      className="button-red input-small"
       disabled={false}
       onClick={[Function]}
     >
+      <DeferredSpinner
+        className="little-spacer-right"
+        loading={false}
+      />
       users.tokens.revoke
     </Button>
   </td>
@@ -90,13 +87,6 @@ exports[`should render correctly 2`] = `
   <td
     className="thin nowrap text-right"
   >
-    <DeferredSpinner
-      loading={false}
-    >
-      <i
-        className="deferred-spinner-placeholder"
-      />
-    </DeferredSpinner>
     <ConfirmButton
       confirmButtonText="users.tokens.revoke_token"
       isDestructive={true}
@@ -124,20 +114,28 @@ exports[`should render correctly 2`] = `
 
 exports[`should revoke the token using inline confirmation 1`] = `
 <Button
-  className="button-red input-small spacer-left"
+  className="button-red input-small"
   disabled={false}
   onClick={[Function]}
 >
+  <DeferredSpinner
+    className="little-spacer-right"
+    loading={false}
+  />
   users.tokens.revoke
 </Button>
 `;
 
 exports[`should revoke the token using inline confirmation 2`] = `
 <Button
-  className="button-red input-small spacer-left"
+  className="button-red input-small"
   disabled={false}
   onClick={[Function]}
 >
+  <DeferredSpinner
+    className="little-spacer-right"
+    loading={false}
+  />
   users.tokens.sure
 </Button>
 `;

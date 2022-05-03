@@ -99,9 +99,6 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           <DateFormatter date={token.createdAt} long={true} />
         </td>
         <td className="thin nowrap text-right">
-          <DeferredSpinner loading={loading}>
-            <i className="deferred-spinner-placeholder" />
-          </DeferredSpinner>
           {deleteConfirmation === 'modal' ? (
             <ConfirmButton
               confirmButtonText={translate('users.tokens.revoke_token')}
@@ -117,7 +114,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
               onConfirm={this.handleRevoke}>
               {({ onClick }) => (
                 <Button
-                  className="spacer-left button-red input-small"
+                  className="button-red input-small"
                   disabled={loading}
                   onClick={onClick}
                   title={translate('users.tokens.revoke_token')}>
@@ -127,9 +124,10 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
             </ConfirmButton>
           ) : (
             <Button
-              className="button-red input-small spacer-left"
+              className="button-red input-small"
               disabled={loading}
               onClick={this.handleClick}>
+              <DeferredSpinner className="little-spacer-right" loading={loading} />
               {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
             </Button>
           )}
