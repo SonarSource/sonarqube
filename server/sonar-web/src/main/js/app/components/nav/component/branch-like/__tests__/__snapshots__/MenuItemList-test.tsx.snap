@@ -64,45 +64,6 @@ exports[`should render correctly 1`] = `
         "analysisDate": "2018-01-01",
         "base": "master",
         "branch": "feature/foo/bar",
-        "key": "1",
-        "target": "master",
-        "title": "PR-1",
-      }
-    }
-    component={
-      Object {
-        "breadcrumbs": Array [],
-        "key": "my-project",
-        "name": "MyProject",
-        "qualifier": "TRK",
-        "qualityGate": Object {
-          "isDefault": true,
-          "key": "30",
-          "name": "Sonar way",
-        },
-        "qualityProfiles": Array [
-          Object {
-            "deleted": false,
-            "key": "my-qp",
-            "language": "ts",
-            "name": "Sonar way",
-          },
-        ],
-        "tags": Array [],
-      }
-    }
-    indent={true}
-    key="pull-request-1"
-    onSelect={[MockFunction]}
-    selected={false}
-    setSelectedNode={[Function]}
-  />
-  <Memo(MenuItem)
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "base": "master",
-        "branch": "feature/foo/bar",
         "key": "2",
         "target": "master",
         "title": "PR-2",
@@ -132,6 +93,45 @@ exports[`should render correctly 1`] = `
     }
     indent={true}
     key="pull-request-2"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "base": "master",
+        "branch": "feature/foo/bar",
+        "key": "1",
+        "target": "master",
+        "title": "PR-1",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    indent={true}
+    key="pull-request-1"
     onSelect={[MockFunction]}
     selected={false}
     setSelectedNode={[Function]}

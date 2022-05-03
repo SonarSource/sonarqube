@@ -87,7 +87,9 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
     branchLikes.filter(isBranch).filter(b => !isMainBranch(b)),
     b => b.name
   );
-  const pullRequests = orderBy(branchLikes.filter(isPullRequest), b => b.key);
+  const pullRequests = orderBy(branchLikes.filter(isPullRequest), b => parseInt(b.key, 10), [
+    'desc'
+  ]);
   const parentlessPullRequests = pullRequests.filter(
     pr => !pr.isOrphan && ![mainBranch, ...branches].find(b => !!b && b.name === pr.base)
   );

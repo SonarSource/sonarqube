@@ -28,16 +28,16 @@ describe('#getBrancheLikesAsTree', () => {
     const branch3 = mockBranch({ name: 'branch-3' });
     const branch4 = mockBranch({ name: 'branch-4' });
 
-    const mainPr1 = mockPullRequest({ base: main.name, key: 'PR1' });
-    const mainPr2 = mockPullRequest({ base: main.name, key: 'PR2' });
-    const llb1Pr1 = mockPullRequest({ base: branch1.name, key: 'PR1' });
-    const llb1Pr2 = mockPullRequest({ base: branch1.name, key: 'PR2' });
-    const llb2Pr1 = mockPullRequest({ base: branch2.name, key: 'PR1' });
-    const llb2Pr2 = mockPullRequest({ base: branch2.name, key: 'PR1' });
-    const orphanPR1 = mockPullRequest({ isOrphan: true, key: 'PR1' });
-    const orphanPR2 = mockPullRequest({ isOrphan: true, key: 'PR2' });
-    const parentlessPR1 = mockPullRequest({ base: 'not_present_branch_1', key: 'PR1' });
-    const parentlessPR2 = mockPullRequest({ base: 'not_present_branch_2', key: 'PR2' });
+    const mainPr1 = mockPullRequest({ base: main.name, key: '1' });
+    const mainPr2 = mockPullRequest({ base: main.name, key: '2' });
+    const branch1Pr1 = mockPullRequest({ base: branch1.name, key: '3' });
+    const branch1Pr2 = mockPullRequest({ base: branch1.name, key: '4' });
+    const branch2Pr1 = mockPullRequest({ base: branch2.name, key: '5' });
+    const branch2Pr2 = mockPullRequest({ base: branch2.name, key: '6' });
+    const orphanPR1 = mockPullRequest({ isOrphan: true, key: '7' });
+    const orphanPR2 = mockPullRequest({ isOrphan: true, key: '8' });
+    const parentlessPR1 = mockPullRequest({ base: 'not_present_branch_1', key: '9' });
+    const parentlessPR2 = mockPullRequest({ base: 'not_present_branch_2', key: '10' });
 
     expect(
       getBrancheLikesAsTree([
@@ -52,24 +52,24 @@ describe('#getBrancheLikesAsTree', () => {
         mainPr1,
         parentlessPR2,
         parentlessPR1,
-        llb2Pr2,
-        llb2Pr1,
-        llb1Pr2,
-        llb1Pr1
+        branch2Pr2,
+        branch2Pr1,
+        branch1Pr2,
+        branch1Pr1
       ])
     ).toEqual({
       mainBranchTree: {
         branch: main,
-        pullRequests: [mainPr1, mainPr2]
+        pullRequests: [mainPr2, mainPr1]
       },
       branchTree: [
-        { branch: branch1, pullRequests: [llb1Pr1, llb1Pr2] },
-        { branch: branch2, pullRequests: [llb2Pr1, llb2Pr1] },
+        { branch: branch1, pullRequests: [branch1Pr2, branch1Pr1] },
+        { branch: branch2, pullRequests: [branch2Pr2, branch2Pr1] },
         { branch: branch3, pullRequests: [] },
         { branch: branch4, pullRequests: [] }
       ],
-      parentlessPullRequests: [parentlessPR1, parentlessPR2],
-      orphanPullRequests: [orphanPR1, orphanPR2]
+      parentlessPullRequests: [parentlessPR2, parentlessPR1],
+      orphanPullRequests: [orphanPR2, orphanPR1]
     });
   });
 });

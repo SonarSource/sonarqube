@@ -94,7 +94,7 @@ it('should handle keyboard shortcut correctly', () => {
   const { onKeyDown } = wrapper.find(SearchBox).props();
 
   onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
-  expect(wrapper.state().selectedBranchLike).toBe(branchLikes[5]);
+  expect(wrapper.state().selectedBranchLike).toBe(branchLikes[3]);
 
   onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
   onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
