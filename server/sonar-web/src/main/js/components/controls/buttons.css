@@ -320,3 +320,7 @@
 .no-select {
   user-select: none !important;
 }
+
+a[download].button.disabled {
+  pointer-events: none;
+}

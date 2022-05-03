@@ -329,7 +329,8 @@ export class Menu extends React.PureComponent<Props> {
       this.renderBackgroundTasksLink(query),
       this.renderUpdateKeyLink(query),
       this.renderWebhooksLink(query, isProject),
-      this.renderDeletionLink(query)
+      this.renderDeletionLink(query),
+      this.renderRegulatoryReport(query)
     ];
   };
 
@@ -536,6 +537,19 @@ export class Menu extends React.PureComponent<Props> {
       <li key="project_delete">
         <Link activeClassName="active" to={{ pathname: '/project/deletion', query }}>
           {translate('deletion.page')}
+        </Link>
+      </li>
+    );
+  };
+
+  renderRegulatoryReport = (query: Query) => {
+    if (!this.props.appState.regulatoryReportFeatureEnabled) {
+      return null;
+    }
+    return (
+      <li key="project_regulatory_report">
+        <Link activeClassName="active" to={{ pathname: '/project/regulatory-report', query }}>
+          {translate('regulatory_report.page')}
         </Link>
       </li>
     );

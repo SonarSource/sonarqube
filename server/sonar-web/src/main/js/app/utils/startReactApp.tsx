@@ -240,6 +240,12 @@ function renderComponentRoutes() {
           component={lazyLoadComponent(() => import('../../apps/projectDeletion/App'))}
         />
         <Route
+          path="project/regulatory-report"
+          component={lazyLoadComponent(() =>
+            import('../../apps/projectRegulatoryReport/RegulatoryReport')
+          )}
+        />
+        <Route
           path="project/links"
           component={lazyLoadComponent(() => import('../../apps/projectLinks/App'))}
         />

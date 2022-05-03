@@ -17,27 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getBaseUrl } from '../helpers/system';
 
-import { EditionKey } from './editions';
-import { GlobalSettingKeys } from './settings';
-import { Extension } from './types';
-
-export interface AppState {
-  authenticationError?: boolean;
-  authorizationError?: boolean;
-  branchesEnabled?: boolean;
-  canAdmin?: boolean;
-  edition?: EditionKey;
-  globalPages?: Extension[];
-  projectImportFeatureEnabled?: boolean;
-  instanceUsesDefaultAdminCredentials?: boolean;
-  multipleAlmEnabled?: boolean;
-  needIssueSync?: boolean;
-  productionDatabase: boolean;
-  qualifiers: string[];
-  settings: { [key in GlobalSettingKeys]?: string };
-  standalone?: boolean;
-  version: string;
-  webAnalyticsJsPath?: string;
-  regulatoryReportFeatureEnabled?: boolean;
+export function getRegulatoryReportUrl(project: string, branch?: string): string {
+  const params = new URLSearchParams({ project });
+  if (branch) {
+    params.append('branch', branch);
+  }
+  return `${getBaseUrl()}/api/regulatory_reports/download?${params.toString()}`;
 }
