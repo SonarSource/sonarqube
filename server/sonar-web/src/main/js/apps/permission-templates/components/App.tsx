@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getPermissionTemplates } from '../../../api/permissions';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Permission, PermissionTemplate } from '../../../types/types';

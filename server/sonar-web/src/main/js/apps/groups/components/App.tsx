@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createGroup, deleteGroup, searchUsersGroups, updateGroup } from '../../../api/user_groups';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
 import { Group, Paging } from '../../../types/types';

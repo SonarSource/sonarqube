@@ -20,8 +20,8 @@
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';

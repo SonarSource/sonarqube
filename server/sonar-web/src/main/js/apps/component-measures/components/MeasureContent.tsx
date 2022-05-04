@@ -21,7 +21,7 @@ import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';

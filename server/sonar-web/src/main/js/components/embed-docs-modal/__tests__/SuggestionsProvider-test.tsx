@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
 import SuggestionsProvider from '../SuggestionsProvider';
 
 jest.mock(
@@ -34,10 +33,7 @@ jest.mock(
   { virtual: true }
 );
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
 it('should add & remove suggestions', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
   const wrapper = shallow<SuggestionsProvider>(
     <SuggestionsProvider>
       <div />
@@ -57,21 +53,4 @@ it('should add & remove suggestions', () => {
 
   instance.removeSuggestions('pageA');
   expect(wrapper.state('suggestions')).toEqual([{ link: '/qux', text: 'Qux' }]);
-});
-
-it('should show sonarcloud pages', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  const wrapper = shallow<SuggestionsProvider>(
-    <SuggestionsProvider>
-      <div />
-    </SuggestionsProvider>
-  );
-  const instance = wrapper.instance();
-  expect(wrapper.state('suggestions')).toEqual([]);
-
-  instance.addSuggestions('pageA');
-  expect(wrapper.state('suggestions')).toEqual([
-    { link: '/foo', text: 'Foo' },
-    { link: '/bar', text: 'Bar', scope: 'sonarcloud' }
-  ]);
 });

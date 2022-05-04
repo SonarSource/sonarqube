@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import '../styles.css';

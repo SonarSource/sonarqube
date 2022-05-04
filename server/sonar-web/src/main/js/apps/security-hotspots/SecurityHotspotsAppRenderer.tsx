@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
-import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
+import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { isBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';

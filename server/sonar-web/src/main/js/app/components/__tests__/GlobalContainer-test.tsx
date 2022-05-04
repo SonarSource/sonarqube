@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockLocation } from '../../../helpers/testMocks';
 import GlobalContainer, { Props } from '../GlobalContainer';
 
-jest.mock('../embed-docs-modal/SuggestionsProvider', () => {
+jest.mock('../../../components/embed-docs-modal/SuggestionsProvider', () => {
   class SuggestionsProvider extends React.Component {
     render() {
       return this.props.children;

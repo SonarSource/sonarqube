@@ -27,7 +27,7 @@ import {
   getStatus,
   getTypes
 } from '../../../api/ce';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';

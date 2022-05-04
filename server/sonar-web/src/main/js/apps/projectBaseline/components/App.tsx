@@ -22,7 +22,7 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';

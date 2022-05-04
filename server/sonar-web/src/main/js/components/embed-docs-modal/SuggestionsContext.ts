@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { createContext } from 'react';
-import { SuggestionLink } from '../../../types/types';
+import { SuggestionLink } from '../../types/types';
 
 interface SuggestionsContextShape {
   addSuggestions: (key: string) => void;
@@ -27,7 +27,11 @@ interface SuggestionsContextShape {
 }
 
 export const SuggestionsContext = createContext<SuggestionsContextShape>({
-  addSuggestions: () => {},
-  removeSuggestions: () => {},
+  addSuggestions: () => {
+    /* Implemented by Provider */
+  },
+  removeSuggestions: () => {
+    /* Implemented by Provider */
+  },
   suggestions: []
 });

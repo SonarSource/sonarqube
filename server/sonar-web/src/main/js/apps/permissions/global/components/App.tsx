@@ -21,7 +21,7 @@ import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
-import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
 import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';

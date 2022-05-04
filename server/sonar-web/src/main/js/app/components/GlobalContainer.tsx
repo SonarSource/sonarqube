@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import A11yProvider from '../../components/a11y/A11yProvider';
+import A11ySkipLinks from '../../components/a11y/A11ySkipLinks';
+import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
 import Workspace from '../../components/workspace/Workspace';
-import A11yProvider from './a11y/A11yProvider';
-import A11ySkipLinks from './a11y/A11ySkipLinks';
 import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
-import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import GlobalFooter from './GlobalFooter';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';

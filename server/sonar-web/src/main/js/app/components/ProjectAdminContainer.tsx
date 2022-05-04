@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import { BranchLike } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import A11ySkipTarget from './a11y/A11ySkipTarget';
 
 interface Props {
   children: JSX.Element;

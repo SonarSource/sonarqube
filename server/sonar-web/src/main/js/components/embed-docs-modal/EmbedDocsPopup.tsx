@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { SuggestionLink } from '../../../types/types';
+import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/system';
+import { SuggestionLink } from '../../types/types';
+import { DropdownOverlay } from '../controls/Dropdown';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {

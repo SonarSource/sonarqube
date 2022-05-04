@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import EmbedDocsPopupHelper from '../../../../components/embed-docs-modal/EmbedDocsPopupHelper';
 import NavBar from '../../../../components/ui/NavBar';
 import { CurrentUser } from '../../../../types/users';
 import { rawSizes } from '../../../theme';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
-import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import Search from '../../search/Search';
 import './GlobalNav.css';
 import GlobalNavBranding from './GlobalNavBranding';

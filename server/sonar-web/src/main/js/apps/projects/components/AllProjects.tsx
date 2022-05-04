@@ -20,12 +20,12 @@
 import { omitBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';

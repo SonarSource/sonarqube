@@ -19,6 +19,7 @@
  */
 import { FormattedMessage } from 'react-intl';
 import NotFound from '../../../app/components/NotFound';
+import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import DonutChart from '../../../components/charts/DonutChart';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
@@ -45,6 +46,7 @@ import Select, { SearchSelect } from '../../../components/controls/Select';
 import SelectList, { SelectListFilter } from '../../../components/controls/SelectList';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import Tooltip from '../../../components/controls/Tooltip';
+import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
@@ -118,8 +120,6 @@ import {
   getMeasureHistoryUrl,
   getRulesUrl
 } from '../../../helpers/urls';
-import A11ySkipTarget from '../a11y/A11ySkipTarget';
-import Suggestions from '../embed-docs-modal/Suggestions';
 
 const exposeLibraries = () => {
   const global = window as any;

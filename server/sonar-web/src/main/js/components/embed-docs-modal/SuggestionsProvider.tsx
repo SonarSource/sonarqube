@@ -19,8 +19,7 @@
  */
 import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import * as React from 'react';
-import { isSonarCloud } from '../../../helpers/system';
-import { Dict, SuggestionLink } from '../../../types/types';
+import { Dict, SuggestionLink } from '../../types/types';
 import { SuggestionsContext } from './SuggestionsContext';
 
 type SuggestionsJson = Dict<SuggestionLink[]>;
@@ -41,9 +40,9 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
         suggestions = [...jsonList[key], ...suggestions];
       }
     });
-    if (!isSonarCloud()) {
-      suggestions = suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
-    }
+
+    suggestions = suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
+
     this.setState({ suggestions });
   };
 

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageActions from '../../../components/ui/PageActions';

@@ -29,7 +29,7 @@ import {
   getPluginUpdates
 } from '../../api/plugins';
 import { getValues, setSimpleSettingValue } from '../../api/settings';
-import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
