@@ -19,12 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.Collections.unmodifiableSet;
 
 @Immutable
 public class QualityGate {
@@ -32,10 +33,10 @@ public class QualityGate {
   private final String name;
   private final Set<Condition> conditions;
 
-  public QualityGate(String uuid, String name, Iterable<Condition> conditions) {
+  public QualityGate(String uuid, String name, Collection<Condition> conditions) {
     this.uuid = uuid;
     this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
+    this.conditions = unmodifiableSet(new LinkedHashSet<>(conditions));
   }
 
   public String getUuid() {

@@ -57,80 +57,22 @@ public class QualityGateServiceImplTest {
 
   private final QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private final QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
-  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
   private final MetricRepository metricRepository = mock(MetricRepository.class);
   private final DbClient dbClient = mock(DbClient.class);
-  private final QualityGateServiceImpl underTest = new QualityGateServiceImpl(dbClient, metricRepository);
+  private final QualityGateService underTest = new QualityGateServiceImpl(dbClient, metricRepository);
 
   @Before
   public void setUp() {
     when(dbClient.qualityGateDao()).thenReturn(qualityGateDao);
     when(dbClient.gateConditionDao()).thenReturn(qualityGateConditionDao);
-    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
 
     when(METRIC_1.getKey()).thenReturn("metric");
     when(METRIC_2.getKey()).thenReturn("new_metric");
   }
 
   @Test
-  public void findById_returns_absent_when_QualityGateDto_does_not_exist() {
-    assertThat(underTest.findByUuid(SOME_UUID)).isNotPresent();
-  }
-
-  @Test
-  public void findById_returns_QualityGate_with_empty_set_of_conditions_when_there_is_none_in_DB() {
-    when(qualityGateDao.selectByUuid(any(), eq(SOME_UUID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(Collections.emptyList());
-
-    Optional<QualityGate> res = underTest.findByUuid(SOME_UUID);
-
-    assertThat(res).isPresent();
-    assertThat(res.get().getUuid()).isEqualTo(SOME_UUID);
-    assertThat(res.get().getName()).isEqualTo(SOME_NAME);
-    assertThat(res.get().getConditions()).isEmpty();
-  }
-
-  @Test
-  public void findById_returns_conditions_when_there_is_some_in_DB() {
-    when(qualityGateDao.selectByUuid(any(), eq(SOME_UUID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
-    // metrics are always supposed to be there
-    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.of(METRIC_1));
-    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
-
-    Optional<QualityGate> res = underTest.findByUuid(SOME_UUID);
-
-    assertThat(res).isPresent();
-    assertThat(res.get().getUuid()).isEqualTo(SOME_UUID);
-    assertThat(res.get().getName()).isEqualTo(SOME_NAME);
-    assertThat(res.get().getConditions()).containsOnly(
-      new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold()),
-      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
-  }
-
-  @Test
-  public void findById_ignores_conditions_on_missing_metrics() {
-    when(qualityGateDao.selectByUuid(any(), eq(SOME_UUID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
-    // metrics are always supposed to be there
-    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
-    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
-
-    Optional<QualityGate> res = underTest.findByUuid(SOME_UUID);
-
-    assertThat(res).isPresent();
-    assertThat(res.get().getUuid()).isEqualTo(SOME_UUID);
-    assertThat(res.get().getName()).isEqualTo(SOME_NAME);
-    assertThat(res.get().getConditions()).containsOnly(
-      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
-  }
-
-  @Test
   public void findDefaultQualityGate_by_property_not_found() {
-    when(propertiesDao.selectGlobalProperty(any(), any())).thenReturn(null);
-
-    assertThatThrownBy(() -> underTest.findDefaultQualityGate())
-      .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> underTest.findEffectiveQualityGate(mock(Project.class))).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -138,26 +80,17 @@ public class QualityGateServiceImplTest {
     QualityGateDto qualityGateDto = new QualityGateDto();
     qualityGateDto.setUuid(QUALITY_GATE_DTO.getUuid());
     qualityGateDto.setName(QUALITY_GATE_DTO.getName());
-    when(propertiesDao.selectGlobalProperty(any(), any())).thenReturn(new PropertyDto().setValue(QUALITY_GATE_DTO.getUuid()));
 
-    when(qualityGateDao.selectByUuid(any(), any())).thenReturn(qualityGateDto);
+    when(qualityGateDao.selectDefault(any())).thenReturn(qualityGateDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
-    QualityGate result = underTest.findDefaultQualityGate();
+    QualityGate result = underTest.findEffectiveQualityGate(mock(Project.class));
 
     assertThat(result).isNotNull();
     assertThat(result.getUuid()).isEqualTo(QUALITY_GATE_DTO.getUuid());
-    assertThat(result.getName()).isNotBlank();
     assertThat(result.getName()).isEqualTo(QUALITY_GATE_DTO.getName());
-  }
-
-  @Test
-  public void findQualityGate_by_project_not_found() {
-    when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(null);
-    Optional<QualityGate> result = underTest.findQualityGate(mock(Project.class));
-    assertThat(result).isEmpty();
   }
 
   @Test
@@ -165,19 +98,15 @@ public class QualityGateServiceImplTest {
     QualityGateDto qualityGateDto = new QualityGateDto();
     qualityGateDto.setUuid(QUALITY_GATE_DTO.getUuid());
     qualityGateDto.setName(QUALITY_GATE_DTO.getName());
+
     when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qualityGateDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
-    Optional<QualityGate> result = underTest.findQualityGate(mock(Project.class));
+    QualityGate result = underTest.findEffectiveQualityGate(mock(Project.class));
 
-    assertThat(result).isNotNull();
-    assertThat(result).isNotEmpty();
-
-    QualityGate resultData = result.get();
-    assertThat(resultData.getUuid()).isEqualTo(QUALITY_GATE_DTO.getUuid());
-    assertThat(resultData.getName()).isNotBlank();
-    assertThat(resultData.getName()).isEqualTo(QUALITY_GATE_DTO.getName());
+    assertThat(result.getUuid()).isEqualTo(QUALITY_GATE_DTO.getUuid());
+    assertThat(result.getName()).isEqualTo(QUALITY_GATE_DTO.getName());
   }
 }

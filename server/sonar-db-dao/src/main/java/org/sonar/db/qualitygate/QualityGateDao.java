@@ -56,6 +56,11 @@ public class QualityGateDao implements Dao {
     return mapper(session).selectByUuid(uuid);
   }
 
+  @CheckForNull
+  public QualityGateDto selectDefault(DbSession session) {
+    return mapper(session).selectDefault();
+  }
+
   public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getUuid());
   }
@@ -81,6 +86,7 @@ public class QualityGateDao implements Dao {
     return session.getMapper(QualityGateMapper.class);
   }
 
+  @CheckForNull
   public QualityGateDto selectByProjectUuid(DbSession dbSession, String projectUuid) {
     return mapper(dbSession).selectByProjectUuid(projectUuid);
   }

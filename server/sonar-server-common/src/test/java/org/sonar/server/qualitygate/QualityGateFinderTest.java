@@ -44,9 +44,9 @@ public class QualityGateFinderTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
 
-    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, project);
+    QualityGateFinder.QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
 
-    assertThat(result.getQualityGate().getUuid()).isEqualTo(dbQualityGate.getUuid());
+    assertThat(result.getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.isDefault()).isTrue();
   }
 
@@ -57,9 +57,9 @@ public class QualityGateFinderTest {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
 
-    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, project);
+    QualityGateFinder.QualityGateData result = underTest.getEffectiveQualityGate(dbSession, project);
 
-    assertThat(result.getQualityGate().getUuid()).isEqualTo(dbQualityGate.getUuid());
+    assertThat(result.getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.isDefault()).isFalse();
   }
 
@@ -70,7 +70,7 @@ public class QualityGateFinderTest {
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
     db.commit();
 
-    assertThatThrownBy(() -> underTest.getQualityGate(dbSession, project))
+    assertThatThrownBy(() -> underTest.getEffectiveQualityGate(dbSession, project))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Default quality gate is missing");
   }
@@ -83,7 +83,7 @@ public class QualityGateFinderTest {
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
 
-    assertThatThrownBy(() -> underTest.getQualityGate(dbSession, project))
+    assertThatThrownBy(() -> underTest.getEffectiveQualityGate(dbSession, project))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Default quality gate is missing");
   }
@@ -94,9 +94,9 @@ public class QualityGateFinderTest {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My team QG"));
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
 
-    assertThatThrownBy(() -> underTest.getQualityGate(dbSession, project))
+    assertThatThrownBy(() -> underTest.getEffectiveQualityGate(dbSession, project))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Default quality gate property is missing");
+      .hasMessage("Default quality gate is missing");
   }
 
   @Test

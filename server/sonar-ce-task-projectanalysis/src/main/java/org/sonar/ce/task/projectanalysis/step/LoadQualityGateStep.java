@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
@@ -39,8 +38,7 @@ public class LoadQualityGateStep implements ComputationStep {
   private final MutableQualityGateHolder qualityGateHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public LoadQualityGateStep(QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder,
-                             AnalysisMetadataHolder analysisMetadataHolder) {
+  public LoadQualityGateStep(QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.qualityGateService = qualityGateService;
     this.qualityGateHolder = qualityGateHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -48,31 +46,22 @@ public class LoadQualityGateStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    Optional<QualityGate> qualityGate = getProjectQualityGate();
-    if (!qualityGate.isPresent()) {
-      // No QG defined for the project, let's retrieve the default QG
-      qualityGate = Optional.of(getDefaultQualityGate());
-    }
+    QualityGate qualityGate = getProjectQualityGate();
 
     if (analysisMetadataHolder.isPullRequest()) {
       qualityGate = filterQGForPR(qualityGate);
     }
 
-    qualityGateHolder.setQualityGate(qualityGate.orElseThrow(() -> new IllegalStateException("Quality gate not present")));
+    qualityGateHolder.setQualityGate(qualityGate);
   }
 
-  private static Optional<QualityGate> filterQGForPR(Optional<QualityGate> qualityGate) {
-    return qualityGate.map(qg -> new QualityGate(qg.getUuid(), qg.getName(),
-      qg.getConditions().stream().filter(Condition::useVariation).collect(Collectors.toList())));
+  private static QualityGate filterQGForPR(QualityGate qg) {
+    return new QualityGate(qg.getUuid(), qg.getName(), qg.getConditions().stream().filter(Condition::useVariation).collect(Collectors.toList()));
   }
 
-  private Optional<QualityGate> getProjectQualityGate() {
+  private QualityGate getProjectQualityGate() {
     Project project = analysisMetadataHolder.getProject();
-    return qualityGateService.findQualityGate(project);
-  }
-
-  private QualityGate getDefaultQualityGate() {
-    return qualityGateService.findDefaultQualityGate();
+    return qualityGateService.findEffectiveQualityGate(project);
   }
 
   @Override

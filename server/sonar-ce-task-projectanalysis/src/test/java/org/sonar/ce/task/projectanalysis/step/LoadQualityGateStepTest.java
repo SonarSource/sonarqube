@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Arrays;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,28 +29,27 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
-import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateService;
+import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateServiceImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.project.Project;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class LoadQualityGateStepTest {
-
   @Rule
   public MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
 
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private final QualityGateService qualityGateService = mock(QualityGateService.class);
+  private final QualityGateServiceImpl qualityGateService = mock(QualityGateServiceImpl.class);
 
   private final LoadQualityGateStep underTest = new LoadQualityGateStep(qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
+  private final Project project = mock(Project.class);
 
   @Before
-  public void setUp() {
+  public void before() {
+    when(analysisMetadataHolder.getProject()).thenReturn(project);
   }
 
   @Test
@@ -63,7 +61,7 @@ public class LoadQualityGateStepTest {
 
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     QualityGate defaultGate = new QualityGate("1", "qg", Arrays.asList(variation, condition));
-    when(qualityGateService.findDefaultQualityGate()).thenReturn(defaultGate);
+    when(qualityGateService.findEffectiveQualityGate(project)).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -71,25 +69,12 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
-  public void execute_sets_default_QualityGate_when_project_has_no_settings() {
-    QualityGate defaultGate = mock(QualityGate.class);
-    when(qualityGateService.findDefaultQualityGate()).thenReturn(defaultGate);
+  public void execute_sets_effective_quality_gate() {
+    QualityGate qg = mock(QualityGate.class);
+    when(qualityGateService.findEffectiveQualityGate(project)).thenReturn(qg);
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(defaultGate);
+    assertThat(mutableQualityGateHolder.getQualityGate()).containsSame(qg);
   }
-
-  @Test
-  public void execute_sets_QualityGate_if_it_can_be_found_by_service() {
-    QualityGate qualityGate = new QualityGate("10", "name", emptyList());
-
-    when(analysisMetadataHolder.getProject()).thenReturn(mock(Project.class));
-    when(qualityGateService.findQualityGate(any(Project.class))).thenReturn(Optional.of(qualityGate));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
-  }
-
 }

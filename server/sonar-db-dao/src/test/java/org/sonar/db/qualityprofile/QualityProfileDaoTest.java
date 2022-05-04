@@ -656,17 +656,17 @@ public class QualityProfileDaoTest {
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, singletonList("java")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, singletonList("java")))
       .extracting(QProfileDto::getKee).containsOnly(javaProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, singletonList("unknown")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, singletonList("unknown")))
       .isEmpty();
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, of("java", "unknown")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, of("java", "unknown")))
       .extracting(QProfileDto::getKee).containsExactly(javaProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, of("java", "js")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, of("java", "js")))
       .extracting(QProfileDto::getKee).containsExactlyInAnyOrder(javaProfile.getKee(), jsProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project2, singletonList("java")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project2, singletonList("java")))
       .isEmpty();
-    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project2, Collections.emptyList()))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project2, Collections.emptyList()))
       .isEmpty();
   }
 

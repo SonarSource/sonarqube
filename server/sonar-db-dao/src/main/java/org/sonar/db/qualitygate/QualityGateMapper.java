@@ -43,5 +43,7 @@ public interface QualityGateMapper {
 
   QualityGateDto selectByUuid(String uuid);
 
+  QualityGateDto selectDefault();
+
   QualityGateDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
 }

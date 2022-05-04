@@ -200,17 +200,6 @@ public class RegisterQualityGatesTest {
   }
 
   @Test
-  public void ensure_only_that_builtin_is_set_as_default_when_no_default_quality_gate() {
-    insertMetrics();
-    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.start();
-
-    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession)).isNotNull();
-    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getUuid()).isEqualTo(builtInQualityGate.getUuid());
-  }
-
-  @Test
   public void builtin_quality_gate_with_incorrect_metricuuid_should_not_throw_an_exception() {
     insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()

@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.project.Project;
@@ -33,8 +32,6 @@ import org.sonar.server.project.Project;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class QualityGateServiceImpl implements QualityGateService {
-  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
-
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
 
@@ -44,20 +41,13 @@ public class QualityGateServiceImpl implements QualityGateService {
   }
 
   @Override
-  public Optional<QualityGate> findByUuid(String uuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByUuid(dbSession, uuid);
-      if (qualityGateDto == null) {
-        return Optional.empty();
-      }
-      return Optional.of(toQualityGate(dbSession, qualityGateDto));
-    }
+  public QualityGate findEffectiveQualityGate(Project project) {
+    return findQualityGate(project).orElseGet(this::findDefaultQualityGate);
   }
 
-  @Override
-  public QualityGate findDefaultQualityGate() {
+  private QualityGate findDefaultQualityGate() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = getDefaultQualityGate(dbSession);
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectDefault(dbSession);
       if (qualityGateDto == null) {
         throw new IllegalStateException("The default Quality gate is missing");
       }
@@ -65,29 +55,17 @@ public class QualityGateServiceImpl implements QualityGateService {
     }
   }
 
-  private QualityGateDto getDefaultQualityGate(DbSession dbSession) {
-    PropertyDto propertyDto = Optional.ofNullable(dbClient.propertiesDao()
-      .selectGlobalProperty(dbSession, DEFAULT_QUALITY_GATE_PROPERTY_NAME))
-      .orElseThrow(() -> new IllegalStateException("The default Quality Gate property is missing"));
-    return Optional.ofNullable(dbClient.qualityGateDao().selectByUuid(dbSession, propertyDto.getValue()))
-      .orElseThrow(() -> new IllegalStateException("The default Quality gate is missing"));
-  }
-
-  @Override
-  public Optional<QualityGate> findQualityGate(Project project) {
+  private Optional<QualityGate> findQualityGate(Project project) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
-      if (qualityGateDto == null) {
-        return Optional.empty();
-      }
-      return Optional.of(toQualityGate(dbSession, qualityGateDto));
+      return Optional.ofNullable(dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid()))
+        .map(qg -> toQualityGate(dbSession, qg));
     }
   }
 
   private QualityGate toQualityGate(DbSession dbSession, QualityGateDto qualityGateDto) {
     Collection<QualityGateConditionDto> dtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getUuid());
 
-    Iterable<Condition> conditions = dtos.stream()
+    Collection<Condition> conditions = dtos.stream()
       .map(input -> metricRepository.getOptionalByUuid(input.getMetricUuid())
         .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))

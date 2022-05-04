@@ -91,20 +91,19 @@ public class GetByProjectAction implements QualityGatesWsAction {
         throw insufficientPrivilegesException();
       }
 
-      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, project);
+      QualityGateData data = qualityGateFinder.getEffectiveQualityGate(dbSession, project);
 
       writeProtobuf(buildResponse(data), request, response);
     }
   }
 
-  private static GetByProjectResponse buildResponse(QualityGateData data) {
-    QualityGateDto qualityGate = data.getQualityGate();
+  private static GetByProjectResponse buildResponse(QualityGateData qg) {
     GetByProjectResponse.Builder response = GetByProjectResponse.newBuilder();
 
     response.getQualityGateBuilder()
-      .setId(qualityGate.getUuid())
-      .setName(qualityGate.getName())
-      .setDefault(data.isDefault());
+      .setId(qg.getUuid())
+      .setName(qg.getName())
+      .setDefault(qg.isDefault());
 
     return response.build();
   }

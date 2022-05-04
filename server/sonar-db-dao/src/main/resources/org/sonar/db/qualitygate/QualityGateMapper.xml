@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
 
   <sql id="gateColumns">
-      uuid, name, is_built_in as isBuiltIn, created_at as createdAt, updated_at as updatedAt
+      qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.created_at as createdAt, qg.updated_at as updatedAt
   </sql>
 
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
@@ -22,14 +22,14 @@
   <select id="selectByName" parameterType="String" resultType="QualityGate">
     select
     <include refid="gateColumns"/>
-    from quality_gates
+    from quality_gates qg
     where name=#{name, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUuid" parameterType="String" resultType="QualityGate">
     select
     <include refid="gateColumns"/>
-    from quality_gates
+    from quality_gates qg
     where uuid=#{uuid, jdbcType=VARCHAR}
   </select>
 
@@ -45,9 +45,19 @@
   <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">
     SELECT
       <include refid="gateColumns"/>
-    FROM quality_gates
+    FROM quality_gates qg
     WHERE
       is_built_in = ${_true}
+  </select>
+
+  <select id="selectDefault" resultType="org.sonar.db.qualitygate.QualityGateDto">
+    SELECT
+      <include refid="gateColumns"/>
+    FROM quality_gates qg INNER JOIN properties p ON qg.uuid = p.text_value
+    WHERE
+      p.prop_key = 'qualitygate.default'
+      and p.component_uuid is null
+      and p.user_uuid is null
   </select>
 
   <update id="delete" parameterType="String">

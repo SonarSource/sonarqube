@@ -38,13 +38,13 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.QualityGateConverter;
 import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -63,9 +63,8 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
   @Override
   public QualityGate loadQualityGate(DbSession dbSession, ProjectDto project, BranchDto branch) {
-    QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, project)
-      .getQualityGate();
-    Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getUuid());
+    QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, project);
+    Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
     Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid)
       .collect(toHashSet(conditionDtos.size()));
     Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
@@ -81,7 +80,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       conditions = conditions.filter(Condition::isOnLeakPeriod);
     }
 
-    return new QualityGate(String.valueOf(gateDto.getUuid()), gateDto.getName(), conditions.collect(toHashSet(conditionDtos.size())));
+    return new QualityGate(String.valueOf(qg.getUuid()), qg.getName(), conditions.collect(toHashSet(conditionDtos.size())));
   }
 
   @Override

@@ -219,7 +219,7 @@ public class SearchAction implements QProfileWsAction {
       return p -> true;
     }
     Map<String, QProfileDto> effectiveProfiles = defaultProfiles.stream().collect(Collectors.toMap(QProfileDto::getLanguage, identity()));
-    effectiveProfiles.putAll(dbClient.qualityProfileDao().selectAssociatedToProjectUuidAndLanguages(dbSession, project, getLanguageKeys()).stream()
+    effectiveProfiles.putAll(dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguages(dbSession, project, getLanguageKeys()).stream()
       .collect(MoreCollectors.uniqueIndex(QProfileDto::getLanguage)));
     return p -> Objects.equals(p.getKee(), effectiveProfiles.get(p.getLanguage()).getKee());
   }

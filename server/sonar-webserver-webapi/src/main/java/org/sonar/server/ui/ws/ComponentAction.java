@@ -259,11 +259,10 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
-    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, component.uuid());
-    QualityGateDto qualityGateDto = qualityGateData.getQualityGate();
+    var qualityGateData = qualityGateFinder.getEffectiveQualityGate(session, component.uuid());
     json.name("qualityGate").beginObject()
-      .prop("key", qualityGateDto.getUuid())
-      .prop("name", qualityGateDto.getName())
+      .prop("key", qualityGateData.getUuid())
+      .prop("name", qualityGateData.getName())
       .prop("isDefault", qualityGateData.isDefault())
       .endObject();
   }

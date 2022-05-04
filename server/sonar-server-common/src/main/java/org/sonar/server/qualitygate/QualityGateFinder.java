@@ -23,25 +23,20 @@ import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
-import static com.google.common.base.Preconditions.checkState;
-
 public class QualityGateFinder {
-  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
-
   private final DbClient dbClient;
 
   public QualityGateFinder(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
-  public QualityGateData getQualityGate(DbSession dbSession, ProjectDto projectDto) {
-    return getQualityGate(dbSession, projectDto.getUuid());
+  public QualityGateData getEffectiveQualityGate(DbSession dbSession, ProjectDto projectDto) {
+    return getEffectiveQualityGate(dbSession, projectDto.getUuid());
   }
 
-  public QualityGateData getQualityGate(DbSession dbSession, String projectUuid) {
+  public QualityGateData getEffectiveQualityGate(DbSession dbSession, String projectUuid) {
     Optional<QualityGateData> res = getQualityGateForProject(dbSession, projectUuid);
     if (res.isPresent()) {
       return res.get();
@@ -57,30 +52,32 @@ public class QualityGateFinder {
   }
 
   public QualityGateDto getDefault(DbSession dbSession) {
-    PropertyDto qGateDefaultUuidProperty = dbClient.propertiesDao().selectGlobalProperty(dbSession, DEFAULT_QUALITY_GATE_PROPERTY_NAME);
-    checkState(qGateDefaultUuidProperty != null, "Default quality gate property is missing");
-    dbClient.qualityGateDao().selectByUuid(dbSession, qGateDefaultUuidProperty.getValue());
-    return Optional.ofNullable(dbClient.qualityGateDao().selectByUuid(dbSession, qGateDefaultUuidProperty.getValue()))
-      .orElseThrow(() -> new IllegalStateException("Default quality gate is missing"));
-  }
-
-  public QualityGateDto getBuiltInQualityGate(DbSession dbSession) {
-    QualityGateDto builtIn = dbClient.qualityGateDao().selectBuiltIn(dbSession);
-    checkState(builtIn != null, "Builtin quality gate is missing.");
-    return builtIn;
+    return Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)).orElseThrow(() -> new IllegalStateException("Default quality gate is missing"));
   }
 
   public static class QualityGateData {
-    private final QualityGateDto qualityGate;
+    private final String uuid;
+    private final String name;
     private final boolean isDefault;
+    private final boolean builtIn;
 
     private QualityGateData(QualityGateDto qualityGate, boolean isDefault) {
-      this.qualityGate = qualityGate;
+      this.uuid = qualityGate.getUuid();
+      this.name = qualityGate.getName();
       this.isDefault = isDefault;
+      this.builtIn = qualityGate.isBuiltIn();
     }
 
-    public QualityGateDto getQualityGate() {
-      return qualityGate;
+    public boolean isBuiltIn() {
+      return builtIn;
+    }
+
+    public String getUuid() {
+      return uuid;
+    }
+
+    public String getName() {
+      return name;
     }
 
     public boolean isDefault() {

@@ -52,8 +52,7 @@ public class LiveMeasureDao implements Dao {
       componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuis));
   }
 
-  public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys,
-    ResultHandler<LiveMeasureDto> handler) {
+  public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys, ResultHandler<LiveMeasureDto> handler) {
     if (metricKeys.isEmpty()) {
       return;
     }
