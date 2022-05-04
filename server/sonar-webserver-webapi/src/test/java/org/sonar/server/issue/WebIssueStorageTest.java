@@ -37,7 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 
@@ -83,7 +83,7 @@ public class WebIssueStorageTest {
 
   @Test
   public void insert_new_issues() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module));
@@ -132,7 +132,7 @@ public class WebIssueStorageTest {
 
   @Test
   public void update_issues() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module));
@@ -215,7 +215,7 @@ public class WebIssueStorageTest {
 
   @Test
   public void rule_uuid_is_set_on_updated_issue() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module));
@@ -229,7 +229,7 @@ public class WebIssueStorageTest {
 
   @Test
   public void rule_uuid_is_not_set_on_updated_issue_when_rule_is_removed() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
+    RuleDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module));

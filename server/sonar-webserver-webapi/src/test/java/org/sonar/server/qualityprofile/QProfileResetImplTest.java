@@ -28,7 +28,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -72,9 +72,9 @@ public class QProfileResetImplTest {
   @Test
   public void reset() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(RuleActivation.create(existingRule.getUuid())));
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     BulkChangeResult result = underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(newRule.getUuid())));
 
@@ -93,10 +93,10 @@ public class QProfileResetImplTest {
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     QProfileDto childProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     qProfileTree.setParentAndCommit(db.getSession(), childProfile, parentProfile);
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
     qProfileRules.activateAndCommit(db.getSession(), parentProfile, singleton(RuleActivation.create(existingRule.getUuid())));
     qProfileRules.activateAndCommit(db.getSession(), childProfile, singleton(RuleActivation.create(existingRule.getUuid())));
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     underTest.reset(db.getSession(), childProfile, singletonList(RuleActivation.create(newRule.getUuid())));
 
@@ -109,7 +109,7 @@ public class QProfileResetImplTest {
   @Test
   public void fail_when_profile_is_built_in() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE).setIsBuiltIn(true));
-    RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     assertThatThrownBy(() -> {
       underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));
@@ -122,7 +122,7 @@ public class QProfileResetImplTest {
   @Test
   public void fail_when_profile_is_not_persisted() {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setRulesProfileUuid(null).setLanguage(LANGUAGE);
-    RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
+    RuleDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     assertThatThrownBy(() -> {
       underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));

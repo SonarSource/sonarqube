@@ -28,7 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile.ActiveRule;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -56,8 +56,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void create_qprofile_with_rule() {
-    RuleDefinitionDto rule1 = db.rules().insert();
-    RuleDefinitionDto rule2 = db.rules().insert();
+    RuleDto rule1 = db.rules().insert();
+    RuleDto rule2 = db.rules().insert();
     db.rules().insert();
     DummyProfileDefinition definition = new DummyProfileDefinition("foo", "foo", false, asList(rule1.getKey(), rule2.getKey()));
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definition);
@@ -171,9 +171,9 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void create_qprofile_with_deprecated_rule() {
-    RuleDefinitionDto rule1 = db.rules().insert();
+    RuleDto rule1 = db.rules().insert();
     db.rules().insertDeprecatedKey(d -> d.setRuleUuid(rule1.getUuid()).setOldRepositoryKey("oldRepo").setOldRuleKey("oldKey"));
-    RuleDefinitionDto rule2 = db.rules().insert();
+    RuleDto rule2 = db.rules().insert();
     DummyProfileDefinition definition = new DummyProfileDefinition("foo", "foo", false,
       asList(RuleKey.of("oldRepo", "oldKey"), rule2.getKey()));
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definition);

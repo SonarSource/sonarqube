@@ -51,7 +51,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -495,8 +495,8 @@ public class PurgeCommandsTest {
   @Test
   @UseDataProvider("projectsAndViews")
   public void deleteIssues_deletes_all_issues_of_specified_root_component(ComponentDto projectOrView) {
-    RuleDefinitionDto rule1 = dbTester.rules().insert();
-    RuleDefinitionDto rule2 = dbTester.rules().insert();
+    RuleDto rule1 = dbTester.rules().insert();
+    RuleDto rule2 = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
@@ -520,7 +520,7 @@ public class PurgeCommandsTest {
   @Test
   @UseDataProvider("projectsAndViews")
   public void deleteIssues_deletes_issue_changes(ComponentDto projectOrView) {
-    RuleDefinitionDto rule = dbTester.rules().insert();
+    RuleDto rule = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
     int count = 5;
@@ -539,7 +539,7 @@ public class PurgeCommandsTest {
   @Test
   @UseDataProvider("projectsAndViews")
   public void deleteIssues_deletes_new_code_reference_issues(ComponentDto projectOrView) {
-    RuleDefinitionDto rule = dbTester.rules().insert();
+    RuleDto rule = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
     List<String> issueKeys = new ArrayList<>();

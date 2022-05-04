@@ -29,7 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -91,9 +90,9 @@ public class CreateActionTest {
     logInAsQProfileAdministrator();
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setType(CODE_SMELL);
-    db.rules().insert(templateRule.getDefinition());
+    db.rules().insert(templateRule);
     db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
-    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
 
     String result = ws.newRequest()
       .setParam("custom_key", "MY_CUSTOM")
@@ -135,10 +134,10 @@ public class CreateActionTest {
   @Test
   public void create_custom_rule_with_prevent_reactivation_param_to_true() {
     logInAsQProfileAdministrator();
-    RuleDefinitionDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     // insert a removed rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule)
       .setRuleKey("MY_CUSTOM")
       .setStatus(RuleStatus.REMOVED)
       .setName("My custom rule")
@@ -191,7 +190,7 @@ public class CreateActionTest {
   public void create_custom_rule_of_removed_template_should_fail() {
     logInAsQProfileAdministrator();
 
-    RuleDefinitionDto templateRule = db.rules().insert(r -> r.setIsTemplate(true).setStatus(RuleStatus.REMOVED));
+    RuleDto templateRule = db.rules().insert(r -> r.setIsTemplate(true).setStatus(RuleStatus.REMOVED));
 
     TestRequest request = ws.newRequest()
       .setParam("custom_key", "MY_CUSTOM")

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 
@@ -31,33 +30,17 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
-  List<RuleDefinitionDto> selectAllDefinitions();
-
-  List<RuleDefinitionDto> selectEnabled();
+  List<RuleDto> selectEnabled();
 
   RuleDto selectByUuid(@Param("uuid") String uuid);
 
-  RuleDefinitionDto selectDefinitionByUuid(String uuid);
-
   List<RuleDto> selectByUuids(@Param("uuids") List<String> uuids);
-
-  List<RuleDefinitionDto> selectDefinitionByUuids(@Param("uuids") List<String> uuids);
 
   RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
 
-  RuleDefinitionDto selectDefinitionByKey(RuleKey ruleKey);
-
   RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey);
 
-  List<RuleMetadataDto> selectMetadataByKeys(@Param("ruleKeys") List<RuleKey> keys);
-
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
-
-  List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
-
-  void scrollIndexingRules(ResultHandler<RuleForIndexingDto> handler);
-
-  List<RuleForIndexingDto> selectIndexingRulesByUuids(@Param("ruleUuids") List<String> ruleUuids);
 
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
 
@@ -65,17 +48,19 @@ public interface RuleMapper {
 
   List<RuleDto> selectByTypeAndLanguages(@Param("types") List<Integer> types, @Param("languages") List<String> languages);
 
-  void insertDefinition(RuleDefinitionDto ruleDefinitionDto);
+  void insertRule(RuleDto ruleDefinitionDto);
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);
 
-  void updateDefinition(RuleDefinitionDto ruleDefinitionDto);
+  void updateRule(RuleDto ruleDefinitionDto);
 
   void deleteRuleDescriptionSection(String ruleUuid);
 
   int countMetadata(RuleMetadataDto ruleMetadataDto);
 
   void insertMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void deleteMetadata(@Param("uuid") String uuid);
 
   void updateMetadata(RuleMetadataDto ruleMetadataDto);
 

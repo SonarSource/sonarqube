@@ -44,7 +44,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
@@ -124,7 +124,7 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void do_not_send_notification_when_profile_is_not_updated() {
     String language = newLanguageKey();
-    RuleDefinitionDto dbRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto dbRule = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile, dbRule, MAJOR);
     addPluginProfile(dbProfile, dbRule);
@@ -138,10 +138,10 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void send_notification_when_a_new_rule_is_activated() {
     String language = newLanguageKey();
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto existingRule = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile, existingRule, MAJOR);
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto newRule = db.rules().insert(r -> r.setLanguage(language));
     addPluginProfile(dbProfile, existingRule, newRule);
     builtInQProfileRepositoryRule.initialize();
 
@@ -161,7 +161,7 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void send_notification_when_a_rule_is_deactivated() {
     String language = newLanguageKey();
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto existingRule = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile, existingRule, MAJOR);
     addPluginProfile(dbProfile);
@@ -184,14 +184,14 @@ public class RegisterQualityProfilesNotificationTest {
   public void send_a_single_notification_when_multiple_rules_are_activated() {
     String language = newLanguageKey();
 
-    RuleDefinitionDto existingRule1 = db.rules().insert(r -> r.setLanguage(language));
-    RuleDefinitionDto newRule1 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto existingRule1 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto newRule1 = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile1 = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile1, existingRule1, MAJOR);
     addPluginProfile(dbProfile1, existingRule1, newRule1);
 
-    RuleDefinitionDto existingRule2 = db.rules().insert(r -> r.setLanguage(language));
-    RuleDefinitionDto newRule2 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto existingRule2 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto newRule2 = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile2 = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile2, existingRule2, MAJOR);
     addPluginProfile(dbProfile2, existingRule2, newRule2);
@@ -217,7 +217,7 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void notification_does_not_include_inherited_profiles_when_rule_is_added() {
     String language = newLanguageKey();
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto newRule = db.rules().insert(r -> r.setLanguage(language));
 
     QProfileDto builtInQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
     QProfileDto childQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
@@ -240,7 +240,7 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void notification_does_not_include_inherited_profiled_when_rule_is_changed() {
     String language = newLanguageKey();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
 
     QProfileDto builtInProfile = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().activateRule(builtInProfile, rule, ar -> ar.setSeverity(Severity.MINOR));
@@ -266,7 +266,7 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void notification_does_not_include_inherited_profiles_when_rule_is_deactivated() {
     String language = newLanguageKey();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
 
     QProfileDto builtInQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().activateRule(builtInQProfileDto, rule);
@@ -293,10 +293,10 @@ public class RegisterQualityProfilesNotificationTest {
   @Test
   public void notification_contains_send_start_and_end_date() {
     String language = newLanguageKey();
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto existingRule = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile = insertBuiltInProfile(language);
     activateRuleInDb(dbProfile, existingRule, MAJOR);
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto newRule = db.rules().insert(r -> r.setLanguage(language));
     addPluginProfile(dbProfile, existingRule, newRule);
     builtInQProfileRepositoryRule.initialize();
     long startDate = RANDOM.nextInt(5000);
@@ -308,7 +308,7 @@ public class RegisterQualityProfilesNotificationTest {
     verify(builtInQualityProfilesNotification).onChange(any(), eq(startDate), eq(endDate));
   }
 
-  private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
+  private void addPluginProfile(RulesProfileDto dbProfile, RuleDto... dbRules) {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(dbProfile.getName(), dbProfile.getLanguage());
 
@@ -319,19 +319,19 @@ public class RegisterQualityProfilesNotificationTest {
     builtInQProfileRepositoryRule.add(newLanguage(dbProfile.getLanguage()), dbProfile.getName(), false, activeRules);
   }
 
-  private static BuiltInQProfile.ActiveRule[] toActiveRules(List<BuiltInActiveRule> rules, RuleDefinitionDto[] dbRules) {
-    Map<RuleKey, RuleDefinitionDto> dbRulesByRuleKey = Arrays.stream(dbRules)
-      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+  private static BuiltInQProfile.ActiveRule[] toActiveRules(List<BuiltInActiveRule> rules, RuleDto[] dbRules) {
+    Map<RuleKey, RuleDto> dbRulesByRuleKey = Arrays.stream(dbRules)
+      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
     return rules.stream()
       .map(r -> {
         RuleKey ruleKey = RuleKey.of(r.repoKey(), r.ruleKey());
-        RuleDefinitionDto ruleDefinitionDto = dbRulesByRuleKey.get(ruleKey);
+        RuleDto ruleDefinitionDto = dbRulesByRuleKey.get(ruleKey);
         checkState(ruleDefinitionDto != null, "Rule '%s' not found", ruleKey);
         return new BuiltInQProfile.ActiveRule(ruleDefinitionDto.getUuid(), r);
       }).toArray(BuiltInQProfile.ActiveRule[]::new);
   }
 
-  private void addPluginProfile(QProfileDto profile, RuleDefinitionDto... dbRules) {
+  private void addPluginProfile(QProfileDto profile, RuleDto... dbRules) {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
 
@@ -348,7 +348,7 @@ public class RegisterQualityProfilesNotificationTest {
     return ruleProfileDto;
   }
 
-  private void activateRuleInDb(RulesProfileDto profile, RuleDefinitionDto rule, RulePriority severity) {
+  private void activateRuleInDb(RulesProfileDto profile, RuleDto rule, RulePriority severity) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())

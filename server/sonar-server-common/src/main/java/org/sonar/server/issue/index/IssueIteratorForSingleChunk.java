@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
-import static org.sonar.db.rule.RuleDefinitionDto.deserializeSecurityStandardsString;
+import static org.sonar.db.rule.RuleDto.deserializeSecurityStandardsString;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
 /**

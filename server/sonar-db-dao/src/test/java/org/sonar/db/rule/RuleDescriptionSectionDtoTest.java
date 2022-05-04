@@ -29,19 +29,6 @@ public class RuleDescriptionSectionDtoTest {
     .content("desc").build();
 
   @Test
-  public void testEquals() {
-
-    Assertions.assertThat(RuleDescriptionSectionDto.builder()
-      .key("key")
-      .uuid("uuid")
-      .content("desc")
-      .build())
-      .isEqualTo(SECTION);
-
-    Assertions.assertThat(SECTION).isEqualTo(SECTION);
-  }
-
-  @Test
   public void testToString() {
     Assertions.assertThat(SECTION).hasToString("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc']");
   }

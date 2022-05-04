@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
@@ -151,8 +151,8 @@ public class RegisterQualityProfilesTest {
     db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule);
     db.qualityProfiles().setAsDefault(qProfileWithoutRule);
 
-    RuleDefinitionDto ruleDefinition = db.rules().insert();
-    db.qualityProfiles().activateRule(qProfileWithOneRule, ruleDefinition);
+    RuleDto ruleDto = db.rules().insert();
+    db.qualityProfiles().activateRule(qProfileWithOneRule, ruleDto);
     db.commit();
 
     builtInQProfileRepositoryRule.add(FOO_LANGUAGE, ruleProfileWithoutRule.getName(), true);

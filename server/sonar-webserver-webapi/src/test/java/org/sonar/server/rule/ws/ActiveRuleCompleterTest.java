@@ -26,7 +26,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ public class ActiveRuleCompleterTest {
   @Test
   public void test_completeShow() {
     ActiveRuleCompleter underTest = new ActiveRuleCompleter(dbTester.getDbClient(), new Languages());
-    RuleDefinitionDto rule = dbTester.rules().insert();
+    RuleDto rule = dbTester.rules().insert();
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert();
     ActiveRuleDto activeRule = dbTester.qualityProfiles().activateRule(qualityProfile, rule);
 

@@ -26,7 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -65,11 +65,11 @@ public class DeleteActionTest {
   public void delete_custom_rule() {
     logInAsQProfileAdministrator();
 
-    RuleDefinitionDto templateRule = dbTester.rules().insert(
+    RuleDto templateRule = dbTester.rules().insert(
       r -> r.setIsTemplate(true),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
-    RuleDefinitionDto customRule = dbTester.rules().insert(
+    RuleDto customRule = dbTester.rules().insert(
       r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
@@ -82,7 +82,7 @@ public class DeleteActionTest {
     verify(ruleIndexer).commitAndIndex(any(), eq(customRule.getUuid()));
 
     // Verify custom rule has status REMOVED
-    RuleDefinitionDto customRuleReloaded = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, customRule.getKey());
+    RuleDto customRuleReloaded = dbClient.ruleDao().selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(customRuleReloaded.getUpdatedAt()).isNotEqualTo(PAST);
@@ -115,7 +115,7 @@ public class DeleteActionTest {
   @Test
   public void fail_to_delete_if_not_custom() {
     logInAsQProfileAdministrator();
-    RuleDefinitionDto rule = dbTester.rules().insert();
+    RuleDto rule = dbTester.rules().insert();
 
     assertThatThrownBy(() -> {
       tester.newRequest()

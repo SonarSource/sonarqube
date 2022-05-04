@@ -36,7 +36,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
@@ -79,7 +79,7 @@ public class RuleActivatorTest {
 
   @Test
   public void reset_overridden_active_rule() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -115,7 +115,7 @@ public class RuleActivatorTest {
 
   @Test
   public void request_new_severity_and_param_for_child_rule() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -151,7 +151,7 @@ public class RuleActivatorTest {
 
   @Test
   public void set_severity_and_param_for_child_rule_when_activating() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -181,7 +181,7 @@ public class RuleActivatorTest {
 
   @Test
   public void fail_if_rule_language_doesnt_match_qp() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo")
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo")
       .setRepositoryKey("repo")
       .setRuleKey("rule")
       .setSeverity(Severity.BLOCKER));
@@ -206,7 +206,7 @@ public class RuleActivatorTest {
   }
 
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDefinitionDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setKey(ActiveRuleKey.of(ruleProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())))
       .setProfileUuid(ruleProfile.getUuid())

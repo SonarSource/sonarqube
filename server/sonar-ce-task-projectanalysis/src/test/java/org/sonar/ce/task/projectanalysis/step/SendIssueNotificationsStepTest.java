@@ -60,7 +60,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.DistributedMetricStatsInt;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
@@ -499,7 +499,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     UserDto user = db.users().insertUser();
     ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
@@ -526,7 +526,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .addChildren(
         builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build())
       .build());
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);
     IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
@@ -546,7 +546,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verifyNoMoreInteractions(notificationService);
   }
 
-  private DefaultIssue prepareIssue(long issueCreatedAt, UserDto user, ComponentDto project, ComponentDto file, RuleDefinitionDto ruleDefinitionDto, RuleType type) {
+  private DefaultIssue prepareIssue(long issueCreatedAt, UserDto user, ComponentDto project, ComponentDto file, RuleDto ruleDefinitionDto, RuleType type) {
     DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).setType(type).toDefaultIssue()
       .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
     protoIssueCache.newAppender().append(issue).close();
@@ -571,7 +571,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
     analysisMetadataHolder.setProject(Project.from(project));
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = newIssue(ruleDefinitionDto, branch, file).setType(randomTypeExceptHotspot).toDefaultIssue()
       .setNew(false)
@@ -601,7 +601,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     UserDto user = db.users().insertUser();
     ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     List<DefaultIssue> issues = IntStream.range(0, 2001 + new Random().nextInt(10))
       .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setKee("uuid_" + i).setType(randomTypeExceptHotspot).toDefaultIssue()

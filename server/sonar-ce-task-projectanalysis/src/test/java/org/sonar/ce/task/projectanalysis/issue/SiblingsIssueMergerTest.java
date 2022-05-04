@@ -44,7 +44,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.project.Project;
 
@@ -95,7 +95,7 @@ public class SiblingsIssueMergerTest {
   private ComponentDto branch1Dto;
   private ComponentDto branch2Dto;
   private ComponentDto branch3Dto;
-  private RuleDefinitionDto rule;
+  private RuleDto rule;
 
   @Before
   public void setUp() {

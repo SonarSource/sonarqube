@@ -36,7 +36,7 @@ import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -76,7 +76,7 @@ public class PullRequestSourceBranchMergerTest {
   public DbTester db = DbTester.create();
 
   private PullRequestSourceBranchMerger underTest;
-  private RuleDefinitionDto rule;
+  private RuleDto rule;
   private DefaultIssue rawIssue;
   private Input<DefaultIssue> rawIssuesInput;
 

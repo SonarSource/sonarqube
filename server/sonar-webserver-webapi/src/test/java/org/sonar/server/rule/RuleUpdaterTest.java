@@ -43,7 +43,6 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -111,7 +110,7 @@ public class RuleUpdaterTest {
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
-    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insert(ruleDto);
     db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
@@ -143,7 +142,7 @@ public class RuleUpdaterTest {
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
-    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insert(ruleDto);
     db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
@@ -169,7 +168,7 @@ public class RuleUpdaterTest {
     RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserUuid("me");
-    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insert(ruleDto);
     db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
@@ -190,7 +189,7 @@ public class RuleUpdaterTest {
     // insert db
     db.rules().insert(RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
-      .setSystemTags(Sets.newHashSet("java8", "javadoc")).getDefinition());
+      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
     // java8 is a system tag -> ignore
@@ -213,7 +212,7 @@ public class RuleUpdaterTest {
       .setUuid("57a3af91-32f8-48b0-9e11-0eac14ffa915")
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
-    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insert(ruleDto);
     db.rules().insertOrUpdateMetadata(ruleDto.getMetadata());
     dbSession.commit();
 
@@ -313,7 +312,7 @@ public class RuleUpdaterTest {
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("1min");
-    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insert(ruleDto);
     db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
@@ -337,17 +336,17 @@ public class RuleUpdaterTest {
   public void update_custom_rule() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    db.rules().insert(templateRule.getDefinition());
-    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("format").setType("STRING").setDescription("Format"));
+    db.rules().insert(templateRule);
+    db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    db.rules().insertRuleParam(templateRule, param -> param.setName("format").setType("STRING").setDescription("Format"));
 
     // Create custom rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule)
       .setName("Old name")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
-      .getDefinition();
+      ;
     db.rules().insert(customRule);
     db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
     db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("Format").setDefaultValue(null));
@@ -386,11 +385,11 @@ public class RuleUpdaterTest {
   public void update_custom_rule_with_empty_parameter() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    db.rules().insert(templateRule.getDefinition());
-    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
+    db.rules().insert(templateRule);
+    db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
     // Create custom rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule.getDefinition())
+    RuleDto customRule = newCustomRule(templateRule)
       .setName("Old name")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
@@ -419,17 +418,17 @@ public class RuleUpdaterTest {
   public void update_active_rule_parameters_when_updating_custom_rule() {
     // Create template rule with 3 parameters
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
-    RuleDefinitionDto templateRuleDefinition = templateRule.getDefinition();
+    RuleDto templateRuleDefinition = templateRule;
     db.rules().insert(templateRuleDefinition);
     db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
     db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("format").setType("STRING").setDescription("format").setDefaultValue("csv"));
     db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create custom rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule)
       .setSeverity(Severity.MAJOR)
       .setLanguage("xoo")
-      .getDefinition();
+      ;
     db.rules().insert(customRule);
     RuleParamDto ruleParam1 = db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
     db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("format").setDefaultValue("txt"));
@@ -487,11 +486,11 @@ public class RuleUpdaterTest {
   @Test
   public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
-    RuleDefinitionDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
 
     // Create custom rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule);
+    RuleDto customRule = newCustomRule(templateRule);
     db.rules().insert(customRule);
 
     dbSession.commit();
@@ -512,11 +511,11 @@ public class RuleUpdaterTest {
   public void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    db.rules().insert(templateRule.getDefinition());
+    db.rules().insert(templateRule);
 
     // Create custom rule
     RuleDto customRule = newCustomRule(templateRule);
-    db.rules().insert(customRule.getDefinition());
+    db.rules().insert(customRule);
 
     dbSession.commit();
 
@@ -531,11 +530,11 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_name_is_set() {
-    RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {
-      createForPluginRule(ruleDefinition.getKey()).setName("New name");
+      createForPluginRule(ruleDto.getKey()).setName("New name");
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Not a custom rule");
@@ -543,11 +542,11 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_description_is_set() {
-    RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {
-      createForPluginRule(ruleDefinition.getKey()).setMarkdownDescription("New description");
+      createForPluginRule(ruleDto.getKey()).setMarkdownDescription("New description");
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Not a custom rule");
@@ -555,11 +554,11 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_severity_is_set() {
-    RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {
-      createForPluginRule(ruleDefinition.getKey()).setSeverity(CRITICAL);
+      createForPluginRule(ruleDto.getKey()).setSeverity(CRITICAL);
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Not a custom rule");

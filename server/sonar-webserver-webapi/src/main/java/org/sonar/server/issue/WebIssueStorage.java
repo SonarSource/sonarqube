@@ -38,7 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.ServerRuleFinder;
 
@@ -165,6 +165,6 @@ public class WebIssueStorage extends IssueStorage {
   }
 
   protected Optional<String> getRuleUuid(Issue issue) {
-    return ruleFinder.findDtoByKey(issue.ruleKey()).map(RuleDefinitionDto::getUuid);
+    return ruleFinder.findDtoByKey(issue.ruleKey()).map(RuleDto::getUuid);
   }
 }

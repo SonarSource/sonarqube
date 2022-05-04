@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -55,19 +56,8 @@ public class RuleDao implements Dao {
     return Optional.ofNullable(mapper(session).selectByKey(key));
   }
 
-  public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key));
-  }
-
   public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key) {
     return Optional.ofNullable(mapper(session).selectMetadataByKey(key));
-  }
-
-  public List<RuleMetadataDto> selectMetadataByKeys(DbSession session, Collection<RuleKey> keys) {
-    if (keys.isEmpty()) {
-      return emptyList();
-    }
-    return executeLargeInputs(keys, mapper(session)::selectMetadataByKeys);
   }
 
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
@@ -75,31 +65,15 @@ public class RuleDao implements Dao {
       .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
   }
 
-  public RuleDefinitionDto selectOrFailDefinitionByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectDefinitionByKey(key))
-      .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
-  }
-
   public Optional<RuleDto> selectByUuid(String uuid, DbSession session) {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
-  public Optional<RuleDefinitionDto> selectDefinitionByUuid(String uuid, DbSession session) {
-    return Optional.ofNullable(mapper(session).selectDefinitionByUuid(uuid));
-  }
-
-  public List<RuleDto> selectByUuids(DbSession session, List<String> uuids) {
+  public List<RuleDto> selectByUuids(DbSession session, Collection<String> uuids) {
     if (uuids.isEmpty()) {
       return emptyList();
     }
     return executeLargeInputs(uuids, chunk -> mapper(session).selectByUuids(chunk));
-  }
-
-  public List<RuleDefinitionDto> selectDefinitionByUuids(DbSession session, Collection<String> uuids) {
-    if (uuids.isEmpty()) {
-      return emptyList();
-    }
-    return executeLargeInputs(uuids, mapper(session)::selectDefinitionByUuids);
   }
 
   public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
@@ -109,23 +83,12 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(chunk));
   }
 
-  public List<RuleDefinitionDto> selectDefinitionByKeys(DbSession session, Collection<RuleKey> keys) {
-    if (keys.isEmpty()) {
-      return emptyList();
-    }
-    return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
-  }
-
-  public List<RuleDefinitionDto> selectEnabled(DbSession session) {
+  public List<RuleDto> selectEnabled(DbSession session) {
     return mapper(session).selectEnabled();
   }
 
   public List<RuleDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
-  }
-
-  public List<RuleDefinitionDto> selectAllDefinitions(DbSession session) {
-    return mapper(session).selectAllDefinitions();
   }
 
   public List<RuleDto> selectByTypeAndLanguages(DbSession session, List<Integer> types, List<String> languages) {
@@ -136,39 +99,39 @@ public class RuleDao implements Dao {
     return mapper(session).selectByQuery(ruleQuery);
   }
 
-  public void insert(DbSession session, RuleDefinitionDto ruleDefinitionDto) {
-    checkNotNull(ruleDefinitionDto.getUuid(), "RuleDefinitionDto has no 'uuid'.");
+  public void insert(DbSession session, RuleDto ruleDto) {
+    checkNotNull(ruleDto.getUuid(), "RuleDto has no 'uuid'.");
     RuleMapper mapper = mapper(session);
-    mapper.insertDefinition(ruleDefinitionDto);
-    insertRuleDescriptionSectionDtos(ruleDefinitionDto, mapper);
+    mapper.insertRule(ruleDto);
+    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
+    updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
-  public void insert(DbSession session, RuleMetadataDto dto) {
-    checkNotNull(dto.getRuleUuid(), "RuleMetadataDto has no 'ruleUuid'.");
-    mapper(session).insertMetadata(dto);
-  }
-
-  public void update(DbSession session, RuleDefinitionDto ruleDefinitionDto) {
+  public void update(DbSession session, RuleDto ruleDto) {
     RuleMapper mapper = mapper(session);
-    mapper.updateDefinition(ruleDefinitionDto);
-    updateRuleDescriptionDtos(ruleDefinitionDto, mapper);
+    mapper.updateRule(ruleDto);
+    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
+    updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
-  private void updateRuleDescriptionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
-    mapper.deleteRuleDescriptionSection(ruleDefinitionDto.getUuid());
-    insertRuleDescriptionSectionDtos(ruleDefinitionDto, mapper);
+  private static void updateRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
+    mapper.deleteRuleDescriptionSection(ruleDto.getUuid());
+    insertRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
-  private static void insertRuleDescriptionSectionDtos(RuleDefinitionDto ruleDefinitionDto, RuleMapper mapper) {
-    ruleDefinitionDto.getRuleDescriptionSectionDtos()
-      .forEach(section -> mapper.insertRuleDescriptionSection(ruleDefinitionDto.getUuid(), section));
+  private static void insertRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
+    ruleDto.getRuleDescriptionSectionDtos()
+      .forEach(section -> mapper.insertRuleDescriptionSection(ruleDto.getUuid(), section));
   }
 
-  public void insertOrUpdate(DbSession session, RuleMetadataDto dto) {
-    if (mapper(session).countMetadata(dto) > 0) {
-      mapper(session).updateMetadata(dto);
+  @VisibleForTesting
+  void insertOrUpdateRuleMetadata(DbSession session, RuleMetadataDto ruleMetadataDto) {
+    if (ruleMetadataDto.isUndefined()) {
+      mapper(session).deleteMetadata(ruleMetadataDto.getRuleUuid());
+    } else if (mapper(session).countMetadata(ruleMetadataDto) > 0) {
+      mapper(session).updateMetadata(ruleMetadataDto);
     } else {
-      mapper(session).insertMetadata(dto);
+      mapper(session).insertMetadata(ruleMetadataDto);
     }
   }
 
@@ -248,7 +211,7 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ruleUuids, mapper(dbSession)::selectParamsByRuleUuids);
   }
 
-  public void insertRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
+  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     checkNotNull(rule.getUuid(), "Rule uuid must be set");
     param.setRuleUuid(rule.getUuid());
 
@@ -256,7 +219,7 @@ public class RuleDao implements Dao {
     mapper(session).insertParameter(param);
   }
 
-  public RuleParamDto updateRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
+  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     checkNotNull(rule.getUuid(), "Rule uuid must be set");
     checkNotNull(param.getUuid(), "Rule parameter is not yet persisted must be set");
     param.setRuleUuid(rule.getUuid());

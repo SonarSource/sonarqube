@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleQuery;
 
 /**
@@ -60,5 +60,5 @@ public interface QProfileRules {
    * Delete a rule from all Quality profiles. Db session is not committed. As a
    * consequence Elasticsearch indices are NOT updated.
    */
-  List<ActiveRuleChange> deleteRule(DbSession dbSession, RuleDefinitionDto rule);
+  List<ActiveRuleChange> deleteRule(DbSession dbSession, RuleDto rule);
 }

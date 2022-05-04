@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -85,7 +85,7 @@ public class DeactivateRuleActionTest {
   public void deactivate_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
+    RuleDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, rule.getKey().toString())
@@ -133,7 +133,7 @@ public class DeactivateRuleActionTest {
   public void fail_activate_external_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
+    RuleDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
@@ -147,7 +147,7 @@ public class DeactivateRuleActionTest {
 
   @Test
   public void fail_deactivate_if_built_in_profile() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true));

@@ -37,7 +37,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -57,23 +56,23 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
+  public Optional<RuleDto> findDtoByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return ruleDao.selectDefinitionByKey(dbSession, key)
+      return ruleDao.selectByKey(dbSession, key)
         .filter(r -> r.getStatus() != RuleStatus.REMOVED);
     }
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByUuid(String uuid) {
+  public Optional<RuleDto> findDtoByUuid(String uuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return ruleDao.selectDefinitionByUuid(uuid, dbSession)
+      return ruleDao.selectByUuid(uuid, dbSession)
         .filter(r -> r.getStatus() != RuleStatus.REMOVED);
     }
   }
 
   @Override
-  public Collection<RuleDefinitionDto> findAll() {
+  public Collection<RuleDto> findAll() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return ruleDao.selectEnabled(dbSession);
     }
@@ -149,7 +148,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
       .setStatus(rule.getStatus().name())
       .setSystemTags(rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]))
       .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
-      .setDescription(getDescriptionAsHtml(rule.getDefinition()));
+      .setDescription(getDescriptionAsHtml(rule));
 
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();

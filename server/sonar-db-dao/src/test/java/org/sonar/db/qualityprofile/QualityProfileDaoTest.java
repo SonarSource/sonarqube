@@ -38,7 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -505,7 +505,7 @@ public class QualityProfileDaoTest {
 
     // a built-in quality profile with active rules
     QProfileDto builtInQPWithActiveRules = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true));
-    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
+    RuleDto ruleDefinitionDto = db.rules().insert();
     db.qualityProfiles().activateRule(builtInQPWithActiveRules, ruleDefinitionDto);
 
     dbSession.commit();
@@ -546,7 +546,7 @@ public class QualityProfileDaoTest {
 
     // a built-in quality profile with active rules
     QProfileDto builtInQPWithActiveRules = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage("java"));
-    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
+    RuleDto ruleDefinitionDto = db.rules().insert();
     db.qualityProfiles().activateRule(builtInQPWithActiveRules, ruleDefinitionDto);
 
     dbSession.commit();

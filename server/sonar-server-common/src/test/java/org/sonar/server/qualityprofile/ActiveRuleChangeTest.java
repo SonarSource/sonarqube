@@ -25,7 +25,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
@@ -40,7 +40,7 @@ public class ActiveRuleChangeTest {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
     String ruleUuid = Uuids.createFast();
-    ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key, new RuleDefinitionDto().setUuid(ruleUuid));
+    ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key, new RuleDto().setUuid(ruleUuid));
 
     QProfileChangeDto result = underTest.toDto(A_USER_UUID);
 

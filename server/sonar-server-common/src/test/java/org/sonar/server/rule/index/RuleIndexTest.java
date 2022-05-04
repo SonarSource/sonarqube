@@ -37,7 +37,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
@@ -121,10 +121,10 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_key() {
-    RuleDefinitionDto js1 = createRule(
+    RuleDto js1 = createRule(
       setRepositoryKey("javascript"),
       setRuleKey("X001"));
-    RuleDefinitionDto cobol1 = createRule(
+    RuleDto cobol1 = createRule(
       setRepositoryKey("cobol"),
       setRuleKey("X001"));
     createRule(
@@ -147,7 +147,7 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_case_insensitive_key() {
-    RuleDefinitionDto ruleDto = createRule(
+    RuleDto ruleDto = createRule(
       setRepositoryKey("javascript"),
       setRuleKey("X001"));
     index();
@@ -203,7 +203,7 @@ public class RuleIndexTest {
 
   @Test
   public void search_name_with_protected_chars() {
-    RuleDefinitionDto rule = createRule(setName("ja#va&sc\"r:ipt"));
+    RuleDto rule = createRule(setName("ja#va&sc\"r:ipt"));
     index();
 
     RuleQuery protectedCharsQuery = new RuleQuery().setQueryText(rule.getName());
@@ -215,20 +215,20 @@ public class RuleIndexTest {
   public void search_content_by_query() {
     // it's important to set all the fields being used by the search (name, desc, key, lang, ...),
     // otherwise the generated random values may raise false-positives
-    RuleDefinitionDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
+    RuleDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
       .setName("rule 123")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "My great rule CWE-123 which makes your code 1000 times better!")));
-    RuleDefinitionDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
+    RuleDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
       .setName("rule 124")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great and shiny rule CWE-124")));
-    RuleDefinitionDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
+    RuleDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
       .setName("rule 1000")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great rule CWE-1000")));
-    RuleDefinitionDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
+    RuleDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
       .setName("rule 404")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(),
         "<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>")));
-    RuleDefinitionDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
+    RuleDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
       .setName("rule 405")
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
     index();
@@ -272,10 +272,10 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_any_of_repositories() {
-    RuleDefinitionDto findbugs = createRule(
+    RuleDto findbugs = createRule(
       setRepositoryKey("findbugs"),
       setRuleKey("S001"));
-    RuleDefinitionDto pmd = createRule(
+    RuleDto pmd = createRule(
       setRepositoryKey("pmd"),
       setRuleKey("S002"));
     index();
@@ -295,9 +295,9 @@ public class RuleIndexTest {
 
   @Test
   public void filter_by_tags() {
-    RuleDefinitionDto rule1 = createRule(setSystemTags("tag1s"));
+    RuleDto rule1 = createRule(setSystemTags("tag1s"));
     createRuleMetadata(rule1, setTags("tag1"));
-    RuleDefinitionDto rule2 = createRule(setSystemTags("tag2s"));
+    RuleDto rule2 = createRule(setSystemTags("tag2s"));
     createRuleMetadata(rule2, setTags("tag2"));
     index();
 
@@ -321,7 +321,7 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_supports_selected_value_with_regexp_special_characters() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     createRuleMetadata(rule, setTags("misra++"));
     index();
 
@@ -336,9 +336,9 @@ public class RuleIndexTest {
   @Test
   public void search_by_types() {
     createRule(setType(CODE_SMELL));
-    RuleDefinitionDto vulnerability = createRule(setType(VULNERABILITY));
-    RuleDefinitionDto bug1 = createRule(setType(BUG));
-    RuleDefinitionDto bug2 = createRule(setType(BUG));
+    RuleDto vulnerability = createRule(setType(VULNERABILITY));
+    RuleDto bug1 = createRule(setType(BUG));
+    RuleDto bug2 = createRule(setType(BUG));
     index();
 
     // find all
@@ -367,8 +367,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_is_template() {
-    RuleDefinitionDto ruleNoTemplate = createRule(setIsTemplate(false));
-    RuleDefinitionDto ruleIsTemplate = createRule(setIsTemplate(true));
+    RuleDto ruleNoTemplate = createRule(setIsTemplate(false));
+    RuleDto ruleIsTemplate = createRule(setIsTemplate(true));
     index();
 
     // find all
@@ -394,8 +394,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_is_external() {
-    RuleDefinitionDto ruleIsNotExternal = createRule(setIsExternal(false));
-    RuleDefinitionDto ruleIsExternal = createRule(setIsExternal(true));
+    RuleDto ruleIsNotExternal = createRule(setIsExternal(false));
+    RuleDto ruleIsExternal = createRule(setIsExternal(true));
     index();
 
     // Only external
@@ -411,8 +411,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_template_key() {
-    RuleDefinitionDto template = createRule(setIsTemplate(true));
-    RuleDefinitionDto customRule = createRule(setTemplateId(template.getUuid()));
+    RuleDto template = createRule(setIsTemplate(true));
+    RuleDto customRule = createRule(setTemplateId(template.getUuid()));
     index();
 
     // find all
@@ -433,7 +433,7 @@ public class RuleIndexTest {
   @Test
   public void search_by_any_of_languages() {
     createRule(setLanguage("java"));
-    RuleDefinitionDto javascript = createRule(setLanguage("js"));
+    RuleDto javascript = createRule(setLanguage("js"));
     index();
 
     RuleQuery query = new RuleQuery().setLanguages(asList("cobol", "js"));
@@ -455,8 +455,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_cwe_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")), r -> r.setType(VULNERABILITY));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")), r -> r.setType(SECURITY_HOTSPOT));
+    RuleDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")), r -> r.setType(VULNERABILITY));
+    RuleDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("owaspTop10:a1")), r -> r.setType(CODE_SMELL));
     index();
 
@@ -467,8 +467,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_owaspTop10_2017_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
+    RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
     index();
 
@@ -479,8 +479,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_owaspTop10_2021_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10-2021:a1", "owaspTop10-2021:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10-2021:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10-2021:a1", "owaspTop10-2021:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
+    RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10-2021:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
     index();
 
@@ -491,8 +491,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_sansTop25_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(SECURITY_HOTSPOT));
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+    RuleDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:306")), r -> r.setType(CODE_SMELL));
     index();
 
@@ -503,9 +503,9 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_sonarsource_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+    RuleDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
     createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(CODE_SMELL));
-    RuleDefinitionDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
+    RuleDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();
 
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
@@ -516,7 +516,7 @@ public class RuleIndexTest {
   @Test
   public void search_by_security_sonarsource_return_complete_list_of_facets() {
 
-    List<RuleDefinitionDto> rules = new ArrayList<>();
+    List<RuleDto> rules = new ArrayList<>();
 
     //Creation of one rule for each standard security category defined (except other)
     for (Map.Entry<SecurityStandards.SQCategory, Set<String>> sqCategorySetEntry : SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()) {
@@ -537,12 +537,12 @@ public class RuleIndexTest {
     String xoo = "xoo";
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
     QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
-    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
-    RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
-    RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
-    RuleDefinitionDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
-    RuleDefinitionDto anotherProfileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
-    RuleDefinitionDto anotherProfileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDto commonRule = db.rules().insertRule(r -> r.setLanguage(xoo));
+    RuleDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo));
+    RuleDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo));
+    RuleDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(xoo));
+    RuleDto anotherProfileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo));
+    RuleDto anotherProfileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo));
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(profile, profileRule1);
     db.qualityProfiles().activateRule(profile, profileRule2);
@@ -559,27 +559,27 @@ public class RuleIndexTest {
   }
 
   @SafeVarargs
-  private final RuleDefinitionDto createRule(Consumer<RuleDefinitionDto>... consumers) {
+  private final RuleDto createRule(Consumer<RuleDto>... consumers) {
     return db.rules().insert(consumers);
   }
 
-  private RuleDefinitionDto createJavaRule() {
+  private RuleDto createJavaRule() {
     return createRule(r -> r.setLanguage("java"));
   }
 
-  private RuleDefinitionDto createJavaRule(Consumer<RuleDefinitionDto> consumer) {
+  private RuleDto createJavaRule(Consumer<RuleDto> consumer) {
     return createRule(r -> r.setLanguage("java"), consumer);
   }
 
   @SafeVarargs
-  private final RuleMetadataDto createRuleMetadata(RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
+  private final RuleMetadataDto createRuleMetadata(RuleDto rule, Consumer<RuleMetadataDto>... populaters) {
     return db.rules().insertOrUpdateMetadata(rule, populaters);
   }
 
   @Test
   public void search_by_any_of_severities() {
     createRule(setSeverity(BLOCKER));
-    RuleDefinitionDto info = createRule(setSeverity(INFO));
+    RuleDto info = createRule(setSeverity(INFO));
     index();
 
     RuleQuery query = new RuleQuery().setSeverities(asList(INFO, MINOR));
@@ -601,8 +601,8 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_any_of_statuses() {
-    RuleDefinitionDto beta = createRule(setStatus(RuleStatus.BETA));
-    RuleDefinitionDto ready = createRule(setStatus(RuleStatus.READY));
+    RuleDto beta = createRule(setStatus(RuleStatus.BETA));
+    RuleDto ready = createRule(setStatus(RuleStatus.READY));
     index();
 
     RuleQuery query = new RuleQuery().setStatuses(asList(RuleStatus.DEPRECATED, RuleStatus.READY));
@@ -624,8 +624,8 @@ public class RuleIndexTest {
 
   @Test
   public void activation_parameter_is_ignored_if_profile_is_not_set() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
     QProfileDto profile1 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, rule1);
     index();
@@ -636,9 +636,9 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_activation() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
-    RuleDefinitionDto rule3 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
+    RuleDto rule3 = createJavaRule();
     QProfileDto profile1 = createJavaProfile();
     QProfileDto profile2 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, rule1);
@@ -659,11 +659,11 @@ public class RuleIndexTest {
     verifySearch(query);
   }
 
-  private void verifySearch(RuleQuery query, RuleDefinitionDto... expectedRules) {
+  private void verifySearch(RuleQuery query, RuleDto... expectedRules) {
     SearchIdResult<String> result = underTest.search(query, new SearchOptions());
     assertThat(result.getTotal()).isEqualTo(expectedRules.length);
     assertThat(result.getUuids()).hasSize(expectedRules.length);
-    for (RuleDefinitionDto expectedRule : expectedRules) {
+    for (RuleDto expectedRule : expectedRules) {
       assertThat(result.getUuids()).contains(expectedRule.getUuid());
     }
   }
@@ -683,10 +683,10 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_activation_and_inheritance() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
-    RuleDefinitionDto rule3 = createJavaRule();
-    RuleDefinitionDto rule4 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
+    RuleDto rule3 = createJavaRule();
+    RuleDto rule4 = createJavaRule();
     QProfileDto parent = createJavaProfile();
     QProfileDto child = createJavaProfile();
     db.qualityProfiles().activateRule(parent, rule1);
@@ -717,9 +717,9 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_activation_and_severity() {
-    RuleDefinitionDto major = createRule(setSeverity(MAJOR));
-    RuleDefinitionDto minor = createRule(setSeverity(MINOR));
-    RuleDefinitionDto info = createRule(setSeverity(INFO));
+    RuleDto major = createRule(setSeverity(MAJOR));
+    RuleDto minor = createRule(setSeverity(MINOR));
+    RuleDto info = createRule(setSeverity(INFO));
     QProfileDto profile1 = createJavaProfile();
     QProfileDto profile2 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, major, ar -> ar.setSeverity(BLOCKER));
@@ -740,7 +740,7 @@ public class RuleIndexTest {
 
   @Test
   public void facet_by_activation_severity_is_ignored_when_profile_is_not_specified() {
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDto rule = createJavaRule();
     QProfileDto profile = createJavaProfile();
     db.qualityProfiles().activateRule(profile, rule);
     index();
@@ -762,10 +762,10 @@ public class RuleIndexTest {
 
   @Test
   public void listTags_should_return_tags() {
-    RuleDefinitionDto rule1 = createRule(setSystemTags("sys1", "sys2"));
+    RuleDto rule1 = createRule(setSystemTags("sys1", "sys2"));
     createRuleMetadata(rule1, setTags("tag1"));
 
-    RuleDefinitionDto rule2 = createRule(setSystemTags());
+    RuleDto rule2 = createRule(setSystemTags());
     createRuleMetadata(rule2, setTags("tag2"));
 
     index();
@@ -782,28 +782,28 @@ public class RuleIndexTest {
 
   @Test
   public void available_since() {
-    RuleDefinitionDto ruleOld = createRule(setCreatedAt(1_000L));
-    RuleDefinitionDto ruleOlder = createRule(setCreatedAt(2_000L));
+    RuleDto ruleOld = createRule(setCreatedAt(-2_000L));
+    RuleDto ruleOlder = createRule(setCreatedAt(-1_000L));
     index();
 
     // 0. find all rules;
     verifySearch(new RuleQuery(), ruleOld, ruleOlder);
 
     // 1. find all rules available since a date;
-    RuleQuery availableSinceQuery = new RuleQuery().setAvailableSince(2000L);
+    RuleQuery availableSinceQuery = new RuleQuery().setAvailableSince(-1000L);
     verifySearch(availableSinceQuery, ruleOlder);
 
     // 2. find no new rules since tomorrow.
-    RuleQuery availableSinceNowQuery = new RuleQuery().setAvailableSince(3000L);
+    RuleQuery availableSinceNowQuery = new RuleQuery().setAvailableSince(1000L);
     verifyEmptySearch(availableSinceNowQuery);
   }
 
   @Test
   public void global_facet_on_repositories_and_tags() {
     createRule(setRepositoryKey("php"), setSystemTags("sysTag"));
-    RuleDefinitionDto rule1 = createRule(setRepositoryKey("php"), setSystemTags());
+    RuleDto rule1 = createRule(setRepositoryKey("php"), setSystemTags());
     createRuleMetadata(rule1, setTags("tag1"));
-    RuleDefinitionDto rule2 = createRule(setRepositoryKey("javascript"), setSystemTags());
+    RuleDto rule2 = createRule(setRepositoryKey("javascript"), setSystemTags());
     createRuleMetadata(rule2, setTags("tag1", "tag2"));
     index();
 
@@ -913,7 +913,7 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_should_find_tags() {
-    RuleDefinitionDto rule = createRule(setSystemTags());
+    RuleDto rule = createRule(setSystemTags());
     createRuleMetadata(rule, setTags("bla"));
     index();
 
@@ -1020,9 +1020,9 @@ public class RuleIndexTest {
 
   @Test
   public void sort_by_name() {
-    RuleDefinitionDto abcd = createRule(setName("abcd"));
-    RuleDefinitionDto abc = createRule(setName("ABC"));
-    RuleDefinitionDto fgh = createRule(setName("FGH"));
+    RuleDto abcd = createRule(setName("abcd"));
+    RuleDto abc = createRule(setName("ABC"));
+    RuleDto fgh = createRule(setName("FGH"));
     index();
 
     // ascending
@@ -1038,9 +1038,11 @@ public class RuleIndexTest {
 
   @Test
   public void default_sort_is_by_updated_at_desc() {
-    RuleDefinitionDto old = createRule(setCreatedAt(1000L), setUpdatedAt(1000L));
-    RuleDefinitionDto oldest = createRule(setCreatedAt(1000L), setUpdatedAt(3000L));
-    RuleDefinitionDto older = createRule(setCreatedAt(1000L), setUpdatedAt(2000L));
+    long currentTimeMillis = System.currentTimeMillis();
+
+    RuleDto old = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 1000L));
+    RuleDto oldest = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 3000L));
+    RuleDto older = createRule(setCreatedAt(1000L), setUpdatedAt(currentTimeMillis + 2000L));
     index();
 
     SearchIdResult<String> results = underTest.search(new RuleQuery(), new SearchOptions());
@@ -1104,9 +1106,9 @@ public class RuleIndexTest {
 
   @Test
   public void searchAll_keys_by_profile() {
-    RuleDefinitionDto rule1 = createRule();
-    RuleDefinitionDto rule2 = createRule();
-    RuleDefinitionDto rule3 = createRule();
+    RuleDto rule1 = createRule();
+    RuleDto rule2 = createRule();
+    RuleDto rule3 = createRule();
     QProfileDto profile1 = createJavaProfile();
     QProfileDto profile2 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, rule1);

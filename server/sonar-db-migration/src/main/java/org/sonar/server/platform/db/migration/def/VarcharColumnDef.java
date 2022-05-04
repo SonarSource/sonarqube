@@ -43,6 +43,7 @@ public class VarcharColumnDef extends AbstractColumnDef {
   public static final int UUID_VARCHAR_SIZE = 50;
   public static final int UUID_SIZE = 40;
 
+  public static final int DESCRIPTION_SECTION_KEY_SIZE = 50;
   /**
    * UUID length of the USERS table is not using the standard UUID length.
    * The reason of this is because when the UUID column was introduced in the USERS table, existing rows were fed with the login, which has a length of 255.

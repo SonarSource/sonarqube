@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
@@ -71,11 +71,11 @@ public class IssueUpdater {
   public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
     IssueChangeContext context, boolean refreshMeasures) {
 
-    Optional<RuleDefinitionDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
+    Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
     BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule, project, branch);
+    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), project, branch);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
@@ -91,13 +91,13 @@ public class IssueUpdater {
   }
 
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
-    Optional<RuleDefinitionDto> rule, ComponentDto project, BranchDto branchDto) {
+    @Nullable RuleDto ruleDto, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
     if (
       // since this method is called after an update of the issue, date should never be null
       issue.updateDate() == null
         // name of rule is displayed in notification, rule must therefor be present
-        || !rule.isPresent()
+        || ruleDto == null
         // notification are not supported on PRs
         || !hasNotificationSupport(branchDto)) {
       return issueDto;
@@ -113,7 +113,7 @@ public class IssueUpdater {
         .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
         .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
-        .setRule(rule.map(r -> new Rule(r.getKey(), RuleType.valueOfNullable(r.getType()), r.getName())).get())
+        .setRule(new Rule(ruleDto.getKey(), RuleType.valueOfNullable(ruleDto.getType()), ruleDto.getName()))
         .setProject(new Project.Builder(project.uuid())
           .setKey(project.getKey())
           .setProjectName(project.name())
@@ -145,8 +145,8 @@ public class IssueUpdater {
     return component;
   }
 
-  private Optional<RuleDefinitionDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
-    Optional<RuleDefinitionDto> rule = dbClient.ruleDao().selectDefinitionByKey(session, ruleKey);
+  private Optional<RuleDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
+    Optional<RuleDto> rule = dbClient.ruleDao().selectByKey(session, ruleKey);
     return (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) ? rule : Optional.empty();
   }
 

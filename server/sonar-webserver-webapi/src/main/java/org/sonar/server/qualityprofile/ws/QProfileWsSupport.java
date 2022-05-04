@@ -26,7 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
@@ -48,9 +48,9 @@ public class QProfileWsSupport {
     this.userSession = userSession;
   }
 
-  public RuleDefinitionDto getRule(DbSession dbSession, RuleKey ruleKey) {
-    Optional<RuleDefinitionDto> ruleDefinitionDto = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
-    RuleDefinitionDto rule = checkFoundWithOptional(ruleDefinitionDto, "Rule with key '%s' not found", ruleKey);
+  public RuleDto getRule(DbSession dbSession, RuleKey ruleKey) {
+    Optional<RuleDto> ruleDefinitionDto = dbClient.ruleDao().selectByKey(dbSession, ruleKey);
+    RuleDto rule = checkFoundWithOptional(ruleDefinitionDto, "Rule with key '%s' not found", ruleKey);
     checkRequest(!rule.isExternal(), "Operation forbidden for rule '%s' imported from an external rule engine.", ruleKey);
     return rule;
   }

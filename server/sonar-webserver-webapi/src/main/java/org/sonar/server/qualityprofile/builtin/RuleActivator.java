@@ -44,7 +44,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -89,7 +89,7 @@ public class RuleActivator {
   }
 
   private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
-    RuleDefinitionDto rule = context.getRule().get();
+    RuleDto rule = context.getRule().get();
     checkRequest(RuleStatus.REMOVED != rule.getStatus(), "Rule was removed: %s", rule.getKey());
     checkRequest(!rule.isTemplate(), "Rule template can't be activated on a Quality profile: %s", rule.getKey());
     checkRequest(context.getRulesProfile().getLanguage().equals(rule.getLanguage()),
@@ -157,7 +157,7 @@ public class RuleActivator {
     return stopCascading;
   }
 
-  private ActiveRuleChange handleNewRuleActivation(RuleActivation activation, RuleActivationContext context, RuleDefinitionDto rule, ActiveRuleKey activeRuleKey) {
+  private ActiveRuleChange handleNewRuleActivation(RuleActivation activation, RuleActivationContext context, RuleDto rule, ActiveRuleKey activeRuleKey) {
     ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey, rule);
     applySeverityAndParamToChange(activation, context, change);
     if (context.isCascading() || isSameAsParent(change, context)) {
@@ -484,7 +484,7 @@ public class RuleActivator {
   }
 
   private void completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<String> ruleUuids) {
-    List<RuleDefinitionDto> rules = db.ruleDao().selectDefinitionByUuids(dbSession, ruleUuids);
+    List<RuleDto> rules = db.ruleDao().selectByUuids(dbSession, ruleUuids);
     builder.setRules(rules);
     builder.setRuleParams(db.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids));
   }

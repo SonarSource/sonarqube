@@ -35,7 +35,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.source.FileSourceTester;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -249,7 +249,7 @@ public class IssueSnippetsActionTest {
   }
 
   private String insertIssue(ComponentDto file, DbIssues.Location... locations) {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     DbIssues.Flow flow = DbIssues.Flow.newBuilder().addAllLocation(Arrays.asList(locations)).build();
 
     IssueDto issue = db.issues().insert(rule, project, file, i -> {

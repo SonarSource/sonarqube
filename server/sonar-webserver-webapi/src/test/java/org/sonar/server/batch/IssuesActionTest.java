@@ -33,7 +33,7 @@ import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -72,7 +72,7 @@ public class IssuesActionTest {
 
   @Test
   public void test_nullable_fields() throws Exception {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null).setPath(null));
@@ -112,7 +112,7 @@ public class IssuesActionTest {
   @Test
   public void test_fields_with_non_null_values() throws Exception {
     UserDto user = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
@@ -147,7 +147,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_issues_of_project() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
@@ -169,7 +169,7 @@ public class IssuesActionTest {
 
   @Test
   public void does_not_return_issues_from_external_rules() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
@@ -177,10 +177,10 @@ public class IssuesActionTest {
     IssueDto issueOnModule = db.issues().insert(rule, project, module, i -> i.setKee("ON_MODULE").setType(randomRuleTypeExceptHotspot()));
     IssueDto issueOnFile = db.issues().insert(rule, project, file, i -> i.setKee("ON_FILE").setType(randomRuleTypeExceptHotspot()));
 
-    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    RuleDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
 
-    RuleDefinitionDto migrated = db.rules().insert();
+    RuleDto migrated = db.rules().insert();
     db.executeUpdateSql("update rules set is_external=? where rules.uuid = ?", false, migrated.getUuid());
     IssueDto issueFromMigratedRule = db.issues().insert(migrated, project, file, i -> i.setKee("MIGRATED").setType(randomRuleTypeExceptHotspot()));
 
@@ -199,7 +199,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_issues_of_module() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
@@ -220,7 +220,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_issues_of_file() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null));
@@ -240,7 +240,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_issues_by_project_and_branch() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     addPermissionTo(project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -255,7 +255,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_issues_by_module_and_branch() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     addPermissionTo(project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -286,7 +286,7 @@ public class IssuesActionTest {
 
   @Test
   public void issues_on_disabled_modules_are_returned() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project).setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null).setEnabled(false));

@@ -30,7 +30,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
@@ -70,7 +70,7 @@ public class QProfileRulesImplTest {
   @Test
   public void activate_one_rule() {
     QProfileDto qProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
     RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 
     qProfileRules.activateAndCommit(db.getSession(), qProfile, singleton(ruleActivation));
@@ -86,7 +86,7 @@ public class QProfileRulesImplTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     QProfileDto qProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
     RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 
     qProfileRules.activateAndCommit(db.getSession(), qProfile, singleton(ruleActivation));

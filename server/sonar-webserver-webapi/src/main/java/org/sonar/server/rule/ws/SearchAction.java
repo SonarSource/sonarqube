@@ -48,7 +48,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
@@ -212,7 +211,7 @@ public class SearchAction implements RulesWsAction {
   private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {
     Map<String, UserDto> usersByUuid = ruleWsSupport.getUsersByUuid(dbSession, result.rules);
     Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid = getDeprecatedRuleKeysByRuleUuid(dbSession, result.rules, context);
-    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata(), usersByUuid,
+    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule, result, context.getFields(), rule.getMetadata(), usersByUuid,
       deprecatedRuleKeysByRuleUuid)));
   }
 
@@ -276,7 +275,7 @@ public class SearchAction implements RulesWsAction {
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList());
-    List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, templateRuleUuids);
+    List<RuleDto> templateRules = dbClient.ruleDao().selectByUuids(dbSession, templateRuleUuids);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids);
     return new SearchResult()
       .setRules(rules)
@@ -391,7 +390,7 @@ public class SearchAction implements RulesWsAction {
   static class SearchResult {
     private List<RuleDto> rules;
     private final ListMultimap<String, RuleParamDto> ruleParamsByRuleUuid;
-    private final Map<String, RuleDefinitionDto> templateRulesByRuleUuid;
+    private final Map<String, RuleDto> templateRulesByRuleUuid;
     private Long total;
     private Facets facets;
 
@@ -422,13 +421,13 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
-    public Map<String, RuleDefinitionDto> getTemplateRulesByRuleUuid() {
+    public Map<String, RuleDto> getTemplateRulesByRuleUuid() {
       return templateRulesByRuleUuid;
     }
 
-    public SearchResult setTemplateRules(List<RuleDefinitionDto> templateRules) {
+    public SearchResult setTemplateRules(List<RuleDto> templateRules) {
       templateRulesByRuleUuid.clear();
-      for (RuleDefinitionDto templateRule : templateRules) {
+      for (RuleDto templateRule : templateRules) {
         templateRulesByRuleUuid.put(templateRule.getUuid(), templateRule);
       }
       return this;

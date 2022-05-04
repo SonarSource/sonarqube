@@ -46,7 +46,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -242,7 +242,7 @@ public class ChangeStatusActionTest {
   public void fails_with_NotFoundException_if_hotspot_is_closed(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto closedHotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
@@ -272,7 +272,7 @@ public class ChangeStatusActionTest {
   public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(String status, @Nullable String resolution, RuleType ruleType) {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(ruleType);
+    RuleDto rule = newRule(ruleType);
     IssueDto notAHotspot = dbTester.issues().insert(IssueTesting.newIssue(rule, project, file).setType(ruleType));
     userSessionRule.logIn();
     TestRequest request = newRequest(notAHotspot, status, resolution, NO_COMMENT);
@@ -576,17 +576,17 @@ public class ChangeStatusActionTest {
     return res;
   }
 
-  private RuleDefinitionDto newRule(RuleType ruleType) {
+  private RuleDto newRule(RuleType ruleType) {
     return newRule(ruleType, t -> {
     });
   }
 
-  private RuleDefinitionDto newRule(RuleType ruleType, Consumer<RuleDefinitionDto> populate) {
-    RuleDefinitionDto ruleDefinition = RuleTesting.newRule()
+  private RuleDto newRule(RuleType ruleType, Consumer<RuleDto> populate) {
+    RuleDto ruleDto = RuleTesting.newRule()
       .setType(ruleType);
-    populate.accept(ruleDefinition);
-    dbTester.rules().insert(ruleDefinition);
-    return ruleDefinition;
+    populate.accept(ruleDto);
+    dbTester.rules().insert(ruleDto);
+    return ruleDto;
   }
 
   private static void verifyAllSame3Objects(List<DefaultIssue> allValues) {

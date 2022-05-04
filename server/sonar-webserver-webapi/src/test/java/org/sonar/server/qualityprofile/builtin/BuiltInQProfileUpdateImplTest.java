@@ -43,7 +43,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
@@ -106,8 +106,8 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void activate_new_rules() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey()).overrideSeverity(Severity.CRITICAL);
@@ -127,7 +127,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void already_activated_rule_is_updated_in_case_of_differences() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.CRITICAL);
@@ -147,7 +147,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void already_activated_rule_is_not_touched_if_no_differences() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.CRITICAL);
@@ -167,8 +167,8 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void deactivate_rule_that_is_not_in_built_in_definition_anymore() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
@@ -190,9 +190,9 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void activate_deactivate_and_update_three_rules_at_the_same_time() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
-    RuleDefinitionDto rule3 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule3 = db.rules().insert(r -> r.setLanguage("xoo"));
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
@@ -221,7 +221,7 @@ public class BuiltInQProfileUpdateImplTest {
   // SONAR-10473
   @Test
   public void activate_rule_on_built_in_profile_resets_severity_to_default_if_not_overridden() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("xoo"));
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
@@ -245,7 +245,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void activate_rule_on_built_in_profile_resets_params_to_default_if_not_overridden() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
@@ -273,7 +273,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void propagate_activation_to_descendant_profiles() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     QProfileDto childProfile = createChildProfile(profile);
@@ -296,7 +296,7 @@ public class BuiltInQProfileUpdateImplTest {
   // SONAR-14559
   @Test
   public void propagate_rule_update_to_descendant_active_rule() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     activateRuleInDb(RulesProfileDto.from(parentProfile), rule, RulePriority.valueOf(Severity.MINOR), null);
@@ -323,7 +323,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void propagate_rule_param_update_to_descendant_active_rule_params() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -352,7 +352,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void do_not_load_descendants_if_no_changes() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     QProfileDto childProfile = createChildProfile(profile);
@@ -385,7 +385,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   @Test
   public void propagate_deactivation_to_descendant_profiles() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     QProfileDto childProfile = createChildProfile(profile);
@@ -424,7 +424,7 @@ public class BuiltInQProfileUpdateImplTest {
       .setIsBuiltIn(false);
   }
 
-  private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
+  private void assertThatRuleIsActivated(QProfileDto profile, RuleDto rule, @Nullable List<ActiveRuleChange> changes,
     String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -454,7 +454,7 @@ public class BuiltInQProfileUpdateImplTest {
       .containsExactlyInAnyOrder(expectedParams);
   }
 
-  private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity) {
+  private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
     assertThat(activeRule.getInheritance()).isNull();
@@ -463,7 +463,7 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRule.getUpdatedAt()).isEqualTo(NOW);
   }
 
-  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
+  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
     if (expectedInheritance != null) {
@@ -476,15 +476,15 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRule.getUpdatedAt()).isEqualTo(NOW);
   }
 
-  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity) {
+  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
     assertThatRuleIsUpdated(activeRules, rule, severity, null);
   }
 
-  private static void assertThatRuleIsUpdated(ActiveRuleDto activeRules, RuleDefinitionDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
+  private static void assertThatRuleIsUpdated(ActiveRuleDto activeRules, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
     assertThatRuleIsUpdated(singletonList(activeRules), rule, severity, expectedInheritance);
   }
 
-  private static void assertThatRuleIsUntouched(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity) {
+  private static void assertThatRuleIsUntouched(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
     assertThat(activeRule.getInheritance()).isNull();
@@ -493,13 +493,13 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRule.getUpdatedAt()).isEqualTo(PAST);
   }
 
-  private void assertThatRuleIsDeactivated(QProfileDto profile, RuleDefinitionDto rule) {
+  private void assertThatRuleIsDeactivated(QProfileDto profile, RuleDto rule) {
     Collection<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRulesAndRuleProfileUuids(
       db.getSession(), singletonList(rule.getUuid()), singletonList(profile.getRulesProfileUuid()));
     assertThat(activeRules).isEmpty();
   }
 
-  private static void assertThatRuleIsDeactivated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule) {
+  private static void assertThatRuleIsDeactivated(List<ActiveRuleDto> activeRules, RuleDto rule) {
     assertThat(findRule(activeRules, rule)).isEmpty();
   }
 
@@ -521,17 +521,17 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(reloaded.getRulesUpdatedAt()).isNull();
   }
 
-  private static Optional<ActiveRuleDto> findRule(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule) {
+  private static Optional<ActiveRuleDto> findRule(List<ActiveRuleDto> activeRules, RuleDto rule) {
     return activeRules.stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
       .findFirst();
   }
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto profile, RuleDefinitionDto rule, RulePriority severity) {
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto profile, RuleDto rule, RulePriority severity) {
     return activateRuleInDb(profile, rule, severity, null);
   }
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDefinitionDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setKey(ActiveRuleKey.of(ruleProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())))
       .setProfileUuid(ruleProfile.getUuid())

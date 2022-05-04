@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.rule.RuleDbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.tester.UserSessionRule;
@@ -80,8 +80,8 @@ public class IssueQueryFactoryTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    RuleDefinitionDto rule1 = ruleDbTester.insert();
-    RuleDefinitionDto rule2 = ruleDbTester.insert();
+    RuleDto rule1 = ruleDbTester.insert();
+    RuleDto rule2 = ruleDbTester.insert();
     ruleDbTester.insertOrUpdateMetadata(rule1, m -> m.setAdHocName(ruleAdHocName));
     ruleDbTester.insertOrUpdateMetadata(rule2, m -> m.setAdHocName(ruleAdHocName));
     newRule(RuleKey.of("findbugs", "NullReference"));

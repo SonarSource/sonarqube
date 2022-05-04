@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.workflow.Transition;
 
@@ -47,7 +47,7 @@ public class SearchResponseData {
 
   private Long effortTotal = null;
   private final Map<String, UserDto> usersByUuid = new HashMap<>();
-  private final List<RuleDefinitionDto> rules = new ArrayList<>();
+  private final List<RuleDto> rules = new ArrayList<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
@@ -85,7 +85,7 @@ public class SearchResponseData {
     return new ArrayList<>(usersByUuid.values());
   }
 
-  public List<RuleDefinitionDto> getRules() {
+  public List<RuleDto> getRules() {
     return rules;
   }
 
@@ -119,7 +119,7 @@ public class SearchResponseData {
     }
   }
 
-  public void addRules(@Nullable List<RuleDefinitionDto> rules) {
+  public void addRules(@Nullable List<RuleDto> rules) {
     if (rules != null) {
       this.rules.addAll(rules);
     }

@@ -38,7 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -194,7 +194,7 @@ public class SetTagsActionTest {
 
   @Test
   public void fail_when_security_hotspot() {
-    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    RuleDto rule = db.rules().insertHotspotRule();
     ComponentDto project = db.components().insertPublicProject(newPublicProjectDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertHotspot(rule, project, file);
@@ -226,7 +226,7 @@ public class SetTagsActionTest {
 
   @SafeVarargs
   private final IssueDto insertIssueForPublicProject(Consumer<IssueDto>... consumers) {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject(newPublicProjectDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return db.issues().insertIssue(rule, project, file, consumers);
@@ -261,7 +261,7 @@ public class SetTagsActionTest {
       .extracting(IssueDto::getKey)
       .containsOnly(issue.getKey());
     assertThat(preloadedSearchResponseData.getRules())
-      .extracting(RuleDefinitionDto::getKey)
+      .extracting(RuleDto::getKey)
       .containsOnly(issue.getRuleKey());
     assertThat(preloadedSearchResponseData.getComponents())
       .extracting(ComponentDto::uuid)

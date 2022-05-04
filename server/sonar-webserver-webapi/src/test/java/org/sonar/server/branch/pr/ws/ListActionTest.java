@@ -36,7 +36,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.protobuf.DbProjectBranches;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -251,7 +251,7 @@ public class ListActionTest {
         .setMergeBranchUuid(nonMainBranch.uuid())
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     db.measures().insertLiveMeasure(pullRequest, qualityGateStatus, m -> m.setData("ERROR"));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(null));
     db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(RESOLUTION_FIXED));
     db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(VULNERABILITY).setResolution(null));

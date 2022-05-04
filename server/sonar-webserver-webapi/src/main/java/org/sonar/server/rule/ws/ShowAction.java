@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -99,8 +98,8 @@ public class ShowAction implements RulesWsAction {
       RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
         .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
 
-      List<RuleDefinitionDto> templateRules = ofNullable(rule.getTemplateUuid())
-        .flatMap(templateUuid -> dbClient.ruleDao().selectDefinitionByUuid(rule.getTemplateUuid(), dbSession))
+      List<RuleDto> templateRules = ofNullable(rule.getTemplateUuid())
+        .flatMap(templateUuid -> dbClient.ruleDao().selectByUuid(rule.getTemplateUuid(), dbSession))
         .map(Collections::singletonList).orElseGet(Collections::emptyList);
 
       List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
@@ -117,10 +116,10 @@ public class ShowAction implements RulesWsAction {
   private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
-    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(),
+    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet(), rule.getMetadata(),
       ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules()), emptyMap()));
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(dbSession, rule.getDefinition()).forEach(responseBuilder::addActives);
+      activeRuleCompleter.completeShow(dbSession, rule).forEach(responseBuilder::addActives);
     }
     return responseBuilder.build();
   }

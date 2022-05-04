@@ -30,7 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -107,7 +107,7 @@ public class ListActionTest {
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
 
     indexIssues();
@@ -136,7 +136,7 @@ public class ListActionTest {
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
     indexIssues();
 

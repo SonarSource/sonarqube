@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.SeverityUtil;
 
 import static java.util.Objects.requireNonNull;
@@ -160,7 +160,7 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public static ActiveRuleDto createFor(QProfileDto profile, RuleDefinitionDto ruleDto) {
+  public static ActiveRuleDto createFor(QProfileDto profile, RuleDto ruleDto) {
     requireNonNull(profile.getRulesProfileUuid(), "Profile is not persisted");
     requireNonNull(ruleDto.getUuid(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();

@@ -35,7 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -258,7 +257,7 @@ public class RuleRepositoryImplTest {
     assertThat(underTest.getByKey(ruleKey).getType()).isNull();
 
     RuleDao ruleDao = dbClient.ruleDao();
-    Optional<RuleDefinitionDto> ruleDefinitionDto = ruleDao.selectDefinitionByKey(dbClient.openSession(false), ruleKey);
+    Optional<RuleDto> ruleDefinitionDto = ruleDao.selectByKey(dbClient.openSession(false), ruleKey);
     assertThat(ruleDefinitionDto).isNotPresent();
   }
 
@@ -272,7 +271,7 @@ public class RuleRepositoryImplTest {
     underTest.saveOrUpdateAddHocRules(db.getSession());
     db.commit();
 
-    Optional<RuleDefinitionDto> ruleDefinitionDto = db.getDbClient().ruleDao().selectDefinitionByKey(db.getSession(), ruleKey);
+    Optional<RuleDto> ruleDefinitionDto = db.getDbClient().ruleDao().selectByKey(db.getSession(), ruleKey);
     assertThat(ruleDefinitionDto).isPresent();
 
     Rule rule = underTest.getByKey(ruleKey);

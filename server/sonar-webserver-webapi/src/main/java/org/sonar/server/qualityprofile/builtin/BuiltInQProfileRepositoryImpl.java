@@ -45,7 +45,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.ServerRuleFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -129,7 +129,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     if (rulesProfilesByLanguage.isEmpty()) {
       return Collections.emptyList();
     }
-    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = loadRuleDefinitionsByRuleKey();
+    Map<RuleKey, RuleDto> rulesByRuleKey = loadRuleDefinitionsByRuleKey();
     Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
       .entrySet()
       .stream()
@@ -145,15 +145,15 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .collect(MoreCollectors.toList());
   }
 
-  private Map<RuleKey, RuleDefinitionDto> loadRuleDefinitionsByRuleKey() {
+  private Map<RuleKey, RuleDto> loadRuleDefinitionsByRuleKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Collection<RuleDefinitionDto> ruleDefinitions = ruleFinder.findAll();
+      Collection<RuleDto> ruleDefinitions = ruleFinder.findAll();
       Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
         .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
-      Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
-      for (RuleDefinitionDto ruleDefinition : ruleDefinitions) {
-        rulesByRuleKey.put(ruleDefinition.getKey(), ruleDefinition);
-        deprecatedRuleKeysByRuleId.get(ruleDefinition.getUuid()).forEach(t -> rulesByRuleKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), ruleDefinition));
+      Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
+      for (RuleDto ruleDto : ruleDefinitions) {
+        rulesByRuleKey.put(ruleDto.getKey(), ruleDto);
+        deprecatedRuleKeysByRuleId.get(ruleDto.getUuid()).forEach(t -> rulesByRuleKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), ruleDto));
       }
       return rulesByRuleKey;
     }
@@ -172,7 +172,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
    * </ul>
    */
   private static List<BuiltInQProfile.Builder> toQualityProfileBuilders(Map.Entry<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguageAndName,
-    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
+    Map<RuleKey, RuleDto> rulesByRuleKey) {
     String language = rulesProfilesByLanguageAndName.getKey();
     // use a LinkedHashMap to keep order of insertion of RulesProfiles
     Map<String, BuiltInQProfile.Builder> qualityProfileBuildersByName = new LinkedHashMap<>();
@@ -197,14 +197,14 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   }
 
   private static BuiltInQProfile.Builder updateOrCreateBuilder(String language, @Nullable BuiltInQProfile.Builder existingBuilder, BuiltInQualityProfile builtInProfile,
-    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
+    Map<RuleKey, RuleDto> rulesByRuleKey) {
     BuiltInQProfile.Builder builder = createOrReuseBuilder(existingBuilder, language, builtInProfile);
     builder.setDeclaredDefault(builtInProfile.isDefault());
     builtInProfile.rules().forEach(builtInActiveRule -> {
       RuleKey ruleKey = RuleKey.of(builtInActiveRule.repoKey(), builtInActiveRule.ruleKey());
-      RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
-      checkState(ruleDefinition != null, "Rule with key '%s' not found", ruleKey);
-      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getUuid(), ruleDefinition.getKey(),
+      RuleDto ruleDto = rulesByRuleKey.get(ruleKey);
+      checkState(ruleDto != null, "Rule with key '%s' not found", ruleKey);
+      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDto.getUuid(), ruleDto.getKey(),
         builtInActiveRule.overriddenSeverity(), builtInActiveRule.overriddenParams()));
     });
     return builder;

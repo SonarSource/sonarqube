@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.es.TestProjectIndexers;
 
@@ -196,7 +196,7 @@ public class ComponentCleanerServiceTest {
     ProjectDto project = dbClient.projectDao().selectByUuid(dbSession, componentDto.uuid()).get();
     BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.getUuid()).get();
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, componentDto);
     SnapshotDto analysis = db.components().insertSnapshot(componentDto);
     mockResourceTypeAsValidProject();

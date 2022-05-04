@@ -39,7 +39,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
@@ -127,7 +127,7 @@ public class ChangeParentActionTest {
     QProfileDto parent1 = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
+    RuleDto rule1 = createRule();
     createActiveRule(rule1, parent1);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexAll();
@@ -156,8 +156,8 @@ public class ChangeParentActionTest {
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
-    RuleDefinitionDto rule2 = createRule();
+    RuleDto rule1 = createRule();
+    RuleDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
@@ -187,7 +187,7 @@ public class ChangeParentActionTest {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
+    RuleDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexAll();
@@ -214,8 +214,8 @@ public class ChangeParentActionTest {
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
-    RuleDefinitionDto rule2 = createRule();
+    RuleDto rule1 = createRule();
+    RuleDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
@@ -269,7 +269,7 @@ public class ChangeParentActionTest {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
+    RuleDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexAll();
@@ -298,8 +298,8 @@ public class ChangeParentActionTest {
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
 
-    RuleDefinitionDto rule1 = createRule();
-    RuleDefinitionDto rule2 = createRule();
+    RuleDto rule1 = createRule();
+    RuleDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
@@ -367,8 +367,8 @@ public class ChangeParentActionTest {
     return profile;
   }
 
-  private RuleDefinitionDto createRule() {
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, randomAlphanumeric(5)))
+  private RuleDto createRule() {
+    RuleDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, randomAlphanumeric(5)))
       .setLanguage(language.getKey())
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
@@ -377,7 +377,7 @@ public class ChangeParentActionTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDto rule, QProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     dbClient.activeRuleDao().insert(dbSession, activeRule);

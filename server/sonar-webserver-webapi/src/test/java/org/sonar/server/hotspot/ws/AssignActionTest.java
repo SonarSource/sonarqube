@@ -46,7 +46,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -445,7 +445,7 @@ public class AssignActionTest {
   public void fail_if_trying_to_assign_issue(RuleType ruleType, String status) {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(ruleType);
+    RuleDto rule = newRule(ruleType);
     IssueDto issue = dbTester.issues().insertIssue(rule, project, file, i -> i
       .setStatus(status)
       .setType(ruleType));
@@ -479,7 +479,7 @@ public class AssignActionTest {
   public void fail_with_NotFoundException_if_hotspot_is_closed() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto issue = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
@@ -537,11 +537,11 @@ public class AssignActionTest {
     request.execute().assertNoContent();
   }
 
-  private RuleDefinitionDto newRule(RuleType ruleType) {
-    RuleDefinitionDto ruleDefinition = RuleTesting.newRule()
+  private RuleDto newRule(RuleType ruleType) {
+    RuleDto ruleDto = RuleTesting.newRule()
       .setType(ruleType);
-    dbTester.rules().insert(ruleDefinition);
-    return ruleDefinition;
+    dbTester.rules().insert(ruleDto);
+    return ruleDto;
   }
 
   private UserDto insertUser(String login) {

@@ -39,7 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
@@ -275,14 +275,14 @@ public class SearchResponseFormat {
 
   private Common.Rules.Builder formatRules(SearchResponseData data) {
     Common.Rules.Builder wsRules = Common.Rules.newBuilder();
-    List<RuleDefinitionDto> rules = firstNonNull(data.getRules(), emptyList());
-    for (RuleDefinitionDto rule : rules) {
+    List<RuleDto> rules = firstNonNull(data.getRules(), emptyList());
+    for (RuleDto rule : rules) {
       wsRules.addRules(formatRule(rule));
     }
     return wsRules;
   }
 
-  private Common.Rule.Builder formatRule(RuleDefinitionDto rule) {
+  private Common.Rule.Builder formatRule(RuleDto rule) {
     Common.Rule.Builder builder = Common.Rule.newBuilder()
       .setKey(rule.getKey().toString())
       .setName(nullToEmpty(rule.getName()))
@@ -410,7 +410,7 @@ public class SearchResponseFormat {
       return;
     }
 
-    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDefinitionDto::getUuid, RuleDefinitionDto::getKey));
+    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDto::getUuid, RuleDto::getKey));
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(PARAM_RULES);
     facet.forEach((ruleUuid, count) -> wsFacet.addValuesBuilder()

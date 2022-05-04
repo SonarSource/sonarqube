@@ -40,7 +40,7 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptyList;
@@ -53,28 +53,28 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
  */
 public class CachingRuleFinder implements ServerRuleFinder {
 
-  private static final Ordering<Map.Entry<RuleDefinitionDto, Rule>> FIND_BY_QUERY_ORDER = Ordering.natural().reverse().onResultOf(entry -> entry.getKey().getUpdatedAt());
+  private static final Ordering<Map.Entry<RuleDto, Rule>> FIND_BY_QUERY_ORDER = Ordering.natural().reverse().onResultOf(entry -> entry.getKey().getUpdatedAt());
 
-  private final Map<RuleKey, RuleDefinitionDto> ruleDtosByKey;
-  private final Map<String, RuleDefinitionDto> ruleDtosByUuid;
-  private final Map<RuleDefinitionDto, Rule> rulesByRuleDefinition;
+  private final Map<RuleKey, RuleDto> ruleDtosByKey;
+  private final Map<String, RuleDto> ruleDtosByUuid;
+  private final Map<RuleDto, Rule> ruleByRuleDto;
   private final Map<RuleKey, Rule> rulesByKey;
 
   public CachingRuleFinder(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDefinitionDto> dtos = dbClient.ruleDao().selectAllDefinitions(dbSession);
-      this.ruleDtosByKey = dtos.stream().collect(Collectors.toMap(RuleDefinitionDto::getKey, d -> d));
-      this.ruleDtosByUuid = dtos.stream().collect(Collectors.toMap(RuleDefinitionDto::getUuid, d -> d));
-      this.rulesByRuleDefinition = buildRulesByRuleDefinitionDto(dbClient, dbSession, dtos);
-      this.rulesByKey = this.rulesByRuleDefinition.entrySet().stream()
+      List<RuleDto> dtos = dbClient.ruleDao().selectAll(dbSession);
+      this.ruleDtosByKey = dtos.stream().collect(Collectors.toMap(RuleDto::getKey, d -> d));
+      this.ruleDtosByUuid = dtos.stream().collect(Collectors.toMap(RuleDto::getUuid, d -> d));
+      this.ruleByRuleDto = buildRulesByRuleDefinitionDto(dbClient, dbSession, dtos);
+      this.rulesByKey = this.ruleByRuleDto.entrySet().stream()
         .collect(uniqueIndex(entry -> entry.getKey().getKey(), Map.Entry::getValue));
     }
   }
 
-  private static Map<RuleDefinitionDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDefinitionDto> dtos) {
+  private static Map<RuleDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDto> dtos) {
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = retrieveRuleParameters(dbClient, dbSession);
-    Map<RuleDefinitionDto, Rule> rulesByDefinition = new HashMap<>(dtos.size());
-    for (RuleDefinitionDto definition : dtos) {
+    Map<RuleDto, Rule> rulesByDefinition = new HashMap<>(dtos.size());
+    for (RuleDto definition : dtos) {
       rulesByDefinition.put(definition, toRule(definition, ruleParamsByRuleUuid.getOrDefault(definition.getUuid(), emptyList())));
     }
     return unmodifiableMap(rulesByDefinition);
@@ -107,7 +107,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       return null;
     }
 
-    return rulesByRuleDefinition.entrySet().stream()
+    return ruleByRuleDto.entrySet().stream()
       .filter(entry -> matchQuery(entry.getKey(), query))
       .sorted(FIND_BY_QUERY_ORDER)
       .map(Map.Entry::getValue)
@@ -120,48 +120,47 @@ public class CachingRuleFinder implements ServerRuleFinder {
     if (query == null) {
       return Collections.emptyList();
     }
-    return rulesByRuleDefinition.entrySet().stream()
+    return ruleByRuleDto.entrySet().stream()
       .filter(entry -> matchQuery(entry.getKey(), query))
       .sorted(FIND_BY_QUERY_ORDER)
       .map(Map.Entry::getValue)
       .collect(MoreCollectors.toList());
   }
 
-  private static boolean matchQuery(RuleDefinitionDto ruleDefinition, RuleQuery ruleQuery) {
-    if (RuleStatus.REMOVED.equals(ruleDefinition.getStatus())) {
+  private static boolean matchQuery(RuleDto ruleDto, RuleQuery ruleQuery) {
+    if (RuleStatus.REMOVED.equals(ruleDto.getStatus())) {
       return false;
     }
     String repositoryKey = ruleQuery.getRepositoryKey();
-    if (ruleQuery.getRepositoryKey() != null && !repositoryKey.equals(ruleDefinition.getRepositoryKey())) {
+    if (ruleQuery.getRepositoryKey() != null && !repositoryKey.equals(ruleDto.getRepositoryKey())) {
       return false;
     }
     String key = ruleQuery.getKey();
-    if (key != null && !key.equals(ruleDefinition.getRuleKey())) {
+    if (key != null && !key.equals(ruleDto.getRuleKey())) {
       return false;
     }
     String configKey = ruleQuery.getConfigKey();
-    return configKey == null || configKey.equals(ruleDefinition.getConfigKey());
+    return configKey == null || configKey.equals(ruleDto.getConfigKey());
   }
 
-  private static Rule toRule(RuleDefinitionDto ruleDefinition, List<RuleParamDto> params) {
-    String severity = ruleDefinition.getSeverityString();
+  private static Rule toRule(RuleDto ruleDto, List<RuleParamDto> params) {
+    String severity = ruleDto.getSeverityString();
 
-    Rule apiRule = new Rule();
-    apiRule
-      .setName(ruleDefinition.getName())
-      .setLanguage(ruleDefinition.getLanguage())
-      .setKey(ruleDefinition.getRuleKey())
-      .setConfigKey(ruleDefinition.getConfigKey())
-      .setIsTemplate(ruleDefinition.isTemplate())
-      .setCreatedAt(new Date(ruleDefinition.getCreatedAt()))
-      .setUpdatedAt(new Date(ruleDefinition.getUpdatedAt()))
-      .setRepositoryKey(ruleDefinition.getRepositoryKey())
+    Rule apiRule = Rule.create()
+      .setName(ruleDto.getName())
+      .setKey(ruleDto.getRuleKey())
+      .setConfigKey(ruleDto.getConfigKey())
+      .setIsTemplate(ruleDto.isTemplate())
+      .setCreatedAt(new Date(ruleDto.getCreatedAt()))
+      .setUpdatedAt(new Date(ruleDto.getUpdatedAt()))
+      .setRepositoryKey(ruleDto.getRepositoryKey())
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
-      .setStatus(ruleDefinition.getStatus().name())
-      .setSystemTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
+      .setStatus(ruleDto.getStatus().name())
+      .setSystemTags(ruleDto.getSystemTags().toArray(new String[ruleDto.getSystemTags().size()]))
       .setTags(new String[0])
-      .setDescription(RuleDescriptionFormatter.getDescriptionAsHtml(ruleDefinition));
+      .setDescription(RuleDescriptionFormatter.getDescriptionAsHtml(ruleDto));
 
+    Optional.ofNullable(ruleDto.getLanguage()).map(apiRule::setLanguage);
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
@@ -174,17 +173,17 @@ public class CachingRuleFinder implements ServerRuleFinder {
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
+  public Optional<RuleDto> findDtoByKey(RuleKey key) {
     return Optional.ofNullable(this.ruleDtosByKey.get(key));
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByUuid(String uuid) {
+  public Optional<RuleDto> findDtoByUuid(String uuid) {
     return Optional.ofNullable(this.ruleDtosByUuid.get(uuid));
   }
 
   @Override
-  public Collection<RuleDefinitionDto> findAll() {
+  public Collection<RuleDto> findAll() {
     return ruleDtosByUuid.values();
   }
 

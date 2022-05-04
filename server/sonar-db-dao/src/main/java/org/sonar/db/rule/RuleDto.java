@@ -19,15 +19,23 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Collection;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptySet;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleDto {
 
@@ -39,176 +47,253 @@ public class RuleDto {
     MAIN, TEST, ALL
   }
 
-  private final RuleDefinitionDto definition;
+  private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+
+  private String uuid;
+  private String repositoryKey;
+  private String ruleKey;
+
+  private Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
+
+  /**
+   * Description format can be null on external rule, otherwise it should never be null
+   */
+  private RuleDto.Format descriptionFormat;
+  private RuleStatus status;
+  private String name;
+  private String configKey;
+
+  /**
+   * Severity can be null on external rule, otherwise it should never be null
+   */
+  private Integer severity;
+
+  private boolean isTemplate;
+
+  /**
+   * This flag specify that this is an external rule, meaning that generated issues from this rule will be provided by the analyzer without being activated on a quality profile.
+   */
+  private boolean isExternal;
+
+  /**
+   * When an external rule is defined as ad hoc, it means that it's not defined using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
+   * As the opposite, an external rule not being defined as ad hoc is declared by using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
+   * This flag is only used for external rules (it can only be set to true for when {@link #isExternal()} is true)
+   */
+  private boolean isAdHoc;
+
+  private String language;
+  private String templateUuid;
+  private String defRemediationFunction;
+  private String defRemediationGapMultiplier;
+  private String defRemediationBaseEffort;
+  private String gapDescription;
+  private String systemTagsField;
+  private String securityStandardsField;
+  private int type;
+  private Scope scope;
+
+  private RuleKey key;
+
+  private String pluginKey;
+
+  private long createdAt;
+  private long updatedAt;
+
   private final RuleMetadataDto metadata;
 
   public RuleDto() {
-    this(new RuleDefinitionDto(), new RuleMetadataDto());
+    this(new RuleMetadataDto());
   }
 
-  public RuleDto(RuleDefinitionDto definition, RuleMetadataDto metadata) {
-    this.definition = definition;
+  public RuleDto(RuleMetadataDto metadata) {
     this.metadata = metadata;
   }
 
-  public RuleDefinitionDto getDefinition() {
-    return definition;
-  }
 
   public RuleMetadataDto getMetadata() {
     return metadata;
   }
 
   public RuleKey getKey() {
-    return definition.getKey();
+    if (key == null) {
+      key = RuleKey.of(getRepositoryKey(), getRuleKey());
+    }
+    return key;
+  }
+
+  RuleDto setKey(RuleKey key) {
+    this.key = key;
+    setRepositoryKey(key.repository());
+    setRuleKey(key.rule());
+    return this;
   }
 
   public String getUuid() {
-    return definition.getUuid();
+    return uuid;
   }
 
   public RuleDto setUuid(String uuid) {
-    definition.setUuid(uuid);
+    this.uuid = uuid;
     metadata.setRuleUuid(uuid);
     return this;
   }
 
   public String getRepositoryKey() {
-    return definition.getRepositoryKey();
+    return repositoryKey;
   }
 
-  public RuleDto setRepositoryKey(String s) {
-    definition.setRepositoryKey(s);
+  public RuleDto setRepositoryKey(String repositoryKey) {
+    checkArgument(repositoryKey.length() <= 255, "Rule repository is too long: %s", repositoryKey);
+    this.repositoryKey = repositoryKey;
     return this;
   }
 
   public String getRuleKey() {
-    return definition.getRuleKey();
+    return ruleKey;
   }
 
-  public RuleDto setRuleKey(String s) {
-    definition.setRuleKey(s);
+  public RuleDto setRuleKey(String ruleKey) {
+    checkArgument(ruleKey.length() <= 200, "Rule key is too long: %s", ruleKey);
+    this.ruleKey = ruleKey;
+    return this;
+  }
+
+  public RuleDto setRuleKey(RuleKey ruleKey) {
+    this.repositoryKey = ruleKey.repository();
+    this.ruleKey = ruleKey.rule();
+    this.key = ruleKey;
     return this;
   }
 
   @CheckForNull
   public String getPluginKey() {
-    return definition.getPluginKey();
+    return pluginKey;
   }
 
-  public RuleDto setPluginKey(@Nullable String s) {
-    definition.setPluginKey(s);
+  public RuleDto setPluginKey(@Nullable String pluginKey) {
+    this.pluginKey = pluginKey;
     return this;
   }
 
+  public Set<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
+    return ruleDescriptionSectionDtos;
+  }
+
   @CheckForNull
-  public RuleDescriptionSectionDto getRuleDescriptionSection(String ruleDescriptionSectionKey) {
-    return definition.getRuleDescriptionSectionDto(ruleDescriptionSectionKey);
+  public RuleDescriptionSectionDto getRuleDescriptionSectionDto(String ruleDescriptionSectionKey) {
+    return findExistingSectionWithSameKey(ruleDescriptionSectionKey).orElse(null);
   }
 
   @CheckForNull
   public RuleDescriptionSectionDto getDefaultRuleDescriptionSection() {
-    return definition.getDefaultRuleDescriptionSectionDto();
-  }
-
-  public Collection<RuleDescriptionSectionDto> getRuleDescriptionSectionDtos() {
-    return definition.getRuleDescriptionSectionDtos();
+    return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
   }
 
   public RuleDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    definition.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    checkArgument(sectionWithSameKeyShouldNotExist(ruleDescriptionSectionDto),
+      "A section with key %s already exists", ruleDescriptionSectionDto.getKey());
+    ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
     return this;
+  }
+
+  private boolean sectionWithSameKeyShouldNotExist(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    return findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey()).isEmpty();
   }
 
   public RuleDto addOrReplaceRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    definition.addOrReplaceRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+    Optional<RuleDescriptionSectionDto> existingSectionWithSameKey = findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey());
+    existingSectionWithSameKey.ifPresent(ruleDescriptionSectionDtos::remove);
+    ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
     return this;
   }
 
-  void setRuleDescriptionSectionDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
-    definition.setRuleDescriptionSectionDtos(ruleDescriptionSectionDtos);
+  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
+    return ruleDescriptionSectionDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
   }
 
+
+  @CheckForNull
   public Format getDescriptionFormat() {
-    return definition.getDescriptionFormat();
+    return descriptionFormat;
   }
 
   public RuleDto setDescriptionFormat(Format descriptionFormat) {
-    definition.setDescriptionFormat(descriptionFormat);
+    this.descriptionFormat = descriptionFormat;
     return this;
   }
 
   public RuleStatus getStatus() {
-    return definition.getStatus();
+    return status;
   }
 
-  public RuleDto setStatus(@Nullable RuleStatus s) {
-    definition.setStatus(s);
+  public RuleDto setStatus(@Nullable RuleStatus status) {
+    this.status = status;
     return this;
   }
 
   public String getName() {
-    return definition.getName();
+    return name;
   }
 
-  public RuleDto setName(@Nullable String s) {
-    definition.setName(s);
+  public RuleDto setName(@Nullable String name) {
+    checkArgument(name == null || name.length() <= 255, "Rule name is too long: %s", name);
+    this.name = name;
     return this;
   }
 
   public String getConfigKey() {
-    return definition.getConfigKey();
+    return configKey;
   }
 
   public RuleDto setConfigKey(@Nullable String configKey) {
-    definition.setConfigKey(configKey);
+    this.configKey = configKey;
     return this;
   }
 
   public Scope getScope() {
-    return definition.getScope();
+    return scope;
   }
 
   public RuleDto setScope(Scope scope) {
-    definition.setScope(scope);
+    this.scope = scope;
     return this;
   }
 
   @CheckForNull
   public Integer getSeverity() {
-    return definition.getSeverity();
+    return severity;
   }
 
   @CheckForNull
   public String getSeverityString() {
-    return definition.getSeverityString();
+    return severity != null ? SeverityUtil.getSeverityFromOrdinal(severity) : null;
   }
 
   public RuleDto setSeverity(@Nullable String severity) {
-    definition.setSeverity(severity);
-    return this;
+    return this.setSeverity(severity != null ? SeverityUtil.getOrdinalFromSeverity(severity) : null);
   }
 
   public RuleDto setSeverity(@Nullable Integer severity) {
-    definition.setSeverity(severity);
+    this.severity = severity;
     return this;
   }
 
   public boolean isExternal() {
-    return definition.isExternal();
+    return isExternal;
   }
 
   public RuleDto setIsExternal(boolean isExternal) {
-    definition.setIsExternal(isExternal);
+    this.isExternal = isExternal;
     return this;
   }
 
   public boolean isAdHoc() {
-    return definition.isAdHoc();
+    return isAdHoc;
   }
 
   public RuleDto setIsAdHoc(boolean isAdHoc) {
-    definition.setIsAdHoc(isAdHoc);
+    this.isAdHoc = isAdHoc;
     return this;
   }
 
@@ -258,174 +343,93 @@ public class RuleDto {
   }
 
   public boolean isTemplate() {
-    return definition.isTemplate();
+    return isTemplate;
   }
 
   public RuleDto setIsTemplate(boolean isTemplate) {
-    definition.setIsTemplate(isTemplate);
+    this.isTemplate = isTemplate;
     return this;
   }
 
   @CheckForNull
   public String getLanguage() {
-    return definition.getLanguage();
+    return language;
   }
 
   public RuleDto setLanguage(String language) {
-    definition.setLanguage(language);
+    this.language = language;
     return this;
   }
 
   @CheckForNull
   public String getTemplateUuid() {
-    return definition.getTemplateUuid();
+    return templateUuid;
   }
 
   public RuleDto setTemplateUuid(@Nullable String templateUuid) {
-    definition.setTemplateUuid(templateUuid);
+    this.templateUuid = templateUuid;
     return this;
   }
 
-  @CheckForNull
-  public String getDefRemediationFunction() {
-    return definition.getDefRemediationFunction();
-  }
-
-  public RuleDto setDefRemediationFunction(@Nullable String defaultRemediationFunction) {
-    definition.setDefRemediationFunction(defaultRemediationFunction);
-    return this;
-  }
-
-  @CheckForNull
-  public String getDefRemediationGapMultiplier() {
-    return definition.getDefRemediationGapMultiplier();
-  }
-
-  public RuleDto setDefRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
-    definition.setDefRemediationGapMultiplier(defaultRemediationGapMultiplier);
-    return this;
-  }
-
-  @CheckForNull
-  public String getDefRemediationBaseEffort() {
-    return definition.getDefRemediationBaseEffort();
-  }
-
-  public RuleDto setDefRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
-    definition.setDefRemediationBaseEffort(defaultRemediationBaseEffort);
-    return this;
-  }
-
-  @CheckForNull
-  public String getGapDescription() {
-    return definition.getGapDescription();
-  }
-
-  public RuleDto setGapDescription(@Nullable String s) {
-    definition.setGapDescription(s);
-    return this;
+  public boolean isCustomRule() {
+    return getTemplateUuid() != null;
   }
 
   public RuleDto setSystemTags(Set<String> tags) {
-    this.definition.setSystemTags(tags);
+    this.systemTagsField = serializeStringSet(tags);
     return this;
   }
 
   public RuleDto setSecurityStandards(Set<String> standards) {
-    this.definition.setSecurityStandards(standards);
-    return this;
-  }
-
-  public int getType() {
-    return definition.getType();
-  }
-
-  public RuleDto setType(int type) {
-    definition.setType(type);
-    return this;
-  }
-
-  public RuleDto setType(RuleType type) {
-    definition.setType(type);
+    this.securityStandardsField = serializeStringSet(standards);
     return this;
   }
 
   public Set<String> getSystemTags() {
-    return definition.getSystemTags();
-  }
-
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setSystemTagsField(String s) {
-    definition.setSystemTagsField(s);
+    return deserializeTagsString(systemTagsField);
   }
 
   public Set<String> getSecurityStandards() {
-    return definition.getSecurityStandards();
+    return deserializeSecurityStandardsString(securityStandardsField);
   }
 
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setSecurityStandardsField(String s) {
-    definition.setSecurityStandardsField(s);
+  public int getType() {
+    return type;
   }
 
-  public long getCreatedAt() {
-    return definition.getCreatedAt();
-  }
-
-  public RuleDto setCreatedAt(long createdAt) {
-    definition.setCreatedAt(createdAt);
-    metadata.setCreatedAt(createdAt);
+  public RuleDto setType(int type) {
+    this.type = type;
     return this;
   }
 
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setCreatedAtFromDefinition(@Nullable Long createdAt) {
-    if (createdAt != null && createdAt > definition.getCreatedAt()) {
-      setCreatedAt(createdAt);
-    }
+  public RuleDto setType(RuleType type) {
+    this.type = type.getDbConstant();
+    return this;
   }
 
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setCreatedAtFromMetadata(@Nullable Long createdAt) {
-    if (createdAt != null && createdAt > definition.getCreatedAt()) {
-      setCreatedAt(createdAt);
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public RuleDto setCreatedAt(@Nullable Long createdAt) {
+    if ((this.createdAt == 0 && createdAt != null) || (createdAt != null && createdAt < this.createdAt)) {
+      this.createdAt = createdAt;
+      metadata.setCreatedAt(createdAt);
     }
+    return this;
   }
 
   public long getUpdatedAt() {
-    return definition.getUpdatedAt();
+    return updatedAt;
   }
 
-  public RuleDto setUpdatedAt(long updatedAt) {
-    definition.setUpdatedAt(updatedAt);
-    metadata.setUpdatedAt(updatedAt);
+  public RuleDto setUpdatedAt(@Nullable Long updatedAt) {
+    if (updatedAt != null && updatedAt > this.updatedAt) {
+      this.updatedAt = updatedAt;
+      metadata.setUpdatedAt(updatedAt);
+    }
     return this;
-  }
-
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setUpdatedAtFromDefinition(@Nullable Long updatedAt) {
-    if (updatedAt != null && updatedAt > definition.getUpdatedAt()) {
-      setUpdatedAt(updatedAt);
-    }
-  }
-
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setUpdatedAtFromMetadata(@Nullable Long updatedAt) {
-    if (updatedAt != null && updatedAt > definition.getUpdatedAt()) {
-      setUpdatedAt(updatedAt);
-    }
   }
 
   @CheckForNull
@@ -468,6 +472,48 @@ public class RuleDto {
     return this;
   }
 
+
+  @CheckForNull
+  public String getDefRemediationFunction() {
+    return defRemediationFunction;
+  }
+
+  public RuleDto setDefRemediationFunction(@Nullable String defaultRemediationFunction) {
+    this.defRemediationFunction = defaultRemediationFunction;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDefRemediationGapMultiplier() {
+    return defRemediationGapMultiplier;
+  }
+
+  public RuleDto setDefRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
+    this.defRemediationGapMultiplier = defaultRemediationGapMultiplier;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDefRemediationBaseEffort() {
+    return defRemediationBaseEffort;
+  }
+
+  public RuleDto setDefRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
+    this.defRemediationBaseEffort = defaultRemediationBaseEffort;
+    return this;
+  }
+
+  @CheckForNull
+  public String getGapDescription() {
+    return gapDescription;
+  }
+
+  public RuleDto setGapDescription(@Nullable String s) {
+    this.gapDescription = s;
+    return this;
+  }
+
+
   @CheckForNull
   public String getRemediationFunction() {
     return metadata.getRemediationFunction();
@@ -509,12 +555,31 @@ public class RuleDto {
     metadata.setTagsField(s);
   }
 
+
+  public static Set<String> deserializeTagsString(@Nullable String tags) {
+    return deserializeStringSet(tags);
+  }
+
+  public static Set<String> deserializeSecurityStandardsString(@Nullable String securityStandards) {
+    return deserializeStringSet(securityStandards);
+  }
+
+  private static Set<String> deserializeStringSet(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
+      return emptySet();
+    }
+
+    return ImmutableSet.copyOf(SPLITTER.split(str));
+  }
+
   public RuleDto setTags(Set<String> tags) {
     this.metadata.setTags(tags);
     return this;
   }
 
-
+  private static String serializeStringSet(@Nullable Set<String> strings) {
+    return strings == null || strings.isEmpty() ? null : StringUtils.join(strings, ',');
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -525,32 +590,14 @@ public class RuleDto {
       return true;
     }
     RuleDto other = (RuleDto) obj;
-    return new EqualsBuilder()
-      .append(getRepositoryKey(), other.getRepositoryKey())
-      .append(getRuleKey(), other.getRuleKey())
-      .isEquals();
+    return Objects.equals(this.uuid, other.uuid);
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(getRepositoryKey())
-      .append(getRuleKey())
+      .append(this.uuid)
       .toHashCode();
-  }
-
-  @Override
-  public String toString() {
-    return "RuleDto{" +
-      "definition=" + definition +
-      ", metadata=" + metadata +
-      '}';
-  }
-
-  public static RuleDto createFor(RuleKey key) {
-    return new RuleDto()
-      .setRepositoryKey(key.repository())
-      .setRuleKey(key.rule());
   }
 
 }

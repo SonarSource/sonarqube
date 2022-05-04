@@ -42,7 +42,7 @@ import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.NewRuleDescriptionSection;
@@ -142,10 +142,10 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
     List<ImportedRule> importedRules = qProfile.getRules();
 
-    Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey = getImportedRulesDefinitions(dbSession, importedRules);
+    Map<RuleKey, RuleDto> ruleDefinitionsByKey = getImportedRulesDefinitions(dbSession, importedRules);
     checkIfRulesFromExternalEngines(ruleDefinitionsByKey.values());
 
-    Map<RuleKey, RuleDefinitionDto> customRulesDefinitions = createCustomRulesIfNotExist(dbSession, importedRules, ruleDefinitionsByKey);
+    Map<RuleKey, RuleDto> customRulesDefinitions = createCustomRulesIfNotExist(dbSession, importedRules, ruleDefinitionsByKey);
     ruleDefinitionsByKey.putAll(customRulesDefinitions);
 
     List<RuleActivation> ruleActivations = toRuleActivations(importedRules, ruleDefinitionsByKey);
@@ -156,14 +156,14 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   /**
    * Returns map of rule definition for an imported rule key.
-   * The imported rule key may refer to a deprecated rule key, in which case the the RuleDefinitionDto will correspond to a different key (the new key).
+   * The imported rule key may refer to a deprecated rule key, in which case the the RuleDto will correspond to a different key (the new key).
    */
-  private Map<RuleKey, RuleDefinitionDto> getImportedRulesDefinitions(DbSession dbSession, List<ImportedRule> rules) {
+  private Map<RuleKey, RuleDto> getImportedRulesDefinitions(DbSession dbSession, List<ImportedRule> rules) {
     Set<RuleKey> ruleKeys = rules.stream()
       .map(ImportedRule::getRuleKey)
       .collect(toSet());
-    Map<RuleKey, RuleDefinitionDto> rulesDefinitions = db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys).stream()
-      .collect(Collectors.toMap(RuleDefinitionDto::getKey, identity()));
+    Map<RuleKey, RuleDto> rulesDefinitions = db.ruleDao().selectByKeys(dbSession, ruleKeys).stream()
+      .collect(Collectors.toMap(RuleDto::getKey, identity()));
 
     Set<RuleKey> unrecognizedRuleKeys = ruleKeys.stream()
       .filter(r -> !rulesDefinitions.containsKey(r))
@@ -177,8 +177,8 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         .filter(r -> !ruleKeys.contains(RuleKey.of(r.getNewRepositoryKey(), r.getNewRuleKey())))
         .collect(Collectors.toMap(DeprecatedRuleKeyDto::getRuleUuid, identity()));
 
-      List<RuleDefinitionDto> rulesBasedOnDeprecatedKeys = db.ruleDao().selectDefinitionByUuids(dbSession, deprecatedRuleKeysByUuid.keySet());
-      for (RuleDefinitionDto rule : rulesBasedOnDeprecatedKeys) {
+      List<RuleDto> rulesBasedOnDeprecatedKeys = db.ruleDao().selectByUuids(dbSession, deprecatedRuleKeysByUuid.keySet());
+      for (RuleDto rule : rulesBasedOnDeprecatedKeys) {
         DeprecatedRuleKeyDto deprecatedRuleKey = deprecatedRuleKeysByUuid.get(rule.getUuid());
         RuleKey oldRuleKey = RuleKey.of(deprecatedRuleKey.getOldRepositoryKey(), deprecatedRuleKey.getOldRuleKey());
         rulesDefinitions.put(oldRuleKey, rule);
@@ -188,9 +188,9 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     return rulesDefinitions;
   }
 
-  private static void checkIfRulesFromExternalEngines(Collection<RuleDefinitionDto> ruleDefinitions) {
-    List<RuleDefinitionDto> externalRules = ruleDefinitions.stream()
-      .filter(RuleDefinitionDto::isExternal)
+  private static void checkIfRulesFromExternalEngines(Collection<RuleDto> ruleDefinitions) {
+    List<RuleDto> externalRules = ruleDefinitions.stream()
+      .filter(RuleDto::isExternal)
       .collect(Collectors.toList());
 
     if (!externalRules.isEmpty()) {
@@ -199,16 +199,16 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     }
   }
 
-  private Map<RuleKey, RuleDefinitionDto> createCustomRulesIfNotExist(DbSession dbSession, List<ImportedRule> rules, Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
+  private Map<RuleKey, RuleDto> createCustomRulesIfNotExist(DbSession dbSession, List<ImportedRule> rules, Map<RuleKey, RuleDto> ruleDefinitionsByKey) {
     List<NewCustomRule> customRulesToCreate = rules.stream()
       .filter(r -> ruleDefinitionsByKey.get(r.getRuleKey()) == null && r.isCustomRule())
       .map(QProfileBackuperImpl::importedRuleToNewCustomRule)
       .collect(Collectors.toList());
 
     if (!customRulesToCreate.isEmpty()) {
-      return db.ruleDao().selectDefinitionByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate))
+      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate))
         .stream()
-        .collect(Collectors.toMap(RuleDefinitionDto::getKey, identity()));
+        .collect(Collectors.toMap(RuleDto::getKey, identity()));
     }
     return Collections.emptyMap();
   }
@@ -225,15 +225,15 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .setParameters(r.getParameters());
   }
 
-  private static List<RuleActivation> toRuleActivations(List<ImportedRule> rules, Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
+  private static List<RuleActivation> toRuleActivations(List<ImportedRule> rules, Map<RuleKey, RuleDto> ruleDefinitionsByKey) {
     List<RuleActivation> activatedRule = new ArrayList<>();
 
     for (ImportedRule r : rules) {
-      RuleDefinitionDto ruleDefinition = ruleDefinitionsByKey.get(r.getRuleKey());
-      if (ruleDefinition == null) {
+      RuleDto ruleDto = ruleDefinitionsByKey.get(r.getRuleKey());
+      if (ruleDto == null) {
         continue;
       }
-      activatedRule.add(RuleActivation.create(ruleDefinition.getUuid(), r.getSeverity(), r.getParameters()));
+      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getParameters()));
     }
     return activatedRule;
   }

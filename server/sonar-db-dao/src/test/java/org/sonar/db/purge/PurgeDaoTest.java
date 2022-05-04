@@ -75,7 +75,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
@@ -138,7 +138,7 @@ public class PurgeDaoTest {
   @Test
   public void purge_inactive_branches() {
     when(system2.now()).thenReturn(new Date().getTime());
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
@@ -177,7 +177,7 @@ public class PurgeDaoTest {
 
   @Test
   public void purge_inactive_pull_request() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
     db.components().insertSnapshot(nonMainBranch);
@@ -203,7 +203,7 @@ public class PurgeDaoTest {
 
   @Test
   public void purge_inactive_branches_when_analyzing_non_main_branch() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
     db.components().insertSnapshot(nonMainBranch);
@@ -236,7 +236,7 @@ public class PurgeDaoTest {
 
   @Test
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     db.components().insertSnapshot(project);
     db.components().insertSnapshot(project);
@@ -518,7 +518,7 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_project_and_associated_data() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "a/b"));
@@ -558,7 +558,7 @@ public class PurgeDaoTest {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject();
     BranchDto projectBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     ComponentDto app = db.components().insertPrivateApplication();
     ComponentDto appBranch = db.components().insertProjectBranch(app);
@@ -597,7 +597,7 @@ public class PurgeDaoTest {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject();
     BranchDto projectBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     ComponentDto app = db.components().insertPrivateApplication();
     ComponentDto appBranch = db.components().insertProjectBranch(app);
@@ -1035,7 +1035,7 @@ public class PurgeDaoTest {
   }
 
   private ComponentDto insertProjectWithBranchAndRelatedData() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
@@ -1097,7 +1097,7 @@ public class PurgeDaoTest {
 
   @Test
   public void should_delete_old_closed_issues() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
 
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -1147,7 +1147,7 @@ public class PurgeDaoTest {
     ComponentDto enabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(true));
     ComponentDto disabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(false));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto closed1 = db.issues().insert(rule, project, enabledFileWithIssues, issue -> {
       issue.setStatus("CLOSED");
       issue.setResolution(Issue.RESOLUTION_FIXED);
@@ -1853,7 +1853,7 @@ public class PurgeDaoTest {
       .map(t -> (String) t.get("UUID"));
   }
 
-  private void addComponentsSnapshotsAndIssuesToBranch(ComponentDto branch, RuleDefinitionDto rule, int branchAge) {
+  private void addComponentsSnapshotsAndIssuesToBranch(ComponentDto branch, RuleDto rule, int branchAge) {
     db.components().insertSnapshot(branch, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -branchAge).getTime()));
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));

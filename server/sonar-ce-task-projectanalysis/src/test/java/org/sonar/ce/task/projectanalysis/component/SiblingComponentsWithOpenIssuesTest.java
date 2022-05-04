@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +79,7 @@ public class SiblingComponentsWithOpenIssuesTest {
 
     fileWithNoIssuesOnBranch1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1, null));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     fileWithOneOpenIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
     db.issues().insert(rule, branch1pr1, fileWithOneOpenIssueOnBranch1Pr1);
@@ -167,7 +167,7 @@ public class SiblingComponentsWithOpenIssuesTest {
       b -> b.setBranchType(BranchType.PULL_REQUEST),
       b -> b.setMergeBranchUuid(project.uuid()));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     ComponentDto fileWithResolvedIssueOnPullrequest = db.components().insertComponent(ComponentTesting.newFileDto(pullRequest, null));
     db.issues().insert(rule, pullRequest, fileWithResolvedIssueOnPullrequest, i -> i.setStatus("RESOLVED"));
@@ -186,7 +186,7 @@ public class SiblingComponentsWithOpenIssuesTest {
       b -> b.setBranchType(BranchType.BRANCH),
       b -> b.setMergeBranchUuid(project.uuid()));
 
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     ComponentDto fileWithResolvedIssueOnDerivedBranch = db.components().insertComponent(ComponentTesting.newFileDto(derivedBranch, null));
     db.issues().insert(rule, derivedBranch, fileWithResolvedIssueOnDerivedBranch, i -> i.setStatus("RESOLVED"));

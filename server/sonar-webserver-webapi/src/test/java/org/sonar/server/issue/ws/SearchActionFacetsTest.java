@@ -34,7 +34,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.AvatarResolverImpl;
@@ -96,7 +96,7 @@ public class SearchActionFacetsTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     UserDto user = db.users().insertUser();
     db.issues().insertIssue(rule, project, file, i -> i
       .setSeverity("MAJOR")
@@ -134,7 +134,7 @@ public class SearchActionFacetsTest {
   public void display_projects_facet() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
     indexPermissions();
     indexIssues();
@@ -157,7 +157,7 @@ public class SearchActionFacetsTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project3));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, file1);
     db.issues().insertIssue(rule, project2, file2);
     db.issues().insertIssue(rule, project3, file3);
@@ -179,7 +179,7 @@ public class SearchActionFacetsTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src/main/java/dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
     indexPermissions();
     indexIssues();
@@ -200,7 +200,7 @@ public class SearchActionFacetsTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
     indexPermissions();
     indexIssues();
@@ -220,7 +220,7 @@ public class SearchActionFacetsTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file1);
     db.issues().insertIssue(rule, project, file2);
     indexPermissions();
@@ -241,7 +241,7 @@ public class SearchActionFacetsTest {
   public void fail_to_display_fileUuids_facet_when_no_project_is_set() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, file);
     indexPermissions();
     indexIssues();
@@ -267,7 +267,7 @@ public class SearchActionFacetsTest {
         ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
         ComponentDto file = db.components().insertComponent(newFileDto(directory));
 
-        RuleDefinitionDto rule = db.rules().insertIssueRule();
+        RuleDto rule = db.rules().insertIssueRule();
         db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(user.getUuid())
           .setStatus(ISSUE_STATUSES[random.nextInt(ISSUE_STATUSES.length)])
           .setType(rule.getType()));
@@ -312,7 +312,7 @@ public class SearchActionFacetsTest {
 
   @Test
   public void check_projects_facet_max_size() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     IntStream.rangeClosed(1, 110)
       .forEach(i -> {
         ComponentDto project = db.components().insertPublicProject();
@@ -337,8 +337,8 @@ public class SearchActionFacetsTest {
     ComponentDto project2 = db.components().insertPublicProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(module1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(module1));
-    RuleDefinitionDto rule1 = db.rules().insertIssueRule();
-    RuleDefinitionDto rule2 = db.rules().insertIssueRule();
+    RuleDto rule1 = db.rules().insertIssueRule();
+    RuleDto rule2 = db.rules().insertIssueRule();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.issues().insertIssue(rule1, project1, file1, i -> i
@@ -401,7 +401,7 @@ public class SearchActionFacetsTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     UserDto john = db.users().insertUser();
     UserDto alice = db.users().insertUser();
     db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(john.getUuid()));

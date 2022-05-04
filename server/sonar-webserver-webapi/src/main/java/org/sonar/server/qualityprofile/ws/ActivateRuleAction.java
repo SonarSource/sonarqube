@@ -29,7 +29,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.user.UserSession;
@@ -110,10 +110,10 @@ public class ActivateRuleAction implements QProfileWsAction {
 
   private RuleActivation readActivation(DbSession dbSession, Request request) {
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
-    RuleDefinitionDto ruleDefinition = wsSupport.getRule(dbSession, ruleKey);
+    RuleDto ruleDto = wsSupport.getRule(dbSession, ruleKey);
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
-      return RuleActivation.createReset(ruleDefinition.getUuid());
+      return RuleActivation.createReset(ruleDto.getUuid());
     }
     String severity = request.param(PARAM_SEVERITY);
     Map<String, String> params = null;
@@ -121,7 +121,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleDefinition.getUuid(), severity, params);
+    return RuleActivation.create(ruleDto.getUuid(), severity, params);
   }
 
 }

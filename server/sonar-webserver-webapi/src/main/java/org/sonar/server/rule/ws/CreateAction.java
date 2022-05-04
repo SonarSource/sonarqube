@@ -35,7 +35,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.ReactivationException;
@@ -169,11 +169,11 @@ public class CreateAction implements RulesWsAction {
   }
 
   private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
-    RuleDefinitionDto rule = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey)
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, ruleKey)
       .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
-    List<RuleDefinitionDto> templateRules = new ArrayList<>();
+    List<RuleDto> templateRules = new ArrayList<>();
     if (rule.isCustomRule()) {
-      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionByUuid(rule.getTemplateUuid(), dbSession);
+      Optional<RuleDto> templateRule = dbClient.ruleDao().selectByUuid(rule.getTemplateUuid(), dbSession);
       templateRule.ifPresent(templateRules::add);
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));

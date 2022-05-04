@@ -45,7 +45,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -131,7 +131,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
   private ActiveRuleChange insertActiveRule(DbSession batchDbSession, RulesProfileDto rulesProfileDto, BuiltInQProfile.ActiveRule activeRule, long now) {
     RuleKey ruleKey = activeRule.getRuleKey();
-    RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
+    RuleDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
     ActiveRuleDto dto = new ActiveRuleDto();
@@ -202,7 +202,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       }
     }
 
-    private Optional<RuleDefinitionDto> getDefinition(RuleKey ruleKey) {
+    private Optional<RuleDto> getDefinition(RuleKey ruleKey) {
       return ruleFinder.findDtoByKey(requireNonNull(ruleKey, "RuleKey can't be null"));
     }
 

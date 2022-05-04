@@ -29,7 +29,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
@@ -64,7 +64,7 @@ public class TransitionServiceTest {
   public void list_transitions() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
@@ -77,7 +77,7 @@ public class TransitionServiceTest {
   public void list_transitions_returns_empty_list_on_external_issue() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
+    RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
@@ -90,7 +90,7 @@ public class TransitionServiceTest {
   public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn();
 
@@ -103,7 +103,7 @@ public class TransitionServiceTest {
   public void list_transitions_returns_nothing_when_not_logged() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
@@ -115,7 +115,7 @@ public class TransitionServiceTest {
   public void do_transition() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     DefaultIssue defaultIssue = issue.toDefaultIssue();
@@ -129,7 +129,7 @@ public class TransitionServiceTest {
   public void do_transition_fail_on_external_issue() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
+    RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
 

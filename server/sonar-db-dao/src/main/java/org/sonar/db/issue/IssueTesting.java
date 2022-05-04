@@ -30,7 +30,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -46,16 +45,16 @@ public class IssueTesting {
     // only statics
   }
 
-  public static IssueDto newIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
+  public static IssueDto newIssue(RuleDto rule, ComponentDto project, ComponentDto file) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a project");
     return newIssue(rule, project.uuid(), project.getDbKey(), file);
   }
 
-  public static IssueDto newIssue(RuleDefinitionDto rule, ProjectDto project, ComponentDto file) {
+  public static IssueDto newIssue(RuleDto rule, ProjectDto project, ComponentDto file) {
     return newIssue(rule, project.getUuid(), project.getKey(), file);
   }
 
-  public static IssueDto newIssue(RuleDefinitionDto rule, String projectUuid, String projectKey, ComponentDto file) {
+  public static IssueDto newIssue(RuleDto rule, String projectUuid, String projectKey, ComponentDto file) {
     checkArgument(file.projectUuid().equals(projectUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
@@ -103,7 +102,7 @@ public class IssueTesting {
   public static IssueDto newDto(RuleDto rule, ComponentDto file, ComponentDto project) {
     return new IssueDto()
       .setKee(Uuids.createFast())
-      .setRule(rule.getDefinition())
+      .setRule(rule)
       .setType(RuleType.CODE_SMELL)
       .setComponent(file)
       .setProject(project)

@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 public class ActiveRuleChange {
 
@@ -45,17 +45,17 @@ public class ActiveRuleChange {
   private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
 
-  public ActiveRuleChange(Type type, ActiveRuleDto activeRule, RuleDefinitionDto ruleDefinition) {
+  public ActiveRuleChange(Type type, ActiveRuleDto activeRule, RuleDto ruleDto) {
     this.type = type;
     this.key = activeRule.getKey();
-    this.ruleUuid = ruleDefinition.getUuid();
+    this.ruleUuid = ruleDto.getUuid();
     this.activeRule = activeRule;
   }
 
-  public ActiveRuleChange(Type type, ActiveRuleKey key, RuleDefinitionDto ruleDefinition) {
+  public ActiveRuleChange(Type type, ActiveRuleKey key, RuleDto ruleDto) {
     this.type = type;
     this.key = key;
-    this.ruleUuid = ruleDefinition.getUuid();
+    this.ruleUuid = ruleDto.getUuid();
   }
 
   public ActiveRuleKey getKey() {

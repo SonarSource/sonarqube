@@ -40,7 +40,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.DefaultRuleFinder;
@@ -70,7 +70,7 @@ public class QProfileExportersTest {
     new StandardExporter(), new XooExporter()};
   private final ProfileImporter[] importers = new ProfileImporter[] {
     new XooProfileImporter(), new XooProfileImporterWithMessages(), new XooProfileImporterWithError()};
-  private RuleDefinitionDto rule;
+  private RuleDto rule;
   private final QProfileRules qProfileRules = mock(QProfileRules.class);
   private final QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, qProfileRules, exporters, importers);
 

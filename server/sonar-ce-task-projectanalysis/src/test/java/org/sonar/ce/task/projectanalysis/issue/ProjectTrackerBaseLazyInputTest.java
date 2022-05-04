@@ -37,7 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +64,7 @@ public class ProjectTrackerBaseLazyInputTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private ProjectTrackerBaseLazyInput underTest;
-  private RuleDefinitionDto rule;
+  private RuleDto rule;
   private ComponentDto rootProjectDto;
   private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
     System2.INSTANCE, mock(IssueChangesToDeleteRepository.class));

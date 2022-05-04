@@ -33,7 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
@@ -76,7 +76,7 @@ public class QProfileTreeImplTest {
 
   @Test
   public void set_itself_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
 
     assertThatThrownBy(() -> underTest.setParentAndCommit(db.getSession(), profile, profile))
@@ -86,7 +86,7 @@ public class QProfileTreeImplTest {
 
   @Test
   public void set_child_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -97,7 +97,7 @@ public class QProfileTreeImplTest {
 
   @Test
   public void set_grandchild_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandchildProfile = createChildProfile(childProfile);
@@ -109,8 +109,8 @@ public class QProfileTreeImplTest {
 
   @Test
   public void cannot_set_parent_if_language_is_different() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("foo"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("bar"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("foo"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("bar"));
 
     QProfileDto parentProfile = createProfile(rule1);
     List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule1.getUuid()));
@@ -127,8 +127,8 @@ public class QProfileTreeImplTest {
 
   @Test
   public void set_then_unset_parent() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
 
     QProfileDto profile1 = createProfile(rule1);
     List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getUuid()));
@@ -153,8 +153,8 @@ public class QProfileTreeImplTest {
 
   @Test
   public void set_then_unset_parent_keep_overridden_rules() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
     QProfileDto profile1 = createProfile(rule1);
     List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getUuid()));
     assertThat(changes).hasSize(1);
@@ -185,8 +185,8 @@ public class QProfileTreeImplTest {
 
   @Test
   public void activation_errors_are_ignored_when_setting_a_parent() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
     QProfileDto parentProfile = createProfile(rule1);
     activate(parentProfile, RuleActivation.create(rule1.getUuid()));
     activate(parentProfile, RuleActivation.create(rule2.getUuid()));
@@ -206,7 +206,7 @@ public class QProfileTreeImplTest {
     return qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
   }
 
-  private QProfileDto createProfile(RuleDefinitionDto rule) {
+  private QProfileDto createProfile(RuleDto rule) {
     return db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()));
   }
 
@@ -217,7 +217,7 @@ public class QProfileTreeImplTest {
       .setName("Child of " + parent.getName()));
   }
 
-  private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
+  private void assertThatRuleIsActivated(QProfileDto profile, RuleDto rule, @Nullable List<ActiveRuleChange> changes,
     String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -241,7 +241,7 @@ public class QProfileTreeImplTest {
     }
   }
 
-  private void assertThatRuleIsNotPresent(QProfileDto profile, RuleDefinitionDto rule) {
+  private void assertThatRuleIsNotPresent(QProfileDto profile, RuleDto rule) {
     Optional<OrgActiveRuleDto> activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -250,7 +250,7 @@ public class QProfileTreeImplTest {
     assertThat(activeRule).isEmpty();
   }
 
-  private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
+  private void assertThatRuleIsUpdated(QProfileDto profile, RuleDto rule,
     String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -265,11 +265,11 @@ public class QProfileTreeImplTest {
     assertThat(params).hasSize(expectedParams.size());
   }
 
-  private RuleDefinitionDto createRule() {
+  private RuleDto createRule() {
     return db.rules().insert(r -> r.setSeverity(Severity.MAJOR));
   }
 
-  private RuleDefinitionDto createJavaRule() {
+  private RuleDto createJavaRule() {
     return db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("java"));
   }
 }

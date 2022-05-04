@@ -28,7 +28,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -60,29 +59,12 @@ public class AdHocRuleCreator {
    */
   public RuleDto persistAndIndex(DbSession dbSession, NewAdHocRule adHoc) {
     RuleDao dao = dbClient.ruleDao();
-    Optional<RuleDto> existingRuleDtoOpt = dao.selectByKey(dbSession, adHoc.getKey());
     RuleMetadataDto metadata;
     long now = system2.now();
-    if (!existingRuleDtoOpt.isPresent()) {
-      RuleDefinitionDto dto = new RuleDefinitionDto()
-        .setUuid(uuidFactory.create())
-        .setRuleKey(adHoc.getKey())
-        .setIsExternal(true)
-        .setIsAdHoc(true)
-        .setName(adHoc.getEngineId() + ":" + adHoc.getRuleId())
-        .setScope(ALL)
-        .setStatus(READY)
-        .setCreatedAt(now)
-        .setUpdatedAt(now);
-      dao.insert(dbSession, dto);
-      metadata = new RuleMetadataDto().setRuleUuid(dto.getUuid());
-    } else {
-      // No need to update the rule, only org specific metadata
-      RuleDto ruleDto = existingRuleDtoOpt.get();
-      Preconditions.checkState(ruleDto.isExternal() && ruleDto.isAdHoc());
-      metadata = ruleDto.getMetadata();
-    }
 
+    RuleDto ruleDtoToUpdate = findOrCreateRuleDto(dbSession, adHoc, dao, now);
+
+    metadata = ruleDtoToUpdate.getMetadata();
     if (adHoc.hasDetails()) {
       boolean changed = false;
       if (!Objects.equals(metadata.getAdHocName(), adHoc.getName())) {
@@ -104,8 +86,8 @@ public class AdHocRuleCreator {
       }
       if (changed) {
         metadata.setUpdatedAt(now);
-        metadata.setCreatedAt(now);
-        dao.insertOrUpdate(dbSession, metadata);
+        metadata.setCreatedAt(ruleDtoToUpdate.getCreatedAt());
+        dao.update(dbSession, ruleDtoToUpdate);
       }
 
     }
@@ -113,6 +95,28 @@ public class AdHocRuleCreator {
     RuleDto ruleDto = dao.selectOrFailByKey(dbSession, adHoc.getKey());
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
     return ruleDto;
+  }
+
+  private RuleDto findOrCreateRuleDto(DbSession dbSession, NewAdHocRule adHoc, RuleDao dao, long now) {
+    Optional<RuleDto> existingRuleDtoOpt = dbClient.ruleDao().selectByKey(dbSession, adHoc.getKey());
+    if (existingRuleDtoOpt.isEmpty()) {
+      RuleDto ruleDto = new RuleDto()
+        .setUuid(uuidFactory.create())
+        .setRuleKey(adHoc.getKey())
+        .setIsExternal(true)
+        .setIsAdHoc(true)
+        .setName(adHoc.getEngineId() + ":" + adHoc.getRuleId())
+        .setScope(ALL)
+        .setStatus(READY)
+        .setCreatedAt(now)
+        .setUpdatedAt(now);
+      dao.insert(dbSession, ruleDto);
+      return ruleDto;
+    } else {
+      RuleDto ruleDto = existingRuleDtoOpt.get();
+      Preconditions.checkState(ruleDto.isExternal() && ruleDto.isAdHoc());
+      return ruleDto;
+    }
   }
 
 }

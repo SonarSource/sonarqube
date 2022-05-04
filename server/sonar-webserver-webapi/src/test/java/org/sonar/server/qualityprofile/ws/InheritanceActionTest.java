@@ -36,7 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
@@ -94,9 +94,9 @@ public class InheritanceActionTest {
 
   @Test
   public void inheritance_nominal() {
-    RuleDefinitionDto rule1 = createRule("xoo", "rule1");
-    RuleDefinitionDto rule2 = createRule("xoo", "rule2");
-    RuleDefinitionDto rule3 = createRule("xoo", "rule3");
+    RuleDto rule1 = createRule("xoo", "rule1");
+    RuleDto rule2 = createRule("xoo", "rule2");
+    RuleDto rule3 = createRule("xoo", "rule3");
 
     /*
      * sonar way (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
@@ -136,9 +136,9 @@ public class InheritanceActionTest {
 
   @Test
   public void inheritance_parent_child() throws Exception {
-    RuleDefinitionDto rule1 = db.rules().insert();
-    RuleDefinitionDto rule2 = db.rules().insert();
-    RuleDefinitionDto rule3 = db.rules().insert();
+    RuleDto rule1 = db.rules().insert();
+    RuleDto rule2 = db.rules().insert();
+    RuleDto rule3 = db.rules().insert();
     ruleIndexer.commitAndIndex(db.getSession(), asList(rule1.getUuid(), rule2.getUuid(), rule3.getUuid()));
 
     QProfileDto parent = db.qualityProfiles().insert();
@@ -170,7 +170,7 @@ public class InheritanceActionTest {
 
   @Test
   public void inheritance_ignores_removed_rules() throws Exception {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
+    RuleDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
     ruleIndexer.commitAndIndex(db.getSession(), rule.getUuid());
 
     QProfileDto profile = db.qualityProfiles().insert();
@@ -232,9 +232,9 @@ public class InheritanceActionTest {
     qProfileTree.setParentAndCommit(dbSession, parent, profile);
   }
 
-  private RuleDefinitionDto createRule(String lang, String id) {
+  private RuleDto createRule(String lang, String id) {
     long now = new Date().getTime();
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("blah", id))
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY)
@@ -245,7 +245,7 @@ public class InheritanceActionTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDto rule, QProfileDto profile) {
     long now = new Date().getTime();
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString())
@@ -255,7 +255,7 @@ public class InheritanceActionTest {
     return activeRule;
   }
 
-  private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
+  private void overrideActiveRuleSeverity(RuleDto rule, QProfileDto profile, String severity) {
     qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getUuid(), severity, null)));
   }
 }

@@ -34,7 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -109,7 +109,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_all_issues_when_no_parameter() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, projectFile);
@@ -124,7 +124,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void issues_on_different_projects() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file);
@@ -153,7 +153,7 @@ public class SearchActionComponentsTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(module1));
     ComponentDto module2 = db.components().insertComponent(newModuleDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(module2));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project, file1);
     IssueDto issue2 = db.issues().insertIssue(rule, project, file2);
     allowAnyoneOnProjects(project);
@@ -170,7 +170,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto module = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setDbKey("FK1"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("ISSUE_IN_MODULE"));
     db.issues().insertIssue(rule, project, project, i -> i.setKee("ISSUE_IN_ROOT_MODULE"));
     allowAnyoneOnProjects(project);
@@ -194,7 +194,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueAfterLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
       .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
@@ -217,7 +217,7 @@ public class SearchActionComponentsTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setDbKey("FK1"));
     db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueAfterLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
       .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
@@ -239,7 +239,7 @@ public class SearchActionComponentsTest {
   public void search_by_file_uuid() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     allowAnyoneOnProjects(project);
     indexIssues();
@@ -260,7 +260,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     ComponentDto unitTest = db.components().insertComponent(newFileDto(project, null, "F2").setQualifier(Qualifiers.UNIT_TEST_FILE).setDbKey("FK2"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueOnFile = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     IssueDto issueOnTest = db.issues().insertIssue(rule, project, unitTest, i -> i.setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4"));
     allowAnyoneOnProjects(project);
@@ -282,7 +282,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "D1", "src/main/java/dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1").setPath(directory.path() + "/MyComponent.java"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     allowAnyoneOnProjects(project);
     indexIssues();
@@ -317,7 +317,7 @@ public class SearchActionComponentsTest {
     ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "D2", "src/main/java/dir"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(module1, directory1, "F1").setDbKey("FK1").setPath(directory1.path() + "/MyComponent.java"));
     db.components().insertComponent(newFileDto(module2, directory2, "F2").setDbKey("FK2").setPath(directory2.path() + "/MyComponent.java"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file1, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     allowAnyoneOnProjects(project);
     indexIssues();
@@ -349,7 +349,7 @@ public class SearchActionComponentsTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     db.components().insertComponent(newProjectCopy(project, view));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     allowAnyoneOnProjects(project, view);
     indexIssuesAndViews();
@@ -364,7 +364,7 @@ public class SearchActionComponentsTest {
   public void search_by_sub_view_uuid() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "SV1", "MySubView"));
@@ -382,7 +382,7 @@ public class SearchActionComponentsTest {
   public void search_by_sub_view_uuid_return_only_authorized_view() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "SV1", "MySubView"));
@@ -404,7 +404,7 @@ public class SearchActionComponentsTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     db.components().insertComponents(newProjectCopy(project1, application));
     db.components().insertComponents(newProjectCopy(project2, application));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
     allowAnyoneOnApplication(application, project1, project2);
@@ -433,8 +433,8 @@ public class SearchActionComponentsTest {
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));
 
-    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
-    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    RuleDto issueRule = db.rules().insertIssueRule();
+    RuleDto hotspotRule = db.rules().insertHotspotRule();
     IssueDto issueOnProject1 = db.issues().insertIssue(issueRule, project1, project1);
     IssueDto issueOnProject1Branch1 = db.issues().insertIssue(issueRule, project1Branch1, project1Branch1);
     db.issues().insertHotspot(hotspotRule, project1Branch1, project1Branch1);
@@ -474,7 +474,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project, application));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
@@ -490,7 +490,7 @@ public class SearchActionComponentsTest {
   public void search_application_without_projects() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto application = db.components().insertPublicApplication();
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project);
     allowAnyoneOnProjects(project, application);
     indexIssuesAndViews();
@@ -505,7 +505,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_by_application_and_by_leak() {
     Date now = new Date();
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
@@ -540,7 +540,7 @@ public class SearchActionComponentsTest {
     ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
     allowAnyoneOnApplication(application, project1, project2);
@@ -559,7 +559,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_by_application_and_project_and_leak() {
     Date now = new Date();
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
@@ -591,7 +591,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_by_application_and_by_leak_when_one_project_has_no_leak() {
     Date now = new Date();
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
@@ -621,7 +621,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_branch() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
@@ -658,7 +658,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void return_branch_in_component_list() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
@@ -682,7 +682,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_pull_request() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
@@ -709,7 +709,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_using_main_branch_name() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
@@ -733,7 +733,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void does_not_return_branch_issues_on_not_contextualized_search() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
@@ -752,7 +752,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void does_not_return_branch_issues_when_using_db_key() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);

@@ -60,23 +60,23 @@ public class RuleTesting {
     // only static helpers
   }
 
-  public static RuleDefinitionDto newRule() {
+  public static RuleDto newRule() {
     return newRule(randomRuleKey());
   }
 
-  public static RuleDefinitionDto newRule(RuleKey key) {
-    RuleDefinitionDto ruleDefinitionDto = newRuleWithoutDescriptionSection(key);
-    ruleDefinitionDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
-    return ruleDefinitionDto;
+  public static RuleDto newRule(RuleKey key) {
+    RuleDto ruleDto = newRuleWithoutDescriptionSection(key);
+    ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
+    return ruleDto;
   }
 
-  public static RuleDefinitionDto newRuleWithoutDescriptionSection() {
+  public static RuleDto newRuleWithoutDescriptionSection() {
     return newRuleWithoutDescriptionSection(randomRuleKey());
   }
 
-  public static RuleDefinitionDto newRuleWithoutDescriptionSection(RuleKey ruleKey) {
+  public static RuleDto newRuleWithoutDescriptionSection(RuleKey ruleKey) {
     long currentTimeMillis = System.currentTimeMillis();
-    return new RuleDefinitionDto()
+    return new RuleDto()
       .setRepositoryKey(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .setUuid("rule_uuid_" + randomAlphanumeric(5))
@@ -116,20 +116,20 @@ public class RuleTesting {
       .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
       .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
-      .setCreatedAt(System.currentTimeMillis() - 100)
-      .setUpdatedAt(System.currentTimeMillis() - 50);
+      .setCreatedAt(System.currentTimeMillis())
+      .setUpdatedAt(System.currentTimeMillis() + 50);
   }
 
-  public static RuleMetadataDto newRuleMetadata(RuleDefinitionDto rule) {
+  public static RuleMetadataDto newRuleMetadata(RuleDto rule) {
     return newRuleMetadata()
       .setRuleUuid(rule.getUuid());
   }
 
-  public static RuleMetadataDto newRuleMetadata(RuleDefinitionDto rule, UserDto noteUser) {
+  public static RuleMetadataDto newRuleMetadata(RuleDto rule, UserDto noteUser) {
     return newRuleMetadata(rule).setNoteUserUuid(noteUser.getUuid());
   }
 
-  public static RuleParamDto newRuleParam(RuleDefinitionDto rule) {
+  public static RuleParamDto newRuleParam(RuleDto rule) {
     return new RuleParamDto()
       .setRuleUuid(rule.getUuid())
       .setName("name_" + randomAlphabetic(5))
@@ -216,19 +216,8 @@ public class RuleTesting {
       .setIsTemplate(true);
   }
 
-  /**
-   * @deprecated use {@link #newCustomRule(RuleDefinitionDto)}
-   */
-  @Deprecated
-  public static RuleDto newCustomRule(RuleDto templateRule) {
-    checkNotNull(templateRule.getUuid(), "The template rule need to be persisted before creating this custom rule.");
-    return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
-      .setLanguage(templateRule.getLanguage())
-      .setTemplateUuid(templateRule.getUuid())
-      .setType(templateRule.getType());
-  }
 
-  public static RuleDefinitionDto newCustomRule(RuleDefinitionDto templateRule) {
+  public static RuleDto newCustomRule(RuleDto templateRule) {
     checkNotNull(templateRule.getUuid(), "The template rule need to be persisted before creating this custom rule.");
     return newRule(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
       .setLanguage(templateRule.getLanguage())
@@ -244,59 +233,59 @@ public class RuleTesting {
     return RuleKey.of(randomAlphabetic(255), randomAlphabetic(200));
   }
 
-  public static Consumer<RuleDefinitionDto> setRepositoryKey(String repositoryKey) {
+  public static Consumer<RuleDto> setRepositoryKey(String repositoryKey) {
     return rule -> rule.setRepositoryKey(repositoryKey);
   }
 
-  public static Consumer<RuleDefinitionDto> setCreatedAt(long createdAt) {
+  public static Consumer<RuleDto> setCreatedAt(long createdAt) {
     return rule -> rule.setCreatedAt(createdAt);
   }
 
-  public static Consumer<RuleDefinitionDto> setUpdatedAt(long updatedtAt) {
+  public static Consumer<RuleDto> setUpdatedAt(long updatedtAt) {
     return rule -> rule.setUpdatedAt(updatedtAt);
   }
 
-  public static Consumer<RuleDefinitionDto> setRuleKey(String ruleKey) {
+  public static Consumer<RuleDto> setRuleKey(String ruleKey) {
     return rule -> rule.setRuleKey(ruleKey);
   }
 
-  public static Consumer<RuleDefinitionDto> setName(String name) {
+  public static Consumer<RuleDto> setName(String name) {
     return rule -> rule.setName(name);
   }
 
-  public static Consumer<RuleDefinitionDto> setLanguage(String language) {
+  public static Consumer<RuleDto> setLanguage(String language) {
     return rule -> rule.setLanguage(language);
   }
 
-  public static Consumer<RuleDefinitionDto> setSeverity(String severity) {
+  public static Consumer<RuleDto> setSeverity(String severity) {
     return rule -> rule.setSeverity(severity);
   }
 
-  public static Consumer<RuleDefinitionDto> setStatus(RuleStatus status) {
+  public static Consumer<RuleDto> setStatus(RuleStatus status) {
     return rule -> rule.setStatus(status);
   }
 
-  public static Consumer<RuleDefinitionDto> setType(RuleType type) {
+  public static Consumer<RuleDto> setType(RuleType type) {
     return rule -> rule.setType(type);
   }
 
-  public static Consumer<RuleDefinitionDto> setIsExternal(boolean isExternal) {
+  public static Consumer<RuleDto> setIsExternal(boolean isExternal) {
     return rule -> rule.setIsExternal(isExternal);
   }
 
-  public static Consumer<RuleDefinitionDto> setSecurityStandards(Set<String> securityStandards) {
+  public static Consumer<RuleDto> setSecurityStandards(Set<String> securityStandards) {
     return rule -> rule.setSecurityStandards(securityStandards);
   }
 
-  public static Consumer<RuleDefinitionDto> setIsTemplate(boolean isTemplate) {
+  public static Consumer<RuleDto> setIsTemplate(boolean isTemplate) {
     return rule -> rule.setIsTemplate(isTemplate);
   }
 
-  public static Consumer<RuleDefinitionDto> setTemplateId(@Nullable String templateUuid) {
+  public static Consumer<RuleDto> setTemplateId(@Nullable String templateUuid) {
     return rule -> rule.setTemplateUuid(templateUuid);
   }
 
-  public static Consumer<RuleDefinitionDto> setSystemTags(String... tags) {
+  public static Consumer<RuleDto> setSystemTags(String... tags) {
     return rule -> rule.setSystemTags(copyOf(tags));
   }
 

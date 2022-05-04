@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -42,8 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleMetadataDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TransitionService;
@@ -166,18 +164,23 @@ public class SearchResponseLoader {
   }
 
   private void loadRules(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
-    List<RuleDefinitionDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
+    List<RuleDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
-    preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size()))
+    preloadedRules.stream().map(RuleDto::getUuid).collect(toList(preloadedRules.size()))
         .forEach(ruleUuidsToLoad::remove);
 
-    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad);
-
-    getRulesMetadata(dbSession, rules);
-
+    List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, ruleUuidsToLoad);
+    updateNamesOfAdHocRules(rules);
     result.addRules(rules);
   }
+
+  private static void updateNamesOfAdHocRules(List<RuleDto> rules) {
+    rules.stream()
+      .filter(RuleDto::isAdHoc)
+      .forEach(r -> r.setName(r.getAdHocName()));
+  }
+
 
   private void loadComments(Collector collector, DbSession dbSession, Set<SearchAdditionalField> fields, SearchResponseData result) {
     if (fields.contains(COMMENTS)) {
@@ -343,23 +346,6 @@ public class SearchResponseLoader {
     public IssueDto apply(String issueKey) {
       return map.get(issueKey);
     }
-  }
-
-  private void getRulesMetadata(DbSession dbSession, List<RuleDefinitionDto> rules) {
-    List<RuleKey> adHocRuleKeys = rules.stream().filter(RuleDefinitionDto::isAdHoc)
-      .map(r -> RuleKey.of(r.getRepositoryKey(), r.getRuleKey()))
-      .collect(toList());
-
-    List<RuleMetadataDto> adHocRulesMetadata = dbClient.ruleDao().selectMetadataByKeys(dbSession, adHocRuleKeys);
-
-    rules.forEach(r -> {
-      if (r.isAdHoc()) {
-        String adHocName = adHocRulesMetadata.stream()
-          .filter(m -> m.getRuleUuid().equals(r.getUuid())).findFirst().map(RuleMetadataDto::getAdHocName)
-          .orElse(null);
-        r.setName(adHocName);
-      }
-    });
   }
 
 }

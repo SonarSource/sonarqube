@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 public interface ServerRuleFinder extends RuleFinder {
-  Optional<RuleDefinitionDto> findDtoByKey(RuleKey key);
+  Optional<RuleDto> findDtoByKey(RuleKey key);
 
-  Optional<RuleDefinitionDto> findDtoByUuid(String uuid);
+  Optional<RuleDto> findDtoByUuid(String uuid);
 
-  Collection<RuleDefinitionDto> findAll();
+  Collection<RuleDto> findAll();
 
 }

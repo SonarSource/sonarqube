@@ -37,7 +37,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ComponentUpdateDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -152,7 +151,7 @@ public class IssueDaoTest {
 
   @Test
   public void scrollNonClosedByComponentUuid() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto openIssue1OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
@@ -162,7 +161,7 @@ public class IssueDaoTest {
 
     IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
 
-    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    RuleDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), file.uuid()))
@@ -178,7 +177,7 @@ public class IssueDaoTest {
 
   @Test
   public void scrollNonClosedByModuleOrProject() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -193,7 +192,7 @@ public class IssueDaoTest {
 
     IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
 
-    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    RuleDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
@@ -211,7 +210,7 @@ public class IssueDaoTest {
 
   @Test
   public void selectOpenByComponentUuid() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
@@ -233,7 +232,7 @@ public class IssueDaoTest {
 
   @Test
   public void selectOpenByComponentUuid_should_correctly_map_required_fields() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
@@ -306,7 +305,7 @@ public class IssueDaoTest {
   public void selectGroupsOfComponentTreeOnLeak_on_file() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto fpBug = db.issues().insert(rule, project, file,
       i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR").setType(RuleType.BUG).setIssueCreationTime(1_500L));
     IssueDto criticalBug1 = db.issues().insert(rule, project, file,

@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +38,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.EsTester;
@@ -95,7 +95,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void system_activates_rule_without_parameters() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
@@ -108,7 +108,7 @@ public class QProfileRuleImplTest {
   @Test
   public void user_activates_rule_without_parameters() {
     userSession.logIn();
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
@@ -120,7 +120,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activate_rule_with_default_severity_and_parameters() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -134,7 +134,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activate_rule_with_parameters() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -148,7 +148,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activate_rule_with_default_severity() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
@@ -164,7 +164,7 @@ public class QProfileRuleImplTest {
    */
   @Test
   public void activate_rule_with_empty_parameter_having_no_default_value() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -182,7 +182,7 @@ public class QProfileRuleImplTest {
    */
   @Test
   public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto paramWithoutDefault = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue(null));
     RuleParamDto paramWithDefault = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
@@ -198,7 +198,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activation_ignores_unsupported_parameters() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -212,7 +212,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void update_an_already_activated_rule() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -232,7 +232,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void update_activation_with_parameter_without_default_value() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto paramWithoutDefault = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue(null));
     RuleParamDto paramWithDefault = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
@@ -253,7 +253,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void reset_parameter_to_default_value() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto paramWithDefault = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -273,7 +273,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void update_activation_removes_parameter_without_default_value() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto paramWithoutDefault = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue(null));
     RuleParamDto paramWithDefault = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
@@ -294,7 +294,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void update_activation_with_new_parameter() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -316,7 +316,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void ignore_activation_without_changes() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
 
     // initial activation
@@ -334,7 +334,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void do_not_change_severity_and_params_if_unset_and_already_activated() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
@@ -354,7 +354,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void fail_to_activate_rule_if_profile_is_on_different_languages() {
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDto rule = createJavaRule();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     RuleActivation activation = RuleActivation.create(rule.getUuid());
 
@@ -364,7 +364,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void fail_to_activate_rule_if_rule_has_REMOVED_status() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
+    RuleDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid());
 
@@ -374,7 +374,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void fail_to_activate_if_template() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsTemplate(true));
+    RuleDto rule = db.rules().insert(r -> r.setIsTemplate(true));
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid());
 
@@ -384,7 +384,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void fail_to_activate_if_invalid_parameter() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule, p -> p.setName("max").setDefaultValue("10").setType(PropertyType.INTEGER.name()));
     QProfileDto profile = createProfile(rule);
 
@@ -395,9 +395,9 @@ public class QProfileRuleImplTest {
 
   @Test
   public void ignore_parameters_when_activating_custom_rule() {
-    RuleDefinitionDto templateRule = db.rules().insert(r -> r.setIsTemplate(true));
+    RuleDto templateRule = db.rules().insert(r -> r.setIsTemplate(true));
     RuleParamDto templateParam = db.rules().insertRuleParam(templateRule, p -> p.setName("format"));
-    RuleDefinitionDto customRule = db.rules().insert(newCustomRule(templateRule));
+    RuleDto customRule = db.rules().insert(newCustomRule(templateRule));
     RuleParamDto customParam = db.rules().insertRuleParam(customRule, p -> p.setName("format").setDefaultValue("txt"));
     QProfileDto profile = createProfile(customRule);
 
@@ -417,7 +417,7 @@ public class QProfileRuleImplTest {
   @Test
   public void user_deactivates_a_rule() {
     userSession.logIn();
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
@@ -433,7 +433,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void system_deactivates_a_rule() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
@@ -446,7 +446,7 @@ public class QProfileRuleImplTest {
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
 
-  private void assertThatChangeIsDeactivation(List<ActiveRuleChange> changes, RuleDefinitionDto rule) {
+  private void assertThatChangeIsDeactivation(List<ActiveRuleChange> changes, RuleDto rule) {
     assertThat(changes).hasSize(1);
     ActiveRuleChange change = changes.get(0);
     assertThat(change.getType()).isEqualTo(ActiveRuleChange.Type.DEACTIVATED);
@@ -455,7 +455,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void ignore_deactivation_if_rule_is_not_activated() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
 
     List<ActiveRuleChange> changes = deactivate(profile, rule);
@@ -466,7 +466,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void deactivate_rule_that_has_REMOVED_status() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
@@ -483,7 +483,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activation_on_child_profile_is_propagated_to_descendants() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandChildProfile = createChildProfile(childProfile);
@@ -497,7 +497,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void update_on_child_profile_is_propagated_to_descendants() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -523,7 +523,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void override_activation_of_inherited_profile() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -545,7 +545,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void updated_activation_on_parent_is_not_propagated_to_overridden_profiles() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -572,7 +572,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void reset_on_parent_is_not_propagated_to_overridden_profiles() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -590,7 +590,9 @@ public class QProfileRuleImplTest {
     RuleActivation updateActivation = RuleActivation.createReset(rule.getUuid());
     changes = activate(parentProfile, updateActivation);
 
-    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, of(param.getName(), param.getDefaultValue()));
+    Map<String, String> test = new HashMap<>();
+    test.put(param.getName(), param.getDefaultValue());
+    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, test);
     assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, of(param.getName(), param.getDefaultValue()));
     assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(2);
@@ -599,7 +601,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void active_on_parent_a_rule_already_activated_on_child() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -619,7 +621,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void do_not_mark_as_overridden_if_same_values_than_parent() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -638,7 +640,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void propagate_deactivation_on_children() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -657,7 +659,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void propagate_deactivation_on_children_even_when_overridden() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -680,7 +682,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void cannot_deactivate_rule_inherited() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -697,7 +699,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void reset_child_profile_do_not_change_parent() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -722,7 +724,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void reset_parent_is_not_propagated_when_child_overrides() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto baseProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(baseProfile);
     QProfileDto grandChildProfile = createChildProfile(childProfile);
@@ -759,7 +761,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void ignore_reset_if_not_activated() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     createChildProfile(parentProfile);
 
@@ -792,8 +794,7 @@ public class QProfileRuleImplTest {
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(bulkSize);
-    rules.stream().forEach(
-      r -> assertThatRuleIsActivated(profile, r.getDefinition(), null, MINOR, null, emptyMap()));
+    rules.forEach(r -> assertThatRuleIsActivated(profile, r, null, MINOR, null, emptyMap()));
   }
 
   @Test
@@ -827,13 +828,12 @@ public class QProfileRuleImplTest {
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).isEmpty();
-    rules.stream().forEach(
-      r -> assertThatRuleIsNotPresent(profile, r.getDefinition()));
+    rules.forEach(r -> assertThatRuleIsNotPresent(profile, r));
   }
 
   @Test
   public void bulk_deactivation_ignores_errors() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
@@ -856,8 +856,8 @@ public class QProfileRuleImplTest {
 
   @Test
   public void bulk_change_severity() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDto rule1 = createJavaRule();
+    RuleDto rule2 = createJavaRule();
     QProfileDto parentProfile = createProfile(rule1);
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandchildProfile = createChildProfile(childProfile);
@@ -889,7 +889,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void delete_rule_from_all_profiles() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandChildProfile = createChildProfile(childProfile);
@@ -914,7 +914,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void activation_fails_when_profile_is_built_in() {
-    RuleDefinitionDto rule = createRule();
+    RuleDto rule = createRule();
     QProfileDto builtInProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
 
     assertThatThrownBy(() -> {
@@ -929,7 +929,7 @@ public class QProfileRuleImplTest {
     assertThat(activeRules).isEmpty();
   }
 
-  private List<ActiveRuleChange> deactivate(QProfileDto profile, RuleDefinitionDto rule) {
+  private List<ActiveRuleChange> deactivate(QProfileDto profile, RuleDto rule) {
     return underTest.deactivateAndCommit(db.getSession(), profile, singleton(rule.getUuid()));
   }
 
@@ -937,7 +937,7 @@ public class QProfileRuleImplTest {
     return underTest.activateAndCommit(db.getSession(), profile, singleton(activation));
   }
 
-  private QProfileDto createProfile(RuleDefinitionDto rule) {
+  private QProfileDto createProfile(RuleDto rule) {
     return db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()));
   }
 
@@ -960,7 +960,7 @@ public class QProfileRuleImplTest {
     assertThat(loaded.getRulesUpdatedAt()).isNotEmpty();
   }
 
-  private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
+  private void assertThatRuleIsActivated(QProfileDto profile, RuleDto rule, @Nullable List<ActiveRuleChange> changes,
     String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -984,7 +984,7 @@ public class QProfileRuleImplTest {
     }
   }
 
-  private void assertThatRuleIsNotPresent(QProfileDto profile, RuleDefinitionDto rule) {
+  private void assertThatRuleIsNotPresent(QProfileDto profile, RuleDto rule) {
     Optional<OrgActiveRuleDto> activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -993,7 +993,7 @@ public class QProfileRuleImplTest {
     assertThat(activeRule).isEmpty();
   }
 
-  private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
+  private void assertThatRuleIsUpdated(QProfileDto profile, RuleDto rule,
     String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -1022,11 +1022,11 @@ public class QProfileRuleImplTest {
     assertThat(db.countRowsOfTable(db.getSession(), "active_rules")).isZero();
   }
 
-  private RuleDefinitionDto createRule() {
+  private RuleDto createRule() {
     return db.rules().insert(r -> r.setSeverity(Severity.MAJOR));
   }
 
-  private RuleDefinitionDto createJavaRule() {
+  private RuleDto createJavaRule() {
     return db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("java"));
   }
 }

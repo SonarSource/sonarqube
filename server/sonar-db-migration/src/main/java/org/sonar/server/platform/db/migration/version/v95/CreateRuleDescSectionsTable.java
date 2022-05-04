@@ -25,12 +25,14 @@ import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
 import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.DESCRIPTION_SECTION_KEY_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateRuleDescSectionsTable extends CreateTableChange {
 
   static final String RULE_DESCRIPTION_SECTIONS_TABLE = "rule_desc_sections";
+
 
   public CreateRuleDescSectionsTable(Database db) {
     super(db, RULE_DESCRIPTION_SECTIONS_TABLE);
@@ -40,8 +42,8 @@ public class CreateRuleDescSectionsTable extends CreateTableChange {
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(40).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(DESCRIPTION_SECTION_KEY_SIZE).build())
       .addColumn(newClobColumnDefBuilder().setColumnName("content").setIsNullable(false).build())
       .build());
   }

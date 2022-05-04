@@ -27,7 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.DbClient;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   private final DbClient dbClient;
@@ -75,17 +75,17 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
+  public Optional<RuleDto> findDtoByKey(RuleKey key) {
     return delegate.findDtoByKey(key);
   }
 
   @Override
-  public Optional<RuleDefinitionDto> findDtoByUuid(String uuid) {
+  public Optional<RuleDto> findDtoByUuid(String uuid) {
     return delegate.findDtoByUuid(uuid);
   }
 
   @Override
-  public Collection<RuleDefinitionDto> findAll() {
+  public Collection<RuleDto> findAll() {
     return delegate.findAll();
   }
 

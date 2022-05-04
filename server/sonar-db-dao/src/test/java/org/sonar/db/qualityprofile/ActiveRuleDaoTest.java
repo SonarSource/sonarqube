@@ -34,7 +34,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -61,10 +61,10 @@ public class ActiveRuleDaoTest {
 
   private QProfileDto profile1;
   private QProfileDto profile2;
-  private RuleDefinitionDto rule1;
-  private RuleDefinitionDto rule2;
-  private RuleDefinitionDto rule3;
-  private RuleDefinitionDto removedRule;
+  private RuleDto rule1;
+  private RuleDto rule2;
+  private RuleDto rule3;
+  private RuleDto removedRule;
   private RuleParamDto rule1Param1;
   private RuleParamDto rule1Param2;
   private RuleParamDto rule2Param1;
@@ -159,7 +159,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void selectByTypeAndProfileUuids() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
     ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
 
     underTest.insert(dbSession, activeRule1);
@@ -171,7 +171,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void selectByTypeAndProfileUuids_ignores_rules_in_other_profiles() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
     ActiveRuleDto activeRule1 = createFor(profile2, rule1).setSeverity(BLOCKER);
 
     underTest.insert(dbSession, activeRule1);
@@ -182,7 +182,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void selectByTypeAndProfileUuids_ignores_rules_with_another_rule_type() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    RuleDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
     ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
 
     underTest.insert(dbSession, activeRule1);
@@ -410,7 +410,7 @@ public class ActiveRuleDaoTest {
     assertThat(db.countRowsOfTable(dbSession, "active_rules")).isOne();
   }
 
-  private static ActiveRuleDto newRow(QProfileDto profile, RuleDefinitionDto rule) {
+  private static ActiveRuleDto newRow(QProfileDto profile, RuleDto rule) {
     return createFor(profile, rule).setSeverity(BLOCKER);
   }
 
@@ -612,7 +612,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void countActiveRulesByQuery_filter_by_rule_status() {
-    RuleDefinitionDto betaRule = db.rules().insert(r -> r.setStatus(BETA));
+    RuleDto betaRule = db.rules().insert(r -> r.setStatus(BETA));
     db.qualityProfiles().activateRule(profile1, rule1);
     db.qualityProfiles().activateRule(profile1, rule2);
     db.qualityProfiles().activateRule(profile1, betaRule);

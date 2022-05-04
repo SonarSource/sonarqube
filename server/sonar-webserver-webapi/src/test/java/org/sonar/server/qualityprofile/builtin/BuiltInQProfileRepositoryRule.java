@@ -30,7 +30,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -84,18 +84,18 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
     return builder.build();
   }
 
-  public BuiltInQProfile create(BuiltInQualityProfilesDefinition.BuiltInQualityProfile api, RuleDefinitionDto... rules) {
+  public BuiltInQProfile create(BuiltInQualityProfilesDefinition.BuiltInQualityProfile api, RuleDto... rules) {
     BuiltInQProfile.Builder builder = new BuiltInQProfile.Builder()
       .setLanguage(api.language())
       .setName(api.name())
       .setDeclaredDefault(api.isDefault());
-    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = Arrays.stream(rules)
-      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+    Map<RuleKey, RuleDto> rulesByRuleKey = Arrays.stream(rules)
+      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
     api.rules().forEach(rule -> {
       RuleKey ruleKey = RuleKey.of(rule.repoKey(), rule.ruleKey());
-      RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
-      Preconditions.checkState(ruleDefinition != null, "Rule '%s' not found", ruleKey);
-      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getUuid(), rule));
+      RuleDto ruleDto = rulesByRuleKey.get(ruleKey);
+      Preconditions.checkState(ruleDto != null, "Rule '%s' not found", ruleKey);
+      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDto.getUuid(), rule));
     });
     return builder
       .build();

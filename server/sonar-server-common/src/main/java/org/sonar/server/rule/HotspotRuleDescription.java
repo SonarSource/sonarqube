@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 
 import static java.util.Optional.ofNullable;
@@ -47,7 +47,7 @@ public class HotspotRuleDescription {
     this.fixIt = fixIt;
   }
 
-  public static HotspotRuleDescription from(RuleDefinitionDto dto) {
+  public static HotspotRuleDescription from(RuleDto dto) {
     String description = RuleDescriptionFormatter.getDescriptionAsHtml(dto);
     return from(description);
   }

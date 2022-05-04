@@ -41,7 +41,7 @@ import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -69,7 +69,7 @@ public class QProfileFactoryImplTest {
   private DbSession dbSession = db.getSession();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QProfileFactory underTest = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), system2, activeRuleIndexer);
-  private RuleDefinitionDto rule;
+  private RuleDto rule;
   private RuleParamDto ruleParam;
 
   @Before

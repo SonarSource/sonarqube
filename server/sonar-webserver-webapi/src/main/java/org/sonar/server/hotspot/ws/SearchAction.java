@@ -54,7 +54,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -516,7 +516,7 @@ public class SearchAction implements HotspotsWsAction {
       .map(IssueDto::getRuleKey)
       .collect(Collectors.toSet());
     if (!ruleKeys.isEmpty()) {
-      searchResponseData.addRules(dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys));
+      searchResponseData.addRules(dbClient.ruleDao().selectByKeys(dbSession, ruleKeys));
     }
   }
 
@@ -548,7 +548,7 @@ public class SearchAction implements HotspotsWsAction {
 
     SearchWsResponse.Hotspot.Builder builder = SearchWsResponse.Hotspot.newBuilder();
     for (IssueDto hotspot : orderedHotspots) {
-      RuleDefinitionDto rule = searchResponseData.getRule(hotspot.getRuleKey())
+      RuleDto rule = searchResponseData.getRule(hotspot.getRuleKey())
         // due to join with table Rule when retrieving data from Issues, this can't happen
         .orElseThrow(() -> new IllegalStateException(format(
           "Rule with key '%s' not found for Hotspot '%s'", hotspot.getRuleKey(), hotspot.getKey())));
@@ -714,7 +714,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Paging paging;
     private final List<IssueDto> orderedHotspots;
     private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
-    private final Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
+    private final Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
 
     private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
       this.paging = paging;
@@ -747,11 +747,11 @@ public class SearchAction implements HotspotsWsAction {
       return componentsByUuid;
     }
 
-    void addRules(Collection<RuleDefinitionDto> rules) {
+    void addRules(Collection<RuleDto> rules) {
       rules.forEach(t -> rulesByRuleKey.put(t.getKey(), t));
     }
 
-    Optional<RuleDefinitionDto> getRule(RuleKey ruleKey) {
+    Optional<RuleDto> getRule(RuleKey ruleKey) {
       return ofNullable(rulesByRuleKey.get(ruleKey));
     }
 

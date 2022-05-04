@@ -29,7 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
@@ -102,13 +102,13 @@ public class UpdateActionTest {
   @Test
   public void update_custom_rule() {
     logInAsQProfileAdministrator();
-    RuleDefinitionDto templateRule = db.rules().insert(
+    RuleDto templateRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "S001")),
       r -> r.setIsTemplate(true),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    RuleDefinitionDto customRule = db.rules().insert(
+    RuleDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
       r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
@@ -154,7 +154,7 @@ public class UpdateActionTest {
   public void update_tags() {
     logInAsQProfileAdministrator();
 
-    RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
+    RuleDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
     db.rules().insertOrUpdateMetadata(rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
@@ -174,7 +174,7 @@ public class UpdateActionTest {
   public void update_rule_remediation_function() {
     logInAsQProfileAdministrator();
 
-    RuleDefinitionDto rule = db.rules().insert(
+    RuleDto rule = db.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
       r -> r.setDefRemediationGapMultiplier("10d"),
       r -> r.setDefRemediationBaseEffort(null));
@@ -213,7 +213,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_note() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto userHavingUpdatingNote = db.users().insertUser();
     db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, m -> m.setNoteData("old data"));
     UserDto userAuthenticated = db.users().insertUser();
@@ -239,12 +239,12 @@ public class UpdateActionTest {
   @Test
   public void fail_to_update_custom_when_description_is_empty() {
     logInAsQProfileAdministrator();
-    RuleDefinitionDto templateRule = db.rules().insert(
+    RuleDto templateRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "S001")),
       r -> r.setIsTemplate(true),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
-    RuleDefinitionDto customRule = db.rules().insert(
+    RuleDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
       r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
@@ -266,7 +266,7 @@ public class UpdateActionTest {
   @Test
   public void throw_IllegalArgumentException_if_trying_to_update_builtin_rule_description() {
     logInAsQProfileAdministrator();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     assertThatThrownBy(() -> {
       ws.newRequest().setMethod("POST")

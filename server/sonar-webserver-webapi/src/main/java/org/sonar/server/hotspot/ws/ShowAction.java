@@ -42,7 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangeWSSupport;
@@ -113,7 +113,7 @@ public class ShowAction implements HotspotsWsAction {
 
       Components components = loadComponents(dbSession, hotspot);
       Users users = loadUsers(dbSession, hotspot);
-      RuleDefinitionDto rule = loadRule(dbSession, hotspot);
+      RuleDto rule = loadRule(dbSession, hotspot);
 
       ShowWsResponse.Builder responseBuilder = ShowWsResponse.newBuilder();
       formatHotspot(responseBuilder, hotspot, users);
@@ -163,7 +163,7 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
-  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
+  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDefinitionDto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDefinitionDto.getSecurityStandards());
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
 
@@ -260,9 +260,9 @@ public class ShowAction implements HotspotsWsAction {
       .forEach(responseBuilder::addUsers);
   }
 
-  private RuleDefinitionDto loadRule(DbSession dbSession, IssueDto hotspot) {
+  private RuleDto loadRule(DbSession dbSession, IssueDto hotspot) {
     RuleKey ruleKey = hotspot.getRuleKey();
-    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey)
+    return dbClient.ruleDao().selectByKey(dbSession, ruleKey)
       .orElseThrow(() -> new NotFoundException(format("Rule '%s' does not exist", ruleKey)));
   }
 

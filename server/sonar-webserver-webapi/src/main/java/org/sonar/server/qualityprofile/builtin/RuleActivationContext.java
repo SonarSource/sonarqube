@@ -33,7 +33,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.RuleActivation;
 
@@ -83,7 +83,7 @@ public class RuleActivationContext {
     this.descendantProfilesSupplier = builder.descendantProfilesSupplier;
 
     ListMultimap<String, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleUuid));
-    for (RuleDefinitionDto rule : builder.rules) {
+    for (RuleDto rule : builder.rules) {
       RuleWrapper wrapper = new RuleWrapper(rule, paramsByRuleId.get(rule.getUuid()));
       rulesByUuid.put(rule.getUuid(), wrapper);
     }
@@ -243,7 +243,7 @@ public class RuleActivationContext {
   static final class Builder {
     private long date = System.currentTimeMillis();
     private RulesProfileDto baseRulesProfile;
-    private Collection<RuleDefinitionDto> rules;
+    private Collection<RuleDto> rules;
     private Collection<RuleParamDto> ruleParams;
     private Collection<QProfileDto> profiles;
     private Collection<ActiveRuleDto> activeRules;
@@ -260,7 +260,7 @@ public class RuleActivationContext {
       return this;
     }
 
-    Builder setRules(Collection<RuleDefinitionDto> rules) {
+    Builder setRules(Collection<RuleDto> rules) {
       this.rules = rules;
       return this;
     }
@@ -308,15 +308,15 @@ public class RuleActivationContext {
   }
 
   public static final class RuleWrapper {
-    private final RuleDefinitionDto rule;
+    private final RuleDto rule;
     private final Map<String, RuleParamDto> paramsByKey;
 
-    private RuleWrapper(RuleDefinitionDto rule, Collection<RuleParamDto> params) {
+    private RuleWrapper(RuleDto rule, Collection<RuleParamDto> params) {
       this.rule = rule;
       this.paramsByKey = params.stream().collect(uniqueIndex(RuleParamDto::getName));
     }
 
-    public RuleDefinitionDto get() {
+    public RuleDto get() {
       return rule;
     }
 

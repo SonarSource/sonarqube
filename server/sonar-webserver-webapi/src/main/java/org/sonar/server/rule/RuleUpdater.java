@@ -43,7 +43,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -219,7 +218,7 @@ public class RuleUpdater {
       RuleDto customRule = rule;
       String templateUuid = customRule.getTemplateUuid();
       checkNotNull(templateUuid, "Rule '%s' has no persisted template!", customRule);
-      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionByUuid(templateUuid, dbSession);
+      Optional<RuleDto> templateRule = dbClient.ruleDao().selectByUuid(templateUuid, dbSession);
       if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateUuid(), customRule.getKey()));
@@ -250,7 +249,7 @@ public class RuleUpdater {
 
       // Update rule param
       ruleParamDto.setDefaultValue(value);
-      dbClient.ruleDao().updateRuleParam(dbSession, customRule.getDefinition(), ruleParamDto);
+      dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
 
       if (value != null) {
         // Update linked active rule params or create new one
@@ -333,8 +332,7 @@ public class RuleUpdater {
 
   private void update(DbSession session, RuleDto rule) {
     rule.setUpdatedAt(system.now());
-    dbClient.ruleDao().update(session, rule.getDefinition());
-    dbClient.ruleDao().insertOrUpdate(session, rule.getMetadata());
+    dbClient.ruleDao().update(session, rule);
   }
 
 }

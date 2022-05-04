@@ -36,7 +36,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
@@ -609,7 +609,7 @@ public class IssueIndexFiltersTest {
   public void filter_by_rules() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
     indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()));
@@ -622,7 +622,7 @@ public class IssueIndexFiltersTest {
   public void filter_by_languages() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
     indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));

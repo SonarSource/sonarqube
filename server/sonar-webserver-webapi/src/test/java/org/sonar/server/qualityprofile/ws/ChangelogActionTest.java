@@ -34,7 +34,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -65,7 +65,7 @@ public class ChangelogActionTest {
   public void return_change_with_all_fields() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
-    RuleDefinitionDto rule = db.rules().insert(RuleKey.of("java", "S001"));
+    RuleDto rule = db.rules().insert(RuleKey.of("java", "S001"));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
       "ruleUuid", rule.getUuid(),
       "severity", "MINOR",
@@ -104,7 +104,7 @@ public class ChangelogActionTest {
   @Test
   public void find_changelog_by_profile_key() {
     QProfileDto profile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
@@ -136,7 +136,7 @@ public class ChangelogActionTest {
   @Test
   public void find_changelog_by_language_and_name() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
@@ -182,7 +182,7 @@ public class ChangelogActionTest {
   public void changelog_filter_by_since() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
@@ -220,14 +220,14 @@ public class ChangelogActionTest {
   public void sort_changelog_events_in_reverse_chronological_order() {
     QProfileDto profile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
-    RuleDefinitionDto rule1 = db.rules().insert();
+    RuleDto rule1 = db.rules().insert();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null,
       ImmutableMap.of(
         "ruleUuid", rule1.getUuid(),
         "severity", "MINOR"));
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
     UserDto user = db.users().insertUser();
-    RuleDefinitionDto rule2 = db.rules().insert();
+    RuleDto rule2 = db.rules().insert();
     insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user,
       ImmutableMap.of("ruleUuid", rule2.getUuid()));
 
@@ -288,7 +288,7 @@ public class ChangelogActionTest {
   @Test
   public void changelog_on_no_more_existing_user() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     insertChange(c -> c.setRulesProfileUuid(qualityProfile.getRulesProfileUuid())
       .setUserUuid("UNKNOWN")
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
@@ -320,7 +320,7 @@ public class ChangelogActionTest {
     String profileUuid = profile.getRulesProfileUuid();
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
-    RuleDefinitionDto rule1 = db.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
+    RuleDto rule1 = db.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())
@@ -328,7 +328,7 @@ public class ChangelogActionTest {
       .setData(ImmutableMap.of("severity", "CRITICAL", "ruleUuid", rule1.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
-    RuleDefinitionDto rule2 = db.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
+    RuleDto rule2 = db.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user2.getUuid())
@@ -336,7 +336,7 @@ public class ChangelogActionTest {
       .setData(ImmutableMap.of("ruleUuid", rule2.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
-    RuleDefinitionDto rule3 = db.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
+    RuleDto rule3 = db.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user3.getUuid())

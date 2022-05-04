@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -84,7 +84,7 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getRule_throws_BadRequest_if_rule_is_external() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
+    RuleDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
     assertThatThrownBy(() -> underTest.getRule(db.getSession(), rule.getKey()))
       .isInstanceOf(BadRequestException.class)

@@ -34,7 +34,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -258,7 +258,7 @@ public class SearchEventsActionNewIssuesTest {
   }
 
   private void insertIssue(ComponentDto component, SnapshotDto analysis) {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setType(randomRuleTypeExceptHotspot()));
+    RuleDto rule = db.rules().insert(r -> r.setType(randomRuleTypeExceptHotspot()));
     db.issues().insert(rule, component, component,
       i -> i.setIssueCreationDate(new Date(analysis.getCreatedAt()))
         .setAssigneeUuid(userSession.getUuid())
@@ -266,7 +266,7 @@ public class SearchEventsActionNewIssuesTest {
   }
 
   private void insertSecurityHotspot(ComponentDto component, SnapshotDto analysis) {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setType(RuleType.SECURITY_HOTSPOT));
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.SECURITY_HOTSPOT));
     db.issues().insert(rule, component, component,
       i -> i.setIssueCreationDate(new Date(analysis.getCreatedAt()))
         .setAssigneeUuid(userSession.getUuid())

@@ -32,7 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
@@ -53,8 +53,8 @@ public class ActiveRuleIndexerTest {
   public EsTester es = EsTester.create();
 
   private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private RuleDefinitionDto rule1;
-  private RuleDefinitionDto rule2;
+  private RuleDto rule1;
+  private RuleDto rule2;
   private QProfileDto profile1;
   private QProfileDto profile2;
 
@@ -194,7 +194,7 @@ public class ActiveRuleIndexerTest {
       .containsExactlyInAnyOrder(Tuple.tuple(expected.getDocId(), expected.getDocIdType(), expected.getDocRouting()));
   }
 
-  private void commitAndIndex(RuleDefinitionDto rule, ActiveRuleDto... ar) {
+  private void commitAndIndex(RuleDto rule, ActiveRuleDto... ar) {
     underTest.commitAndIndex(db.getSession(), stream(ar)
       .map(a -> new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, a, rule))
       .collect(Collectors.toList()));

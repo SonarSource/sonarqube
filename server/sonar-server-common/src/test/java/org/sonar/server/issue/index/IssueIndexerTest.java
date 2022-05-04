@@ -40,7 +40,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
@@ -104,7 +104,7 @@ public class IssueIndexerTest {
 
   @Test
   public void verify_indexed_fields() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
@@ -138,7 +138,7 @@ public class IssueIndexerTest {
 
   @Test
   public void verify_security_standards_indexation() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863"))));
+    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863"))));
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
@@ -170,7 +170,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexOnAnalysis_indexes_the_issues_of_project() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -184,7 +184,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexOnAnalysis_does_not_delete_orphan_docs() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -289,7 +289,7 @@ public class IssueIndexerTest {
 
   @Test
   public void commitAndIndexIssues_commits_db_transaction_and_adds_issues_to_index() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -322,7 +322,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexing_errors_during_commitAndIndexIssues_are_recovered() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -390,7 +390,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexing_recovers_multiple_errors_on_the_same_project() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue1 = db.issues().insert(rule, project, file);
@@ -480,7 +480,7 @@ public class IssueIndexerTest {
 
   @Test
   public void index_issue_in_non_main_branch() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
@@ -500,7 +500,7 @@ public class IssueIndexerTest {
 
   @Test
   public void issue_on_test_file_has_test_scope() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1").setQualifier("UTS"));
@@ -516,7 +516,7 @@ public class IssueIndexerTest {
 
   @Test
   public void issue_on_directory_has_main_code_scope() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     IssueDto issue = db.issues().insert(rule, project, dir);
@@ -531,7 +531,7 @@ public class IssueIndexerTest {
 
   @Test
   public void issue_on_project_has_main_code_scope() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     IssueDto issue = db.issues().insert(rule, project, project);
 

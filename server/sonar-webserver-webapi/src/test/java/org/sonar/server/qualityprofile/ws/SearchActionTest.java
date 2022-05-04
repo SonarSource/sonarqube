@@ -35,7 +35,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -311,10 +311,10 @@ public class SearchActionTest {
   @Test
   public void statistics_on_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-    RuleDefinitionDto rule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto deprecatedRule1 = db.rules().insertRule(r -> r.setStatus(DEPRECATED)).getDefinition();
-    RuleDefinitionDto deprecatedRule2 = db.rules().insertRule(r -> r.setStatus(DEPRECATED)).getDefinition();
-    RuleDefinitionDto inactiveRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDto rule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto deprecatedRule1 = db.rules().insertRule(r -> r.setStatus(DEPRECATED));
+    RuleDto deprecatedRule2 = db.rules().insertRule(r -> r.setStatus(DEPRECATED));
+    RuleDto inactiveRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
     db.qualityProfiles().activateRule(profile, rule);
     db.qualityProfiles().activateRule(profile, deprecatedRule1);
     db.qualityProfiles().activateRule(profile, deprecatedRule2);
@@ -385,20 +385,20 @@ public class SearchActionTest {
       p -> p.setName("Sonar way").setKee("AU-TpxcB-iU5OvuD2FL7").setIsBuiltIn(true).setLanguage(python.getKey()));
     db.qualityProfiles().setAsDefault(sonarWayCs, myCompanyProfile, sonarWayPython);
     // rules
-    List<RuleDefinitionDto> javaRules = range(0, 10).mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey())).getDefinition())
+    List<RuleDto> javaRules = range(0, 10).mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey())))
       .collect(MoreCollectors.toList());
-    List<RuleDefinitionDto> deprecatedJavaRules = range(0, 5)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey()).setStatus(DEPRECATED)).getDefinition())
+    List<RuleDto> deprecatedJavaRules = range(0, 5)
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey()).setStatus(DEPRECATED)))
       .collect(MoreCollectors.toList());
     range(0, 7).forEach(i -> db.qualityProfiles().activateRule(myCompanyProfile, javaRules.get(i)));
     range(0, 2).forEach(i -> db.qualityProfiles().activateRule(myCompanyProfile, deprecatedJavaRules.get(i)));
     range(0, 10).forEach(i -> db.qualityProfiles().activateRule(myBuProfile, javaRules.get(i)));
     range(0, 5).forEach(i -> db.qualityProfiles().activateRule(myBuProfile, deprecatedJavaRules.get(i)));
     range(0, 2)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(python.getKey())).getDefinition())
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(python.getKey())))
       .forEach(rule -> db.qualityProfiles().activateRule(sonarWayPython, rule));
     range(0, 3)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(cs.getKey())).getDefinition())
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(cs.getKey())))
       .forEach(rule -> db.qualityProfiles().activateRule(sonarWayCs, rule));
     // project
     range(0, 7)

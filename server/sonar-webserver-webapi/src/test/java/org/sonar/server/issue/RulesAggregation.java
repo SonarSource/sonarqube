@@ -23,7 +23,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.Collection;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 
 public class RulesAggregation {
 
@@ -33,7 +33,7 @@ public class RulesAggregation {
     this.rules = HashMultiset.create();
   }
 
-  public RulesAggregation add(RuleDefinitionDto ruleDto) {
+  public RulesAggregation add(RuleDto ruleDto) {
     rules.add(new Rule(ruleDto.getKey(), ruleDto.getName()));
     return this;
   }

@@ -28,7 +28,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -127,11 +127,11 @@ public class ShowActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     // Active rules
     range(0, 10)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition())
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())))
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Deprecated rules
     range(0, 3)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()).setStatus(DEPRECATED)).getDefinition())
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()).setStatus(DEPRECATED)))
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)
@@ -149,12 +149,12 @@ public class ShowActionTest {
   public void compare_to_sonar_way_profile() {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto sonarWayRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto sonarWayRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
-    RuleDefinitionDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto sonarWayRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto sonarWayRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
+    RuleDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(profile, profileRule1);
     db.qualityProfiles().activateRule(profile, profileRule2);
@@ -179,7 +179,7 @@ public class ShowActionTest {
   public void compare_to_sonar_way_profile_when_same_active_rules() {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
     ruleIndexer.indexAll();
@@ -323,7 +323,7 @@ public class ShowActionTest {
       .setParentKee(parentProfile.getKee()));
     // Active rules
     range(0, 10)
-      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(cs.getKey())).getDefinition())
+      .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(cs.getKey())))
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)

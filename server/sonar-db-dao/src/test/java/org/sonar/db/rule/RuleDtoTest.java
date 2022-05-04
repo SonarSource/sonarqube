@@ -23,10 +23,12 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.Test;
+import org.sonar.core.util.Uuids;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDtoTest {
 
@@ -59,5 +61,35 @@ public class RuleDtoTest {
   public void tags_are_optional() {
     RuleDto dto = new RuleDto().setTags(Collections.emptySet());
     assertThat(dto.getTags()).isEmpty();
+  }
+
+  @Test
+  public void equals_is_based_on_uuid() {
+    String uuid = Uuids.createFast();
+    RuleDto dto = newRule().setUuid(uuid);
+
+    assertThat(dto)
+      .isEqualTo(dto)
+      .isEqualTo(newRule().setUuid(uuid))
+      .isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid))
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()))
+      .isNotEqualTo(newRule().setUuid(Uuids.createFast()));
+  }
+
+  @Test
+  public void hashcode_is_based_on_uuid() {
+    String uuid = Uuids.createFast();
+    RuleDto dto = newRule().setUuid(uuid);
+
+    assertThat(dto)
+      .hasSameHashCodeAs(dto)
+      .hasSameHashCodeAs(newRule().setUuid(uuid))
+      .hasSameHashCodeAs(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid));
+    assertThat(dto.hashCode())
+      .isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()).hashCode())
+      .isNotEqualTo(newRule().setUuid(Uuids.createFast()).hashCode());
   }
 }

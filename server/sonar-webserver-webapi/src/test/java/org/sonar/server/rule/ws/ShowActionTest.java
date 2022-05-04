@@ -33,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -87,7 +86,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_key() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
 
     ShowResponse result = ws.newRequest()
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -98,7 +97,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_basic_info() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);
 
     ShowResponse result = ws.newRequest()
@@ -121,7 +120,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_tags() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     ShowResponse result = ws.newRequest()
@@ -134,7 +133,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_note_login() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     db.rules().insertOrUpdateMetadata(rule, user);
 
@@ -147,7 +146,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_default_debt_infos() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r
+    RuleDto rule = db.rules().insert(r -> r
       .setDefRemediationFunction("LINEAR_OFFSET")
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
@@ -171,7 +170,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_only_overridden_debt() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r
+    RuleDto rule = db.rules().insert(r -> r
       .setDefRemediationFunction(null)
       .setDefRemediationGapMultiplier(null)
       .setDefRemediationBaseEffort(null));
@@ -199,7 +198,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_default_and_overridden_debt_infos() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r
+    RuleDto rule = db.rules().insert(r -> r
       .setDefRemediationFunction("LINEAR_OFFSET")
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h"));
@@ -227,7 +226,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_no_default_and_no_overridden_debt() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r
+    RuleDto rule = db.rules().insert(r -> r
       .setDefRemediationFunction(null)
       .setDefRemediationGapMultiplier(null)
       .setDefRemediationBaseEffort(null));
@@ -254,7 +253,7 @@ public class ShowActionTest {
 
   @Test
   public void show_deprecated_rule_debt_fields() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r
+    RuleDto rule = db.rules().insert(r -> r
       .setDefRemediationFunction("LINEAR_OFFSET")
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
@@ -285,9 +284,9 @@ public class ShowActionTest {
   public void encode_html_description_of_custom_rule() {
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
-    db.rules().insert(templateRule.getDefinition());
+    db.rules().insert(templateRule);
     // Custom rule
-    RuleDefinitionDto customRule = newCustomRule(templateRule.getDefinition())
+    RuleDto customRule = newCustomRule(templateRule)
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>line1\nline2</div>"))
       .setDescriptionFormat(MARKDOWN);
     db.rules().insert(customRule);
@@ -304,7 +303,7 @@ public class ShowActionTest {
 
   @Test
   public void show_external_rule() {
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+    RuleDto externalRule = db.rules().insert(r -> r
       .setIsExternal(true)
       .setName("ext rule name"));
 
@@ -318,7 +317,7 @@ public class ShowActionTest {
 
   @Test
   public void show_adhoc_rule() {
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+    RuleDto externalRule = db.rules().insert(r -> r
       .setIsExternal(true)
       .setIsAdHoc(true));
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(externalRule, m -> m
@@ -342,7 +341,7 @@ public class ShowActionTest {
 
   @Test
   public void ignore_predefined_info_on_adhoc_rule() {
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+    RuleDto externalRule = db.rules().insert(r -> r
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName("predefined name")
@@ -370,7 +369,7 @@ public class ShowActionTest {
 
   @Test
   public void adhoc_info_are_empty_when_no_metadata() {
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+    RuleDto externalRule = db.rules().insert(r -> r
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName(null)
@@ -390,7 +389,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_activation() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*"));
     db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
     QProfileDto qProfile = db.qualityProfiles().insert();
@@ -417,7 +416,7 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_without_activation() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
     QProfileDto qProfile = db.qualityProfiles().insert();
     db.qualityProfiles().activateRule(qProfile, rule);

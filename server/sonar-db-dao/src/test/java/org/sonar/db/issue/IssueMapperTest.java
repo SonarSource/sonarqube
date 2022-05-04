@@ -47,7 +47,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -263,7 +262,7 @@ public class IssueMapperTest {
     ComponentDto component = randomComponent();
     IssueDto issueWithRule = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issueWithRule);
-    IssueDto issueWithoutRule = insertNewClosedIssue(component, new RuleDefinitionDto().setType(ruleType).setUuid("uuid-50"));
+    IssueDto issueWithoutRule = insertNewClosedIssue(component, new RuleDto().setType(ruleType).setUuid("uuid-50"));
     insertToClosedDiff(issueWithoutRule);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
@@ -350,7 +349,7 @@ public class IssueMapperTest {
   public void scrollClosedByComponentUuid_returns_closed_issues_which_close_date_is_greater_or_equal_to_requested() {
     RuleType ruleType = randomSupportedRuleType();
     ComponentDto component = randomComponent();
-    RuleDefinitionDto rule1 = dbTester.rules().insert(t -> t.setType(ruleType));
+    RuleDto rule1 = dbTester.rules().insert(t -> t.setType(ruleType));
     IssueDto[] issues = new IssueDto[] {
       insertNewClosedIssue(component, rule1, 1_999_999L),
       insertNewClosedIssue(component, rule1, 3_999_999L),
@@ -471,17 +470,17 @@ public class IssueMapperTest {
 
   @SafeVarargs
   private final IssueDto insertNewClosedIssue(ComponentDto component, RuleType ruleType, Consumer<IssueDto>... consumers) {
-    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
+    RuleDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
     return insertNewClosedIssue(component, rule, system2.now(), consumers);
   }
 
   @SafeVarargs
-  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDefinitionDto rule, Consumer<IssueDto>... consumers) {
+  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDto rule, Consumer<IssueDto>... consumers) {
     return insertNewClosedIssue(component, rule, system2.now(), consumers);
   }
 
   @SafeVarargs
-  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDefinitionDto rule, long issueCloseTime, Consumer<IssueDto>... consumers) {
+  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDto rule, long issueCloseTime, Consumer<IssueDto>... consumers) {
     IssueDto res = new IssueDto()
       .setKee(UuidFactoryFast.getInstance().create())
       .setRuleUuid(rule.getUuid())

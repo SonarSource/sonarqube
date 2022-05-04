@@ -27,7 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -84,7 +84,7 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     indexIssues();
@@ -102,7 +102,7 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     indexIssues();
@@ -124,7 +124,7 @@ public class AuthorsActionTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     indexIssues();
@@ -155,7 +155,7 @@ public class AuthorsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexAll();
@@ -174,7 +174,7 @@ public class AuthorsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexAll();
@@ -193,7 +193,7 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(han));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
@@ -269,7 +269,7 @@ public class AuthorsActionTest {
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
     indexIssues();

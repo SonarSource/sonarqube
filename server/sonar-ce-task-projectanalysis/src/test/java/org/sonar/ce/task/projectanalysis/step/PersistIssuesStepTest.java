@@ -53,7 +53,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueStorage;
@@ -118,7 +118,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void insert_copied_issue() {
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -182,7 +182,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_copied_issue_with_minimal_info() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
 
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -228,7 +228,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_merged_issue() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -287,7 +287,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void update_conflicting_issue() {
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -322,7 +322,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_new_issue() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -364,7 +364,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void close_issue() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
         .setResolution(null)
@@ -394,7 +394,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void handle_no_longer_new_issue() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -447,7 +447,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void handle_existing_new_code_issue_migration() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -496,7 +496,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void handle_existing_without_need_for_new_code_issue_migration() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
@@ -551,7 +551,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void add_comment() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
         .setResolution(null)
@@ -592,7 +592,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void add_change() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
         .setResolution(null)

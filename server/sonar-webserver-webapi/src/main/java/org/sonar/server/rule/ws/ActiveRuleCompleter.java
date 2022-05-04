@@ -46,7 +46,6 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleQuery;
@@ -139,7 +138,7 @@ public class ActiveRuleCompleter {
     return activeRuleParamsByActiveRuleKey;
   }
 
-  List<Rules.Active> completeShow(DbSession dbSession, RuleDefinitionDto rule) {
+  List<Rules.Active> completeShow(DbSession dbSession, RuleDto rule) {
     List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, rule.getUuid());
     Map<String, ActiveRuleKey> activeRuleUuidsByKey = new HashMap<>();
     for (OrgActiveRuleDto activeRuleDto : activeRules) {

@@ -38,7 +38,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -277,8 +277,8 @@ public class IssueIndexTest {
 
   @Test
   public void list_tags() {
-    RuleDefinitionDto r1 = db.rules().insert();
-    RuleDefinitionDto r2 = db.rules().insert();
+    RuleDto r1 = db.rules().insert();
+    RuleDto r2 = db.rules().insert();
     ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getUuid(), r2.getUuid()));
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);

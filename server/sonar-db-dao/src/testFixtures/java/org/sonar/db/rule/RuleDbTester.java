@@ -24,13 +24,11 @@ import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.newDeprecatedRuleKey;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -46,72 +44,72 @@ public class RuleDbTester {
     this.db = db;
   }
 
-  public RuleDefinitionDto insert() {
+  public RuleDto insert() {
     return insert(newRule());
   }
 
-  public RuleDefinitionDto insert(RuleKey key) {
+  public RuleDto insert(RuleKey key) {
     return insert(newRule(key));
   }
 
   @SafeVarargs
-  public final RuleDefinitionDto insert(Consumer<RuleDefinitionDto>... populaters) {
-    RuleDefinitionDto rule = newRule();
+  public final RuleDto insert(Consumer<RuleDto>... populaters) {
+    RuleDto rule = newRule();
     asList(populaters).forEach(populater -> populater.accept(rule));
     return insert(rule);
   }
 
-  public RuleDefinitionDto insert(RuleKey key, Consumer<RuleDefinitionDto> populater) {
-    RuleDefinitionDto rule = newRule(key);
+  public RuleDto insert(RuleKey key, Consumer<RuleDto> populater) {
+    RuleDto rule = newRule(key);
     populater.accept(rule);
     return insert(rule);
   }
 
-  public RuleDefinitionDto insertIssueRule() {
+  public RuleDto insertIssueRule() {
     return insert(newIssueRule());
   }
 
-  public RuleDefinitionDto insertIssueRule(RuleKey key) {
+  public RuleDto insertIssueRule(RuleKey key) {
     return insert(newIssueRule(key));
   }
 
   @SafeVarargs
-  public final RuleDefinitionDto insertIssueRule(Consumer<RuleDefinitionDto>... populaters) {
-    RuleDefinitionDto rule = newIssueRule();
+  public final RuleDto insertIssueRule(Consumer<RuleDto>... populaters) {
+    RuleDto rule = newIssueRule();
     asList(populaters).forEach(populater -> populater.accept(rule));
     return insert(rule);
   }
 
-  public RuleDefinitionDto insertIssueRule(RuleKey key, Consumer<RuleDefinitionDto> populater) {
-    RuleDefinitionDto rule = newIssueRule(key);
+  public RuleDto insertIssueRule(RuleKey key, Consumer<RuleDto> populater) {
+    RuleDto rule = newIssueRule(key);
     populater.accept(rule);
     return insert(rule);
   }
 
-  private static RuleDefinitionDto newIssueRule(RuleKey key) {
+  private static RuleDto newIssueRule(RuleKey key) {
     return newRule(key).setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
   }
 
-  private static RuleDefinitionDto newIssueRule() {
+  private static RuleDto newIssueRule() {
     return newRule().setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
   }
 
-  public RuleDefinitionDto insertHotspotRule() {
+  public RuleDto insertHotspotRule() {
     return insert(newHotspotRule());
   }
 
   @SafeVarargs
-  public final RuleDefinitionDto insertHotspotRule(Consumer<RuleDefinitionDto>... populaters) {
-    RuleDefinitionDto rule = newHotspotRule();
+  public final RuleDto insertHotspotRule(Consumer<RuleDto>... populaters) {
+    RuleDto rule = newHotspotRule();
     asList(populaters).forEach(populater -> populater.accept(rule));
     return insert(rule);
   }
 
-  private static RuleDefinitionDto newHotspotRule() {
+  private static RuleDto newHotspotRule() {
     return newRule().setType(SECURITY_HOTSPOT);
   }
 
-  public RuleDefinitionDto insert(RuleDefinitionDto rule) {
+  public RuleDto insert(RuleDto rule) {
     if (rule.getUuid() == null) {
       rule.setUuid(Uuids.createFast());
     }
@@ -121,39 +119,34 @@ public class RuleDbTester {
     return rule;
   }
 
-  public RuleDefinitionDto update(RuleDefinitionDto rule) {
+  public RuleDto update(RuleDto rule) {
     db.getDbClient().ruleDao().update(db.getSession(), rule);
     db.commit();
     return rule;
   }
 
   @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
+  public final RuleMetadataDto insertOrUpdateMetadata(RuleDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule);
     asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }
 
   @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, UserDto noteUser, Consumer<RuleMetadataDto>... populaters) {
+  public final RuleMetadataDto insertOrUpdateMetadata(RuleDto rule, UserDto noteUser, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, noteUser);
     asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }
 
   public RuleMetadataDto insertOrUpdateMetadata(RuleMetadataDto metadata) {
-    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata);
+    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), metadata);
     db.commit();
-    return metadata;
-  }
-
-  public RuleParamDto insertRuleParam(RuleDefinitionDto rule) {
-    return insertRuleParam(rule, p -> {
-    });
+    return db.getDbClient().ruleDao().selectByUuid(metadata.getRuleUuid(), db.getSession()).get().getMetadata();
   }
 
   @SafeVarargs
-  public final RuleParamDto insertRuleParam(RuleDefinitionDto rule, Consumer<RuleParamDto>... populaters) {
+  public final RuleParamDto insertRuleParam(RuleDto rule, Consumer<RuleParamDto>... populaters) {
     RuleParamDto param = RuleTesting.newRuleParam(rule);
     asList(populaters).forEach(populater -> populater.accept(param));
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
@@ -166,9 +159,9 @@ public class RuleDbTester {
       ruleDto.setUuid(Uuids.createFast());
     }
 
-    insert(ruleDto.getDefinition());
+    insert(ruleDto);
     RuleMetadataDto metadata = ruleDto.getMetadata();
-    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
+    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
     db.commit();
     return ruleDto;
   }
@@ -207,19 +200,9 @@ public class RuleDbTester {
     return deprecatedRuleKeyDto;
   }
 
-  public RuleParamDto insertRuleParam(RuleDto rule) {
-    RuleParamDto param = new RuleParamDto();
-    param.setRuleUuid(rule.getUuid());
-    param.setName(randomAlphabetic(10));
-    param.setType(RuleParamType.STRING.type());
-    db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule.getDefinition(), param);
+  public RuleDto insertRule(RuleDto ruleDto, RuleMetadataDto ruleMetadata) {
+    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), ruleMetadata.setRuleUuid(ruleDto.getUuid()));
     db.commit();
-    return param;
-  }
-
-  public RuleDto insertRule(RuleDefinitionDto ruleDefinition, RuleMetadataDto ruleMetadata) {
-    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), ruleMetadata.setRuleUuid(ruleDefinition.getUuid()));
-    db.commit();
-    return new RuleDto(ruleDefinition, ruleMetadata);
+    return db.getDbClient().ruleDao().selectOrFailByKey(db.getSession(), ruleDto.getKey());
   }
 }

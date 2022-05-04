@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -87,12 +87,12 @@ public class QualityProfileDbTester {
     return this;
   }
 
-  public ActiveRuleDto activateRule(QProfileDto profile, RuleDefinitionDto rule) {
+  public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule) {
     return activateRule(profile, rule, ar -> {
     });
   }
 
-  public ActiveRuleDto activateRule(QProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto> consumer) {
+  public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     ActiveRuleDto activeRule = createFor(profile, rule)
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       .setCreatedAt(nextLong())

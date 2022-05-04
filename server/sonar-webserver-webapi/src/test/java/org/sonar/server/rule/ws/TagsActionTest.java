@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndex;
@@ -79,7 +79,7 @@ public class TagsActionTest {
 
   @Test
   public void system_tag() {
-    RuleDefinitionDto r = db.rules().insert(setSystemTags("tag"));
+    RuleDto r = db.rules().insert(setSystemTags("tag"));
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
 
     String result = ws.newRequest().execute().getInput();
@@ -88,7 +88,7 @@ public class TagsActionTest {
 
   @Test
   public void tag() {
-    RuleDefinitionDto r = db.rules().insert(setSystemTags());
+    RuleDto r = db.rules().insert(setSystemTags());
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
     db.rules().insertOrUpdateMetadata(r, setTags("tag"));
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());

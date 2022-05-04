@@ -31,7 +31,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -55,7 +55,7 @@ public class IssueDbTester {
    * Inserts an issue or a security hotspot.
    */
   @SafeVarargs
-  public final IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insert(RuleDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
     return insert(issue);
@@ -66,7 +66,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insert(Consumer<IssueDto>... populators) {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
@@ -89,7 +89,7 @@ public class IssueDbTester {
    * @throws AssertionError if rule is a Security Hotspot
    */
   @SafeVarargs
-  public final IssueDto insertIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insertIssue(RuleDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     assertThat(rule.getType())
       .describedAs("rule must not be a Security Hotspot type")
       .isNotEqualTo(SECURITY_HOTSPOT.getDbConstant());
@@ -100,7 +100,7 @@ public class IssueDbTester {
   }
 
   @SafeVarargs
-  public final IssueDto insert(RuleDefinitionDto rule, ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insert(RuleDto rule, ProjectDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
     return insert(issue);
@@ -125,7 +125,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertIssue(Consumer<IssueDto>... populators) {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)
@@ -140,7 +140,7 @@ public class IssueDbTester {
    * @throws AssertionError if rule is not Security Hotspot
    */
   @SafeVarargs
-  public final IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+  public final IssueDto insertHotspot(RuleDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     checkArgument(rule.getType() == RuleType.SECURITY_HOTSPOT.getDbConstant(), "rule must be a hotspot rule");
 
     IssueDto issue = newIssue(rule, project, file)
@@ -156,7 +156,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertHotspot(ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
-    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    RuleDto rule = db.rules().insertHotspotRule();
     IssueDto issue = newIssue(rule, project, file)
       .setType(SECURITY_HOTSPOT)
       .setStatus(Issue.STATUS_TO_REVIEW)
@@ -182,7 +182,7 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertHotspot(Consumer<IssueDto>... populators) {
-    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    RuleDto rule = db.rules().insertHotspotRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)

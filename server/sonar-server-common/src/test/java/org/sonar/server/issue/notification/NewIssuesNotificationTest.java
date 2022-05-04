@@ -30,7 +30,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier;
 import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
@@ -144,8 +144,8 @@ public class NewIssuesNotificationTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
     IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
     IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
 
@@ -186,8 +186,8 @@ public class NewIssuesNotificationTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
     IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
     IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
 
@@ -229,8 +229,8 @@ public class NewIssuesNotificationTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    RuleDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
     IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
     IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
 
@@ -270,8 +270,8 @@ public class NewIssuesNotificationTest {
     }
   }
 
-  private void mockDetailsSupplierRules(RuleDefinitionDto... rules) {
-    for (RuleDefinitionDto rule : rules) {
+  private void mockDetailsSupplierRules(RuleDto... rules) {
+    for (RuleDto rule : rules) {
       when(detailsSupplier.getRuleDefinitionByRuleKey(rule.getKey()))
         .thenReturn(Optional.of(new RuleDefinition(rule.getName(), rule.getLanguage())));
     }
@@ -287,7 +287,7 @@ public class NewIssuesNotificationTest {
   public void set_assignee() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid()));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
@@ -314,7 +314,7 @@ public class NewIssuesNotificationTest {
     UserDto user8 = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user1.getUuid())).toDefaultIssue()));
     IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user2.getUuid())).toDefaultIssue()));
@@ -347,7 +347,7 @@ public class NewIssuesNotificationTest {
   @Test
   public void add_only_5_components_with_biggest_issue_counts() {
     ComponentDto project = db.components().insertPrivateProject();
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file1).toDefaultIssue()));
@@ -389,21 +389,21 @@ public class NewIssuesNotificationTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule1, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule2, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule3 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule3 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule3, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule4 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule4 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule4, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule5 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule5 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule5, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule6 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule6 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule6, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule7 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule7 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule7, project, file).toDefaultIssue()));
-    RuleDefinitionDto rule8 = db.rules().insert(r -> r.setLanguage("Java"));
+    RuleDto rule8 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule8, project, file).toDefaultIssue()));
     mockDetailsSupplierComponents(project, file);
     mockDetailsSupplierRules(rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8);

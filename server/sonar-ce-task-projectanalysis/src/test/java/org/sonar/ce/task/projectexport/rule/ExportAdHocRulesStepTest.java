@@ -43,7 +43,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 
@@ -210,7 +209,7 @@ public class ExportAdHocRulesStepTest {
 
   private RuleDto insertRule(RuleKey ruleKey, boolean isExternal, boolean isAdHoc) {
     dbTester.rules().insert(
-      new RuleDefinitionDto()
+      new RuleDto()
         .setRuleKey(ruleKey)
         .setIsExternal(isExternal)
         .setIsAdHoc(isAdHoc)

@@ -43,7 +43,6 @@ public class RuleMetadataDto {
 
   /**
    * Name of on ad hoc rule.
-   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
    */
   private String adHocName;
 
@@ -54,13 +53,13 @@ public class RuleMetadataDto {
 
   /**
    * Severity of on ad hoc rule.
-   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
+   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
    */
   private String adHocSeverity;
 
   /**
    * Type of on ad hoc rule.
-   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
+   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
    */
   private Integer adHocType;
 
@@ -251,5 +250,11 @@ public class RuleMetadataDto {
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';
+  }
+
+  public boolean isUndefined() {
+    return StringUtils.isEmpty(noteData) && StringUtils.isEmpty(noteUserUuid) && noteCreatedAt == null && noteUpdatedAt == null && StringUtils.isEmpty(remediationFunction) &&
+      StringUtils.isEmpty(remediationGapMultiplier) && StringUtils.isEmpty(remediationBaseEffort) && StringUtils.isEmpty(tags)
+      && StringUtils.isEmpty(adHocName) && StringUtils.isEmpty(adHocDescription) && StringUtils.isEmpty(adHocSeverity) && adHocType == null;
   }
 }

@@ -378,7 +378,7 @@ public class ExportIssuesStepTest {
 
   private RuleDto insertRule(String ruleKey1) {
     RuleDto dto = new RuleDto().setRepositoryKey(SOME_REPO).setScope(Scope.MAIN).setRuleKey(ruleKey1).setStatus(RuleStatus.READY);
-    dbTester.rules().insert(dto.getDefinition());
+    dbTester.rules().insert(dto);
     dbSession.commit();
     return dto;
   }

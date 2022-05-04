@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
@@ -35,12 +34,12 @@ public class RuleDescriptionFormatter {
 
   private RuleDescriptionFormatter() { /* static helpers */ }
 
-  public static String getDescriptionAsHtml(RuleDefinitionDto ruleDefinitionDto) {
-    if (ruleDefinitionDto.getDescriptionFormat() == null) {
+  public static String getDescriptionAsHtml(RuleDto ruleDto) {
+    if (ruleDto.getDescriptionFormat() == null) {
       return null;
     }
-    Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleDefinitionDto.getRuleDescriptionSectionDtos();
-    return retrieveDescription(ruleDescriptionSectionDtos, ruleDefinitionDto.getRuleKey(), ruleDefinitionDto.getDescriptionFormat());
+    Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleDto.getRuleDescriptionSectionDtos();
+    return retrieveDescription(ruleDescriptionSectionDtos, ruleDto.getRuleKey(), Objects.requireNonNull(ruleDto.getDescriptionFormat()));
   }
 
   public static String getDescriptionAsHtml(RuleForIndexingDto ruleForIndexingDto) {
@@ -67,9 +66,7 @@ public class RuleDescriptionFormatter {
   }
 
   private static String toHtml(String ruleKey, RuleDto.Format descriptionFormat, RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    RuleDto.Format nonNullDescriptionFormat = Objects.requireNonNull(descriptionFormat,
-      "Rule " + descriptionFormat + " contains section(s) but has no format set");
-    switch (nonNullDescriptionFormat) {
+    switch (descriptionFormat) {
       case MARKDOWN:
         return Markdown.convertToHtml(ruleDescriptionSectionDto.getContent());
       case HTML:

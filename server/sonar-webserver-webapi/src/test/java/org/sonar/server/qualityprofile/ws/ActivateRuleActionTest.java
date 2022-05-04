@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -128,7 +128,7 @@ public class ActivateRuleActionTest {
   public void fail_activate_external_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
+    RuleDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
@@ -144,7 +144,7 @@ public class ActivateRuleActionTest {
   public void activate_rule() {
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
+    RuleDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, rule.getKey().toString())

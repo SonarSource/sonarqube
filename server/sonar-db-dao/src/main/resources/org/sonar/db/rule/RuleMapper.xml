@@ -3,19 +3,15 @@
 
 <mapper namespace="org.sonar.db.rule.RuleMapper">
 
-  <sql id="selectRuleDescriptionSectionColumns">
-    rds.uuid as "rds_uuid",
-    rds.kee as "rds_kee",
-    rds.content as "rds_content",
-  </sql>
-
   <sql id="leftOuterJoinRulesDescriptionSections">
     left outer join rule_desc_sections rds on
       rds.rule_uuid = r.uuid
   </sql>
 
-  <sql id="selectDefinitionColumns">
-    <include refid="selectRuleDescriptionSectionColumns"/>
+  <sql id="selectJoinedTablesColumns">
+    rds.uuid as "rds_uuid",
+    rds.kee as "rds_kee",
+    rds.content as "rds_content",
     r.uuid as "r_uuid",
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
@@ -38,18 +34,6 @@
     r.rule_type as "type",
     r.plugin_key as "pluginKey",
     r.scope,
-  </sql>
-
-  <sql id="selectRuleTableColumns">
-    <include refid="selectDefinitionColumns"/>
-    r.created_at as "createdAt",
-    r.updated_at as "updatedAt"
-  </sql>
-
-  <sql id="selectJoinedTablesColumns">
-    <include refid="selectDefinitionColumns"/>
-    r.created_at as "createdAtFromDefinition",
-    r.updated_at as "updatedAtFromDefinition",
     rm.note_data as "noteData",
     rm.note_user_uuid as "noteUserUuid",
     rm.note_created_at as "noteCreatedAt",
@@ -62,8 +46,18 @@
     rm.ad_hoc_description as "adHocDescription",
     rm.ad_hoc_severity as "adHocSeverity",
     rm.ad_hoc_type as "adHocType",
-    rm.created_at as "createdAtFromMetadata",
-    rm.updated_at as "updatedAtFromMetadata"
+    case
+       when rm.created_at is null then r.created_at
+       else case
+                when r.created_at &lt; rm.created_at then r.created_at
+                                    else rm.created_at
+                                    end end               as "createdAt",
+    case
+       when rm.updated_at is null then r.updated_at
+       else case
+                when r.updated_at &lt; rm.updated_at then rm.updated_at
+                                    else r.updated_at
+                                    end end               as "updatedAt"
   </sql>
 
   <sql id="outerJoinRulesMetadata">
@@ -83,8 +77,8 @@
   <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto">
     <id property="uuid" column="r_uuid"/>
 
-    <result property="createdAtFromDefinition" column="createdAtFromDefinition"/>
-    <result property="updatedAtFromDefinition" column="updatedAtFromDefinition"/>
+    <result property="createdAt" column="createdAt"/>
+    <result property="updatedAt" column="updatedAt"/>
     <result property="noteData" column="noteData" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     <result property="noteUserUuid" column="noteUserUuid"/>
     <result property="noteCreatedAt" column="noteCreatedAt"/>
@@ -97,8 +91,6 @@
     <result property="adHocDescription" column="adHocDescription" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
     <result property="adHocSeverity" column="adHocSeverity"/>
     <result property="adHocType" column="adHocType"/>
-    <result property="createdAtFromMetadata" column="createdAtFromMetadata"/>
-    <result property="updatedAtFromMetadata" column="updatedAtFromMetadata"/>
 
     <result property="ruleKey" column="ruleKey"/>
     <result property="repositoryKey" column="repositoryKey"/>
@@ -121,8 +113,6 @@
     <result property="type" column="type"/>
     <result property="pluginKey" column="pluginKey"/>
     <result property="scope" column="scope"/>
-    <result property="createdAt" column="created_at"/>
-    <result property="updatedAt" column="updated_at"/>
 
     <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
       <id property="uuid" column="rds_uuid"/>
@@ -131,53 +121,14 @@
     </collection>
   </resultMap>
 
-  <resultMap id="ruleDefinitionResultMap" type="org.sonar.db.rule.RuleDefinitionDto">
-    <id property="uuid" column="r_uuid"/>
-    <result property="ruleKey" column="ruleKey"/>
-    <result property="repositoryKey" column="repositoryKey"/>
-    <result property="descriptionFormat" column="descriptionFormat"/>
-    <result property="status" column="status"/>
-    <result property="name" column="name"/>
-    <result property="configKey" column="configKey"/>
-    <result property="severity" column="severity"/>
-    <result property="isTemplate" column="isTemplate"/>
-    <result property="isExternal" column="isExternal"/>
-    <result property="isAdHoc" column="isAdHoc"/>
-    <result property="language" column="language"/>
-    <result property="templateUuid" column="templateUuid"/>
-    <result property="defRemediationFunction" column="defRemediationFunction"/>
-    <result property="defRemediationGapMultiplier" column="defRemediationGapMultiplier"/>
-    <result property="defRemediationBaseEffort" column="defRemediationBaseEffort"/>
-    <result property="gapDescription" column="gapDescription"/>
-    <result property="systemTagsField" column="systemTagsField"/>
-    <result property="securityStandardsField" column="securityStandardsField"/>
-    <result property="type" column="type"/>
-    <result property="pluginKey" column="pluginKey"/>
-    <result property="scope" column="scope"/>
-    <result property="createdAt" column="createdAt"/>
-    <result property="updatedAt" column="updatedAt"/>
 
-    <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
-      <id property="uuid" column="rds_uuid"/>
-      <result property="key" column="rds_kee"/>
-      <result property="content" column="rds_content" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
-    </collection>
 
-  </resultMap>
-
-  <select id="selectAllDefinitions" resultMap="ruleDefinitionResultMap">
+  <select id="selectEnabled" resultMap="ruleResultMap">
     select
-      <include refid="selectRuleTableColumns"/>
+      <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
-  </select>
-
-  <select id="selectEnabled" resultMap="ruleDefinitionResultMap">
-    select
-      <include refid="selectRuleTableColumns"/>
-    from
-      rules r
+    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.status != 'REMOVED'
@@ -189,16 +140,6 @@
     from
       rules r
     <include refid="outerJoinRulesMetadata"/>
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
-    where
-      r.uuid=#{uuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectDefinitionByUuid" parameterType="String" resultMap="ruleDefinitionResultMap">
-    select
-      <include refid="selectRuleTableColumns"/>
-    from
-      rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
@@ -217,18 +158,6 @@
       </foreach>
   </select>
 
-  <select id="selectDefinitionByUuids" parameterType="map" resultMap="ruleDefinitionResultMap">
-    select
-      <include refid="selectRuleTableColumns"/>
-    from
-      rules r
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
-    where
-      <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
-        r.uuid=#{uuid,jdbcType=VARCHAR}
-      </foreach>
-  </select>
-
   <select id="selectByKey" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>
@@ -239,17 +168,6 @@
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectDefinitionByKey" parameterType="map" resultMap="ruleDefinitionResultMap">
-    select
-      <include refid="selectRuleTableColumns"/>
-    from
-      rules r
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
-    where
-      r.plugin_name=#{repository,jdbcType=VARCHAR}
-      and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
 
   <select id="selectIndexingRuleExtensionsByIds" parameterType="map" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto">
@@ -300,7 +218,7 @@
       rm.ad_hoc_description as "adHocDescription",
       rm.ad_hoc_severity as "adHocSeverity",
       rm.ad_hoc_type as "adHocType",
-    rm.created_at as "createdAt",
+      rm.created_at as "createdAt",
       rm.updated_at as "updatedAt"
     from
       rules_metadata rm
@@ -310,50 +228,12 @@
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectMetadataByKeys" parameterType="map" resultType="org.sonar.db.rule.RuleMetadataDto">
-    select
-      rm.rule_uuid as "ruleUuid",
-      rm.note_data as "noteData",
-      rm.note_user_uuid as "noteUserUuid",
-      rm.note_created_at as "noteCreatedAt",
-      rm.note_updated_at as "noteUpdatedAt",
-      rm.remediation_function as "remediationFunction",
-      rm.remediation_gap_mult as "remediationGapMultiplier",
-      rm.remediation_base_effort as "remediationBaseEffort",
-      rm.tags as "tagsField",
-      rm.ad_hoc_name as "adHocName",
-      rm.ad_hoc_description as "adHocDescription",
-      rm.ad_hoc_severity as "adHocSeverity",
-      rm.ad_hoc_type as "adHocType",
-    rm.created_at as "createdAt",
-      rm.updated_at as "updatedAt"
-    from
-      rules_metadata rm
-      inner join rules r on rm.rule_uuid = r.uuid
-    where
-      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
-      </foreach>
-  </select>
-
   <select id="selectByKeys" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
     <include refid="outerJoinRulesMetadata"/>
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
-    where
-      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
-      </foreach>
-  </select>
-
-  <select id="selectDefinitionByKeys" parameterType="map" resultMap="ruleDefinitionResultMap">
-    select
-      <include refid="selectRuleTableColumns"/>
-    from
-      rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
@@ -413,7 +293,7 @@
     )
   </insert>
 
-  <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" useGeneratedKeys="false">
+  <insert id="insertRule" parameterType="org.sonar.db.rule.RuleDto" useGeneratedKeys="false">
     insert into rules (
       uuid,
       plugin_key,
@@ -468,7 +348,7 @@
     )
   </insert>
 
-  <update id="updateDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto">
+  <update id="updateRule" parameterType="org.sonar.db.rule.RuleDto">
     update rules set
       plugin_key=#{pluginKey,jdbcType=VARCHAR},
       plugin_rule_key=#{ruleKey,jdbcType=VARCHAR},
@@ -500,7 +380,7 @@
     delete from
       rule_desc_sections
     where
-      rule_uuid=#{uuid,jdbcType=VARCHAR}
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>
 
   <select id="countMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto" resultType="int">
@@ -567,6 +447,13 @@
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </update>
+
+  <delete id="deleteMetadata" parameterType="String">
+    delete from
+      rules_metadata
+    where
+      rule_uuid=#{uuid,jdbcType=INTEGER}
+  </delete>
 
   <delete id="deleteParams" parameterType="String">
     delete from

@@ -54,7 +54,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.ActionContext;
@@ -292,7 +292,7 @@ public class BulkChangeAction implements IssuesWsAction {
       return null;
     }
 
-    RuleDefinitionDto ruleDefinitionDto = bulkChangeData.rulesByKey.get(issue.ruleKey());
+    RuleDto ruleDefinitionDto = bulkChangeData.rulesByKey.get(issue.ruleKey());
     ComponentDto projectDto = bulkChangeData.projectsByUuid.get(issue.projectUuid());
     if (ruleDefinitionDto == null || projectDto == null) {
       return null;
@@ -343,7 +343,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Map<String, ComponentDto> projectsByUuid;
     private final Map<String, BranchDto> branchesByProjectUuid;
     private final Map<String, ComponentDto> componentsByUuid;
-    private final Map<RuleKey, RuleDefinitionDto> rulesByKey;
+    private final Map<RuleKey, RuleDto> rulesByKey;
     private final List<Action> availableActions;
 
     BulkChangeData(DbSession dbSession, Request request) {
@@ -365,9 +365,9 @@ public class BulkChangeAction implements IssuesWsAction {
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(ComponentDto::uuid, identity()));
-      this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
+      this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
-        .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));
+        .collect(uniqueIndex(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))

@@ -30,7 +30,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
@@ -111,7 +110,7 @@ public class DefaultRuleFinderTest {
     assertThat(underTest.findAll(RuleQuery.create())).extracting(Rule::ruleKey).containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
 
     // find_all
-    assertThat(underTest.findAll()).extracting(RuleDefinitionDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
+    assertThat(underTest.findAll()).extracting(RuleDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
 
     // do_not_find_disabled_rules
     assertThat(underTest.findByKey("checkstyle", "DisabledCheck")).isNull();
@@ -133,23 +132,23 @@ public class DefaultRuleFinderTest {
   public void find_all_not_include_removed_rule() {
     // rule 3 is REMOVED
     assertThat(underTest.findAll(RuleQuery.create())).extracting(Rule::ruleKey).containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
-    assertThat(underTest.findAll()).extracting(RuleDefinitionDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
+    assertThat(underTest.findAll()).extracting(RuleDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
   }
 
   @Test
   public void findByKey_populates_system_tags_but_not_tags() {
-    RuleDefinitionDto ruleDefinition = dbTester.rules()
+    RuleDto ruleDto = dbTester.rules()
       .insert(t -> t.setSystemTags(ImmutableSet.of(randomAlphanumeric(5), randomAlphanumeric(6))));
     dbTester.rules().insertRule();
 
-    Rule rule = underTest.findByKey(ruleDefinition.getKey());
+    Rule rule = underTest.findByKey(ruleDto.getKey());
     assertThat(rule.getSystemTags())
-      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
+      .containsOnlyElementsOf(ruleDto.getSystemTags());
     assertThat(rule.getTags()).isEmpty();
 
-    rule = underTest.findByKey(ruleDefinition.getRepositoryKey(), ruleDefinition.getRuleKey());
+    rule = underTest.findByKey(ruleDto.getRepositoryKey(), ruleDto.getRuleKey());
     assertThat(rule.getSystemTags())
-      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
+      .containsOnlyElementsOf(ruleDto.getSystemTags());
     assertThat(rule.getTags()).isEmpty();
   }
 }

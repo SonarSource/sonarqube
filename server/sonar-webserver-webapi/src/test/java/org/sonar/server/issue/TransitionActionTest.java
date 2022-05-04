@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.tester.UserSessionRule;
@@ -115,7 +115,7 @@ public class TransitionActionTest {
   }
 
   private IssueDto newIssue() {
-    RuleDefinitionDto rule = newRule().setUuid(Uuids.createFast());
+    RuleDto rule = newRule().setUuid(Uuids.createFast());
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = (newFileDto(project));
     return IssueTesting.newIssue(rule, project, file);

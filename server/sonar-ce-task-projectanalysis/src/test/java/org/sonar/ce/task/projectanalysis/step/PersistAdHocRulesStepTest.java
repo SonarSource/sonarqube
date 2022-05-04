@@ -34,7 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -78,10 +78,10 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     RuleDao ruleDao = dbClient.ruleDao();
-    Optional<RuleDefinitionDto> ruleDefinitionDtoOptional = ruleDao.selectDefinitionByKey(dbClient.openSession(false), ruleKey);
+    Optional<RuleDto> ruleDefinitionDtoOptional = ruleDao.selectByKey(dbClient.openSession(false), ruleKey);
     assertThat(ruleDefinitionDtoOptional).isPresent();
 
-    RuleDefinitionDto reloaded = ruleDefinitionDtoOptional.get();
+    RuleDto reloaded = ruleDefinitionDtoOptional.get();
     assertThat(reloaded.getRuleKey()).isEqualTo("no-cond-assign");
     assertThat(reloaded.getRepositoryKey()).isEqualTo("external_eslint");
     assertThat(reloaded.isExternal()).isTrue();
@@ -104,7 +104,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     RuleDao ruleDao = dbClient.ruleDao();
-    assertThat(ruleDao.selectAllDefinitions(dbClient.openSession(false))).hasSize(1);
+    assertThat(ruleDao.selectAll(dbClient.openSession(false))).hasSize(1);
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
   }
 

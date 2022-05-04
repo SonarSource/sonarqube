@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -66,8 +66,8 @@ public class QProfileComparisonTest {
   private QProfileRules qProfileRules;
   private QProfileComparison comparison;
 
-  private RuleDefinitionDto xooRule1;
-  private RuleDefinitionDto xooRule2;
+  private RuleDto xooRule1;
+  private RuleDto xooRule2;
   private QProfileDto left;
   private QProfileDto right;
 
@@ -82,8 +82,8 @@ public class QProfileComparisonTest {
     qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
     comparison = new QProfileComparison(db);
 
-    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").getDefinition();
-    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").getDefinition();
+    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
+    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
     db.ruleDao().insert(dbSession, xooRule1);
     db.ruleDao().insert(dbSession, xooRule2);
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)

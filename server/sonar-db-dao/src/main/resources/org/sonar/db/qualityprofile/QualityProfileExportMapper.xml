@@ -35,7 +35,7 @@
     p.value as value
   </sql>
 
-  <resultMap id="ruleDefinitionResultMap" type="org.sonar.db.qualityprofile.ExportRuleDto">
+  <resultMap id="exportRuleResultMap" type="org.sonar.db.qualityprofile.ExportRuleDto">
     <id property="activeRuleUuid" column="activeRuleUuid"/>
     <result property="ruleKey" column="ruleKey"/>
     <result property="severity" column="severity"/>
@@ -55,7 +55,7 @@
 
   </resultMap>
 
-  <select id="selectByProfileUuid" parameterType="string" resultMap="ruleDefinitionResultMap">
+  <select id="selectByProfileUuid" parameterType="string" resultMap="exportRuleResultMap">
     select
     <include refid="exportRuleColumns"/>
     from active_rules a

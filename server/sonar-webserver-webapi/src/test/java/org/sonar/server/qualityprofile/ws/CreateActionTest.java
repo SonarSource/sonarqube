@@ -37,7 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -71,10 +71,9 @@ import static org.sonar.server.language.LanguageTesting.newLanguages;
 public class CreateActionTest {
 
   private static final String XOO_LANGUAGE = "xoo";
-  private static final RuleDefinitionDto RULE = RuleTesting.newXooX1()
+  private static final RuleDto RULE = RuleTesting.newXooX1()
     .setSeverity("MINOR")
-    .setLanguage(XOO_LANGUAGE)
-    .getDefinition();
+    .setLanguage(XOO_LANGUAGE);
 
   @Rule
   public DbTester db = DbTester.create();
@@ -194,7 +193,7 @@ public class CreateActionTest {
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
 
-  private void insertRule(RuleDefinitionDto ruleDto) {
+  private void insertRule(RuleDto ruleDto) {
     dbClient.ruleDao().insert(dbSession, ruleDto);
     dbSession.commit();
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());

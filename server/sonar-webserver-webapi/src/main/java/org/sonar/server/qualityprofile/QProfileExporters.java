@@ -52,7 +52,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,9 +164,9 @@ public class QProfileExporters {
   }
 
   private List<ActiveRuleChange> importProfile(QProfileDto profile, RulesProfile definition, DbSession dbSession) {
-    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = dbClient.ruleDao().selectAllDefinitions(dbSession)
+    Map<RuleKey, RuleDto> rulesByRuleKey = dbClient.ruleDao().selectAll(dbSession)
       .stream()
-      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
     List<ActiveRule> activeRules = definition.getActiveRules();
     List<RuleActivation> activations = activeRules.stream()
       .map(activeRule -> toRuleActivation(activeRule, rulesByRuleKey))
@@ -191,16 +191,16 @@ public class QProfileExporters {
   }
 
   @CheckForNull
-  private static RuleActivation toRuleActivation(ActiveRule activeRule, Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
+  private static RuleActivation toRuleActivation(ActiveRule activeRule, Map<RuleKey, RuleDto> rulesByRuleKey) {
     RuleKey ruleKey = activeRule.getRule().ruleKey();
-    RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
-    if (ruleDefinition == null) {
+    RuleDto ruleDto = rulesByRuleKey.get(ruleKey);
+    if (ruleDto == null) {
       return null;
     }
     String severity = activeRule.getSeverity().name();
     Map<String, String> params = activeRule.getActiveRuleParams().stream()
       .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
-    return RuleActivation.create(ruleDefinition.getUuid(), severity, params);
+    return RuleActivation.create(ruleDto.getUuid(), severity, params);
   }
 
 }

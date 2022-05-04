@@ -34,7 +34,6 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
@@ -67,9 +66,9 @@ public class QualityProfileChangeEventServiceImplTest {
 
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("xoo", "template-key"));
-    db.rules().insert(templateRule.getDefinition());
+    db.rules().insert(templateRule);
     // Custom rule
-    RuleDefinitionDto rule1 = newCustomRule(templateRule.getDefinition())
+    RuleDto rule1 = newCustomRule(templateRule)
       .setLanguage("xoo")
       .setRepositoryKey("repo")
       .setRuleKey("ruleKey")
@@ -119,7 +118,7 @@ public class QualityProfileChangeEventServiceImplTest {
     QProfileDto activatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     activatedQualityProfile.setLanguage("xoo");
     db.qualityProfiles().insert(activatedQualityProfile);
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo").setRuleKey("ruleKey"));
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo").setRuleKey("ruleKey"));
     RuleParamDto rule1Param = db.rules().insertRuleParam(rule1);
 
     ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(activatedQualityProfile, rule1);
@@ -129,7 +128,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     QProfileDto deactivatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(deactivatedQualityProfile);
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo2").setRuleKey("ruleKey2"));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo2").setRuleKey("ruleKey2"));
     RuleParamDto rule2Param = db.rules().insertRuleParam(rule2);
 
     ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(deactivatedQualityProfile, rule2);

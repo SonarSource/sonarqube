@@ -30,7 +30,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
@@ -169,8 +169,8 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     profiles.putAll(new QProfileName(language.getKey(), profileName),
       asList(new ActiveRuleChange(
         type,
-        ActiveRuleKey.parse("qp:repo:rule1"), new RuleDefinitionDto().setUuid(ruleUuid1)),
-        new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule2"), new RuleDefinitionDto().setUuid(ruleUuid2))));
+        ActiveRuleKey.parse("qp:repo:rule1"), new RuleDto().setUuid(ruleUuid1)),
+        new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule2"), new RuleDto().setUuid(ruleUuid2))));
     return tuple(profileName, language.getKey(), language.getName(), 2);
   }
 

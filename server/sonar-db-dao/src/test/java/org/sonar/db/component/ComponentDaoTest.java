@@ -55,7 +55,7 @@ import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.source.FileSourceDto;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -1885,7 +1885,7 @@ public class ComponentDaoTest {
 
     ComponentDto branch2 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey("branch2"));
     ComponentDto fileBranch2 = db.components().insertComponent(ComponentTesting.newFileDto(branch2));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.issues().insert(new IssueDto().setKee("i1").setComponent(fileBranch1).setProject(branch1).setRule(rule).setStatus(STATUS_CONFIRMED));
     db.issues().insert(new IssueDto().setKee("i2").setComponent(fileBranch2).setProject(branch2).setRule(rule).setStatus(STATUS_CLOSED));
     db.issues().insert(new IssueDto().setKee("i3").setComponent(fileBranch2).setProject(branch2).setRule(rule).setStatus(STATUS_OPEN));
@@ -1900,7 +1900,7 @@ public class ComponentDaoTest {
     final ProjectDto project = db.components().insertPrivateProjectDto(b -> b.setName("foo"));
     ComponentDto branch1 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey("branch1"));
     ComponentDto fileBranch1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1));
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert();
     db.issues().insert(new IssueDto().setKee("i").setComponent(fileBranch1).setProject(branch1).setRule(rule).setStatus(STATUS_CLOSED));
 
     List<KeyWithUuidDto> result = underTest.selectComponentsFromBranchesThatHaveOpenIssues(db.getSession(), singleton(branch1.uuid()));

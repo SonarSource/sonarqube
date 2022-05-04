@@ -32,7 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -356,7 +356,7 @@ public class IssueIndexFacetsTest {
   public void facets_on_languages() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
-    RuleDefinitionDto ruleDefinitionDto = newRule();
+    RuleDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
     indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));

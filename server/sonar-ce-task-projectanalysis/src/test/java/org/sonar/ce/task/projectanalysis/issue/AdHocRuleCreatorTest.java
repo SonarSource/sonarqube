@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.scanner.protocol.Constants;
@@ -151,14 +150,14 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getMetadata().getAdHocDescription()).isEqualTo("A description updated");
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(Severity.CRITICAL);
     assertThat(ruleUpdated.getMetadata().getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
-    assertThat(ruleUpdated.getDefinition().getCreatedAt()).isEqualTo(creationDate);
+    assertThat(ruleUpdated.getCreatedAt()).isEqualTo(creationDate);
     assertThat(ruleUpdated.getMetadata().getCreatedAt()).isEqualTo(creationDate);
     assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isGreaterThan(creationDate);
   }
 
   @Test
   public void does_not_update_rule_when_no_change() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setRepositoryKey("external_eslint").setIsExternal(true).setIsAdHoc(true));
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("external_eslint").setIsExternal(true).setIsAdHoc(true));
     RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule);
 
     RuleDto ruleUpdated = underTest.persistAndIndex(dbSession, new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
@@ -178,15 +177,15 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator().isEqualTo(rule.getRuleDescriptionSectionDtos());
     assertThat(ruleUpdated.getSeverity()).isEqualTo(rule.getSeverity());
     assertThat(ruleUpdated.getType()).isEqualTo(rule.getType());
-    assertThat(ruleUpdated.getDefinition().getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleUpdated.getDefinition().getUpdatedAt()).isEqualTo(rule.getUpdatedAt());
+    assertThat(ruleUpdated.getCreatedAt()).isEqualTo(rule.getCreatedAt());
+    assertThat(ruleUpdated.getUpdatedAt()).isEqualTo(ruleMetadata.getUpdatedAt());
 
     assertThat(ruleUpdated.getMetadata().getAdHocName()).isEqualTo(ruleMetadata.getAdHocName());
     assertThat(ruleUpdated.getMetadata().getAdHocDescription()).isEqualTo(ruleMetadata.getAdHocDescription());
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(ruleMetadata.getAdHocSeverity());
     assertThat(ruleUpdated.getMetadata().getAdHocType()).isEqualTo(ruleMetadata.getAdHocType());
     assertThat(ruleUpdated.getMetadata().getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isEqualTo(rule.getUpdatedAt());
+    assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isEqualTo(ruleMetadata.getUpdatedAt());
   }
 
 }
