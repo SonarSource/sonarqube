@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import * as React from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
 import { updateIssue } from './actions';
@@ -48,69 +48,55 @@ export default class Issue extends React.PureComponent<Props> {
 
   componentDidMount() {
     if (this.props.selected) {
-      this.bindShortcuts();
+      document.addEventListener('keydown', this.handleKeyDown, { capture: true });
     }
   }
 
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.selected && this.props.selected) {
-      this.bindShortcuts();
+      document.addEventListener('keydown', this.handleKeyDown, { capture: true });
     } else if (prevProps.selected && !this.props.selected) {
-      this.unbindShortcuts();
+      document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
     }
   }
 
   componentWillUnmount() {
     if (this.props.selected) {
-      this.unbindShortcuts();
+      document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
     }
   }
 
-  bindShortcuts() {
-    key('f', 'issues', () => {
-      this.togglePopup('transition');
+  handleKeyDown = (event: KeyboardEvent) => {
+    const { tagName } = event.target as HTMLElement;
+    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+    if (isInput) {
       return false;
-    });
-    key('a', 'issues', () => {
-      this.togglePopup('assign');
-      return false;
-    });
-    key('m', 'issues', () => {
-      if (this.props.issue.actions.includes('assign')) {
-        this.handleAssignement('_me');
-      }
-      return false;
-    });
-    key('i', 'issues', () => {
-      this.togglePopup('set-severity');
-      return false;
-    });
-    key('c', 'issues', () => {
-      this.togglePopup('comment');
-      return false;
-    });
-    key('t', 'issues', () => {
-      this.togglePopup('edit-tags');
-      return false;
-    });
-    key('space', 'issues', () => {
+    } else if (event.key === KeyboardKeys.KeyF) {
+      event.preventDefault();
+      return this.togglePopup('transition');
+    } else if (event.key === KeyboardKeys.KeyA) {
+      event.preventDefault();
+      return this.togglePopup('assign');
+    } else if (event.key === KeyboardKeys.KeyM && this.props.issue.actions.includes('assign')) {
+      event.preventDefault();
+      return this.handleAssignement('_me');
+    } else if (event.key === KeyboardKeys.KeyI) {
+      event.preventDefault();
+      return this.togglePopup('set-severity');
+    } else if (event.key === KeyboardKeys.KeyC) {
+      event.preventDefault();
+      return this.togglePopup('comment');
+    } else if (event.key === KeyboardKeys.KeyT) {
+      event.preventDefault();
+      return this.togglePopup('edit-tags');
+    } else if (event.key === KeyboardKeys.Space) {
+      event.preventDefault();
       if (this.props.onCheck) {
-        this.props.onCheck(this.props.issue.key);
-        return false;
+        return this.props.onCheck(this.props.issue.key);
       }
-      return undefined;
-    });
-  }
-
-  unbindShortcuts() {
-    key.unbind('f', 'issues');
-    key.unbind('a', 'issues');
-    key.unbind('m', 'issues');
-    key.unbind('i', 'issues');
-    key.unbind('c', 'issues');
-    key.unbind('space', 'issues');
-    key.unbind('t', 'issues');
-  }
+    }
+    return true;
+  };
 
   togglePopup = (popupName: string, open?: boolean) => {
     this.props.onPopupToggle(this.props.issue.key, popupName, open);

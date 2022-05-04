@@ -17,77 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyboardCodes } from '../../../helpers/keycodes';
-import { click, KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
+import { keydown } from '../../../helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
 
-jest.mock('keymaster', () => {
-  const key: any = (bindKey: string, _: string, callback: Function) => {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
-      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
-      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
-        return callback();
-      }
-      return true;
-    });
-  };
-  let scope = 'key-scope';
-
-  key.getScope = () => scope;
-  key.setScope = (newScope: string) => {
-    scope = newScope;
-  };
-  key.deleteScope = jest.fn();
-
-  return key;
-});
-
 it('should render correctly without children', () => {
-  const onSelect = jest.fn();
-  expect(
-    shallow(
-      <SelectList
-        currentItem="seconditem"
-        items={['item', 'seconditem', 'third']}
-        onSelect={onSelect}
-      />
-    )
-  ).toMatchSnapshot();
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+  wrapper.instance().componentWillUnmount!();
 });
 
 it('should render correctly with children', () => {
-  const onSelect = jest.fn();
   const items = ['item', 'seconditem', 'third'];
-  expect(
-    shallow(
-      <SelectList currentItem="seconditem" items={items} onSelect={onSelect}>
-        {items.map(item => (
-          <SelectListItem item={item} key={item}>
-            <i className="myicon" />
-            item
-          </SelectListItem>
-        ))}
-      </SelectList>
-    )
-  ).toMatchSnapshot();
+  const children = items.map(item => (
+    <SelectListItem item={item} key={item}>
+      <i className="myicon" />
+      item
+    </SelectListItem>
+  ));
+  const wrapper = shallowRender({ items }, children);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.instance().componentWillUnmount!();
 });
 
 it('should correclty handle user actions', () => {
   const onSelect = jest.fn();
   const items = ['item', 'seconditem', 'third'];
-  const list = mount<SelectList>(
-    <SelectList currentItem="seconditem" items={items} onSelect={onSelect}>
-      {items.map(item => (
-        <SelectListItem item={item} key={item}>
-          <i className="myicon" />
-          item
-        </SelectListItem>
-      ))}
-    </SelectList>
-  );
+  const children = items.map(item => (
+    <SelectListItem item={item} key={item}>
+      <i className="myicon" />
+      item
+    </SelectListItem>
+  ));
+  const list = shallowRender({ items, onSelect }, children);
   expect(list.state().active).toBe('seconditem');
   keydown({ code: KeyboardCodes.DownArrow });
   expect(list.state().active).toBe('third');
@@ -97,6 +62,19 @@ it('should correclty handle user actions', () => {
   expect(list.state().active).toBe('third');
   keydown({ code: KeyboardCodes.UpArrow });
   expect(list.state().active).toBe('seconditem');
-  click(list.find('a').at(2));
-  expect(onSelect).toBeCalledWith('third');
+  keydown({ code: KeyboardCodes.Enter });
+  expect(onSelect).toBeCalledWith('seconditem');
+  list.instance().componentWillUnmount!();
 });
+
+function shallowRender(props: Partial<SelectList['props']> = {}, children?: React.ReactNode) {
+  return shallow<SelectList>(
+    <SelectList
+      currentItem="seconditem"
+      items={['item', 'seconditem', 'third']}
+      onSelect={jest.fn()}
+      {...props}>
+      {children}
+    </SelectList>
+  );
+}

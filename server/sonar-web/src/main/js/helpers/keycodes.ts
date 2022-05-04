@@ -37,5 +37,13 @@ export enum KeyboardCodes {
 }
 
 export enum KeyboardKeys {
-  Alt = 'Alt'
+  Alt = 'Alt',
+  KeyF = 'f',
+  KeyA = 'a',
+  KeyM = 'm',
+  KeyI = 'i',
+  KeyC = 'c',
+  KeyT = 't',
+  Space = ' ',
+  Escape = 'Escape'
 }

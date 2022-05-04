@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import * as React from 'react';
 import PageActions from '../../components/ui/PageActions';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
+import { KeyboardCodes } from '../../helpers/keycodes';
 import { ComponentMeasure } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 
@@ -35,8 +35,6 @@ export interface WithKeyboardNavigationProps {
   selected?: ComponentMeasure;
 }
 
-const KEY_SCOPE = 'key_nav';
-
 export default function withKeyboardNavigation<P>(
   WrappedComponent: React.ComponentClass<P & Partial<WithKeyboardNavigationProps>>
 ) {
@@ -44,32 +42,29 @@ export default function withKeyboardNavigation<P>(
     static displayName = getWrappedDisplayName(WrappedComponent, 'withKeyboardNavigation');
 
     componentDidMount() {
-      this.attachShortcuts();
+      document.addEventListener('keydown', this.handleKeyDown);
     }
 
     componentWillUnmount() {
-      this.detachShortcuts();
+      document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    attachShortcuts = () => {
-      key.setScope(KEY_SCOPE);
-      key('up', KEY_SCOPE, () => {
+    handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === KeyboardCodes.UpArrow) {
+        event.preventDefault();
         return this.skipIfFile(this.handleHighlightPrevious);
-      });
-      key('down', KEY_SCOPE, () => {
+      } else if (event.code === KeyboardCodes.DownArrow) {
+        event.preventDefault();
         return this.skipIfFile(this.handleHighlightNext);
-      });
-      key('right,enter', KEY_SCOPE, () => {
+      } else if (event.code === KeyboardCodes.RightArrow || event.code === KeyboardCodes.Enter) {
+        event.preventDefault();
         return this.skipIfFile(this.handleSelectCurrent);
-      });
-      key('left', KEY_SCOPE, () => {
+      } else if (event.code === KeyboardCodes.LeftArrow) {
+        event.preventDefault();
         this.handleSelectParent();
-        return false; // always hijack left
-      });
-    };
-
-    detachShortcuts = () => {
-      key.deleteScope(KEY_SCOPE);
+        return false; // always hijack left / Why did you put this @wouter?
+      }
+      return false;
     };
 
     getCurrentIndex = () => {
@@ -85,10 +80,9 @@ export default function withKeyboardNavigation<P>(
     skipIfFile = (handler: () => void) => {
       if (this.props.isFile) {
         return true;
-      } else {
-        handler();
-        return false;
       }
+      handler();
+      return false;
     };
 
     handleHighlightNext = () => {

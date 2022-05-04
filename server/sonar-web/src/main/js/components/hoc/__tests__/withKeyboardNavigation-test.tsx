@@ -21,7 +21,7 @@ import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
+import { keydown } from '../../../helpers/testUtils';
 import { ComponentMeasure } from '../../../types/types';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 
@@ -41,23 +41,6 @@ const COMPONENTS = [
   mockComponent({ key: 'file-2' }),
   mockComponent({ key: 'file-3' })
 ];
-
-jest.mock('keymaster', () => {
-  const key: any = (bindKey: string, _: string, callback: Function) => {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
-      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
-      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
-        return callback();
-      }
-      return true;
-    });
-  };
-
-  key.setScope = jest.fn();
-  key.deleteScope = jest.fn();
-
-  return key;
-});
 
 it('should wrap component correctly', () => {
   const wrapper = shallow(applyProps());

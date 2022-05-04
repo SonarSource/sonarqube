@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import key from 'keymaster';
-import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { KeyboardCodes } from '../../helpers/keycodes';
 import SelectListItem from './SelectListItem';
@@ -36,10 +34,6 @@ interface State {
 }
 
 export default class SelectList extends React.PureComponent<Props, State> {
-  currentKeyScope?: string;
-  previousFilter?: (event: any) => void;
-  previousKeyScope?: string;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -48,7 +42,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    this.attachShortcuts();
+    document.addEventListener('keydown', this.handleKeyDown, { capture: true });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -61,56 +55,25 @@ export default class SelectList extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    this.detachShortcuts();
+    document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
   }
 
-  attachShortcuts = () => {
-    this.previousKeyScope = key.getScope();
-    this.previousFilter = key.filter;
-    this.currentKeyScope = uniqueId('key-scope');
-    key.setScope(this.currentKeyScope);
-
-    // sometimes there is a *focused* search field next to the SelectList component
-    // we need to allow shortcuts in this case, but only for the used keys
-
-    Object.assign(key, {
-      filter: (event: KeyboardEvent & { target: HTMLElement }) => {
-        const { tagName } = event.target || event.srcElement;
-        const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-        return (
-          [KeyboardCodes.Enter, KeyboardCodes.UpArrow, KeyboardCodes.DownArrow].includes(
-            event.code as KeyboardCodes
-          ) || !isInput
-        );
-      }
-    });
-
-    key('down', this.currentKeyScope, () => {
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === KeyboardCodes.DownArrow) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       this.setState(this.selectNextElement);
-      return false;
-    });
-
-    key('up', this.currentKeyScope, () => {
+    } else if (event.code === KeyboardCodes.UpArrow) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       this.setState(this.selectPreviousElement);
-      return false;
-    });
-
-    key('return', this.currentKeyScope, () => {
+    } else if (event.code === KeyboardCodes.Enter) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       if (this.state.active != null) {
         this.handleSelect(this.state.active);
       }
-      return false;
-    });
-  };
-
-  detachShortcuts = () => {
-    if (this.previousKeyScope) {
-      key.setScope(this.previousKeyScope);
     }
-    if (this.currentKeyScope) {
-      key.deleteScope(this.currentKeyScope);
-    }
-    Object.assign(key, { filter: this.previousFilter });
   };
 
   handleSelect = (item: string) => {
