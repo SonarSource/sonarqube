@@ -26,9 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AbstractFileFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,12 +121,21 @@ public class ScoreMatrixDumperImplTest {
   }
 
   private Collection<File> listDumpFilesForTaskUuid(String taskUuid) {
-    return FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
-      @Override
-      public boolean accept(File file) {
+    Collection<File> dumpFiles = new ArrayList<>();
+    File dir = tempDir.toFile();
+    File[] files = dir.listFiles();
+    if (!dir.exists() || files == null) {
+      throw new IllegalStateException("Temp directory does not exist");
+    }
+    for (File file : files) {
+      if (file.exists()) {
         String name = file.getName();
-        return name.startsWith("score-matrix-" + taskUuid) && name.endsWith(".csv");
+        if (name.startsWith("score-matrix-" + taskUuid) && name.endsWith(".csv")) {
+          dumpFiles.add(file);
+        }
       }
-    }, null);
+    }
+
+    return dumpFiles;
   }
 }
