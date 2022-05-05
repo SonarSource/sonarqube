@@ -20,7 +20,7 @@
 import { arc as d3Arc, pie as d3Pie, PieArcDatum } from 'd3-shape';
 import * as React from 'react';
 
-interface DataPoint {
+export interface DataPoint {
   fill: string;
   value: number;
 }

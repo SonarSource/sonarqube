@@ -22,7 +22,7 @@ import { getJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import { Paging } from '../types/types';
 
-interface TimeMachineResponse {
+export interface TimeMachineResponse {
   measures: {
     metric: string;
     history: Array<{ date: string; value?: string }>;

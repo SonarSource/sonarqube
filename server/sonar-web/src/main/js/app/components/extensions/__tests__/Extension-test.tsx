@@ -97,6 +97,7 @@ function shallowRender(props: Partial<Extension['props']> = {}) {
       intl={{} as IntlShape}
       location={mockLocation()}
       router={mockRouter()}
+      updateCurrentUserHomepage={jest.fn()}
       {...props}
     />
   );
