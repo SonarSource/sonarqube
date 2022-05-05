@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -35,7 +36,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
-import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -56,6 +56,7 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
+import static org.sonar.core.platform.EditionProvider.Edition;
 import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
@@ -74,6 +75,8 @@ public class GlobalAction implements NavigationWsAction, Startable {
     RATING_GRID,
     DEVELOPER_AGGREGATED_INFO_DISABLED);
 
+  private static final String REGULATORY_REPORT_FEATURE_ENABLED_FLAG  = "regulatoryReportFeatureEnabled";
+  
   private final Map<String, String> systemSettingValuesByKey;
 
   private final PageRepository pageRepository;
@@ -151,6 +154,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeInstanceUsesDefaultAdminCredentials(json);
       writeMultipleAlmEnabled(json);
       writeProjectImportFeature(json);
+      writeRegulatoryReportFeature(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
       json.prop("standalone", webServer.isStandalone());
@@ -218,8 +222,8 @@ public class GlobalAction implements NavigationWsAction, Startable {
   }
 
   private void writeProjectImportFeature(JsonWriter json) {
-    EditionProvider.Edition edition = editionProvider.get().orElse(null);
-    boolean isEnabled = Arrays.asList(ENTERPRISE, DATACENTER).contains(edition);
+    Edition edition = editionProvider.get().orElse(null);
+    boolean isEnabled = isEditionEEorDCE(edition);
     json.prop("projectImportFeatureEnabled", isEnabled);
   }
 
@@ -231,5 +235,15 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeWebAnalytics(JsonWriter json) {
     webAnalyticsLoader.getUrlPathToJs().ifPresent(p -> json.prop("webAnalyticsJsPath", p));
+  }
+
+  private void writeRegulatoryReportFeature(JsonWriter json) {
+    Edition edition = editionProvider.get().orElse(null);
+    boolean isEnabled = isEditionEEorDCE(edition);
+    json.prop(REGULATORY_REPORT_FEATURE_ENABLED_FLAG, isEnabled);
+  }
+
+  private static boolean isEditionEEorDCE(@Nullable Edition edition) {
+    return Arrays.asList(ENTERPRISE, DATACENTER).contains(edition);
   }
 }
