@@ -36,7 +36,7 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
-import { KEYCODE_MAP, waitAndUpdate } from '../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,
@@ -46,26 +46,8 @@ import {
 import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
-const originalAddEventListener = window.addEventListener;
-const originalRemoveEventListener = window.removeEventListener;
-
 beforeEach(() => {
-  Object.defineProperty(window, 'addEventListener', {
-    value: jest.fn()
-  });
-  Object.defineProperty(window, 'removeEventListener', {
-    value: jest.fn()
-  });
   jest.clearAllMocks();
-});
-
-afterEach(() => {
-  Object.defineProperty(window, 'addEventListener', {
-    value: originalAddEventListener
-  });
-  Object.defineProperty(window, 'removeEventListener', {
-    value: originalRemoveEventListener
-  });
 });
 
 jest.mock('../../../api/measures', () => ({
@@ -84,27 +66,6 @@ jest.mock('../../../helpers/security-standard', () => ({
 jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
-
-jest.mock('keymaster', () => {
-  const key: any = (bindKey: string, _: string, callback: Function) => {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
-      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
-      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
-        return callback();
-      }
-      return true;
-    });
-  };
-  let scope = 'hotspots-list';
-
-  key.getScope = () => scope;
-  key.setScope = (newScope: string) => {
-    scope = newScope;
-  };
-  key.deleteScope = jest.fn();
-
-  return key;
-});
 
 const branch = mockBranch();
 

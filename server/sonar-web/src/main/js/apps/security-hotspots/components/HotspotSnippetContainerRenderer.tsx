@@ -53,7 +53,6 @@ export interface HotspotSnippetContainerRendererProps {
 }
 
 const noop = () => undefined;
-const SCROLL_INTERVAL_DELAY = 10;
 const SCROLL_DELAY = 100;
 const EXPAND_ANIMATION_SPEED = 200;
 
@@ -76,21 +75,6 @@ export function getScrollHandler(scrollableRef: React.RefObject<HTMLDivElement>)
       }
     }, SCROLL_DELAY);
   };
-}
-
-function scrollToFollowAnimation(
-  scrollableRef: React.RefObject<HTMLDivElement>,
-  targetHeight: number
-) {
-  const scrollable = scrollableRef.current;
-  if (scrollable) {
-    const handler = setInterval(() => {
-      scrollable.scrollTo({ top: targetHeight, behavior: 'smooth' });
-    }, SCROLL_INTERVAL_DELAY);
-    setTimeout(() => {
-      clearInterval(handler);
-    }, EXPAND_ANIMATION_SPEED);
-  }
 }
 
 /* Exported for testing */
@@ -135,7 +119,6 @@ export async function animateExpansion(
     // False positive:
     // eslint-disable-next-line require-atomic-updates
     wrapper.style.maxHeight = `${targetHeight}px`;
-    scrollToFollowAnimation(scrollableRef, targetHeight);
   }
 
   // after the animation is done, clear the applied styles
@@ -218,6 +201,7 @@ export default function HotspotSnippetContainerRenderer(
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}
+              scroll={getScrollHandler(scrollableRef)}
             />
           )}
         </DeferredSpinner>

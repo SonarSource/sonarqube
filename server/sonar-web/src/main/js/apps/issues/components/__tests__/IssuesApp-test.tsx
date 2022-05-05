@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import key from 'keymaster';
 import * as React from 'react';
 import { searchIssues } from '../../../../api/issues';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
@@ -40,7 +39,7 @@ import {
   mockRawIssue,
   mockRouter
 } from '../../../../helpers/testMocks';
-import { KEYCODE_MAP, keydown, waitAndUpdate } from '../../../../helpers/testUtils';
+import { keydown, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { ReferencedComponent } from '../../../../types/issues';
 import { Issue, Paging } from '../../../../types/types';
@@ -65,27 +64,6 @@ jest.mock('../../../../helpers/pages', () => ({
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
-jest.mock('keymaster', () => {
-  const key: any = (bindKey: string, _: string, callback: Function) => {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
-      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
-      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
-        return callback();
-      }
-      return true;
-    });
-  };
-  let scope = 'issues';
-
-  key.getScope = () => scope;
-  key.setScope = (newScope: string) => {
-    scope = newScope;
-  };
-  key.deleteScope = jest.fn();
-
-  return key;
-});
-
 jest.mock('../../../../api/issues', () => ({
   searchIssues: jest.fn().mockResolvedValue({ facets: [], issues: [] })
 }));
@@ -107,17 +85,7 @@ const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
 
 const referencedComponent: ReferencedComponent = { key: 'foo-key', name: 'bar', uuid: 'foo-uuid' };
 
-const originalAddEventListener = window.addEventListener;
-const originalRemoveEventListener = window.removeEventListener;
-
 beforeEach(() => {
-  Object.defineProperty(window, 'addEventListener', {
-    value: jest.fn()
-  });
-  Object.defineProperty(window, 'removeEventListener', {
-    value: jest.fn()
-  });
-
   (searchIssues as jest.Mock).mockResolvedValue({
     components: [referencedComponent],
     effortTotal: 1,
@@ -131,13 +99,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  Object.defineProperty(window, 'addEventListener', {
-    value: originalAddEventListener
-  });
-  Object.defineProperty(window, 'removeEventListener', {
-    value: originalRemoveEventListener
-  });
-
   jest.clearAllMocks();
   (searchIssues as jest.Mock).mockReset();
 });
@@ -243,8 +204,11 @@ it('should switch to source view if an issue is selected', async () => {
 
 it('should correctly bind key events for issue navigation', async () => {
   const push = jest.fn();
+  const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   await waitAndUpdate(wrapper);
+
+  expect(addEventListenerSpy).toBeCalledTimes(2);
 
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
@@ -268,17 +232,20 @@ it('should correctly bind key events for issue navigation', async () => {
 
   keydown({ code: KeyboardCodes.LeftArrow });
   expect(push).toBeCalledTimes(2);
-  expect(window.addEventListener).toBeCalledTimes(2);
+
+  addEventListenerSpy.mockReset();
 });
 
 it('should correctly clean up on unmount', () => {
+  const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
   const wrapper = shallowRender();
 
   wrapper.unmount();
-  expect(key.deleteScope).toBeCalled();
   expect(removeSideBarClass).toBeCalled();
   expect(removeWhitePageClass).toBeCalled();
-  expect(window.removeEventListener).toBeCalledTimes(2);
+  expect(removeEventListenerSpy).toBeCalledTimes(2);
+
+  removeEventListenerSpy.mockReset();
 });
 
 it('should be able to bulk change specific issues', async () => {
@@ -460,10 +427,6 @@ describe('keydown event handler', () => {
     jest.resetAllMocks();
   });
 
-  afterEach(() => {
-    key.setScope('issues');
-  });
-
   it('should handle alt', () => {
     instance.handleKeyDown(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).toHaveBeenCalledWith(enableLocationsNavigator);
@@ -484,8 +447,8 @@ describe('keydown event handler', () => {
     instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.RightArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextFlow);
   });
-  it('should ignore different scopes', () => {
-    key.setScope('notissues');
+  it('should ignore if modal is open', () => {
+    wrapper.setState({ bulkChangeModal: true });
     instance.handleKeyDown(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).not.toHaveBeenCalled();
   });
@@ -500,19 +463,9 @@ describe('keyup event handler', () => {
     jest.resetAllMocks();
   });
 
-  afterEach(() => {
-    key.setScope('issues');
-  });
-
   it('should handle alt', () => {
     instance.handleKeyUp(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).toHaveBeenCalledWith(disableLocationsNavigator);
-  });
-
-  it('should ignore different scopes', () => {
-    key.setScope('notissues');
-    instance.handleKeyUp(mockEvent({ key: KeyboardKeys.Alt }));
-    expect(instance.setState).not.toHaveBeenCalled();
   });
 });
 

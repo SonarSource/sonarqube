@@ -151,9 +151,6 @@ describe('expand', () => {
     expect(onExpandBlock).toBeCalledWith('down');
     expect(snippet.style.maxHeight).toBe('112px');
 
-    jest.advanceTimersByTime(250);
-    expect(scrollableNode.scrollTo).toBeCalled();
-
     jest.useRealTimers();
   });
 });

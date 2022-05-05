@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from 'history';
-import key from 'keymaster';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { getMeasures } from '../../api/measures';
@@ -46,7 +45,6 @@ import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { getLocations, SECURITY_STANDARDS } from './utils';
 
-const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
 const PAGE_SIZE = 500;
 interface DispatchProps {
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
@@ -143,27 +141,34 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   registerKeyboardEvents() {
-    key.setScope(HOTSPOT_KEYMASTER_SCOPE);
-    key('up', HOTSPOT_KEYMASTER_SCOPE, () => {
-      this.selectNeighboringHotspot(-1);
-      return false;
-    });
-    key('down', HOTSPOT_KEYMASTER_SCOPE, () => {
-      this.selectNeighboringHotspot(+1);
-      return false;
-    });
-    window.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keydown', this.handleKeyDown);
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
-    } else if (event.code === KeyboardCodes.DownArrow && event.altKey) {
-      event.preventDefault();
-      this.selectNextLocation();
-    } else if (event.code === KeyboardCodes.UpArrow && event.altKey) {
-      event.preventDefault();
-      this.selectPreviousLocation();
+      return;
+    }
+
+    switch (event.code) {
+      case KeyboardCodes.DownArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectNextLocation();
+        } else {
+          this.selectNeighboringHotspot(+1);
+        }
+        break;
+      }
+      case KeyboardCodes.UpArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectPreviousLocation();
+        } else {
+          this.selectNeighboringHotspot(-1);
+        }
+        break;
+      }
     }
   };
 
@@ -218,8 +223,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   };
 
   unregisterKeyboardEvents() {
-    key.deleteScope(HOTSPOT_KEYMASTER_SCOPE);
-    window.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   constructFiltersFromProps(

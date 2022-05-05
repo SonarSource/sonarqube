@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import key from 'keymaster';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -240,61 +239,68 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   attachShortcuts() {
-    key.setScope('issues');
-    key('up', 'issues', () => {
-      this.selectPreviousIssue();
-      return false;
-    });
-    key('down', 'issues', () => {
-      this.selectNextIssue();
-      return false;
-    });
-    key('right', 'issues', () => {
-      this.openSelectedIssue();
-      return false;
-    });
-    key('left', 'issues', () => {
-      if (this.state.query.issues.length !== 1) {
-        this.closeIssue();
-      }
-      return false;
-    });
-    window.addEventListener('keydown', this.handleKeyDown);
-    window.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
   }
 
   detachShortcuts() {
-    key.deleteScope('issues');
-    window.removeEventListener('keydown', this.handleKeyDown);
-    window.removeEventListener('keyup', this.handleKeyUp);
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (key.getScope() !== 'issues') {
+    // Ignore if modal is open
+    if (this.state.bulkChangeModal) {
       return;
     }
+
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
-    } else if (event.code === KeyboardCodes.DownArrow && event.altKey) {
-      event.preventDefault();
-      this.selectNextLocation();
-    } else if (event.code === KeyboardCodes.UpArrow && event.altKey) {
-      event.preventDefault();
-      this.selectPreviousLocation();
-    } else if (event.code === KeyboardCodes.LeftArrow && event.altKey) {
-      event.preventDefault();
-      this.selectPreviousFlow();
-    } else if (event.code === KeyboardCodes.RightArrow && event.altKey) {
-      event.preventDefault();
-      this.selectNextFlow();
+      return;
+    }
+
+    switch (event.code) {
+      case KeyboardCodes.DownArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectNextLocation();
+        } else {
+          this.selectNextIssue();
+        }
+        break;
+      }
+      case KeyboardCodes.UpArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectPreviousLocation();
+        } else {
+          this.selectPreviousIssue();
+        }
+        break;
+      }
+      case KeyboardCodes.LeftArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectPreviousFlow();
+        } else {
+          this.closeIssue();
+        }
+        break;
+      }
+      case KeyboardCodes.RightArrow: {
+        event.preventDefault();
+        if (event.altKey) {
+          this.selectNextFlow();
+        } else {
+          this.openSelectedIssue();
+        }
+        break;
+      }
     }
   };
 
   handleKeyUp = (event: KeyboardEvent) => {
-    if (key.getScope() !== 'issues') {
-      return;
-    }
     if (event.key === KeyboardKeys.Alt) {
       this.setState(actions.disableLocationsNavigator);
     }
@@ -789,12 +795,10 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   handleOpenBulkChange = () => {
-    key.setScope('issues-bulk-change');
     this.setState({ bulkChangeModal: true });
   };
 
   handleCloseBulkChange = () => {
-    key.setScope('issues');
     this.setState({ bulkChangeModal: false });
   };
 
