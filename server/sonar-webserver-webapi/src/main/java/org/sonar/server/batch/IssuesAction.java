@@ -75,6 +75,7 @@ public class IssuesAction implements BatchWsAction {
       .setSince("5.1")
       .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)))
       .setInternal(true)
+      .setDeprecatedSince("9.5")
       .setHandler(this);
 
     action
