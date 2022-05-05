@@ -34,6 +34,8 @@ public class DbVersion95 implements DbVersion {
       .add(6406, "Insert description from RULES into RULE_DESC_SECTIONS", InsertRuleDescriptionIntoRuleDescSections.class)
       .add(6407, "Create index for RULE_DESC_SECTIONS", CreateIndexForRuleDescSections.class)
       .add(6408, "Drop column DESCRIPTIONS from RULES table", DropRuleDescriptionColumn.class)
-    ;
+      .add(6409, "Drop column CREATED_AT from RULES_METADATA table", DropRuleMetadataCreatedAtColumn.class)
+      .add(6410, "Drop column UPDATED_AT from RULES_METADATA table", DropRuleMetadataUpdatedAtColumn.class)
+      ;
   }
 }
