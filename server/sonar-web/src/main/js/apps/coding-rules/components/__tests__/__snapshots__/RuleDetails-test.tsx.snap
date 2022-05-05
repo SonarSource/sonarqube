@@ -29,6 +29,12 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
+          "descriptionSections": Array [
+            Object {
+              "content": "<b>Why<b/> Because",
+              "key": "root_cause",
+            },
+          ],
           "htmlDesc": "",
           "isExternal": false,
           "isTemplate": false,
@@ -65,6 +71,12 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
+          "descriptionSections": Array [
+            Object {
+              "content": "<b>Why<b/> Because",
+              "key": "root_cause",
+            },
+          ],
           "htmlDesc": "",
           "isExternal": false,
           "isTemplate": false,
@@ -132,6 +144,12 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
+          "descriptionSections": Array [
+            Object {
+              "content": "<b>Why<b/> Because",
+              "key": "root_cause",
+            },
+          ],
           "htmlDesc": "",
           "isExternal": false,
           "isTemplate": false,
@@ -167,6 +185,12 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
+          "descriptionSections": Array [
+            Object {
+              "content": "<b>Why<b/> Because",
+              "key": "root_cause",
+            },
+          ],
           "htmlDesc": "",
           "isExternal": false,
           "isTemplate": false,

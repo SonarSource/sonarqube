@@ -37,6 +37,7 @@ exports[`should display right meta info 1`] = `
         rule={
           Object {
             "createdAt": "2013-07-26T09:40:51+0200",
+            "descriptionSections": Array [],
             "key": "squid:S1133",
             "lang": "java",
             "langName": "Java",

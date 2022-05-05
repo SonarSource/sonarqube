@@ -565,6 +565,34 @@ export interface RuleActivation {
   severity: string;
 }
 
+export enum RuleDescriptionSections {
+  DEFAULT = 'default',
+  INTRODUCTION = 'introduction',
+  ROOT_CAUSE = 'root_cause',
+  ASSESS_THE_PROBLEM = 'assess_the_problem',
+  HOW_TO_FIX = 'how_to_fix',
+  RESOURCES = 'resources'
+}
+
+export interface RuleDescriptionSection {
+  key: RuleDescriptionSections;
+  content: string;
+}
+
+export interface RulesUpdateRequest {
+  key: string;
+  markdown_description?: string;
+  markdown_note?: string;
+  name?: string;
+  params?: string;
+  remediation_fn_base_effort?: string;
+  remediation_fn_type?: string;
+  remediation_fy_gap_multiplier?: string;
+  severity?: string;
+  status?: string;
+  tags?: string;
+}
+
 export interface RuleDetails extends Rule {
   createdAt: string;
   debtOverloaded?: boolean;
@@ -576,6 +604,7 @@ export interface RuleDetails extends Rule {
   defaultRemFnBaseEffort?: string;
   defaultRemFnType?: string;
   effortToFixDescription?: string;
+  descriptionSections?: RuleDescriptionSection[];
   htmlDesc?: string;
   htmlNote?: string;
   internalKey?: string;

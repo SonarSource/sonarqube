@@ -99,6 +99,7 @@ it('should correctly handle rule changes', () => {
   const wrapper = shallowRender();
   const ruleChange = {
     createdAt: '2019-02-01',
+    descriptionSections: [],
     key: 'foo',
     name: 'Foo',
     repo: 'bar',

@@ -17,14 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { RuleDetails } from '../../../types/types';
+import {
+  Dict,
+  RuleDescriptionSection,
+  RuleDescriptionSections,
+  RuleDetails
+} from '../../../types/types';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
+
+const SECTION_ORDER: Dict<number> = {
+  [RuleDescriptionSections.INTRODUCTION]: 0,
+  [RuleDescriptionSections.ROOT_CAUSE]: 1,
+  [RuleDescriptionSections.ASSESS_THE_PROBLEM]: 2,
+  [RuleDescriptionSections.HOW_TO_FIX]: 3,
+  [RuleDescriptionSections.RESOURCES]: 4
+};
 
 interface Props {
   canWrite: boolean | undefined;
@@ -107,7 +121,14 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     });
   };
 
-  renderDescription = () => (
+  sortedDescriptionSections(ruleDetails: RuleDetails) {
+    return sortBy(
+      ruleDetails.descriptionSections,
+      s => SECTION_ORDER[s.key] || Object.keys(SECTION_ORDER).length
+    );
+  }
+
+  renderExtendedDescription = () => (
     <div id="coding-rules-detail-description-extra">
       {this.props.ruleDetails.htmlNote !== undefined && (
         <div
@@ -185,18 +206,28 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     </div>
   );
 
+  renderDescription(section: RuleDescriptionSection) {
+    return (
+      <section
+        aria-label={translate('coding_rules.description_section.title', section.key)}
+        className="coding-rules-detail-description rule-desc markdown"
+        key={section.key}
+        /* eslint-disable-next-line react/no-danger */
+        dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
+      />
+    );
+  }
+
   render() {
     const { ruleDetails } = this.props;
     const hasDescription = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
 
     return (
       <div className="js-rule-description">
-        {hasDescription && ruleDetails.htmlDesc !== undefined ? (
-          <div
-            className="coding-rules-detail-description rule-desc markdown"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(ruleDetails.htmlDesc) }}
-          />
+        {hasDescription &&
+        ruleDetails.descriptionSections &&
+        ruleDetails.descriptionSections.length > 0 ? (
+          this.sortedDescriptionSections(ruleDetails).map(this.renderDescription)
         ) : (
           <div className="coding-rules-detail-description rule-desc markdown">
             {translateWithParameters('issue.external_issue_description', ruleDetails.name)}
@@ -205,7 +236,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
         {!ruleDetails.templateKey && (
           <div className="coding-rules-detail-description coding-rules-detail-description-extra">
-            {!this.state.descriptionForm && this.renderDescription()}
+            {!this.state.descriptionForm && this.renderExtendedDescription()}
             {this.state.descriptionForm && this.props.canWrite && this.renderForm()}
           </div>
         )}

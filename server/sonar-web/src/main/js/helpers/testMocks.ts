@@ -47,6 +47,7 @@ import {
   ProfileInheritanceDetails,
   Rule,
   RuleActivation,
+  RuleDescriptionSections,
   RuleDetails,
   RuleParameter,
   SnippetsByComponent,
@@ -603,6 +604,12 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     repo: 'squid',
     name: '".equals()" should not be used to test the values of "Atomic" classes',
     createdAt: '2014-12-16T17:26:54+0100',
+    descriptionSections: [
+      {
+        key: RuleDescriptionSections.ROOT_CAUSE,
+        content: '<b>Why<b/> Because'
+      }
+    ],
     htmlDesc: '',
     mdDesc: '',
     severity: 'MAJOR',

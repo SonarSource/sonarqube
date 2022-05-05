@@ -17,12 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, countBy, pick } from 'lodash';
+import { cloneDeep, countBy, pick, trim } from 'lodash';
 import { mockQualityProfile, mockRuleDetails, mockRuleRepository } from '../../helpers/testMocks';
 import { RuleRepository } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
-import { Rule, RuleActivation, RuleDetails } from '../../types/types';
+import {
+  Rule,
+  RuleActivation,
+  RuleDescriptionSections,
+  RuleDetails,
+  RulesUpdateRequest
+} from '../../types/types';
 import { getFacet } from '../issues';
 import {
   bulkActivateRules,
@@ -32,7 +38,7 @@ import {
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse
 } from '../quality-profiles';
-import { getRuleDetails, getRulesApp, searchRules } from '../rules';
+import { getRuleDetails, getRulesApp, searchRules, updateRule } from '../rules';
 
 interface FacetFilter {
   languages?: string;
@@ -83,9 +89,33 @@ export default class CodingRulesMock {
         lang: 'c',
         langName: 'C',
         name: 'Awsome C rule'
+      }),
+      mockRuleDetails({
+        key: 'rule5',
+        type: 'VULNERABILITY',
+        lang: 'py',
+        langName: 'Python',
+        name: 'Awsome Python rule',
+        descriptionSections: [
+          { key: RuleDescriptionSections.INTRODUCTION, content: 'Introduction to this rule' },
+          { key: RuleDescriptionSections.HOW_TO_FIX, content: 'This how to fix' },
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: 'Some link <a href="http://example.com">Awsome Reading</a>'
+          }
+        ]
+      }),
+      mockRuleDetails({
+        key: 'rule6',
+        type: 'VULNERABILITY',
+        lang: 'py',
+        langName: 'Python',
+        name: 'Bad Python rule',
+        descriptionSections: undefined
       })
     ];
 
+    (updateRule as jest.Mock).mockImplementation(this.handleUpdateRule);
     (searchRules as jest.Mock).mockImplementation(this.handleSearchRules);
     (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
     (searchQualityProfiles as jest.Mock).mockImplementation(this.handleSearchQualityProfiles);
@@ -137,6 +167,10 @@ export default class CodingRulesMock {
     this.rules = cloneDeep(this.defaultRules);
   }
 
+  allRulesCount() {
+    return this.rules.length;
+  }
+
   allRulesName() {
     return this.rules.map(r => r.name);
   }
@@ -173,6 +207,49 @@ export default class CodingRulesMock {
       });
     }
     return this.reply({ actives: parameters.actives ? [] : undefined, rule });
+  };
+
+  handleUpdateRule = (data: RulesUpdateRequest): Promise<RuleDetails> => {
+    const rule = this.rules.find(r => r.key === data.key);
+    if (rule === undefined) {
+      return Promise.reject({
+        errors: [{ msg: `No rule has been found for id ${data.key}` }]
+      });
+    }
+    const template = this.rules.find(r => r.key === rule.templateKey);
+
+    // Lets not convert the md to html in test.
+    rule.mdDesc = data.markdown_description !== undefined ? data.markdown_description : rule.mdDesc;
+    rule.htmlDesc =
+      data.markdown_description !== undefined ? data.markdown_description : rule.htmlDesc;
+    rule.mdNote = data.markdown_note !== undefined ? data.markdown_note : rule.mdNote;
+    rule.htmlNote = data.markdown_note !== undefined ? data.markdown_note : rule.htmlNote;
+    rule.name = data.name !== undefined ? data.name : rule.name;
+    if (template && data.params) {
+      rule.params = [];
+      data.params.split(';').forEach(param => {
+        const parts = param.split('=');
+        const paramsDef = template.params?.find(p => p.key === parts[0]);
+        rule.params?.push({
+          key: parts[0],
+          type: paramsDef?.type || 'STRING',
+          defaultValue: trim(parts[1], '" '),
+          htmlDesc: paramsDef?.htmlDesc
+        });
+      });
+    }
+
+    rule.remFnBaseEffort =
+      data.remediation_fn_base_effort !== undefined
+        ? data.remediation_fn_base_effort
+        : rule.remFnBaseEffort;
+    rule.remFnType =
+      data.remediation_fn_type !== undefined ? data.remediation_fn_type : rule.remFnType;
+    rule.severity = data.severity !== undefined ? data.severity : rule.severity;
+    rule.status = data.status !== undefined ? data.status : rule.status;
+    rule.tags = data.tags !== undefined ? data.tags.split(';') : rule.tags;
+
+    return this.reply(rule);
   };
 
   handleSearchRules = ({ facets, languages, p, ps, rule_key }: SearchRulesQuery) => {

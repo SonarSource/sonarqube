@@ -110,8 +110,8 @@ exports[`should handle re-activation 1`] = `
             }
             value={
               Object {
-                "label": "issue.type.CODE_SMELL",
-                "value": "CODE_SMELL",
+                "label": "issue.type.BUG",
+                "value": "BUG",
               }
             }
           />
@@ -365,8 +365,8 @@ exports[`should render correctly: default 1`] = `
             }
             value={
               Object {
-                "label": "issue.type.CODE_SMELL",
-                "value": "CODE_SMELL",
+                "label": "issue.type.BUG",
+                "value": "BUG",
               }
             }
           />

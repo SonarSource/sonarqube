@@ -21,7 +21,7 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
-import { RuleActivation, RuleDetails } from '../types/types';
+import { RuleActivation, RuleDetails, RulesUpdateRequest } from '../types/types';
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
@@ -85,18 +85,6 @@ export function deleteRule(parameters: { key: string }) {
   return post('/api/rules/delete', parameters).catch(throwGlobalError);
 }
 
-export function updateRule(data: {
-  key: string;
-  markdown_description?: string;
-  markdown_note?: string;
-  name?: string;
-  params?: string;
-  remediation_fn_base_effort?: string;
-  remediation_fn_type?: string;
-  remediation_fy_gap_multiplier?: string;
-  severity?: string;
-  status?: string;
-  tags?: string;
-}): Promise<RuleDetails> {
+export function updateRule(data: RulesUpdateRequest): Promise<RuleDetails> {
   return postJSON('/api/rules/update', data).then(r => r.rule, throwGlobalError);
 }
