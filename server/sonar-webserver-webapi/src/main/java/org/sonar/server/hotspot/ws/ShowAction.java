@@ -163,17 +163,17 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
-  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDefinitionDto) {
-    SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDefinitionDto.getSecurityStandards());
+  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDto ruleDto) {
+    SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDto.getSecurityStandards());
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
 
     Hotspots.Rule.Builder ruleBuilder = Hotspots.Rule.newBuilder()
-      .setKey(ruleDefinitionDto.getKey().toString())
-      .setName(nullToEmpty(ruleDefinitionDto.getName()))
+      .setKey(ruleDto.getKey().toString())
+      .setName(nullToEmpty(ruleDto.getName()))
       .setSecurityCategory(sqCategory.getKey())
       .setVulnerabilityProbability(sqCategory.getVulnerability().name());
 
-    HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);
+    HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDto);
     hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
     hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
     hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);

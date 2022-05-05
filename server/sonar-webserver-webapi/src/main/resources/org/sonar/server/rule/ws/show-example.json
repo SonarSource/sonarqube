@@ -22,6 +22,16 @@
     "scope": "MAIN",
     "isExternal": false,
     "type": "CODE_SMELL",
+    "descriptionSections": [
+        {
+            "key": "Why is this an issue ?",
+            "content": "<h3 class=\"page-title coding-rules-detail-header\"><big>Unnecessary imports should be removed</big></h3>"
+        },
+        {
+            "key": "How to fix it ?",
+            "content": "<h2>Recommended Secure Coding Practices</h2><ul><li> activate Spring Security's CSRF protection. </li></ul>"
+        }
+    ],
     "params": [
         {
             "key": "max",

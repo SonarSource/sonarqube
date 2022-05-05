@@ -47,10 +47,11 @@ public class RuleForIndexingDto {
   private String internalKey;
   private String language;
   private boolean isExternal;
+
   private int type;
+
   private long createdAt;
   private long updatedAt;
-
   private Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos = new HashSet<>();
 
   @VisibleForTesting
@@ -199,5 +200,9 @@ public class RuleForIndexingDto {
 
   public void setTemplateRepository(String templateRepository) {
     this.templateRepository = templateRepository;
+  }
+
+  public void setType(int type) {
+    this.type = type;
   }
 }

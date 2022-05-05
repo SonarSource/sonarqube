@@ -170,6 +170,11 @@ public class SearchAction implements RulesWsAction {
         "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
         "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
         "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
+        "</ul><br/>" +
+        "Since 9.5 :" +
+        "<ul>" +
+        "<li>the field \"htmlDesc\" has been deprecated.</li>" +
+        "<li>the field \"descriptionSections\" has been added.</li>" +
         "</ul>")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")

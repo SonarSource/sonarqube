@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -51,9 +52,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
@@ -340,6 +347,74 @@ public class ShowActionTest {
   }
 
   @Test
+  public void show_rule_desc_sections() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    var section2 = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
+    var section3 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>");
+
+    RuleDto rule = createRuleWithDescriptionSections(section1, section2, section3);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule.getHtmlDesc())
+      .contains(
+        "<h2>What's the risk ?</h2>"
+          + "<div>Root is Root</div><br/>"
+          + "<h2>Assess the risk</h2>"
+          + "<div>This is not a problem</div><br/>"
+          + "<h2>How can you fix it ?</h2>"
+          + "<div>I don't want to fix</div><br/>"
+      );
+
+    assertThat(resultRule.getMdDesc())
+      .contains(
+        "<h2>What's the risk ?</h2>"
+          + "<div>Root is Root</div><br/>"
+          + "<h2>Assess the risk</h2>"
+          + "<div>This is not a problem</div><br/>"
+          + "<h2>How can you fix it ?</h2>"
+          + "<div>I don't want to fix</div><br/>");
+
+    assertThat(resultRule.getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactlyInAnyOrder(
+        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
+        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>"),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>"));
+  }
+
+  @Test
+  public void show_rule_markdown_description() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var section = createRuleDescriptionSection("default", "*toto is toto*");
+
+    RuleDto rule = createRuleWithDescriptionSections(section);
+    rule.setDescriptionFormat(MARKDOWN);
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+
+    assertThat(resultRule.getHtmlDesc()).contains("<strong>toto is toto</strong>");
+    assertThat(resultRule.getMdDesc()).contains("*toto is toto*");
+
+    assertThat(resultRule.getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .contains(tuple(DEFAULT_KEY, "<strong>toto is toto</strong>"));
+  }
+
+  @Test
   public void ignore_predefined_info_on_adhoc_rule() {
     RuleDto externalRule = db.rules().insert(r -> r
       .setIsExternal(true)
@@ -444,4 +519,15 @@ public class ShowActionTest {
         tuple("actives", false));
   }
 
+  private RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {
+    return RuleDescriptionSectionDto.builder().uuid(uuidFactory.create()).key(key).content(content).build();
+  }
+
+  private RuleDto createRuleWithDescriptionSections(RuleDescriptionSectionDto... sections) {
+    var rule = newRuleWithoutDescriptionSection();
+    for (var section : sections) {
+      rule.addRuleDescriptionSectionDto(section);
+    }
+    return rule;
+  }
 }

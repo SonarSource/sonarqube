@@ -20,10 +20,14 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class RuleDescriptionFormatterTest {
@@ -33,21 +37,43 @@ public class RuleDescriptionFormatterTest {
 
   @Test
   public void getMarkdownDescriptionAsHtml() {
-    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION);
+    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION).setType(RuleType.BUG);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo("<strong>md</strong> <code>description</code>");
   }
 
   @Test
   public void getHtmlDescriptionAsIs() {
-    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML).addRuleDescriptionSectionDto(HTML_SECTION);
+    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML).addRuleDescriptionSectionDto(HTML_SECTION).setType(RuleType.BUG);
     String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo(HTML_SECTION.getContent());
   }
 
   @Test
+  public void concatHtmlDescriptionSections() {
+    var section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    var section2 = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
+    var section3 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>");
+    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML)
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .addRuleDescriptionSectionDto(section1)
+      .addRuleDescriptionSectionDto(section2)
+      .addRuleDescriptionSectionDto(section3);
+    String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    assertThat(html)
+      .contains(
+        "<h2>What's the risk ?</h2>"
+          + "<div>Root is Root</div><br/>"
+          + "<h2>Assess the risk</h2>"
+          + "<div>This is not a problem</div><br/>"
+          + "<h2>How can you fix it ?</h2>"
+          + "<div>I don't want to fix</div><br/>"
+      );
+  }
+
+  @Test
   public void handleEmptyDescription() {
-    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML);
+    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML).setType(RuleType.BUG);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }
@@ -55,9 +81,12 @@ public class RuleDescriptionFormatterTest {
   @Test
   public void handleNullDescriptionFormat() {
     RuleDescriptionSectionDto sectionWithNullFormat = createDefaultRuleDescriptionSection("uuid", "whatever");
-    RuleDto rule = new RuleDto().addRuleDescriptionSectionDto(sectionWithNullFormat);
+    RuleDto rule = new RuleDto().addRuleDescriptionSectionDto(sectionWithNullFormat).setType(RuleType.BUG);
     String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }
 
+  private static RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {
+    return RuleDescriptionSectionDto.builder().key(key).content(content).build();
+  }
 }

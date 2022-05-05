@@ -23,10 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -50,12 +52,14 @@ import org.sonarqube.ws.Rules;
 import static java.util.stream.Collectors.joining;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_OVERLOADED;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DESCRIPTION_SECTIONS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
@@ -106,32 +110,32 @@ public class RuleMapper {
     return ruleResponse.build();
   }
 
-  private Rules.Rule.Builder applyRuleDefinition(Rules.Rule.Builder ruleResponse, RuleDto ruleDefinitionDto, SearchResult result,
+  private Rules.Rule.Builder applyRuleDefinition(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult result,
     Set<String> fieldsToReturn, Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
 
     // Mandatory fields
-    ruleResponse.setKey(ruleDefinitionDto.getKey().toString());
-    ruleResponse.setType(Common.RuleType.forNumber(ruleDefinitionDto.getType()));
+    ruleResponse.setKey(ruleDto.getKey().toString());
+    ruleResponse.setType(Common.RuleType.forNumber(ruleDto.getType()));
 
     // Optional fields
-    setName(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setRepository(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setStatus(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setSysTags(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setParams(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
-    setCreatedAt(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setDescriptionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setSeverity(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setInternalKey(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setLanguage(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setLanguageName(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setIsTemplate(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setIsExternal(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setTemplateKey(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
-    setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setScope(ruleResponse, ruleDefinitionDto, fieldsToReturn);
-    setDeprecatedKeys(ruleResponse, ruleDefinitionDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
+    setName(ruleResponse, ruleDto, fieldsToReturn);
+    setRepository(ruleResponse, ruleDto, fieldsToReturn);
+    setStatus(ruleResponse, ruleDto, fieldsToReturn);
+    setSysTags(ruleResponse, ruleDto, fieldsToReturn);
+    setParams(ruleResponse, ruleDto, result, fieldsToReturn);
+    setCreatedAt(ruleResponse, ruleDto, fieldsToReturn);
+    setDescriptionFields(ruleResponse, ruleDto, fieldsToReturn);
+    setSeverity(ruleResponse, ruleDto, fieldsToReturn);
+    setInternalKey(ruleResponse, ruleDto, fieldsToReturn);
+    setLanguage(ruleResponse, ruleDto, fieldsToReturn);
+    setLanguageName(ruleResponse, ruleDto, fieldsToReturn);
+    setIsTemplate(ruleResponse, ruleDto, fieldsToReturn);
+    setIsExternal(ruleResponse, ruleDto, fieldsToReturn);
+    setTemplateKey(ruleResponse, ruleDto, result, fieldsToReturn);
+    setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
+    setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
+    setScope(ruleResponse, ruleDto, fieldsToReturn);
+    setDeprecatedKeys(ruleResponse, ruleDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
     return ruleResponse;
   }
 
@@ -330,17 +334,30 @@ public class RuleMapper {
       }
     }
 
-    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION)
-      && !ruleDto.getRuleDescriptionSectionDtos().isEmpty()) {
-      String description = concatenateSectionTemporaryForSonar16302(ruleDto);
-      ruleResponse.setMdDesc(description);
+    if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS)) {
+      for (var section : ruleDto.getRuleDescriptionSectionDtos()) {
+        ruleResponse.addDescriptionSectionsBuilder()
+          .setKey(section.getKey())
+          .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section))
+          .build();
+      }
+    }
+
+    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION)) {
+      if (MARKDOWN.equals(ruleDto.getDescriptionFormat())) {
+        Optional.ofNullable(ruleDto.getDefaultRuleDescriptionSection())
+          .map(RuleDescriptionSectionDto::getContent)
+          .ifPresent(ruleResponse::setMdDesc);
+      } else {
+        ruleResponse.setMdDesc(ruleResponse.getHtmlDesc());
+      }
     }
   }
 
-  private static String concatenateSectionTemporaryForSonar16302(RuleDto ruleDto) {
-    return ruleDto.getRuleDescriptionSectionDtos().stream()
-      .map(RuleDescriptionSectionDto::getContent)
-      .collect(joining());
+  private static String retrieveDescriptionContent(@Nullable RuleDto.Format format, RuleDescriptionSectionDto sectionDto) {
+    return MARKDOWN.equals(format) ?
+      Markdown.convertToHtml(sectionDto.getContent()) :
+      sectionDto.getContent();
   }
 
   private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
