@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -53,7 +54,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
@@ -71,6 +71,11 @@ public class RuleIndexerTest {
 
   private static final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
   private static final RuleDescriptionSectionDto RULE_DESCRIPTION_SECTION_DTO = createDefaultRuleDescriptionSection(uuidFactory.create(), VALID_HOTSPOT_RULE_DESCRIPTION);
+  private static final RuleDescriptionSectionDto RULE_DESCRIPTION_SECTION_DTO2 = RuleDescriptionSectionDto.builder()
+    .uuid(uuidFactory.create())
+    .key("section2")
+    .content("rule descriptions section 2")
+    .build();
 
   @Rule
   public EsTester es = EsTester.create();
@@ -140,6 +145,37 @@ public class RuleIndexerTest {
   }
 
   @Test
+  public void index_long_rule_with_several_sections() {
+    RuleDto rule = dbTester.rules().insert(r -> {
+      r.addOrReplaceRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO);
+      r.addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO2);
+    });
+
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+
+    List<RuleDoc> ruleDocs = es.getDocuments(TYPE_RULE, RuleDoc.class);
+    assertThat(ruleDocs).hasSize(1);
+    assertThat(ruleDocs.iterator().next().htmlDescription())
+      .isEqualTo(RULE_DESCRIPTION_SECTION_DTO.getContent() + " " + RULE_DESCRIPTION_SECTION_DTO2.getContent());
+  }
+
+  @Test
+  public void index_long_rule_with_section_in_markdown() {
+    RuleDto rule = dbTester.rules().insert(r -> {
+      r.setDescriptionFormat(RuleDto.Format.MARKDOWN);
+      r.addOrReplaceRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO);
+    });
+
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+
+    List<RuleDoc> ruleDocs = es.getDocuments(TYPE_RULE, RuleDoc.class);
+    assertThat(ruleDocs).hasSize(1);
+    assertThat(ruleDocs.iterator().next().htmlDescription())
+      .isEqualTo("acme<br/>&lt;h2&gt;Ask Yourself Whether&lt;/h2&gt;<br/>bar<br/>"
+        + "&lt;h2&gt;Recommended Secure Coding Practices&lt;/h2&gt;<br/>foo");
+  }
+
+  @Test
   @UseDataProvider("twoDifferentCategoriesButOTHERS")
   public void log_debug_if_hotspot_rule_maps_to_multiple_SQCategories(SQCategory sqCategory1, SQCategory sqCategory2) {
     Set<String> standards = Stream.of(sqCategory1, sqCategory2)
@@ -179,79 +215,4 @@ public class RuleIndexerTest {
     };
   }
 
-  @Test
-  public void log_debug_when_hotspot_rule_no_description () {
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
-      .setType(RuleType.SECURITY_HOTSPOT));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
-        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=missing, How to fix it=missing",
-        rule.getKey()));
-  }
-
-  @Test
-  public void log_debug_when_hotspot_rule_description_has_none_of_the_key_titles() {
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), randomAlphabetic(30))));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
-        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=missing",
-        rule.getKey()));
-  }
-
-  @Test
-  public void log_debug_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "bar\n" +
-        "<h2>Ask Yourself Whether</h2>\n" +
-        "foo")));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
-        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=ok, How to fix it=missing",
-        rule.getKey()));
-  }
-
-  @Test
-  public void log_debug_when_hotspot_rule_description_is_missing_risk_tab_content() {
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<h2>Ask Yourself Whether</h2>\n" +
-        "bar\n" +
-        "<h2>Recommended Secure Coding Practices</h2>\n" +
-        "foo")));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
-        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=ok, How to fix it=ok",
-        rule.getKey()));
-  }
-
-  @Test
-  public void log_debug_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "bar\n" +
-        "<h2>Recommended Secure Coding Practices</h2>\n" +
-        "foo")));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-
-    assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo(format(
-        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=ok",
-        rule.getKey()));
-  }
 }

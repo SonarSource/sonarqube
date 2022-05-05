@@ -19,14 +19,9 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.Sets;
-import java.util.Collections;
-import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleForIndexingDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -65,38 +60,4 @@ public class RuleDescriptionFormatterTest {
     assertThat(result).isNull();
   }
 
-  @Test
-  public void getHtmlDescriptionForRuleForIndexingDtoAsIs() {
-    Set<RuleDescriptionSectionDto> sectionsDtos = Sets.newHashSet(
-      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getContent()));
-    RuleForIndexingDto rule = createRuleForIndexingDto(sectionsDtos, RuleDto.Format.HTML);
-    String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(html).isEqualTo(HTML_SECTION.getContent());
-  }
-
-  @Test
-  public void handleEmptyDescriptionForRuleForIndexingDto() {
-    RuleForIndexingDto rule = createRuleForIndexingDto(Collections.emptySet(), RuleDto.Format.HTML);
-    String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(result).isNull();
-  }
-
-  @Test
-  public void handleNullDescriptionFormatForRuleForIndexingDto() {
-    Set<RuleDescriptionSectionDto> sectionsDtos = Sets.newHashSet(
-      createDefaultRuleDescriptionSection("uuid", HTML_SECTION.getContent()));
-    RuleForIndexingDto rule = createRuleForIndexingDto(sectionsDtos, null);
-    String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
-    assertThat(result).isNull();
-  }
-
-  @NotNull
-  private static RuleForIndexingDto createRuleForIndexingDto(Set<RuleDescriptionSectionDto> sectionsDtos, RuleDto.Format format) {
-    RuleForIndexingDto rule = new RuleForIndexingDto();
-    rule.setRuleDescriptionSectionsDtos(sectionsDtos);
-    rule.setDescriptionFormat(format);
-    rule.setRepository("repository");
-    rule.setPluginRuleKey("pluginKey");
-    return rule;
-  }
 }

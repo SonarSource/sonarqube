@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleForIndexingDto;
 
 import static java.util.Optional.ofNullable;
 
@@ -50,10 +49,6 @@ public class HotspotRuleDescription {
   public static HotspotRuleDescription from(RuleDto dto) {
     String description = RuleDescriptionFormatter.getDescriptionAsHtml(dto);
     return from(description);
-  }
-
-  public static HotspotRuleDescription from(RuleForIndexingDto dto) {
-    return from(RuleDescriptionFormatter.getDescriptionAsHtml(dto));
   }
 
   private static HotspotRuleDescription from(@Nullable String description) {

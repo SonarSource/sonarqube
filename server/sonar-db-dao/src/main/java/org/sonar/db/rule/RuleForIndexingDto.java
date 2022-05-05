@@ -23,14 +23,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
-
-import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleForIndexingDto {
 
@@ -194,15 +191,6 @@ public class RuleForIndexingDto {
 
   public void setRuleDescriptionSectionsDtos(Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos) {
     this.ruleDescriptionSectionsDtos = ruleDescriptionSectionsDtos;
-  }
-
-  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
-    return ruleDescriptionSectionsDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
-  }
-
-  @CheckForNull
-  public RuleDescriptionSectionDto getDefaultRuleDescriptionSectionDto() {
-    return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
   }
 
   public void setTemplateRuleKey(String templateRuleKey) {

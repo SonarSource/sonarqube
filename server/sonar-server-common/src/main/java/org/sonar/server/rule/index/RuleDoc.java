@@ -33,14 +33,15 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
-import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 
+import static java.util.stream.Collectors.joining;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
 /**
@@ -259,7 +260,11 @@ public class RuleDoc extends BaseDoc {
 
   @CheckForNull
   public RuleType type() {
-    return RuleType.valueOfNullable(getNullableField(RuleIndexDefinition.FIELD_RULE_TYPE));
+    String type = getNullableField(RuleIndexDefinition.FIELD_RULE_TYPE);
+    if (type == null) {
+      return null;
+    }
+    return RuleType.valueOf(type);
   }
 
   public RuleDoc setType(@Nullable RuleType ruleType) {
@@ -291,7 +296,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public static RuleDoc of(RuleForIndexingDto dto, SecurityStandards securityStandards) {
-    RuleDoc ruleDoc = new RuleDoc()
+    return new RuleDoc()
       .setUuid(dto.getUuid())
       .setKey(dto.getRuleKey().toString())
       .setRepository(dto.getRepository())
@@ -311,16 +316,30 @@ public class RuleDoc extends BaseDoc {
       .setType(dto.getTypeAsRuleType())
       .setCreatedAt(dto.getCreatedAt())
       .setTags(Sets.union(dto.getTags(), dto.getSystemTags()))
-      .setUpdatedAt(dto.getUpdatedAt());
+      .setUpdatedAt(dto.getUpdatedAt())
+      .setHtmlDescription(getConcatenatedSectionsInHtml(dto))
+      .setTemplateKey(getRuleKey(dto));
+  }
 
+  @CheckForNull
+  private static String getRuleKey(RuleForIndexingDto dto) {
     if (dto.getTemplateRuleKey() != null && dto.getTemplateRepository() != null) {
-      ruleDoc.setTemplateKey(RuleKey.of(dto.getTemplateRepository(), dto.getTemplateRuleKey()).toString());
-    } else {
-      ruleDoc.setTemplateKey(null);
+      return RuleKey.of(dto.getTemplateRepository(), dto.getTemplateRuleKey()).toString();
     }
+    return null;
+  }
 
-    String descriptionAsHtml = RuleDescriptionFormatter.getDescriptionAsHtml(dto);
-    ruleDoc.setHtmlDescription(descriptionAsHtml);
-    return ruleDoc;
+  private static String getConcatenatedSectionsInHtml(RuleForIndexingDto dto) {
+    return dto.getRuleDescriptionSectionsDtos().stream()
+      .map(RuleDescriptionSectionDto::getContent)
+      .map(content -> convertToHtmlIfNecessary(dto.getDescriptionFormat(), content))
+      .collect(joining(" "));
+  }
+
+  private static String convertToHtmlIfNecessary(RuleDto.Format format, String content) {
+    if (RuleDto.Format.MARKDOWN.equals(format)) {
+      return Markdown.convertToHtml(content);
+    }
+    return content;
   }
 }

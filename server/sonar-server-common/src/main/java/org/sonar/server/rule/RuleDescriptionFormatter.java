@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 
 import static com.google.common.collect.MoreCollectors.toOptional;
@@ -42,14 +41,6 @@ public class RuleDescriptionFormatter {
     return retrieveDescription(ruleDescriptionSectionDtos, ruleDto.getRuleKey(), Objects.requireNonNull(ruleDto.getDescriptionFormat()));
   }
 
-  public static String getDescriptionAsHtml(RuleForIndexingDto ruleForIndexingDto) {
-    if (ruleForIndexingDto.getDescriptionFormat() == null) {
-      return null;
-    }
-    Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleForIndexingDto.getRuleDescriptionSectionsDtos();
-    return retrieveDescription(ruleDescriptionSectionDtos, ruleForIndexingDto.getRuleKey().toString(), ruleForIndexingDto.getDescriptionFormat());
-  }
-
   private static String retrieveDescription(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos,
     String ruleKey, RuleDto.Format descriptionFormat) {
     Optional<RuleDescriptionSectionDto> ruleDescriptionSectionDto = findDefaultDescription(ruleDescriptionSectionDtos);
@@ -57,7 +48,6 @@ public class RuleDescriptionFormatter {
       .map(ruleDescriptionSection -> toHtml(ruleKey, descriptionFormat, ruleDescriptionSection))
       .orElse(null);
   }
-
 
   private static Optional<RuleDescriptionSectionDto> findDefaultDescription(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
     return ruleDescriptionSectionDtos.stream()

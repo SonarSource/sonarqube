@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -42,7 +41,6 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
-import org.sonar.server.rule.HotspotRuleDescription;
 import org.sonar.server.security.SecurityStandards;
 
 import static java.util.Arrays.asList;
@@ -162,22 +160,9 @@ public class RuleIndexer implements ResilientIndexer {
           .sorted(SQ_CATEGORY_KEYS_ORDERING)
           .collect(joining(", ")));
     }
-    if (dto.getTypeAsRuleType() == RuleType.SECURITY_HOTSPOT) {
-      HotspotRuleDescription ruleDescription = HotspotRuleDescription.from(dto);
-      if (!ruleDescription.isComplete()) {
-        LOG.debug(
-          "Description of Security Hotspot Rule {} can't be fully parsed: What is the risk?={}, Are you vulnerable?={}, How to fix it={}",
-          dto.getRuleKey(),
-          toOkMissing(ruleDescription.getRisk()), toOkMissing(ruleDescription.getVulnerable()),
-          toOkMissing(ruleDescription.getFixIt()));
-      }
-    }
     return RuleDoc.of(dto, securityStandards);
   }
 
-  private static String toOkMissing(Optional<String> field) {
-    return field.map(t -> "ok").orElse("missing");
-  }
 
   private BulkIndexer createBulkIndexer(Size bulkSize, IndexingListener listener) {
     return new BulkIndexer(esClient, TYPE_RULE, bulkSize, listener);
