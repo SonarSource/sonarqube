@@ -89,6 +89,7 @@ import static org.sonar.api.server.rule.RulesDefinition.NewRule;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.builder;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 @RunWith(DataProviderRunner.class)
@@ -125,12 +126,23 @@ public class RegisterRulesTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
+  private RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock(RuleDescriptionSectionsGenerator.class);
+  private RuleDescriptionSectionsGeneratorResolver resolver = mock(RuleDescriptionSectionsGeneratorResolver.class);
 
   @Before
   public void before() {
     ruleIndexer = new RuleIndexer(es.client(), dbClient);
     ruleIndex = new RuleIndex(es.client(), system);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
+    when(resolver.getRuleDescriptionSectionsGenerator(any())).thenReturn(ruleDescriptionSectionsGenerator);
+    when(ruleDescriptionSectionsGenerator.generateSections(any())).thenAnswer(answer -> {
+      RulesDefinition.Rule rule = answer.getArgument(0, RulesDefinition.Rule.class);
+      String description = rule.htmlDescription() == null ? rule.markdownDescription() : rule.htmlDescription();
+      return Set.of(builder().uuid(UuidFactoryFast.getInstance().create()).key("default").content(description).build());
+    });
+
+
+    when(ruleDescriptionSectionsGenerator.isGeneratorForRule(any())).thenReturn(true);
   }
 
   @Test
@@ -989,7 +1001,8 @@ public class RegisterRulesTest {
     when(languages.get(any())).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
-    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, uuidFactory, metadataIndex);
+    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, uuidFactory, metadataIndex,
+      resolver);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();

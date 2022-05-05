@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -180,13 +181,14 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public RuleDescriptionSectionDto getRuleDescriptionSectionDto(String ruleDescriptionSectionKey) {
-    return findExistingSectionWithSameKey(ruleDescriptionSectionKey).orElse(null);
-  }
-
-  @CheckForNull
   public RuleDescriptionSectionDto getDefaultRuleDescriptionSection() {
     return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
+  }
+
+  public RuleDto replaceRuleDescriptionSectionDtos(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
+    this.ruleDescriptionSectionDtos.clear();
+    ruleDescriptionSectionDtos.forEach(this::addRuleDescriptionSectionDto);
+    return this;
   }
 
   public RuleDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {

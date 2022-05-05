@@ -37,7 +37,11 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileLoader;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImpl;
 import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
+import org.sonar.server.rule.AdvancedRuleDescriptionSectionsGenerator;
+import org.sonar.server.rule.LegacyHotspotRuleDescriptionSectionsGenerator;
+import org.sonar.server.rule.LegacyIssueRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterMetrics;
@@ -65,6 +69,10 @@ public class PlatformLevelStartup extends PlatformLevel {
     addIfStartupLeaderAndPluginsChanged(
       RegisterMetrics.class,
       RegisterQualityGates.class,
+      RuleDescriptionSectionsGeneratorResolver.class,
+      AdvancedRuleDescriptionSectionsGenerator.class,
+      LegacyHotspotRuleDescriptionSectionsGenerator.class,
+      LegacyIssueRuleDescriptionSectionsGenerator.class,
       RegisterRules.class,
       BuiltInQProfileLoader.class);
     addIfStartupLeader(

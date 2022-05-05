@@ -81,7 +81,6 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 /**
  * Register rules at server startup
@@ -100,10 +99,13 @@ public class RegisterRules implements Startable {
   private final WebServerRuleFinder webServerRuleFinder;
   private final UuidFactory uuidFactory;
   private final MetadataIndex metadataIndex;
+  private final RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver;
+
 
   public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2,
-    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory, MetadataIndex metadataIndex) {
+    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory, MetadataIndex metadataIndex,
+    RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -114,6 +116,7 @@ public class RegisterRules implements Startable {
     this.webServerRuleFinder = webServerRuleFinder;
     this.uuidFactory = uuidFactory;
     this.metadataIndex = metadataIndex;
+    this.ruleDescriptionSectionsGeneratorResolver = ruleDescriptionSectionsGeneratorResolver;
   }
 
   @Override
@@ -394,17 +397,15 @@ public class RegisterRules implements Startable {
       .setIsAdHoc(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
-    String htmlDescription = ruleDef.htmlDescription();
-    if (isNotEmpty(htmlDescription)) {
-      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), htmlDescription));
+
+    if (isNotEmpty(ruleDef.htmlDescription())) {
       ruleDto.setDescriptionFormat(Format.HTML);
-    } else {
-      String markdownDescription = ruleDef.markdownDescription();
-      if (isNotEmpty(markdownDescription)) {
-        ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), markdownDescription));
-        ruleDto.setDescriptionFormat(Format.MARKDOWN);
-      }
+    } else if (isNotEmpty(ruleDef.markdownDescription())) {
+      ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
+
+    generateRuleDescriptionSections(ruleDef)
+      .forEach(ruleDto::addRuleDescriptionSectionDto);
 
     DebtRemediationFunction debtRemediationFunction = ruleDef.debtRemediationFunction();
     if (debtRemediationFunction != null) {
@@ -416,6 +417,11 @@ public class RegisterRules implements Startable {
 
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
+  }
+
+  private Set<RuleDescriptionSectionDto> generateRuleDescriptionSections(RulesDefinition.Rule ruleDef) {
+    RuleDescriptionSectionsGenerator descriptionSectionGenerator = ruleDescriptionSectionsGeneratorResolver.getRuleDescriptionSectionsGenerator(ruleDef);
+    return descriptionSectionGenerator.generateSections(ruleDef);
   }
 
   private static Scope toDtoScope(RuleScope scope) {
@@ -491,28 +497,35 @@ public class RegisterRules implements Startable {
   }
 
   private boolean mergeDescription(RulesDefinition.Rule rule, RuleDto ruleDto) {
-    boolean changed = false;
-
-    String currentDescription = Optional.ofNullable(ruleDto.getDefaultRuleDescriptionSection())
-      .map(RuleDescriptionSectionDto::getContent)
-      .orElse(null);
-
-    String htmlDescription = rule.htmlDescription();
-    String markdownDescription = rule.markdownDescription();
-    if (isDescriptionUpdated(htmlDescription, currentDescription)) {
-      ruleDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), htmlDescription));
-      ruleDto.setDescriptionFormat(Format.HTML);
-      changed = true;
-    } else if (isDescriptionUpdated(markdownDescription, currentDescription)) {
-      ruleDto.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), markdownDescription));
-      ruleDto.setDescriptionFormat(Format.MARKDOWN);
-      changed = true;
+    Set<RuleDescriptionSectionDto> newRuleDescriptionSectionDtos = generateRuleDescriptionSections(rule);
+    if (ruleDescriptionSectionsUnchanged(ruleDto, newRuleDescriptionSectionDtos)) {
+      return false;
     }
-    return changed;
+    ruleDto.replaceRuleDescriptionSectionDtos(newRuleDescriptionSectionDtos);
+    if (containsHtmlDescription(rule)) {
+      ruleDto.setDescriptionFormat(Format.HTML);
+      return true;
+    } else if (isNotEmpty(rule.markdownDescription())) {
+      ruleDto.setDescriptionFormat(Format.MARKDOWN);
+      return true;
+    }
+    return false;
   }
 
-  private static boolean isDescriptionUpdated(@Nullable String description, @Nullable String currentDescription) {
-    return isNotEmpty(description) && !Objects.equals(description, currentDescription);
+  private static boolean containsHtmlDescription(RulesDefinition.Rule rule) {
+    return isNotEmpty(rule.htmlDescription()) || !rule.ruleDescriptionSections().isEmpty();
+  }
+
+  private static boolean ruleDescriptionSectionsUnchanged(RuleDto ruleDto, Set<RuleDescriptionSectionDto> newRuleDescriptionSectionDtos) {
+    Map<String, String> oldKeysToSections = toMap(ruleDto.getRuleDescriptionSectionDtos());
+    Map<String, String> newKeysToSections = toMap(newRuleDescriptionSectionDtos);
+    return oldKeysToSections.equals(newKeysToSections);
+  }
+
+  private static Map<String, String> toMap(Set<RuleDescriptionSectionDto> ruleDto) {
+    return ruleDto
+      .stream()
+      .collect(Collectors.toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
   }
 
   private static boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto) {
