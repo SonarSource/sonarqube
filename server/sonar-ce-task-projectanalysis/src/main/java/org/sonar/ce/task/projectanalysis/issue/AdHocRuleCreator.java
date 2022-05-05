@@ -85,8 +85,7 @@ public class AdHocRuleCreator {
         changed = true;
       }
       if (changed) {
-        metadata.setUpdatedAt(now);
-        metadata.setCreatedAt(ruleDtoToUpdate.getCreatedAt());
+        ruleDtoToUpdate.setUpdatedAt(now);
         dao.update(dbSession, ruleDtoToUpdate);
       }
 

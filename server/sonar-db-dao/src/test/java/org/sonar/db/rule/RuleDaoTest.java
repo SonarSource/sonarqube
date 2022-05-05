@@ -586,6 +586,8 @@ public class RuleDaoTest {
   public void update_RuleMetadataDto_inserts_row_in_RULE_METADATA_if_not_exists_yet() {
     RuleDto rule = db.rules().insert();
 
+    long createdAtBeforeUpdate = rule.getCreatedAt();
+
     rule.setNoteData("My note");
     rule.setNoteUserUuid("admin");
     rule.setNoteCreatedAt(DateUtils.parseDate("2013-12-19").getTime());
@@ -618,7 +620,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getAdHocSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(ruleDto.getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(ruleDto.getSecurityStandards()).isEmpty();
-    assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
+    assertThat(ruleDto.getCreatedAt()).isEqualTo(createdAtBeforeUpdate);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
     // Info from rule definition
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo(rule.getDefRemediationFunction());
@@ -636,29 +638,28 @@ public class RuleDaoTest {
     rule.setCreatedAt(3_500_000_000_000L);
     rule.setUpdatedAt(4_000_000_000_000L);
 
+    RuleDto ruleDtoBeforeUpdate = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
 
     underTest.update(db.getSession(), rule);
     db.commit();
 
     assertThat(db.countRowsOfTable("RULES_METADATA")).isOne();
-    RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
-    assertThat(ruleDto.getNoteData()).isNull();
-    assertThat(ruleDto.getNoteUserUuid()).isNull();
-    assertThat(ruleDto.getNoteCreatedAt()).isNull();
-    assertThat(ruleDto.getNoteUpdatedAt()).isNull();
-    assertThat(ruleDto.getRemediationFunction()).isNull();
-    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
-    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
-    assertThat(ruleDto.getTags()).isEmpty();
-    assertThat(ruleDto.getAdHocName()).isNull();
-    assertThat(ruleDto.getAdHocDescription()).isEqualTo("ad-hoc-desc");
-    assertThat(ruleDto.getAdHocSeverity()).isNull();
-    assertThat(ruleDto.getAdHocType()).isNull();
-    assertThat(ruleDto.getSecurityStandards()).isEmpty();
-    assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleDto.getMetadata().getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleDto.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
-    assertThat(ruleDto.getMetadata().getUpdatedAt()).isEqualTo(4_000_000_000_000L);
+    RuleDto ruleDtoAfterUpdate = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
+    assertThat(ruleDtoAfterUpdate.getNoteData()).isNull();
+    assertThat(ruleDtoAfterUpdate.getNoteUserUuid()).isNull();
+    assertThat(ruleDtoAfterUpdate.getNoteCreatedAt()).isNull();
+    assertThat(ruleDtoAfterUpdate.getNoteUpdatedAt()).isNull();
+    assertThat(ruleDtoAfterUpdate.getRemediationFunction()).isNull();
+    assertThat(ruleDtoAfterUpdate.getRemediationGapMultiplier()).isNull();
+    assertThat(ruleDtoAfterUpdate.getRemediationBaseEffort()).isNull();
+    assertThat(ruleDtoAfterUpdate.getTags()).isEmpty();
+    assertThat(ruleDtoAfterUpdate.getAdHocName()).isNull();
+    assertThat(ruleDtoAfterUpdate.getAdHocDescription()).isEqualTo("ad-hoc-desc");
+    assertThat(ruleDtoAfterUpdate.getAdHocSeverity()).isNull();
+    assertThat(ruleDtoAfterUpdate.getAdHocType()).isNull();
+    assertThat(ruleDtoAfterUpdate.getSecurityStandards()).isEmpty();
+    assertThat(ruleDtoAfterUpdate.getCreatedAt()).isEqualTo(ruleDtoBeforeUpdate.getCreatedAt());
+    assertThat(ruleDtoAfterUpdate.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
 
     rule.setNoteData("My note");
     rule.setNoteUserUuid("admin");
@@ -677,24 +678,22 @@ public class RuleDaoTest {
     underTest.update(db.getSession(), rule);
     db.commit();
 
-    ruleDto = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
-    assertThat(ruleDto.getNoteData()).isEqualTo("My note");
-    assertThat(ruleDto.getNoteUserUuid()).isEqualTo("admin");
-    assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
-    assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
-    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
-    assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
-    assertThat(ruleDto.getAdHocName()).isEqualTo("ad hoc name");
-    assertThat(ruleDto.getAdHocDescription()).isEqualTo("ad hoc desc");
-    assertThat(ruleDto.getAdHocSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(ruleDto.getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
-    assertThat(ruleDto.getSecurityStandards()).isEmpty();
-    assertThat(ruleDto.getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleDto.getMetadata().getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleDto.getUpdatedAt()).isEqualTo(7_000_000_000_000L);
-    assertThat(ruleDto.getMetadata().getUpdatedAt()).isEqualTo(7_000_000_000_000L);
+    ruleDtoAfterUpdate = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
+    assertThat(ruleDtoAfterUpdate.getNoteData()).isEqualTo("My note");
+    assertThat(ruleDtoAfterUpdate.getNoteUserUuid()).isEqualTo("admin");
+    assertThat(ruleDtoAfterUpdate.getNoteCreatedAt()).isNotNull();
+    assertThat(ruleDtoAfterUpdate.getNoteUpdatedAt()).isNotNull();
+    assertThat(ruleDtoAfterUpdate.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDtoAfterUpdate.getRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(ruleDtoAfterUpdate.getRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(ruleDtoAfterUpdate.getTags()).containsOnly("tag1", "tag2");
+    assertThat(ruleDtoAfterUpdate.getAdHocName()).isEqualTo("ad hoc name");
+    assertThat(ruleDtoAfterUpdate.getAdHocDescription()).isEqualTo("ad hoc desc");
+    assertThat(ruleDtoAfterUpdate.getAdHocSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(ruleDtoAfterUpdate.getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(ruleDtoAfterUpdate.getSecurityStandards()).isEmpty();
+    assertThat(ruleDtoAfterUpdate.getCreatedAt()).isEqualTo(ruleDtoBeforeUpdate.getCreatedAt());
+    assertThat(ruleDtoAfterUpdate.getUpdatedAt()).isEqualTo(7_000_000_000_000L);
   }
 
   @Test
@@ -895,11 +894,11 @@ public class RuleDaoTest {
     RuleForIndexingDto firstRule = findRuleForIndexingWithUuid(accumulator, r1.getUuid());
     RuleForIndexingDto secondRule = findRuleForIndexingWithUuid(accumulator, r2.getUuid());
 
-    assertRuleDefinitionFieldsAreEquals(r1, r1.getMetadata().getUpdatedAt(), firstRule);
+    assertRuleDefinitionFieldsAreEquals(r1, firstRule);
     assertRuleMetadataFieldsAreEquals(r1.getMetadata(), firstRule);
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
-    assertRuleDefinitionFieldsAreEquals(r2, r2.getUpdatedAt(), secondRule);
+    assertRuleDefinitionFieldsAreEquals(r2, secondRule);
     assertThat(secondRule.getTemplateRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
   }
@@ -937,15 +936,15 @@ public class RuleDaoTest {
     RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getUuid().equals(r1.getUuid())).findFirst().get();
     RuleForIndexingDto secondRule = accumulator.list.stream().filter(t -> t.getUuid().equals(r2.getUuid())).findFirst().get();
 
-    assertRuleDefinitionFieldsAreEquals(r1, r1.getMetadata().getUpdatedAt(), firstRule);
+    assertRuleDefinitionFieldsAreEquals(r1, firstRule);
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
-    assertRuleDefinitionFieldsAreEquals(r2, r2.getUpdatedAt(), secondRule);
+    assertRuleDefinitionFieldsAreEquals(r2, secondRule);
     assertThat(secondRule.getTemplateRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
   }
 
-  private void assertRuleDefinitionFieldsAreEquals(RuleDto r1, long updatedAt, RuleForIndexingDto ruleForIndexing) {
+  private void assertRuleDefinitionFieldsAreEquals(RuleDto r1, RuleForIndexingDto ruleForIndexing) {
     assertThat(ruleForIndexing.getUuid()).isEqualTo(r1.getUuid());
     assertThat(ruleForIndexing.getRuleKey()).isEqualTo(r1.getKey());
     assertThat(ruleForIndexing.getRepository()).isEqualTo(r1.getRepositoryKey());
@@ -966,7 +965,7 @@ public class RuleDaoTest {
     assertThat(ruleForIndexing.getType()).isEqualTo(r1.getType());
     assertThat(ruleForIndexing.getTypeAsRuleType()).isEqualTo(RuleType.valueOf(r1.getType()));
     assertThat(ruleForIndexing.getCreatedAt()).isEqualTo(r1.getCreatedAt());
-    assertThat(ruleForIndexing.getUpdatedAt()).isEqualTo(updatedAt);
+    assertThat(ruleForIndexing.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
   }
 
   private static void assertRuleMetadataFieldsAreEquals(RuleMetadataDto r1Metadatas, RuleForIndexingDto firstRule) {

@@ -110,7 +110,6 @@ public class RuleDto {
     this.metadata = metadata;
   }
 
-
   public RuleMetadataDto getMetadata() {
     return metadata;
   }
@@ -211,7 +210,6 @@ public class RuleDto {
   private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
     return ruleDescriptionSectionDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
   }
-
 
   @CheckForNull
   public Format getDescriptionFormat() {
@@ -407,16 +405,12 @@ public class RuleDto {
     return this;
   }
 
-
   public long getCreatedAt() {
     return createdAt;
   }
 
-  public RuleDto setCreatedAt(@Nullable Long createdAt) {
-    if ((this.createdAt == 0 && createdAt != null) || (createdAt != null && createdAt < this.createdAt)) {
-      this.createdAt = createdAt;
-      metadata.setCreatedAt(createdAt);
-    }
+  public RuleDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
@@ -424,11 +418,8 @@ public class RuleDto {
     return updatedAt;
   }
 
-  public RuleDto setUpdatedAt(@Nullable Long updatedAt) {
-    if (updatedAt != null && updatedAt > this.updatedAt) {
-      this.updatedAt = updatedAt;
-      metadata.setUpdatedAt(updatedAt);
-    }
+  public RuleDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 
@@ -513,7 +504,6 @@ public class RuleDto {
     return this;
   }
 
-
   @CheckForNull
   public String getRemediationFunction() {
     return metadata.getRemediationFunction();
@@ -554,7 +544,6 @@ public class RuleDto {
   private void setTagsField(String s) {
     metadata.setTagsField(s);
   }
-
 
   public static Set<String> deserializeTagsString(@Nullable String tags) {
     return deserializeStringSet(tags);

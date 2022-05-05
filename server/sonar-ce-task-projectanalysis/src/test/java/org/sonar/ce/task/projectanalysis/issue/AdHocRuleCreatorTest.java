@@ -151,8 +151,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(Severity.CRITICAL);
     assertThat(ruleUpdated.getMetadata().getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(ruleUpdated.getCreatedAt()).isEqualTo(creationDate);
-    assertThat(ruleUpdated.getMetadata().getCreatedAt()).isEqualTo(creationDate);
-    assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isGreaterThan(creationDate);
+    assertThat(ruleUpdated.getUpdatedAt()).isGreaterThan(creationDate);
   }
 
   @Test
@@ -178,14 +177,12 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getSeverity()).isEqualTo(rule.getSeverity());
     assertThat(ruleUpdated.getType()).isEqualTo(rule.getType());
     assertThat(ruleUpdated.getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleUpdated.getUpdatedAt()).isEqualTo(ruleMetadata.getUpdatedAt());
+    assertThat(ruleUpdated.getUpdatedAt()).isEqualTo(rule.getUpdatedAt());
 
     assertThat(ruleUpdated.getMetadata().getAdHocName()).isEqualTo(ruleMetadata.getAdHocName());
     assertThat(ruleUpdated.getMetadata().getAdHocDescription()).isEqualTo(ruleMetadata.getAdHocDescription());
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(ruleMetadata.getAdHocSeverity());
     assertThat(ruleUpdated.getMetadata().getAdHocType()).isEqualTo(ruleMetadata.getAdHocType());
-    assertThat(ruleUpdated.getMetadata().getCreatedAt()).isEqualTo(rule.getCreatedAt());
-    assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isEqualTo(ruleMetadata.getUpdatedAt());
   }
 
 }

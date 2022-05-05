@@ -63,9 +63,6 @@ public class RuleMetadataDto {
    */
   private Integer adHocType;
 
-  private long createdAt;
-  private long updatedAt;
-
   public RuleMetadataDto() {
     // nothing to do here
   }
@@ -217,23 +214,9 @@ public class RuleMetadataDto {
     return this;
   }
 
-  public long getCreatedAt() {
-    return createdAt;
-  }
 
-  public RuleMetadataDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
 
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
 
-  public RuleMetadataDto setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
 
   @Override
   public String toString() {
@@ -247,8 +230,6 @@ public class RuleMetadataDto {
       ", remediationGapMultiplier='" + remediationGapMultiplier + '\'' +
       ", remediationBaseEffort='" + remediationBaseEffort + '\'' +
       ", tags='" + tags + '\'' +
-      ", createdAt=" + createdAt +
-      ", updatedAt=" + updatedAt +
       '}';
   }
 

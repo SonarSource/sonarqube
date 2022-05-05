@@ -34,6 +34,8 @@
     r.rule_type as "type",
     r.plugin_key as "pluginKey",
     r.scope,
+    r.created_at as "createdAt",
+    r.updated_at as "updatedAt",
     rm.note_data as "noteData",
     rm.note_user_uuid as "noteUserUuid",
     rm.note_created_at as "noteCreatedAt",
@@ -45,19 +47,7 @@
     rm.ad_hoc_name as "adHocName",
     rm.ad_hoc_description as "adHocDescription",
     rm.ad_hoc_severity as "adHocSeverity",
-    rm.ad_hoc_type as "adHocType",
-    case
-       when rm.created_at is null then r.created_at
-       else case
-                when r.created_at &lt; rm.created_at then r.created_at
-                                    else rm.created_at
-                                    end end               as "createdAt",
-    case
-       when rm.updated_at is null then r.updated_at
-       else case
-                when r.updated_at &lt; rm.updated_at then rm.updated_at
-                                    else r.updated_at
-                                    end end               as "updatedAt"
+    rm.ad_hoc_type as "adHocType"
   </sql>
 
   <sql id="outerJoinRulesMetadata">
@@ -217,9 +207,7 @@
       rm.ad_hoc_name as "adHocName",
       rm.ad_hoc_description as "adHocDescription",
       rm.ad_hoc_severity as "adHocSeverity",
-      rm.ad_hoc_type as "adHocType",
-      rm.created_at as "createdAt",
-      rm.updated_at as "updatedAt"
+      rm.ad_hoc_type as "adHocType"
     from
       rules_metadata rm
       inner join rules r on rm.rule_uuid = r.uuid
@@ -406,9 +394,7 @@
       ad_hoc_name,
       ad_hoc_description,
       ad_hoc_severity,
-      ad_hoc_type,
-      created_at,
-      updated_at
+      ad_hoc_type
     )
     values (
       #{ruleUuid,jdbcType=VARCHAR},
@@ -423,9 +409,7 @@
       #{adHocName,jdbcType=VARCHAR},
       #{adHocDescription,jdbcType=CLOB},
       #{adHocSeverity,jdbcType=VARCHAR},
-      #{adHocType,jdbcType=TINYINT},
-      #{createdAt,jdbcType=BIGINT},
-      #{updatedAt,jdbcType=BIGINT}
+      #{adHocType,jdbcType=TINYINT}
     )
   </insert>
 
@@ -442,8 +426,7 @@
       ad_hoc_name=#{adHocName,jdbcType=VARCHAR},
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
-      ad_hoc_type=#{adHocType,jdbcType=TINYINT},
-      updated_at=#{updatedAt,jdbcType=BIGINT}
+      ad_hoc_type=#{adHocType,jdbcType=TINYINT}
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </update>

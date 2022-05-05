@@ -115,9 +115,7 @@ public class RuleTesting {
       .setAdHocName("adHocName_" + randomAlphanumeric(5))
       .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
       .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
-      .setCreatedAt(System.currentTimeMillis())
-      .setUpdatedAt(System.currentTimeMillis() + 50);
+      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)]);
   }
 
   public static RuleMetadataDto newRuleMetadata(RuleDto rule) {

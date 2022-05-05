@@ -160,7 +160,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .setTags(new String[0])
       .setDescription(RuleDescriptionFormatter.getDescriptionAsHtml(ruleDto));
 
-    Optional.ofNullable(ruleDto.getLanguage()).map(apiRule::setLanguage);
+    Optional.ofNullable(ruleDto.getLanguage()).ifPresent(apiRule::setLanguage);
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
