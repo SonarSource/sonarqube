@@ -23,6 +23,7 @@ import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
+import { ComponentQualifier } from '../types/component';
 import { EditionKey } from '../types/editions';
 import { RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
@@ -659,7 +660,7 @@ export function mockSourceViewerFile(overrides: Partial<SourceViewerFile> = {}):
     path: 'foo/bar.ts',
     project: 'my-project',
     projectName: 'MyProject',
-    q: 'FIL',
+    q: ComponentQualifier.File,
     uuid: 'foo-bar',
     ...overrides
   };

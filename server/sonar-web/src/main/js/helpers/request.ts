@@ -323,6 +323,7 @@ export function isSuccessStatus(status: number) {
 export enum HttpStatus {
   Ok = 200,
   Created = 201,
+  NoContent = 204,
   MultipleChoices = 300,
   MovedPermanently = 301,
   Found = 302,

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
@@ -28,10 +27,8 @@ import { getLocations, getSelectedLocation } from '../utils';
 interface Props {
   branchLike: BranchLike | undefined;
   issues: Issue[];
-  loadIssues: (component: string, from: number, to: number) => Promise<Issue[]>;
   locationsNavigator: boolean;
   onIssueChange: (issue: Issue) => void;
-  onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
   openIssue: Issue;
   selectedFlowIndex: number | undefined;
@@ -90,68 +87,21 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
         ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
         : undefined;
 
-    const startLines = locations.map(l => l.textRange.startLine);
-    const showCrossComponentSourceViewer =
-      startLines.length > 0 ? Math.max(...startLines) !== Math.min(...startLines) : false;
-
-    if (showCrossComponentSourceViewer) {
-      return (
-        <div ref={node => (this.node = node)}>
-          <CrossComponentSourceViewer
-            branchLike={this.props.branchLike}
-            highlightedLocationMessage={highlightedLocationMessage}
-            issue={openIssue}
-            issues={this.props.issues}
-            locations={locations}
-            onIssueChange={this.props.onIssueChange}
-            onLoaded={this.handleLoaded}
-            onLocationSelect={this.props.onLocationSelect}
-            scroll={this.handleScroll}
-            selectedFlowIndex={selectedFlowIndex}
-          />
-        </div>
-      );
-    } else {
-      // if location is selected, show (and load) code around it
-      // otherwise show code around the open issue
-      const aroundLine = selectedLocation
-        ? selectedLocation.textRange.startLine
-        : openIssue.textRange && openIssue.textRange.endLine;
-
-      const component = selectedLocation ? selectedLocation.component : openIssue.component;
-      const allMessagesEmpty =
-        locations !== undefined && locations.every(location => !location.msg);
-
-      const highlightedLocations = locations.filter(location => location.component === component);
-
-      // do not load issues when open another file for a location
-      const loadIssues =
-        component === openIssue.component ? this.props.loadIssues : () => Promise.resolve([]);
-      const selectedIssue = component === openIssue.component ? openIssue.key : undefined;
-
-      return (
-        <div ref={node => (this.node = node)}>
-          <SourceViewer
-            aroundLine={aroundLine}
-            branchLike={this.props.branchLike}
-            component={component}
-            displayAllIssues={true}
-            displayIssueLocationsCount={true}
-            displayIssueLocationsLink={false}
-            displayLocationMarkers={!allMessagesEmpty}
-            highlightedLocationMessage={highlightedLocationMessage}
-            highlightedLocations={highlightedLocations}
-            loadIssues={loadIssues}
-            onIssueChange={this.props.onIssueChange}
-            onIssueSelect={this.props.onIssueSelect}
-            onLoaded={this.handleLoaded}
-            onLocationSelect={this.props.onLocationSelect}
-            scroll={this.handleScroll}
-            selectedIssue={selectedIssue}
-            slimHeader={true}
-          />
-        </div>
-      );
-    }
+    return (
+      <div ref={node => (this.node = node)}>
+        <CrossComponentSourceViewer
+          branchLike={this.props.branchLike}
+          highlightedLocationMessage={highlightedLocationMessage}
+          issue={openIssue}
+          issues={this.props.issues}
+          locations={locations}
+          onIssueChange={this.props.onIssueChange}
+          onLoaded={this.handleLoaded}
+          onLocationSelect={this.props.onLocationSelect}
+          scroll={this.handleScroll}
+          selectedFlowIndex={selectedFlowIndex}
+        />
+      </div>
+    );
   }
 }

@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockSourceViewerFile } from '../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Measure } from '../../../types/types';
 import SourceViewerHeader from '../SourceViewerHeader';
@@ -33,7 +34,10 @@ it('should render correctly for a unit test', () => {
   expect(
     shallowRender({
       showMeasures: true,
-      sourceViewerFile: mockSourceViewerFile({ q: 'UTS', measures: { tests: '12' } })
+      sourceViewerFile: mockSourceViewerFile({
+        q: ComponentQualifier.TestFile,
+        measures: { tests: '12' }
+      })
     })
   ).toMatchSnapshot();
 });

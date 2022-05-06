@@ -19,7 +19,15 @@
  */
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import {
+  get,
+  getJSON,
+  HttpStatus,
+  parseJSON,
+  post,
+  postJSON,
+  RequestData
+} from '../helpers/request';
 import { IssueResponse, RawIssuesResponse } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 
@@ -145,19 +153,26 @@ export function searchIssueAuthors(data: {
 }
 
 export function getIssueFlowSnippets(issueKey: string): Promise<Dict<SnippetsByComponent>> {
-  return getJSON('/api/sources/issue_snippets', { issueKey }).then(result => {
-    Object.keys(result).forEach(k => {
-      if (result[k].sources) {
-        result[k].sources = result[k].sources.reduce(
-          (lineMap: Dict<SourceLine>, line: SourceLine) => {
-            line.coverageStatus = getCoverageStatus(line);
-            lineMap[line.line] = line;
-            return lineMap;
-          },
-          {}
-        );
+  return get('/api/sources/issue_snippets', { issueKey })
+    .then(r => {
+      if (r.status === HttpStatus.NoContent) {
+        return {} as any;
       }
+      return parseJSON(r);
+    })
+    .then(result => {
+      Object.keys(result).forEach(k => {
+        if (result[k].sources) {
+          result[k].sources = result[k].sources.reduce(
+            (lineMap: Dict<SourceLine>, line: SourceLine) => {
+              line.coverageStatus = getCoverageStatus(line);
+              lineMap[line.line] = line;
+              return lineMap;
+            },
+            {}
+          );
+        }
+      });
+      return result;
     });
-    return result;
-  });
 }

@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { SourceViewerFile } from '../../../../types/types';
 import MeasuresOverlay from '../MeasuresOverlay';
@@ -146,7 +147,7 @@ const sourceViewerFile: SourceViewerFile = {
   path: 'src/file.js',
   project: 'project-key',
   projectName: 'Project Name',
-  q: 'FIL',
+  q: ComponentQualifier.File,
   subProject: 'sub-project-key',
   subProjectName: 'Sub-Project Name',
   uuid: 'abcd123'
@@ -164,7 +165,9 @@ it('should render source file', async () => {
 });
 
 it('should render test file', async () => {
-  const wrapper = shallowRender({ sourceViewerFile: { ...sourceViewerFile, q: 'UTS' } });
+  const wrapper = shallowRender({
+    sourceViewerFile: { ...sourceViewerFile, q: ComponentQualifier.TestFile }
+  });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

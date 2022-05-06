@@ -49,6 +49,7 @@ exports[`should render correctly line with issue 1`] = `
         "name": "master",
       }
     }
+    displayWhyIsThisAnIssue={false}
     issue={
       Object {
         "actions": Array [],

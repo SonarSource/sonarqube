@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ComponentQualifier } from './component';
 import { UserActive, UserBase } from './users';
 
 export type Dict<T> = { [key: string]: T };
@@ -676,7 +677,7 @@ export interface SourceViewerFile {
   path: string;
   project: string;
   projectName: string;
-  q: string;
+  q: ComponentQualifier;
   subProject?: string;
   subProjectName?: string;
   uuid: string;

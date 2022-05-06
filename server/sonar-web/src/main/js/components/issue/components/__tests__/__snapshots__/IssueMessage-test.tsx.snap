@@ -21,6 +21,20 @@ exports[`should render correctly: default 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly: hide why is it an issue 1`] = `
+<Fragment>
+  <div
+    className="display-inline-flex-center issue-message break-word"
+  >
+    <span
+      className="spacer-right"
+    >
+      Reduce the number of conditional operators (4) used in the expression
+    </span>
+  </div>
+</Fragment>
+`;
+
 exports[`should render correctly: is deprecated rule 1`] = `
 <Fragment>
   <div
@@ -146,36 +160,6 @@ exports[`should render correctly: with engine info 1`] = `
         className="badge spacer-right text-baseline"
       >
         js
-      </div>
-    </Tooltip>
-  </div>
-  <ButtonLink
-    aria-label="issue.why_this_issue.long"
-    className="issue-see-rule spacer-right text-baseline"
-    onClick={[Function]}
-  >
-    issue.why_this_issue
-  </ButtonLink>
-</Fragment>
-`;
-
-exports[`should render correctly: with engine name 1`] = `
-<Fragment>
-  <div
-    className="display-inline-flex-center issue-message break-word"
-  >
-    <span
-      className="spacer-right"
-    >
-      Reduce the number of conditional operators (4) used in the expression
-    </span>
-    <Tooltip
-      overlay="issue.from_external_rule_engine.JS"
-    >
-      <div
-        className="badge spacer-right text-baseline"
-      >
-        JS
       </div>
     </Tooltip>
   </div>

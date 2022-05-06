@@ -29,7 +29,6 @@ import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
 import { Issue } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
-import { WorkspaceContext } from '../../workspace/context';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
@@ -37,6 +36,7 @@ import SimilarIssuesFilter from './SimilarIssuesFilter';
 export interface IssueTitleBarProps {
   branchLike?: BranchLike;
   currentPopup?: string;
+  displayWhyIsThisAnIssue?: boolean;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
   issue: Issue;
@@ -45,7 +45,7 @@ export interface IssueTitleBarProps {
 }
 
 export default function IssueTitleBar(props: IssueTitleBarProps) {
-  const { issue } = props;
+  const { issue, displayWhyIsThisAnIssue } = props;
   const hasSimilarIssuesFilter = props.onFilter != null;
 
   const locationsCount =
@@ -73,25 +73,15 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
 
   return (
     <div className="issue-row">
-      <WorkspaceContext.Consumer>
-        {({ externalRulesRepoNames, openRule }) => (
-          <IssueMessage
-            engine={issue.externalRuleEngine}
-            engineName={
-              issue.externalRuleEngine &&
-              externalRulesRepoNames &&
-              externalRulesRepoNames[issue.externalRuleEngine]
-            }
-            quickFixAvailable={issue.quickFixAvailable}
-            manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
-            message={issue.message}
-            onOpenRule={openRule}
-            ruleKey={issue.rule}
-            ruleStatus={issue.ruleStatus as RuleStatus | undefined}
-          />
-        )}
-      </WorkspaceContext.Consumer>
-
+      <IssueMessage
+        engine={issue.externalRuleEngine}
+        quickFixAvailable={issue.quickFixAvailable}
+        displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
+        message={issue.message}
+        ruleKey={issue.rule}
+        ruleStatus={issue.ruleStatus as RuleStatus | undefined}
+      />
       <div className="issue-row-meta">
         <div className="issue-meta-list">
           <div className="issue-meta">

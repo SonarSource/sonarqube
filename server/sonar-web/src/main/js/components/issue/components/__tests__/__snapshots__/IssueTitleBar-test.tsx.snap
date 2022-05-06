@@ -4,9 +4,12 @@ exports[`should render correctly: default 1`] = `
 <div
   className="issue-row"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <IssueMessage
+    engine="foo"
+    manualVulnerability={false}
+    message="Reduce the number of conditional operators (4) used in the expression"
+    ruleKey="javascript:S1067"
+  />
   <div
     className="issue-row-meta"
   >
@@ -94,23 +97,16 @@ exports[`should render correctly: default 1`] = `
 </div>
 `;
 
-exports[`should render correctly: issue message 1`] = `
-<IssueMessage
-  engine="foo"
-  manualVulnerability={false}
-  message="Reduce the number of conditional operators (4) used in the expression"
-  onOpenRule={[Function]}
-  ruleKey="javascript:S1067"
-/>
-`;
-
 exports[`should render correctly: with filter 1`] = `
 <div
   className="issue-row"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <IssueMessage
+    engine="foo"
+    manualVulnerability={false}
+    message="Reduce the number of conditional operators (4) used in the expression"
+    ruleKey="javascript:S1067"
+  />
   <div
     className="issue-row-meta"
   >
@@ -243,9 +239,11 @@ exports[`should render correctly: with multi locations 1`] = `
 <div
   className="issue-row"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <IssueMessage
+    manualVulnerability={false}
+    message="Reduce the number of conditional operators (4) used in the expression"
+    ruleKey="javascript:S1067"
+  />
   <div
     className="issue-row-meta"
   >
@@ -416,9 +414,11 @@ exports[`should render correctly: with multi locations and link 1`] = `
 <div
   className="issue-row"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <IssueMessage
+    manualVulnerability={false}
+    message="Reduce the number of conditional operators (4) used in the expression"
+    ruleKey="javascript:S1067"
+  />
   <div
     className="issue-row-meta"
   >

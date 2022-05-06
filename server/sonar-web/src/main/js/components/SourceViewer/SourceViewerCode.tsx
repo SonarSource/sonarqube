@@ -189,6 +189,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         scrollToUncoveredLine={scrollToUncoveredLine}
         secondaryIssueLocations={secondaryIssueLocations}>
         <LineIssuesList
+          displayWhyIsThisAnIssue={true}
           displayAllIssues={displayAllIssues}
           issueLocationsByLine={issueLocationsByLine}
           issuesForLine={issuesForLine}

@@ -25,15 +25,14 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleStatus } from '../../../types/rules';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
 import SonarLintIcon from '../../icons/SonarLintIcon';
-import { WorkspaceContextShape } from '../../workspace/context';
+import { WorkspaceContext } from '../../workspace/context';
 
 export interface IssueMessageProps {
   engine?: string;
-  engineName?: string;
   quickFixAvailable?: boolean;
+  displayWhyIsThisAnIssue?: boolean;
   manualVulnerability: boolean;
   message: string;
-  onOpenRule: WorkspaceContextShape['openRule'];
   ruleKey: string;
   ruleStatus?: RuleStatus;
 }
@@ -41,14 +40,16 @@ export interface IssueMessageProps {
 export default function IssueMessage(props: IssueMessageProps) {
   const {
     engine,
-    engineName,
     quickFixAvailable,
     manualVulnerability,
     message,
     ruleKey,
-    ruleStatus
+    ruleStatus,
+    displayWhyIsThisAnIssue
   } = props;
-  const ruleEngine = engineName ? engineName : engine;
+
+  const { externalRulesRepoNames, openRule } = React.useContext(WorkspaceContext);
+  const ruleEngine = (engine && externalRulesRepoNames && externalRulesRepoNames[engine]) || engine;
 
   return (
     <>
@@ -106,16 +107,18 @@ export default function IssueMessage(props: IssueMessageProps) {
           </Tooltip>
         )}
       </div>
-      <ButtonLink
-        aria-label={translate('issue.why_this_issue.long')}
-        className="issue-see-rule spacer-right text-baseline"
-        onClick={() =>
-          props.onOpenRule({
-            key: ruleKey
-          })
-        }>
-        {translate('issue.why_this_issue')}
-      </ButtonLink>
+      {displayWhyIsThisAnIssue && (
+        <ButtonLink
+          aria-label={translate('issue.why_this_issue.long')}
+          className="issue-see-rule spacer-right text-baseline"
+          onClick={() =>
+            openRule({
+              key: ruleKey
+            })
+          }>
+          {translate('issue.why_this_issue')}
+        </ButtonLink>
+      )}
     </>
   );
 }

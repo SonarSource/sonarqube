@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`shoule render issues 1`] = `
+exports[`should render issues 1`] = `
 <div
   className="issue-list"
 >
@@ -13,6 +13,7 @@ exports[`shoule render issues 1`] = `
         "name": "branch-6.7",
       }
     }
+    displayWhyIsThisAnIssue={true}
     issue={
       Object {
         "actions": Array [],

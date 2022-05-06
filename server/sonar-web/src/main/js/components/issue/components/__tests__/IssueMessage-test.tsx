@@ -19,30 +19,43 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonLink } from '../../../../components/controls/buttons';
-import { click } from '../../../../helpers/testUtils';
 import { RuleStatus } from '../../../../types/rules';
+import { ButtonLink } from '../../../controls/buttons';
 import IssueMessage, { IssueMessageProps } from '../IssueMessage';
+
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useContext: jest
+      .fn()
+      .mockImplementation(() => ({ externalRulesRepoNames: {}, openRule: jest.fn() }))
+  };
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
   expect(shallowRender({ quickFixAvailable: true })).toMatchSnapshot('with quick fix');
-  expect(shallowRender({ engineName: 'JS' })).toMatchSnapshot('with engine name');
   expect(shallowRender({ manualVulnerability: true })).toMatchSnapshot('is manual vulnerability');
   expect(shallowRender({ ruleStatus: RuleStatus.Deprecated })).toMatchSnapshot(
     'is deprecated rule'
   );
   expect(shallowRender({ ruleStatus: RuleStatus.Removed })).toMatchSnapshot('is removed rule');
+  expect(shallowRender({ displayWhyIsThisAnIssue: false })).toMatchSnapshot(
+    'hide why is it an issue'
+  );
 });
 
-it('should handle click correctly', () => {
-  const onOpenRule = jest.fn();
-  const wrapper = shallowRender({ onOpenRule });
-  click(wrapper.find(ButtonLink));
-  expect(onOpenRule).toBeCalledWith({
-    key: 'javascript:S1067'
-  });
+it('should open why is this an issue workspace', () => {
+  const openRule = jest.fn();
+  (React.useContext as jest.Mock).mockImplementationOnce(() => ({
+    externalRulesRepoNames: {},
+    openRule
+  }));
+  const wrapper = shallowRender();
+  wrapper.find(ButtonLink).simulate('click');
+
+  expect(openRule).toBeCalled();
 });
 
 function shallowRender(props: Partial<IssueMessageProps> = {}) {
@@ -50,7 +63,7 @@ function shallowRender(props: Partial<IssueMessageProps> = {}) {
     <IssueMessage
       manualVulnerability={false}
       message="Reduce the number of conditional operators (4) used in the expression"
-      onOpenRule={jest.fn()}
+      displayWhyIsThisAnIssue={true}
       ruleKey="javascript:S1067"
       {...props}
     />

@@ -29,6 +29,7 @@ import IssueView from './IssueView';
 interface Props {
   branchLike?: BranchLike;
   checked?: boolean;
+  displayWhyIsThisAnIssue?: boolean;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
   issue: TypeIssue;
@@ -116,6 +117,7 @@ export default class Issue extends React.PureComponent<Props> {
         branchLike={this.props.branchLike}
         checked={this.props.checked}
         currentPopup={this.props.openPopup}
+        displayWhyIsThisAnIssue={this.props.displayWhyIsThisAnIssue}
         displayLocationsCount={this.props.displayLocationsCount}
         displayLocationsLink={this.props.displayLocationsLink}
         issue={this.props.issue}

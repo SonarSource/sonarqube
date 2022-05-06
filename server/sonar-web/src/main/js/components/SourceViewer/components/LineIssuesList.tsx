@@ -25,6 +25,7 @@ import Issue from '../../issue/Issue';
 export interface LineIssuesListProps {
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
+  displayWhyIsThisAnIssue: boolean;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   issuesForLine: TypeIssue[];
@@ -41,6 +42,7 @@ export interface LineIssuesListProps {
 export default function LineIssuesList(props: LineIssuesListProps) {
   const {
     line,
+    displayWhyIsThisAnIssue,
     displayAllIssues,
     openIssuesByLine,
     selectedIssue,
@@ -66,6 +68,7 @@ export default function LineIssuesList(props: LineIssuesListProps) {
       {displayedIssue.map(issue => (
         <Issue
           branchLike={props.branchLike}
+          displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
           displayLocationsCount={props.displayIssueLocationsCount}
           displayLocationsLink={props.displayIssueLocationsLink}
           issue={issue}

@@ -39,7 +39,8 @@ jest.mock('../../../../api/issues', () => {
 });
 
 jest.mock('../../../../api/components', () => ({
-  getDuplications: jest.fn().mockResolvedValue({})
+  getDuplications: jest.fn().mockResolvedValue({}),
+  getComponentForSourceViewer: jest.fn().mockResolvedValue({})
 }));
 
 beforeEach(() => {
@@ -47,19 +48,26 @@ beforeEach(() => {
 });
 
 it('should render correctly', async () => {
-  const wrapper = shallowRender();
+  let wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+
+  wrapper = shallowRender({ issue: mockIssue(true, { component: 'test.js', key: 'unknown' }) });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper).toMatchSnapshot('no component found');
 });
 
 it('Should fetch data', async () => {
   const wrapper = shallowRender();
-  wrapper.instance().fetchIssueFlowSnippets('124');
+  wrapper.instance().fetchIssueFlowSnippets();
   await waitAndUpdate(wrapper);
   expect(getIssueFlowSnippets).toHaveBeenCalledWith('1');
-  expect(wrapper.state('components')).toEqual({ 'main.js': mockSnippetsByComponent() });
+  expect(wrapper.state('components')).toEqual(
+    expect.objectContaining({ 'main.js': mockSnippetsByComponent() })
+  );
 
   (getIssueFlowSnippets as jest.Mock).mockClear();
   wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });

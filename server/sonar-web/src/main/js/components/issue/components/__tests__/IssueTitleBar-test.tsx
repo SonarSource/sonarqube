@@ -21,7 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { WorkspaceContext } from '../../../workspace/context';
 import IssueTitleBar, { IssueTitleBarProps } from '../IssueTitleBar';
 
 it('should render correctly', () => {
@@ -38,11 +37,6 @@ it('should render correctly', () => {
       issue: mockIssue(true)
     })
   ).toMatchSnapshot('with multi locations and link');
-  expect(
-    shallowRender()
-      .find(WorkspaceContext.Consumer)
-      .dive()
-  ).toMatchSnapshot('issue message');
 });
 
 function shallowRender(props: Partial<IssueTitleBarProps> = {}) {

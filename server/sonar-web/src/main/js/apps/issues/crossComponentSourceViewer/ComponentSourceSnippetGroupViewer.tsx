@@ -335,6 +335,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const issueLocationsByLine = includeIssueLocation ? locations : {};
     return (
       <LineIssuesList
+        displayWhyIsThisAnIssue={false}
         issueLocationsByLine={issueLocationsByLine}
         issuesForLine={issuesForLine}
         line={line}

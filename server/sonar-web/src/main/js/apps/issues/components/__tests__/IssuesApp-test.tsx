@@ -350,21 +350,6 @@ it('should check max 500 issues', async () => {
   expect(wrapper.find('#issues-bulk-change')).toMatchSnapshot();
 });
 
-it('should fetch issues for component', async () => {
-  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
-  const wrapper = shallowRender({
-    location: mockLocation({
-      query: { open: '0' }
-    })
-  });
-  const instance = wrapper.instance();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('issues')).toHaveLength(2);
-
-  await instance.fetchIssuesForComponent('', 0, 30);
-  expect(wrapper.state('issues')).toHaveLength(6);
-});
-
 it('should display the right facets open', () => {
   expect(
     shallowRender({

@@ -581,52 +581,6 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchIssuesForComponent = (_component: string, _from: number, to: number) => {
-    const { issues, openIssue, paging } = this.state;
-
-    if (!openIssue || !paging) {
-      return Promise.reject(undefined);
-    }
-
-    const isSameComponent = (issue: Issue) => issue.component === openIssue.component;
-
-    const done = (pageIssues: Issue[], p: Paging) => {
-      const lastIssue = pageIssues[pageIssues.length - 1];
-      if (p.total <= p.pageIndex * p.pageSize) {
-        return true;
-      }
-      if (lastIssue.component !== openIssue.component) {
-        return true;
-      }
-      return lastIssue.textRange !== undefined && lastIssue.textRange.endLine > to;
-    };
-
-    if (done(issues, paging)) {
-      return Promise.resolve(issues.filter(isSameComponent));
-    }
-
-    this.setState({ loading: true });
-    return this.fetchIssuesUntil(paging.pageIndex + 1, done).then(
-      response => {
-        const nextIssues = [...issues, ...response.issues];
-        if (this.mounted) {
-          this.setState({
-            issues: nextIssues,
-            loading: false,
-            paging: response.paging
-          });
-        }
-        return nextIssues.filter(isSameComponent);
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-        return [];
-      }
-    );
-  };
-
   fetchFacet = (facet: string) => {
     return this.fetchIssues({ ps: 1, facets: facet }, false).then(
       ({ facets, ...other }) => {
@@ -1130,10 +1084,8 @@ export default class App extends React.PureComponent<Props, State> {
                   <IssuesSourceViewer
                     branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
                     issues={issues}
-                    loadIssues={this.fetchIssuesForComponent}
                     locationsNavigator={this.state.locationsNavigator}
                     onIssueChange={this.handleIssueChange}
-                    onIssueSelect={this.openIssue}
                     onLocationSelect={this.selectLocation}
                     openIssue={openIssue}
                     selectedFlowIndex={this.state.selectedFlowIndex}
