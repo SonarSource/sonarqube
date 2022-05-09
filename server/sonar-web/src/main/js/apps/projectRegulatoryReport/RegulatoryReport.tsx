@@ -45,9 +45,9 @@ function RegulatoryReport(props: Props) {
         <div className="big-spacer-top">
           <a
             className={classNames('button button-primary', { disabled: downloadStarted })}
-            download={[component.name, branchName, 'PDF Report.pdf'].filter(s => !!s).join(' - ')}
+            download={[component.name, branchName, 'PDF Report'].filter(s => !!s).join(' - ')}
             onClick={() => setDownloadStarted(true)}
-            href={downloadStarted ? '#' : getRegulatoryReportUrl(component.key, branchName)}
+            href={getRegulatoryReportUrl(component.key, branchName)}
             target="_blank"
             rel="noopener noreferrer">
             {translate('download_verb')}
