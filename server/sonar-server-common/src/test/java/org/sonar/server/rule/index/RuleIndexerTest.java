@@ -156,7 +156,9 @@ public class RuleIndexerTest {
     List<RuleDoc> ruleDocs = es.getDocuments(TYPE_RULE, RuleDoc.class);
     assertThat(ruleDocs).hasSize(1);
     assertThat(ruleDocs.iterator().next().htmlDescription())
-      .isEqualTo(RULE_DESCRIPTION_SECTION_DTO.getContent() + " " + RULE_DESCRIPTION_SECTION_DTO2.getContent());
+      .contains(RULE_DESCRIPTION_SECTION_DTO.getContent())
+      .contains(RULE_DESCRIPTION_SECTION_DTO2.getContent())
+      .hasSize(RULE_DESCRIPTION_SECTION_DTO.getContent().length() + " ".length() + RULE_DESCRIPTION_SECTION_DTO2.getContent().length());
   }
 
   @Test
