@@ -55,6 +55,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
@@ -91,8 +92,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.INTRODUCTION_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
+import static org.sonar.db.rule.RuleDto.Format.HTML;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 
 @RunWith(DataProviderRunner.class)
@@ -427,6 +434,101 @@ public class ShowActionTest {
     };
   }
 
+
+  @Test
+  public void dispatch_description_sections_of_advanced_rule_in_relevant_field() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    RuleDescriptionSectionDto introductionSection = generateSectionWithKey(INTRODUCTION_SECTION_KEY);
+    RuleDescriptionSectionDto rootCauseSection = generateSectionWithKey(ROOT_CAUSE_SECTION_KEY);
+    RuleDescriptionSectionDto assesTheProblemSection = generateSectionWithKey(ASSESS_THE_PROBLEM_SECTION_KEY);
+    RuleDescriptionSectionDto resourcesSection = generateSectionWithKey(RESOURCES_SECTION_KEY);
+    RuleDescriptionSectionDto howToFixSection = generateSectionWithKey(HOW_TO_FIX_SECTION_KEY);
+    RuleDescriptionSectionDto dummySection = generateSectionWithKey("dummySection");
+
+    RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
+      r -> r.addRuleDescriptionSectionDto(introductionSection)
+        .addRuleDescriptionSectionDto(rootCauseSection)
+        .addRuleDescriptionSectionDto(assesTheProblemSection)
+        .addRuleDescriptionSectionDto(resourcesSection)
+        .addRuleDescriptionSectionDto(howToFixSection)
+        .addRuleDescriptionSectionDto(dummySection)
+        .setDescriptionFormat(HTML));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(rootCauseSection.getContent());
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(assesTheProblemSection.getContent());
+    assertThat(response.getRule().getFixRecommendations()).isEqualTo(howToFixSection.getContent());
+  }
+
+  @Test
+  public void fallbacks_to_default_section_in_case_of_legacy_rule() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    RuleDescriptionSectionDto introductionSection = generateSectionWithKey(DEFAULT_KEY);
+
+    RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
+      r -> r.addRuleDescriptionSectionDto(introductionSection)
+       .setDescriptionFormat(HTML));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(introductionSection.getContent());
+    assertThat(response.getRule().getRiskDescription()).isEmpty();
+    assertThat(response.getRule().getFixRecommendations()).isEmpty();
+  }
+
+  @Test
+  public void ignore_default_section_if_root_cause_provided() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    RuleDescriptionSectionDto introductionSection = generateSectionWithKey(INTRODUCTION_SECTION_KEY);
+    RuleDescriptionSectionDto rootCauseSection = generateSectionWithKey(ROOT_CAUSE_SECTION_KEY);
+    RuleDescriptionSectionDto assesTheProblemSection = generateSectionWithKey(ASSESS_THE_PROBLEM_SECTION_KEY);
+
+    RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
+      r -> r.addRuleDescriptionSectionDto(introductionSection)
+        .addRuleDescriptionSectionDto(rootCauseSection)
+        .addRuleDescriptionSectionDto(assesTheProblemSection)
+        .setDescriptionFormat(HTML));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(rootCauseSection.getContent());
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(assesTheProblemSection.getContent());
+    assertThat(response.getRule().getFixRecommendations()).isEmpty();
+  }
+
+  private RuleDescriptionSectionDto generateSectionWithKey(String assessTheProblemSectionKey) {
+    return RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(assessTheProblemSectionKey)
+      .content(randomAlphabetic(200))
+      .build();
+  }
+
   @Test
   public void returns_html_description_for_custom_rules() {
     ComponentDto project = dbTester.components().insertPrivateProject();
@@ -436,9 +538,15 @@ public class ShowActionTest {
 
     String description = "== Title\n<div>line1\nline2</div>";
 
+    RuleDescriptionSectionDto sectionDto = RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(ASSESS_THE_PROBLEM_SECTION_KEY)
+      .content(description)
+      .build();
+
     RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
       r -> r.setTemplateUuid("123")
-        .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), description))
+        .addRuleDescriptionSectionDto(sectionDto)
         .setDescriptionFormat(MARKDOWN));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
@@ -449,6 +557,7 @@ public class ShowActionTest {
 
     assertThat(response.getRule().getRiskDescription()).isEqualTo("<h2>Title</h2>&lt;div&gt;line1<br/>line2&lt;/div&gt;");
   }
+
 
   @Test
   public void handles_null_description_for_custom_rules() {

@@ -26,11 +26,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -42,15 +42,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
-import org.sonar.server.rule.HotspotRuleDescription;
 import org.sonar.server.security.SecurityStandards;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
@@ -64,8 +65,13 @@ import static com.google.common.collect.Sets.difference;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ShowAction implements HotspotsWsAction {
@@ -95,7 +101,9 @@ public class ShowAction implements HotspotsWsAction {
       .createAction("show")
       .setHandler(this)
       .setDescription("Provides the details of a Security Hotspot.")
-      .setSince("8.1");
+      .setSince("8.1")
+      .setChangelog(new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
+      + " /api/rules/show endpoint should be used to fetch rule descriptions."));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
@@ -173,12 +181,25 @@ public class ShowAction implements HotspotsWsAction {
       .setSecurityCategory(sqCategory.getKey())
       .setVulnerabilityProbability(sqCategory.getVulnerability().name());
 
-    HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDto);
-    hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
-    hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
-    hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);
-
+    Map<String, String> sectionKeyToContent = getSectionKeyToContent(ruleDto);
+    Optional.ofNullable(sectionKeyToContent.get(DEFAULT_KEY)).ifPresent(ruleBuilder::setVulnerabilityDescription);
+    Optional.ofNullable(sectionKeyToContent.get(ROOT_CAUSE_SECTION_KEY)).ifPresent(ruleBuilder::setVulnerabilityDescription);
+    Optional.ofNullable(sectionKeyToContent.get(ASSESS_THE_PROBLEM_SECTION_KEY)).ifPresent(ruleBuilder::setRiskDescription);
+    Optional.ofNullable(sectionKeyToContent.get(HOW_TO_FIX_SECTION_KEY)).ifPresent(ruleBuilder::setFixRecommendations);
     responseBuilder.setRule(ruleBuilder.build());
+  }
+
+  private static Map<String, String> getSectionKeyToContent(RuleDto ruleDefinitionDto) {
+    return ruleDefinitionDto.getRuleDescriptionSectionDtos().stream()
+      .collect(toMap(RuleDescriptionSectionDto::getKey,
+        section -> getContentAndConvertToHtmlIfNecessary(ruleDefinitionDto.getDescriptionFormat(), section)));
+  }
+
+  private static String getContentAndConvertToHtmlIfNecessary(@Nullable RuleDto.Format descriptionFormat, RuleDescriptionSectionDto section) {
+    if (RuleDto.Format.MARKDOWN.equals(descriptionFormat)) {
+      return Markdown.convertToHtml(section.getContent());
+    }
+    return section.getContent();
   }
 
   private void formatTextRange(ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
@@ -221,7 +242,7 @@ public class ShowAction implements HotspotsWsAction {
     Map<String, ComponentDto> componentsByUuids = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession,
       componentUuids)
       .stream()
-      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity(), (componentDto, componentDto2) -> componentDto2));
+      .collect(toMap(ComponentDto::uuid, Function.identity(), (componentDto, componentDto2) -> componentDto2));
 
     Set<String> componentUuidsToLoad = copyOf(difference(componentUuids, componentsByUuids.keySet()));
     if (!componentUuidsToLoad.isEmpty()) {

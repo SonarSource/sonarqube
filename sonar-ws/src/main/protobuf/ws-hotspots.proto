@@ -90,7 +90,7 @@ message Rule {
   optional string name = 2;
   optional string securityCategory = 3;
   optional string vulnerabilityProbability = 4;
-  optional string riskDescription = 5;
-  optional string vulnerabilityDescription = 6;
-  optional string fixRecommendations = 7;
+  optional string riskDescription = 5 [deprecated=true];
+  optional string vulnerabilityDescription = 6 [deprecated=true];
+  optional string fixRecommendations = 7 [deprecated=true];
 }
