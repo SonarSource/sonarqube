@@ -97,6 +97,7 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
           canConfigureNotifications={canConfigureNotifications}
           canUseBadges={canUseBadges}
           component={component}
+          branchLike={branchLike}
           measures={measures}
           onComponentChange={this.props.onComponentChange}
           onPageChange={this.setPage}

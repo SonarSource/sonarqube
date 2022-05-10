@@ -88,6 +88,15 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
       onPageChange={[MockFunction]}
       to={2}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;
@@ -246,6 +255,15 @@ exports[`should render a private project correctly 1`] = `
       onPageChange={[MockFunction]}
       to={2}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;
@@ -339,6 +357,164 @@ exports[`should render an app correctly: default 1`] = `
     </div>
     <Memo(DrawerLink)
       label="overview.badges.get_badge.APP"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render app correctly when regulatoryReportFeatureEnabled is false 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <PrivacyBadgeContainer
+          qualifier="TRK"
+          visibility="public"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <withLanguagesContext(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "public",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.TRK"
       onPageChange={[MockFunction]}
       to={1}
     />
@@ -505,6 +681,15 @@ exports[`should render correctly: default 1`] = `
       onPageChange={[MockFunction]}
       to={2}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;
@@ -658,6 +843,15 @@ exports[`should render correctly: no badges 1`] = `
       onPageChange={[MockFunction]}
       to={2}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;
@@ -805,6 +999,15 @@ exports[`should render correctly: no badges, no notifications 1`] = `
         componentKey="my-project"
         qualifier="TRK"
       />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
     </div>
   </div>
 </Fragment>
@@ -959,6 +1162,15 @@ exports[`should render correctly: with notifications 1`] = `
       onPageChange={[MockFunction]}
       to={1}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;
@@ -1118,6 +1330,15 @@ exports[`should render with description 1`] = `
       onPageChange={[MockFunction]}
       to={2}
     />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </Fragment>
 `;

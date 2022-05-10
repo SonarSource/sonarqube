@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <Fragment>
-  <Memo(ProjectInformationRenderer)
+  <withAppStateContext(Component)
     canConfigureNotifications={false}
     canUseBadges={true}
     component={
@@ -64,7 +64,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: logged in user 1`] = `
 <Fragment>
-  <Memo(ProjectInformationRenderer)
+  <withAppStateContext(Component)
     canConfigureNotifications={true}
     canUseBadges={true}
     component={
@@ -155,7 +155,7 @@ exports[`should render correctly: logged in user 1`] = `
 
 exports[`should render correctly: measures loaded 1`] = `
 <Fragment>
-  <Memo(ProjectInformationRenderer)
+  <withAppStateContext(Component)
     canConfigureNotifications={false}
     canUseBadges={true}
     component={
@@ -231,7 +231,7 @@ exports[`should render correctly: measures loaded 1`] = `
 
 exports[`should render correctly: private 1`] = `
 <Fragment>
-  <Memo(ProjectInformationRenderer)
+  <withAppStateContext(Component)
     canConfigureNotifications={false}
     canUseBadges={true}
     component={

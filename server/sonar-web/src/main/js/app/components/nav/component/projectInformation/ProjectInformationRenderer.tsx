@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ButtonLink } from '../../../../../components/controls/buttons';
+import ModalButton from '../../../../../components/controls/ModalButton';
 import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
 import { translate } from '../../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../../types/component';
@@ -30,18 +32,31 @@ import MetaQualityProfiles from './meta/MetaQualityProfiles';
 import MetaSize from './meta/MetaSize';
 import MetaTags from './meta/MetaTags';
 import { ProjectInformationPages } from './ProjectInformationPages';
+import RegulatoryReportModal from './projectRegulatoryReport/RegulatoryReportModal';
+import withAppStateContext from '../../../app-state/withAppStateContext';
+import { AppState } from '../../../../../types/appstate';
+import { BranchLike } from '../../../../../types/branch-like';
 
 export interface ProjectInformationRendererProps {
+  appState: AppState;
   canConfigureNotifications: boolean;
   canUseBadges: boolean;
   component: Component;
+  branchLike?: BranchLike;
   measures?: Measure[];
   onComponentChange: (changes: {}) => void;
   onPageChange: (page: ProjectInformationPages) => void;
 }
 
 export function ProjectInformationRenderer(props: ProjectInformationRendererProps) {
-  const { canConfigureNotifications, canUseBadges, component, measures = [] } = props;
+  const {
+    canConfigureNotifications,
+    canUseBadges,
+    component,
+    measures = [],
+    appState,
+    branchLike
+  } = props;
 
   const isApp = component.qualifier === ComponentQualifier.Application;
 
@@ -113,9 +128,26 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
             to={ProjectInformationPages.notifications}
           />
         )}
+        {component.qualifier === ComponentQualifier.Project &&
+          appState.regulatoryReportFeatureEnabled && (
+            <div className="big-padded bordered-bottom">
+              <ModalButton
+                modal={({ onClose }) => (
+                  <RegulatoryReportModal
+                    component={component}
+                    branchLike={branchLike}
+                    onClose={onClose}
+                  />
+                )}>
+                {({ onClick }) => (
+                  <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
+                )}
+              </ModalButton>
+            </div>
+          )}
       </div>
     </>
   );
 }
 
-export default React.memo(ProjectInformationRenderer);
+export default withAppStateContext(React.memo(ProjectInformationRenderer));

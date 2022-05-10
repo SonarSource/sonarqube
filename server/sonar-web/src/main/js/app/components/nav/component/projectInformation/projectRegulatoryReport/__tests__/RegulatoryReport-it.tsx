@@ -20,8 +20,19 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import BranchesServiceMock from '../../../../../../../api/mocks/BranchesServiceMock';
+import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
 import RegulatoryReport from '../RegulatoryReport';
+
+jest.mock('../../../../../../../api/branches');
+
+let handler: BranchesServiceMock;
+
+beforeAll(() => {
+  handler = new BranchesServiceMock();
+});
+
+afterEach(() => handler.resetBranches());
 
 it('should open the regulatory report page', async () => {
   const user = userEvent.setup();
@@ -29,6 +40,12 @@ it('should open the regulatory report page', async () => {
   expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
   expect(screen.getByText('regulatory_report.description1')).toBeInTheDocument();
   expect(screen.getByText('regulatory_report.description2')).toBeInTheDocument();
+
+  const branchSelect = screen.getByRole('textbox');
+  expect(branchSelect).toBeInTheDocument();
+
+  await user.click(branchSelect);
+  await user.keyboard('[ArrowDown][Enter]');
 
   const downloadButton = screen.getByText('download_verb');
   expect(downloadButton).toBeInTheDocument();
@@ -39,5 +56,5 @@ it('should open the regulatory report page', async () => {
 });
 
 function renderRegulatoryReportApp() {
-  renderComponent(<RegulatoryReport branchLike={undefined} component={{ key: '', name: '' }} />);
+  renderComponent(<RegulatoryReport component={{ key: '', name: '' }} onClose={() => {}} />);
 }

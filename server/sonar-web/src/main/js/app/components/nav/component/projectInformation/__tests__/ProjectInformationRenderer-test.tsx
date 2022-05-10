@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../../../../helpers/testMocks';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import {
   ProjectInformationRenderer,
@@ -56,9 +57,22 @@ it('should handle missing quality profiles and quality gates', () => {
   ).toMatchSnapshot();
 });
 
+it('should render app correctly when regulatoryReportFeatureEnabled is false', () => {
+  expect(
+    shallowRender({
+      appState: mockAppState({
+        regulatoryReportFeatureEnabled: false
+      })
+    })
+  ).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<ProjectInformationRendererProps> = {}) {
   return shallow(
     <ProjectInformationRenderer
+      appState={mockAppState({
+        regulatoryReportFeatureEnabled: true
+      })}
       canConfigureNotifications={true}
       canUseBadges={true}
       component={mockComponent({ qualifier: 'TRK', visibility: 'public' })}
