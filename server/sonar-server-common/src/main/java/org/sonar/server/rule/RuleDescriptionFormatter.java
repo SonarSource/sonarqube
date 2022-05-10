@@ -50,14 +50,14 @@ public class RuleDescriptionFormatter {
     RESOURCES_SECTION_KEY);
 
   public static final Map<String, String> HOTSPOT_SECTION_TITLES = Map.of(
-    ROOT_CAUSE_SECTION_KEY, "What's the risk ?",
+    ROOT_CAUSE_SECTION_KEY, "What is the risk?",
     ASSESS_THE_PROBLEM_SECTION_KEY, "Assess the risk",
-    HOW_TO_FIX_SECTION_KEY, "How can you fix it ?"
+    HOW_TO_FIX_SECTION_KEY, "How can you fix it?"
   );
 
   public static final Map<String, String> RULE_SECTION_TITLES = Map.of(
-    ROOT_CAUSE_SECTION_KEY, "Why is this an issue ?",
-    HOW_TO_FIX_SECTION_KEY, "How to fix it ?",
+    ROOT_CAUSE_SECTION_KEY, "Why is this an issue?",
+    HOW_TO_FIX_SECTION_KEY, "How to fix it?",
     RESOURCES_SECTION_KEY, "Resources"
   );
 

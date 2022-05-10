@@ -365,21 +365,21 @@ public class ShowActionTest {
     Rule resultRule = result.getRule();
     assertThat(resultRule.getHtmlDesc())
       .contains(
-        "<h2>What's the risk ?</h2>"
+        "<h2>What is the risk?</h2>"
           + "<div>Root is Root</div><br/>"
           + "<h2>Assess the risk</h2>"
           + "<div>This is not a problem</div><br/>"
-          + "<h2>How can you fix it ?</h2>"
+          + "<h2>How can you fix it?</h2>"
           + "<div>I don't want to fix</div><br/>"
       );
 
     assertThat(resultRule.getMdDesc())
       .contains(
-        "<h2>What's the risk ?</h2>"
+        "<h2>What is the risk?</h2>"
           + "<div>Root is Root</div><br/>"
           + "<h2>Assess the risk</h2>"
           + "<div>This is not a problem</div><br/>"
-          + "<h2>How can you fix it ?</h2>"
+          + "<h2>How can you fix it?</h2>"
           + "<div>I don't want to fix</div><br/>");
 
     assertThat(resultRule.getDescriptionSectionsList())
