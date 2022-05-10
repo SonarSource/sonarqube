@@ -44,6 +44,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -65,7 +66,7 @@ public class QProfileExportersTest {
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
 
-  private final RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
+  private final RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ProfileExporter[] exporters = new ProfileExporter[] {
     new StandardExporter(), new XooExporter()};
   private final ProfileImporter[] importers = new ProfileImporter[] {

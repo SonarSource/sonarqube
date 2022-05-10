@@ -295,7 +295,7 @@ public class RuleDoc extends BaseDoc {
     return ReflectionToStringBuilder.toString(this);
   }
 
-  public static RuleDoc of(RuleForIndexingDto dto, SecurityStandards securityStandards) {
+  public static RuleDoc createFrom(RuleForIndexingDto dto, SecurityStandards securityStandards) {
     return new RuleDoc()
       .setUuid(dto.getUuid())
       .setKey(dto.getRuleKey().toString())

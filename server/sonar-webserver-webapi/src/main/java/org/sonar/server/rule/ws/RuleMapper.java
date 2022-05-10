@@ -89,10 +89,12 @@ public class RuleMapper {
 
   private final Languages languages;
   private final MacroInterpreter macroInterpreter;
+  private final RuleDescriptionFormatter ruleDescriptionFormatter;
 
-  public RuleMapper(final Languages languages, final MacroInterpreter macroInterpreter) {
+  public RuleMapper(final Languages languages, final MacroInterpreter macroInterpreter, RuleDescriptionFormatter ruleDescriptionFormatter) {
     this.languages = languages;
     this.macroInterpreter = macroInterpreter;
+    this.ruleDescriptionFormatter = ruleDescriptionFormatter;
   }
 
   public Rules.Rule toWsRule(RuleDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
@@ -328,7 +330,7 @@ public class RuleMapper {
 
   private void setDescriptionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
-      String htmlDescription = RuleDescriptionFormatter.getDescriptionAsHtml(ruleDto);
+      String htmlDescription = ruleDescriptionFormatter.getDescriptionAsHtml(ruleDto);
       if (htmlDescription != null) {
         ruleResponse.setHtmlDesc(macroInterpreter.interpret(htmlDescription));
       }

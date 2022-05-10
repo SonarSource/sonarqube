@@ -34,6 +34,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
@@ -60,7 +61,6 @@ public class CreateActionTest {
 
   private System2 system2 = mock(System2.class);
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -74,7 +74,7 @@ public class CreateActionTest {
 
   private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory),
-    new RuleMapper(new Languages(), createMacroInterpreter()),
+    new RuleMapper(new Languages(), createMacroInterpreter(), new RuleDescriptionFormatter()),
     new RuleWsSupport(db.getDbClient(), userSession)));
 
   @Test

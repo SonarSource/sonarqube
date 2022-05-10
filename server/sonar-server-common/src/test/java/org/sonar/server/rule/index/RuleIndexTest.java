@@ -106,7 +106,7 @@ public class RuleIndexTest {
 
   private RuleIndex underTest = new RuleIndex(es.client(), system2);
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
-  
+
   @Test
   public void search_all_rules() {
     createRule();

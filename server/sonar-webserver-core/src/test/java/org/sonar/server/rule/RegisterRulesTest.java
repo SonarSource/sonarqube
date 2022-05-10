@@ -141,7 +141,6 @@ public class RegisterRulesTest {
       return Set.of(builder().uuid(UuidFactoryFast.getInstance().create()).key("default").content(description).build());
     });
 
-
     when(ruleDescriptionSectionsGenerator.isGeneratorForRule(any())).thenReturn(true);
   }
 
@@ -201,7 +200,6 @@ public class RegisterRulesTest {
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), EXTERNAL_HOTSPOT_RULE_KEY);
     verifyHotspot(hotspotRule);
   }
-
 
   private void verifyRule(RuleDto rule) {
     assertThat(rule.getName()).isEqualTo("One");

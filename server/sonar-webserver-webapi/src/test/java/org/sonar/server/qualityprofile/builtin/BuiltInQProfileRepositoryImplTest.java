@@ -32,6 +32,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile.ActiveRule;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ServerRuleFinder;
 
 import static java.util.Arrays.asList;
@@ -52,7 +53,7 @@ public class BuiltInQProfileRepositoryImplTest {
   public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
-  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient);
+  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));
 
   @Test
   public void create_qprofile_with_rule() {

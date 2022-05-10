@@ -38,6 +38,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.WsActionTester;
@@ -82,7 +83,7 @@ public class ShowActionTest {
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final Languages languages = new Languages(newLanguage("xoo", "Xoo"));
   private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new RuleMapper(languages, macroInterpreter),
+    new ShowAction(db.getDbClient(), new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter()),
       new ActiveRuleCompleter(db.getDbClient(), languages),
       new RuleWsSupport(db.getDbClient(), userSession)));
 

@@ -61,10 +61,8 @@ public class RuleDescriptionFormatter {
     RESOURCES_SECTION_KEY, "Resources"
   );
 
-  private RuleDescriptionFormatter() { /* static helpers */ }
-
   @CheckForNull
-  public static String getDescriptionAsHtml(RuleDto ruleDto) {
+  public String getDescriptionAsHtml(RuleDto ruleDto) {
     if (ruleDto.getDescriptionFormat() == null) {
       return null;
     }

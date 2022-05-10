@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class WebServerRuleFinderImplTest {
 
   private DbClient dbClient = mock(DbClient.class);
-  private WebServerRuleFinderImpl underTest = new WebServerRuleFinderImpl(dbClient);
+  private WebServerRuleFinderImpl underTest = new WebServerRuleFinderImpl(dbClient, mock(RuleDescriptionFormatter.class));
 
   @Before
   public void setUp() {

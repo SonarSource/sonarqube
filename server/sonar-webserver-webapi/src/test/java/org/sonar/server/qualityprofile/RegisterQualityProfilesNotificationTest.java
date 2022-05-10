@@ -57,6 +57,7 @@ import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ServerRuleFinder;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.UserSessionRule;
@@ -100,7 +101,7 @@ public class RegisterQualityProfilesNotificationTest {
   private TypeValidations typeValidations = mock(TypeValidations.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient);
+  private ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));
   private BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryFast.getInstance(),
     typeValidations, activeRuleIndexer);
   private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule);

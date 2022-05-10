@@ -210,6 +210,7 @@ import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.WebServerRuleFinderImpl;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -285,6 +286,7 @@ public class PlatformLevel4 extends PlatformLevel {
     addIfStandalone(StandaloneRuleActivatorEventsDistributor.class);
 
     add(
+      RuleDescriptionFormatter.class,
       ClusterVerification.class,
       LogServerId.class,
       LogOAuthWarning.class,

@@ -40,6 +40,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +59,7 @@ public class WebIssueStorageTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private final WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient()), issueIndexer,
+  private final WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class)), issueIndexer,
     new SequenceUuidFactory());
 
   @Test

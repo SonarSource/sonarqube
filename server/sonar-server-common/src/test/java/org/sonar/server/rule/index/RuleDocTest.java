@@ -40,7 +40,7 @@ public class RuleDocTest {
     ruleForIndexingDto.setTemplateRepository("repoKey");
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
 
-    RuleDoc ruleDoc = RuleDoc.of(ruleForIndexingDto, securityStandards);
+    RuleDoc ruleDoc = RuleDoc.createFrom(ruleForIndexingDto, securityStandards);
 
     assertThat(ruleDoc.getId()).isEqualTo(ruleDto.getUuid());
     assertThat(ruleDoc.key()).isEqualTo(ruleForIndexingDto.getRuleKey());
@@ -75,7 +75,7 @@ public class RuleDocTest {
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
 
-    RuleDoc ruleDoc = RuleDoc.of(ruleForIndexingDto, securityStandards);
+    RuleDoc ruleDoc = RuleDoc.createFrom(ruleForIndexingDto, securityStandards);
     assertThat(ruleDoc.htmlDescription()).isEmpty();
   }
 
@@ -92,7 +92,7 @@ public class RuleDocTest {
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
 
-    RuleDoc ruleDoc = RuleDoc.of(ruleForIndexingDto, securityStandards);
+    RuleDoc ruleDoc = RuleDoc.createFrom(ruleForIndexingDto, securityStandards);
     assertThat(ruleDoc.htmlDescription())
       .contains(section1.getContent())
       .contains(section2.getContent())
@@ -112,7 +112,7 @@ public class RuleDocTest {
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
 
-    RuleDoc ruleDoc = RuleDoc.of(ruleForIndexingDto, securityStandards);
+    RuleDoc ruleDoc = RuleDoc.createFrom(ruleForIndexingDto, securityStandards);
     assertThat(ruleDoc.htmlDescription())
       .contains(convertToHtml(section1.getContent()))
       .contains(convertToHtml(section2.getContent()))

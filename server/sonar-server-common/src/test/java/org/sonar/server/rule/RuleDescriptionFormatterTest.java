@@ -34,18 +34,19 @@ public class RuleDescriptionFormatterTest {
 
   private static final RuleDescriptionSectionDto HTML_SECTION = createDefaultRuleDescriptionSection("uuid", "<span class=\"example\">*md* ``description``</span>");
   private static final RuleDescriptionSectionDto MARKDOWN_SECTION = createDefaultRuleDescriptionSection("uuid", "*md* ``description``");
+  private static final RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
 
   @Test
   public void getMarkdownDescriptionAsHtml() {
     RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION).setType(RuleType.BUG);
-    String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    String html = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo("<strong>md</strong> <code>description</code>");
   }
 
   @Test
   public void getHtmlDescriptionAsIs() {
     RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML).addRuleDescriptionSectionDto(HTML_SECTION).setType(RuleType.BUG);
-    String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    String html = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo(HTML_SECTION.getContent());
   }
 
@@ -59,7 +60,7 @@ public class RuleDescriptionFormatterTest {
       .addRuleDescriptionSectionDto(section1)
       .addRuleDescriptionSectionDto(section2)
       .addRuleDescriptionSectionDto(section3);
-    String html = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    String html = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html)
       .contains(
         "<h2>What is the risk?</h2>"
@@ -74,7 +75,7 @@ public class RuleDescriptionFormatterTest {
   @Test
   public void handleEmptyDescription() {
     RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML).setType(RuleType.BUG);
-    String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    String result = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }
 
@@ -82,7 +83,7 @@ public class RuleDescriptionFormatterTest {
   public void handleNullDescriptionFormat() {
     RuleDescriptionSectionDto sectionWithNullFormat = createDefaultRuleDescriptionSection("uuid", "whatever");
     RuleDto rule = new RuleDto().addRuleDescriptionSectionDto(sectionWithNullFormat).setType(RuleType.BUG);
-    String result = RuleDescriptionFormatter.getDescriptionAsHtml(rule);
+    String result = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
   }
 

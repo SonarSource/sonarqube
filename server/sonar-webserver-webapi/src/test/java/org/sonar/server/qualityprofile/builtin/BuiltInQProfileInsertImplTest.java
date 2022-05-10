@@ -45,6 +45,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ServerRuleFinder;
 import org.sonar.server.util.StringTypeValidation;
 import org.sonar.server.util.TypeValidations;
@@ -65,7 +66,7 @@ public class BuiltInQProfileInsertImplTest {
   private final TypeValidations typeValidations = new TypeValidations(singletonList(new StringTypeValidation()));
   private final DbSession dbSession = db.getSession();
   private final DbSession batchDbSession = db.getDbClient().openSession(true);
-  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
+  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer);
 

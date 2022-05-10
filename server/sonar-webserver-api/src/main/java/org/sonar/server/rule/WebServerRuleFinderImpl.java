@@ -32,18 +32,20 @@ import org.sonar.db.rule.RuleDto;
 public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   private final DbClient dbClient;
   private final ServerRuleFinder defaultFinder;
+  private final RuleDescriptionFormatter ruleDescriptionFormatter;
   @VisibleForTesting
   ServerRuleFinder delegate;
 
-  public WebServerRuleFinderImpl(DbClient dbClient) {
+  public WebServerRuleFinderImpl(DbClient dbClient, RuleDescriptionFormatter ruleDescriptionFormatter) {
     this.dbClient = dbClient;
-    this.defaultFinder = new DefaultRuleFinder(dbClient);
+    this.ruleDescriptionFormatter = ruleDescriptionFormatter;
+    this.defaultFinder = new DefaultRuleFinder(dbClient, ruleDescriptionFormatter);
     this.delegate = this.defaultFinder;
   }
 
   @Override
   public void startCaching() {
-    this.delegate = new CachingRuleFinder(dbClient);
+    this.delegate = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
   }
 
   @Override

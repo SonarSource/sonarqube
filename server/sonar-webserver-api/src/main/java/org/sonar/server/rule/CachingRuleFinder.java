@@ -59,8 +59,10 @@ public class CachingRuleFinder implements ServerRuleFinder {
   private final Map<String, RuleDto> ruleDtosByUuid;
   private final Map<RuleDto, Rule> ruleByRuleDto;
   private final Map<RuleKey, Rule> rulesByKey;
+  private final RuleDescriptionFormatter ruleDescriptionFormatter;
 
-  public CachingRuleFinder(DbClient dbClient) {
+  public CachingRuleFinder(DbClient dbClient, RuleDescriptionFormatter ruleDescriptionFormatter) {
+    this.ruleDescriptionFormatter = ruleDescriptionFormatter;
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDto> dtos = dbClient.ruleDao().selectAll(dbSession);
       this.ruleDtosByKey = dtos.stream().collect(Collectors.toMap(RuleDto::getKey, d -> d));
@@ -71,7 +73,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
     }
   }
 
-  private static Map<RuleDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDto> dtos) {
+  private Map<RuleDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDto> dtos) {
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = retrieveRuleParameters(dbClient, dbSession);
     Map<RuleDto, Rule> rulesByDefinition = new HashMap<>(dtos.size());
     for (RuleDto definition : dtos) {
@@ -143,7 +145,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
     return configKey == null || configKey.equals(ruleDto.getConfigKey());
   }
 
-  private static Rule toRule(RuleDto ruleDto, List<RuleParamDto> params) {
+  private Rule toRule(RuleDto ruleDto, List<RuleParamDto> params) {
     String severity = ruleDto.getSeverityString();
 
     Rule apiRule = Rule.create()
@@ -157,9 +159,9 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(ruleDto.getStatus().name())
       .setSystemTags(ruleDto.getSystemTags().toArray(new String[ruleDto.getSystemTags().size()]))
-      .setTags(new String[0])
-      .setDescription(RuleDescriptionFormatter.getDescriptionAsHtml(ruleDto));
+      .setTags(new String[0]);
 
+    Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(ruleDto)).ifPresent(apiRule::setDescription);
     Optional.ofNullable(ruleDto.getLanguage()).ifPresent(apiRule::setLanguage);
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();

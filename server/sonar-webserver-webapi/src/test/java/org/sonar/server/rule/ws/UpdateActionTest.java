@@ -29,14 +29,15 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -81,9 +82,10 @@ public class UpdateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();
+  private RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
 
   private Languages languages = new Languages();
-  private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
+  private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter(), ruleDescriptionFormatter);
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
 

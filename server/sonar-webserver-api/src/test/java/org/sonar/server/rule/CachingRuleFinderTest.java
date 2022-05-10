@@ -56,6 +56,7 @@ public class CachingRuleFinderTest {
   private RuleDto[] ruleDtos;
   private RuleParamDto[] ruleParams;
   private CachingRuleFinder underTest;
+  private RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
 
   @Before()
   public void setUp() {
@@ -72,7 +73,7 @@ public class CachingRuleFinderTest {
       .map(rule -> dbTester.rules().insertRuleParam(rule))
       .toArray(RuleParamDto[]::new);
 
-    underTest = new CachingRuleFinder(dbClient);
+    underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     // delete all data from DB to ensure tests rely on cache exclusively
     dbTester.executeUpdateSql("delete from rules");
@@ -89,7 +90,7 @@ public class CachingRuleFinderTest {
     when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
 
-    new CachingRuleFinder(dbClient);
+    new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     verify(dbClient).openSession(anyBoolean());
     verify(ruleDao).selectAll(dbSession);
@@ -107,7 +108,7 @@ public class CachingRuleFinderTest {
     List<RuleKey> ruleKeys = Arrays.asList(RuleKey.of("A", "B"), RuleKey.of("C", "D"), RuleKey.of("E", "F"));
     when(ruleDao.selectAll(dbSession)).thenReturn(ruleKeys.stream().map(RuleTesting::newRule).collect(toList()));
 
-    new CachingRuleFinder(dbClient);
+    new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     verify(ruleDao).selectAllRuleParams(dbSession);
   }
@@ -166,7 +167,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(toRuleKey(underTest.find(RuleQuery.create().withRepositoryKey(repoKey))))
       .isEqualTo(sameRepoKey[1].getKey());
@@ -187,7 +188,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(toRuleKey(underTest.find(RuleQuery.create().withKey(ruleKey))))
       .isEqualTo(sameRuleKey[1].getKey());
@@ -208,7 +209,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(toRuleKey(underTest.find(RuleQuery.create().withConfigKey(configKey))))
       .isEqualTo(sameConfigKey[1].getKey());
@@ -239,7 +240,7 @@ public class CachingRuleFinderTest {
     RuleQuery ruleKeyQuery = RuleQuery.create().withKey(ruleKey);
     RuleQuery repoKeyQuery = RuleQuery.create().withRepositoryKey(repoKey);
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(toRuleKey(underTest.find(allQuery))).isEqualTo(rules[0].getKey());
     assertThat(toRuleKey(underTest.find(ruleAndConfigKeyQuery))).isEqualTo(rules[1].getKey());
@@ -272,7 +273,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(currentTimeMillis + system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey(repoKey)))
       .extracting(CachingRuleFinderTest::toRuleKey)
@@ -295,7 +296,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(underTest.findAll(RuleQuery.create().withKey(ruleKey)))
       .extracting(CachingRuleFinderTest::toRuleKey)
@@ -318,7 +319,7 @@ public class CachingRuleFinderTest {
     };
     RuleDto otherRule = dbTester.rules().insert(rule -> rule.setUpdatedAt(system2.now()));
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(underTest.findAll(RuleQuery.create().withConfigKey(configKey)))
       .extracting(CachingRuleFinderTest::toRuleKey)
@@ -351,7 +352,7 @@ public class CachingRuleFinderTest {
     RuleQuery ruleKeyQuery = RuleQuery.create().withKey(ruleKey);
     RuleQuery repoKeyQuery = RuleQuery.create().withRepositoryKey(repoKey);
 
-    CachingRuleFinder underTest = new CachingRuleFinder(dbClient);
+    CachingRuleFinder underTest = new CachingRuleFinder(dbClient, ruleDescriptionFormatter);
 
     assertThat(underTest.findAll(allQuery))
       .extracting(CachingRuleFinderTest::toRuleKey)

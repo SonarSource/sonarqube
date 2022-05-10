@@ -35,6 +35,7 @@ import org.sonar.db.rule.RuleDto.Scope;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultRuleFinderTest {
 
@@ -80,7 +81,7 @@ public class DefaultRuleFinderTest {
     .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
-  private final DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient);
+  private final DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));
 
   @Before
   public void setup() {

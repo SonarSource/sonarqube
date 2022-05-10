@@ -160,7 +160,7 @@ public class RuleIndexer implements ResilientIndexer {
           .sorted(SQ_CATEGORY_KEYS_ORDERING)
           .collect(joining(", ")));
     }
-    return RuleDoc.of(dto, securityStandards);
+    return RuleDoc.createFrom(dto, securityStandards);
   }
 
 

@@ -40,8 +40,6 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 
-import static org.sonar.server.rule.RuleDescriptionFormatter.getDescriptionAsHtml;
-
 /**
  * Will be removed in the future.
  */
@@ -49,10 +47,12 @@ public class DefaultRuleFinder implements ServerRuleFinder {
 
   private final DbClient dbClient;
   private final RuleDao ruleDao;
+  private final RuleDescriptionFormatter ruleDescriptionFormatter;
 
-  public DefaultRuleFinder(DbClient dbClient) {
+  public DefaultRuleFinder(DbClient dbClient, RuleDescriptionFormatter ruleDescriptionFormatter) {
     this.dbClient = dbClient;
     this.ruleDao = dbClient.ruleDao();
+    this.ruleDescriptionFormatter = ruleDescriptionFormatter;
   }
 
   @Override
@@ -131,7 +131,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
     return rules;
   }
 
-  private static org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
+  private org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
     String severity = rule.getSeverityString();
 
     org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
@@ -147,9 +147,9 @@ public class DefaultRuleFinder implements ServerRuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(rule.getStatus().name())
       .setSystemTags(rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]))
-      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
-      .setDescription(getDescriptionAsHtml(rule));
+      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]));
 
+    Optional.ofNullable(ruleDescriptionFormatter.getDescriptionAsHtml(rule)).ifPresent(apiRule::setDescription);
 
     List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {

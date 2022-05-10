@@ -138,6 +138,7 @@ import org.sonar.server.qualitygate.notification.QGChangeEmailTemplate;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
@@ -353,6 +354,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static void populateLevel4(Container container, Props props) {
     container.add(
+      RuleDescriptionFormatter.class,
       ResourceTypes.class,
       DefaultResourceTypes.get(),
 
