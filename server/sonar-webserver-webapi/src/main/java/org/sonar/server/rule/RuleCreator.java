@@ -49,6 +49,7 @@ import org.sonar.server.util.TypeValidations;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -72,7 +73,6 @@ public class RuleCreator {
 
   public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
     RuleKey templateKey = newRule.templateKey();
-    checkArgument(templateKey != null, "Rule template key should not be null");
     RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, templateKey)
       .orElseThrow(() -> new IllegalArgumentException(format(TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
@@ -166,16 +166,9 @@ public class RuleCreator {
   }
 
   private static void validateDescription(List<String> errors, NewCustomRule newRule) {
-    boolean missingDescription = newRule.getRuleDescriptionSections().isEmpty() ?
-      Strings.isNullOrEmpty(newRule.markdownDescription()) :
-      noDescriptionSectionHasContent(newRule);
-    if (missingDescription) {
+    if (Strings.isNullOrEmpty(newRule.markdownDescription())) {
       errors.add("The description is missing");
     }
-  }
-
-  private static boolean noDescriptionSectionHasContent(NewCustomRule newRule) {
-    return newRule.getRuleDescriptionSections().stream().map(NewRuleDescriptionSection::getContent).allMatch(Strings::isNullOrEmpty);
   }
 
   private static void validateRuleKey(List<String> errors, String ruleKey) {
@@ -189,6 +182,7 @@ public class RuleCreator {
   }
 
   private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), requireNonNull(newRule.markdownDescription()));
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuidFactory.create())
       .setRuleKey(ruleKey)
@@ -210,23 +204,9 @@ public class RuleCreator {
       .setIsExternal(false)
       .setIsAdHoc(false)
       .setCreatedAt(system2.now())
-      .setUpdatedAt(system2.now());
-
-    ruleDto.setDescriptionFormat(Format.MARKDOWN);
-
-    if (newRule.getRuleDescriptionSections().isEmpty() && newRule.markdownDescription() != null) {
-      RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), newRule.markdownDescription());
-      ruleDto.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
-    } else {
-      for (NewRuleDescriptionSection ruleDescriptionSection : newRule.getRuleDescriptionSections()) {
-        RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
-          .uuid(uuidFactory.create())
-          .key(ruleDescriptionSection.getKey())
-          .content(ruleDescriptionSection.getContent())
-          .build();
-        ruleDto.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
-      }
-    }
+      .setUpdatedAt(system2.now())
+      .setDescriptionFormat(Format.MARKDOWN)
+      .addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
 
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {

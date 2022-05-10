@@ -21,11 +21,8 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -43,8 +40,6 @@ public class NewCustomRule {
   private RuleType type;
   private Map<String, String> parameters = new HashMap<>();
 
-  private Set<NewRuleDescriptionSection> ruleDescriptionSections = new HashSet<>();
-
   private boolean preventReactivation = false;
 
   private NewCustomRule() {
@@ -55,7 +50,6 @@ public class NewCustomRule {
     return ruleKey;
   }
 
-  @CheckForNull
   public RuleKey templateKey() {
     return templateKey;
   }
@@ -117,15 +111,6 @@ public class NewCustomRule {
 
   public NewCustomRule setParameters(Map<String, String> params) {
     this.parameters = params;
-    return this;
-  }
-
-  public Set<NewRuleDescriptionSection> getRuleDescriptionSections() {
-    return Collections.unmodifiableSet(ruleDescriptionSections);
-  }
-
-  public NewCustomRule setRuleDescriptionSections(Set<NewRuleDescriptionSection> sections) {
-    this.ruleDescriptionSections = sections;
     return this;
   }
 

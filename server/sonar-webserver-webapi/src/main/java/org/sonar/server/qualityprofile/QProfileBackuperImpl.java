@@ -45,7 +45,6 @@ import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.rule.NewCustomRule;
-import org.sonar.server.rule.NewRuleDescriptionSection;
 import org.sonar.server.rule.RuleCreator;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -98,12 +97,9 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       importedRule.setSeverity(exportRuleDto.getSeverityString());
       if (importedRule.isCustomRule()) {
         importedRule.setTemplate(exportRuleDto.getTemplateRuleKey().rule());
+        importedRule.setDescription(exportRuleDto.getDescriptionOrThrow());
       }
       importedRule.setType(exportRuleDto.getRuleType().name());
-      exportRuleDto.getRuleDescriptionSections()
-        .stream()
-        .map(r -> new NewRuleDescriptionSection(r.getKey(), r.getContent()))
-        .forEach(importedRule::addRuleDescriptionSection);
       importedRule.setParameters(exportRuleDto.getParams().stream().collect(Collectors.toMap(ExportRuleParamDto::getKey, ExportRuleParamDto::getValue)));
       importedRules.add(importedRule);
     }
@@ -221,7 +217,6 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .setPreventReactivation(true)
       .setType(RuleType.valueOf(r.getType()))
       .setMarkdownDescription(r.getDescription())
-      .setRuleDescriptionSections(r.getRuleDescriptionSections())
       .setParameters(r.getParameters());
   }
 

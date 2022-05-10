@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QProfileParserTest {
 
   @Test
-  public void readOlderVersionXml() {
+  public void readXml() {
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
       "<name>custom rule</name>" +
@@ -52,35 +52,5 @@ public class QProfileParserTest {
     assertThat(importedQProfile.getRules()).hasSize(1);
     var importedRule = importedQProfile.getRules().get(0);
     assertThat(importedRule.getDescription()).isEqualTo("custom rule description");
-  }
-
-  @Test
-  public void readNewVersionXml() {
-    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
-      "<profile>" +
-      "<name>custom rule</name>" +
-      "<language>js</language>" +
-      "<rules><rule>" +
-      "<repositoryKey>sonarjs</repositoryKey>" +
-      "<key>s001</key>" +
-      "<type>CODE_SMELL</type>" +
-      "<priority>CRITICAL</priority>" +
-      "<name>custom rule name</name>" +
-      "<templateKey>rule_mc8</templateKey>" +
-      "<descriptionSections><descriptionSection><key>default</key><content>custom rule section content</content></descriptionSection></descriptionSections>" +
-      "<parameters><parameter>" +
-      "<key>bar</key>" +
-      "<value>baz</value>" +
-      "</parameter>" +
-      "</parameters>" +
-      "</rule></rules></profile>");
-    var parser = new QProfileParser();
-    var importedQProfile = parser.readXml(backup);
-    assertThat(importedQProfile.getRules()).hasSize(1);
-    var importedRule = importedQProfile.getRules().get(0);
-    assertThat(importedRule.getRuleDescriptionSections()).hasSize(1);
-    var section = importedRule.getRuleDescriptionSections().iterator().next();
-    assertThat(section.getKey()).isEqualTo("default");
-    assertThat(section.getContent()).isEqualTo("custom rule section content");
   }
 }

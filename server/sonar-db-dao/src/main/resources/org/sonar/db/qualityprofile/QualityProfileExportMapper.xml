@@ -9,9 +9,10 @@
     rds.content as "rds_content",
   </sql>
 
-  <sql id="leftOuterJoinRulesDescriptionSections">
+  <sql id="leftOuterJoinRulesDefaultDescriptionSection">
     left outer join rule_desc_sections rds on
     rds.rule_uuid = r.uuid
+    and rds.kee = 'default'
   </sql>
 
   <sql id="exportRuleColumns">
@@ -26,7 +27,8 @@
     r.rule_type as "type",
     rt.plugin_rule_key as "template",
     rm.note_data as "extendedDescription",
-    rm.tags
+    rm.tags,
+    rds.content as "description"
   </sql>
 
   <sql id="exportRuleParamColumns">
@@ -46,12 +48,7 @@
     <result property="template" column="template"/>
     <result property="extendedDescription" column="extendedDescription"/>
     <result property="tags" column="tags"/>
-
-    <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
-      <id property="uuid" column="rds_uuid"/>
-      <result property="key" column="rds_kee"/>
-      <result property="content" column="rds_content" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
-    </collection>
+    <result property="description" column="description"/>
 
   </resultMap>
 
@@ -64,7 +61,7 @@
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
     left join rules_metadata rm on rm.rule_uuid = r.uuid
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultDescriptionSection"/>
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 

@@ -42,8 +42,6 @@ import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDescriptionSectionDto;
-import org.sonar.server.rule.NewRuleDescriptionSection;
 
 @ServerSide
 public class QProfileParser {
@@ -52,10 +50,6 @@ public class QProfileParser {
   private static final String ATTRIBUTE_LANGUAGE = "language";
   private static final String ATTRIBUTE_RULES = "rules";
   private static final String ATTRIBUTE_RULE = "rule";
-  private static final String ATTRIBUTE_DESCRIPTION_SECTIONS = "descriptionSections";
-  private static final String ATTRIBUTE_DESCRIPTION_SECTION = "descriptionSection";
-  private static final String ATTRIBUTE_DESCRIPTION_SECTION_KEY = "key";
-  private static final String ATTRIBUTE_DESCRIPTION_SECTION_CONTENT = "content";
   private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
   private static final String ATTRIBUTE_KEY = "key";
   private static final String ATTRIBUTE_PRIORITY = "priority";
@@ -85,19 +79,7 @@ public class QProfileParser {
       if (ruleToExport.isCustomRule()) {
         xml.prop(ATTRIBUTE_NAME, ruleToExport.getName());
         xml.prop(ATTRIBUTE_TEMPLATE_KEY, ruleToExport.getTemplateRuleKey().rule());
-        if (!ruleToExport.getRuleDescriptionSections().isEmpty()) {
-          ruleToExport.getDefaultRuleDescriptionSectionDto()
-            .map(RuleDescriptionSectionDto::getContent)
-            .ifPresent(desc -> xml.prop(ATTRIBUTE_DESCRIPTION, desc));
-        }
-        xml.begin(ATTRIBUTE_DESCRIPTION_SECTIONS);
-        for (RuleDescriptionSectionDto ruleDescriptionSection : ruleToExport.getRuleDescriptionSections()) {
-          xml.begin(ATTRIBUTE_DESCRIPTION_SECTION)
-            .prop(ATTRIBUTE_DESCRIPTION_SECTION_KEY, ruleDescriptionSection.getKey())
-            .prop(ATTRIBUTE_DESCRIPTION_SECTION_CONTENT, ruleDescriptionSection.getContent())
-            .end();
-        }
-        xml.end(ATTRIBUTE_DESCRIPTION_SECTIONS);
+        xml.prop(ATTRIBUTE_DESCRIPTION, ruleToExport.getDescriptionOrThrow());
       }
 
       xml.begin(ATTRIBUTE_PARAMETERS);
@@ -199,9 +181,6 @@ public class QProfileParser {
         SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_PARAMETER);
         readParameters(propsCursor, parameters);
         rule.setParameters(parameters);
-      } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTIONS, nodeName)) {
-        SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_DESCRIPTION_SECTION);
-        readDescriptionSections(propsCursor, rule);
       }
     }
   }
@@ -221,25 +200,6 @@ public class QProfileParser {
       }
       if (key != null) {
         parameters.put(key, value);
-      }
-    }
-  }
-
-  private static void readDescriptionSections(SMInputCursor propsCursor, ImportedRule importedRule) throws XMLStreamException {
-    while (propsCursor.getNext() != null) {
-      SMInputCursor propCursor = propsCursor.childElementCursor();
-      String key = null;
-      String description = null;
-      while (propCursor.getNext() != null) {
-        String nodeName = propCursor.getLocalName();
-        if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTION_KEY, nodeName)) {
-          key = StringUtils.trim(propCursor.collectDescendantText(false));
-        } else if (StringUtils.equals(ATTRIBUTE_DESCRIPTION_SECTION_CONTENT, nodeName)) {
-          description = StringUtils.trim(propCursor.collectDescendantText(false));
-        }
-      }
-      if (key != null && description != null) {
-        importedRule.addRuleDescriptionSection(new NewRuleDescriptionSection(key, description));
       }
     }
   }

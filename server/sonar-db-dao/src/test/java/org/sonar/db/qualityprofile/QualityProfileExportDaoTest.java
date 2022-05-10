@@ -46,8 +46,8 @@ public class QualityProfileExportDaoTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
-  private DbSession dbSession = db.getSession();
-  private QualityProfileExportDao underTest = db.getDbClient().qualityProfileExportDao();
+  private final DbSession dbSession = db.getSession();
+  private final QualityProfileExportDao underTest = db.getDbClient().qualityProfileExportDao();
 
   @Test
   public void selectRulesByProfile_ready_rules_only() {
@@ -96,7 +96,7 @@ public class QualityProfileExportDaoTest {
     assertThat(exportCustomRuleDto).isNotNull();
     assertThat(exportCustomRuleDto.isCustomRule()).isTrue();
     assertThat(exportCustomRuleDto.getParams()).isEmpty();
-    assertThat(exportCustomRuleDto.getRuleDescriptionSections().iterator().next().getContent()).isEqualTo(customRuleContent);
+    assertThat(exportCustomRuleDto.getDescriptionOrThrow()).isEqualTo(customRuleContent);
     assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRuleMetadata.getNoteData());
     assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
     assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
@@ -112,7 +112,7 @@ public class QualityProfileExportDaoTest {
     assertThat(exportRuleDto).isNotNull();
     assertThat(exportRuleDto.isCustomRule()).isFalse();
     assertThat(exportRuleDto.getParams()).isEmpty();
-    assertThat(exportRuleDto.getRuleDescriptionSections().iterator().next().getContent()).isEqualTo(ruleContent);
+    assertThat(exportRuleDto.getDescriptionOrThrow()).isEqualTo(ruleContent);
     assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(ruleMetadata.getNoteData());
     assertThat(exportRuleDto.getName()).isEqualTo(rule.getName());
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());

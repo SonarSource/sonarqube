@@ -20,14 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.io.Resources;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -46,6 +38,15 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.rule.RuleCreator;
+
+import javax.annotation.Nullable;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -167,7 +168,6 @@ public class QProfileBackuperImplTest {
       "<name>" + rule.getName() + "</name>" +
       "<templateKey>" + templateRule.getKey().rule() + "</templateKey>" +
       "<description>" + rule.getDefaultRuleDescriptionSection().getContent() + "</description>" +
-      "<descriptionSections><descriptionSection><key>default</key><content>" + rule.getDefaultRuleDescriptionSection().getContent() + "</content></descriptionSection></descriptionSections>" +
       "<parameters><parameter>" +
       "<key>" + param.getName() + "</key>" +
       "<value>20</value>" +
@@ -387,6 +387,28 @@ public class QProfileBackuperImplTest {
   @Test
   public void copy_profile() {
     RuleDto rule = createRule();
+    RuleParamDto param = db.rules().insertRuleParam(rule);
+    QProfileDto from = createProfile(rule.getLanguage());
+    ActiveRuleDto activeRule = activate(from, rule, param);
+
+    QProfileDto to = createProfile(rule.getLanguage());
+    underTest.copy(db.getSession(), from, to);
+
+    assertThat(reset.calledActivations).extracting(RuleActivation::getRuleUuid).containsOnly(activeRule.getRuleUuid());
+    assertThat(reset.calledActivations.get(0).getParameter(param.getName())).isEqualTo("20");
+    assertThat(reset.calledProfile).isEqualTo(to);
+  }
+
+  @Test
+  public void copy_profile_with_custom_rule() {
+    RuleDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
+      .setIsTemplate(true));
+    RuleDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
+      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
+      .setName("custom rule name")
+      .setStatus(RuleStatus.READY)
+      .setTemplateUuid(templateRule.getUuid()));
+
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto from = createProfile(rule.getLanguage());
     ActiveRuleDto activeRule = activate(from, rule, param);

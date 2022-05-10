@@ -19,11 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.rule.NewRuleDescriptionSection;
 
 class ImportedRule {
   private String key = null;
@@ -36,7 +34,6 @@ class ImportedRule {
   private String severity = null;
   private String description = null;
   private Map<String, String> parameters = null;
-  private Set<NewRuleDescriptionSection> ruleDescriptionSections = new HashSet<>();
   public Map<String, String> getParameters() {
     return parameters;
   }
@@ -92,14 +89,6 @@ class ImportedRule {
 
   boolean isCustomRule() {
     return template != null;
-  }
-
-  public Set<NewRuleDescriptionSection> getRuleDescriptionSections() {
-    return ruleDescriptionSections;
-  }
-
-  public void addRuleDescriptionSection(NewRuleDescriptionSection ruleDescriptionSection) {
-    this.ruleDescriptionSections.add(ruleDescriptionSection);
   }
 
   public void setRepository(String repository) {
