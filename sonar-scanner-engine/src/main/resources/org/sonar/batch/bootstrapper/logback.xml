@@ -33,6 +33,11 @@
     <level value="INFO"/>
   </logger>
 
+  <!-- AbstractApplicationContext generate too verbose warning if warn is Enabled -->
+  <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext">
+    <level value="ERROR"/>
+  </logger>
+
   <logger name="org.sonar.core.platform.PriorityBeanFactory">
     <level value="INFO"/>
   </logger>
