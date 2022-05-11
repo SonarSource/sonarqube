@@ -21,7 +21,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import selectEvent from 'react-select-event';
-import { getMyProjects } from '../../../api/components';
+import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import getHistory from '../../../helpers/getHistory';
@@ -285,6 +285,19 @@ describe('security page', () => {
       expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
     }
   );
+
+  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", async () => {
+    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+      projects: []
+    });
+    renderAccountApp(
+      mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+      securityPagePath
+    );
+
+    await selectEvent.openMenu(screen.getAllByRole('textbox')[1]);
+    expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
+  });
 
   it('should allow local users to change password', async () => {
     const user = userEvent.setup();

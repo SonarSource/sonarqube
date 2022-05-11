@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
 import { generateToken, getTokens } from '../../../api/user-tokens';
@@ -66,6 +67,9 @@ export class TokensForm extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchTokens();
+    if (this.props.displayTokenTypeInput) {
+      this.fetchProjects();
+    }
   }
 
   componentWillUnmount() {
@@ -178,9 +182,6 @@ export class TokensForm extends React.PureComponent<Props, State> {
   };
 
   handleNewTokenTypeChange = ({ value }: { value: TokenType }) => {
-    if (value === TokenType.Project && this.state.projects.length === 0) {
-      this.fetchProjects();
-    }
     this.setState({ newTokenType: value });
   };
 
@@ -193,13 +194,18 @@ export class TokensForm extends React.PureComponent<Props, State> {
     const { displayTokenTypeInput, currentUser } = this.props;
 
     const tokenTypeOptions = [
-      { label: translate('users.tokens', TokenType.Project), value: TokenType.Project },
       { label: translate('users.tokens', TokenType.User), value: TokenType.User }
     ];
     if (hasGlobalPermission(currentUser, Permissions.Scan)) {
-      tokenTypeOptions.push({
+      tokenTypeOptions.unshift({
         label: translate('users.tokens', TokenType.Global),
         value: TokenType.Global
+      });
+    }
+    if (!isEmpty(projects)) {
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.Project),
+        value: TokenType.Project
       });
     }
 
