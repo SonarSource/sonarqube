@@ -15,7 +15,7 @@ For example, if you override the `sonar.exclusions` parameter via command line f
 
 Most of the property keys shown in the interface at both global and project levels can also be set as analysis parameters, but the parameters listed below can _only_ be set at analysis time. 
 
-For language-specific parameters related to test coverage and execution, see [Test Coverage & Execution](/analysis/coverage/).  
+For language-specific parameters related to test coverage and execution, see [Test Coverage](/analysis/test-coverage/overview/).
 For language-specific parameters related to external issue reports, see [External Issues](/analysis/external-issues/).
 
 [[info]]

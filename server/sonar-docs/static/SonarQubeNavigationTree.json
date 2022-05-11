@@ -50,8 +50,21 @@
           "/analysis/languages/xml/"
         ]
       },
-      "/analysis/coverage/",
-      "/analysis/generic-test/",
+      {
+        "title": "Test Coverage",
+        "children": [
+          "/analysis/test-coverage/overview/",
+          "/analysis/test-coverage/java-test-coverage/",
+          "/analysis/test-coverage/javascript-typescript-test-coverage/",
+          "/analysis/test-coverage/dotnet-test-coverage/",
+          "/analysis/test-coverage/python-test-coverage/",
+          "/analysis/test-coverage/php-test-coverage/",
+          "/analysis/test-coverage/c-family-test-coverage/",
+          "/analysis/test-coverage/generic-test/",
+          "/analysis/test-coverage/test-coverage-parameters/",
+          "/analysis/test-coverage/test-execution-parameters/"
+        ] 
+      },
       {
         "title": "Importing External Issues",
         "children": ["/analysis/external-issues/", "/analysis/generic-issue/"]
