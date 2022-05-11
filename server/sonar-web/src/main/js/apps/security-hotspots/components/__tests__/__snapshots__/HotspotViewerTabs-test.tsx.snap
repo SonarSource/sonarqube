@@ -44,7 +44,7 @@ exports[`should render correctly: fix 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
         }
       }
       key="risk"
@@ -53,7 +53,7 @@ exports[`should render correctly: fix 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
         }
       }
       key="vulnerability"
@@ -115,7 +115,7 @@ exports[`should render correctly: risk 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
         }
       }
       key="risk"
@@ -124,7 +124,7 @@ exports[`should render correctly: risk 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
         }
       }
       key="vulnerability"
@@ -133,7 +133,7 @@ exports[`should render correctly: risk 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
         }
       }
       key="fix"
@@ -186,7 +186,7 @@ exports[`should render correctly: vulnerability 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
         }
       }
       key="risk"
@@ -204,7 +204,7 @@ exports[`should render correctly: vulnerability 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
         }
       }
       key="fix"
@@ -257,7 +257,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
         }
       }
       key="risk"
@@ -266,7 +266,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
         }
       }
       key="vulnerability"
@@ -275,7 +275,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
       className="markdown big-padded hidden"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "",
+          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
         }
       }
       key="fix"

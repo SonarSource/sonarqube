@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchIssues } from '../../../../api/issues';
+import { getRuleDetails } from '../../../../api/rules';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyboardCodes, KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
@@ -54,6 +55,7 @@ import {
 import BulkChangeModal from '../BulkChangeModal';
 import App from '../IssuesApp';
 import IssuesSourceViewer from '../IssuesSourceViewer';
+import IssueViewerTabs from '../IssueTabViewer';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -66,6 +68,10 @@ jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 jest.mock('../../../../api/issues', () => ({
   searchIssues: jest.fn().mockResolvedValue({ facets: [], issues: [] })
+}));
+
+jest.mock('../../../../api/rules', () => ({
+  getRuleDetails: jest.fn()
 }));
 
 const RAW_ISSUES = [
@@ -96,10 +102,12 @@ beforeEach(() => {
     rules: [],
     users: []
   });
+
+  (getRuleDetails as jest.Mock).mockResolvedValue({ rule: { test: 'test' } });
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  // jest.clearAllMocks();
   (searchIssues as jest.Mock).mockReset();
 });
 
@@ -195,11 +203,17 @@ it('should open standard facets for vulnerabilities and hotspots', () => {
 it('should switch to source view if an issue is selected', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.find(IssuesSourceViewer).exists()).toBe(false);
+  expect(wrapper.find(IssueViewerTabs).exists()).toBe(false);
 
   wrapper.setProps({ location: mockLocation({ query: { open: 'third' } }) });
   await waitAndUpdate(wrapper);
-  expect(wrapper.find(IssuesSourceViewer).exists()).toBe(true);
+  expect(
+    wrapper
+      .find(IssueViewerTabs)
+      .dive()
+      .find(IssuesSourceViewer)
+      .exists()
+  ).toBe(true);
 });
 
 it('should correctly bind key events for issue navigation', async () => {
@@ -505,6 +519,7 @@ it('should update the open issue when it is changed', async () => {
   await waitAndUpdate(wrapper);
 
   const issue = wrapper.state().issues[0];
+
   wrapper.setProps({ location: mockLocation({ query: { open: issue.key } }) });
   await waitAndUpdate(wrapper);
 

@@ -176,7 +176,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
                 hidden: currentTab.key !== tab.key
               })}
               // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeString(tab.content) }}
             />
           ))}
         </div>

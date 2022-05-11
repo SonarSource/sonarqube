@@ -573,7 +573,6 @@ export enum RuleDescriptionSections {
   HOW_TO_FIX = 'how_to_fix',
   RESOURCES = 'resources'
 }
-
 export interface RuleDescriptionSection {
   key: RuleDescriptionSections;
   content: string;
@@ -603,8 +602,8 @@ export interface RuleDetails extends Rule {
   defaultDebtRemFnType?: string;
   defaultRemFnBaseEffort?: string;
   defaultRemFnType?: string;
-  effortToFixDescription?: string;
   descriptionSections?: RuleDescriptionSection[];
+  effortToFixDescription?: string;
   htmlDesc?: string;
   htmlNote?: string;
   internalKey?: string;

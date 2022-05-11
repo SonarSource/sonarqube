@@ -23,6 +23,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { searchIssues } from '../../../api/issues';
+import { getRuleDetails } from '../../../api/rules';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -63,7 +64,7 @@ import {
   ReferencedRule
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import { Component, Dict, Issue, Paging, RawQuery } from '../../../types/types';
+import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
@@ -87,8 +88,10 @@ import {
   STANDARDS
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
+import IssueRuleHeader from './IssueRuleHeader';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
+import IssueTabViewer from './IssueTabViewer';
 import MyIssuesFilter from './MyIssuesFilter';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
@@ -112,6 +115,7 @@ export interface State {
   facets: Dict<Facet>;
   issues: Issue[];
   loading: boolean;
+  loadingRule: boolean;
   loadingFacets: Dict<boolean>;
   loadingMore: boolean;
   locationsNavigator: boolean;
@@ -119,6 +123,7 @@ export interface State {
   openFacets: Dict<boolean>;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
+  openRuleDetails?: RuleDetails;
   paging?: Paging;
   query: Query;
   referencedComponentsById: Dict<ReferencedComponent>;
@@ -148,6 +153,7 @@ export default class App extends React.PureComponent<Props, State> {
       issues: [],
       loading: true,
       loadingFacets: {},
+      loadingRule: false,
       loadingMore: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
@@ -228,6 +234,9 @@ export default class App extends React.PureComponent<Props, State> {
         selectedFlowIndex: undefined,
         selectedLocationIndex: undefined
       });
+    }
+    if (this.state.openIssue && this.state.openIssue.key !== prevState.openIssue?.key) {
+      this.loadRule();
     }
   }
 
@@ -327,6 +336,20 @@ export default class App extends React.PureComponent<Props, State> {
       }
     }
   };
+
+  async loadRule() {
+    const { openIssue } = this.state;
+    if (openIssue === undefined) {
+      return;
+    }
+    this.setState({ loadingRule: true });
+    const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
+      .then(response => response.rule)
+      .catch(() => undefined);
+    if (this.mounted) {
+      this.setState({ loadingRule: false, openRuleDetails });
+    }
+  }
 
   selectPreviousIssue = () => {
     const { issues } = this.state;
@@ -1086,44 +1109,63 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const { cannotShowOpenIssue, checkAll, issues, loading, openIssue, paging } = this.state;
+    const {
+      cannotShowOpenIssue,
+      openRuleDetails,
+      checkAll,
+      issues,
+      loading,
+      openIssue,
+      paging,
+      loadingRule
+    } = this.state;
     return (
       <div className="layout-page-main-inner">
-        {openIssue ? (
-          <IssuesSourceViewer
-            branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-            issues={issues}
-            loadIssues={this.fetchIssuesForComponent}
-            locationsNavigator={this.state.locationsNavigator}
-            onIssueChange={this.handleIssueChange}
-            onIssueSelect={this.openIssue}
-            onLocationSelect={this.selectLocation}
-            openIssue={openIssue}
-            selectedFlowIndex={this.state.selectedFlowIndex}
-            selectedLocationIndex={this.state.selectedLocationIndex}
-          />
-        ) : (
-          <DeferredSpinner loading={loading}>
-            {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-              <Alert className="big-spacer-bottom" variant="warning">
-                <FormattedMessage
-                  defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                  id="issue_bulk_change.max_issues_reached"
-                  values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                />
-              </Alert>
-            )}
-            {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-              <Alert className="big-spacer-bottom" variant="warning">
-                {translateWithParameters(
-                  'issues.cannot_open_issue_max_initial_X_fetched',
-                  MAX_INITAL_FETCH
-                )}
-              </Alert>
-            )}
-            {this.renderList()}
-          </DeferredSpinner>
-        )}
+        <DeferredSpinner loading={loadingRule}>
+          {openIssue && openRuleDetails ? (
+            <>
+              <IssueRuleHeader ruleDetails={openRuleDetails} issue={openIssue} />
+              <IssueTabViewer
+                codeTabContent={
+                  <IssuesSourceViewer
+                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                    issues={issues}
+                    loadIssues={this.fetchIssuesForComponent}
+                    locationsNavigator={this.state.locationsNavigator}
+                    onIssueChange={this.handleIssueChange}
+                    onIssueSelect={this.openIssue}
+                    onLocationSelect={this.selectLocation}
+                    openIssue={openIssue}
+                    selectedFlowIndex={this.state.selectedFlowIndex}
+                    selectedLocationIndex={this.state.selectedLocationIndex}
+                  />
+                }
+                ruleDetails={openRuleDetails}
+              />
+            </>
+          ) : (
+            <DeferredSpinner loading={loading}>
+              {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+                <Alert className="big-spacer-bottom" variant="warning">
+                  <FormattedMessage
+                    defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                    id="issue_bulk_change.max_issues_reached"
+                    values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                  />
+                </Alert>
+              )}
+              {cannotShowOpenIssue && (!paging || paging.total > 0) && (
+                <Alert className="big-spacer-bottom" variant="warning">
+                  {translateWithParameters(
+                    'issues.cannot_open_issue_max_initial_X_fetched',
+                    MAX_INITAL_FETCH
+                  )}
+                </Alert>
+              )}
+              {this.renderList()}
+            </DeferredSpinner>
+          )}
+        </DeferredSpinner>
       </div>
     );
   }
