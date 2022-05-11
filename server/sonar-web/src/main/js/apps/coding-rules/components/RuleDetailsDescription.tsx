@@ -123,8 +123,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
   sortedDescriptionSections(ruleDetails: RuleDetails) {
     return sortBy(
-      ruleDetails.descriptionSections,
-      s => SECTION_ORDER[s.key] || Object.keys(SECTION_ORDER).length
+      ruleDetails.descriptionSections?.filter(section => SECTION_ORDER[section.key] !== undefined),
+      s => SECTION_ORDER[s.key]
     );
   }
 
