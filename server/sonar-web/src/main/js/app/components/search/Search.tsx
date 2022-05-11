@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -29,7 +28,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
@@ -77,11 +76,7 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
 
   componentDidMount() {
     this.mounted = true;
-    key('s', () => {
-      this.focusInput();
-      this.openSearch();
-      return false;
-    });
+    document.addEventListener('keydown', this.handleSKeyDown);
   }
 
   componentDidUpdate(_prevProps: WithRouterProps, prevState: State) {
@@ -92,7 +87,7 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    key.unbind('s');
+    document.removeEventListener('keydown', this.handleSKeyDown);
   }
 
   focusInput = () => {
@@ -227,9 +222,8 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
         return index > 0 ? { selected: list[index - 1] } : null;
-      } else {
-        return null;
       }
+      return null;
     });
   };
 
@@ -239,9 +233,8 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
         return index >= 0 && index < list.length - 1 ? { selected: list[index + 1] } : null;
-      } else {
-        return null;
       }
+      return null;
     });
   };
 
@@ -278,22 +271,38 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
     }
   };
 
+  handleSKeyDown = (event: KeyboardEvent) => {
+    const { tagName } = event.target as HTMLElement;
+    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+    if (event.key === KeyboardKeys.KeyS && !isInput) {
+      event.preventDefault();
+      this.focusInput();
+      this.openSearch();
+    }
+  };
+
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.nativeEvent.code) {
-      case KeyboardCodes.Enter:
+    switch (event.nativeEvent.key) {
+      case KeyboardKeys.Enter:
         event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
         this.openSelected();
-        return;
-      case KeyboardCodes.UpArrow:
+        break;
+      case KeyboardKeys.UpArrow:
         event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
         this.selectPrevious();
-        return;
-      case KeyboardCodes.DownArrow:
+        break;
+      case KeyboardKeys.Escape:
         event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
+        this.closeSearch();
+        break;
+      case KeyboardKeys.DownArrow:
+        event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
         this.selectNext();
-        // keep this return to prevent fall-through in case more cases will be adder later
-        // eslint-disable-next-line no-useless-return
-        return;
+        break;
     }
   };
 

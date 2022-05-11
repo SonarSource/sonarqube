@@ -19,9 +19,9 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockRouter } from '../../../../helpers/testMocks';
-import { elementKeydown } from '../../../../helpers/testUtils';
+import { elementKeydown, keydown } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
 
@@ -57,7 +57,7 @@ it('opens selected project on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardCodes.Enter);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
   expect(router.push).toBeCalledWith({ pathname: '/dashboard', query: { id: selectedKey } });
 });
 
@@ -73,7 +73,7 @@ it('opens selected portfolio on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardCodes.Enter);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
   expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
 });
 
@@ -89,7 +89,7 @@ it('opens selected subportfolio on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardCodes.Enter);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
   expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
 });
 
@@ -99,6 +99,15 @@ it('shows warning about short input', () => {
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
   form.setState({ query: 'foobar x' });
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
+});
+
+it('should open the results when pressing key S and close it when pressing Escape', () => {
+  const router = mockRouter();
+  const form = shallowRender({ router });
+  keydown({ key: KeyboardKeys.KeyS });
+  expect(form.state().open).toBe(true);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.Escape);
+  expect(form.state().open).toBe(false);
 });
 
 function shallowRender(props: Partial<Search['props']> = {}) {
@@ -113,12 +122,12 @@ function component(key: string, qualifier = ComponentQualifier.Project) {
 }
 
 function next(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
-  elementKeydown(form.find('SearchBox'), KeyboardCodes.DownArrow);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.DownArrow);
   expect(form.state().selected).toBe(expected);
 }
 
 function prev(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
-  elementKeydown(form.find('SearchBox'), KeyboardCodes.UpArrow);
+  elementKeydown(form.find('SearchBox'), KeyboardKeys.UpArrow);
   expect(form.state().selected).toBe(expected);
 }
 

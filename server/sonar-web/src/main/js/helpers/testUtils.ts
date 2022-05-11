@@ -87,10 +87,15 @@ export function keydown(args: { code?: KeyboardCodes; key?: KeyboardKeys }): voi
   document.dispatchEvent(event);
 }
 
-export function elementKeydown(element: ShallowWrapper, code: KeyboardCodes): void {
+export function elementKeydown(element: ShallowWrapper, key: KeyboardKeys): void {
   const event = {
     currentTarget: { element },
-    nativeEvent: { code },
+    nativeEvent: {
+      key,
+      stopImmediatePropagation: () => {
+        /* noop */
+      }
+    },
     preventDefault() {
       /*noop*/
     }
