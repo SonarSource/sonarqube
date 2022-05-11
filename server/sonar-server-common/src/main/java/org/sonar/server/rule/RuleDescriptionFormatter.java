@@ -90,11 +90,8 @@ public class RuleDescriptionFormatter {
     var builder = new StringBuilder();
     for (String sectionKey : SECTION_KEYS) {
       if (sectionKeyToHtml.containsKey(sectionKey)) {
-        builder.append("<h2>")
-          .append(titleMapping.get(sectionKey))
-          .append("</h2>")
-          .append(sectionKeyToHtml.get(sectionKey))
-          .append("<br/>");
+        Optional.ofNullable(titleMapping.get(sectionKey)).ifPresent(title -> builder.append("<h2>").append(title).append("</h2>"));
+        builder.append(sectionKeyToHtml.get(sectionKey)).append("<br/>");
       }
     }
     return builder.toString();
