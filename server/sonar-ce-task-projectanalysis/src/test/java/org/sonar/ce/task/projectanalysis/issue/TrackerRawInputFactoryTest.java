@@ -25,6 +25,10 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.stream.IntStream;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +45,10 @@ import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -66,13 +72,10 @@ public class TrackerRawInputFactoryTest {
 
   private static final String FILE_UUID = "fake_uuid";
   private static final String ANOTHER_FILE_UUID = "another_fake_uuid";
-  private static int FILE_REF = 2;
-  private static int NOT_IN_REPORT_FILE_REF = 3;
-  private static int ANOTHER_FILE_REF = 4;
-
-  private static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).build();
-  private static ReportComponent ANOTHER_FILE = ReportComponent.builder(Component.Type.FILE, ANOTHER_FILE_REF).setUuid(ANOTHER_FILE_UUID).build();
-  private static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(FILE, ANOTHER_FILE).build();
+  private static final String EXAMPLE_LINE_OF_CODE_FORMAT = "int example = line + of + code + %d; ";
+  private static final int FILE_REF = 2;
+  private static final int NOT_IN_REPORT_FILE_REF = 3;
+  private static final int ANOTHER_FILE_REF = 4;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
@@ -83,11 +86,24 @@ public class TrackerRawInputFactoryTest {
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
-  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
-  private IssueFilter issueFilter = mock(IssueFilter.class);
-  private TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
-    commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
+  private static final ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).build();
+  private static final ReportComponent ANOTHER_FILE = ReportComponent.builder(Component.Type.FILE, ANOTHER_FILE_REF).setUuid(ANOTHER_FILE_UUID).build();
+  private static final ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(FILE, ANOTHER_FILE).build();
+
+  private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
+  private final CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
+  private final IssueFilter issueFilter = mock(IssueFilter.class);
+  private final TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
+    sourceLinesRepository, commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
+
+  @Before
+  public void before() {
+    Iterator<String> stringIterator = IntStream.rangeClosed(1, 9)
+      .mapToObj(i -> String.format(EXAMPLE_LINE_OF_CODE_FORMAT, i))
+      .iterator();
+    when(sourceLinesRepository.readLines(any())).thenReturn(CloseableIterator.from(stringIterator));
+  }
 
   @Test
   public void load_source_hash_sequences() {
@@ -118,7 +134,7 @@ public class TrackerRawInputFactoryTest {
 
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -146,6 +162,80 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.tags()).isEmpty();
     assertInitializedIssue(issue);
     assertThat(issue.effort()).isNull();
+
+    assertLocationHashIsMadeOf(input, "intexample=line+of+code+2;");
+  }
+
+  @Test
+  public void calculateLocationHash_givenIssueOn3Lines_calculateHashOn3Lines() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder()
+        .setStartLine(1)
+        .setEndLine(3)
+        .setStartOffset(0)
+        .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
+        .build())
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    assertLocationHashIsMadeOf(input, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
+  }
+
+  @Test
+  public void calculateLocationHash_givenIssuePartiallyOn1Line_calculateHashOnAPartOfLine() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder()
+        .setStartLine(1)
+        .setEndLine(1)
+        .setStartOffset(13)
+        .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
+        .build())
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    assertLocationHashIsMadeOf(input, "line+of+code+1;");
+  }
+
+  @Test
+  public void calculateLocationHash_givenIssuePartiallyOn1LineAndPartiallyOnThirdLine_calculateHashAccordingly() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder()
+        .setStartLine(1)
+        .setEndLine(3)
+        .setStartOffset(13)
+        .setEndOffset(11)
+        .build())
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    assertLocationHashIsMadeOf(input, "line+of+code+1;intexample=line+of+code+2;intexample");
   }
 
   @Test
@@ -184,7 +274,7 @@ public class TrackerRawInputFactoryTest {
 
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -194,15 +284,15 @@ public class TrackerRawInputFactoryTest {
         .addLocation(ScannerReport.IssueLocation.newBuilder()
           .setComponentRef(FILE_REF)
           .setMsg("Secondary location in same file")
-          .setTextRange(TextRange.newBuilder().setStartLine(2).build()))
+          .setTextRange(newTextRange(2)))
         .addLocation(ScannerReport.IssueLocation.newBuilder()
           .setComponentRef(NOT_IN_REPORT_FILE_REF)
           .setMsg("Secondary location in a missing file")
-          .setTextRange(TextRange.newBuilder().setStartLine(3).build()))
+          .setTextRange(newTextRange(3)))
         .addLocation(ScannerReport.IssueLocation.newBuilder()
           .setComponentRef(ANOTHER_FILE_REF)
           .setMsg("Secondary location in another file")
-          .setTextRange(TextRange.newBuilder().setStartLine(3).build()))
+          .setTextRange(newTextRange(3)))
         .build())
       .build();
     reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
@@ -226,7 +316,7 @@ public class TrackerRawInputFactoryTest {
   public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setEngineId("eslint")
       .setRuleId("S001")
@@ -270,7 +360,7 @@ public class TrackerRawInputFactoryTest {
   public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setEngineId("eslint")
       .setRuleId("S001")
@@ -305,7 +395,7 @@ public class TrackerRawInputFactoryTest {
 
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -326,7 +416,7 @@ public class TrackerRawInputFactoryTest {
     when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -419,5 +509,21 @@ public class TrackerRawInputFactoryTest {
     ruleRepository.add(dumbRule);
   }
 
+  private TextRange newTextRange(int issueOnLine) {
+    return TextRange.newBuilder()
+      .setStartLine(issueOnLine)
+      .setEndLine(issueOnLine)
+      .setStartOffset(0)
+      .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
+      .build();
+  }
+
+  private void assertLocationHashIsMadeOf(Input<DefaultIssue> input, String stringToHash) {
+    DefaultIssue defaultIssue = Iterators.getOnlyElement(input.getIssues().iterator());
+    String expectedHash = DigestUtils.md5Hex(stringToHash);
+    DbIssues.Locations locations = defaultIssue.getLocations();
+
+    assertThat(locations.getChecksum()).isEqualTo(expectedHash);
+  }
 
 }

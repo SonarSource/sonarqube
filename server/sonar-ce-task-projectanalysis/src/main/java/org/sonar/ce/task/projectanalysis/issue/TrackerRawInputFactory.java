@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -37,6 +39,7 @@ import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -54,21 +57,24 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
 public class TrackerRawInputFactory {
+  private static final Pattern MATCH_ALL_WHITESPACES = Pattern.compile("\\s");
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0L;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final CommonRuleEngine commonRuleEngine;
   private final IssueFilter issueFilter;
   private final SourceLinesHashRepository sourceLinesHash;
+  private final SourceLinesRepository sourceLinesRepository;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository,
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash,
+    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository,
     ActiveRulesHolder activeRulesHolder) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesHash = sourceLinesHash;
+    this.sourceLinesRepository = sourceLinesRepository;
     this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
@@ -185,7 +191,9 @@ public class TrackerRawInputFactory {
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasTextRange()) {
-        dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
+        DbCommons.TextRange.Builder textRange = convertTextRange(reportIssue.getTextRange());
+        dbLocationsBuilder.setTextRange(textRange);
+        dbLocationsBuilder.setChecksum(calculateLocationHash(textRange));
       }
       for (ScannerReport.Flow flow : reportIssue.getFlowList()) {
         if (flow.getLocationCount() > 0) {
@@ -294,8 +302,34 @@ public class TrackerRawInputFactory {
         ScannerReport.TextRange sourceRange = source.getTextRange();
         DbCommons.TextRange.Builder targetRange = convertTextRange(sourceRange);
         target.setTextRange(targetRange);
+        target.setChecksum(calculateLocationHash(targetRange));
       }
       return Optional.of(target.build());
+    }
+
+    private String calculateLocationHash(DbCommons.TextRange.Builder textRange) {
+      try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(component)) {
+        StringBuilder toHash = new StringBuilder();
+        int lineNo = 1;
+        while (linesIterator.hasNext()) {
+          String line = linesIterator.next();
+          if (lineNo == textRange.getStartLine() && lineNo == textRange.getEndLine()) {
+            toHash.append(line, textRange.getStartOffset(), textRange.getEndOffset());
+          } else if (lineNo == textRange.getStartLine()) {
+            toHash.append(line, textRange.getStartOffset(), line.length());
+          } else if (lineNo > textRange.getStartLine() && lineNo < textRange.getEndLine()) {
+            toHash.append(line);
+          } else if (lineNo == textRange.getEndLine()) {
+            toHash.append(line, 0, textRange.getEndOffset());
+          } else if (lineNo > textRange.getEndLine()) {
+            break;
+          }
+          lineNo++;
+        }
+        String issueContentWithoutWhitespaces = MATCH_ALL_WHITESPACES.matcher(toHash.toString()).replaceAll("");
+        return DigestUtils.md5Hex(issueContentWithoutWhitespaces);
+      }
+
     }
 
     private DbCommons.TextRange.Builder convertTextRange(ScannerReport.TextRange sourceRange) {

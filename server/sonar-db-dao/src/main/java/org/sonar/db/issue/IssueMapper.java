@@ -67,5 +67,4 @@ public interface IssueMapper {
   Collection<IssueGroupDto> selectIssueGroupsByBaseComponent(
     @Param("baseComponent") ComponentDto baseComponent,
     @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
-
 }
