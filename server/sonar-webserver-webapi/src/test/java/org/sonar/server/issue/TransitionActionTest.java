@@ -51,7 +51,6 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class TransitionActionTest {
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

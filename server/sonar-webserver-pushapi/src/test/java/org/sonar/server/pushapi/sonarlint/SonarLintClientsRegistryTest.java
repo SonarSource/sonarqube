@@ -28,10 +28,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.util.issue.Issue;
+import org.sonar.core.util.issue.IssueChangedEvent;
 import org.sonar.core.util.ParamChange;
-import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangedEvent;
+import org.sonar.core.util.rule.RuleChange;
+import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.pushapi.issues.StandaloneIssueChangeEventsDistributor;
 import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,13 +61,14 @@ public class SonarLintClientsRegistryTest {
   private final ServletOutputStream outputStream = mock(ServletOutputStream.class);
 
   private final SonarLintClientPermissionsValidator permissionsValidator = mock(SonarLintClientPermissionsValidator.class);
-  private final StandaloneRuleActivatorEventsDistributor eventsDistributor = mock(StandaloneRuleActivatorEventsDistributor.class);
+  private final StandaloneRuleActivatorEventsDistributor ruleEventsDistributor = mock(StandaloneRuleActivatorEventsDistributor.class);
+  private final StandaloneIssueChangeEventsDistributor issueChangeEventsDistributor = mock(StandaloneIssueChangeEventsDistributor.class);
 
   private SonarLintClientsRegistry underTest;
 
   @Before
   public void before() {
-    underTest = new SonarLintClientsRegistry(eventsDistributor, permissionsValidator);
+    underTest = new SonarLintClientsRegistry(issueChangeEventsDistributor, ruleEventsDistributor, permissionsValidator);
   }
 
   @Test
@@ -154,7 +158,7 @@ public class SonarLintClientsRegistryTest {
   }
 
   @Test
-  public void listen_givenUserNotPermittedToReceiveEvent_closeConnection() {
+  public void listen_givenUserNotPermittedToReceiveRuleSetChangedEvent_closeConnection() {
     RuleChange[] activatedRules = {};
     String[] deactivatedRules = {"repo:rule-key"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
@@ -164,6 +168,20 @@ public class SonarLintClientsRegistryTest {
     doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjects(anyString(), anySet());
 
     underTest.listen(ruleSetChangedEvent);
+
+    verify(sonarLintClient).close();
+  }
+
+  @Test
+  public void listen_givenUserNotPermittedToReceiveIssueChangeEvent_closeConnection() {
+    Issue[] issues = new Issue[]{ new Issue("issue-1", "branch-1")};
+    IssueChangedEvent issueChangedEvent = new IssueChangedEvent("project1", issues, true, "BLOCKER", "BUG");
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+
+    underTest.listen(issueChangedEvent);
 
     verify(sonarLintClient).close();
   }
@@ -192,26 +210,39 @@ public class SonarLintClientsRegistryTest {
   public void registerClient_whenCalledFirstTime_registerAlsoToListenToEvents() {
     underTest.registerClient(createSampleSLClient());
 
-    verify(eventsDistributor).subscribe(underTest);
+    verify(ruleEventsDistributor).subscribe(underTest);
+    verify(issueChangeEventsDistributor).subscribe(underTest);
   }
 
   @Test
   public void registerClient_whenCalledSecondTime_doNotRegisterToEvents() {
     underTest.registerClient(createSampleSLClient());
-    clearInvocations(eventsDistributor);
+    clearInvocations(ruleEventsDistributor);
+    clearInvocations(issueChangeEventsDistributor);
 
     underTest.registerClient(createSampleSLClient());
-    verifyNoInteractions(eventsDistributor);
+    verifyNoInteractions(ruleEventsDistributor);
+    verifyNoInteractions(issueChangeEventsDistributor);
   }
 
   @Test
-  public void registerClient_whenExceptionAndCalledSecondTime_registerToEvents() {
-    doThrow(new RuntimeException()).when(eventsDistributor).subscribe(any());
+  public void registerClient_whenExceptionAndCalledSecondTime_registerToRuleEvents() {
+    doThrow(new RuntimeException()).when(ruleEventsDistributor).subscribe(any());
     underTest.registerClient(createSampleSLClient());
-    clearInvocations(eventsDistributor);
+    clearInvocations(ruleEventsDistributor);
 
     underTest.registerClient(createSampleSLClient());
-    verify(eventsDistributor).subscribe(underTest);
+    verify(ruleEventsDistributor).subscribe(underTest);
+  }
+
+  @Test
+  public void registerClient_whenExceptionAndCalledSecondTime_registerToIssueChangeEvents() {
+    doThrow(new RuntimeException()).when(issueChangeEventsDistributor).subscribe(any());
+    underTest.registerClient(createSampleSLClient());
+    clearInvocations(issueChangeEventsDistributor);
+
+    underTest.registerClient(createSampleSLClient());
+    verify(issueChangeEventsDistributor).subscribe(underTest);
   }
 
   private SonarLintClient createSampleSLClient() {

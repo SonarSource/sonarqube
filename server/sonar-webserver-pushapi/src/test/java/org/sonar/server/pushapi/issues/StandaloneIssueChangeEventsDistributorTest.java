@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.pushapi.qualityprofile;
+package org.sonar.server.pushapi.issues;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
+import org.junit.Test;
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.issue.IssueChangedEvent;
 
-@ServerSide
-public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  private List<RuleActivationListener> listeners = new ArrayList<>();
+public class StandaloneIssueChangeEventsDistributorTest {
+  IssueChangeListener issueChangeListener = mock(IssueChangeListener.class);
+  IssueChangedEvent event = mock(IssueChangedEvent.class);
 
-  @Override
-  public void subscribe(RuleActivationListener listener) {
-    listeners.add(listener);
-  }
+  public final StandaloneIssueChangeEventsDistributor underTest = new StandaloneIssueChangeEventsDistributor();
 
-  @Override
-  public void pushEvent(RuleSetChangedEvent event) {
-    listeners.forEach(l -> l.listen(event));
+  @Test
+  public void subscribe_and_push_publishesToListener() {
+    underTest.subscribe(issueChangeListener);
+    underTest.pushEvent(event);
+    verify(issueChangeListener).listen(event);
   }
 }

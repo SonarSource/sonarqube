@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.pushapi.qualityprofile;
+package org.sonar.server.pushapi.issues;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.issue.IssueChangedEvent;
+import org.sonar.process.cluster.hz.HazelcastMember;
 
 @ServerSide
-public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
+public class DistributedIssueChangeEventsDistributor implements IssueChangeEventsDistributor {
 
-  private List<RuleActivationListener> listeners = new ArrayList<>();
+  private HazelcastMember hazelcastMember;
 
-  @Override
-  public void subscribe(RuleActivationListener listener) {
-    listeners.add(listener);
+  public DistributedIssueChangeEventsDistributor(HazelcastMember hazelcastMember) {
+    this.hazelcastMember = hazelcastMember;
   }
 
   @Override
-  public void pushEvent(RuleSetChangedEvent event) {
-    listeners.forEach(l -> l.listen(event));
+  public void subscribe(IssueChangeListener listener) {
+    hazelcastMember.subscribeIssueChangeTopic(listener);
+  }
+
+  @Override
+  public void pushEvent(IssueChangedEvent event) {
+    hazelcastMember.publishEvent(event);
   }
 }

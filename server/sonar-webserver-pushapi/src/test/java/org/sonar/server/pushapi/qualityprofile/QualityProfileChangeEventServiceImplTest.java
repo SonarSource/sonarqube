@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.builtin;
+package org.sonar.server.pushapi.qualityprofile;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.ParamChange;
-import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangedEvent;
+import org.sonar.core.util.rule.RuleChange;
+import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -36,8 +36,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
-import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
 import static java.util.List.of;

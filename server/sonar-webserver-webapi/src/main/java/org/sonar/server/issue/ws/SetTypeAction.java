@@ -33,12 +33,15 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPE;
@@ -48,16 +51,18 @@ public class SetTypeAction implements IssuesWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final IssueChangeEventService issueChangeEventService;
   private final IssueFinder issueFinder;
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
 
-  public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter, System2 system2) {
+  public SetTypeAction(UserSession userSession, DbClient dbClient, IssueChangeEventService issueChangeEventService, IssueFinder issueFinder,
+    IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, OperationResponseWriter responseWriter, System2 system2) {
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.issueChangeEventService = issueChangeEventService;
     this.issueFinder = issueFinder;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
@@ -112,7 +117,13 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, true);
+      BranchDto branch = issueUpdater.getBranch(session, issue, issue.projectUuid());
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, true, branch);
+      if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
+        issueChangeEventService.distributeIssueChangeEvent(issue, null, ruleType.name(), null, branch,
+          response.getComponentByUuid(issue.projectUuid()).getKey());
+      }
+      return response;
     }
     return new SearchResponseData(issueDto);
   }

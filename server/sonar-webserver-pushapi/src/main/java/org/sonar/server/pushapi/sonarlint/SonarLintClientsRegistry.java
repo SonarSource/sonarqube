@@ -20,7 +20,6 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,34 +27,36 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.ParamChange;
-import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangedEvent;
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.issue.IssueChangedEvent;
+import org.sonar.core.util.rule.RuleActivationListener;
+import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.pushapi.issues.IssueChangeBroadcastUtils;
+import org.sonar.server.pushapi.issues.IssueChangeEventsDistributor;
 import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
-
-import static java.util.Arrays.asList;
+import org.sonar.server.pushapi.qualityprofile.RuleSetChangeBroadcastUtils;
 
 @ServerSide
-public class SonarLintClientsRegistry implements RuleActivationListener {
+public class SonarLintClientsRegistry implements RuleActivationListener, IssueChangeListener {
 
   private static final Logger LOG = Loggers.get(SonarLintClientsRegistry.class);
 
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
-  private final RuleActivatorEventsDistributor eventsDistributor;
+  private final RuleActivatorEventsDistributor ruleEventsDistributor;
+  private final IssueChangeEventsDistributor issueChangeEventsDistributor;
 
   private boolean registeredToEvents = false;
 
-  public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
+  public SonarLintClientsRegistry(IssueChangeEventsDistributor issueChangeEventsDistributor,
+    RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
+    this.issueChangeEventsDistributor = issueChangeEventsDistributor;
     this.sonarLintClientPermissionsValidator = permissionsValidator;
-    this.eventsDistributor = ruleActivatorEventsDistributor;
+    this.ruleEventsDistributor = ruleActivatorEventsDistributor;
   }
 
   public void registerClient(SonarLintClient sonarLintClient) {
@@ -71,10 +72,11 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
       return;
     }
     try {
-      eventsDistributor.subscribe(this);
+      ruleEventsDistributor.subscribe(this);
+      issueChangeEventsDistributor.subscribe(this);
       registeredToEvents = true;
     } catch (RuntimeException e) {
-      LOG.warn("Can not listen to rule activation events for server push. Web Server might not have started fully yet.", e);
+      LOG.warn("Can not listen to rule activation or issue events for server push. Web Server might not have started fully yet.", e);
     }
   }
 
@@ -90,16 +92,12 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   @Override
   public void listen(RuleSetChangedEvent ruleSetChangedEvent) {
-    broadcastMessage(ruleSetChangedEvent, getFilterForEvent(ruleSetChangedEvent));
+    broadcastMessage(ruleSetChangedEvent, RuleSetChangeBroadcastUtils.getFilterForEvent(ruleSetChangedEvent));
   }
 
-  private static Predicate<SonarLintClient> getFilterForEvent(RuleSetChangedEvent ruleSetChangedEvent) {
-    List<String> affectedProjects = asList(ruleSetChangedEvent.getProjects());
-    return client -> {
-      Set<String> clientProjectKeys = client.getClientProjectKeys();
-      Set<String> languages = client.getLanguages();
-      return !Collections.disjoint(clientProjectKeys, affectedProjects) && languages.contains(ruleSetChangedEvent.getLanguage());
-    };
+  @Override
+  public void listen(IssueChangedEvent issueChangedEvent) {
+    broadcastMessage(issueChangedEvent, IssueChangeBroadcastUtils.getFilterForEvent(issueChangedEvent));
   }
 
   public void broadcastMessage(RuleSetChangedEvent event, Predicate<SonarLintClient> filter) {
@@ -110,7 +108,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
         sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
         RuleSetChangedEvent personalizedEvent = new RuleSetChangedEvent(projectKeysInterestingForClient.toArray(String[]::new), event.getActivatedRules(),
           event.getDeactivatedRules(), event.getLanguage());
-        String message = getMessage(personalizedEvent);
+        String message = RuleSetChangeBroadcastUtils.getMessage(personalizedEvent);
         c.writeAndFlush(message);
       } catch (ForbiddenException forbiddenException) {
         LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
@@ -121,50 +119,23 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
       }
     });
   }
-  private static String getMessage(RuleSetChangedEvent ruleSetChangedEvent) {
-    return "event: " + ruleSetChangedEvent.getEvent() + "\n"
-      + "data: " + toJson(ruleSetChangedEvent);
-  }
 
-  private static String toJson(RuleSetChangedEvent ruleSetChangedEvent) {
-    JSONObject data = new JSONObject();
-    data.put("projects", ruleSetChangedEvent.getProjects());
-
-    JSONArray activatedRulesJson = new JSONArray();
-    for (RuleChange rule : ruleSetChangedEvent.getActivatedRules()) {
-      activatedRulesJson.put(toJson(rule));
-    }
-    data.put("activatedRules", activatedRulesJson);
-
-    JSONArray deactivatedRulesJson = new JSONArray();
-    for (String ruleKey : ruleSetChangedEvent.getDeactivatedRules()) {
-      deactivatedRulesJson.put(ruleKey);
-    }
-    data.put("deactivatedRules", deactivatedRulesJson);
-
-    return data.toString();
-  }
-
-  private static JSONObject toJson(RuleChange rule) {
-    JSONObject ruleJson = new JSONObject();
-    ruleJson.put("key", rule.getKey());
-    ruleJson.put("language", rule.getLanguage());
-    ruleJson.put("severity", rule.getSeverity());
-    ruleJson.put("templateKey", rule.getTemplateKey());
-
-    JSONArray params = new JSONArray();
-    for (ParamChange paramChange : rule.getParams()) {
-      params.put(toJson(paramChange));
-    }
-    ruleJson.put("params", params);
-    return ruleJson;
-  }
-
-  private static JSONObject toJson(ParamChange paramChange) {
-    JSONObject param = new JSONObject();
-    param.put("key", paramChange.getKey());
-    param.put("value", paramChange.getValue());
-    return param;
+  public void broadcastMessage(IssueChangedEvent event, Predicate<SonarLintClient> filter) {
+    clients.stream().filter(filter).forEach(c -> {
+      Set<String> projectKeysInterestingForClient = new HashSet<>(c.getClientProjectKeys());
+      projectKeysInterestingForClient.retainAll(Set.of(event.getProjectKey()));
+      try {
+        sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
+        String message = IssueChangeBroadcastUtils.getMessage(event);
+        c.writeAndFlush(message);
+      } catch (ForbiddenException forbiddenException) {
+        LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
+        unregisterClient(c);
+      } catch (IllegalStateException | IOException e) {
+        LOG.error("Unable to send message to a client: " + e.getMessage());
+        unregisterClient(c);
+      }
+    });
   }
 
   class SonarLintClientEventsListener implements AsyncListener {

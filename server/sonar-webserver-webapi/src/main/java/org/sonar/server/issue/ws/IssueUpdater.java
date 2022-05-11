@@ -70,10 +70,15 @@ public class IssueUpdater {
 
   public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
     IssueChangeContext context, boolean refreshMeasures) {
+    BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
+    return saveIssueAndPreloadSearchResponseData(dbSession, issue, context, refreshMeasures, branch);
+  }
+
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
+    IssueChangeContext context, boolean refreshMeasures, BranchDto branch) {
 
     Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
-    BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
     IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), project, branch);
 
@@ -88,6 +93,14 @@ public class IssueUpdater {
     }
 
     return result;
+  }
+
+  protected BranchDto getBranch(DbSession dbSession, DefaultIssue issue, @Nullable String projectUuid) {
+    String issueKey = issue.key();
+    checkState(projectUuid != null, "Issue '%s' has no project", issueKey);
+    BranchDto component = dbClient.branchDao().selectByUuid(dbSession, projectUuid).orElse(null);
+    checkState(component != null, "Branch uuid '%s' for issue key '%s' cannot be found", projectUuid, issueKey);
+    return component;
   }
 
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
@@ -134,14 +147,6 @@ public class IssueUpdater {
     checkState(componentUuid != null, "Issue '%s' has no component", issueKey);
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orElse(null);
     checkState(component != null, "Component uuid '%s' for issue key '%s' cannot be found", componentUuid, issueKey);
-    return component;
-  }
-
-  private BranchDto getBranch(DbSession dbSession, DefaultIssue issue, @Nullable String projectUuid) {
-    String issueKey = issue.key();
-    checkState(projectUuid != null, "Issue '%s' has no project", issueKey);
-    BranchDto component = dbClient.branchDao().selectByUuid(dbSession, projectUuid).orElse(null);
-    checkState(component != null, "Branch uuid '%s' for issue key '%s' cannot be found", projectUuid, issueKey);
     return component;
   }
 

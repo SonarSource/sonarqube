@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
@@ -50,6 +51,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
@@ -64,19 +66,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 
 public class DoTransitionActionTest {
 
   private static final long NOW = 999_776_888L;
 
   private System2 system2 = new TestSystem2().setNow(NOW);
-
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -89,6 +93,7 @@ public class DoTransitionActionTest {
 
   private DbClient dbClient = db.getDbClient();
 
+  private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter updater = new IssueFieldsSetter();
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
   private TransitionService transitionService = new TransitionService(userSession, workflow);
@@ -101,7 +106,8 @@ public class DoTransitionActionTest {
     mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
-  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
+  private WsAction underTest = new DoTransitionAction(dbClient, userSession, issueChangeEventService,
+    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -121,9 +127,29 @@ public class DoTransitionActionTest {
 
     verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     verifyContentOfPreloadedSearchResponseData(issue);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
+  }
+
+  @Test
+  public void do_transition_is_not_distributed_for_pull_request() {
+    RuleDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertPrivateProject();
+
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.uuid()));
+
+    ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
+    IssueDto issue = newIssue(rule, pullRequest, file).setType(CODE_SMELL).setSeverity(MAJOR);
+    db.issues().insertIssue(issue);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(USER, pullRequest, file);
+
+    call(issue.getKey(), "confirm");
+
+    verifyNoInteractions(issueChangeEventService);
   }
 
   @Test

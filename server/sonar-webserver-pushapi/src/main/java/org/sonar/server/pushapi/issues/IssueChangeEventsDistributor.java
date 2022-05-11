@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.util;
+package org.sonar.server.pushapi.issues;
 
-public interface RuleActivationListener {
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.issue.IssueChangedEvent;
 
-  void listen(RuleSetChangedEvent event);
+public interface IssueChangeEventsDistributor {
+
+  void subscribe(IssueChangeListener listener);
+
+  void pushEvent(IssueChangedEvent event);
 }

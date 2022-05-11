@@ -39,8 +39,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangedEvent;
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.issue.IssueChangedEvent;
+import org.sonar.core.util.rule.RuleActivationListener;
+import org.sonar.core.util.rule.RuleSetChangedEvent;
 
 class HazelcastMemberImpl implements HazelcastMember {
 
@@ -139,6 +141,18 @@ class HazelcastMemberImpl implements HazelcastMember {
   @Override
   public void publishEvent(RuleSetChangedEvent event) {
     hzInstance.getTopic("ruleActivated").publish(event);
+  }
+
+  @Override
+  public void subscribeIssueChangeTopic(IssueChangeListener listener) {
+    ITopic<IssueChangedEvent> topic = hzInstance.getTopic("issueChanged");
+    MessageListener<IssueChangedEvent> hzListener = message -> listener.listen(message.getMessageObject());
+    topic.addMessageListener(hzListener);
+  }
+
+  @Override
+  public void publishEvent(IssueChangedEvent event) {
+    hzInstance.getTopic("issueChanged").publish(event);
   }
 
   @Override

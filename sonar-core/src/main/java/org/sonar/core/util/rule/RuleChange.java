@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.util;
+package org.sonar.core.util.rule;
 
 import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.util.ParamChange;
 
 public class RuleChange implements Serializable {
-  String key;
-  String language;
-  String templateKey;
-  String severity;
-  ParamChange[] params = new ParamChange[0];
+  private String key;
+  private String language;
+  private String templateKey;
+  private String severity;
+  private ParamChange[] params = new ParamChange[0];
 
   public String getKey() {
     return key;

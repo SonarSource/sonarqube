@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.pushapi.qualityprofile;
+package org.sonar.core.util.issue;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
+import org.junit.Test;
 
-@ServerSide
-public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private List<RuleActivationListener> listeners = new ArrayList<>();
+public class IssueTest {
+  private static final String BRANCH_NAME = "branch-name";
+  private static final String ISSUE_KEY = "issue-key";
 
-  @Override
-  public void subscribe(RuleActivationListener listener) {
-    listeners.add(listener);
-  }
+  @Test
+  public void issue_instantiation_accepts_values() {
+    Issue issue = new Issue(ISSUE_KEY, BRANCH_NAME);
 
-  @Override
-  public void pushEvent(RuleSetChangedEvent event) {
-    listeners.forEach(l -> l.listen(event));
+    assertThat(issue.getIssueKey()).isEqualTo(ISSUE_KEY);
+    assertThat(issue.getBranchName()).isEqualTo(BRANCH_NAME);
   }
 }

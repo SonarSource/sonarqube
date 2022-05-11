@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.pushapi.qualityprofile;
+package org.sonar.core.util.issue;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
+import java.io.Serializable;
 
-@ServerSide
-public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
+public class Issue implements Serializable {
+  private String issueKey;
+  private String branchName;
 
-  private List<RuleActivationListener> listeners = new ArrayList<>();
-
-  @Override
-  public void subscribe(RuleActivationListener listener) {
-    listeners.add(listener);
+  public Issue(String issueKey, String branchName) {
+    this.issueKey = issueKey;
+    this.branchName = branchName;
   }
 
-  @Override
-  public void pushEvent(RuleSetChangedEvent event) {
-    listeners.forEach(l -> l.listen(event));
+  public String getIssueKey() {
+    return issueKey;
+  }
+
+  public String getBranchName() {
+    return branchName;
   }
 }

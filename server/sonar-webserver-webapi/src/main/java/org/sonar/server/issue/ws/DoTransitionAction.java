@@ -32,9 +32,11 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -42,6 +44,7 @@ import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -50,16 +53,19 @@ public class DoTransitionAction implements IssuesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final IssueChangeEventService issueChangeEventService;
   private final IssueFinder issueFinder;
   private final IssueUpdater issueUpdater;
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
 
-  public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
+  public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueChangeEventService issueChangeEventService,
+    IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
     OperationResponseWriter responseWriter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.issueChangeEventService = issueChangeEventService;
     this.issueFinder = issueFinder;
     this.issueUpdater = issueUpdater;
     this.transitionService = transitionService;
@@ -110,7 +116,14 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, true);
+      BranchDto branch = issueUpdater.getBranch(session, defaultIssue, defaultIssue.projectUuid());
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, true, branch);
+
+      if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
+        issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, null, transitionKey, branch,
+          response.getComponentByUuid(defaultIssue.projectUuid()).getKey());
+      }
+      return response;
     }
     return new SearchResponseData(issueDto);
   }

@@ -17,26 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.pushapi.qualityprofile;
+package org.sonar.server.pushapi.issues;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
+import java.util.Collection;
+import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDto;
 
-@ServerSide
-public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
+public interface IssueChangeEventService {
+  void distributeIssueChangeEvent(DefaultIssue issue, @Nullable String severity, @Nullable String type,
+    @Nullable String transitionKey, BranchDto branch, String projectKey);
 
-  private List<RuleActivationListener> listeners = new ArrayList<>();
-
-  @Override
-  public void subscribe(RuleActivationListener listener) {
-    listeners.add(listener);
-  }
-
-  @Override
-  public void pushEvent(RuleSetChangedEvent event) {
-    listeners.forEach(l -> l.listen(event));
-  }
+  void distributeIssueChangeEvent(Collection<DefaultIssue> issues, Map<String, ComponentDto> projectsByUuid,
+    Map<String, BranchDto> branchesByProjectUuid);
 }

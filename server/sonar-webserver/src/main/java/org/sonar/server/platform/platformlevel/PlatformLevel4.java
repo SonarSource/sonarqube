@@ -184,6 +184,9 @@ import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.pushapi.ServerPushWsModule;
+import org.sonar.server.pushapi.issues.DistributedIssueChangeEventsDistributor;
+import org.sonar.server.pushapi.issues.IssueChangeEventServiceImpl;
+import org.sonar.server.pushapi.issues.StandaloneIssueChangeEventsDistributor;
 import org.sonar.server.pushapi.qualityprofile.DistributedRuleActivatorEventsDistributor;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
 import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
@@ -284,6 +287,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
     addIfCluster(DistributedRuleActivatorEventsDistributor.class);
     addIfStandalone(StandaloneRuleActivatorEventsDistributor.class);
+
+    addIfCluster(DistributedIssueChangeEventsDistributor.class);
+    addIfStandalone(StandaloneIssueChangeEventsDistributor.class);
 
     add(
       RuleDescriptionFormatter.class,
@@ -456,6 +462,7 @@ public class PlatformLevel4 extends PlatformLevel {
       NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
+      IssueChangeEventServiceImpl.class,
 
       // issues actions
       AssignAction.class,

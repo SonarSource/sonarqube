@@ -59,6 +59,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
@@ -75,6 +76,7 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -113,6 +115,7 @@ public class BulkChangeActionTest {
 
   private DbClient dbClient = db.getDbClient();
 
+  private IssueChangeEventService issueChangeEventService = mock(IssueChangeEventService.class);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
@@ -125,7 +128,7 @@ public class BulkChangeActionTest {
   private List<Action> actions = new ArrayList<>();
 
   private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions,
-    issueChangePostProcessor, issuesChangesSerializer));
+    issueChangePostProcessor, issuesChangesSerializer, issueChangeEventService));
 
   @Before
   public void setUp() {
@@ -155,6 +158,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
     verifyPostProcessorCalled(file);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
   }
 
   @Test
@@ -179,6 +183,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
     verifyPostProcessorCalled(file);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
   }
 
   @Test
@@ -204,6 +209,7 @@ public class BulkChangeActionTest {
 
     // no need to refresh measures
     verifyPostProcessorNotCalled();
+    verifyNoInteractions(issueChangeEventService);
   }
 
   @Test
@@ -230,6 +236,7 @@ public class BulkChangeActionTest {
 
     // no need to refresh measures
     verifyPostProcessorNotCalled();
+    verifyNoInteractions(issueChangeEventService);
   }
 
   @Test
@@ -255,6 +262,7 @@ public class BulkChangeActionTest {
     assertThat(issueComment.getChangeData()).isEqualTo("type was badly defined");
 
     verifyPostProcessorCalled(file);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
   }
 
   @Test
@@ -290,6 +298,7 @@ public class BulkChangeActionTest {
         tuple(issue3.getKey(), userToAssign.getUuid(), VULNERABILITY.getDbConstant(), MINOR, NOW));
 
     verifyPostProcessorCalled(file);
+    verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
   }
 
   @Test

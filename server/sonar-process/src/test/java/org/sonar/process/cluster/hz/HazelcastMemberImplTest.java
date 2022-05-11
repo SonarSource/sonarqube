@@ -36,8 +36,8 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.mockito.verification.VerificationMode;
-import org.sonar.core.util.RuleActivationListener;
+import org.sonar.core.util.issue.IssueChangeListener;
+import org.sonar.core.util.rule.RuleActivationListener;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 
@@ -124,6 +124,19 @@ public class HazelcastMemberImplTest {
     HazelcastMemberImpl underTest = new HazelcastMemberImpl(hzInstance);
 
     underTest.subscribeRuleActivationTopic(listener);
+
+    verify(topic, times(1)).addMessageListener(any());
+  }
+
+  @Test
+  public void subscribeIssueChangeTopic_listenerAdded() {
+    IssueChangeListener listener = mock(IssueChangeListener.class);
+    HazelcastInstance hzInstance = mock(HazelcastInstance.class);
+    ITopic<Object> topic = mock(ITopic.class);
+    when(hzInstance.getTopic(any())).thenReturn(topic);
+    HazelcastMemberImpl underTest = new HazelcastMemberImpl(hzInstance);
+
+    underTest.subscribeIssueChangeTopic(listener);
 
     verify(topic, times(1)).addMessageListener(any());
   }
