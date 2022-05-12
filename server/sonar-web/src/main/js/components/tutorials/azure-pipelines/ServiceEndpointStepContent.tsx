@@ -54,14 +54,11 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
           />
         </li>
         <li>
-          {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence')}
-        </li>
-        <li>
           <FormattedMessage
             defaultMessage={translate(
-              'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence'
+              'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence'
             )}
-            id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence"
+            id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence"
             values={{
               url: <code className="rule">{baseUrl}</code>,
               button: <ClipboardIconButton copyValue={baseUrl} />
@@ -70,11 +67,14 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
         </li>
         <li>
           <span>
-            {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step5.sentence')}:
+            {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence')}:
           </span>
           <Button className="spacer-left" onClick={() => toggleModal(true)}>
             {translate('onboarding.token.generate_token')}
           </Button>
+        </li>
+        <li>
+          {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step5.sentence')}
         </li>
         <li>
           {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step6.sentence')}

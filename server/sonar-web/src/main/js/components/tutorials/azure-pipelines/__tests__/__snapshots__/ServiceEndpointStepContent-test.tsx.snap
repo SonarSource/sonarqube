@@ -26,12 +26,9 @@ exports[`should render correctly 1`] = `
       />
     </li>
     <li>
-      onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence
-    </li>
-    <li>
       <FormattedMessage
-        defaultMessage="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence"
-        id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence"
+        defaultMessage="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence"
+        id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence"
         values={
           Object {
             "button": <ClipboardIconButton
@@ -48,7 +45,7 @@ exports[`should render correctly 1`] = `
     </li>
     <li>
       <span>
-        onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step5.sentence
+        onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence
         :
       </span>
       <Button
@@ -57,6 +54,9 @@ exports[`should render correctly 1`] = `
       >
         onboarding.token.generate_token
       </Button>
+    </li>
+    <li>
+      onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step5.sentence
     </li>
     <li>
       onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step6.sentence
