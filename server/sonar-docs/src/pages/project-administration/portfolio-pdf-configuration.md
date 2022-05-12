@@ -47,3 +47,18 @@ You have the following options for subscription frequency:
 
 ### Sending portfolio PDF reports to non-SonarQube users
 Users with administrative rights on a portfolio can send the portfolio PDF report to non-SonarQube users by adding their email in the **Other Recipients** field at **Portfolio Settings > Executive Report**.
+
+## Regulatory PDF Reports
+
+Users with access to a project can download a regulatory report for any permanent branch of that project.
+A permanent branch is one that has been set to **Keep when inactive** (see [Branch Analysis](/branches/overview/) for details on how to adjust this setting).
+
+To download the regulatory report, go to **Project Information > Regulatory Report** and select the desired branch.
+The report will be dynamically generated and downloaded.
+This may take a few minutes.
+
+The report is a zip file containing a snapshot of the selected branch. It contains:
+
+* An overview of the the selected branch of the project.
+* The configuration items relevant to the project's quality (quality profile, quality gate, and analysis exclusions).
+* Lists of findings for both new and overall code on the selected branch.
