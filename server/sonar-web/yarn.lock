@@ -1913,13 +1913,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/keymaster@npm:1.6.30":
-  version: 1.6.30
-  resolution: "@types/keymaster@npm:1.6.30"
-  checksum: 313292d2e787f1d71e7bf1478faaadbb9779d3fdf220d912cf7b0b78f00df01dc14b4030d57484b790b83a79fd1d2accdd05b213d636205bb169daefaf212a7f
-  languageName: node
-  linkType: hard
-
 "@types/lodash@npm:4.14.149":
   version: 4.14.149
   resolution: "@types/lodash@npm:4.14.149"
@@ -2302,7 +2295,6 @@ __metadata:
     "@types/dompurify": 2.3.3
     "@types/enzyme": 3.10.5
     "@types/jest": 27.4.1
-    "@types/keymaster": 1.6.30
     "@types/lodash": 4.14.149
     "@types/prop-types": 15.7.4
     "@types/react": 16.8.23
@@ -2352,7 +2344,6 @@ __metadata:
     jest-emotion: 10.0.32
     jest-junit: 13.0.0
     jsdom: 19.0.0
-    keymaster: 1.6.2
     lodash: 4.17.21
     lunr: 2.3.9
     mdast-util-toc: 5.0.2
@@ -7432,13 +7423,6 @@ __metadata:
     array-includes: ^3.1.3
     object.assign: ^4.1.2
   checksum: dcee22e6382ee5a6bd4187333a44b6420d9d079838119a07055d6e88d137dd0afadc97a2246152b0b65006bd5fc393112dc0cef01956a01a66c1713913953c66
-  languageName: node
-  linkType: hard
-
-"keymaster@npm:1.6.2":
-  version: 1.6.2
-  resolution: "keymaster@npm:1.6.2"
-  checksum: e055acfb36dbac382137f645b538f5f9df72170a7f4d3a47757202773abe03cbd98653bd928e0099eb5d2ff25f7c650eb8061bb9174dab102cdd3b2aa9a8846b
   languageName: node
   linkType: hard
 
