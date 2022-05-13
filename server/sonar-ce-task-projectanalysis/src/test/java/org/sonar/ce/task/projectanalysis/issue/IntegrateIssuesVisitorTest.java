@@ -49,7 +49,6 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -127,7 +126,6 @@ public class IntegrateIssuesVisitorTest {
   private final SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
   private TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
@@ -151,7 +149,7 @@ public class IntegrateIssuesVisitorTest {
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
 
     DbClient dbClient = dbTester.getDbClient();
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, sourceLinesRepository, new CommonRuleEngineImpl(),
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(),
       issueFilter, ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
       new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
