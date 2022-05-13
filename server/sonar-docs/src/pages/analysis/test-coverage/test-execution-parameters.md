@@ -87,12 +87,6 @@ Paths may be absolute or relative to the project root.
 Comma-delimited list of paths to Surefire XML-format reports.
 
 
-## JavaScript/TypeScript
-
-You can use [jest-sonar-reporter](https://www.npmjs.com/package/jest-sonar-reporter) or [karma-sonarqube-unit-reporter](https://github.com/tornaia/karma-sonarqube-unit-reporter) to create reports in the [Generic Test Data](/analysis/test-coverage/generic-test/) format.
-Both packages are available on `npm`.
-
-
 ## PHP
 
 ### sonar.php.tests.reportPath
