@@ -104,7 +104,7 @@ public class UpdateAction implements RulesWsAction {
       .setExampleValue("java8,security");
 
     action.createParam(PARAM_MARKDOWN_NOTE)
-      .setDescription("Optional note in markdown format. Use empty value to remove current note. Note is not changed " +
+      .setDescription("Optional note in <a href='/formatting/help'>markdown format</a>. Use empty value to remove current note. Note is not changed " +
         "if the parameter is not set.")
       .setExampleValue("my *note*");
 
@@ -131,7 +131,7 @@ public class UpdateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_DESCRIPTION)
-      .setDescription("Rule description (mandatory for custom rule and manual rule)")
+      .setDescription("Rule description (mandatory for custom rule and manual rule) in <a href='/formatting/help'>markdown format</a>")
       .setExampleValue("Description of my custom rule");
 
     action

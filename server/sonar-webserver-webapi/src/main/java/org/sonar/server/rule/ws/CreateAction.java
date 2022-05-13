@@ -110,7 +110,7 @@ public class CreateAction implements RulesWsAction {
     action
       .createParam(PARAM_DESCRIPTION)
       .setRequired(true)
-      .setDescription("Rule description")
+      .setDescription("Rule description in <a href='/formatting/help'>markdown format</a>")
       .setExampleValue("Description of my custom rule");
 
     action
