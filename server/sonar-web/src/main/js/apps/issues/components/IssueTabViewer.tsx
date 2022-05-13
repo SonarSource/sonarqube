@@ -74,21 +74,42 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
   computeTabs() {
     const { ruleDetails } = this.props;
 
-    return [
+    const tabs = [
       {
         key: TabKeys.Code,
-        label: translate('issue.tabs.code'),
+        label: translate('issue.tabs', TabKeys.Code),
         content: ''
       },
       {
         key: TabKeys.WhyIsThisAnIssue,
-        label: translate('issue.tabs.why'),
-        content:
-          ruleDetails.descriptionSections?.find(
-            section => section.key === RuleDescriptionSections.DEFAULT
-          )?.content ?? ''
+        label: translate('issue.tabs', TabKeys.WhyIsThisAnIssue),
+        content: ruleDetails.descriptionSections?.find(section =>
+          [RuleDescriptionSections.DEFAULT, RuleDescriptionSections.ROOT_CAUSE].includes(
+            section.key
+          )
+        )?.content
+      },
+      {
+        key: TabKeys.HowToFixIt,
+        label: translate('issue.tabs', TabKeys.HowToFixIt),
+        content: ruleDetails.descriptionSections?.find(
+          section => section.key === RuleDescriptionSections.HOW_TO_FIX
+        )?.content
+      },
+      {
+        key: TabKeys.Resources,
+        label: translate('issue.tabs', TabKeys.Resources),
+        content: ruleDetails.descriptionSections?.find(
+          section => section.key === RuleDescriptionSections.RESOURCES
+        )?.content
       }
-    ];
+    ].filter(tab => tab.content !== undefined) as Array<Tab>;
+
+    if (ruleDetails.htmlNote) {
+      tabs[tabs.length - 1].content += '<br/>' + ruleDetails.htmlNote;
+    }
+
+    return tabs;
   }
 
   render() {
