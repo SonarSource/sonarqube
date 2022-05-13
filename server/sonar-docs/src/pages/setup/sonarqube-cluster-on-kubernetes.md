@@ -160,8 +160,6 @@ kubectl create secret generic <NAME OF THE SECRET> --from-file=/PATH/TO/YOUR/PKC
 This documentation only contains the most important Helm chart customizations. See the [Customize the Chart Before Installing](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) documentation and the Helm chart [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube-dce) for more possibilities on customizing the Helm chart. 
 ## Known Limitations
 
-As SonarQube is intended to be run anywhere, there are some drawbacks that are currently known when operating in Kubernetes. This list is not comprehensive, but something to keep in mind and points for us to improve on.
-
 ### Problems with Azure Fileshare PVC
 
 Currently, there is a known limitation when working on AKS that resonates around the use of Azure Fileshare. We recommend using another storage class for persistency on AKS.
