@@ -123,6 +123,9 @@ subprojects {
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
 
+  compileJava.options.encoding = "UTF-8"
+  compileTestJava.options.encoding = "UTF-8"
+
   def testFixtureSrc = 'src/testFixtures'
   if (file(testFixtureSrc).exists()) {
     apply plugin: 'java-test-fixtures'
