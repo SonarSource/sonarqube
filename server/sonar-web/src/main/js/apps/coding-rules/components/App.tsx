@@ -32,6 +32,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -151,22 +152,28 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleKeyPress = (event: KeyboardEvent) => {
-    switch (event.code) {
-      case 'ArrowLeft':
+    const { tagName } = event.target as HTMLElement;
+    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+    if (isInput) {
+      return false;
+    }
+    switch (event.key) {
+      case KeyboardKeys.LeftArrow:
         event.preventDefault();
         this.handleBack();
-        return;
-      case 'ArrowRight':
+        break;
+      case KeyboardKeys.RightArrow:
         event.preventDefault();
         this.openSelectedRule();
-        return;
-      case 'ArrowDown':
+        break;
+      case KeyboardKeys.DownArrow:
         event.preventDefault();
         this.selectNextRule();
-        return;
-      case 'ArrowUp':
+        break;
+      case KeyboardKeys.UpArrow:
         event.preventDefault();
         this.selectPreviousRule();
+        break;
     }
   };
 

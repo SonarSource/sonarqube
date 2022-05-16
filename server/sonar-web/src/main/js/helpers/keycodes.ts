@@ -40,6 +40,8 @@ export enum KeyboardKeys {
   Escape = 'Escape',
   UpArrow = 'ArrowUp',
   DownArrow = 'ArrowDown',
+  RightArrow = 'ArrowRight',
+  LeftArrow = 'ArrowLeft',
   Enter = 'Enter',
   Space = ' ',
   Alt = 'Alt',
