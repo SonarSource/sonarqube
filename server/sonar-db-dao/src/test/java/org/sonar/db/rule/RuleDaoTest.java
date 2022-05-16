@@ -131,6 +131,25 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void selectByUuidWithDifferentsValuesOfBooleans() {
+    for (int i = 0; i < 3; i++) {
+      int indexBoolean = i;
+      RuleDto ruleDto = db.rules().insert((ruleDto1 -> {
+        ruleDto1.setIsTemplate(indexBoolean == 0);
+        ruleDto1.setIsExternal(indexBoolean == 1);
+        ruleDto1.setIsAdHoc(indexBoolean == 2);
+      }));
+      RuleMetadataDto metadata = newRuleMetadata(ruleDto);
+      RuleDto expected = db.rules().insertRule(ruleDto, metadata);
+
+      assertThat(underTest.selectByUuid(expected.getUuid() + 500, db.getSession())).isEmpty();
+      RuleDto rule = underTest.selectByUuid(expected.getUuid(), db.getSession()).get();
+      assertEquals(rule, ruleDto);
+      verifyMetadata(rule.getMetadata(), metadata);
+    }
+  }
+
+  @Test
   public void selectDefinitionByUuid() {
     RuleDto rule = db.rules().insert();
 
@@ -251,6 +270,7 @@ public class RuleDaoTest {
     assertThat(actual.getSeverityString()).isEqualTo(expected.getSeverityString());
     assertThat(actual.isExternal()).isEqualTo(expected.isExternal());
     assertThat(actual.isTemplate()).isEqualTo(expected.isTemplate());
+    assertThat(actual.isCustomRule()).isEqualTo(expected.isCustomRule());
     assertThat(actual.getLanguage()).isEqualTo(expected.getLanguage());
     assertThat(actual.getTemplateUuid()).isEqualTo(expected.getTemplateUuid());
     assertThat(actual.getDefRemediationFunction()).isEqualTo(expected.getDefRemediationFunction());
@@ -851,15 +871,14 @@ public class RuleDaoTest {
       .containsExactlyInAnyOrder(tuple(r1.getUuid(), r1.getKey()), tuple(r2.getUuid(), r2.getKey()));
     Iterator<RuleForIndexingDto> it = accumulator.list.iterator();
 
-
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(firstRule.getName()).isEqualTo(r1.getName());
     assertThat(firstRule.getRuleDescriptionSectionsDtos().stream()
       .filter(s -> s.getKey().equals(ruleDescriptionSectionDto.getKey()))
       .collect(MoreCollectors.onlyElement()))
-      .usingRecursiveComparison()
-      .isEqualTo(ruleDescriptionSectionDto);
+        .usingRecursiveComparison()
+        .isEqualTo(ruleDescriptionSectionDto);
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
@@ -909,7 +928,6 @@ public class RuleDaoTest {
       .filter(rule -> rule.getUuid().equals(uuid))
       .findFirst().orElseThrow();
   }
-
 
   @Test
   public void scrollIndexingRulesByKeys() {

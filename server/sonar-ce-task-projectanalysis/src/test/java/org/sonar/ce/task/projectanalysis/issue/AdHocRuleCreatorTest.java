@@ -103,7 +103,7 @@ public class AdHocRuleCreatorTest {
       .setEngineId("eslint")
       .setRuleId("no-cond-assign")
       .setName(repeat("a", 201))
-      .setDescription(repeat("a", 1_000_000))
+      .setDescription(repeat("a", 16_777_216))
       .setSeverity(Constants.Severity.BLOCKER)
       .setType(ScannerReport.IssueType.BUG)
       .build());
@@ -111,7 +111,7 @@ public class AdHocRuleCreatorTest {
     RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
 
     assertThat(rule.getMetadata().getAdHocName()).isEqualTo(repeat("a", 200));
-    assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo(repeat("a", 1_000_000));
+    assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo(repeat("a", 16_777_215));
   }
 
   @Test

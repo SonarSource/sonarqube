@@ -9,9 +9,10 @@
   </sql>
 
   <sql id="selectJoinedTablesColumns">
+    rds.content as "rds_content",
     rds.uuid as "rds_uuid",
     rds.kee as "rds_kee",
-    rds.content as "rds_content",
+
     r.uuid as "r_uuid",
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
@@ -64,50 +65,12 @@
     <include refid="leftOuterJoinRulesDescriptionSections"/>
   </select>
 
-  <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto">
+  <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto" autoMapping="true">
     <id property="uuid" column="r_uuid"/>
 
-    <result property="createdAt" column="createdAt"/>
-    <result property="updatedAt" column="updatedAt"/>
-    <result property="noteData" column="noteData" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
-    <result property="noteUserUuid" column="noteUserUuid"/>
-    <result property="noteCreatedAt" column="noteCreatedAt"/>
-    <result property="noteUpdatedAt" column="noteUpdatedAt"/>
-    <result property="remediationFunction" column="remediationFunction"/>
-    <result property="remediationGapMultiplier" column="remediationGapMultiplier"/>
-    <result property="remediationBaseEffort" column="remediationBaseEffort"/>
-    <result property="tagsField" column="tagsField"/>
-    <result property="adHocName" column="adHocName"/>
-    <result property="adHocDescription" column="adHocDescription" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
-    <result property="adHocSeverity" column="adHocSeverity"/>
-    <result property="adHocType" column="adHocType"/>
-
-    <result property="ruleKey" column="ruleKey"/>
-    <result property="repositoryKey" column="repositoryKey"/>
-    <result property="descriptionFormat" column="descriptionFormat"/>
-    <result property="status" column="status"/>
-    <result property="name" column="name"/>
-    <result property="configKey" column="configKey"/>
-    <result property="severity" column="severity"/>
-    <result property="isTemplate" column="isTemplate"/>
-    <result property="isExternal" column="isExternal"/>
-    <result property="isAdHoc" column="isAdHoc"/>
-    <result property="language" column="language"/>
-    <result property="templateUuid" column="templateUuid"/>
-    <result property="defRemediationFunction" column="defRemediationFunction"/>
-    <result property="defRemediationGapMultiplier" column="defRemediationGapMultiplier"/>
-    <result property="defRemediationBaseEffort" column="defRemediationBaseEffort"/>
-    <result property="gapDescription" column="gapDescription"/>
-    <result property="systemTagsField" column="systemTagsField"/>
-    <result property="securityStandardsField" column="securityStandardsField"/>
-    <result property="type" column="type"/>
-    <result property="pluginKey" column="pluginKey"/>
-    <result property="scope" column="scope"/>
-
-    <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto">
-      <id property="uuid" column="rds_uuid"/>
-      <result property="key" column="rds_kee"/>
-      <result property="content" column="rds_content" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+    <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto" autoMapping="true"
+                columnPrefix="rds_">
+      <result property="key" column="kee"/>
     </collection>
   </resultMap>
 
