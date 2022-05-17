@@ -33,11 +33,12 @@ import {
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 const SECTION_ORDER: Dict<number> = {
-  [RuleDescriptionSections.INTRODUCTION]: 0,
-  [RuleDescriptionSections.ROOT_CAUSE]: 1,
-  [RuleDescriptionSections.ASSESS_THE_PROBLEM]: 2,
-  [RuleDescriptionSections.HOW_TO_FIX]: 3,
-  [RuleDescriptionSections.RESOURCES]: 4
+  [RuleDescriptionSections.DEFAULT]: 0,
+  [RuleDescriptionSections.INTRODUCTION]: 1,
+  [RuleDescriptionSections.ROOT_CAUSE]: 2,
+  [RuleDescriptionSections.ASSESS_THE_PROBLEM]: 3,
+  [RuleDescriptionSections.HOW_TO_FIX]: 4,
+  [RuleDescriptionSections.RESOURCES]: 5
 };
 
 interface Props {
