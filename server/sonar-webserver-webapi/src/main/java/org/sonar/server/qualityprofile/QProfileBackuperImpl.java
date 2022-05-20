@@ -95,7 +95,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       importedRule.setRepository(ruleKey.repository());
       importedRule.setKey(ruleKey.rule());
       importedRule.setSeverity(exportRuleDto.getSeverityString());
-      if (importedRule.isCustomRule()) {
+      if (exportRuleDto.isCustomRule()) {
         importedRule.setTemplate(exportRuleDto.getTemplateRuleKey().rule());
         importedRule.setDescription(exportRuleDto.getDescriptionOrThrow());
       }
@@ -138,13 +138,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
     List<ImportedRule> importedRules = qProfile.getRules();
 
-    Map<RuleKey, RuleDto> ruleDefinitionsByKey = getImportedRulesDefinitions(dbSession, importedRules);
-    checkIfRulesFromExternalEngines(ruleDefinitionsByKey.values());
+    Map<RuleKey, RuleDto> ruleKeyToDto = getImportedRulesDtos(dbSession, importedRules);
+    checkIfRulesFromExternalEngines(ruleKeyToDto.values());
 
-    Map<RuleKey, RuleDto> customRulesDefinitions = createCustomRulesIfNotExist(dbSession, importedRules, ruleDefinitionsByKey);
-    ruleDefinitionsByKey.putAll(customRulesDefinitions);
+    Map<RuleKey, RuleDto> customRulesDefinitions = createCustomRulesIfNotExist(dbSession, importedRules, ruleKeyToDto);
+    ruleKeyToDto.putAll(customRulesDefinitions);
 
-    List<RuleActivation> ruleActivations = toRuleActivations(importedRules, ruleDefinitionsByKey);
+    List<RuleActivation> ruleActivations = toRuleActivations(importedRules, ruleKeyToDto);
 
     BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
     return new QProfileRestoreSummary(targetProfile, changes);
@@ -154,15 +154,15 @@ public class QProfileBackuperImpl implements QProfileBackuper {
    * Returns map of rule definition for an imported rule key.
    * The imported rule key may refer to a deprecated rule key, in which case the the RuleDto will correspond to a different key (the new key).
    */
-  private Map<RuleKey, RuleDto> getImportedRulesDefinitions(DbSession dbSession, List<ImportedRule> rules) {
+  private Map<RuleKey, RuleDto> getImportedRulesDtos(DbSession dbSession, List<ImportedRule> rules) {
     Set<RuleKey> ruleKeys = rules.stream()
       .map(ImportedRule::getRuleKey)
       .collect(toSet());
-    Map<RuleKey, RuleDto> rulesDefinitions = db.ruleDao().selectByKeys(dbSession, ruleKeys).stream()
+    Map<RuleKey, RuleDto> ruleDtos = db.ruleDao().selectByKeys(dbSession, ruleKeys).stream()
       .collect(Collectors.toMap(RuleDto::getKey, identity()));
 
     Set<RuleKey> unrecognizedRuleKeys = ruleKeys.stream()
-      .filter(r -> !rulesDefinitions.containsKey(r))
+      .filter(r -> !ruleDtos.containsKey(r))
       .collect(toSet());
 
     if (!unrecognizedRuleKeys.isEmpty()) {
@@ -177,11 +177,11 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       for (RuleDto rule : rulesBasedOnDeprecatedKeys) {
         DeprecatedRuleKeyDto deprecatedRuleKey = deprecatedRuleKeysByUuid.get(rule.getUuid());
         RuleKey oldRuleKey = RuleKey.of(deprecatedRuleKey.getOldRepositoryKey(), deprecatedRuleKey.getOldRuleKey());
-        rulesDefinitions.put(oldRuleKey, rule);
+        ruleDtos.put(oldRuleKey, rule);
       }
     }
 
-    return rulesDefinitions;
+    return ruleDtos;
   }
 
   private static void checkIfRulesFromExternalEngines(Collection<RuleDto> ruleDefinitions) {
