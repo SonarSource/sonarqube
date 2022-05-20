@@ -100,7 +100,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_of_file_move_contains_file_names() {
-    RuleDto rule = db.rules().insertRule(newRuleDto());
+    RuleDto rule = db.rules().insert(newRuleDto());
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));

@@ -55,7 +55,6 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -223,8 +222,12 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo").setIsAdHoc(true));
-    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, m -> m.setAdHocName("different_rule_name"));
+    RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO,
+      r -> r
+        .setIsExternal(true)
+        .setLanguage("xoo")
+        .setIsAdHoc(true)
+        .setAdHocName("different_rule_name"));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
     indexIssues();
 
@@ -238,7 +241,7 @@ public class SearchActionTest {
 
     assertThat(response.getRules().getRulesList())
       .extracting(Common.Rule::getKey, Common.Rule::getName)
-      .containsExactlyInAnyOrder(tuple(rule.getKey().toString(), ruleMetadata.getAdHocName()));
+      .containsExactlyInAnyOrder(tuple(rule.getKey().toString(), rule.getAdHocName()));
   }
 
   @Test
@@ -846,7 +849,7 @@ public class SearchActionTest {
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test

@@ -123,7 +123,7 @@ public class SetTypeActionTest {
   }
 
   private IssueDto newIssue() {
-    RuleDto rule = db.rules().insertRule(newRuleDto());
+    RuleDto rule = db.rules().insert(newRuleDto());
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return newDto(rule, file, project);

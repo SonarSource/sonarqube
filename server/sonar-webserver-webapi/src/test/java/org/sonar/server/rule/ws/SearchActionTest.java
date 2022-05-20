@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.assertj.core.api.iterable.Extractor;
@@ -41,7 +42,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -71,6 +71,7 @@ import org.sonarqube.ws.Rules.SearchResponse;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -156,8 +157,8 @@ public class SearchActionTest {
 
   @Test
   public void return_all_rules() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java"));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java"));
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
+    RuleDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     indexRules();
 
     verify(r -> {
@@ -167,11 +168,9 @@ public class SearchActionTest {
   @Test
   public void return_note_login() {
     UserDto user1 = db.users().insertUser();
-    RuleDto rule1 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule1, user1);
+    RuleDto rule1 = db.rules().insert(r -> r.setNoteUserUuid(user1.getUuid()));
     UserDto disableUser = db.users().insertDisabledUser();
-    RuleDto rule2 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule2, disableUser);
+    RuleDto rule2 = db.rules().insert(r -> r.setNoteUserUuid(disableUser.getUuid()));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -187,8 +186,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_key() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java"));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java"));
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
+    db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     indexRules();
 
     verify(r -> r.setParam(PARAM_RULE_KEY, rule1.getKey().toString()), rule1);
@@ -197,8 +196,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever"));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null));
+    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
 
     verify(r -> r.setParam("q", "Be"), rule1);
@@ -216,8 +215,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name_requires_all_words_to_match() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever"));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null));
+    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
 
     verify(r -> r.setParam("q", "Best other"));
@@ -227,8 +226,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name_does_not_interpret_query() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule for-ever"));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule for-ever").setNoteUserUuid(null));
+    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
 
     // do not interpret "-" as a "not"
@@ -238,8 +237,11 @@ public class SearchActionTest {
   @Test
   public void filter_by_rule_description() {
     RuleDto rule1 = db.rules()
-      .insert(r1 -> r1.addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>")));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Some other stuff"));
+      .insert(
+        r1 -> r1
+          .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
+          .setNoteUserUuid(null));
+    db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
 
     verify(r -> r.setParam("q", "Best "), rule1);
@@ -249,9 +251,9 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever")
+    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null)
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is a good rule")));
-    RuleDto rule2 = db.rules().insert(r1 -> r1.setName("Another thing")
+    db.rules().insert(r1 -> r1.setName("Another thing").setNoteUserUuid(null)
       .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another thing")));
     indexRules();
 
@@ -261,7 +263,7 @@ public class SearchActionTest {
 
   @Test
   public void return_all_rule_fields_by_default() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("java").setNoteUserUuid(null));
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
@@ -341,28 +343,22 @@ public class SearchActionTest {
 
   @Test
   public void should_filter_on_specific_tags() {
-    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
-    RuleMetadataDto metadata1 = insertMetadata(rule1, setTags("tag1", "tag2"));
-    RuleDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
-    RuleMetadataDto metadata2 = insertMetadata(rule2);
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("java").setTags(Set.of("tag1", "tag2")));
+    db.rules().insert(r -> r.setLanguage("java"));
     indexRules();
 
     Consumer<TestRequest> request = r -> r
       .setParam("f", "repo,name")
-      .setParam("tags", metadata1.getTags().stream().collect(Collectors.joining(",")));
+      .setParam("tags", rule1.getTags().stream().collect(Collectors.joining(",")));
     verify(request, rule1);
   }
 
   @Test
   public void when_searching_for_several_tags_combine_them_with_OR() {
-    RuleDto bothTagsRule = db.rules().insert(r -> r.setLanguage("java"));
-    insertMetadata(bothTagsRule, setTags("tag1", "tag2"));
-    RuleDto oneTagRule = db.rules().insert(r -> r.setLanguage("java"));
-    insertMetadata(oneTagRule, setTags("tag1"));
-    RuleDto otherTagRule = db.rules().insert(r -> r.setLanguage("java"));
-    insertMetadata(otherTagRule, setTags("tag2"));
-    RuleDto noTagRule = db.rules().insert(r -> r.setLanguage("java"));
-    insertMetadata(noTagRule, setTags());
+    RuleDto bothTagsRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1", "tag2"));
+    RuleDto oneTagRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1"));
+    RuleDto otherTagRule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag2"));
+    db.rules().insert(r -> r.setLanguage("java"), setTags());
     indexRules();
 
     Consumer<TestRequest> request = r -> r
@@ -374,8 +370,7 @@ public class SearchActionTest {
   @Test
   public void should_list_tags_in_tags_facet() {
     String[] tags = get101Tags();
-    RuleDto rule = db.rules().insert(setSystemTags("x"));
-    insertMetadata(rule, setTags(tags));
+    db.rules().insert(setSystemTags("x"), setTags(tags));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -389,9 +384,8 @@ public class SearchActionTest {
 
   @Test
   public void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() {
-    RuleDto rule = db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9"));
-    insertMetadata(rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
-    db.rules().insert(setSystemTags("tag2"));
+    db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9"), setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+    db.rules().insert(setSystemTags("tag2"), setTags());
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -405,7 +399,9 @@ public class SearchActionTest {
 
   @Test
   public void should_include_selected_matching_tag_in_facet() {
-    RuleDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"));
+    db.rules().insert(
+      setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"),
+      r -> r.setNoteUserUuid(null));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -429,8 +425,7 @@ public class SearchActionTest {
 
   @Test
   public void should_return_specific_tags() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
-    RuleMetadataDto metadata = insertMetadata(rule, setTags("tag1", "tag2"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("java"), setTags("tag1", "tag2"));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -439,7 +434,7 @@ public class SearchActionTest {
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList())
       .extracting(Rule::getTags).flatExtracting(Rules.Tags::getTagsList)
-      .containsExactly(metadata.getTags().toArray(new String[0]));
+      .containsExactly(rule.getTags().toArray(new String[0]));
   }
 
   @Test
@@ -482,15 +477,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java")
+    db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
-      .setDefRemediationBaseEffort("15min"));
-
-    RuleMetadataDto metadata = insertMetadata(rule,
-      r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setRemediationGapMultiplier("2h")
-        .setRemediationBaseEffort("25min"));
+      .setDefRemediationBaseEffort("15min")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setRemediationGapMultiplier("2h")
+      .setRemediationBaseEffort("25min"));
 
     indexRules();
 
@@ -516,15 +509,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java")
+    db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
-      .setDefRemediationBaseEffort("15min"));
-
-    RuleMetadataDto metadata = insertMetadata(rule,
-      r -> r.setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
-        .setRemediationGapMultiplier(null)
-        .setRemediationBaseEffort("5min"));
+      .setDefRemediationBaseEffort("15min")
+      .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
+      .setRemediationGapMultiplier(null)
+      .setRemediationBaseEffort("5min"));
 
     indexRules();
 
@@ -550,15 +541,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java")
+    db.rules().insert(r -> r.setLanguage("java")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1h")
-      .setDefRemediationBaseEffort("15min"));
-
-    RuleMetadataDto metadata = insertMetadata(rule,
-      r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
-        .setRemediationGapMultiplier("1h")
-        .setRemediationBaseEffort(null));
+      .setDefRemediationBaseEffort("15min")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
+      .setRemediationGapMultiplier("1h")
+      .setRemediationBaseEffort(null));
 
     indexRules();
 
@@ -640,7 +629,7 @@ public class SearchActionTest {
   @Test
   public void search_all_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("java").setNoteUserUuid(null));
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
@@ -774,7 +763,9 @@ public class SearchActionTest {
       .setLanguage(profile.getLanguage())
       .setRepositoryKey("repositoryKey1")
       .setSystemTags(new HashSet<>(singletonList("tag1")))
+      .setTags(emptySet())
       .setSeverity("CRITICAL")
+      .setNoteUserUuid(null)
       .setStatus(RuleStatus.BETA)
       .setType(RuleType.CODE_SMELL));
 
@@ -783,7 +774,9 @@ public class SearchActionTest {
       .setLanguage(profile.getLanguage())
       .setRepositoryKey("repositoryKey2")
       .setSystemTags(new HashSet<>(singletonList("tag2")))
+      .setTags(emptySet())
       .setSeverity("MAJOR")
+      .setNoteUserUuid(null)
       .setStatus(RuleStatus.DEPRECATED)
       .setType(RuleType.VULNERABILITY));
     RuleActivation activation = RuleActivation.create(rule2.getUuid(), null, null);
@@ -794,6 +787,8 @@ public class SearchActionTest {
       .setLanguage("language3")
       .setRepositoryKey("repositoryKey3")
       .setSystemTags(new HashSet<>(singletonList("tag3")))
+      .setTags(emptySet())
+      .setNoteUserUuid(null)
       .setSeverity("BLOCKER")
       .setStatus(RuleStatus.READY)
       .setType(RuleType.BUG));
@@ -919,13 +914,6 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList()).extracting(responseExtractor).containsExactly(expected);
-  }
-
-  @SafeVarargs
-  private final RuleMetadataDto insertMetadata(RuleDto rule, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, populaters);
-    ruleIndexer.commitAndIndex(db.getSession(), rule.getUuid());
-    return metadata;
   }
 
   private void verifyNoResults(Consumer<TestRequest> requestPopulator) {

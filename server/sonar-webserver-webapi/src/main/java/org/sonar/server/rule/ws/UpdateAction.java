@@ -249,7 +249,7 @@ public class UpdateAction implements RulesWsAction {
       .setRuleParameters(ruleParameters)
       .setTotal(1L);
     responseBuilder
-      .setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet(), rule.getMetadata(),
+      .setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet(),
         ruleWsSupport.getUsersByUuid(dbSession, singletonList(rule)), emptyMap()));
 
     return responseBuilder.build();

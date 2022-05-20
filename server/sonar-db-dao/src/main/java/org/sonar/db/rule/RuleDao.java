@@ -19,7 +19,6 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -54,10 +53,6 @@ public class RuleDao implements Dao {
 
   public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
     return Optional.ofNullable(mapper(session).selectByKey(key));
-  }
-
-  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectMetadataByKey(key));
   }
 
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
@@ -103,14 +98,12 @@ public class RuleDao implements Dao {
     checkNotNull(ruleDto.getUuid(), "RuleDto has no 'uuid'.");
     RuleMapper mapper = mapper(session);
     mapper.insertRule(ruleDto);
-    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
   public void update(DbSession session, RuleDto ruleDto) {
     RuleMapper mapper = mapper(session);
     mapper.updateRule(ruleDto);
-    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
@@ -122,17 +115,6 @@ public class RuleDao implements Dao {
   private static void insertRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getRuleDescriptionSectionDtos()
       .forEach(section -> mapper.insertRuleDescriptionSection(ruleDto.getUuid(), section));
-  }
-
-  @VisibleForTesting
-  void insertOrUpdateRuleMetadata(DbSession session, RuleMetadataDto ruleMetadataDto) {
-    if (ruleMetadataDto.isUndefined()) {
-      mapper(session).deleteMetadata(ruleMetadataDto.getRuleUuid());
-    } else if (mapper(session).countMetadata(ruleMetadataDto) > 0) {
-      mapper(session).updateMetadata(ruleMetadataDto);
-    } else {
-      mapper(session).insertMetadata(ruleMetadataDto);
-    }
   }
 
   public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {

@@ -71,7 +71,7 @@ public class RuleForIndexingDto {
     ruleForIndexingDto.status = r.getStatus();
     ruleForIndexingDto.isTemplate = r.isTemplate();
     ruleForIndexingDto.systemTags = Sets.newHashSet(r.getSystemTags());
-    ruleForIndexingDto.tags = r.getMetadata() != null ? Sets.newHashSet(r.getMetadata().getTags()) : Collections.emptySet();
+    ruleForIndexingDto.tags = r.getTags() != null ? Sets.newHashSet(r.getTags()) : Collections.emptySet();
     ruleForIndexingDto.securityStandards = Sets.newHashSet(r.getSecurityStandards());
     ruleForIndexingDto.internalKey = r.getConfigKey();
     ruleForIndexingDto.language = r.getLanguage();

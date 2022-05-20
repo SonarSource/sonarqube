@@ -323,7 +323,7 @@ public class IntegrateIssuesVisitorTest {
     dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
-    dbTester.rules().insertRule(ruleDto);
+    dbTester.rules().insert(ruleDto);
     ruleRepositoryRule.add(ruleKey);
 
     IssueDto issue = IssueTesting.newDto(ruleDto, file, project)
@@ -340,7 +340,7 @@ public class IntegrateIssuesVisitorTest {
     dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
-    dbTester.rules().insertRule(ruleDto);
+    dbTester.rules().insert(ruleDto);
     ruleRepositoryRule.add(ruleKey);
 
     IssueDto issue = IssueTesting.newDto(ruleDto, file, project)

@@ -77,7 +77,7 @@ public class IssueMapperTest {
     file2 = ComponentTesting.newFileDto(project, null).setUuid("file2 uuid");
     dbTester.getDbClient().componentDao().insert(dbSession, file2);
     rule = RuleTesting.newXooX1();
-    dbTester.rules().insertRule(rule);
+    dbTester.rules().insert(rule);
     dbSession.commit();
   }
 

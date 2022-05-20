@@ -33,7 +33,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.rule.RuleDto.Scope;
-import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -96,14 +95,6 @@ public class RuleTesting {
       //voluntarily offset the remediation to be able to detect issues
       .setDefRemediationGapMultiplier((nextInt(10) + 10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
-      .setCreatedAt(currentTimeMillis)
-      .setUpdatedAt(currentTimeMillis + 5)
-      .setScope(Scope.MAIN);
-  }
-
-  public static RuleMetadataDto newRuleMetadata() {
-    return new RuleMetadataDto()
-      .setRuleUuid("uuid_" + randomAlphanumeric(5))
       .setRemediationBaseEffort(nextInt(10) + "h")
       .setRemediationGapMultiplier(nextInt(10) + "h")
       .setRemediationFunction("LINEAR_OFFSET")
@@ -115,16 +106,10 @@ public class RuleTesting {
       .setAdHocName("adHocName_" + randomAlphanumeric(5))
       .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
       .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)]);
-  }
-
-  public static RuleMetadataDto newRuleMetadata(RuleDto rule) {
-    return newRuleMetadata()
-      .setRuleUuid(rule.getUuid());
-  }
-
-  public static RuleMetadataDto newRuleMetadata(RuleDto rule, UserDto noteUser) {
-    return newRuleMetadata(rule).setNoteUserUuid(noteUser.getUuid());
+      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
+      .setCreatedAt(currentTimeMillis)
+      .setUpdatedAt(currentTimeMillis + 5)
+      .setScope(Scope.MAIN);
   }
 
   public static RuleParamDto newRuleParam(RuleDto rule) {
@@ -287,7 +272,7 @@ public class RuleTesting {
     return rule -> rule.setSystemTags(copyOf(tags));
   }
 
-  public static Consumer<RuleMetadataDto> setTags(String... tags) {
+  public static Consumer<RuleDto> setTags(String... tags) {
     return rule -> rule.setTags(copyOf(tags));
   }
 

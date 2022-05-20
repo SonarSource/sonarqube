@@ -26,7 +26,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -126,44 +125,12 @@ public class RuleDbTester {
   }
 
   @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDto rule, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule);
-    asList(populaters).forEach(populater -> populater.accept(dto));
-    return insertOrUpdateMetadata(dto);
-  }
-
-  @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDto rule, UserDto noteUser, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, noteUser);
-    asList(populaters).forEach(populater -> populater.accept(dto));
-    return insertOrUpdateMetadata(dto);
-  }
-
-  public RuleMetadataDto insertOrUpdateMetadata(RuleMetadataDto metadata) {
-    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), metadata);
-    db.commit();
-    return db.getDbClient().ruleDao().selectByUuid(metadata.getRuleUuid(), db.getSession()).get().getMetadata();
-  }
-
-  @SafeVarargs
   public final RuleParamDto insertRuleParam(RuleDto rule, Consumer<RuleParamDto>... populaters) {
     RuleParamDto param = RuleTesting.newRuleParam(rule);
     asList(populaters).forEach(populater -> populater.accept(param));
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
     db.commit();
     return param;
-  }
-
-  public RuleDto insertRule(RuleDto ruleDto) {
-    if (ruleDto.getUuid() == null) {
-      ruleDto.setUuid(Uuids.createFast());
-    }
-
-    insert(ruleDto);
-    RuleMetadataDto metadata = ruleDto.getMetadata();
-    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
-    db.commit();
-    return ruleDto;
   }
 
   /**
@@ -178,7 +145,7 @@ public class RuleDbTester {
   public final RuleDto insertRule(Consumer<RuleDto>... populaters) {
     RuleDto ruleDto = newRuleDto();
     asList(populaters).forEach(populater -> populater.accept(ruleDto));
-    return insertRule(ruleDto);
+    return insert(ruleDto);
   }
 
   public RuleDto insertRule(Consumer<RuleDto> populateRuleDto) {
@@ -189,7 +156,7 @@ public class RuleDbTester {
       ruleDto.setUuid(Uuids.createFast());
     }
 
-    return insertRule(ruleDto);
+    return insert(ruleDto);
   }
 
   @SafeVarargs
@@ -200,9 +167,4 @@ public class RuleDbTester {
     return deprecatedRuleKeyDto;
   }
 
-  public RuleDto insertRule(RuleDto ruleDto, RuleMetadataDto ruleMetadata) {
-    db.getDbClient().ruleDao().insertOrUpdateRuleMetadata(db.getSession(), ruleMetadata.setRuleUuid(ruleDto.getUuid()));
-    db.commit();
-    return db.getDbClient().ruleDao().selectOrFailByKey(db.getSession(), ruleDto.getKey());
-  }
 }

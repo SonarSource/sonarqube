@@ -29,7 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static java.util.Objects.requireNonNull;
@@ -59,29 +58,27 @@ public class AdHocRuleCreator {
    */
   public RuleDto persistAndIndex(DbSession dbSession, NewAdHocRule adHoc) {
     RuleDao dao = dbClient.ruleDao();
-    RuleMetadataDto metadata;
     long now = system2.now();
 
     RuleDto ruleDtoToUpdate = findOrCreateRuleDto(dbSession, adHoc, dao, now);
 
-    metadata = ruleDtoToUpdate.getMetadata();
     if (adHoc.hasDetails()) {
       boolean changed = false;
-      if (!Objects.equals(metadata.getAdHocName(), adHoc.getName())) {
-        metadata.setAdHocName(substring(adHoc.getName(), 0, MAX_LENGTH_AD_HOC_NAME));
+      if (!Objects.equals(ruleDtoToUpdate.getAdHocName(), adHoc.getName())) {
+        ruleDtoToUpdate.setAdHocName(substring(adHoc.getName(), 0, MAX_LENGTH_AD_HOC_NAME));
         changed = true;
       }
-      if (!Objects.equals(metadata.getAdHocDescription(), adHoc.getDescription())) {
-        metadata.setAdHocDescription(substring(adHoc.getDescription(), 0, MAX_LENGTH_AD_HOC_DESC));
+      if (!Objects.equals(ruleDtoToUpdate.getAdHocDescription(), adHoc.getDescription())) {
+        ruleDtoToUpdate.setAdHocDescription(substring(adHoc.getDescription(), 0, MAX_LENGTH_AD_HOC_DESC));
         changed = true;
       }
-      if (!Objects.equals(metadata.getAdHocSeverity(), adHoc.getSeverity())) {
-        metadata.setAdHocSeverity(adHoc.getSeverity());
+      if (!Objects.equals(ruleDtoToUpdate.getAdHocSeverity(), adHoc.getSeverity())) {
+        ruleDtoToUpdate.setAdHocSeverity(adHoc.getSeverity());
         changed = true;
       }
       RuleType ruleType = requireNonNull(adHoc.getRuleType(), "Rule type should not be null");
-      if (!Objects.equals(metadata.getAdHocType(), ruleType.getDbConstant())) {
-        metadata.setAdHocType(ruleType);
+      if (!Objects.equals(ruleDtoToUpdate.getAdHocType(), ruleType.getDbConstant())) {
+        ruleDtoToUpdate.setAdHocType(ruleType);
         changed = true;
       }
       if (changed) {

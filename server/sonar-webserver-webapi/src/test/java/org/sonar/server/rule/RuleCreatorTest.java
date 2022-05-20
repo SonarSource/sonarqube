@@ -579,7 +579,6 @@ public class RuleCreatorTest {
                 .setCreatedAt(new Date().getTime())
                 .setUpdatedAt(new Date().getTime());
         dbTester.rules().insert(templateRule);
-        dbTester.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
         dbTester.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
         ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getUuid());
         return templateRule;

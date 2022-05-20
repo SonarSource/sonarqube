@@ -38,7 +38,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
@@ -295,10 +294,8 @@ public class RuleIndexTest {
 
   @Test
   public void filter_by_tags() {
-    RuleDto rule1 = createRule(setSystemTags("tag1s"));
-    createRuleMetadata(rule1, setTags("tag1"));
-    RuleDto rule2 = createRule(setSystemTags("tag2s"));
-    createRuleMetadata(rule2, setTags("tag2"));
+    RuleDto rule1 = createRule(setSystemTags("tag1s"), setTags("tag1"));
+    RuleDto rule2 = createRule(setSystemTags("tag2s"), setTags("tag2"));
     index();
 
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(2);
@@ -321,8 +318,7 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_supports_selected_value_with_regexp_special_characters() {
-    RuleDto rule = createRule();
-    createRuleMetadata(rule, setTags("misra++"));
+    createRule(r -> r.setTags(Set.of("misra++")));
     index();
 
     RuleQuery query = new RuleQuery()
@@ -571,11 +567,6 @@ public class RuleIndexTest {
     return createRule(r -> r.setLanguage("java"), consumer);
   }
 
-  @SafeVarargs
-  private final RuleMetadataDto createRuleMetadata(RuleDto rule, Consumer<RuleMetadataDto>... populaters) {
-    return db.rules().insertOrUpdateMetadata(rule, populaters);
-  }
-
   @Test
   public void search_by_any_of_severities() {
     createRule(setSeverity(BLOCKER));
@@ -762,11 +753,8 @@ public class RuleIndexTest {
 
   @Test
   public void listTags_should_return_tags() {
-    RuleDto rule1 = createRule(setSystemTags("sys1", "sys2"));
-    createRuleMetadata(rule1, setTags("tag1"));
-
-    RuleDto rule2 = createRule(setSystemTags());
-    createRuleMetadata(rule2, setTags("tag2"));
+    createRule(setSystemTags("sys1", "sys2"), setTags("tag1"));
+    createRule(setSystemTags(), setTags("tag2"));
 
     index();
 
@@ -800,11 +788,9 @@ public class RuleIndexTest {
 
   @Test
   public void global_facet_on_repositories_and_tags() {
-    createRule(setRepositoryKey("php"), setSystemTags("sysTag"));
-    RuleDto rule1 = createRule(setRepositoryKey("php"), setSystemTags());
-    createRuleMetadata(rule1, setTags("tag1"));
-    RuleDto rule2 = createRule(setRepositoryKey("javascript"), setSystemTags());
-    createRuleMetadata(rule2, setTags("tag1", "tag2"));
+    createRule(setRepositoryKey("php"), setSystemTags("sysTag"), setTags());
+    createRule(setRepositoryKey("php"), setSystemTags(), setTags("tag1"));
+    createRule(setRepositoryKey("javascript"), setSystemTags(), setTags("tag1", "tag2"));
     index();
 
     // should not have any facet!
@@ -834,16 +820,16 @@ public class RuleIndexTest {
   }
 
   private void setupStickyFacets() {
-    createRule(setRepositoryKey("xoo"), setRuleKey("S001"), setLanguage("java"), setSystemTags(), setType(BUG));
-    createRule(setRepositoryKey("xoo"), setRuleKey("S002"), setLanguage("java"), setSystemTags(), setType(CODE_SMELL));
-    createRule(setRepositoryKey("xoo"), setRuleKey("S003"), setLanguage("java"), setSystemTags("T1", "T2"), setType(CODE_SMELL));
-    createRule(setRepositoryKey("xoo"), setRuleKey("S011"), setLanguage("cobol"), setSystemTags(), setType(CODE_SMELL));
-    createRule(setRepositoryKey("xoo"), setRuleKey("S012"), setLanguage("cobol"), setSystemTags(), setType(BUG));
-    createRule(setRepositoryKey("foo"), setRuleKey("S013"), setLanguage("cobol"), setSystemTags("T3", "T4"),
+    createRule(setRepositoryKey("xoo"), setRuleKey("S001"), setLanguage("java"), setTags(), setSystemTags(), setType(BUG));
+    createRule(setRepositoryKey("xoo"), setRuleKey("S002"), setLanguage("java"), setTags(), setSystemTags(), setType(CODE_SMELL));
+    createRule(setRepositoryKey("xoo"), setRuleKey("S003"), setLanguage("java"), setTags(), setSystemTags("T1", "T2"), setType(CODE_SMELL));
+    createRule(setRepositoryKey("xoo"), setRuleKey("S011"), setLanguage("cobol"), setTags(), setSystemTags(), setType(CODE_SMELL));
+    createRule(setRepositoryKey("xoo"), setRuleKey("S012"), setLanguage("cobol"), setTags(), setSystemTags(), setType(BUG));
+    createRule(setRepositoryKey("foo"), setRuleKey("S013"), setLanguage("cobol"), setTags(), setSystemTags("T3", "T4"),
       setType(VULNERABILITY));
-    createRule(setRepositoryKey("foo"), setRuleKey("S111"), setLanguage("cpp"), setSystemTags(), setType(BUG));
-    createRule(setRepositoryKey("foo"), setRuleKey("S112"), setLanguage("cpp"), setSystemTags(), setType(CODE_SMELL));
-    createRule(setRepositoryKey("foo"), setRuleKey("S113"), setLanguage("cpp"), setSystemTags("T2", "T3"), setType(CODE_SMELL));
+    createRule(setRepositoryKey("foo"), setRuleKey("S111"), setLanguage("cpp"), setTags(), setSystemTags(), setType(BUG));
+    createRule(setRepositoryKey("foo"), setRuleKey("S112"), setLanguage("cpp"), setTags(), setSystemTags(), setType(CODE_SMELL));
+    createRule(setRepositoryKey("foo"), setRuleKey("S113"), setLanguage("cpp"), setTags(), setSystemTags("T2", "T3"), setType(CODE_SMELL));
     index();
   }
 
@@ -913,8 +899,7 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_should_find_tags() {
-    RuleDto rule = createRule(setSystemTags());
-    createRuleMetadata(rule, setTags("bla"));
+    createRule(setSystemTags(), setTags("bla"));
     index();
 
     RuleQuery query = new RuleQuery();

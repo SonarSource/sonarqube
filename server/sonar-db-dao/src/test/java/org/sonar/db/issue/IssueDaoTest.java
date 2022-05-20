@@ -497,7 +497,7 @@ public class IssueDaoTest {
   }
 
   private void prepareIssuesComponent() {
-    db.rules().insertRule(RULE.setIsExternal(true));
+    db.rules().insert(RULE.setIsExternal(true));
     ComponentDto projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setDbKey(FILE_KEY));
   }

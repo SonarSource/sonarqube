@@ -37,23 +37,18 @@
     r.scope,
     r.created_at as "createdAt",
     r.updated_at as "updatedAt",
-    rm.note_data as "noteData",
-    rm.note_user_uuid as "noteUserUuid",
-    rm.note_created_at as "noteCreatedAt",
-    rm.note_updated_at as "noteUpdatedAt",
-    rm.remediation_function as "remediationFunction",
-    rm.remediation_gap_mult as "remediationGapMultiplier",
-    rm.remediation_base_effort as "remediationBaseEffort",
-    rm.tags as "tagsField",
-    rm.ad_hoc_name as "adHocName",
-    rm.ad_hoc_description as "adHocDescription",
-    rm.ad_hoc_severity as "adHocSeverity",
-    rm.ad_hoc_type as "adHocType"
-  </sql>
-
-  <sql id="outerJoinRulesMetadata">
-    left outer join rules_metadata rm on
-      rm.rule_uuid = r.uuid
+    r.note_data as "noteData",
+    r.note_user_uuid as "noteUserUuid",
+    r.note_created_at as "noteCreatedAt",
+    r.note_updated_at as "noteUpdatedAt",
+    r.remediation_function as "remediationFunction",
+    r.remediation_gap_mult as "remediationGapMultiplier",
+    r.remediation_base_effort as "remediationBaseEffort",
+    r.tags as "tagsField",
+    r.ad_hoc_name as "adHocName",
+    r.ad_hoc_description as "adHocDescription",
+    r.ad_hoc_severity as "adHocSeverity",
+    r.ad_hoc_type as "adHocType"
   </sql>
 
   <select id="selectAll" resultMap="ruleResultMap">
@@ -61,7 +56,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
   </select>
 
@@ -81,7 +75,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.status != 'REMOVED'
@@ -92,7 +85,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
@@ -103,7 +95,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
@@ -116,7 +107,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
@@ -136,12 +126,11 @@
       r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
-      rm.tags as "tags"
+      r.tags as "tags"
     from rules r
-    inner join rules_metadata rm on rm.rule_uuid = r.uuid
     where
-      rm.tags is not null and
-      rm.tags != ''
+      r.tags is not null and
+      r.tags != ''
   </sql>
 
   <sql id="sqlSelectIndexingRuleExtensions" databaseId="oracle">
@@ -149,42 +138,17 @@
       r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
-      rm.tags as "tags"
+      r.tags as "tags"
     from rules r
-    inner join rules_metadata rm on rm.rule_uuid = r.uuid
     where
-      rm.tags is not null
+      r.tags is not null
   </sql>
-
-  <select id="selectMetadataByKey" parameterType="map" resultType="org.sonar.db.rule.RuleMetadataDto">
-    select
-      rm.rule_uuid as "ruleUuid",
-      rm.note_data as "noteData",
-      rm.note_user_uuid as "noteUserUuid",
-      rm.note_created_at as "noteCreatedAt",
-      rm.note_updated_at as "noteUpdatedAt",
-      rm.remediation_function as "remediationFunction",
-      rm.remediation_gap_mult as "remediationGapMultiplier",
-      rm.remediation_base_effort as "remediationBaseEffort",
-      rm.tags as "tagsField",
-      rm.ad_hoc_name as "adHocName",
-      rm.ad_hoc_description as "adHocDescription",
-      rm.ad_hoc_severity as "adHocSeverity",
-      rm.ad_hoc_type as "adHocType"
-    from
-      rules_metadata rm
-      inner join rules r on rm.rule_uuid = r.uuid
-    where
-      r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
-      and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
-  </select>
 
   <select id="selectByKeys" parameterType="map" resultMap="ruleResultMap">
     select
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
@@ -197,7 +161,6 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.status != 'REMOVED'
@@ -219,7 +182,6 @@
     <include refid="selectJoinedTablesColumns"/>
     from
     rules r
-    <include refid="outerJoinRulesMetadata"/>
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     where
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
@@ -268,6 +230,18 @@
       security_standards,
       rule_type,
       scope,
+      note_data,
+      note_user_uuid,
+      note_created_at,
+      note_updated_at,
+      remediation_function,
+      remediation_gap_mult,
+      remediation_base_effort,
+      tags,
+      ad_hoc_name,
+      ad_hoc_description,
+      ad_hoc_severity,
+      ad_hoc_type,
       created_at,
       updated_at
     )
@@ -294,6 +268,18 @@
       #{securityStandardsField,jdbcType=VARCHAR},
       #{type,jdbcType=TINYINT},
       #{scope,jdbcType=VARCHAR},
+      #{noteData,jdbcType=CLOB},
+      #{noteUserUuid,jdbcType=VARCHAR},
+      #{noteCreatedAt,jdbcType=BIGINT},
+      #{noteUpdatedAt,jdbcType=BIGINT},
+      #{remediationFunction,jdbcType=VARCHAR},
+      #{remediationGapMultiplier,jdbcType=VARCHAR},
+      #{remediationBaseEffort,jdbcType=VARCHAR},
+      #{tagsField,jdbcType=VARCHAR},
+      #{adHocName,jdbcType=VARCHAR},
+      #{adHocDescription,jdbcType=CLOB},
+      #{adHocSeverity,jdbcType=VARCHAR},
+      #{adHocType,jdbcType=TINYINT},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -322,62 +308,6 @@
       security_standards=#{securityStandardsField,jdbcType=VARCHAR},
       scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
-      updated_at=#{updatedAt,jdbcType=BIGINT}
-    where
-      uuid=#{uuid,jdbcType=VARCHAR}
-  </update>
-
-  <delete id="deleteRuleDescriptionSection" parameterType="String">
-    delete from
-      rule_desc_sections
-    where
-      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
-  </delete>
-
-  <select id="countMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto" resultType="int">
-    select
-      count(1)
-    from
-      rules_metadata rm
-    where
-      rm.rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
-  </select>
-
-  <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
-    insert into rules_metadata (
-      rule_uuid,
-      note_data,
-      note_user_uuid,
-      note_created_at,
-      note_updated_at,
-      remediation_function,
-      remediation_gap_mult,
-      remediation_base_effort,
-      tags,
-      ad_hoc_name,
-      ad_hoc_description,
-      ad_hoc_severity,
-      ad_hoc_type
-    )
-    values (
-      #{ruleUuid,jdbcType=VARCHAR},
-      #{noteData,jdbcType=CLOB},
-      #{noteUserUuid,jdbcType=VARCHAR},
-      #{noteCreatedAt,jdbcType=BIGINT},
-      #{noteUpdatedAt,jdbcType=BIGINT},
-      #{remediationFunction,jdbcType=VARCHAR},
-      #{remediationGapMultiplier,jdbcType=VARCHAR},
-      #{remediationBaseEffort,jdbcType=VARCHAR},
-      #{tagsField,jdbcType=VARCHAR},
-      #{adHocName,jdbcType=VARCHAR},
-      #{adHocDescription,jdbcType=CLOB},
-      #{adHocSeverity,jdbcType=VARCHAR},
-      #{adHocType,jdbcType=TINYINT}
-    )
-  </insert>
-
-  <update id="updateMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
-    update rules_metadata set
       note_data=#{noteData,jdbcType=CLOB},
       note_user_uuid=#{noteUserUuid,jdbcType=VARCHAR},
       note_created_at=#{noteCreatedAt,jdbcType=BIGINT},
@@ -389,16 +319,17 @@
       ad_hoc_name=#{adHocName,jdbcType=VARCHAR},
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
-      ad_hoc_type=#{adHocType,jdbcType=TINYINT}
+      ad_hoc_type=#{adHocType,jdbcType=TINYINT},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
     where
-      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
+      uuid=#{uuid,jdbcType=VARCHAR}
   </update>
 
-  <delete id="deleteMetadata" parameterType="String">
+  <delete id="deleteRuleDescriptionSection" parameterType="String">
     delete from
-      rules_metadata
+      rule_desc_sections
     where
-      rule_uuid=#{uuid,jdbcType=INTEGER}
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteParams" parameterType="String">

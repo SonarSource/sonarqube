@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
@@ -107,6 +106,7 @@ public class UpdateActionTest {
     RuleDto templateRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "S001")),
       r -> r.setIsTemplate(true),
+      r -> r.setNoteUserUuid(null),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
@@ -118,6 +118,7 @@ public class UpdateActionTest {
       r -> r.setStatus(RuleStatus.BETA),
       r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setLanguage("js"),
+      r -> r.setNoteUserUuid(null),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
     db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("a").setDescription("Reg ex"));
@@ -156,8 +157,7 @@ public class UpdateActionTest {
   public void update_tags() {
     logInAsQProfileAdministrator();
 
-    RuleDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
-    db.rules().insertOrUpdateMetadata(rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
+    RuleDto rule = db.rules().insert(setSystemTags("stag1", "stag2"), setTags("tag1", "tag2"), r -> r.setNoteData(null).setNoteUserUuid(null));
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -179,7 +179,8 @@ public class UpdateActionTest {
     RuleDto rule = db.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
       r -> r.setDefRemediationGapMultiplier("10d"),
-      r -> r.setDefRemediationBaseEffort(null));
+      r -> r.setDefRemediationBaseEffort(null),
+      r -> r.setNoteUserUuid(null));
 
     String newOffset = LINEAR_OFFSET.toString();
     String newMultiplier = "15d";
@@ -206,18 +207,17 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newEffort);
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey())
+    RuleDto updatedRuleDto = db.getDbClient().ruleDao().selectByKey(db.getSession(), rule.getKey())
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
-    assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
-    assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
-    assertThat(metadataOfSpecificOrg.getRemediationBaseEffort()).isEqualTo(newEffort);
+    assertThat(updatedRuleDto.getRemediationFunction()).isEqualTo(newOffset);
+    assertThat(updatedRuleDto.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
+    assertThat(updatedRuleDto.getRemediationBaseEffort()).isEqualTo(newEffort);
   }
 
   @Test
   public void update_note() {
-    RuleDto rule = db.rules().insert();
     UserDto userHavingUpdatingNote = db.users().insertUser();
-    db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, m -> m.setNoteData("old data"));
+    RuleDto rule = db.rules().insert(m -> m.setNoteData("old data").setNoteUserUuid(userHavingUpdatingNote.getUuid()));
     UserDto userAuthenticated = db.users().insertUser();
     userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -233,9 +233,9 @@ public class UpdateActionTest {
     assertThat(updatedRule.getNoteLogin()).isEqualTo(userAuthenticated.getLogin());
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey()).get();
-    assertThat(metadataOfSpecificOrg.getNoteData()).isEqualTo("new data");
-    assertThat(metadataOfSpecificOrg.getNoteUserUuid()).isEqualTo(userAuthenticated.getUuid());
+    RuleDto updatedRuleDto = db.getDbClient().ruleDao().selectByKey(db.getSession(), rule.getKey()).get();
+    assertThat(updatedRuleDto.getNoteData()).isEqualTo("new data");
+    assertThat(updatedRuleDto.getNoteUserUuid()).isEqualTo(userAuthenticated.getUuid());
   }
 
   @Test

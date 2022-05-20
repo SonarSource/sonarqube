@@ -80,10 +80,8 @@ public class IssueQueryFactoryTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    RuleDto rule1 = ruleDbTester.insert();
-    RuleDto rule2 = ruleDbTester.insert();
-    ruleDbTester.insertOrUpdateMetadata(rule1, m -> m.setAdHocName(ruleAdHocName));
-    ruleDbTester.insertOrUpdateMetadata(rule2, m -> m.setAdHocName(ruleAdHocName));
+    RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
+    RuleDto rule2 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
     newRule(RuleKey.of("findbugs", "NullReference"));
     SearchRequest request = new SearchRequest()
       .setIssues(asList("anIssueKey"))

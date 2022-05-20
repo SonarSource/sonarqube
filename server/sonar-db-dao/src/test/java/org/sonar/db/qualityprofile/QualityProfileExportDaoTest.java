@@ -36,7 +36,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,16 +72,14 @@ public class QualityProfileExportDaoTest {
     String language = "java";
     RuleDto ruleTemplate = createRule(language);
     RuleDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getUuid());
+    customRule.setNoteData("Extended description")
+      .setTags(Sets.newHashSet("tag1", "tag2", "tag3"));
+    db.rules().update(customRule);
+
     var customRuleContent = customRule.getDefaultRuleDescriptionSection().getContent();
-    RuleMetadataDto customRuleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleUuid(customRule.getUuid())
-      .setNoteData("Extended description")
-      .setTags(Sets.newHashSet("tag1", "tag2", "tag3")));
 
     RuleDto rule = createRule(language, RuleStatus.READY, null);
     var ruleContent = rule.getDefaultRuleDescriptionSection().getContent();
-    RuleMetadataDto ruleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleUuid(rule.getUuid()));
     QProfileDto profile = createProfile(language);
 
     List<ActiveRuleDto> activeRules = activate(profile, customRule, rule);
@@ -97,11 +94,11 @@ public class QualityProfileExportDaoTest {
     assertThat(exportCustomRuleDto.isCustomRule()).isTrue();
     assertThat(exportCustomRuleDto.getParams()).isEmpty();
     assertThat(exportCustomRuleDto.getDescriptionOrThrow()).isEqualTo(customRuleContent);
-    assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRuleMetadata.getNoteData());
+    assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRule.getNoteData());
     assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
     assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
     assertThat(exportCustomRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(customRule.getType()));
-    assertThat(exportCustomRuleDto.getTags()).isEqualTo(String.join(",", customRuleMetadata.getTags()));
+    assertThat(exportCustomRuleDto.getTags()).isEqualTo(String.join(",", customRule.getTags()));
     assertThat(exportCustomRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
 
     ActiveRuleDto activeCustomRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
@@ -113,7 +110,7 @@ public class QualityProfileExportDaoTest {
     assertThat(exportRuleDto.isCustomRule()).isFalse();
     assertThat(exportRuleDto.getParams()).isEmpty();
     assertThat(exportRuleDto.getDescriptionOrThrow()).isEqualTo(ruleContent);
-    assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(ruleMetadata.getNoteData());
+    assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(rule.getNoteData());
     assertThat(exportRuleDto.getName()).isEqualTo(rule.getName());
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(exportRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(rule.getType()));
@@ -217,10 +214,6 @@ public class QualityProfileExportDaoTest {
   private RuleDto createRule(String language, RuleStatus status, @Nullable String templateUuid) {
     return db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setRepositoryKey("repoKey").setLanguage(language).setStatus(status)
       .setTemplateUuid(templateUuid));
-  }
-
-  private RuleMetadataDto createRuleMetadata(RuleMetadataDto metadataDto) {
-    return db.rules().insertOrUpdateMetadata(metadataDto);
   }
 
   private QProfileDto createProfile(String lanugage) {

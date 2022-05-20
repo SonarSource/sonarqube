@@ -38,8 +38,6 @@ public interface RuleMapper {
 
   RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
 
-  RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey);
-
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
@@ -55,14 +53,6 @@ public interface RuleMapper {
   void updateRule(RuleDto ruleDefinitionDto);
 
   void deleteRuleDescriptionSection(String ruleUuid);
-
-  int countMetadata(RuleMetadataDto ruleMetadataDto);
-
-  void insertMetadata(RuleMetadataDto ruleMetadataDto);
-
-  void deleteMetadata(@Param("uuid") String uuid);
-
-  void updateMetadata(RuleMetadataDto ruleMetadataDto);
 
   List<RuleParamDto> selectParamsByRuleUuids(@Param("ruleUuids") List<String> ruleUuids);
 

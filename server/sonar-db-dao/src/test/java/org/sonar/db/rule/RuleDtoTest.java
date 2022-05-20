@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 import org.junit.Test;
 import org.sonar.core.util.Uuids;
 
@@ -61,6 +62,28 @@ public class RuleDtoTest {
   public void tags_are_optional() {
     RuleDto dto = new RuleDto().setTags(Collections.emptySet());
     assertThat(dto.getTags()).isEmpty();
+  }
+
+  @Test
+  public void tags_are_joined_with_comma() {
+    Set<String> tags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
+    RuleDto dto = new RuleDto().setTags(tags);
+    assertThat(dto.getTags()).isEqualTo(tags);
+    assertThat(dto.getTagsAsString()).isEqualTo("first_tag,second_tag,third_tag");
+  }
+
+  @Test
+  public void system_tags_are_joined_with_comma() {
+    Set<String> systemTags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
+    RuleDto dto = new RuleDto().setSystemTags(systemTags);
+    assertThat(dto.getSystemTags()).isEqualTo(systemTags);
+  }
+
+  @Test
+  public void security_standards_are_joined_with_comma() {
+    Set<String> securityStandards = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
+    RuleDto dto = new RuleDto().setSecurityStandards(securityStandards);
+    assertThat(dto.getSecurityStandards()).isEqualTo(securityStandards);
   }
 
   @Test

@@ -38,7 +38,6 @@ import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
@@ -49,7 +48,6 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
 
-import static java.util.stream.Collectors.joining;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
@@ -103,12 +101,12 @@ public class RuleMapper {
     return ruleResponse.build();
   }
 
-  public Rules.Rule toWsRule(RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata,
-    Map<String, UserDto> usersByUuid, Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
+  public Rules.Rule toWsRule(RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn, Map<String, UserDto> usersByUuid,
+    Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
     applyRuleDefinition(ruleResponse, ruleDto, result, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
-    applyRuleMetadata(ruleResponse, ruleDto, metadata, usersByUuid, fieldsToReturn);
-    setDebtRemediationFunctionFields(ruleResponse, ruleDto, metadata, fieldsToReturn);
+    setDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
+    setNotesFields(ruleResponse, ruleDto, usersByUuid, fieldsToReturn);
     return ruleResponse.build();
   }
 
@@ -138,45 +136,41 @@ public class RuleMapper {
     setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
     setScope(ruleResponse, ruleDto, fieldsToReturn);
     setDeprecatedKeys(ruleResponse, ruleDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
+
+    setTags(ruleResponse, ruleDto, fieldsToReturn);
+    setIsRemediationFunctionOverloaded(ruleResponse, ruleDto, fieldsToReturn);
+    if (ruleDto.isAdHoc()) {
+      setAdHocName(ruleResponse, ruleDto, fieldsToReturn);
+      setAdHocDescription(ruleResponse, ruleDto, fieldsToReturn);
+      setAdHocSeverity(ruleResponse, ruleDto, fieldsToReturn);
+      setAdHocType(ruleResponse, ruleDto);
+    }
     return ruleResponse;
   }
 
-  private void applyRuleMetadata(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, RuleMetadataDto metadata, Map<String, UserDto> usersByUuid,
-    Set<String> fieldsToReturn) {
-    setTags(ruleResponse, metadata, fieldsToReturn);
-    setNotesFields(ruleResponse, metadata, usersByUuid, fieldsToReturn);
-    setIsRemediationFunctionOverloaded(ruleResponse, metadata, fieldsToReturn);
-    if (ruleDto.isAdHoc()) {
-      setAdHocName(ruleResponse, metadata, fieldsToReturn);
-      setAdHocDescription(ruleResponse, metadata, fieldsToReturn);
-      setAdHocSeverity(ruleResponse, metadata, fieldsToReturn);
-      setAdHocType(ruleResponse, metadata);
-    }
-  }
-
-  private static void setAdHocName(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Set<String> fieldsToReturn) {
-    String adHocName = metadata.getAdHocName();
+  private static void setAdHocName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    String adHocName = ruleDto.getAdHocName();
     if (adHocName != null && shouldReturnField(fieldsToReturn, FIELD_NAME)) {
       ruleResponse.setName(adHocName);
     }
   }
 
-  private void setAdHocDescription(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Set<String> fieldsToReturn) {
-    String adHocDescription = metadata.getAdHocDescription();
+  private void setAdHocDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    String adHocDescription = ruleDto.getAdHocDescription();
     if (adHocDescription != null && shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
       ruleResponse.setHtmlDesc(macroInterpreter.interpret(adHocDescription));
     }
   }
 
-  private static void setAdHocSeverity(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Set<String> fieldsToReturn) {
-    String severity = metadata.getAdHocSeverity();
+  private static void setAdHocSeverity(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    String severity = ruleDto.getAdHocSeverity();
     if (shouldReturnField(fieldsToReturn, FIELD_SEVERITY) && severity != null) {
       ruleResponse.setSeverity(severity);
     }
   }
 
-  private static void setAdHocType(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata) {
-    Integer ruleType = metadata.getAdHocType();
+  private static void setAdHocType(Rules.Rule.Builder ruleResponse, RuleDto ruleDto) {
+    Integer ruleType = ruleDto.getAdHocType();
     if (ruleType != null) {
       ruleResponse.setType(Common.RuleType.forNumber(ruleType));
     }
@@ -233,7 +227,7 @@ public class RuleMapper {
     }
   }
 
-  private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
       ruleResponse.setDebtOverloaded(isRemediationFunctionOverloaded(ruleDto));
       ruleResponse.setRemFnOverloaded(isRemediationFunctionOverloaded(ruleDto));
@@ -265,10 +259,10 @@ public class RuleMapper {
     }
   }
 
-  private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDefinitionDto, RuleMetadataDto ruleMetadataDto,
+  private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto,
     Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_DEBT_REM_FUNCTION) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION)) {
-      DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDefinitionDto, ruleMetadataDto);
+      DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDto);
       if (debtRemediationFunction != null) {
         if (debtRemediationFunction.type() != null) {
           ruleResponse.setRemFnType(debtRemediationFunction.type().name());
@@ -303,7 +297,7 @@ public class RuleMapper {
     }
   }
 
-  private static void setTags(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setTags(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_TAGS)) {
       ruleResponse.getTagsBuilder().addAllTags(ruleDto.getTags());
     }
@@ -362,7 +356,7 @@ public class RuleMapper {
       sectionDto.getContent();
   }
 
-  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
+  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
     String noteData = ruleDto.getNoteData();
     if (shouldReturnField(fieldsToReturn, "htmlNote") && noteData != null) {
       ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(noteData)));
@@ -429,7 +423,7 @@ public class RuleMapper {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 
-  private static boolean isRemediationFunctionOverloaded(RuleMetadataDto rule) {
+  private static boolean isRemediationFunctionOverloaded(RuleDto rule) {
     return rule.getRemediationFunction() != null;
   }
 
@@ -447,15 +441,15 @@ public class RuleMapper {
   }
 
   @CheckForNull
-  private static DebtRemediationFunction debtRemediationFunction(RuleDto ruleDefinitionDto, RuleMetadataDto ruleMetadataDto) {
-    final String function = ruleMetadataDto.getRemediationFunction();
+  private static DebtRemediationFunction debtRemediationFunction(RuleDto ruleDto) {
+    final String function = ruleDto.getRemediationFunction();
     if (function == null || function.isEmpty()) {
-      return defaultDebtRemediationFunction(ruleDefinitionDto);
+      return defaultDebtRemediationFunction(ruleDto);
     } else {
       return new DefaultDebtRemediationFunction(
         DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
-        ruleMetadataDto.getRemediationGapMultiplier(),
-        ruleMetadataDto.getRemediationBaseEffort());
+        ruleDto.getRemediationGapMultiplier(),
+        ruleDto.getRemediationBaseEffort());
     }
   }
 

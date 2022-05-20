@@ -111,7 +111,6 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     db.rules().insert(ruleDto);
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY);
@@ -143,7 +142,6 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     db.rules().insert(ruleDto);
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -169,7 +167,6 @@ public class RuleUpdaterTest {
       .setNoteData("my *note*")
       .setNoteUserUuid("me");
     db.rules().insert(ruleDto);
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -213,7 +210,6 @@ public class RuleUpdaterTest {
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
     db.rules().insert(ruleDto);
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata());
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -313,7 +309,6 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("1min");
     db.rules().insert(ruleDto);
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)

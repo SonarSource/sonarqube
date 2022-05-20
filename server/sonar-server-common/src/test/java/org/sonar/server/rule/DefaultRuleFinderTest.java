@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
+import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -85,10 +86,10 @@ public class DefaultRuleFinderTest {
 
   @Before
   public void setup() {
-    dbTester.rules().insertRule(rule1);
-    dbTester.rules().insertRule(rule2);
-    dbTester.rules().insertRule(rule3);
-    dbTester.rules().insertRule(rule4);
+    dbTester.rules().insert(rule1);
+    dbTester.rules().insert(rule2);
+    dbTester.rules().insert(rule3);
+    dbTester.rules().insert(rule4);
     session.commit();
   }
 
@@ -139,7 +140,7 @@ public class DefaultRuleFinderTest {
   @Test
   public void findByKey_populates_system_tags_but_not_tags() {
     RuleDto ruleDto = dbTester.rules()
-      .insert(t -> t.setSystemTags(ImmutableSet.of(randomAlphanumeric(5), randomAlphanumeric(6))));
+      .insert(t -> t.setSystemTags(Set.of(randomAlphanumeric(5), randomAlphanumeric(6))).setTags(emptySet()));
     dbTester.rules().insertRule();
 
     Rule rule = underTest.findByKey(ruleDto.getKey());

@@ -56,7 +56,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
-import static org.sonar.db.rule.RuleTesting.newRuleMetadata;
 
 public class RuleDaoTest {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -69,14 +68,11 @@ public class RuleDaoTest {
   @Test
   public void selectByKey() {
     RuleDto ruleDto = db.rules().insert();
-    RuleMetadataDto metadata = newRuleMetadata(ruleDto);
-    db.rules().insertRule(ruleDto, metadata);
 
     assertThat(underTest.selectByKey(db.getSession(), RuleKey.of("foo", "bar")))
       .isEmpty();
-    RuleDto rule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
-    assertEquals(rule, ruleDto);
-    verifyMetadata(rule.getMetadata(), metadata);
+    RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
+    assertEquals(actualRule, ruleDto);
   }
 
   @Test
@@ -86,52 +82,19 @@ public class RuleDaoTest {
     assertThat(underTest.selectByKey(db.getSession(), ruleDto.getKey())).isNotEmpty();
   }
 
-  @Test
-  public void selectByKey_returns_metadata() {
-    RuleDto ruleDto = db.rules().insert();
-    RuleMetadataDto ruleMetadata = newRuleMetadata(ruleDto);
-    db.rules().insertRule(ruleDto, ruleMetadata);
 
-    RuleDto rule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
-    verifyMetadata(rule.getMetadata(), ruleMetadata);
-  }
-
-  @Test
-  public void selectDefinitionByKey() {
-    RuleDto rule = db.rules().insert();
-
-    assertThat(underTest.selectByKey(db.getSession(), RuleKey.of("NOT", "FOUND"))).isEmpty();
-
-    Optional<RuleDto> reloaded = underTest.selectByKey(db.getSession(), rule.getKey());
-    assertThat(reloaded).isPresent();
-  }
-
-  @Test
-  public void selectMetadataByKey() {
-    RuleDto rule1 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule1);
-
-    assertThat(underTest.selectByKeys(db.getSession(), singletonList(RuleKey.of("NOT", "FOUND")))).isEmpty();
-
-    Optional<RuleMetadataDto> rulesMetadata = underTest.selectMetadataByKey(db.getSession(), rule1.getKey());
-    assertThat(rulesMetadata).isPresent();
-    assertThat(rulesMetadata.get().getRuleUuid()).isEqualTo(rule1.getUuid());
-  }
 
   @Test
   public void selectByUuid() {
     RuleDto ruleDto = db.rules().insert();
-    RuleMetadataDto metadata = newRuleMetadata(ruleDto);
-    RuleDto expected = db.rules().insertRule(ruleDto, metadata);
 
-    assertThat(underTest.selectByUuid(expected.getUuid() + 500, db.getSession())).isEmpty();
-    RuleDto rule = underTest.selectByUuid(expected.getUuid(), db.getSession()).get();
-    assertEquals(rule, ruleDto);
-    verifyMetadata(rule.getMetadata(), metadata);
+    assertThat(underTest.selectByUuid(ruleDto.getUuid() + 500, db.getSession())).isEmpty();
+    RuleDto actualRule = underTest.selectByUuid(ruleDto.getUuid(), db.getSession()).get();
+    assertEquals(actualRule, ruleDto);
   }
 
   @Test
-  public void selectByUuidWithDifferentsValuesOfBooleans() {
+  public void selectByUuidWithDifferentValuesOfBooleans() {
     for (int i = 0; i < 3; i++) {
       int indexBoolean = i;
       RuleDto ruleDto = db.rules().insert((ruleDto1 -> {
@@ -139,13 +102,10 @@ public class RuleDaoTest {
         ruleDto1.setIsExternal(indexBoolean == 1);
         ruleDto1.setIsAdHoc(indexBoolean == 2);
       }));
-      RuleMetadataDto metadata = newRuleMetadata(ruleDto);
-      RuleDto expected = db.rules().insertRule(ruleDto, metadata);
 
-      assertThat(underTest.selectByUuid(expected.getUuid() + 500, db.getSession())).isEmpty();
-      RuleDto rule = underTest.selectByUuid(expected.getUuid(), db.getSession()).get();
+      assertThat(underTest.selectByUuid(ruleDto.getUuid() + 500, db.getSession())).isEmpty();
+      RuleDto rule = underTest.selectByUuid(ruleDto.getUuid(), db.getSession()).get();
       assertEquals(rule, ruleDto);
-      verifyMetadata(rule.getMetadata(), metadata);
     }
   }
 
@@ -161,11 +121,8 @@ public class RuleDaoTest {
   @Test
   public void selectByUuids() {
     RuleDto rule1 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule1);
     RuleDto rule2 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule2);
     RuleDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
-    db.rules().insertOrUpdateMetadata(removedRule);
 
     assertThat(underTest.selectByUuids(db.getSession(), singletonList(rule1.getUuid()))).hasSize(1);
     assertThat(underTest.selectByUuids(db.getSession(), asList(rule1.getUuid(), rule2.getUuid()))).hasSize(2);
@@ -211,9 +168,7 @@ public class RuleDaoTest {
   @Test
   public void selectByKeys() {
     RuleDto rule1 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule1);
-    RuleDto rule2 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(rule2);
+    db.rules().insert();
 
     assertThat(underTest.selectByKeys(db.getSession(), Collections.emptyList())).isEmpty();
     assertThat(underTest.selectByKeys(db.getSession(), singletonList(RuleKey.of("NOT", "FOUND")))).isEmpty();
@@ -246,18 +201,6 @@ public class RuleDaoTest {
       .containsOnly(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
   }
 
-  @Test
-  public void selectAll_returns_metadata() {
-    RuleDto ruleDto = db.rules().insert();
-    RuleMetadataDto expected = newRuleMetadata(ruleDto);
-    db.rules().insertRule(ruleDto, expected);
-
-    List<RuleDto> rules = underTest.selectAll(db.getSession());
-    assertThat(rules).hasSize(1);
-
-    verifyMetadata(rules.iterator().next().getMetadata(), expected);
-  }
-
   private void assertEquals(RuleDto actual, RuleDto expected) {
     assertThat(actual.getUuid()).isEqualTo(expected.getUuid());
     assertThat(actual.getRepositoryKey()).isEqualTo(expected.getRepositoryKey());
@@ -281,22 +224,19 @@ public class RuleDaoTest {
     assertThat(actual.getSecurityStandards()).isEqualTo(expected.getSecurityStandards());
     assertThat(actual.getType()).isEqualTo(expected.getType());
     assertThat(actual.getDescriptionFormat()).isEqualTo(expected.getDescriptionFormat());
+    assertThat(actual.getRemediationBaseEffort()).isEqualTo(expected.getRemediationBaseEffort());
+    assertThat(actual.getRemediationFunction()).isEqualTo(expected.getRemediationFunction());
+    assertThat(actual.getRemediationGapMultiplier()).isEqualTo(expected.getRemediationGapMultiplier());
+    assertThat(actual.getTags()).isEqualTo(expected.getTags());
+    assertThat(actual.getNoteData()).isEqualTo(expected.getNoteData());
+    assertThat(actual.getNoteCreatedAt()).isEqualTo(expected.getNoteCreatedAt());
+    assertThat(actual.getNoteUpdatedAt()).isEqualTo(expected.getNoteUpdatedAt());
+    assertThat(actual.getAdHocName()).isEqualTo(expected.getAdHocName());
+    assertThat(actual.getAdHocDescription()).isEqualTo(expected.getAdHocDescription());
+    assertThat(actual.getAdHocSeverity()).isEqualTo(expected.getAdHocSeverity());
+    assertThat(actual.getAdHocType()).isEqualTo(expected.getAdHocType());
     assertThat(actual.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .isEqualTo(expected.getRuleDescriptionSectionDtos());
-  }
-
-  private static void verifyMetadata(RuleMetadataDto metadata, RuleMetadataDto expected) {
-    assertThat(metadata.getRemediationBaseEffort()).isEqualTo(expected.getRemediationBaseEffort());
-    assertThat(metadata.getRemediationFunction()).isEqualTo(expected.getRemediationFunction());
-    assertThat(metadata.getRemediationGapMultiplier()).isEqualTo(expected.getRemediationGapMultiplier());
-    assertThat(metadata.getTags()).isEqualTo(expected.getTags());
-    assertThat(metadata.getNoteData()).isEqualTo(expected.getNoteData());
-    assertThat(metadata.getNoteCreatedAt()).isEqualTo(expected.getNoteCreatedAt());
-    assertThat(metadata.getNoteUpdatedAt()).isEqualTo(expected.getNoteUpdatedAt());
-    assertThat(metadata.getAdHocName()).isEqualTo(expected.getAdHocName());
-    assertThat(metadata.getAdHocDescription()).isEqualTo(expected.getAdHocDescription());
-    assertThat(metadata.getAdHocSeverity()).isEqualTo(expected.getAdHocSeverity());
-    assertThat(metadata.getAdHocType()).isEqualTo(expected.getAdHocType());
   }
 
   @Test
@@ -329,13 +269,11 @@ public class RuleDaoTest {
         .setConfigKey("S1")
         .setType(RuleType.VULNERABILITY)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule1);
 
     RuleDto rule2 = db.rules().insert(
       r -> r.setKey(RuleKey.of("js", "S002"))
         .setType(RuleType.SECURITY_HOTSPOT)
         .setLanguage("js"));
-    db.rules().insertOrUpdateMetadata(rule2);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
@@ -351,18 +289,16 @@ public class RuleDaoTest {
 
   @Test
   public void selectByTypeAndLanguages_return_nothing_when_no_rule_on_languages() {
-    RuleDto rule1 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
         .setType(RuleType.VULNERABILITY)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule1);
 
-    RuleDto rule2 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("js", "S002"))
         .setType(RuleType.VULNERABILITY)
         .setLanguage("js"));
-    db.rules().insertOrUpdateMetadata(rule2);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("cpp")))
       .isEmpty();
@@ -370,24 +306,21 @@ public class RuleDaoTest {
 
   @Test
   public void selectByTypeAndLanguages_return_nothing_when_no_rule_with_type() {
-    RuleDto rule1 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
         .setType(RuleType.VULNERABILITY)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule1);
 
-    RuleDto rule2 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S002"))
         .setType(RuleType.SECURITY_HOTSPOT)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule2);
 
-    RuleDto rule3 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S003"))
         .setType(RuleType.CODE_SMELL)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule3);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.BUG.getDbConstant()), singletonList("java")))
       .isEmpty();
@@ -395,13 +328,12 @@ public class RuleDaoTest {
 
   @Test
   public void selectByTypeAndLanguages_ignores_external_rules() {
-    RuleDto rule1 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
         .setType(RuleType.VULNERABILITY)
         .setIsExternal(true)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule1);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
@@ -410,13 +342,12 @@ public class RuleDaoTest {
 
   @Test
   public void selectByTypeAndLanguages_ignores_template_rules() {
-    RuleDto rule1 = db.rules().insert(
+    db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
         .setType(RuleType.VULNERABILITY)
         .setIsTemplate(true)
         .setLanguage("java"));
-    db.rules().insertOrUpdateMetadata(rule1);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
@@ -425,11 +356,9 @@ public class RuleDaoTest {
 
   @Test
   public void select_by_query() {
-    RuleDto rule1 = db.rules().insert(r -> r.setKey(RuleKey.of("java", "S001")).setConfigKey("S1"));
-    db.rules().insertOrUpdateMetadata(rule1);
-    RuleDto rule2 = db.rules().insert(r -> r.setKey(RuleKey.of("java", "S002")));
-    db.rules().insertOrUpdateMetadata(rule2);
-    RuleDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
+    db.rules().insert(r -> r.setKey(RuleKey.of("java", "S001")).setConfigKey("S1"));
+    db.rules().insert(r -> r.setKey(RuleKey.of("java", "S002")));
+    db.rules().insert(r -> r.setStatus(REMOVED));
 
     assertThat(underTest.selectByQuery(db.getSession(), RuleQuery.create())).hasSize(2);
     assertThat(underTest.selectByQuery(db.getSession(), RuleQuery.create().withKey("S001"))).hasSize(1);
@@ -663,21 +592,20 @@ public class RuleDaoTest {
     underTest.update(db.getSession(), rule);
     db.commit();
 
-    assertThat(db.countRowsOfTable("RULES_METADATA")).isOne();
     RuleDto ruleDtoAfterUpdate = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
-    assertThat(ruleDtoAfterUpdate.getNoteData()).isNull();
-    assertThat(ruleDtoAfterUpdate.getNoteUserUuid()).isNull();
-    assertThat(ruleDtoAfterUpdate.getNoteCreatedAt()).isNull();
-    assertThat(ruleDtoAfterUpdate.getNoteUpdatedAt()).isNull();
-    assertThat(ruleDtoAfterUpdate.getRemediationFunction()).isNull();
-    assertThat(ruleDtoAfterUpdate.getRemediationGapMultiplier()).isNull();
-    assertThat(ruleDtoAfterUpdate.getRemediationBaseEffort()).isNull();
-    assertThat(ruleDtoAfterUpdate.getTags()).isEmpty();
-    assertThat(ruleDtoAfterUpdate.getAdHocName()).isNull();
+    assertThat(ruleDtoAfterUpdate.getNoteData()).isEqualTo(rule.getNoteData());
+    assertThat(ruleDtoAfterUpdate.getNoteUserUuid()).isEqualTo(rule.getNoteUserUuid());
+    assertThat(ruleDtoAfterUpdate.getNoteCreatedAt()).isEqualTo(rule.getNoteCreatedAt());
+    assertThat(ruleDtoAfterUpdate.getNoteUpdatedAt()).isEqualTo(rule.getNoteUpdatedAt());
+    assertThat(ruleDtoAfterUpdate.getRemediationFunction()).isEqualTo(rule.getRemediationFunction());
+    assertThat(ruleDtoAfterUpdate.getRemediationGapMultiplier()).isEqualTo(rule.getRemediationGapMultiplier());
+    assertThat(ruleDtoAfterUpdate.getRemediationBaseEffort()).isEqualTo(rule.getRemediationBaseEffort());
+    assertThat(ruleDtoAfterUpdate.getTags()).isEqualTo(rule.getTags());
+    assertThat(ruleDtoAfterUpdate.getAdHocName()).isEqualTo(rule.getAdHocName());
     assertThat(ruleDtoAfterUpdate.getAdHocDescription()).isEqualTo("ad-hoc-desc");
-    assertThat(ruleDtoAfterUpdate.getAdHocSeverity()).isNull();
-    assertThat(ruleDtoAfterUpdate.getAdHocType()).isNull();
-    assertThat(ruleDtoAfterUpdate.getSecurityStandards()).isEmpty();
+    assertThat(ruleDtoAfterUpdate.getAdHocSeverity()).isEqualTo(rule.getAdHocSeverity());
+    assertThat(ruleDtoAfterUpdate.getAdHocType()).isEqualTo(rule.getAdHocType());
+    assertThat(ruleDtoAfterUpdate.getSecurityStandards()).isEqualTo(rule.getSecurityStandards());
     assertThat(ruleDtoAfterUpdate.getCreatedAt()).isEqualTo(ruleDtoBeforeUpdate.getCreatedAt());
     assertThat(ruleDtoAfterUpdate.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
 
@@ -914,7 +842,7 @@ public class RuleDaoTest {
     RuleForIndexingDto secondRule = findRuleForIndexingWithUuid(accumulator, r2.getUuid());
 
     assertRuleDefinitionFieldsAreEquals(r1, firstRule);
-    assertRuleMetadataFieldsAreEquals(r1.getMetadata(), firstRule);
+    assertThat(r1.getTags()).isEqualTo(firstRule.getTags());
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
     assertRuleDefinitionFieldsAreEquals(r2, secondRule);
@@ -986,10 +914,6 @@ public class RuleDaoTest {
     assertThat(ruleForIndexing.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
   }
 
-  private static void assertRuleMetadataFieldsAreEquals(RuleMetadataDto r1Metadatas, RuleForIndexingDto firstRule) {
-    assertThat(r1Metadatas.getTags()).isEqualTo(firstRule.getTags());
-  }
-
   @Test
   public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
@@ -1004,17 +928,15 @@ public class RuleDaoTest {
   @Test
   public void scrollIndexingRuleExtensionsByIds() {
     Accumulator<RuleExtensionForIndexingDto> accumulator = new Accumulator<>();
-    RuleDto r1 = db.rules().insert();
-    RuleMetadataDto r1Extension = db.rules().insertOrUpdateMetadata(r1, r -> r.setTagsField("t1,t2"));
-    RuleDto r2 = db.rules().insert();
-    db.rules().insertOrUpdateMetadata(r2, r -> r.setTagsField("t1,t3"));
+    RuleDto r1 = db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t2"));
+    db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t3"));
 
     underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1.getUuid()), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleExtensionForIndexingDto::getRuleUuid, RuleExtensionForIndexingDto::getRuleKey, RuleExtensionForIndexingDto::getTags)
       .containsExactlyInAnyOrder(
-        tuple(r1.getUuid(), r1.getKey(), r1Extension.getTagsAsString()));
+        tuple(r1.getUuid(), r1.getKey(), r1.getTagsAsString()));
   }
 
   @Test

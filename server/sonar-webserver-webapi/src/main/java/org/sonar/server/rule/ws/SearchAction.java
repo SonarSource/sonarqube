@@ -216,7 +216,7 @@ public class SearchAction implements RulesWsAction {
   private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {
     Map<String, UserDto> usersByUuid = ruleWsSupport.getUsersByUuid(dbSession, result.rules);
     Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid = getDeprecatedRuleKeysByRuleUuid(dbSession, result.rules, context);
-    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule, result, context.getFields(), rule.getMetadata(), usersByUuid,
+    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule, result, context.getFields(), usersByUuid,
       deprecatedRuleKeysByRuleUuid)));
   }
 

@@ -91,7 +91,6 @@ public class CreateActionTest {
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setType(CODE_SMELL);
     db.rules().insert(templateRule);
-    db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
 
     String result = ws.newRequest()

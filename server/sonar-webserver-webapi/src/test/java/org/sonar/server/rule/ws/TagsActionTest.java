@@ -79,7 +79,7 @@ public class TagsActionTest {
 
   @Test
   public void system_tag() {
-    RuleDto r = db.rules().insert(setSystemTags("tag"));
+    RuleDto r = db.rules().insert(setSystemTags("tag"), setTags());
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
 
     String result = ws.newRequest().execute().getInput();
@@ -88,9 +88,8 @@ public class TagsActionTest {
 
   @Test
   public void tag() {
-    RuleDto r = db.rules().insert(setSystemTags());
+    RuleDto r = db.rules().insert(setSystemTags(), setTags("tag"));
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
-    db.rules().insertOrUpdateMetadata(r, setTags("tag"));
     ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
 
     String result = ws.newRequest().execute().getInput();

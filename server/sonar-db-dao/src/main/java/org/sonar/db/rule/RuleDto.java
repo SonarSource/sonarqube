@@ -21,11 +21,13 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -50,70 +52,85 @@ public class RuleDto {
 
   private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
-  private String uuid;
-  private String repositoryKey;
-  private String ruleKey;
+  private String uuid = null;
+  private String repositoryKey = null;
+  private String ruleKey = null;
 
   private Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
    */
-  private RuleDto.Format descriptionFormat;
-  private RuleStatus status;
-  private String name;
-  private String configKey;
+  private RuleDto.Format descriptionFormat = null;
+  private RuleStatus status = null;
+  private String name = null;
+  private String configKey = null;
 
   /**
    * Severity can be null on external rule, otherwise it should never be null
    */
-  private Integer severity;
+  private Integer severity = null;
 
-  private boolean isTemplate;
+  private boolean isTemplate = false;
 
   /**
    * This flag specify that this is an external rule, meaning that generated issues from this rule will be provided by the analyzer without being activated on a quality profile.
    */
-  private boolean isExternal;
+  private boolean isExternal = false;
 
   /**
    * When an external rule is defined as ad hoc, it means that it's not defined using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
    * As the opposite, an external rule not being defined as ad hoc is declared by using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
    * This flag is only used for external rules (it can only be set to true for when {@link #isExternal()} is true)
    */
-  private boolean isAdHoc;
+  private boolean isAdHoc = false;
 
-  private String language;
-  private String templateUuid;
-  private String defRemediationFunction;
-  private String defRemediationGapMultiplier;
-  private String defRemediationBaseEffort;
-  private String gapDescription;
-  private String systemTagsField;
-  private String securityStandardsField;
-  private int type;
-  private Scope scope;
+  private String language = null;
+  private String templateUuid = null;
+  private String defRemediationFunction = null;
+  private String defRemediationGapMultiplier = null;
+  private String defRemediationBaseEffort = null;
+  private String gapDescription = null;
+  private String systemTagsField = null;
+  private String securityStandardsField = null;
+  private int type = 0;
+  private Scope scope = null;
 
-  private RuleKey key;
+  private RuleKey key = null;
 
-  private String pluginKey;
+  private String pluginKey = null;
+  private String noteData = null;
+  private String noteUserUuid = null;
+  private Long noteCreatedAt = null;
+  private Long noteUpdatedAt = null;
+  private String remediationFunction = null;
+  private String remediationGapMultiplier = null;
+  private String remediationBaseEffort = null;
+  private String tags = null;
 
-  private long createdAt;
-  private long updatedAt;
+  /**
+   * Name of on ad hoc rule.
+   */
+  private String adHocName = null;
 
-  private final RuleMetadataDto metadata;
+  /**
+   * Optional description of on ad hoc rule.
+   */
+  private String adHocDescription = null;
 
-  public RuleDto() {
-    this(new RuleMetadataDto());
-  }
+  /**
+   * Severity of on ad hoc rule.
+   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
+   */
+  private String adHocSeverity = null;
 
-  public RuleDto(RuleMetadataDto metadata) {
-    this.metadata = metadata;
-  }
-
-  public RuleMetadataDto getMetadata() {
-    return metadata;
-  }
+  /**
+   * Type of on ad hoc rule.
+   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
+   */
+  private Integer adHocType = null;
+  private long createdAt = 0;
+  private long updatedAt = 0;
 
   public RuleKey getKey() {
     if (key == null) {
@@ -135,7 +152,6 @@ public class RuleDto {
 
   public RuleDto setUuid(String uuid) {
     this.uuid = uuid;
-    metadata.setRuleUuid(uuid);
     return this;
   }
 
@@ -297,51 +313,6 @@ public class RuleDto {
     return this;
   }
 
-  @CheckForNull
-  public String getAdHocName() {
-    return metadata.getAdHocName();
-  }
-
-  public RuleDto setAdHocName(@Nullable String adHocName) {
-    metadata.setAdHocName(adHocName);
-    return this;
-  }
-
-  @CheckForNull
-  public String getAdHocDescription() {
-    return metadata.getAdHocDescription();
-  }
-
-  public RuleDto setAdHocDescription(@Nullable String adHocDescription) {
-    metadata.setAdHocDescription(adHocDescription);
-    return this;
-  }
-
-  @CheckForNull
-  public String getAdHocSeverity() {
-    return metadata.getAdHocSeverity();
-  }
-
-  public RuleDto setAdHocSeverity(@Nullable String adHocSeverity) {
-    metadata.setAdHocSeverity(adHocSeverity);
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getAdHocType() {
-    return metadata.getAdHocType();
-  }
-
-  public RuleDto setAdHocType(@Nullable Integer type) {
-    metadata.setAdHocType(type);
-    return this;
-  }
-
-  public RuleDto setAdHocType(@Nullable RuleType adHocType) {
-    metadata.setAdHocType(adHocType);
-    return this;
-  }
-
   public boolean isTemplate() {
     return isTemplate;
   }
@@ -425,46 +396,6 @@ public class RuleDto {
     return this;
   }
 
-  @CheckForNull
-  public String getNoteData() {
-    return metadata.getNoteData();
-  }
-
-  public RuleDto setNoteData(@Nullable String s) {
-    metadata.setNoteData(s);
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteUserUuid() {
-    return metadata.getNoteUserUuid();
-  }
-
-  public RuleDto setNoteUserUuid(@Nullable String noteUserUuid) {
-    metadata.setNoteUserUuid(noteUserUuid);
-    return this;
-  }
-
-  @CheckForNull
-  public Long getNoteCreatedAt() {
-    return metadata.getNoteCreatedAt();
-  }
-
-  public RuleDto setNoteCreatedAt(@Nullable Long noteCreatedAt) {
-    metadata.setNoteCreatedAt(noteCreatedAt);
-    return this;
-  }
-
-  @CheckForNull
-  public Long getNoteUpdatedAt() {
-    return metadata.getNoteUpdatedAt();
-  }
-
-  public RuleDto setNoteUpdatedAt(@Nullable Long noteUpdatedAt) {
-    metadata.setNoteUpdatedAt(noteUpdatedAt);
-    return this;
-  }
-
 
   @CheckForNull
   public String getDefRemediationFunction() {
@@ -506,47 +437,6 @@ public class RuleDto {
     return this;
   }
 
-  @CheckForNull
-  public String getRemediationFunction() {
-    return metadata.getRemediationFunction();
-  }
-
-  public RuleDto setRemediationFunction(@Nullable String remediationFunction) {
-    metadata.setRemediationFunction(remediationFunction);
-    return this;
-  }
-
-  @CheckForNull
-  public String getRemediationGapMultiplier() {
-    return metadata.getRemediationGapMultiplier();
-  }
-
-  public RuleDto setRemediationGapMultiplier(@Nullable String remediationGapMultiplier) {
-    metadata.setRemediationGapMultiplier(remediationGapMultiplier);
-    return this;
-  }
-
-  @CheckForNull
-  public String getRemediationBaseEffort() {
-    return metadata.getRemediationBaseEffort();
-  }
-
-  public RuleDto setRemediationBaseEffort(@Nullable String remediationBaseEffort) {
-    metadata.setRemediationBaseEffort(remediationBaseEffort);
-    return this;
-  }
-
-  public Set<String> getTags() {
-    return metadata.getTags();
-  }
-
-  /**
-   * Used in MyBatis mapping.
-   */
-  private void setTagsField(String s) {
-    metadata.setTagsField(s);
-  }
-
   public static Set<String> deserializeTagsString(@Nullable String tags) {
     return deserializeStringSet(tags);
   }
@@ -563,13 +453,146 @@ public class RuleDto {
     return ImmutableSet.copyOf(SPLITTER.split(str));
   }
 
+  @CheckForNull
+  public String getNoteData() {
+    return noteData;
+  }
+
+  public RuleDto setNoteData(@Nullable String s) {
+    this.noteData = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getNoteUserUuid() {
+    return noteUserUuid;
+  }
+
+  public RuleDto setNoteUserUuid(@Nullable String noteUserUuid) {
+    this.noteUserUuid = noteUserUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getNoteCreatedAt() {
+    return noteCreatedAt;
+  }
+
+  public RuleDto setNoteCreatedAt(@Nullable Long noteCreatedAt) {
+    this.noteCreatedAt = noteCreatedAt;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getNoteUpdatedAt() {
+    return noteUpdatedAt;
+  }
+
+  public RuleDto setNoteUpdatedAt(@Nullable Long noteUpdatedAt) {
+    this.noteUpdatedAt = noteUpdatedAt;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationFunction() {
+    return remediationFunction;
+  }
+
+  public RuleDto setRemediationFunction(@Nullable String remediationFunction) {
+    this.remediationFunction = remediationFunction;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationGapMultiplier() {
+    return remediationGapMultiplier;
+  }
+
+  public RuleDto setRemediationGapMultiplier(@Nullable String remediationGapMultiplier) {
+    this.remediationGapMultiplier = remediationGapMultiplier;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRemediationBaseEffort() {
+    return remediationBaseEffort;
+  }
+
+  public RuleDto setRemediationBaseEffort(@Nullable String remediationBaseEffort) {
+    this.remediationBaseEffort = remediationBaseEffort;
+    return this;
+  }
+
+  public Set<String> getTags() {
+    return tags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
+  }
+
+  String getTagsAsString() {
+    return tags;
+  }
+
   public RuleDto setTags(Set<String> tags) {
-    this.metadata.setTags(tags);
+    String raw = tags.isEmpty() ? null : String.join(",", tags);
+    checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
+    this.tags = raw;
+    return this;
+  }
+
+  private String getTagsField() {
+    return tags;
+  }
+
+  void setTagsField(String s) {
+    tags = s;
+  }
+
+  @CheckForNull
+  public String getAdHocName() {
+    return adHocName;
+  }
+
+  public RuleDto setAdHocName(@Nullable String adHocName) {
+    this.adHocName = adHocName;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocDescription() {
+    return adHocDescription;
+  }
+
+  public RuleDto setAdHocDescription(@Nullable String adHocDescription) {
+    this.adHocDescription = adHocDescription;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocSeverity() {
+    return adHocSeverity;
+  }
+
+  public RuleDto setAdHocSeverity(@Nullable String adHocSeverity) {
+    this.adHocSeverity = adHocSeverity;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getAdHocType() {
+    return adHocType;
+  }
+
+  public RuleDto setAdHocType(@Nullable Integer adHocType) {
+    this.adHocType = adHocType;
+    return this;
+  }
+
+  public RuleDto setAdHocType(@Nullable RuleType adHocType) {
+    setAdHocType(adHocType != null ? adHocType.getDbConstant() : null);
     return this;
   }
 
   private static String serializeStringSet(@Nullable Set<String> strings) {
-    return strings == null || strings.isEmpty() ? null : StringUtils.join(strings, ',');
+    return strings == null || strings.isEmpty() ? null : String.join(",", strings);
   }
 
   @Override
