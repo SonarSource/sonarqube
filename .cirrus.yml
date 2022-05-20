@@ -219,12 +219,12 @@ junit_task:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 validate_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
+  only_if: $CIRRUS_BRANCH != "public_master" || $CIRRUS_BRANCH != "branch-nightly-build"
   depends_on:
     - yarn_validate-ci
     - yarn_lint-report-ci
