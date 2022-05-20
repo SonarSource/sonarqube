@@ -44,7 +44,7 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
-import org.sonar.scanner.cache.AnalysisCacheLoader;
+import org.sonar.scanner.cache.DefaultAnalysisCacheLoader;
 import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
 import org.sonar.scanner.cache.AnalysisCacheProvider;
 import org.sonar.scanner.ci.CiConfigurationProvider;
@@ -232,7 +232,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       // Plugin cache
       AnalysisCacheProvider.class,
       AnalysisCacheMemoryStorage.class,
-      AnalysisCacheLoader.class,
+      DefaultAnalysisCacheLoader.class,
 
       // Report
       ReferenceBranchSupplier.class,

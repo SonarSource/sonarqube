@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -45,6 +46,7 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -57,6 +59,10 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.cache.AnalysisCacheLoader;
+import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
+import org.sonar.scanner.cache.ReadCacheImpl;
+import org.sonar.scanner.protocol.internal.ScannerInternal;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.MetricsRepository;
@@ -79,6 +85,7 @@ import org.sonar.scanner.scan.branch.ProjectPullRequests;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.springframework.context.annotation.Bean;
 
 import static java.util.Collections.emptySet;
 
@@ -97,6 +104,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeGlobalSettingsLoader globalSettingsLoader = new FakeGlobalSettingsLoader();
   private final FakeProjectSettingsLoader projectSettingsLoader = new FakeProjectSettingsLoader();
   private final FakeNewCodePeriodLoader newCodePeriodLoader = new FakeNewCodePeriodLoader();
+  private final FakeAnalysisCacheLoader analysisCacheLoader = new FakeAnalysisCacheLoader();
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
@@ -307,6 +315,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalSettingsLoader,
           tester.projectSettingsLoader,
           tester.newCodePeriodLoader,
+          tester.analysisCacheLoader,
           tester.sonarRuntime,
           tester.reportMetadataHolder,
           result)
@@ -515,6 +524,14 @@ public class ScannerMediumTester extends ExternalResource {
     @Override
     public List<QualityProfile> load(String projectKey) {
       return qualityProfiles;
+    }
+  }
+
+  @Priority(1)
+  private static class FakeAnalysisCacheLoader implements AnalysisCacheLoader {
+    @Override
+    public Optional<ScannerInternal.AnalysisCacheMsg> load() {
+      return Optional.empty();
     }
   }
 

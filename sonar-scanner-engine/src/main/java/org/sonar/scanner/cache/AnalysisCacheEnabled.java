@@ -30,6 +30,6 @@ public class AnalysisCacheEnabled {
   }
 
   public boolean isEnabled() {
-    return configuration.getBoolean(PROP_KEY).orElse(false);
+    return configuration.getBoolean(PROP_KEY).orElse(true);
   }
 }

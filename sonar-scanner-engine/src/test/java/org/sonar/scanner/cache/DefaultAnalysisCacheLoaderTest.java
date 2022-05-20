@@ -45,9 +45,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.scanner.cache.AnalysisCacheLoader.CONTENT_ENCODING;
+import static org.sonar.scanner.cache.DefaultAnalysisCacheLoader.CONTENT_ENCODING;
 
-public class AnalysisCacheLoaderTest {
+public class DefaultAnalysisCacheLoaderTest {
   private final static AnalysisCacheMsg MSG = AnalysisCacheMsg.newBuilder()
     .putMap("key", ByteString.copyFrom("value", StandardCharsets.UTF_8))
     .build();
@@ -55,7 +55,7 @@ public class AnalysisCacheLoaderTest {
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private final InputProject project = mock(InputProject.class);
   private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
-  private final AnalysisCacheLoader loader = new AnalysisCacheLoader(wsClient, project, branchConfiguration);
+  private final DefaultAnalysisCacheLoader loader = new DefaultAnalysisCacheLoader(wsClient, project, branchConfiguration);
 
   @Before
   public void before() {

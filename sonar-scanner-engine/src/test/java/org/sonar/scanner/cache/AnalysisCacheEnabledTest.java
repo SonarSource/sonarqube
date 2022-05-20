@@ -33,13 +33,13 @@ public class AnalysisCacheEnabledTest {
   private final AnalysisCacheEnabled analysisCacheEnabled = new AnalysisCacheEnabled(configuration);
 
   @Test
-  public void disabled_unless_property_set() {
-    assertThat(analysisCacheEnabled.isEnabled()).isFalse();
+  public void enabled_by_default() {
+    assertThat(analysisCacheEnabled.isEnabled()).isTrue();
   }
 
   @Test
-  public void enabled_if_property_set() {
-    when(configuration.getBoolean(PROP_KEY)).thenReturn(Optional.of(true));
-    assertThat(analysisCacheEnabled.isEnabled()).isTrue();
+  public void disabled_if_property_set() {
+    when(configuration.getBoolean(PROP_KEY)).thenReturn(Optional.of(false));
+    assertThat(analysisCacheEnabled.isEnabled()).isFalse();
   }
 }
