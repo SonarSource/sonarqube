@@ -19,120 +19,88 @@
  */
 package org.sonar.server.usertoken;
 
-import java.util.EnumMap;
-import java.util.Set;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.authentication.Credentials;
+import org.sonar.server.authentication.UserAuthResult;
 import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.exceptions.NotFoundException;
+
+import static org.sonar.server.authentication.BasicAuthentication.extractCredentialsFromHeader;
 
 public class UserTokenAuthentication {
-
-  public static final String PROJECT_KEY_SCANNER_HEADER = "PROJECT_KEY";
-
-  private static final Set<String> SCANNER_ENDPOINTS = Set.of(
-    "/api/settings/values",
-    "/api/plugins/installed",
-    "/api/analysis_cache/get",
-    "/api/project_branches/list",
-    "/api/project_pull_requests/list",
-    "/api/qualityprofiles/search",
-    "/api/rules/search",
-    "/batch/project",
-    "/api/metrics/search",
-    "/api/new_code_periods/show",
-    "/api/ce/submit");
-
-  private static final EnumMap<TokenType, Set<String>> ALLOWLIST_ENDPOINTS_FOR_TOKEN_TYPES = new EnumMap<>(TokenType.class);
-
-  static {
-    ALLOWLIST_ENDPOINTS_FOR_TOKEN_TYPES.put(TokenType.GLOBAL_ANALYSIS_TOKEN, SCANNER_ENDPOINTS);
-    ALLOWLIST_ENDPOINTS_FOR_TOKEN_TYPES.put(TokenType.PROJECT_ANALYSIS_TOKEN, SCANNER_ENDPOINTS);
-  }
+  private static final String ACCESS_LOG_TOKEN_NAME = "TOKEN_NAME";
 
   private final TokenGenerator tokenGenerator;
   private final DbClient dbClient;
   private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
+  private final AuthenticationEvent authenticationEvent;
 
-  public UserTokenAuthentication(TokenGenerator tokenGenerator, DbClient dbClient, UserLastConnectionDatesUpdater userLastConnectionDatesUpdater) {
+  public UserTokenAuthentication(TokenGenerator tokenGenerator, DbClient dbClient, UserLastConnectionDatesUpdater userLastConnectionDatesUpdater,
+    AuthenticationEvent authenticationEvent) {
     this.tokenGenerator = tokenGenerator;
     this.dbClient = dbClient;
     this.userLastConnectionDatesUpdater = userLastConnectionDatesUpdater;
+    this.authenticationEvent = authenticationEvent;
   }
 
-  /**
-   * Returns the user token details including if the token hash is found and the user has provided valid token type.
-   *
-   * The returned uuid included in the UserTokenAuthenticationResult  is not validated. If database is corrupted
-   * (table USER_TOKENS badly purged for instance), then the uuid may not relate to a valid user.
-   *
-   * In case of any issues only the error message is included in UserTokenAuthenticationResult
-   */
-  public UserTokenAuthenticationResult authenticate(String token, String requestedEndpoint, @Nullable String analyzedProjectKey) {
-    String tokenHash = tokenGenerator.hash(token);
+  public Optional<UserAuthResult> authenticate(HttpServletRequest request) {
+    if (isTokenBasedAuthentication(request)) {
+      Optional<Credentials> credentials = extractCredentialsFromHeader(request);
+      if (credentials.isPresent()) {
+        UserAuthResult userAuthResult = authenticateFromUserToken(credentials.get().getLogin(), request);
+        authenticationEvent.loginSuccess(request, userAuthResult.getUserDto().getLogin(), AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN));
+        return Optional.of(userAuthResult);
+      }
+    }
+    return Optional.empty();
+  }
+
+  public static boolean isTokenBasedAuthentication(HttpServletRequest request) {
+    Optional<Credentials> credentialsOptional = extractCredentialsFromHeader(request);
+    return credentialsOptional.map(credentials -> credentials.getPassword().isEmpty()).orElse(false);
+  }
+
+  private UserAuthResult authenticateFromUserToken(String token, HttpServletRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserTokenDto userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);
-      if (userToken == null) {
-        return new UserTokenAuthenticationResult("Token doesn't exist");
+      UserTokenDto userToken = authenticate(token);
+      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, userToken.getUserUuid());
+      if (userDto == null || !userDto.isActive()) {
+        throw AuthenticationException.newBuilder()
+          .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
+          .setMessage("User doesn't exist")
+          .build();
       }
-      if (!isValidTokenType(userToken, analyzedProjectKey, requestedEndpoint)) {
-        return new UserTokenAuthenticationResult("Invalid token");
-      }
-      userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(userToken);
-      return new UserTokenAuthenticationResult(userToken.getUserUuid(), userToken.getName());
+      request.setAttribute(ACCESS_LOG_TOKEN_NAME, userToken.getName());
+      return new UserAuthResult(userDto, userToken, UserAuthResult.AuthType.TOKEN);
+    } catch (NotFoundException exception) {
+      throw AuthenticationException.newBuilder()
+        .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
+        .setMessage(exception.getMessage())
+        .build();
     }
   }
 
-  private static boolean isValidTokenType(UserTokenDto userToken, @Nullable String analyzedProjectKey, String requestedEndpoint) {
-    TokenType tokenType = TokenType.valueOf(userToken.getType());
-
-    return validateProjectKeyForScannerToken(tokenType, userToken, analyzedProjectKey)
-      && shouldBeAbleToAccessEndpoint(tokenType, requestedEndpoint);
+  private UserTokenDto authenticate(String token) {
+    UserTokenDto userToken = getUserToken(token);
+    if (userToken == null) {
+      throw new NotFoundException("Token doesn't exist");
+    }
+    userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(userToken);
+    return userToken;
   }
 
-  private static boolean shouldBeAbleToAccessEndpoint(TokenType tokenType, String requestedEndpoint) {
-    Set<String> allowedEndpoints = ALLOWLIST_ENDPOINTS_FOR_TOKEN_TYPES.get(tokenType);
-    if (allowedEndpoints == null) {
-      return true; // no allowlist configured for the token type - all endpoints are allowed
+  @Nullable
+  public UserTokenDto getUserToken(String token) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.userTokenDao().selectByTokenHash(dbSession, tokenGenerator.hash(token));
     }
-    return allowedEndpoints.stream().anyMatch(requestedEndpoint::startsWith);
-  }
-
-  private static boolean validateProjectKeyForScannerToken(TokenType tokenType, UserTokenDto userToken, @Nullable String analyzedProjectKey) {
-    if (tokenType != TokenType.PROJECT_ANALYSIS_TOKEN) {
-      return true;
-    }
-    return analyzedProjectKey != null && analyzedProjectKey.equals(userToken.getProjectKey());
-  }
-
-  public static class UserTokenAuthenticationResult {
-
-    String authenticatedUserUuid;
-    String errorMessage;
-    String tokenName;
-
-    public UserTokenAuthenticationResult(String authenticatedUserUuid, String tokenName) {
-      this.authenticatedUserUuid = authenticatedUserUuid;
-      this.tokenName = tokenName;
-    }
-
-    public UserTokenAuthenticationResult(String errorMessage) {
-      this.errorMessage = errorMessage;
-    }
-
-    public String getAuthenticatedUserUuid() {
-      return authenticatedUserUuid;
-    }
-
-    public String getErrorMessage() {
-      return errorMessage;
-    }
-
-    public String getTokenName() {
-      return tokenName;
-    }
-
   }
 }

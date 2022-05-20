@@ -21,11 +21,14 @@ package org.sonar.server.user;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 
 @ServerSide
 public interface UserSessionFactory {
 
   UserSession create(UserDto user);
+
+  UserSession create(UserDto user, UserTokenDto userToken);
 
   UserSession createAnonymous();
 

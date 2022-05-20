@@ -32,7 +32,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.Batch.WsProjectResponse;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,14 +57,14 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   @Test
   public void continueOnHttp404Exception() {
-    when(wsClient.call(any(GetRequest.class))).thenThrow(new HttpException("/batch/project.protobuf?key=foo%3F", HttpURLConnection.HTTP_NOT_FOUND, ""));
+    when(wsClient.call(any())).thenThrow(new HttpException("/batch/project.protobuf?key=foo%3F", HttpURLConnection.HTTP_NOT_FOUND, ""));
     ProjectRepositories proj = loader.load(PROJECT_KEY, null);
     assertThat(proj.exists()).isFalse();
   }
 
   @Test(expected = IllegalStateException.class)
   public void failOnNonHttp404Exception() {
-    when(wsClient.call(any(GetRequest.class))).thenThrow(IllegalStateException.class);
+    when(wsClient.call(any())).thenThrow(IllegalStateException.class);
     ProjectRepositories proj = loader.load(PROJECT_KEY, null);
     assertThat(proj.exists()).isFalse();
   }

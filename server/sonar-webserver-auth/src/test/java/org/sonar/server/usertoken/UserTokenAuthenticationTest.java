@@ -19,30 +19,41 @@
  */
 package org.sonar.server.usertoken;
 
+import java.util.Base64;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.authentication.UserAuthResult;
 import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
-import org.sonar.server.usertoken.UserTokenAuthentication.UserTokenAuthenticationResult;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
+import static org.sonar.db.user.TokenType.USER_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.usertoken.UserTokenAuthentication.isTokenBasedAuthentication;
 
 public class UserTokenAuthenticationTest {
 
-  private static final String EXAMPLE_SCANNER_ENDPOINT = "/api/settings/values.protobuf";
-  private static final String EXAMPLE_USER_ENDPOINT = "/api/editions/set_license";
+  private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
-  private static final String EXAMPLE_PROJECT_KEY = "my-project-key";
+  private static final String AUTHORIZATION_HEADER = "Authorization";
 
   private static final String EXAMPLE_OLD_USER_TOKEN = "StringWith40CharactersThatIsOldUserToken";
   private static final String EXAMPLE_NEW_USER_TOKEN = "squ_StringWith44CharactersThatIsNewUserToken";
@@ -57,13 +68,15 @@ public class UserTokenAuthenticationTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
-  private UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);
-
-  private UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient(), userLastConnectionDatesUpdater);
+  private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+  private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);
+  private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient(), userLastConnectionDatesUpdater, authenticationEvent);
 
   @Before
   public void before() {
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
     when(tokenGenerator.hash(EXAMPLE_OLD_USER_TOKEN)).thenReturn(OLD_USER_TOKEN_HASH);
     when(tokenGenerator.hash(EXAMPLE_NEW_USER_TOKEN)).thenReturn(NEW_USER_TOKEN_HASH);
     when(tokenGenerator.hash(EXAMPLE_PROJECT_ANALYSIS_TOKEN)).thenReturn(PROJECT_ANALYSIS_TOKEN_HASH);
@@ -74,93 +87,135 @@ public class UserTokenAuthenticationTest {
   public void return_login_when_token_hash_found_in_db() {
     String token = "known-token";
     String tokenHash = "123456789";
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
     UserDto user1 = db.users().insertUser();
-    db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
+    UserTokenDto userTokenDto = db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user2, t -> t.setTokenHash("another-token-hash"));
 
-    UserTokenAuthenticationResult result = underTest.authenticate(token, EXAMPLE_USER_ENDPOINT, null);
+    Optional<UserAuthResult> result = underTest.authenticate(request);
 
-    assertThat(result.getAuthenticatedUserUuid())
+    assertThat(result).isPresent();
+    assertThat(result.get().getTokenDto().getUuid()).isEqualTo(userTokenDto.getUuid());
+    assertThat(result.get().getUserDto().getUuid())
       .isNotNull()
       .contains(user1.getUuid());
     verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 
   @Test
-  public void return_absent_if_token_hash_is_not_found() {
-    var result = underTest.authenticate(EXAMPLE_OLD_USER_TOKEN, EXAMPLE_USER_ENDPOINT, null);
+  public void return_absent_if_username_password_used() {
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("login:password"));
 
-    assertThat(result.getAuthenticatedUserUuid()).isNull();
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isEmpty();
     verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
-  public void authenticate_givenProjectTokenAndUserEndpoint_fillErrorMessage() {
-    UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH).setType(TokenType.PROJECT_ANALYSIS_TOKEN.name()));
+  public void return_absent_if_token_hash_is_not_found() {
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_OLD_USER_TOKEN + ":"));
 
-    var authenticate = underTest.authenticate(EXAMPLE_PROJECT_ANALYSIS_TOKEN, EXAMPLE_USER_ENDPOINT, EXAMPLE_PROJECT_KEY);
-
-    assertThat(authenticate.getErrorMessage()).isNotNull().contains("Invalid token");
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessageContaining("Token doesn't exist")
+      .isInstanceOf(AuthenticationException.class);
+    verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
-  public void authenticate_givenProjectTokenAndUserEndpoint_InvalidTokenErrorMessage() {
+  public void authenticate_givenGlobalToken_resultContainsUuid() {
     UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH).setType(TokenType.PROJECT_ANALYSIS_TOKEN.name()));
+    String tokenName = db.users().insertToken(user, t -> t.setTokenHash(GLOBAL_ANALYSIS_TOKEN_HASH).setType(GLOBAL_ANALYSIS_TOKEN.name())).getName();
 
-    var result = underTest.authenticate(EXAMPLE_PROJECT_ANALYSIS_TOKEN, EXAMPLE_USER_ENDPOINT, EXAMPLE_PROJECT_KEY);
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_GLOBAL_ANALYSIS_TOKEN + ":"));
+    var result = underTest.authenticate(request);
 
-    assertThat(result.getErrorMessage()).isNotNull().contains("Invalid token");
+    assertThat(result).isPresent();
+    assertThat(result.get().getTokenDto().getUuid()).isNotNull();
+    assertThat(result.get().getTokenDto().getType()).isEqualTo(GLOBAL_ANALYSIS_TOKEN.name());
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME",tokenName);
   }
 
   @Test
-  public void authenticate_givenGlobalTokenAndScannerEndpoint_resultContainsUuid() {
+  public void authenticate_givenNewUserToken_resultContainsUuid() {
     UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(GLOBAL_ANALYSIS_TOKEN_HASH).setType(TokenType.GLOBAL_ANALYSIS_TOKEN.name()));
+    String tokenName = db.users().insertToken(user, t -> t.setTokenHash(NEW_USER_TOKEN_HASH).setType(USER_TOKEN.name())).getName();
 
-    var result = underTest.authenticate(EXAMPLE_GLOBAL_ANALYSIS_TOKEN, EXAMPLE_SCANNER_ENDPOINT, EXAMPLE_PROJECT_KEY);
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_NEW_USER_TOKEN + ":"));
+    var result = underTest.authenticate(request);
 
-    assertThat(result.getAuthenticatedUserUuid()).isNotNull();
-    assertThat(result.getErrorMessage()).isNull();
+    assertThat(result).isPresent();
+    assertThat(result.get().getTokenDto().getUuid()).isNotNull();
+    assertThat(result.get().getTokenDto().getType()).isEqualTo(USER_TOKEN.name());
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME",tokenName);
   }
 
   @Test
-  public void authenticate_givenNewUserTokenAndScannerEndpoint_resultContainsUuid() {
+  public void authenticate_givenProjectToken_resultContainsUuid() {
     UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(NEW_USER_TOKEN_HASH).setType(TokenType.USER_TOKEN.name()));
-
-    var result = underTest.authenticate(EXAMPLE_NEW_USER_TOKEN, EXAMPLE_SCANNER_ENDPOINT, null);
-
-    assertThat(result.getAuthenticatedUserUuid()).isNotNull();
-    assertThat(result.getErrorMessage()).isNull();
-  }
-
-  @Test
-  public void authenticate_givenProjectTokenAndScannerEndpointAndValidProjectKey_resultContainsUuid() {
-    UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH)
+    String tokenName = db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH)
       .setProjectKey("project-key")
-      .setType(TokenType.PROJECT_ANALYSIS_TOKEN.name()));
+      .setType(PROJECT_ANALYSIS_TOKEN.name())).getName();
 
-    var result = underTest.authenticate(EXAMPLE_PROJECT_ANALYSIS_TOKEN, EXAMPLE_SCANNER_ENDPOINT, "project-key");
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_PROJECT_ANALYSIS_TOKEN + ":"));
+    var result = underTest.authenticate(request);
 
-    assertThat(result.getAuthenticatedUserUuid()).isNotNull();
-    assertThat(result.getErrorMessage()).isNull();
+    assertThat(result).isPresent();
+    assertThat(result.get().getTokenDto().getUuid()).isNotNull();
+    assertThat(result.get().getTokenDto().getType()).isEqualTo(PROJECT_ANALYSIS_TOKEN.name());
+    assertThat(result.get().getTokenDto().getProjectKey()).isEqualTo("project-key");
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME",tokenName);
+  }
+
+
+  @Test
+  public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
+    UserDto user = db.users().insertDisabledUser();
+    String tokenName = db.users().insertToken(user, t -> t.setTokenHash(NEW_USER_TOKEN_HASH).setType(USER_TOKEN.name())).getName();
+
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_NEW_USER_TOKEN + ":"));
+
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessageContaining("User doesn't exist")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", AuthenticationEvent.Source.local(BASIC_TOKEN));
+
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
-  public void authenticate_givenProjectTokenAndScannerEndpointAndWrongProjectKey_resultContainsErrorMessage() {
-    UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setTokenHash(PROJECT_ANALYSIS_TOKEN_HASH)
-      .setProjectKey("project-key")
-      .setType(TokenType.PROJECT_ANALYSIS_TOKEN.name()));
+  public void return_token_from_db() {
+    String token = "known-token";
+    String tokenHash = "123456789";
+    when(tokenGenerator.hash(token)).thenReturn(tokenHash);
+    UserDto user1 = db.users().insertUser();
+    UserTokenDto userTokenDto = db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
 
-    var result = underTest.authenticate(EXAMPLE_PROJECT_ANALYSIS_TOKEN, EXAMPLE_SCANNER_ENDPOINT, "project-key-2");
+    UserTokenDto result = underTest.getUserToken(token);
 
-    assertThat(result.getAuthenticatedUserUuid()).isNull();
-    assertThat(result.getErrorMessage()).isNotNull();
+    assertThat(result.getUuid()).isEqualTo(userTokenDto.getUuid());
+  }
+
+  @Test
+  public void identifies_if_request_uses_token_based_authentication() {
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
+    assertThat(isTokenBasedAuthentication(request)).isTrue();
+
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("login:password"));
+    assertThat(isTokenBasedAuthentication(request)).isFalse();
+
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn(null);
+    assertThat(isTokenBasedAuthentication(request)).isFalse();
+  }
+
+  private static String toBase64(String text) {
+    return new String(BASE64_ENCODER.encode(text.getBytes(UTF_8)));
   }
 }

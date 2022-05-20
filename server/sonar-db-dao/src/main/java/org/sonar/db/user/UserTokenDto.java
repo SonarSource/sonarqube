@@ -45,6 +45,8 @@ public class UserTokenDto {
 
   private String projectName;
 
+  private String projectUuid;
+
   public String getUuid() {
     return uuid;
   }
@@ -125,5 +127,13 @@ public class UserTokenDto {
   public UserTokenDto setProjectName(@Nullable String projectName) {
     this.projectName = projectName;
     return this;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
   }
 }

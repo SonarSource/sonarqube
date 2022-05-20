@@ -12,7 +12,8 @@
     t.created_at as "createdAt",
     t.project_key as "projectKey",
     t.type as "type",
-    p.name as "projectName"
+    p.name as "projectName",
+    p.uuid as "projectUuid"
   </sql>
 
   <insert id="insert" parameterType="UserToken" useGeneratedKeys="false">

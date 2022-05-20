@@ -58,6 +58,6 @@ public class ScannerWsClientProvider {
     }
 
     return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null,
-      globalMode, scannerProps);
+      globalMode);
   }
 }

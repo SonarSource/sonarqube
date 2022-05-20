@@ -22,8 +22,6 @@ package org.sonar.server.authentication;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -33,7 +31,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.StringUtils.startsWithIgnoreCase;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.usertoken.UserTokenAuthentication.PROJECT_KEY_SCANNER_HEADER;
 
 /**
  * HTTP BASIC authentication relying on tuple {login, password}.
@@ -44,24 +41,17 @@ import static org.sonar.server.usertoken.UserTokenAuthentication.PROJECT_KEY_SCA
  */
 public class BasicAuthentication {
 
-  private static final String ACCESS_LOG_TOKEN_NAME = "TOKEN_NAME";
-
-  private final DbClient dbClient;
   private final CredentialsAuthentication credentialsAuthentication;
   private final UserTokenAuthentication userTokenAuthentication;
-  private final AuthenticationEvent authenticationEvent;
 
-  public BasicAuthentication(DbClient dbClient, CredentialsAuthentication credentialsAuthentication,
-    UserTokenAuthentication userTokenAuthentication, AuthenticationEvent authenticationEvent) {
-    this.dbClient = dbClient;
+  public BasicAuthentication(CredentialsAuthentication credentialsAuthentication, UserTokenAuthentication userTokenAuthentication) {
     this.credentialsAuthentication = credentialsAuthentication;
     this.userTokenAuthentication = userTokenAuthentication;
-    this.authenticationEvent = authenticationEvent;
   }
 
   public Optional<UserDto> authenticate(HttpServletRequest request) {
     return extractCredentialsFromHeader(request)
-      .flatMap(credentials -> Optional.of(authenticate(credentials, request)));
+      .flatMap(credentials -> Optional.ofNullable(authenticate(credentials, request)));
   }
 
   public static Optional<Credentials> extractCredentialsFromHeader(HttpServletRequest request) {
@@ -98,34 +88,17 @@ public class BasicAuthentication {
 
   private UserDto authenticate(Credentials credentials, HttpServletRequest request) {
     if (credentials.getPassword().isEmpty()) {
-      String projectKeyScannerHeader = request.getHeader(PROJECT_KEY_SCANNER_HEADER);
-      UserDto userDto = authenticateFromUserToken(credentials.getLogin(), request, projectKeyScannerHeader);
-      authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
-      return userDto;
-    }
-    return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
-  }
-
-  private UserDto authenticateFromUserToken(String token, HttpServletRequest request, String projectKey) {
-    String path = request.getRequestURI().substring(request.getContextPath().length());
-    UserTokenAuthentication.UserTokenAuthenticationResult result = userTokenAuthentication.authenticate(token, path, projectKey);
-    if (result.getErrorMessage() != null) {
-      throw AuthenticationException.newBuilder()
-        .setSource(Source.local(Method.BASIC_TOKEN))
-        .setMessage(result.getErrorMessage())
-        .build();
-    }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, result.getAuthenticatedUserUuid());
-      if (userDto == null || !userDto.isActive()) {
+      Optional<UserAuthResult> userAuthResult = userTokenAuthentication.authenticate(request);
+      if (userAuthResult.isPresent()) {
+        return userAuthResult.get().getUserDto();
+      } else {
         throw AuthenticationException.newBuilder()
-          .setSource(Source.local(Method.BASIC_TOKEN))
+          .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
           .setMessage("User doesn't exist")
           .build();
       }
-      request.setAttribute(ACCESS_LOG_TOKEN_NAME, result.getTokenName());
-      return userDto;
     }
+    return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
   }
 
 }

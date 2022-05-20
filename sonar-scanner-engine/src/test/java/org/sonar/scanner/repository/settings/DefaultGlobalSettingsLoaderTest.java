@@ -58,7 +58,7 @@ public class DefaultGlobalSettingsLoaderTest {
       .writeTo(out);
     out.close();
     when(response.contentStream()).thenReturn(in);
-    when(wsClient.call(any(GetRequest.class))).thenReturn(response);
+    when(wsClient.call(any())).thenReturn(response);
 
     Map<String, String> result = underTest.loadGlobalSettings();
 

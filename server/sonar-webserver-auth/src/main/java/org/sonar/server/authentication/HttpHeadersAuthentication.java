@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -133,14 +132,14 @@ public class HttpHeadersAuthentication implements Startable {
     }
 
     UserDto userDto = doAuthenticate(headerValuesByNames, login);
-    jwtHttpHandler.generateToken(userDto, ImmutableMap.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
+    jwtHttpHandler.generateToken(userDto, Map.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
     authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.sso());
     return Optional.of(userDto);
   }
 
   private Optional<UserDto> getUserFromToken(HttpServletRequest request, HttpServletResponse response) {
     Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
-    if (!token.isPresent()) {
+    if (token.isEmpty()) {
       return Optional.empty();
     }
     Date now = new Date(system2.now());

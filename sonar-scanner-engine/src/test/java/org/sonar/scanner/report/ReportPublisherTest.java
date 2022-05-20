@@ -45,7 +45,6 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.MockWsResponse;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -97,12 +96,12 @@ public class ReportPublisherTest {
   public void use_30s_write_timeout() {
     MockWsResponse submitMockResponse = new MockWsResponse();
     submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
-    when(wsClient.call(any(PostRequest.class))).thenReturn(submitMockResponse);
+    when(wsClient.call(any())).thenReturn(submitMockResponse);
 
     underTest.start();
     underTest.execute();
 
-    verify(wsClient).call((PostRequest) argThat(req -> ((PostRequest) req).getWriteTimeOutInMs().orElse(0) == 30_000));
+    verify(wsClient).call(argThat(req -> (req).getWriteTimeOutInMs().orElse(0) == 30_000));
   }
 
   @Test
@@ -123,7 +122,7 @@ public class ReportPublisherTest {
     HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
     WsResponse response = mock(WsResponse.class);
     when(response.failIfNotSuccessful()).thenThrow(ex);
-    when(wsClient.call(any(PostRequest.class))).thenThrow(new IllegalStateException("timeout"));
+    when(wsClient.call(any(WsRequest.class))).thenThrow(new IllegalStateException("timeout"));
 
     assertThatThrownBy(() -> underTest.upload(reportTempFolder.newFile()))
       .isInstanceOf(IllegalStateException.class)
@@ -135,7 +134,7 @@ public class ReportPublisherTest {
     HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
     WsResponse response = mock(WsResponse.class);
     when(response.failIfNotSuccessful()).thenThrow(ex);
-    when(wsClient.call(any(PostRequest.class))).thenReturn(response);
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
 
     assertThatThrownBy(() -> underTest.upload(reportTempFolder.newFile()))
       .isInstanceOf(MessageException.class)
@@ -226,7 +225,7 @@ public class ReportPublisherTest {
 
     MockWsResponse submitMockResponse = new MockWsResponse();
     submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
-    when(wsClient.call(any(PostRequest.class))).thenReturn(submitMockResponse);
+    when(wsClient.call(any())).thenReturn(submitMockResponse);
     underTest.start();
     underTest.execute();
 
@@ -277,10 +276,10 @@ public class ReportPublisherTest {
     when(response.failIfNotSuccessful()).thenReturn(response);
     when(response.contentStream()).thenReturn(in);
 
-    when(wsClient.call(any(PostRequest.class))).thenReturn(response);
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
     underTest.upload(reportTempFolder.newFile());
 
-    ArgumentCaptor<PostRequest> capture = ArgumentCaptor.forClass(PostRequest.class);
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());
 
     WsRequest wsRequest = capture.getValue();
@@ -304,10 +303,10 @@ public class ReportPublisherTest {
     when(response.failIfNotSuccessful()).thenReturn(response);
     when(response.contentStream()).thenReturn(in);
 
-    when(wsClient.call(any(PostRequest.class))).thenReturn(response);
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
     underTest.upload(reportTempFolder.newFile());
 
-    ArgumentCaptor<PostRequest> capture = ArgumentCaptor.forClass(PostRequest.class);
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());
 
     WsRequest wsRequest = capture.getValue();
@@ -335,10 +334,10 @@ public class ReportPublisherTest {
     when(response.failIfNotSuccessful()).thenReturn(response);
     when(response.contentStream()).thenReturn(in);
 
-    when(wsClient.call(any(PostRequest.class))).thenReturn(response);
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
     underTest.upload(reportTempFolder.newFile());
 
-    ArgumentCaptor<PostRequest> capture = ArgumentCaptor.forClass(PostRequest.class);
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());
 
     WsRequest wsRequest = capture.getValue();

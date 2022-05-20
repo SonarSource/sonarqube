@@ -38,9 +38,9 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.TaskStatus;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.MockWsResponse;
+import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -266,8 +266,8 @@ public class QualityGateCheckTest {
       .hasMessageContaining("CE Task finished abnormally with status: " + taskStatus.name());
   }
 
-  private GetRequest newGetCeTaskRequest() {
-    return argThat(new GetRequestPathMatcher("api/ce/task"));
+  private WsRequest newGetCeTaskRequest() {
+    return argThat(new WsRequestPathMatcher("api/ce/task"));
   }
 
   private MockWsResponse getCeTaskWsResponse(TaskStatus status) {
@@ -302,8 +302,8 @@ public class QualityGateCheckTest {
       .isInstanceOf(IllegalStateException.class);
   }
 
-  private GetRequest newGetQualityGateRequest() {
-    return argThat(new GetRequestPathMatcher("api/qualitygates/project_status"));
+  private WsRequest newGetQualityGateRequest() {
+    return argThat(new WsRequestPathMatcher("api/qualitygates/project_status"));
   }
 
   private MockWsResponse getQualityGateWsResponse(Status status) {
@@ -325,15 +325,15 @@ public class QualityGateCheckTest {
     };
   }
 
-  private static class GetRequestPathMatcher implements ArgumentMatcher<GetRequest> {
+  private static class WsRequestPathMatcher implements ArgumentMatcher<WsRequest> {
     String path;
 
-    GetRequestPathMatcher(String path) {
+    WsRequestPathMatcher(String path) {
       this.path = path;
     }
 
     @Override
-    public boolean matches(GetRequest right) {
+    public boolean matches(WsRequest right) {
       return path.equals(right.getPath());
     }
   }

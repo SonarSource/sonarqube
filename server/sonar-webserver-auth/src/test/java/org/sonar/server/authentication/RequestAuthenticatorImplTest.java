@@ -25,12 +25,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -38,26 +40,30 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.TokenType.USER_TOKEN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class RequestAuthenticatorImplTest {
 
   private static final UserDto A_USER = newUserDto();
+  private static final UserTokenDto A_USER_TOKEN = mockUserTokenDto(A_USER);
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
-  private HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
-  private UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
-  private CustomAuthentication customAuthentication1 = mock(CustomAuthentication.class);
-  private CustomAuthentication customAuthentication2 = mock(CustomAuthentication.class);
-  private RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, httpHeadersAuthentication, sessionFactory,
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
+  private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
+  private final HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
+  private final UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
+  private final CustomAuthentication customAuthentication1 = mock(CustomAuthentication.class);
+  private final CustomAuthentication customAuthentication2 = mock(CustomAuthentication.class);
+  private final RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, sessionFactory,
     new CustomAuthentication[]{customAuthentication1, customAuthentication2});
 
   @Before
   public void setUp() {
     when(sessionFactory.create(A_USER)).thenReturn(new MockUserSession(A_USER));
+    when(sessionFactory.create(A_USER, A_USER_TOKEN)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
   }
 
@@ -80,6 +86,21 @@ public class RequestAuthenticatorImplTest {
 
     verify(jwtHttpHandler).validateToken(request, response);
     verify(basicAuthentication).authenticate(request);
+    verify(response, never()).setStatus(anyInt());
+  }
+
+  @Test
+  public void authenticate_from_basic_token() {
+    when(request.getHeader("Authorization")).thenReturn("Basic dGVzdDo=");
+    when(userTokenAuthentication.getUserToken("test")).thenReturn(A_USER_TOKEN);
+    when(userTokenAuthentication.authenticate(request)).thenReturn(Optional.of(new UserAuthResult(A_USER, A_USER_TOKEN, UserAuthResult.AuthType.TOKEN)));
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+
+    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+
+    verify(jwtHttpHandler).validateToken(request, response);
+    verify(userTokenAuthentication).authenticate(request);
     verify(response, never()).setStatus(anyInt());
   }
 
@@ -131,4 +152,13 @@ public class RequestAuthenticatorImplTest {
 
     assertThat(session.getLogin()).isEqualTo("foo");
   }
+
+  private static UserTokenDto mockUserTokenDto(UserDto userDto) {
+    UserTokenDto userTokenDto = new UserTokenDto();
+    userTokenDto.setType(USER_TOKEN.name());
+    userTokenDto.setName("User Token");
+    userTokenDto.setUserUuid(userDto.getUuid());
+    return userTokenDto;
+  }
+
 }

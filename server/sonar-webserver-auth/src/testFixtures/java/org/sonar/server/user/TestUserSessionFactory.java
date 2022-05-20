@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,6 +43,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
 
   @Override
   public UserSession create(UserDto user) {
+    return new TestUserSession(requireNonNull(user));
+  }
+
+  @Override
+  public UserSession create(UserDto user, UserTokenDto userToken) {
     return new TestUserSession(requireNonNull(user));
   }
 

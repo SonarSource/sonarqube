@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 
 import static java.util.Objects.requireNonNull;
@@ -42,6 +43,14 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
     requireNonNull(user, "UserDto must not be null");
     userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(user);
     return new ServerUserSession(dbClient, user);
+  }
+
+  @Override
+  public TokenUserSession create(UserDto user, UserTokenDto userToken) {
+    requireNonNull(user, "UserDto must not be null");
+    requireNonNull(userToken, "UserTokenDto must not be null");
+    userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(user);
+    return new TokenUserSession(dbClient, user, userToken);
   }
 
   @Override

@@ -32,9 +32,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
@@ -50,18 +48,14 @@ public class DefaultScannerWsClient implements ScannerWsClient {
   private static final int MAX_ERROR_MSG_LEN = 128;
   private static final Logger LOG = Loggers.get(DefaultScannerWsClient.class);
 
-  private static final String PROJECT_KEY_CONTEXT_HEADER = "PROJECT_KEY";
-
   private final WsClient target;
   private final boolean hasCredentials;
   private final GlobalAnalysisMode globalMode;
-  private final ScannerProperties scannerProperties;
 
-  public DefaultScannerWsClient(WsClient target, boolean hasCredentials, GlobalAnalysisMode globalMode, ScannerProperties scannerProperties) {
+  public DefaultScannerWsClient(WsClient target, boolean hasCredentials, GlobalAnalysisMode globalMode) {
     this.target = target;
     this.hasCredentials = hasCredentials;
     this.globalMode = globalMode;
-    this.scannerProperties = scannerProperties;
   }
 
   /**
@@ -73,23 +67,13 @@ public class DefaultScannerWsClient implements ScannerWsClient {
    * @throws MessageException      if there was a problem with authentication or if a error message was parsed from the response.
    * @throws HttpException         if the response code is not in range [200..300). Consider using {@link #createErrorMessage(HttpException)} to create more relevant messages for the users.
    */
-  private WsResponse getResponse(WsRequest request) {
+  public WsResponse call(WsRequest request) {
     checkState(!globalMode.isMediumTest(), "No WS call should be made in medium test mode");
     Profiler profiler = Profiler.createIfDebug(LOG).start();
     WsResponse response = target.wsConnector().call(request);
     profiler.stopDebug(format("%s %d %s", request.getMethod(), response.code(), response.requestUrl()));
     failIfUnauthorized(response);
     return response;
-  }
-
-  public WsResponse call(GetRequest getRequest) {
-    getRequest.setHeader(PROJECT_KEY_CONTEXT_HEADER, scannerProperties.getProjectKey());
-    return getResponse(getRequest);
-  }
-
-  public WsResponse call(PostRequest postRequest) {
-    postRequest.setHeader(PROJECT_KEY_CONTEXT_HEADER, scannerProperties.getProjectKey());
-    return getResponse(postRequest);
   }
 
   public String baseUrl() {

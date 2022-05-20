@@ -27,30 +27,41 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static java.util.Objects.nonNull;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.BASIC;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.JWT;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.SSO;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.TOKEN;
 
 public class RequestAuthenticatorImpl implements RequestAuthenticator {
 
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthentication basicAuthentication;
+  private final UserTokenAuthentication userTokenAuthentication;
   private final HttpHeadersAuthentication httpHeadersAuthentication;
   private final UserSessionFactory userSessionFactory;
   private final List<CustomAuthentication> customAuthentications;
 
   @Autowired(required = false)
-  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
+    HttpHeadersAuthentication httpHeadersAuthentication,
     UserSessionFactory userSessionFactory, CustomAuthentication[] customAuthentications) {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthentication = basicAuthentication;
+    this.userTokenAuthentication = userTokenAuthentication;
     this.httpHeadersAuthentication = httpHeadersAuthentication;
     this.userSessionFactory = userSessionFactory;
     this.customAuthentications = Arrays.asList(customAuthentications);
   }
 
   @Autowired(required = false)
-  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
+    HttpHeadersAuthentication httpHeadersAuthentication,
     UserSessionFactory userSessionFactory) {
-    this(jwtHttpHandler, basicAuthentication, httpHeadersAuthentication, userSessionFactory, new CustomAuthentication[0]);
+    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, userSessionFactory, new CustomAuthentication[0]);
   }
 
   @Override
@@ -62,25 +73,38 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
       }
     }
 
-    Optional<UserDto> userOpt = loadUser(request, response);
-    if (userOpt.isPresent()) {
-      return userSessionFactory.create(userOpt.get());
+    UserAuthResult userAuthResult = loadUser(request, response);
+    if (nonNull(userAuthResult.getUserDto())) {
+      if (TOKEN.equals(userAuthResult.getAuthType())) {
+        return userSessionFactory.create(userAuthResult.getUserDto(), userAuthResult.getTokenDto());
+      }
+      return userSessionFactory.create(userAuthResult.getUserDto());
     }
     return userSessionFactory.createAnonymous();
   }
 
-  private Optional<UserDto> loadUser(HttpServletRequest request, HttpServletResponse response) {
+  private UserAuthResult loadUser(HttpServletRequest request, HttpServletResponse response) {
     // Try first to authenticate from SSO, then JWT token, then try from basic http header
 
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
     Optional<UserDto> user = httpHeadersAuthentication.authenticate(request, response);
     if (user.isPresent()) {
-      return user;
+      return new UserAuthResult(user.get(), SSO);
     }
     user = jwtHttpHandler.validateToken(request, response);
     if (user.isPresent()) {
-      return user;
+      return new UserAuthResult(user.get(), JWT);
     }
-    return basicAuthentication.authenticate(request);
+
+    // Check if the authentication is token based
+    Optional<UserAuthResult> userAuthResult = userTokenAuthentication.authenticate(request);
+    if (userAuthResult.isPresent()) {
+      return userAuthResult.get();
+    }
+
+    user = basicAuthentication.authenticate(request);
+    return user.map(userDto -> new UserAuthResult(userDto, BASIC))
+      .orElseGet(UserAuthResult::new);
   }
+
 }

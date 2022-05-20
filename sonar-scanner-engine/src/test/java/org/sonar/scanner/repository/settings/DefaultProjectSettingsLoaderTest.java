@@ -25,8 +25,8 @@ import java.io.PipedOutputStream;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -60,7 +60,7 @@ public class DefaultProjectSettingsLoaderTest {
       .writeTo(out);
     out.close();
     when(response.contentStream()).thenReturn(in);
-    when(wsClient.call(any(GetRequest.class))).thenReturn(response);
+    when(wsClient.call(any())).thenReturn(response);
     when(properties.getProjectKey()).thenReturn("project_key");
 
     Map<String, String> result = underTest.loadProjectSettings();

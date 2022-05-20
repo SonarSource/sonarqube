@@ -17,14 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.server.authentication;
 
-import org.sonarqube.ws.client.WsRequest;
-import org.sonarqube.ws.client.WsResponse;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 
-public interface ScannerWsClient {
-  WsResponse call(WsRequest request);
+public class UserAuthResult {
 
-  String baseUrl();
+  public enum AuthType {
+    SSO,
+    JWT,
+    TOKEN,
+    BASIC
+  }
 
+  UserDto userDto;
+  UserTokenDto tokenDto;
+  AuthType authType;
+
+  public UserAuthResult() {
+  }
+
+  public UserAuthResult(UserDto userDto, AuthType authType) {
+    this.userDto = userDto;
+    this.authType = authType;
+  }
+
+  public UserAuthResult(UserDto userDto, UserTokenDto tokenDto, AuthType authType) {
+    this.userDto = userDto;
+    this.tokenDto = tokenDto;
+    this.authType = authType;
+  }
+
+  public UserDto getUserDto() {
+    return userDto;
+  }
+
+  public AuthType getAuthType() {
+    return authType;
+  }
+
+  public UserTokenDto getTokenDto() {
+    return tokenDto;
+  }
 }
