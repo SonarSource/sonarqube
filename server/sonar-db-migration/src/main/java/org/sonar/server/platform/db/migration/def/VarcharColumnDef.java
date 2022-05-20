@@ -64,6 +64,10 @@ public class VarcharColumnDef extends AbstractColumnDef {
     return new Builder();
   }
 
+  public static Builder newVarcharColumnDefBuilder(String column) {
+    return newVarcharColumnDefBuilder().setColumnName(column);
+  }
+
   public int getColumnSize() {
     return columnSize;
   }

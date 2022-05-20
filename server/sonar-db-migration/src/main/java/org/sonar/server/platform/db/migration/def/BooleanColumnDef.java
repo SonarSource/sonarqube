@@ -43,6 +43,10 @@ public class BooleanColumnDef extends AbstractColumnDef {
     return new Builder();
   }
 
+  public static Builder newBooleanColumnDefBuilder(String column) {
+    return newBooleanColumnDefBuilder().setColumnName(column);
+  }
+
   @Override
   public String generateSqlType(Dialect dialect) {
     switch (dialect.getId()) {

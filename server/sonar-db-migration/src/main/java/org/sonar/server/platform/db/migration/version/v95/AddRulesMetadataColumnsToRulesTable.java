@@ -23,6 +23,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
+import org.sonar.server.platform.db.migration.def.ClobColumnDef;
+import org.sonar.server.platform.db.migration.def.ColumnDef;
+import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -30,7 +35,7 @@ import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.new
 import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.TinyIntColumnDef.newTinyIntColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
-import static org.sonar.server.platform.db.migration.version.v00.CreateInitialSchema.newVarcharColumnBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddRulesMetadataColumnsToRulesTable extends DdlChange {
 
@@ -60,98 +65,75 @@ public class AddRulesMetadataColumnsToRulesTable extends DdlChange {
   }
 
   private void createAdHocType(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "ad_hoc_type")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newTinyIntColumnDefBuilder().setColumnName("ad_hoc_type").setIsNullable(true).build())
-        .build());
-    }
+    TinyIntColumnDef adHocTypeColumnDef = newTinyIntColumnDefBuilder().setColumnName("ad_hoc_type").setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, adHocTypeColumnDef);
   }
 
   private void createAdHocSeverity(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "ad_hoc_severity")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("ad_hoc_severity").setLimit(10).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef adHocSeverityColumnDef = newVarcharColumnDefBuilder("ad_hoc_severity").setLimit(10).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, adHocSeverityColumnDef);
+
   }
 
   private void createAdHocDescription(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "ad_hoc_description")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newClobColumnDefBuilder().setColumnName("ad_hoc_description").setIsNullable(true).build())
-        .build());
-    }
+    ClobColumnDef adHocDescriptionColumnDef = newClobColumnDefBuilder().setColumnName("ad_hoc_description").setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, adHocDescriptionColumnDef);
   }
 
   private void createAdHocName(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "ad_hoc_name")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("ad_hoc_name").setLimit(200).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef adHocNameColumnDef = newVarcharColumnDefBuilder("ad_hoc_name").setLimit(200).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, adHocNameColumnDef);
   }
 
   private void createTags(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "tags")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("tags").setLimit(4_000).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef tagsColumnDef = newVarcharColumnDefBuilder("tags").setLimit(4_000).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, tagsColumnDef);
+
   }
 
   private void createRemediationBaseEffort(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "remediation_base_effort")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("remediation_base_effort").setLimit(20).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef remediationBaseEffortColumnDef = newVarcharColumnDefBuilder("remediation_base_effort").setLimit(20).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, remediationBaseEffortColumnDef);
+
   }
 
   private void createRemediationGapMult(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "remediation_gap_mult")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("remediation_gap_mult").setLimit(20).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef remediationGapMultColumnDef = newVarcharColumnDefBuilder("remediation_gap_mult").setLimit(20).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, remediationGapMultColumnDef);
   }
 
   private void createRemediationFunction(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "remediation_function")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("remediation_function").setLimit(20).setIsNullable(true).build())
-        .build());
-    }
+    VarcharColumnDef remediateFunctionColumnDef = newVarcharColumnDefBuilder("remediation_function").setLimit(20).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, remediateFunctionColumnDef);
   }
 
   private void createNoteUpdatedAt(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "note_updated_at")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("note_updated_at").setIsNullable(true).build())
-        .build());
-    }
+    BigIntegerColumnDef noteUpdatedAtColumnDef = newBigIntegerColumnDefBuilder().setColumnName("note_updated_at").setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, noteUpdatedAtColumnDef);
+
   }
 
   private void createNoteCreatedAt(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "note_created_at")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("note_created_at").setIsNullable(true).build())
-        .build());
-    }
+    BigIntegerColumnDef noteCreatedAtColumnDef = newBigIntegerColumnDefBuilder().setColumnName("note_created_at").setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, noteCreatedAtColumnDef);
   }
 
   private void createNoteUserUuid(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "note_user_uuid")) {
+    VarcharColumnDef noteUserUuidColumnDef = newVarcharColumnDefBuilder("note_user_uuid").setLimit(USER_UUID_SIZE).setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, noteUserUuidColumnDef);
+  }
+
+  private void createNoteDataAt(Context context, Connection connection) {
+    ClobColumnDef noteDataColumnDef = newClobColumnDefBuilder().setColumnName("note_data").setIsNullable(true).build();
+    createColumnIfNotExists(context, connection, noteDataColumnDef);
+  }
+
+  private void createColumnIfNotExists(Context context, Connection connection, ColumnDef columnDef) {
+    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, columnDef.getName())) {
       context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newVarcharColumnBuilder("note_user_uuid").setLimit(USER_UUID_SIZE).setIsNullable(true).build())
+        .addColumn(columnDef)
         .build());
     }
   }
 
-  private void createNoteDataAt(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, TABLE_NAME, "note_data")) {
-      context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-        .addColumn(newClobColumnDefBuilder().setColumnName("note_data").setIsNullable(true).build())
-        .build());
-    }
-  }
 }

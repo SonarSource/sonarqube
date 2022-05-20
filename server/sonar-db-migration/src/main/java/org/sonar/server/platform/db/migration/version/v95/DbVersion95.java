@@ -39,6 +39,7 @@ public class DbVersion95 implements DbVersion {
       .add(6411, "Overwrite plugin file hash to force reloading rules", OverwritePluginFileHash.class)
 
       .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
+      .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)
       ;
   }
 }
