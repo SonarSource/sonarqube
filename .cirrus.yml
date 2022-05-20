@@ -618,7 +618,7 @@ ws_scan_task:
   depends_on: build
   only_if: >-
     $CIRRUS_BRANCH == 'master' ||
-    $CIRRUS_BRANCH =~ 'branch.*'
+    ($CIRRUS_BRANCH =~ 'branch.*' && $CIRRUS_BRANCH != 'branch-nightly-build')
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
