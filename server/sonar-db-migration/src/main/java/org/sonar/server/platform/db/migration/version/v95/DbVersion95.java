@@ -40,6 +40,7 @@ public class DbVersion95 implements DbVersion {
 
       .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
       .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)
+      .add(6414, "Drop rules_metadata table", DropRuleMetadataTable.class)
       ;
   }
 }
