@@ -37,6 +37,8 @@ public class DbVersion95 implements DbVersion {
       .add(6409, "Drop column CREATED_AT from RULES_METADATA table", DropRuleMetadataCreatedAtColumn.class)
       .add(6410, "Drop column UPDATED_AT from RULES_METADATA table", DropRuleMetadataUpdatedAtColumn.class)
       .add(6411, "Overwrite plugin file hash to force reloading rules", OverwritePluginFileHash.class)
+
+      .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
       ;
   }
 }

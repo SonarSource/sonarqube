@@ -1462,7 +1462,7 @@ public class CreateInitialSchema extends DdlChange {
     context.execute(builder.build());
   }
 
-  private static VarcharColumnDef.Builder newVarcharColumnBuilder(String column) {
+  public static VarcharColumnDef.Builder newVarcharColumnBuilder(String column) {
     return newVarcharColumnDefBuilder().setColumnName(column);
   }
 
