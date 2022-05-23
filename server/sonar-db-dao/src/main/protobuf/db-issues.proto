@@ -33,6 +33,7 @@ option optimize_for = SPEED;
 message Locations {
   optional sonarqube.db.commons.TextRange text_range = 1;
   repeated Flow flow = 2;
+  optional string checksum = 3;
 }
 
 message Flow {
@@ -44,4 +45,5 @@ message Location {
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
   optional sonarqube.db.commons.TextRange text_range = 2;
   optional string msg = 3;
+  optional string checksum = 4;
 }
