@@ -28,10 +28,12 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
@@ -165,6 +167,10 @@ public class RegulatoryReportDaoTest {
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CONFIRMED").setResolution(null));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
 
+    // comments
+    db.issues().insertChange(issue1, ic -> ic.setChangeData("c2").setIssueChangeCreationDate(2000L).setChangeType("comment"));
+    db.issues().insertChange(issue1, ic -> ic.setChangeData("c1").setIssueChangeCreationDate(1000L).setChangeType("comment"));
+
     // not returned
     IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CLOSED").setResolution(null));
     ComponentDto otherProject = db.components().insertPrivateProject();
@@ -187,5 +193,6 @@ public class RegulatoryReportDaoTest {
     assertThat(issue.getType().getDbConstant()).isEqualTo(issue1.getType());
     assertThat(issue.getSecurityStandards()).isEqualTo(rule.getSecurityStandards());
     assertThat(issue.isManualSeverity()).isEqualTo(issue1.isManualSeverity());
+    assertThat(issue.getComments()).containsExactly("c1", "c2");
   }
 }

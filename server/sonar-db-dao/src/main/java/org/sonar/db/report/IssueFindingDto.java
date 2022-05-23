@@ -19,6 +19,7 @@
  */
 package org.sonar.db.report;
 
+import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rules.RuleType;
@@ -40,6 +41,7 @@ public class IssueFindingDto {
   private String securityStandards;
   private boolean isNewCodeReferenceIssue;
   private long creationDate;
+  private List<String> comments;
 
   public String getStatus() {
     return status;
@@ -104,5 +106,9 @@ public class IssueFindingDto {
 
   public long getCreationDate() {
     return creationDate;
+  }
+
+  public List<String> getComments() {
+    return comments;
   }
 }
