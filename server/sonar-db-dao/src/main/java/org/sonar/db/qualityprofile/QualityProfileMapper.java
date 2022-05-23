@@ -91,6 +91,8 @@ public interface QualityProfileMapper {
     @Param("projectUuid") String projectUuid,
     @Param("languages") Collection<String> languages);
 
+  List<String> selectQProfileUuidsByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void insertProjectProfileAssociation(
     @Param("uuid") String uuid,
     @Param("projectUuid") String projectUuid,

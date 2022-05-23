@@ -279,6 +279,14 @@
       and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectQProfileUuidsByProjectUuid" parameterType="String" resultType="String">
+    SELECT profile_key
+    FROM project_qprofiles
+    <where>
+      AND project_uuid=#{projectUuid}
+    </where>
+  </select>
+
   <insert id="insertProjectProfileAssociation" useGeneratedKeys="false">
     insert into project_qprofiles (
       uuid,

@@ -23,4 +23,8 @@ import org.apache.ibatis.session.ResultHandler;
 
 public interface RegulatoryReportMapper {
   void scrollIssues(String branchUuid, ResultHandler<IssueFindingDto> handler);
+
+  void getQualityGateFindings(String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler);
+
+  void getQualityProfileFindings(String qualityProfileUuid, ResultHandler<QualityProfileFindingDto> handler);
 }

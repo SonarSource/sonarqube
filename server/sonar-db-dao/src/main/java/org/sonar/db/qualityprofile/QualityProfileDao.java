@@ -167,6 +167,10 @@ public class QualityProfileDao implements Dao {
     return selectAssociatedToProjectUuidAndLanguages(dbSession, project.getUuid(), languages);
   }
 
+  public List<String> selectQProfileUuidsByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectQProfileUuidsByProjectUuid(projectUuid);
+  }
+
   public List<QProfileDto> selectByLanguage(DbSession dbSession, String language) {
     return mapper(dbSession).selectByLanguage(language);
   }

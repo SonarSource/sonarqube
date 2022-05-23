@@ -19,25 +19,43 @@
  */
 package org.sonar.db.report;
 
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.db.Dao;
-import org.sonar.db.DbSession;
+import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.SeverityUtil;
 
-public class RegulatoryReportDao implements Dao {
-  public void scrollIssues(DbSession dbSession, String branchUuid, ResultHandler<IssueFindingDto> handler) {
-    mapper(dbSession).scrollIssues(branchUuid, handler);
+public class QualityProfileFindingDto {
+  private String language = null;
+  private String title = null;
+  private String repository = null;
+  private String ruleKey = null;
+  private String status = null;
+  private Integer type = null;
+  private Integer severity = null;
+
+  public String getLanguage() {
+    return language;
   }
 
-  public void getQualityGateFindings(DbSession dbSession, String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler) {
-    mapper(dbSession).getQualityGateFindings(qualityGateUuid, handler);
+  public String getTitle() {
+    return title;
   }
 
-  public void getQualityProfileFindings(DbSession dbSession, String qualityProfileUuid, ResultHandler<QualityProfileFindingDto> handler) {
-    mapper(dbSession).getQualityProfileFindings(qualityProfileUuid, handler);
+  public RuleKey getReferenceKey() {
+    return RuleKey.of(repository, ruleKey);
   }
 
-  private static RegulatoryReportMapper mapper(DbSession dbSession) {
-    return dbSession.getMapper(RegulatoryReportMapper.class);
+  public RuleStatus getStatus() {
+    return RuleStatus.valueOf(status);
   }
 
+  public RuleType getType() {
+    return RuleType.valueOf(type);
+  }
+
+  @CheckForNull
+  public String getSeverity() {
+    return SeverityUtil.getSeverityFromOrdinal(severity);
+  }
 }
