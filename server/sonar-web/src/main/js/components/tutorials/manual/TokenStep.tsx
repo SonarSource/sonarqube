@@ -51,6 +51,8 @@ interface State {
   tokens?: UserToken[];
 }
 
+const TOKEN_FORMAT_REGEX = /^[_a-z0-9]+$/;
+
 export default class TokenStep extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -91,7 +93,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   canContinue = () => {
     const { existingToken, selection, token } = this.state;
-    const validExistingToken = existingToken.match(/^[a-z0-9]+$/) != null;
+    const validExistingToken = existingToken.match(TOKEN_FORMAT_REGEX) != null;
     return (
       (selection === 'generate' && token != null) ||
       (selection === 'use-existing' && existingToken && validExistingToken)
@@ -206,7 +208,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   renderUseExistingOption = () => {
     const { existingToken } = this.state;
-    const validInput = !existingToken || existingToken.match(/^[a-z0-9]+$/) != null;
+    const validInput = !existingToken || existingToken.match(TOKEN_FORMAT_REGEX) != null;
 
     return (
       <div className="big-spacer-top">
