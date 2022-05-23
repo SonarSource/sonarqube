@@ -66,22 +66,21 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.mounted = true;
-    getTokens(this.props.currentUser.login).then(
-      tokens => {
-        if (this.mounted) {
-          this.setState({ tokens });
-          if (
-            this.props.initialTokenName !== undefined &&
-            this.props.initialTokenName === this.state.tokenName
-          ) {
-            this.setState({ tokenName: getUniqueTokenName(tokens) });
-          }
-        }
-      },
-      () => {}
-    );
+    const { currentUser, initialTokenName } = this.props;
+    const { tokenName } = this.state;
+
+    const tokens = await getTokens(currentUser.login).catch(() => {
+      /* noop */
+    });
+
+    if (tokens && this.mounted) {
+      this.setState({ tokens });
+      if (initialTokenName !== undefined && initialTokenName === tokenName) {
+        this.setState({ tokenName: getUniqueTokenName(tokens, initialTokenName) });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -143,16 +142,6 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     if (token) {
       this.props.onContinue(token);
     }
-  };
-
-  handleGenerateClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.setState({ selection: 'generate' });
-  };
-
-  handleUseExistingClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.setState({ selection: 'use-existing' });
   };
 
   handleModeChange = (mode: string) => {

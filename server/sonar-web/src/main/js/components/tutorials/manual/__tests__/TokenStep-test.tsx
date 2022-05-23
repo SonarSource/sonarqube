@@ -19,15 +19,28 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { getTokens } from '../../../../api/user-tokens';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import TokenStep from '../TokenStep';
 
 jest.mock('../../../../api/user-tokens', () => ({
-  getTokens: () => Promise.resolve([{ name: 'foo' }]),
-  generateToken: () => Promise.resolve({ token: 'abcd1234' }),
-  revokeToken: () => Promise.resolve()
+  getTokens: jest.fn().mockResolvedValue([{ name: 'foo' }]),
+  generateToken: jest.fn().mockResolvedValue({ token: 'abcd1234' }),
+  revokeToken: jest.fn().mockResolvedValue(null)
 }));
+
+it('sets an initial token name', async () => {
+  (getTokens as jest.Mock).mockResolvedValueOnce([{ name: 'fôo' }]);
+  const wrapper = shallowRender({ initialTokenName: 'fôo' });
+  await waitAndUpdate(wrapper);
+  expect(
+    wrapper
+      .dive()
+      .find('input')
+      .props().value
+  ).toBe('fôo 1');
+});
 
 it('generates token', async () => {
   const wrapper = shallowRender();
