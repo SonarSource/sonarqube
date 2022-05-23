@@ -76,7 +76,7 @@ export function getSecurityHotspots(
     status?: HotspotStatus;
     resolution?: HotspotResolution;
     onlyMine?: boolean;
-    sinceLeakPeriod?: boolean;
+    inNewCodePeriod?: boolean;
   } & BranchParameters
 ): Promise<HotspotSearchResponse> {
   return getJSON(HOTSPOTS_SEARCH_URL, data).catch(throwGlobalError);

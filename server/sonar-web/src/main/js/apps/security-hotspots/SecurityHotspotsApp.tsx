@@ -345,7 +345,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         p: page,
         ps: PAGE_SIZE,
         status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
-        sinceLeakPeriod: filters.sinceLeakPeriod && Boolean(filterByFile), // only add leak period when filtering by file
+        inNewCodePeriod: filters.sinceLeakPeriod && Boolean(filterByFile), // only add leak period when filtering by file
         ...getBranchLikeQuery(branchLike)
       });
     }
@@ -367,7 +367,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       status,
       resolution,
       onlyMine: filters.assignedToMe,
-      sinceLeakPeriod: filters.sinceLeakPeriod,
+      inNewCodePeriod: filters.sinceLeakPeriod,
       ...getBranchLikeQuery(branchLike)
     });
   }

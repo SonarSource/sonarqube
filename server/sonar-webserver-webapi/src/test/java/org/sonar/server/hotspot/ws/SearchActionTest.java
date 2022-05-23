@@ -109,8 +109,25 @@ import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
+@SuppressWarnings("ALL")
 @RunWith(DataProviderRunner.class)
 public class SearchActionTest {
+
+  private static final String PARAM_PROJECT_KEY = "projectKey";
+  private static final String PARAM_STATUS = "status";
+  private static final String PARAM_RESOLUTION = "resolution";
+  private static final String PARAM_HOTSPOTS = "hotspots";
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
+  private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
+  private static final String PARAM_ONLY_MINE = "onlyMine";
+  private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
+  private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
+  private static final String PARAM_SANS_TOP_25 = "sansTop25";
+  private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  private static final String PARAM_CWE = "cwe";
+  private static final String PARAM_FILES = "files";
+
   private static final Random RANDOM = new Random();
   private static final int ONE_MINUTE = 60_000;
   private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
@@ -136,16 +153,16 @@ public class SearchActionTest {
 
   @Test
   public void verify_ws_def() {
-    WebService.Param onlyMineParam = actionTester.getDef().param("onlyMine");
-    WebService.Param owaspTop10Param = actionTester.getDef().param("owaspTop10");
-    WebService.Param sansTop25Param = actionTester.getDef().param("sansTop25");
-    WebService.Param sonarsourceSecurityParam = actionTester.getDef().param("sonarsourceSecurity");
-    WebService.Param filesParam = actionTester.getDef().param("files");
+    WebService.Param onlyMineParam = actionTester.getDef().param(PARAM_ONLY_MINE);
+    WebService.Param owaspTop10Param = actionTester.getDef().param(PARAM_OWASP_TOP_10_2017);
+    WebService.Param sansTop25Param = actionTester.getDef().param(PARAM_SANS_TOP_25);
+    WebService.Param sonarsourceSecurityParam = actionTester.getDef().param(PARAM_SONARSOURCE_SECURITY);
+    WebService.Param filesParam = actionTester.getDef().param(PARAM_FILES);
 
     assertThat(actionTester.getDef().isInternal()).isTrue();
     assertThat(onlyMineParam).isNotNull();
     assertThat(onlyMineParam.isRequired()).isFalse();
-    assertThat(actionTester.getDef().param("onlyMine").possibleValues())
+    assertThat(actionTester.getDef().param(PARAM_ONLY_MINE).possibleValues())
       .containsExactlyInAnyOrder("yes", "no", "true", "false");
 
     assertThat(owaspTop10Param).isNotNull();
@@ -169,8 +186,8 @@ public class SearchActionTest {
   @Test
   public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_projectKey() {
     TestRequest request = actionTester.newRequest()
-      .setParam("hotspots", randomAlphabetic(2))
-      .setParam("branch", randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
+      .setParam(PARAM_BRANCH, randomAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -180,8 +197,8 @@ public class SearchActionTest {
   @Test
   public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_projectKey() {
     TestRequest request = actionTester.newRequest()
-      .setParam("hotspots", randomAlphabetic(2))
-      .setParam("pullRequest", randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
+      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -191,9 +208,9 @@ public class SearchActionTest {
   @Test
   public void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", randomAlphabetic(2))
-      .setParam("branch", randomAlphabetic(1))
-      .setParam("pullRequest", randomAlphabetic(1));
+      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(2))
+      .setParam(PARAM_BRANCH, randomAlphabetic(1))
+      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -204,8 +221,8 @@ public class SearchActionTest {
   @UseDataProvider("badStatuses")
   public void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", randomAlphabetic(13))
-      .setParam("status", badStatus);
+      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_STATUS, badStatus);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -227,8 +244,8 @@ public class SearchActionTest {
   @UseDataProvider("validStatusesAndResolutions")
   public void fail_with_IAE_if_parameter_status_is_specified_with_hotspots_parameter(String status, @Nullable String notUsed) {
     TestRequest request = actionTester.newRequest()
-      .setParam("hotspots", randomAlphabetic(12))
-      .setParam("status", status);
+      .setParam(PARAM_HOTSPOTS, randomAlphabetic(12))
+      .setParam(PARAM_STATUS, status);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -239,9 +256,9 @@ public class SearchActionTest {
   @UseDataProvider("badResolutions")
   public void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", randomAlphabetic(13))
-      .setParam("status", STATUS_TO_REVIEW)
-      .setParam("resolution", badResolution);
+      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
+      .setParam(PARAM_RESOLUTION, badResolution);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -264,9 +281,9 @@ public class SearchActionTest {
   @UseDataProvider("fixedOrSafeResolution")
   public void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", randomAlphabetic(13))
-      .setParam("status", STATUS_TO_REVIEW)
-      .setParam("resolution", resolution);
+      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
+      .setParam(PARAM_RESOLUTION, resolution);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -277,8 +294,8 @@ public class SearchActionTest {
   @UseDataProvider("fixedOrSafeResolution")
   public void fails_with_IAE_if_resolution_is_provided_with_hotspots_parameter(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam("hotspots", randomAlphabetic(13))
-      .setParam("resolution", resolution);
+      .setParam(PARAM_HOTSPOTS, randomAlphabetic(13))
+      .setParam(PARAM_RESOLUTION, resolution);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -297,7 +314,7 @@ public class SearchActionTest {
   public void fails_with_NotFoundException_if_project_does_not_exist() {
     String key = randomAlphabetic(12);
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", key);
+      .setParam(PARAM_PROJECT_KEY, key);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -313,7 +330,7 @@ public class SearchActionTest {
     TestRequest request = actionTester.newRequest();
 
     for (ComponentDto component : Arrays.asList(directory, file, portfolio)) {
-      request.setParam("projectKey", component.getKey());
+      request.setParam(PARAM_PROJECT_KEY, component.getKey());
 
       assertThatThrownBy(request::execute)
         .isInstanceOf(NotFoundException.class)
@@ -414,8 +431,8 @@ public class SearchActionTest {
     assertThat(response.getHotspotsList())
       .extracting(Hotspots.SearchWsResponse.Hotspot::getKey)
       .containsOnly(Arrays.stream(hotspots)
-        .filter(t -> !t.getKey().equals(hotspotWithoutRule.getKey()))
         .map(IssueDto::getKey)
+        .filter(key -> !key.equals(hotspotWithoutRule.getKey()))
         .toArray(String[]::new));
   }
 
@@ -718,7 +735,7 @@ public class SearchActionTest {
     SearchWsResponse allHotspots = newRequest(project1)
       .executeProtobuf(SearchWsResponse.class);
 
-    SearchWsResponse userHotspots = newRequest(project1, r -> r.setParam("onlyMine", onlyMineParameter))
+    SearchWsResponse userHotspots = newRequest(project1, r -> r.setParam(PARAM_ONLY_MINE, onlyMineParameter))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(allHotspots.getHotspotsList())
@@ -755,8 +772,8 @@ public class SearchActionTest {
     userSessionRule.logIn().addProjectPermission(USER, project);
 
     TestRequest request = actionTester.newRequest()
-      .setParam("hotspots", IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
-      .setParam("onlyMine", "true");
+      .setParam(PARAM_HOTSPOTS, IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
+      .setParam(PARAM_ONLY_MINE, "true");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
@@ -769,8 +786,8 @@ public class SearchActionTest {
     userSessionRule.anonymous();
 
     TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
-      .setParam("onlyMine", "true");
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_ONLY_MINE, "true");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Parameter 'onlyMine' requires user to be logged in");
@@ -1386,7 +1403,7 @@ public class SearchActionTest {
     insertHotspot(project, file, rule3);
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("sonarsourceSecurity", "log-injection")
+    SearchWsResponse response = newRequest(project).setParam(PARAM_SONARSOURCE_SECURITY, "log-injection")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1408,7 +1425,7 @@ public class SearchActionTest {
     insertHotspot(project, file, rule3);
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("cwe", "117,190")
+    SearchWsResponse response = newRequest(project).setParam(PARAM_CWE, "117,190")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1430,7 +1447,7 @@ public class SearchActionTest {
     IssueDto hotspot3 = insertHotspot(project, file, rule3);
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("owaspTop10", "a1")
+    SearchWsResponse response = newRequest(project).setParam(PARAM_OWASP_TOP_10_2017, "a1")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1452,7 +1469,7 @@ public class SearchActionTest {
     IssueDto hotspot3 = insertHotspot(project, file, rule3);
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("owaspTop10-2021", "a5")
+    SearchWsResponse response = newRequest(project).setParam(PARAM_OWASP_TOP_10_2021, "a5")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1474,7 +1491,7 @@ public class SearchActionTest {
     IssueDto hotspot3 = insertHotspot(project, file, rule3);
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("sansTop25", "insecure-interaction")
+    SearchWsResponse response = newRequest(project).setParam(PARAM_SANS_TOP_25, "insecure-interaction")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1496,7 +1513,7 @@ public class SearchActionTest {
 
     indexIssues();
 
-    SearchWsResponse response = newRequest(project).setParam("files", file1.path())
+    SearchWsResponse response = newRequest(project).setParam(PARAM_FILES, file1.path())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1505,7 +1522,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_hotspots_on_the_leak_period_when_sinceLeakPeriod_is_true() {
+  public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -1548,7 +1565,7 @@ public class SearchActionTest {
         .toArray(String[]::new));
 
     SearchWsResponse responseOnLeak = newRequest(project,
-      t -> t.setParam("sinceLeakPeriod", "true"))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
@@ -1560,7 +1577,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_hotspots_on_the_leak_period_when_sinceLeakPeriod_is_true_and_branch_uses_reference_branch() {
+  public void returns_hotspots_on_the_leak_period_when_inNewCodePeriod_is_true_and_branch_uses_reference_branch() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -1590,7 +1607,7 @@ public class SearchActionTest {
         .toArray(String[]::new));
 
     SearchWsResponse responseOnLeak = newRequest(project,
-      t -> t.setParam("sinceLeakPeriod", "true"))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
@@ -1601,7 +1618,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_nothing_when_sinceLeakPeriod_is_true_and_no_period_exists() {
+  public void returns_nothing_when_inNewCodePeriod_is_true_and_no_period_exists() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1626,13 +1643,13 @@ public class SearchActionTest {
         .toArray(String[]::new));
 
     SearchWsResponse responseOnLeak = newRequest(project,
-      t -> t.setParam("sinceLeakPeriod", "true"))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).isEmpty();
   }
 
   @Test
-  public void returns_all_issues_when_sinceLeakPeriod_is_true_and_is_pr() {
+  public void returns_all_issues_when_inNewCodePeriod_is_true_and_is_pr() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1649,7 +1666,7 @@ public class SearchActionTest {
     IssueDto beforeRef = dbTester.issues().insertHotspot(rule, pr, file, t -> t.setIssueCreationTime(referenceDate - 1000));
     indexIssues();
 
-    SearchWsResponse responseAll = newRequest(project).setParam("pullRequest", "pr")
+    SearchWsResponse responseAll = newRequest(project).setParam(PARAM_PULL_REQUEST, "pr")
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
@@ -1658,13 +1675,13 @@ public class SearchActionTest {
         .toArray(String[]::new));
 
     SearchWsResponse responseOnLeak = newRequest(project,
-      t -> t.setParam("sinceLeakPeriod", "true").setParam("pullRequest", "pr"))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true").setParam(PARAM_PULL_REQUEST, "pr"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).hasSize(3);
   }
 
   @Test
-  public void returns_issues_when_sinceLeakPeriod_is_true_and_is_application_for_main_branch() {
+  public void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_main_branch() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1701,7 +1718,7 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
 
     SearchWsResponse responseOnLeak = newRequest(application,
-      t -> t.setParam("sinceLeakPeriod", "true"))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
@@ -1709,7 +1726,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_issues_when_sinceLeakPeriod_is_true_and_is_application_for_branch_other_than_main() {
+  public void returns_issues_when_inNewCodePeriod_is_true_and_is_application_for_branch_other_than_main() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1753,14 +1770,14 @@ public class SearchActionTest {
 
     ComponentDto applicationComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), application.getUuid()).get();
     SearchWsResponse responseAll = newRequest(applicationComponentDto,
-      t -> t.setParam("branch", applicationBranch.getKey()))
+      t -> t.setParam(PARAM_BRANCH, applicationBranch.getKey()))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
 
     SearchWsResponse responseOnLeak = newRequest(applicationComponentDto,
-      t -> t.setParam("sinceLeakPeriod", "true").setParam("branch", applicationBranch.getKey()))
+      t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true").setParam(PARAM_BRANCH, applicationBranch.getKey()))
       .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
@@ -1863,20 +1880,20 @@ public class SearchActionTest {
 
   private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution, Consumer<TestRequest> consumer) {
     TestRequest res = actionTester.newRequest()
-      .setParam("projectKey", project.getKey());
+      .setParam(PARAM_PROJECT_KEY, project.getKey());
     String branch = project.getBranch();
     if (branch != null) {
-      res.setParam("branch", branch);
+      res.setParam(PARAM_BRANCH, branch);
     }
     String pullRequest = project.getPullRequest();
     if (pullRequest != null) {
-      res.setParam("pullRequest", pullRequest);
+      res.setParam(PARAM_PULL_REQUEST, pullRequest);
     }
     if (status != null) {
-      res.setParam("status", status);
+      res.setParam(PARAM_STATUS, status);
     }
     if (resolution != null) {
-      res.setParam("resolution", resolution);
+      res.setParam(PARAM_RESOLUTION, resolution);
     }
     consumer.accept(res);
     return res;
@@ -1884,7 +1901,7 @@ public class SearchActionTest {
 
   private TestRequest newRequest(Collection<String> hotspotKeys) {
     return actionTester.newRequest()
-      .setParam("hotspots", String.join(",", hotspotKeys));
+      .setParam(PARAM_HOTSPOTS, String.join(",", hotspotKeys));
   }
 
   private void indexPermissions() {

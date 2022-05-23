@@ -136,7 +136,7 @@ public class HotspotsService extends BaseService {
         .setParam("ps", request.getPs())
         .setParam("pullRequest", request.getPullRequest())
         .setParam("resolution", request.getResolution())
-        .setParam("sinceLeakPeriod", request.getSinceLeakPeriod())
+        .setParam("inNewCodePeriod", request.getInNewCodePeriod())
         .setParam("status", request.getStatus())
         .setMediaType(MediaTypes.JSON),
       Hotspots.SearchWsResponse.parser());

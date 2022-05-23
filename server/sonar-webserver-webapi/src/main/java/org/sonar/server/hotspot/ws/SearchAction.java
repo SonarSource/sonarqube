@@ -107,7 +107,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_HOTSPOTS = "hotspots";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
-  private static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
+  private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
@@ -154,7 +154,7 @@ public class SearchAction implements HotspotsWsAction {
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owasp2017Top10, owasp2021Top10, sansTop25,
+      request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owasp2017Top10, owasp2021Top10, sansTop25,
       sonarsourceSecurity, cwes, files);
   }
 
@@ -221,10 +221,11 @@ public class SearchAction implements HotspotsWsAction {
         PARAM_PROJECT_KEY, STATUS_REVIEWED))
       .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED)
       .setRequired(false);
-    action.createParam(PARAM_SINCE_LEAK_PERIOD)
-      .setDescription("If '%s' is provided, only Security Hotspots created since the leak period are returned.")
+    action.createParam(PARAM_IN_NEW_CODE_PERIOD)
+      .setDescription("If '%s' is provided, only Security Hotspots created in the new code period are returned.", PARAM_IN_NEW_CODE_PERIOD)
       .setBooleanPossibleValues()
-      .setDefaultValue("false");
+      .setDefaultValue("false")
+      .setSince("9.5");
     action.createParam(PARAM_ONLY_MINE)
       .setDescription("If 'projectKey' is provided, returns only Security Hotspots assigned to the current user")
       .setBooleanPossibleValues()
@@ -357,13 +358,13 @@ public class SearchAction implements HotspotsWsAction {
       String projectUuid = firstNonNull(project.getMainBranchProjectUuid(), project.uuid());
       if (Qualifiers.APP.equals(project.qualifier())) {
         builder.viewUuids(singletonList(projectUuid));
-        if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
-          addSinceLeakPeriodFilterByProjects(builder, dbSession, project);
+        if (wsRequest.isInNewCodePeriod() && wsRequest.getPullRequest().isEmpty()) {
+          addInNewCodePeriodFilterByProjects(builder, dbSession, project);
         }
       } else {
         builder.projectUuids(singletonList(projectUuid));
-        if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
-          addSinceLeakPeriodFilter(dbSession, project, builder);
+        if (wsRequest.isInNewCodePeriod() && wsRequest.getPullRequest().isEmpty()) {
+          addInNewCodePeriodFilter(dbSession, project, builder);
         }
       }
 
@@ -420,7 +421,7 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private void addSinceLeakPeriodFilter(DbSession dbSession, @NotNull ComponentDto project, IssueQuery.Builder builder) {
+  private void addInNewCodePeriodFilter(DbSession dbSession, @NotNull ComponentDto project, IssueQuery.Builder builder) {
     Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid());
 
     boolean isLastAnalysisUsingReferenceBranch = snapshot.map(SnapshotDto::getPeriodMode)
@@ -437,7 +438,7 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private void addSinceLeakPeriodFilterByProjects(IssueQuery.Builder builder, DbSession dbSession, ComponentDto application) {
+  private void addInNewCodePeriodFilterByProjects(IssueQuery.Builder builder, DbSession dbSession, ComponentDto application) {
     Set<String> projectUuids;
     if (application.getMainBranchProjectUuid() == null) {
       projectUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, application.uuid()).stream()
@@ -612,7 +613,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> hotspotKeys;
     private final String status;
     private final String resolution;
-    private final boolean sinceLeakPeriod;
+    private final boolean inNewCodePeriod;
     private final boolean onlyMine;
     private final Set<String> owaspTop10For2017;
     private final Set<String> owaspTop10For2021;
@@ -624,7 +625,7 @@ public class SearchAction implements HotspotsWsAction {
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
-      @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod,
+      @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod,
       @Nullable Boolean onlyMine, Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25, Set<String> sonarsourceSecurity,
       Set<String> cwe, @Nullable Set<String> files) {
       this.page = page;
@@ -635,7 +636,7 @@ public class SearchAction implements HotspotsWsAction {
       this.hotspotKeys = hotspotKeys;
       this.status = status;
       this.resolution = resolution;
-      this.sinceLeakPeriod = sinceLeakPeriod != null && sinceLeakPeriod;
+      this.inNewCodePeriod = inNewCodePeriod != null && inNewCodePeriod;
       this.onlyMine = onlyMine != null && onlyMine;
       this.owaspTop10For2017 = owaspTop10For2017;
       this.owaspTop10For2021 = owaspTop10For2021;
@@ -677,8 +678,8 @@ public class SearchAction implements HotspotsWsAction {
       return ofNullable(resolution);
     }
 
-    boolean isSinceLeakPeriod() {
-      return sinceLeakPeriod;
+    boolean isInNewCodePeriod() {
+      return inNewCodePeriod;
     }
 
     boolean isOnlyMine() {

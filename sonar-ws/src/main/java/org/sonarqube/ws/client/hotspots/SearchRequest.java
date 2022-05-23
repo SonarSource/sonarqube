@@ -39,7 +39,7 @@ public class SearchRequest {
   private String ps;
   private String pullRequest;
   private String resolution;
-  private String sinceLeakPeriod;
+  private String inNewCodePeriod;
   private String status;
   private String files;
 
@@ -160,13 +160,13 @@ public class SearchRequest {
    *   <li>"no"</li>
    * </ul>
    */
-  public SearchRequest setSinceLeakPeriod(String sinceLeakPeriod) {
-    this.sinceLeakPeriod = sinceLeakPeriod;
+  public SearchRequest setInNewCodePeriod(String inNewCodePeriod) {
+    this.inNewCodePeriod = inNewCodePeriod;
     return this;
   }
 
-  public String getSinceLeakPeriod() {
-    return sinceLeakPeriod;
+  public String getInNewCodePeriod() {
+    return inNewCodePeriod;
   }
 
   /**

@@ -387,7 +387,7 @@ it('should handle leakPeriod filter change', async () => {
   wrapper.instance().handleChangeFilters({ sinceLeakPeriod: true });
 
   expect(getMeasures).toBeCalledTimes(2);
-  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ sinceLeakPeriod: true }));
+  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ inNewCodePeriod: true }));
 });
 
 it('should handle hotspot click', () => {
