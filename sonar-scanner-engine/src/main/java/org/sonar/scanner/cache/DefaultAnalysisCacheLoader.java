@@ -25,6 +25,9 @@ import java.util.Optional;
 import java.util.zip.InflaterInputStream;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.Protobuf;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal;
@@ -34,11 +37,16 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
+
 /**
  * Loads plugin cache into the local storage
  */
 public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
+  private static final Logger LOG = Loggers.get(DefaultAnalysisCacheLoader.class);
+  private static final String LOG_MSG = "Load analysis cache";
   static final String CONTENT_ENCODING = "Content-Encoding";
+  static final String CONTENT_LENGTH = "Content-Length";
   static final String ACCEPT_ENCODING = "Accept-Encoding";
   private static final String URL = "api/analysis_cache/get";
 
@@ -52,23 +60,31 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
     this.wsClient = wsClient;
   }
 
-  @Override public Optional<AnalysisCacheMsg> load() {
+  @Override
+  public Optional<AnalysisCacheMsg> load() {
     String url = URL + "?project=" + project.key();
     if (branchConfiguration.referenceBranchName() != null) {
       url = url + "&branch=" + branchConfiguration.referenceBranchName();
     }
 
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     GetRequest request = new GetRequest(url).setHeader(ACCEPT_ENCODING, "gzip");
 
     try (WsResponse response = wsClient.call(request); InputStream is = response.contentStream()) {
       Optional<String> contentEncoding = response.header(CONTENT_ENCODING);
-      if (contentEncoding.isPresent() && contentEncoding.get().equals("gzip")) {
-        return Optional.of(decompress(is));
+      Optional<Integer> length = response.header(CONTENT_LENGTH).map(Integer::parseInt);
+      boolean hasGzipEncoding = contentEncoding.isPresent() && contentEncoding.get().equals("gzip");
+
+      AnalysisCacheMsg msg = hasGzipEncoding ? decompress(is) : Protobuf.read(is, AnalysisCacheMsg.parser());
+      if (length.isPresent()) {
+        profiler.stopInfo(LOG_MSG + String.format(" (%s)", humanReadableByteCountSI(length.get())));
       } else {
-        return Optional.of(Protobuf.read(is, AnalysisCacheMsg.parser()));
+        profiler.stopInfo(LOG_MSG);
       }
+      return Optional.of(msg);
     } catch (HttpException e) {
       if (e.code() == 404) {
+        profiler.stopInfo(LOG_MSG + " (404)");
         return Optional.empty();
       }
       throw MessageException.of("Failed to download analysis cache: " + DefaultScannerWsClient.createErrorMessage(e));

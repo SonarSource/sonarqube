@@ -28,10 +28,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.zip.DeflaterInputStream;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -56,6 +58,8 @@ public class DefaultAnalysisCacheLoaderTest {
   private final InputProject project = mock(InputProject.class);
   private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private final DefaultAnalysisCacheLoader loader = new DefaultAnalysisCacheLoader(wsClient, project, branchConfiguration);
+  @Rule
+  public LogTester logs = new LogTester();
 
   @Before
   public void before() {
@@ -64,11 +68,13 @@ public class DefaultAnalysisCacheLoaderTest {
   }
 
   @Test
-  public void loads_content() throws IOException {
+  public void loads_content_and_logs_size() throws IOException {
     setResponse(MSG);
+    when(response.header("Content-Length")).thenReturn(Optional.of("123"));
     AnalysisCacheMsg msg = loader.load().get();
     assertThat(msg).isEqualTo(MSG);
     assertRequestPath("api/analysis_cache/get?project=myproject");
+    assertThat(logs.logs()).anyMatch(s -> s.startsWith("Load analysis cache (123 bytes)"));
   }
 
   @Test
@@ -80,6 +86,7 @@ public class DefaultAnalysisCacheLoaderTest {
 
     assertThat(msg).isEqualTo(MSG);
     assertRequestPath("api/analysis_cache/get?project=myproject&branch=name");
+    assertThat(logs.logs()).anyMatch(s -> s.startsWith("Load analysis cache | time="));
   }
 
   @Test
@@ -93,6 +100,7 @@ public class DefaultAnalysisCacheLoaderTest {
   public void returns_empty_if_404() {
     when(wsClient.call(any())).thenThrow(new HttpException("url", 404, "content"));
     assertThat(loader.load()).isEmpty();
+    assertThat(logs.logs()).anyMatch(s -> s.startsWith("Load analysis cache (404) | time="));
   }
 
   @Test
