@@ -5,10 +5,9 @@ url: /analysis/test-coverage/java-test-coverage/
 
 SonarQube supports the reporting of test coverage as part of the analysis of your Java project.
 
-However, SonarQube does not compile the coverage report itself.
-Instead, you must set up a third-party tool to produce the coverage report as part of your build process.
-The SonarScanner will pick up this report and send it to SonarQube where it will be displayed on your project dashboard
-along with the other analysis metrics.
+However, SonarQube does not generate the coverage report itself.
+Instead, you must set up a third-party tool to produce the report as part of your build process.
+You then need to configure your analysis to tell the SonarScanner where the report is located so that it can pick it up and send it to SonarQube, where it will be displayed on your project dashboard along with the other analysis metrics.
 
 For Java projects, SonarQube directly supports the JaCoCo coverage tool
 (see [Generic Test Data](/analysis/test-coverage/generic-test/) for information on integrating other coverage tools).
@@ -16,7 +15,7 @@ For Java projects, SonarQube directly supports the JaCoCo coverage tool
 
 ## Adjust your setup
 
-To enable coverage you need to:
+To enable coverage, you need to:
 
 * Adjust your build process so that JaCoCo report generation step runs _before_ the SonarScanner step.
 * Make sure that JacCoCo writes its report file to a defined path in the build environment.
@@ -102,7 +101,7 @@ See [Coverage Analysis Parameters](/analysis/test-coverage/test-coverage-paramet
 The path can be either absolute or relative to the project root.
 
 
-## **Add coverage in a multi-module Maven project**
+## Add coverage in a multi-module Maven project
 
 For multi-module Maven projects, you configure the `jacoco-maven-plugin` in a profile in the parent pom just as in the single module case, above. By default, a separate coverage report will be generated for each module.
 

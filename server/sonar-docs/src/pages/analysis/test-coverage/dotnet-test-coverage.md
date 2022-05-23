@@ -5,10 +5,9 @@ url: /analysis/test-coverage/dotnet-test-coverage/
 
 SonarQube supports the reporting of test coverage information as part of the analysis of your .NET project.
 
-However, SonarQube does not compile the coverage report itself.
-Instead, you must set up a third-party tool to produce the coverage report as part of your build process.
-During the analysis, the scanner (in this case, the [SonarScanner for .NET](/analysis/scan/sonarscanner-for-msbuild/)) picks up this report and sends it to SonarQube.
-The coverage is then displayed on your SonarQube project dashboard, along with the other analysis metrics.
+However, SonarQube does not generate the coverage report itself.
+Instead, you must set up a third-party tool to produce the report as part of your build process.
+You then need to configure your analysis to tell the SonarScanner where the report is located so that it can pick it up and send it to SonarQube, where it will be displayed on your project dashboard along with the other analysis metrics.
 
 SonarQube supports the following .NET test coverage tools:
 
@@ -93,7 +92,7 @@ because this tool’s output format is the same as the Visual Studio Code Covera
 We use the `-f xml` parameter to specify that the output format is in XML.
 
 
-### **dotCover**
+### dotCover
 
 To use [dotCover](https://www.jetbrains.com/help/dotcover/dotCover__Coverage_Analysis_on_Third-Party_Server.html)
 you must install it as a global dotnet tool:
@@ -138,7 +137,7 @@ dotnet sonarscanner end /d:sonar.login="<sonar-token>"
 Note that we specify the path to the reports using `sonar.cs.opencover.reportsPaths` because we are using OpenCover.
 
 
-### **Coverlet**
+### Coverlet
 
 To use Coverlet, you must install it as a global dotnet tool:
 
@@ -221,7 +220,7 @@ steps:
 - task: SonarQubeAnalyze@1
 ```
 
-## **VB.NET**
+## VB.NET
 
 The examples above are all for C# projects. For VB.NET projects the setup is identical except that you would use these parameters:
 

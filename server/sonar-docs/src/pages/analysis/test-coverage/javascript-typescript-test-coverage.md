@@ -5,10 +5,9 @@ url: /analysis/test-coverage/javascript-typescript-test-coverage/
 
 SonarQube supports the reporting of test coverage information as part of the analysis of your JS/TS project.
 
-However, SonarQube does not compile the coverage report itself.
-Instead, you must set up a third-party tool to produce the coverage report as part of your build process (before the analysis step).
-Later, during the analysis steps, the scanner picks up this report and sends it to SonarQube.
-The coverage is then displayed on your SonarQube project dashboard, along with the other analysis metrics.
+However, SonarQube does not generate the coverage report itself.
+Instead, you must set up a third-party tool to produce the report as part of your build process.
+You then need to configure your analysis to tell the SonarScanner where the report is located so that it can pick it up and send it to SonarQube, where it will be displayed on your project dashboard along with the other analysis metrics.
 
 For JS/TS projects, SonarQube directly supports all coverage tools that produce reports in the LCOV format.
 Additionally, a generic coverage format is also supported if you wish to use an unsupported tool (though you will have to convert its output to the generic format yourself).
@@ -19,7 +18,7 @@ For information on the generic format, see Generic Test Data.
 
 ## Adjusting your setup
 
-To enable coverage you need to:
+To enable coverage, you need to:
 
 * Adjust your build process so that the coverage tool runs before the scanner step.
 * Make sure that the coverage tool writes its report file to a defined path in the build environment.

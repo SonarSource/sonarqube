@@ -5,12 +5,14 @@ url: /analysis/test-coverage/python-test-coverage/
 
 SonarQube supports the reporting of test coverage information as part of the analysis of your Python project.
 
-However, SonarQube does not compile the coverage report itself. Instead, you must use a third-party tool to produce the coverage report as part of your build process (before the analysis step). Later, during the analysis step, the scanner picks up this report and sends it to SonarQube. The coverage is then displayed on your SonarQube project dashboard along with the other analysis metrics.
+However, SonarQube does not generate the coverage report itself.
+Instead, you must set up a third-party tool to produce the report as part of your build process.
+You then need to configure your analysis to tell the SonarScanner where the report is located so that it can pick it up and send it to SonarQube, where it will be displayed on your project dashboard along with the other analysis metrics.
 
 
 ## Adjust your setup
 
-To enable coverage you need to:
+To enable coverage, you need to:
 
 * Adjust your build process so that the coverage tool runs _before_ the scanner report generation step runs.
 * Make sure that the coverage tool writes its report file to a defined path in the build environment.
@@ -69,11 +71,6 @@ Note that we specify `relative_files = True` in the `tox.ini` file to ensure tha
 
 The following shows how to configure the GitHub Actions build file for your Python project so that it works in conjunction with the `tox.ini` configuration file described above to generate code coverage.
 Your  `build.yml` file should look something like this:
-
-<!---
-The GitHub Action used in this example is SonarCloud specific.
-Is there an SQ-speciifc variant?
--->
 
 ```
 name: Build
