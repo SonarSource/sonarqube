@@ -116,16 +116,6 @@
       ],
       "enabled": true,
       "groupName": "Major Frontend Dependencies"
-    },
-    {
-      "matchManagers": "terraform",
-      "matchUpdateTypes": [
-        "major",
-        "patch",
-        "minor"
-      ],
-      "enabled": true,
-      "groupName": "Terraform Dependencies"
     }
   ]
 }
