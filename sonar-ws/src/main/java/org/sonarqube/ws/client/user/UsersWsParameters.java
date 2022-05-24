@@ -34,6 +34,7 @@ public class UsersWsParameters {
 
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_PASSWORD = "password";
+  public static final String PARAM_PREVIOUS_PASSWORD = "previousPassword";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_EMAIL = "email";
 

@@ -19,28 +19,9 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Collection;
+import org.sonar.api.server.ws.Definable;
 import org.sonar.api.server.ws.WebService;
 
-public class UsersWs implements WebService {
-
-  static final String API_USERS = "api/users";
-  static final String DESCRIPTION = "Manage users.";
-  static final String SINCE_VERSION = "3.6";
-
-  private final Collection<BaseUsersWsAction> usersWsActions;
-
-  public UsersWs(Collection<BaseUsersWsAction> usersWsActions) {
-    this.usersWsActions = usersWsActions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(API_USERS)
-      .setSince(SINCE_VERSION)
-      .setDescription(DESCRIPTION);
-
-    usersWsActions.forEach(action -> action.define(controller));
-    controller.done();
-  }
+public interface BaseUsersWsAction extends Definable<WebService.NewController> {
+  // Marker interface for UsersWs actions
 }

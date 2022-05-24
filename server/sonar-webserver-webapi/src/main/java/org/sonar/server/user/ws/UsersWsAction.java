@@ -21,6 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.sonar.server.ws.WsAction;
 
-public interface UsersWsAction extends WsAction {
+public interface UsersWsAction extends WsAction, BaseUsersWsAction {
   // Marker interface for UsersWs actions
 }
