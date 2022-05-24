@@ -22,6 +22,8 @@ package org.sonar.db.qualitygate;
 import javax.annotation.CheckForNull;
 
 public class QualityGateFindingDto {
+  public static final String RATING_VALUE_TYPE = "RATING";
+  public static final String PERCENT_VALUE_TYPE = "PERCENT";
   public static final String NEW_CODE_METRIC_PREFIX = "new_";
 
   private String description = null;
@@ -35,16 +37,16 @@ public class QualityGateFindingDto {
   private String errorThreshold = null;
   private Integer decimalScale = null;
 
-  private String getOperator() {
-    return operator;
-  }
-
   public String getDescription() {
     return description;
   }
 
   public String getOperatorDescription() {
-    return OperatorDescription.valueOf(getOperator()).getDescription();
+    if (isRating(getValueType())) {
+      return RatingType.valueOf(getOperator()).getDescription();
+    }
+
+    return PercentageType.valueOf(getOperator()).getDescription();
   }
 
   public Boolean isNewCodeMetric() {
@@ -70,6 +72,10 @@ public class QualityGateFindingDto {
   }
 
   public String getErrorThreshold() {
+    if (isRating(getValueType())) {
+      return RatingValue.valueOf(Integer.parseInt(errorThreshold));
+    }
+
     return errorThreshold;
   }
 
@@ -82,7 +88,32 @@ public class QualityGateFindingDto {
     return decimalScale;
   }
 
-  public enum OperatorDescription {
+  private String getOperator() {
+    return operator;
+  }
+
+  private static boolean isRating(String metricType) {
+    return RATING_VALUE_TYPE.equals(metricType);
+  }
+
+  public enum RatingType {
+    LT("Is Better Than"),
+    GT("Is Worse Than"),
+    EQ("Is"),
+    NE("Is Not");
+
+    private final String desc;
+
+    RatingType(String desc) {
+      this.desc = desc;
+    }
+
+    public String getDescription() {
+      return desc;
+    }
+  }
+
+  public enum PercentageType {
     LT("Is Less Than"),
     GT("Is Greater Than"),
     EQ("Is Equal To"),
@@ -90,12 +121,20 @@ public class QualityGateFindingDto {
 
     private final String desc;
 
-    OperatorDescription(String desc) {
+    PercentageType(String desc) {
       this.desc = desc;
     }
 
     public String getDescription() {
       return desc;
+    }
+  }
+
+  public enum RatingValue {
+    A, B, C, D, E;
+
+    public static String valueOf(int index) {
+      return values()[index - 1].name();
     }
   }
 }
