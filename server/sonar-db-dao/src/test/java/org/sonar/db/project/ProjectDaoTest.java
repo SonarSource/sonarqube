@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
@@ -66,7 +67,7 @@ public class ProjectDaoTest {
 
     Optional<ProjectDto> projectByUuid = projectDao.selectByUuid(db.getSession(), "uuid_o1_p1");
     assertThat(projectByUuid).isPresent();
-    assertProject(projectByUuid.get(), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectByUuid.get(), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
     assertThat(projectByUuid.get().isPrivate()).isFalse();
   }
 
@@ -78,7 +79,7 @@ public class ProjectDaoTest {
 
     Optional<ProjectDto> projectByKee = projectDao.selectProjectByKey(db.getSession(), "projectKee_o1_p1");
     assertThat(projectByKee).isPresent();
-    assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
   }
 
   @Test
@@ -151,8 +152,8 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", null, false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", null, false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
     dto1.setTags(Collections.singletonList("tag3"));
     dto2.setTagsString("");
@@ -161,8 +162,8 @@ public class ProjectDaoTest {
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag3", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", null, false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag3", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", null, false);
 
     assertThat(projectsByUuids.get(0).getTags()).containsOnly("tag3");
   }
@@ -177,16 +178,16 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
     projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false);
     projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true);
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", true);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", true);
   }
 
   @Test
@@ -201,8 +202,18 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+  }
+
+  @Test
+  public void select_by_uuids_over_1000() {
+    IntStream.range(0, 1005).mapToObj(value -> createProject("o1", "p" + value))
+      .forEach(projectDto -> projectDao.insert(db.getSession(), projectDto));
+
+    var projectUuids = projectDao.selectAll(db.getSession()).stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
+    List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), projectUuids);
+    assertThat(projectsByUuids).hasSize(1005);
   }
 
   @Test
@@ -247,7 +258,7 @@ public class ProjectDaoTest {
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {
-    assertThat(dto).extracting("name", "kee", "key","uuid", "description", "tagsString", "private")
+    assertThat(dto).extracting("name", "kee", "key", "uuid", "description", "tagsString", "private")
       .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate);
   }
 

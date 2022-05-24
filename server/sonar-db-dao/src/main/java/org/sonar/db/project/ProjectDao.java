@@ -98,7 +98,7 @@ public class ProjectDao implements Dao {
     if (uuids.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).selectByUuids(uuids);
+    return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
   }
 
   public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {
