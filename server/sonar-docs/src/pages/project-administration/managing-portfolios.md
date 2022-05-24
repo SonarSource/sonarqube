@@ -66,7 +66,7 @@ To specify a project branch or branches to monitor in your portfolios, you can d
 ### Adding Applications to a Portfolio
 To add an Application to a Portfolio, make sure your Application is [already created](/user-guide/applications/). Then:
 
-1. Navigate to the Portfolios configuration page by going to **[Administration > Configuration > Portfolios](/#sonarqube-admint#/admin/extension/governance/views_console/)**.
+1. Navigate to the Portfolios configuration page by going to **[Administration > Configuration > Portfolios](/#sonarqube-admin#/admin/extension/governance/views_console/)**.
 2. Select the Portfolio where you want to add your Application.
 3. Click **Add Portfolio**.
 4. Select **Local Reference**.
