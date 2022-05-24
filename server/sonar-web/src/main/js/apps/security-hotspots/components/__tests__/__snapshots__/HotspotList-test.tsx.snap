@@ -106,56 +106,6 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
       <ul>
         <li
           className="spacer-bottom"
-          key="cat2"
-        >
-          <HotspotCategory
-            categoryKey="cat2"
-            hotspots={
-              Array [
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h1",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "cat2",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-              ]
-            }
-            isLastAndIncomplete={false}
-            onHotspotClick={[MockFunction]}
-            onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
-            onToggleExpand={[Function]}
-            selectedHotspot={
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h2",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              }
-            }
-            title="cat2"
-          />
-        </li>
-        <li
-          className="spacer-bottom"
           key="cat1"
         >
           <HotspotCategory
@@ -202,6 +152,56 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
               }
             }
             title="cat1"
+          />
+        </li>
+        <li
+          className="spacer-bottom"
+          key="cat2"
+        >
+          <HotspotCategory
+            categoryKey="cat2"
+            hotspots={
+              Array [
+                Object {
+                  "author": "Developer 1",
+                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                  "creationDate": "2013-05-13T17:55:39+0200",
+                  "key": "h1",
+                  "line": 81,
+                  "message": "'3' is a magic number.",
+                  "project": "com.github.kevinsawicki:http-request",
+                  "resolution": undefined,
+                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                  "securityCategory": "cat2",
+                  "status": "TO_REVIEW",
+                  "updateDate": "2013-05-13T17:55:39+0200",
+                  "vulnerabilityProbability": "HIGH",
+                },
+              ]
+            }
+            isLastAndIncomplete={false}
+            onHotspotClick={[MockFunction]}
+            onLocationClick={[MockFunction]}
+            onScroll={[MockFunction]}
+            onToggleExpand={[Function]}
+            selectedHotspot={
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h2",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              }
+            }
+            title="cat2"
           />
         </li>
       </ul>
@@ -386,56 +386,6 @@ exports[`should render correctly with hotspots: pagination 1`] = `
       <ul>
         <li
           className="spacer-bottom"
-          key="cat2"
-        >
-          <HotspotCategory
-            categoryKey="cat2"
-            hotspots={
-              Array [
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h1",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "cat2",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-              ]
-            }
-            isLastAndIncomplete={false}
-            onHotspotClick={[MockFunction]}
-            onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
-            onToggleExpand={[Function]}
-            selectedHotspot={
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h2",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              }
-            }
-            title="cat2"
-          />
-        </li>
-        <li
-          className="spacer-bottom"
           key="cat1"
         >
           <HotspotCategory
@@ -482,6 +432,56 @@ exports[`should render correctly with hotspots: pagination 1`] = `
               }
             }
             title="cat1"
+          />
+        </li>
+        <li
+          className="spacer-bottom"
+          key="cat2"
+        >
+          <HotspotCategory
+            categoryKey="cat2"
+            hotspots={
+              Array [
+                Object {
+                  "author": "Developer 1",
+                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                  "creationDate": "2013-05-13T17:55:39+0200",
+                  "key": "h1",
+                  "line": 81,
+                  "message": "'3' is a magic number.",
+                  "project": "com.github.kevinsawicki:http-request",
+                  "resolution": undefined,
+                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                  "securityCategory": "cat2",
+                  "status": "TO_REVIEW",
+                  "updateDate": "2013-05-13T17:55:39+0200",
+                  "vulnerabilityProbability": "HIGH",
+                },
+              ]
+            }
+            isLastAndIncomplete={false}
+            onHotspotClick={[MockFunction]}
+            onLocationClick={[MockFunction]}
+            onScroll={[MockFunction]}
+            onToggleExpand={[Function]}
+            selectedHotspot={
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h2",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              }
+            }
+            title="cat2"
           />
         </li>
       </ul>

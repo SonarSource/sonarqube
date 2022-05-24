@@ -44,6 +44,8 @@ import {
   StandardSecurityCategories
 } from '../../types/types';
 
+const OTHERS_SECURITY_CATEGORY = 'others';
+
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
 export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
@@ -74,11 +76,19 @@ export function groupByCategory(
 ) {
   const groups = groupBy(hotspots, h => h.securityCategory);
 
-  return Object.keys(groups).map(key => ({
+  const groupList = Object.keys(groups).map(key => ({
     key,
     title: getCategoryTitle(key, securityCategories),
     hotspots: groups[key]
   }));
+
+  return [
+    ...sortBy(
+      groupList.filter(group => group.key !== OTHERS_SECURITY_CATEGORY),
+      group => group.title
+    ),
+    ...groupList.filter(({ key }) => key === OTHERS_SECURITY_CATEGORY)
+  ];
 }
 
 export function sortHotspots(hotspots: RawHotspot[], securityCategories: Dict<{ title: string }>) {
