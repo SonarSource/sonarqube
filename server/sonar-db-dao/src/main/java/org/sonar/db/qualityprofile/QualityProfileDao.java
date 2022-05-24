@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -205,6 +206,10 @@ public class QualityProfileDao implements Dao {
 
   public List<QProfileDto> selectByNameAndLanguages(DbSession dbSession, String name, Collection<String> languages) {
     return mapper(dbSession).selectByNameAndLanguages(name, languages);
+  }
+
+  public void selectQualityProfileFindings(DbSession dbSession, String qualityProfileUuid, ResultHandler<QualityProfileFindingDto> handler) {
+    mapper(dbSession).selectQualityProfileFindings(qualityProfileUuid, handler);
   }
 
   public Map<String, Long> countProjectsByProfiles(DbSession dbSession, List<QProfileDto> profiles) {

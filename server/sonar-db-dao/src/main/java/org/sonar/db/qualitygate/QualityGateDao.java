@@ -22,6 +22,7 @@ package org.sonar.db.qualitygate;
 import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -76,6 +77,10 @@ public class QualityGateDao implements Dao {
 
   public void ensureOneBuiltInQualityGate(DbSession dbSession, String builtInName) {
     mapper(dbSession).ensureOneBuiltInQualityGate(builtInName);
+  }
+
+  public void selectQualityGateFindings(DbSession dbSession, String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler) {
+    mapper(dbSession).selectQualityGateFindings(qualityGateUuid, handler);
   }
 
   public QualityGateDto selectBuiltIn(DbSession dbSession) {

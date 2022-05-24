@@ -23,6 +23,17 @@
     rp.is_built_in as isBuiltIn
   </sql>
 
+  <sql id="qualityProfileFindingColumns">
+    r.language as language,
+    r.name as title,
+    r.plugin_name as repository,
+    r.plugin_rule_key as ruleKey,
+    r.status as status,
+    r.rule_type as type,
+    r.priority as defaultSeverity,
+    ar.failure_level as severity
+  </sql>
+
   <insert id="insertRuleProfile" parameterType="map" useGeneratedKeys="false">
     insert into rules_profiles (
       uuid,
@@ -368,6 +379,15 @@
       rp.language = #{language, jdbcType=VARCHAR}
       and rp.name = #{name, jdbcType=VARCHAR}
       and rp.is_built_in = ${_false}
+  </select>
+
+  <select id="selectQualityProfileFindings" parameterType="String" resultType="org.sonar.db.qualityprofile.QualityProfileFindingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="qualityProfileFindingColumns"/>
+    from rules r
+    left join active_rules ar on ar.rule_uuid = r.uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = ar.profile_uuid
+    where oqp.uuid=#{qualityProfileUuid,jdbcType=VARCHAR}
   </select>
 
   <update id="renameRuleProfiles" parameterType="map">

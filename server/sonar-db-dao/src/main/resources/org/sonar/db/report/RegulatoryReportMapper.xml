@@ -10,30 +10,6 @@
     </collection>
   </resultMap>
 
-  <sql id="qualityGateFindingColumns">
-    m.description as description,
-    qgc.operator as operator,
-    m.name as kee,
-    m.enabled as isEnabled,
-    m.val_type as valueType,
-    m.best_value as bestValue,
-    m.worst_value as worstValue,
-    m.optimized_best_value as optimizedBestValue,
-    qgc.value_error as errorThreshold,
-    m.decimal_scale as decimalScale
-  </sql>
-
-  <sql id="qualityProfileFindingColumns">
-    r.language as language,
-    r.name as title,
-    r.plugin_name as repository,
-    r.plugin_rule_key as ruleKey,
-    r.status as status,
-    r.rule_type as type,
-    r.priority as defaultSeverity,
-    ar.failure_level as severity
-  </sql>
-
   <sql id="issueColumns">
     i.kee as kee,
     i.severity as severity,
@@ -50,27 +26,8 @@
     r.security_standards as securityStandards,
     r.name as ruleName,
     i.issue_creation_date as creationDate,
-
     <include refid="org.sonar.db.issue.IssueMapper.isNewCodeReferenceIssue"/>
   </sql>
-
-  <select id="getQualityGateFindings" parameterType="String" resultType="org.sonar.db.report.QualityGateFindingDto">
-    select
-    <include refid="qualityGateFindingColumns"/>
-    from quality_gates qg
-    left join quality_gate_conditions qgc on qgc.qgate_uuid = qg.uuid
-    left join metrics m on m.uuid = qgc.metric_uuid
-    where qg.uuid=#{qualityGateUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="getQualityProfileFindings" parameterType="String" resultType="org.sonar.db.report.QualityProfileFindingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select
-    <include refid="qualityProfileFindingColumns"/>
-    from rules r
-    left join active_rules ar on ar.rule_uuid = r.uuid
-    inner join org_qprofiles oqp on oqp.rules_profile_uuid = ar.profile_uuid
-    where oqp.uuid=#{qualityProfileUuid,jdbcType=VARCHAR}
-  </select>
 
   <select id="scrollIssues" parameterType="String" resultMap="issueResultMap" resultOrdered="true" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select

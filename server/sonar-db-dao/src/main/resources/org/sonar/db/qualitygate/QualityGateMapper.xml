@@ -2,9 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
-
   <sql id="gateColumns">
       qg.uuid, qg.name, qg.is_built_in as isBuiltIn, qg.created_at as createdAt, qg.updated_at as updatedAt
+  </sql>
+
+  <sql id="qualityGateFindingColumns">
+    m.description as description,
+    qgc.operator as operator,
+    m.name as kee,
+    m.enabled as isEnabled,
+    m.val_type as valueType,
+    m.best_value as bestValue,
+    m.worst_value as worstValue,
+    m.optimized_best_value as optimizedBestValue,
+    qgc.value_error as errorThreshold,
+    m.decimal_scale as decimalScale
   </sql>
 
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
@@ -58,6 +70,15 @@
       p.prop_key = 'qualitygate.default'
       and p.component_uuid is null
       and p.user_uuid is null
+  </select>
+
+  <select id="selectQualityGateFindings" parameterType="String" resultType="org.sonar.db.qualitygate.QualityGateFindingDto">
+    select
+    <include refid="qualityGateFindingColumns"/>
+    from quality_gates qg
+    left join quality_gate_conditions qgc on qgc.qgate_uuid = qg.uuid
+    left join metrics m on m.uuid = qgc.metric_uuid
+    where qg.uuid=#{qualityGateUuid,jdbcType=VARCHAR}
   </select>
 
   <update id="delete" parameterType="String">

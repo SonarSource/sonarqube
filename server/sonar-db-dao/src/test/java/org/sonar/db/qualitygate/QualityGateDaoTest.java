@@ -19,18 +19,26 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.within;
+import static org.sonar.db.qualitygate.QualityGateFindingDto.NEW_CODE_METRIC_PREFIX;
 
 public class QualityGateDaoTest {
 
@@ -114,6 +122,45 @@ public class QualityGateDaoTest {
 
     assertThat(underTest.selectByProjectUuid(dbSession, project.getUuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
     assertThat(underTest.selectByProjectUuid(dbSession, "not-existing-uuid")).isNull();
+  }
+
+  @Test
+  public void selectQualityGateFindings_returns_all_quality_gate_details_for_project() {
+    ProjectDto project = db.components().insertPublicProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
+    QualityGateDto gate = db.qualityGates().insertQualityGate();
+    db.qualityGates().setDefaultQualityGate(gate);
+
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setDescription("metric 1 description").setDecimalScale(0));
+    QualityGateConditionDto condition1 = db.qualityGates().addCondition(gate, metric1);
+
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setDescription("metric 2 description").setDecimalScale(1));
+    QualityGateConditionDto condition2 = db.qualityGates().addCondition(gate, metric2);
+
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setDescription("metric 3 description").setDecimalScale(0));
+    QualityGateConditionDto condition3 = db.qualityGates().addCondition(gate, metric3);
+
+    db.qualityGates().associateProjectToQualityGate(project, gate);
+    db.commit();
+
+    List<QualityGateFindingDto> findings = new ArrayList<>();
+    underTest.selectQualityGateFindings(db.getSession(), gate.getUuid(), result -> findings.add(result.getResultObject()));
+
+    QualityGateFindingDto finding = findings.stream().filter(f -> f.getDescription().equals("metric 1 description")).findFirst().get();
+
+    // check fields
+    assertThat(findings).hasSize(3);
+    assertThat(findings.stream().map(f -> f.getDescription()).collect(Collectors.toSet())).containsExactlyInAnyOrder("metric 1 description", "metric 2 description", "metric 3 description");
+    assertThat(finding.getDescription()).isEqualTo(metric1.getDescription());
+    assertThat(finding.getOperatorDescription()).isEqualTo(QualityGateFindingDto.OperatorDescription.valueOf(condition1.getOperator()).getDescription());
+    assertThat(finding.getErrorThreshold()).isEqualTo(condition1.getErrorThreshold());
+    assertThat(finding.getValueType()).isEqualTo(metric1.getValueType());
+    assertThat(finding.isNewCodeMetric()).isEqualTo(metric1.getKey().startsWith(NEW_CODE_METRIC_PREFIX));
+    assertThat(finding.isEnabled()).isEqualTo(metric1.isEnabled());
+    assertThat(finding.getBestValue()).isEqualTo(metric1.getBestValue(), within(0.00001));
+    assertThat(finding.getWorstValue()).isEqualTo(metric1.getWorstValue(), within(0.00001));
+    assertThat(finding.isOptimizedBestValue()).isEqualTo(metric1.isOptimizedBestValue());
+    assertThat(finding.getDecimalScale()).isEqualTo(metric1.getDecimalScale());
   }
 
   @Test

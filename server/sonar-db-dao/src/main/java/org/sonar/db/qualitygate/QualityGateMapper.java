@@ -22,6 +22,7 @@ package org.sonar.db.qualitygate;
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface QualityGateMapper {
 
@@ -40,6 +41,8 @@ public interface QualityGateMapper {
   void update(QualityGateDto qGate);
 
   void ensureOneBuiltInQualityGate(String builtInQualityName);
+
+  void selectQualityGateFindings(String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler);
 
   QualityGateDto selectByUuid(String uuid);
 

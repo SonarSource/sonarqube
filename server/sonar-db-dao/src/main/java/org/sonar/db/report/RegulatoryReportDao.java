@@ -28,16 +28,7 @@ public class RegulatoryReportDao implements Dao {
     mapper(dbSession).scrollIssues(branchUuid, handler);
   }
 
-  public void getQualityGateFindings(DbSession dbSession, String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler) {
-    mapper(dbSession).getQualityGateFindings(qualityGateUuid, handler);
-  }
-
-  public void getQualityProfileFindings(DbSession dbSession, String qualityProfileUuid, ResultHandler<QualityProfileFindingDto> handler) {
-    mapper(dbSession).getQualityProfileFindings(qualityProfileUuid, handler);
-  }
-
   private static RegulatoryReportMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(RegulatoryReportMapper.class);
   }
-
 }
