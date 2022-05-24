@@ -29,8 +29,6 @@ interface OwnProps {
 
 type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
-const SONARCLOUD_LINK = '/#sonarcloud#/';
-
 export default function DocTooltipLink({ children, customProps, href, ...other }: Props) {
   if (customProps) {
     forEach(customProps, (value, key) => {
@@ -41,11 +39,7 @@ export default function DocTooltipLink({ children, customProps, href, ...other }
   }
 
   if (href && href.startsWith('/')) {
-    if (href.startsWith(SONARCLOUD_LINK)) {
-      href = `/${href.substr(SONARCLOUD_LINK.length)}`;
-    } else {
-      href = `/documentation/${href.substr(1)}`;
-    }
+    href = `/documentation/${href.substr(1)}`;
 
     return (
       <Link rel="noopener noreferrer" target="_blank" to={href} {...other}>

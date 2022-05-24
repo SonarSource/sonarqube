@@ -20,7 +20,6 @@
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
-import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   permission: {
@@ -41,11 +40,7 @@ export default function PermissionCell({ permission: p }: Props) {
               {translate('permission_templates.project_creators')}
               <HelpTooltip
                 className="little-spacer-left"
-                overlay={translate(
-                  isSonarCloud()
-                    ? 'permission_templates.project_creators.explanation.sonarcloud'
-                    : 'permission_templates.project_creators.explanation'
-                )}
+                overlay={translate('permission_templates.project_creators.explanation')}
               />
             </li>
           )}

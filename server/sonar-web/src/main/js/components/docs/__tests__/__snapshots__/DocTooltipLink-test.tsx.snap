@@ -16,7 +16,7 @@ exports[`should render links with custom props 1`] = `
   rel="noopener noreferrer"
   style={Object {}}
   target="_blank"
-  to="/foo/baz"
+  to="/documentation/foo/baz"
 />
 `;
 

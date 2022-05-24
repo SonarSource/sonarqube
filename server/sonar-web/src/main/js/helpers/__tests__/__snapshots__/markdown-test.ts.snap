@@ -28,34 +28,6 @@ Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum
 "
 `;
 
-exports[`should cut sonarqube/sonarcloud/static content 2`] = `
-"
-This text has inline text for SonarCloud. Donec sed nulla magna.
-
-
-
-This is text for SonarCloud, multi-line. In hac habitasse platea dictumst. Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum aliquam. Mauris volutpat nunc non fermentum rhoncus. Aenean laoreet, orci vitae tempor bibendum,
-metus nisl euismod neque, vitae euismod nibh nisl eu velit. Vivamus luctus suscipit elit vel semper.
-
-
-
-
-
-* In hac habitasse
-* Duis sagittis semper sapien nec tempor
-
-* This is a bullet point for SonarCloud
-* Platea dictumst
-
-Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum aliquam.
-
-| Parameter Name        | Description |
-| --------------------- | ------------------ |
-| sonar.pullrequest.github.repository | SLUG of the GitHub Repo |
-
-"
-`;
-
 exports[`should not break when conditional tags are misused 1`] = `
 "Random SC text
   Break

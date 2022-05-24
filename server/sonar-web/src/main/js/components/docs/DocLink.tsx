@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import DetachIcon from '../../components/icons/DetachIcon';
-import { isSonarCloud } from '../../helpers/system';
 import { AppState } from '../../types/appstate';
 
 interface OwnProps {
@@ -33,7 +32,6 @@ interface OwnProps {
 
 type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
-const SONARCLOUD_LINK = '/#sonarcloud#/';
 const SONARQUBE_LINK = '/#sonarqube#/';
 const SONARQUBE_ADMIN_LINK = '/#sonarqube-admin#/';
 
@@ -56,9 +54,7 @@ export class DocLink extends React.PureComponent<Props> {
     }
 
     if (href && href.startsWith('/')) {
-      if (href.startsWith(SONARCLOUD_LINK)) {
-        return <SonarCloudLink url={href}>{children}</SonarCloudLink>;
-      } else if (href.startsWith(SONARQUBE_LINK)) {
+      if (href.startsWith(SONARQUBE_LINK)) {
         return <SonarQubeLink url={href}>{children}</SonarQubeLink>;
       } else if (href.startsWith(SONARQUBE_ADMIN_LINK)) {
         return (
@@ -91,28 +87,12 @@ export class DocLink extends React.PureComponent<Props> {
 
 export default withAppStateContext(DocLink);
 
-interface SonarCloudLinkProps {
-  children: React.ReactNode;
-  url: string;
-}
-
-function SonarCloudLink({ children, url }: SonarCloudLinkProps) {
-  if (!isSonarCloud()) {
-    return <>{children}</>;
-  }
-  const to = `/${url.substr(SONARCLOUD_LINK.length)}`;
-  return <Link to={to}>{children}</Link>;
-}
-
 interface SonarQubeLinkProps {
   children: React.ReactNode;
   url: string;
 }
 
 function SonarQubeLink({ children, url }: SonarQubeLinkProps) {
-  if (isSonarCloud()) {
-    return <>{children}</>;
-  }
   const to = `/${url.substr(SONARQUBE_LINK.length)}`;
   return (
     <Link target="_blank" to={to}>
@@ -128,7 +108,7 @@ interface SonarQubeAdminLinkProps {
 }
 
 function SonarQubeAdminLink({ canAdmin, children, url }: SonarQubeAdminLinkProps) {
-  if (isSonarCloud() || !canAdmin) {
+  if (!canAdmin) {
     return <>{children}</>;
   }
   const to = `/${url.substr(SONARQUBE_ADMIN_LINK.length)}`;

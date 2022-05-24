@@ -33,9 +33,8 @@ function separateFrontMatter(content) {
     const frontmatter = parseFrontMatter(lines.slice(position.firstLine + 1, position.lastLine));
     const content = lines.slice(position.lastLine + 1).join('\n');
     return { frontmatter, content };
-  } else {
-    return { frontmatter: {}, content };
   }
+  return { frontmatter: {}, content };
 }
 
 function getFrontMatterPosition(lines) {
@@ -57,8 +56,8 @@ function getFrontMatterPosition(lines) {
 
 function parseFrontMatter(lines) {
   const data = {};
-  for (let i = 0; i < lines.length; i++) {
-    const tokens = lines[i].split(':').map(x => x.trim());
+  for (const element of lines) {
+    const tokens = element.split(':').map(x => x.trim());
     if (tokens.length === 2) {
       data[tokens[0]] = tokens[1];
     }
@@ -72,12 +71,10 @@ function parseFrontMatter(lines) {
  */
 function filterContent(content) {
   const regexBase = '<!-- \\/?(sonarqube|sonarcloud|static) -->';
-  const { isSonarCloud, getInstance } = require('./system');
+  const { getInstance } = require('./system');
   const contentWithInstance = content.replace(/{instance}/gi, getInstance());
   const contentWithoutStatic = cutConditionalContent(contentWithInstance, 'static');
-  const filteredContent = isSonarCloud()
-    ? cutConditionalContent(contentWithoutStatic, 'sonarqube')
-    : cutConditionalContent(contentWithoutStatic, 'sonarcloud');
+  const filteredContent = cutConditionalContent(contentWithoutStatic, 'sonarcloud');
   return filteredContent
     .replace(new RegExp(`^${regexBase}(\n|\r|\r\n|$)`, 'gm'), '') // First, remove single-line ones, including ending carriage-returns.
     .replace(new RegExp(`${regexBase}`, 'g'), ''); // Now remove all remaining ones.

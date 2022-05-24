@@ -19,12 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
 import { mockAppState } from '../../../../helpers/testMocks';
 import BranchOverview from '../../branches/BranchOverview';
 import { App } from '../App';
-
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const component = {
   key: 'foo',
@@ -34,11 +31,6 @@ const component = {
   qualifier: 'TRK',
   version: '0.0.1'
 };
-
-beforeEach(() => {
-  (isSonarCloud as jest.Mock<any>).mockClear();
-  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
-});
 
 it('should render BranchOverview', () => {
   expect(

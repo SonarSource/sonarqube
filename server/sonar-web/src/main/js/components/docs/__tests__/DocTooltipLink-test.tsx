@@ -31,6 +31,6 @@ it('should render internal link', () => {
 
 it('should render links with custom props', () => {
   expect(
-    shallow(<DocTooltipLink customProps={{ bar: 'baz' }} href="/#sonarcloud#/foo/#bar#" />)
+    shallow(<DocTooltipLink customProps={{ bar: 'baz' }} href="/foo/#bar#" />)
   ).toMatchSnapshot();
 });

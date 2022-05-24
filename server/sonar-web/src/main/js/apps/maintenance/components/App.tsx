@@ -27,7 +27,7 @@ import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl, isSonarCloud } from '../../../helpers/system';
+import { getBaseUrl } from '../../../helpers/system';
 import { getReturnUrl } from '../../../helpers/urls';
 import '../styles.css';
 
@@ -145,11 +145,9 @@ export default class App extends React.PureComponent<Props, State> {
                 <h1 className="maintenance-title text-danger">
                   <InstanceMessage message={translate('maintenance.is_offline')} />
                 </h1>
-                {!isSonarCloud() && (
-                  <p className="maintenance-text">
-                    {translate('maintenance.sonarqube_is_offline.text')}
-                  </p>
-                )}
+                <p className="maintenance-text">
+                  {translate('maintenance.sonarqube_is_offline.text')}
+                </p>
                 <p className="maintenance-text text-center">
                   <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
                 </p>

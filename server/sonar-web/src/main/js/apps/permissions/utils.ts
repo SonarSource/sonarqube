@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { hasMessage, translate } from '../../helpers/l10n';
-import { isSonarCloud } from '../../helpers/system';
+import { translate } from '../../helpers/l10n';
 import { Dict, PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
 
 export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
@@ -50,15 +49,8 @@ export const PERMISSIONS_ORDER_BY_QUALIFIER: Dict<string[]> = {
 };
 
 function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
-  const getMessage = (messageKey: string) => {
-    const cloudMessageKey = `${messageKey}.sonarcloud`;
-    return isSonarCloud() && hasMessage(cloudMessageKey)
-      ? translate(cloudMessageKey)
-      : translate(messageKey);
-  };
-
-  const name = getMessage(`${l10nPrefix}.${permission}`);
-  const description = getMessage(`${l10nPrefix}.${permission}.desc`);
+  const name = translate(`${l10nPrefix}.${permission}`);
+  const description = translate(`${l10nPrefix}.${permission}.desc`);
 
   return {
     key: permission,

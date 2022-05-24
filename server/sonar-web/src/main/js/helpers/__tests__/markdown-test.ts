@@ -19,11 +19,9 @@
  */
 /* eslint-disable no-console */
 import { filterContent, getFrontMatter, separateFrontMatter } from '../markdown';
-import { isSonarCloud } from '../system';
 
 jest.mock('../system', () => ({
-  getInstance: () => 'SonarQube',
-  isSonarCloud: jest.fn().mockReturnValue(false)
+  getInstance: () => 'SonarQube'
 }));
 
 it('returns parsed frontmatter of one item', () => {
@@ -157,9 +155,6 @@ Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum
 <!-- /sonarqube -->
 `;
 
-  expect(filterContent(content)).toMatchSnapshot();
-
-  (isSonarCloud as jest.Mock).mockReturnValueOnce(true);
   expect(filterContent(content)).toMatchSnapshot();
 });
 

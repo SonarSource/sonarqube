@@ -21,7 +21,6 @@ import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { translate } from '../../../helpers/l10n';
-import { isSonarCloud } from '../../../helpers/system';
 import { Paging } from '../../../types/types';
 import IssuesCounter from './IssuesCounter';
 import TotalEffort from './TotalEffort';
@@ -49,10 +48,7 @@ export default function PageActions(props: PageActionsProps) {
       </div>
 
       {canSetHome && (
-        <HomePageSelect
-          className="huge-spacer-left"
-          currentPage={isSonarCloud() ? { type: 'MY_ISSUES' } : { type: 'ISSUES' }}
-        />
+        <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'ISSUES' }} />
       )}
     </div>
   );

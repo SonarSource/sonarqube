@@ -1,24 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should not render sonarcloud link on sonarcloud 1`] = `
-<Fragment>
-  link text
-</Fragment>
-`;
-
-exports[`should not render sonarqube admin link on sonarcloud 1`] = `
-<Fragment>
-  link text
-</Fragment>
-`;
-
 exports[`should not render sonarqube admin link on sonarqube for non-admin 1`] = `
-<Fragment>
-  link text
-</Fragment>
-`;
-
-exports[`should not render sonarqube link on sonarcloud 1`] = `
 <Fragment>
   link text
 </Fragment>
@@ -57,24 +39,6 @@ exports[`should render simple link 1`] = `
     size={12}
   />
 </Fragment>
-`;
-
-exports[`should render sonarcloud link on sonarcloud 1`] = `
-<SonarCloudLink
-  url="/#sonarcloud#/foo/bar"
->
-  link text
-</SonarCloudLink>
-`;
-
-exports[`should render sonarcloud link on sonarcloud 2`] = `
-<Link
-  onlyActiveOnIndex={false}
-  style={Object {}}
-  to="/foo/bar"
->
-  link text
-</Link>
 `;
 
 exports[`should render sonarqube admin link on sonarqube for admin 1`] = `

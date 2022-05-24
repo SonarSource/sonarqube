@@ -23,8 +23,6 @@ import { mockAppState } from '../../../helpers/testMocks';
 import { EditionKey } from '../../../types/editions';
 import { GlobalFooter, GlobalFooterProps } from '../GlobalFooter';
 
-jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
 it('should render the only logged in information', () => {
   expect(getWrapper()).toMatchSnapshot();
 });

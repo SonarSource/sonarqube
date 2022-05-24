@@ -19,13 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../helpers/system';
 import { mockAppState } from '../../../helpers/testMocks';
 import { DocLink } from '../DocLink';
-
-jest.mock('../../../helpers/system', () => ({
-  isSonarCloud: jest.fn(() => false)
-}));
 
 it('should render simple link', () => {
   expect(
@@ -47,27 +42,6 @@ it('should render documentation link', () => {
   ).toMatchSnapshot();
 });
 
-it('should render sonarcloud link on sonarcloud', () => {
-  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
-  const wrapper = shallow(
-    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarcloud#/foo/bar">
-      link text
-    </DocLink>
-  );
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('SonarCloudLink').dive()).toMatchSnapshot();
-});
-
-it('should not render sonarcloud link on sonarcloud', () => {
-  (isSonarCloud as jest.Mock).mockImplementationOnce(() => false);
-  const wrapper = shallow(
-    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarcloud#/foo/bar">
-      link text
-    </DocLink>
-  );
-  expect(wrapper.find('SonarCloudLink').dive()).toMatchSnapshot();
-});
-
 it('should render sonarqube link on sonarqube', () => {
   const wrapper = shallow(
     <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube#/foo/bar">
@@ -75,16 +49,6 @@ it('should render sonarqube link on sonarqube', () => {
     </DocLink>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('SonarQubeLink').dive()).toMatchSnapshot();
-});
-
-it('should not render sonarqube link on sonarcloud', () => {
-  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
-  const wrapper = shallow(
-    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube#/foo/bar">
-      link text
-    </DocLink>
-  );
   expect(wrapper.find('SonarQubeLink').dive()).toMatchSnapshot();
 });
 
@@ -101,16 +65,6 @@ it('should render sonarqube admin link on sonarqube for admin', () => {
 it('should not render sonarqube admin link on sonarqube for non-admin', () => {
   const wrapper = shallow(
     <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube-admin#/foo/bar">
-      link text
-    </DocLink>
-  );
-  expect(wrapper.find('SonarQubeAdminLink').dive()).toMatchSnapshot();
-});
-
-it('should not render sonarqube admin link on sonarcloud', () => {
-  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
-  const wrapper = shallow(
-    <DocLink appState={mockAppState({ canAdmin: true })} href="/#sonarqube-admin#/foo/bar">
       link text
     </DocLink>
   );
