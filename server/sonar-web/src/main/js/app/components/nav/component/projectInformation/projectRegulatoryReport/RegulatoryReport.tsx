@@ -145,7 +145,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
             rel="noopener noreferrer">
             {translate('download_verb')}
           </a>
-          <ButtonLink onClick={onClose}>{translate('cancel')}</ButtonLink>
+          <ButtonLink onClick={onClose}>{translate('close')}</ButtonLink>
         </div>
       </>
     );
