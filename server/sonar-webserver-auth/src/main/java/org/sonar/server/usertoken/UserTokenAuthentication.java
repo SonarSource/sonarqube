@@ -35,7 +35,7 @@ public class UserTokenAuthentication {
   private static final Set<String> SCANNER_ENDPOINTS = Set.of(
     "/api/settings/values",
     "/api/plugins/installed",
-    "api/analysis_cache/get",
+    "/api/analysis_cache/get",
     "/api/project_branches/list",
     "/api/project_pull_requests/list",
     "/api/qualityprofiles/search",
