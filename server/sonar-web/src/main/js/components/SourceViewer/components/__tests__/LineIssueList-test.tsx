@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
+import { mockSourceLine } from '../../../../helpers/mocks/sources';
+import { mockIssue } from '../../../../helpers/testMocks';
 import LineIssuesList, { LineIssuesListProps } from '../LineIssuesList';
 
 it('should render issues', () => {

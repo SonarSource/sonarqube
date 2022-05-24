@@ -26,7 +26,7 @@ import {
   getDuplications,
   getSources
 } from '../../api/components';
-import { mockSourceLine } from '../../helpers/testMocks';
+import { mockSourceLine } from '../../helpers/mocks/sources';
 import { BranchParameters } from '../../types/branch-like';
 import { Dict } from '../../types/types';
 

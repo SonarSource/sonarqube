@@ -674,7 +674,10 @@ export interface SourceViewerFile {
     lines?: string;
     tests?: string;
   };
+  canMarkAsFavorite?: boolean;
   path: string;
+  name?: string;
+  longName?: string;
   project: string;
   projectName: string;
   q: ComponentQualifier;

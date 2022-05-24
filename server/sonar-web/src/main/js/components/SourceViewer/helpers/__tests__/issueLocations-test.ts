@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockFlowLocation, mockSourceLine } from '../../../../helpers/testMocks';
+import { mockSourceLine } from '../../../../helpers/mocks/sources';
+import { mockFlowLocation } from '../../../../helpers/testMocks';
 import { getLinearLocations, getSecondaryIssueLocationsForLine } from '../issueLocations';
 
 describe('getSecondaryIssueLocationsForLine', () => {

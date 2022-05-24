@@ -22,8 +22,8 @@ import React, { RefObject } from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
 import { scrollToElement } from '../../../../helpers/scrolling';
-import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import SnippetViewer from '../../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotSnippetContainerRenderer, {
   animateExpansion,

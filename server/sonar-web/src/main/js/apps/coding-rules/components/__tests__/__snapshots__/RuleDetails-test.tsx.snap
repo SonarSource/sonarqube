@@ -31,7 +31,7 @@ exports[`should render correctly: loaded 1`] = `
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": Array [
             Object {
-              "content": "<b>Why<b/> Because",
+              "content": "<b>Why</b> Because",
               "key": "root_cause",
             },
           ],
@@ -73,7 +73,7 @@ exports[`should render correctly: loaded 1`] = `
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": Array [
             Object {
-              "content": "<b>Why<b/> Because",
+              "content": "<b>Why</b> Because",
               "key": "root_cause",
             },
           ],
@@ -146,7 +146,7 @@ exports[`should render correctly: loaded 1`] = `
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": Array [
             Object {
-              "content": "<b>Why<b/> Because",
+              "content": "<b>Why</b> Because",
               "key": "root_cause",
             },
           ],
@@ -187,7 +187,7 @@ exports[`should render correctly: loaded 1`] = `
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": Array [
             Object {
-              "content": "<b>Why<b/> Because",
+              "content": "<b>Why</b> Because",
               "key": "root_cause",
             },
           ],

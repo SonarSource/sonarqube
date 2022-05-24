@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
+import { mockSourceLine } from '../../../../helpers/mocks/sources';
+import { mockIssue } from '../../../../helpers/testMocks';
 import Line from '../Line';
 
 it('should render correctly for last, new, and highlighted lines', () => {

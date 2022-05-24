@@ -25,14 +25,59 @@ import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
 import AppContainer from '../components/AppContainer';
 
 jest.mock('../../../api/issues');
+jest.mock('../../../api/rules');
+jest.mock('../../../api/components');
 
 let handler: IssuesServiceMock;
 
-beforeAll(() => {
+beforeEach(() => {
+  window.scrollTo = jest.fn();
   handler = new IssuesServiceMock();
 });
 
-afterEach(() => handler.reset());
+it('should open issue and navigate', async () => {
+  const user = userEvent.setup();
+  renderIssueApp();
+  expect(await screen.findByRole('region', { name: 'Fix that' })).toBeInTheDocument();
+  await user.click(screen.getByRole('region', { name: 'Fix that' }));
+  expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
+
+  expect(screen.getByRole('button', { name: `issue.tabs.resources` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.resources` }));
+  expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
+
+  expect(screen.getByRole('button', { name: `issue.tabs.how` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.how` }));
+  expect(screen.getByRole('heading', { name: 'Fix with' })).toBeInTheDocument();
+
+  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
+  expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
+
+  await user.keyboard('{ArrowUp}');
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+
+  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
+  expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
+
+  await user.keyboard('{ArrowUp}');
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
+
+  expect(screen.getByRole('button', { name: `issue.tabs.code` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.code` }));
+  expect(screen.getByRole('region', { name: 'Issue on file' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('row', {
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+    })
+  ).toBeInTheDocument();
+});
 
 it('should support OWASP Top 10 version 2021', async () => {
   const user = userEvent.setup();

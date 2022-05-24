@@ -15,7 +15,7 @@ exports[`should render correctly for a regular file 1`] = `
       >
         <a
           className="link-with-icon"
-          href="/dashboard?id=my-project"
+          href="/dashboard?id=project"
         >
           <QualifierIcon
             qualifier="TRK"
@@ -79,9 +79,9 @@ exports[`should render correctly for a regular file 1`] = `
               Object {
                 "pathname": "/code",
                 "query": Object {
-                  "id": "my-project",
+                  "id": "project",
                   "line": undefined,
-                  "selected": "foo",
+                  "selected": "project:foo/bar.ts",
                 },
               }
             }
@@ -101,7 +101,7 @@ exports[`should render correctly for a regular file 1`] = `
         <li>
           <a
             className="js-raw-source"
-            href="/api/sources/raw?key=foo"
+            href="/api/sources/raw?key=project%3Afoo%2Fbar.ts"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -220,7 +220,7 @@ exports[`should render correctly for a unit test 1`] = `
                 "query": Object {
                   "id": "my-project",
                   "line": undefined,
-                  "selected": "foo",
+                  "selected": "my-project:foo/bar.ts",
                 },
               }
             }
@@ -240,7 +240,7 @@ exports[`should render correctly for a unit test 1`] = `
         <li>
           <a
             className="js-raw-source"
-            href="/api/sources/raw?key=foo"
+            href="/api/sources/raw?key=my-project%3Afoo%2Fbar.ts"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -275,7 +275,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       >
         <a
           className="link-with-icon"
-          href="/dashboard?id=my-project"
+          href="/dashboard?id=project"
         >
           <QualifierIcon
             qualifier="TRK"
@@ -381,7 +381,7 @@ exports[`should render correctly if issue details are passed 1`] = `
               "pathname": "/project/issues",
               "query": Object {
                 "files": "foo/bar.ts",
-                "id": "my-project",
+                "id": "project",
                 "resolved": "false",
                 "types": "BUG",
               },
@@ -412,7 +412,7 @@ exports[`should render correctly if issue details are passed 1`] = `
               "pathname": "/project/issues",
               "query": Object {
                 "files": "foo/bar.ts",
-                "id": "my-project",
+                "id": "project",
                 "resolved": "false",
                 "types": "VULNERABILITY",
               },
@@ -443,7 +443,7 @@ exports[`should render correctly if issue details are passed 1`] = `
               "pathname": "/project/issues",
               "query": Object {
                 "files": "foo/bar.ts",
-                "id": "my-project",
+                "id": "project",
                 "resolved": "false",
                 "types": "CODE_SMELL",
               },
@@ -474,7 +474,7 @@ exports[`should render correctly if issue details are passed 1`] = `
               "pathname": "/project/issues",
               "query": Object {
                 "files": "foo/bar.ts",
-                "id": "my-project",
+                "id": "project",
                 "resolved": "false",
                 "types": "SECURITY_HOTSPOT",
               },
@@ -512,9 +512,9 @@ exports[`should render correctly if issue details are passed 1`] = `
               Object {
                 "pathname": "/code",
                 "query": Object {
-                  "id": "my-project",
+                  "id": "project",
                   "line": undefined,
-                  "selected": "foo",
+                  "selected": "project:foo/bar.ts",
                 },
               }
             }
@@ -534,7 +534,7 @@ exports[`should render correctly if issue details are passed 1`] = `
         <li>
           <a
             className="js-raw-source"
-            href="/api/sources/raw?key=foo"
+            href="/api/sources/raw?key=project%3Afoo%2Fbar.ts"
             rel="noopener noreferrer"
             target="_blank"
           >

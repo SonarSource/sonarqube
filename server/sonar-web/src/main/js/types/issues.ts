@@ -42,6 +42,7 @@ interface Comment {
 }
 
 export interface RawIssue {
+  actions: string[];
   assignee?: string;
   author?: string;
   comments?: Array<Comment>;
@@ -54,10 +55,12 @@ export interface RawIssue {
   line?: number;
   project: string;
   rule: string;
+  message?: string;
   severity: string;
   status: string;
   subProject?: string;
   textRange?: TextRange;
+  type: IssueType;
 }
 
 export interface IssueResponse {

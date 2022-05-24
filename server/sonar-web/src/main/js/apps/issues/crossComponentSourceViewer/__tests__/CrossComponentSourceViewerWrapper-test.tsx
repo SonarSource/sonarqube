@@ -22,17 +22,16 @@ import * as React from 'react';
 import { getDuplications } from '../../../../api/components';
 import { getIssueFlowSnippets } from '../../../../api/issues';
 import {
-  mockFlowLocation,
-  mockIssue,
   mockSnippetsByComponent,
   mockSourceLine,
   mockSourceViewerFile
-} from '../../../../helpers/testMocks';
+} from '../../../../helpers/mocks/sources';
+import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 
 jest.mock('../../../../api/issues', () => {
-  const { mockSnippetsByComponent } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockSnippetsByComponent } = jest.requireActual('../../../../helpers/mocks/sources');
   return {
     getIssueFlowSnippets: jest.fn().mockResolvedValue({ 'main.js': mockSnippetsByComponent() })
   };

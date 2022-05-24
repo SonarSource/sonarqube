@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  mockFlowLocation,
-  mockIssue,
-  mockSnippetsByComponent
-} from '../../../../helpers/testMocks';
+import { mockSnippetsByComponent } from '../../../../helpers/mocks/sources';
+import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { createSnippets, expandSnippet, groupLocationsByComponent } from '../utils';
 
 describe('groupLocationsByComponent', () => {
@@ -43,7 +40,20 @@ describe('groupLocationsByComponent', () => {
           textRange: { startLine: 24, startOffset: 1, endLine: 24, endOffset: 2 }
         })
       ],
-      { 'main.js': mockSnippetsByComponent('main.js', [14, 15, 16, 17, 18, 22, 23, 24, 25, 26]) }
+      {
+        'main.js': mockSnippetsByComponent('main.js', 'project', [
+          14,
+          15,
+          16,
+          17,
+          18,
+          22,
+          23,
+          24,
+          25,
+          26
+        ])
+      }
     );
 
     expect(results).toHaveLength(1);
@@ -67,15 +77,15 @@ describe('groupLocationsByComponent', () => {
         })
       ],
       {
-        'A.js': mockSnippetsByComponent('A.js', [13, 14, 15, 16, 17, 18]),
-        'B.js': mockSnippetsByComponent('B.js', [14, 15, 16, 17, 18])
+        'A.js': mockSnippetsByComponent('A.js', 'project', [13, 14, 15, 16, 17, 18]),
+        'B.js': mockSnippetsByComponent('B.js', 'project', [14, 15, 16, 17, 18])
       }
     );
 
     expect(results).toHaveLength(3);
-    expect(results[0].component.key).toBe('A.js');
-    expect(results[1].component.key).toBe('B.js');
-    expect(results[2].component.key).toBe('A.js');
+    expect(results[0].component.key).toBe('project:A.js');
+    expect(results[1].component.key).toBe('project:B.js');
+    expect(results[2].component.key).toBe('project:A.js');
     expect(results[0].locations).toHaveLength(1);
     expect(results[1].locations).toHaveLength(1);
     expect(results[2].locations).toHaveLength(1);

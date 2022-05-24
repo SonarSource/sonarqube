@@ -38,6 +38,7 @@ import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
+import { HttpStatus } from '../../../helpers/request';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
 import {
@@ -151,11 +152,11 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
       }
     } catch (response) {
       const rsp = response as Response;
-      if (rsp.status !== 403) {
+      if (rsp.status !== HttpStatus.Forbidden) {
         throwGlobalError(response);
       }
       if (this.mounted) {
-        this.setState({ loading: false, notAccessible: rsp.status === 403 });
+        this.setState({ loading: false, notAccessible: rsp.status === HttpStatus.Forbidden });
       }
     }
   }

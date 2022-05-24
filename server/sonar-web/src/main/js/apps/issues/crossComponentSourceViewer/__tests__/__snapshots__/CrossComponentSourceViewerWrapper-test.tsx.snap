@@ -29,15 +29,19 @@ exports[`should render correctly 2`] = `
       Object {
         "branchLike": undefined,
         "file": Object {
-          "key": "main.js",
+          "canMarkAsFavorite": true,
+          "fav": false,
+          "key": "project:main.js",
+          "longName": "main.js",
           "measures": Object {
             "coverage": "85.2",
             "duplicationDensity": "1.0",
             "issues": "12",
             "lines": "56",
           },
+          "name": "main.js",
           "path": "main.js",
-          "project": "my-project",
+          "project": "project",
           "projectName": "MyProject",
           "q": "FIL",
           "uuid": "foo-bar",
@@ -47,7 +51,7 @@ exports[`should render correctly 2`] = `
   >
     <ComponentSourceSnippetGroupViewer
       duplicationsByLine={Object {}}
-      isLastOccurenceOfPrimaryComponent={true}
+      isLastOccurenceOfPrimaryComponent={false}
       issue={
         Object {
           "actions": Array [],
@@ -173,15 +177,19 @@ exports[`should render correctly 2`] = `
       snippetGroup={
         Object {
           "component": Object {
-            "key": "main.js",
+            "canMarkAsFavorite": true,
+            "fav": false,
+            "key": "project:main.js",
+            "longName": "main.js",
             "measures": Object {
               "coverage": "85.2",
               "duplicationDensity": "1.0",
               "issues": "12",
               "lines": "56",
             },
+            "name": "main.js",
             "path": "main.js",
-            "project": "my-project",
+            "project": "project",
             "projectName": "MyProject",
             "q": "FIL",
             "uuid": "foo-bar",
@@ -356,15 +364,19 @@ exports[`should render correctly: no component found 1`] = `
       Object {
         "branchLike": undefined,
         "file": Object {
-          "key": "main.js",
+          "canMarkAsFavorite": true,
+          "fav": false,
+          "key": "project:main.js",
+          "longName": "main.js",
           "measures": Object {
             "coverage": "85.2",
             "duplicationDensity": "1.0",
             "issues": "12",
             "lines": "56",
           },
+          "name": "main.js",
           "path": "main.js",
-          "project": "my-project",
+          "project": "project",
           "projectName": "MyProject",
           "q": "FIL",
           "uuid": "foo-bar",
@@ -500,15 +512,19 @@ exports[`should render correctly: no component found 1`] = `
       snippetGroup={
         Object {
           "component": Object {
-            "key": "main.js",
+            "canMarkAsFavorite": true,
+            "fav": false,
+            "key": "project:main.js",
+            "longName": "main.js",
             "measures": Object {
               "coverage": "85.2",
               "duplicationDensity": "1.0",
               "issues": "12",
               "lines": "56",
             },
+            "name": "main.js",
             "path": "main.js",
-            "project": "my-project",
+            "project": "project",
             "projectName": "MyProject",
             "q": "FIL",
             "uuid": "foo-bar",

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
-import { mockSourceViewerFile } from '../../../helpers/testMocks';
+import { mockSourceViewerFile } from '../../../helpers/mocks/sources';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Measure } from '../../../types/types';
@@ -34,7 +34,7 @@ it('should render correctly for a unit test', () => {
   expect(
     shallowRender({
       showMeasures: true,
-      sourceViewerFile: mockSourceViewerFile({
+      sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
         q: ComponentQualifier.TestFile,
         measures: { tests: '12' }
       })
