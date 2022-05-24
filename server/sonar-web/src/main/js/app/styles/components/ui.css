@@ -75,7 +75,7 @@
   border-radius: 2px;
   line-height: 20px;
   font-size: var(--smallFontSize);
-  color: var(--sonarcloudBlack100);
+  color: var(--white);
   white-space: nowrap;
   text-align: center;
   font-weight: bold;

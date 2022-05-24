@@ -123,27 +123,7 @@ module.exports = {
     //promotion
     darkBackground: '#292929',
     darkBackgroundSeparator: '#413b3b',
-    darkBackgroundFontColor: '#f6f8fa',
-
-    // sonarcloud
-    sonarcloudOrange500: '#fd6a00',
-    sonarcloudOrange600: '#e26003',
-    sonarcloudOrange700: '#db5700',
-
-    sonarcloudBlack100: '#ffffff',
-    sonarcloudBlack200: '#f9f9fb',
-    sonarcloudBlack250: '#e6e8ea',
-    sonarcloudBlack300: '#cfd3d7',
-    sonarcloudBlack500: '#8a8c8f',
-    sonarcloudBlack700: '#434447',
-    sonarcloudBlack800: '#2d3032',
-    sonarcloudBlack900: '#070706',
-
-    sonarcloudBlue500: '#4c9bd6',
-    sonarcloudBlue600: '#327bb3',
-    sonarcloudBlue900: '#0b3c62',
-
-    sonarcloudBorderGray: 'rgba(207, 211, 215, 0.5)'
+    darkBackgroundFontColor: '#f6f8fa'
   },
 
   sizes: {
