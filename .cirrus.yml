@@ -224,7 +224,7 @@ validate_task:
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
-  only_if: $CIRRUS_BRANCH != "public_master" || $CIRRUS_BRANCH != "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "branch-nightly-build"
   depends_on:
     - yarn_validate-ci
     - yarn_lint-report-ci
