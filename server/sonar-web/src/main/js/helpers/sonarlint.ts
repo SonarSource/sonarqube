@@ -19,6 +19,7 @@
  */
 import { getHostUrl } from '../helpers/urls';
 import { Ide } from '../types/sonarlint';
+import { checkStatus } from './request';
 
 const SONARLINT_PORT_START = 64120;
 const SONARLINT_PORT_RANGE = 11;
@@ -43,7 +44,7 @@ export function openHotspot(calledPort: number, projectKey: string, hotspotKey: 
   showUrl.searchParams.set('server', getHostUrl());
   showUrl.searchParams.set('project', projectKey);
   showUrl.searchParams.set('hotspot', hotspotKey);
-  return fetch(showUrl.toString());
+  return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }
 
 /**
