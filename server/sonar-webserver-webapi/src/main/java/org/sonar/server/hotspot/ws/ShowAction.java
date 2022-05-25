@@ -182,7 +182,7 @@ public class ShowAction implements HotspotsWsAction {
       .setVulnerabilityProbability(sqCategory.getVulnerability().name());
 
     Map<String, String> sectionKeyToContent = getSectionKeyToContent(ruleDto);
-    Optional.ofNullable(sectionKeyToContent.get(DEFAULT_KEY)).ifPresent(ruleBuilder::setVulnerabilityDescription);
+    Optional.ofNullable(sectionKeyToContent.get(DEFAULT_KEY)).ifPresent(ruleBuilder::setRiskDescription);
     Optional.ofNullable(sectionKeyToContent.get(ROOT_CAUSE_SECTION_KEY)).ifPresent(ruleBuilder::setVulnerabilityDescription);
     Optional.ofNullable(sectionKeyToContent.get(ASSESS_THE_PROBLEM_SECTION_KEY)).ifPresent(ruleBuilder::setRiskDescription);
     Optional.ofNullable(sectionKeyToContent.get(HOW_TO_FIX_SECTION_KEY)).ifPresent(ruleBuilder::setFixRecommendations);

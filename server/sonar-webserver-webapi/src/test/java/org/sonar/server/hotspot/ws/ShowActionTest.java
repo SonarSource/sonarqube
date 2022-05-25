@@ -488,8 +488,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(introductionSection.getContent());
-    assertThat(response.getRule().getRiskDescription()).isEmpty();
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(introductionSection.getContent());
+    assertThat(response.getRule().getVulnerabilityDescription()).isEmpty();
     assertThat(response.getRule().getFixRecommendations()).isEmpty();
   }
 
