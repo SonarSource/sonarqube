@@ -80,6 +80,15 @@ export default class CodingRulesMock {
         name: 'Hot hotspot',
         type: 'SECURITY_HOTSPOT',
         lang: 'js',
+        descriptionSections: [
+          { key: RuleDescriptionSections.INTRODUCTION, content: 'Introduction to this rule' },
+          { key: RuleDescriptionSections.ROOT_CAUSE, content: 'This how to fix' },
+          { key: RuleDescriptionSections.ASSESS_THE_PROBLEM, content: 'Assess' },
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: 'Some link <a href="http://example.com">Awsome Reading</a>'
+          }
+        ],
         langName: 'JavaScript'
       }),
       mockRuleDetails({ key: 'rule3', name: 'Unknown rule', lang: 'js', langName: 'JavaScript' }),

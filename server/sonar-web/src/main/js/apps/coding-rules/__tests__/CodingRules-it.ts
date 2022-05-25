@@ -68,7 +68,7 @@ it('should show open rule with default description section', async () => {
     await screen.findByRole('heading', { level: 3, name: 'Awsome java rule' })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('region', { name: 'coding_rules.description_section.title.root_cause' })
+    screen.getByRole('heading', { name: 'coding_rules.description_section.title.root_cause' })
   ).toBeInTheDocument();
 });
 
@@ -80,19 +80,52 @@ it('should show open rule with no description', async () => {
   expect(screen.getByText('issue.external_issue_description.Bad Python rule')).toBeInTheDocument();
 });
 
-it('should show open rule advance section', async () => {
+it('should show hotspot rule section', async () => {
+  renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
+  expect(await screen.findByRole('heading', { level: 3, name: 'Hot hotspot' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.introduction'
+    })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT'
+    })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.assess_the_problem'
+    })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.resources'
+    })
+  ).toBeInTheDocument();
+  // Check that we render plain html
+  expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
+});
+
+it('should show rule advanced section', async () => {
   renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Awsome Python rule' })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('region', { name: 'coding_rules.description_section.title.introduction' })
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.introduction'
+    })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('region', { name: 'coding_rules.description_section.title.how_to_fix' })
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('region', { name: 'coding_rules.description_section.title.resources' })
+    screen.getByRole('heading', {
+      name: 'coding_rules.description_section.title.resources'
+    })
   ).toBeInTheDocument();
   // Check that we render plain html
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();

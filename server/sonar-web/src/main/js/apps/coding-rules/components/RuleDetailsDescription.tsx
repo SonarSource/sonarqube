@@ -207,17 +207,34 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     </div>
   );
 
-  renderDescription(section: RuleDescriptionSection) {
+  renderDescription = (section: RuleDescriptionSection) => {
+    if (section.key === RuleDescriptionSections.DEFAULT) {
+      return (
+        <section
+          className="coding-rules-detail-description rule-desc markdown"
+          key={section.key}
+          /* eslint-disable-next-line react/no-danger */
+          dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
+        />
+      );
+    }
+
+    const { ruleDetails } = this.props;
+    const title =
+      section.key === RuleDescriptionSections.ROOT_CAUSE && ruleDetails.type === 'SECURITY_HOTSPOT'
+        ? translate('coding_rules.description_section.title', section.key, ruleDetails.type)
+        : translate('coding_rules.description_section.title', section.key);
+
     return (
-      <section
-        aria-label={translate('coding_rules.description_section.title', section.key)}
-        className="coding-rules-detail-description rule-desc markdown"
-        key={section.key}
-        /* eslint-disable-next-line react/no-danger */
-        dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
-      />
+      <section className="coding-rules-detail-description rule-desc markdown" key={section.key}>
+        <h2>{title}</h2>
+        <div
+          /* eslint-disable-next-line react/no-danger */
+          dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
+        />
+      </section>
     );
-  }
+  };
 
   render() {
     const { ruleDetails } = this.props;
