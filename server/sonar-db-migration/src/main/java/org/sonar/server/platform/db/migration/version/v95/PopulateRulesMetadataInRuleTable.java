@@ -45,7 +45,7 @@ public class PopulateRulesMetadataInRuleTable extends DataChange {
         " tags = ?, ad_hoc_name = ?, ad_hoc_description = ?, ad_hoc_severity = ?, ad_hoc_type = ? where uuid = ?");
 
       massUpdate.execute((row, update) -> {
-        update.setBytes(1, row.getBytes(1)); // note_data
+        update.setString(1, row.getString(1)); // note_data
         update.setString(2, row.getString(2)); // note_user_uuid
         update.setLong(3, row.getLong(3)); // note_created_at
         update.setLong(4, row.getLong(4)); // note_updated_at
