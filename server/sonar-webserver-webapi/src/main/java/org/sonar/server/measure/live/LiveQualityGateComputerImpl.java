@@ -65,10 +65,8 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   public QualityGate loadQualityGate(DbSession dbSession, ProjectDto project, BranchDto branch) {
     QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, project);
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
-    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid)
-      .collect(toHashSet(conditionDtos.size()));
-    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
-      .collect(uniqueIndex(MetricDto::getUuid));
+    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(toHashSet(conditionDtos.size()));
+    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(uniqueIndex(MetricDto::getUuid));
 
     Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsByUuid.get(conditionDto.getMetricUuid()).getKey();

@@ -20,17 +20,19 @@
 package org.sonar.server.measure.live;
 
 import com.google.common.collect.ArrayTable;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
@@ -49,7 +51,6 @@ import static java.util.Objects.requireNonNull;
  * </ul>
  */
 class MeasureMatrix {
-
   // component uuid -> metric key -> measure
   private final Table<String, String, MeasureCell> table;
 
@@ -57,13 +58,18 @@ class MeasureMatrix {
   private final Map<String, MetricDto> metricsByUuids = new HashMap<>();
 
   MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
+    this(components.stream().map(ComponentDto::uuid).collect(Collectors.toSet()), metrics, dbMeasures);
+  }
+
+  MeasureMatrix(Set<String> componentUuids, Collection<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
     for (MetricDto metric : metrics) {
       this.metricsByKeys.put(metric.getKey(), metric);
       this.metricsByUuids.put(metric.getUuid(), metric);
     }
-    this.table = ArrayTable.create(Collections2.transform(components, ComponentDto::uuid), metricsByKeys.keySet());
+    this.table = ArrayTable.create(componentUuids, metricsByKeys.keySet());
+
     for (LiveMeasureDto dbMeasure : dbMeasures) {
-      table.put(dbMeasure.getComponentUuid(), metricsByUuids.get(dbMeasure.getMetricUuid()).getKey(), new MeasureCell(dbMeasure, false));
+      table.put(dbMeasure.getComponentUuid(), metricsByUuids.get(dbMeasure.getMetricUuid()).getKey(), new MeasureCell(dbMeasure));
     }
   }
 
@@ -82,62 +88,22 @@ class MeasureMatrix {
   }
 
   void setValue(ComponentDto component, String metricKey, double value) {
-    changeCell(component, metricKey, m -> {
-      MetricDto metric = getMetric(metricKey);
-      double newValue = scale(metric, value);
-
-      Double initialValue = m.getValue();
-      if (initialValue != null && Double.compare(initialValue, newValue) == 0) {
-        return false;
-      }
-      m.setValue(newValue);
-      Double initialVariation = m.getVariation();
-      if (initialValue != null && initialVariation != null) {
-        double leakInitialValue = initialValue - initialVariation;
-        m.setVariation(scale(metric, value - leakInitialValue));
-      }
-      return true;
-    });
+    changeCell(component, metricKey, m -> m.setValue(scale(getMetric(metricKey), value)));
   }
 
   void setValue(ComponentDto component, String metricKey, Rating value) {
     changeCell(component, metricKey, m -> {
-      Double initialValue = m.getValue();
-      if (initialValue != null && Double.compare(initialValue, value.getIndex()) == 0) {
-        return false;
-      }
       m.setData(value.name());
       m.setValue((double) value.getIndex());
-
-      Double initialVariation = m.getVariation();
-      if (initialValue != null && initialVariation != null) {
-        double leakInitialValue = initialValue - initialVariation;
-        m.setVariation(value.getIndex() - leakInitialValue);
-      }
-      return true;
     });
   }
 
   void setValue(ComponentDto component, String metricKey, @Nullable String data) {
-    changeCell(component, metricKey, m -> {
-      if (Objects.equals(m.getDataAsString(), data)) {
-        return false;
-      }
-      m.setData(data);
-      return true;
-    });
+    changeCell(component, metricKey, m -> m.setData(data));
   }
 
   void setLeakValue(ComponentDto component, String metricKey, double variation) {
-    changeCell(component, metricKey, c -> {
-      double newVariation = scale(getMetric(metricKey), variation);
-      if (c.getVariation() != null && Double.compare(c.getVariation(), newVariation) == 0) {
-        return false;
-      }
-      MetricDto metric = metricsByKeys.get(metricKey);
-      c.setVariation(scale(metric, variation));
-      return true;
-    });
+    changeCell(component, metricKey, c -> c.setVariation(scale(metricsByKeys.get(metricKey), variation)));
   }
 
   void setLeakValue(ComponentDto component, String metricKey, Rating variation) {
@@ -145,26 +111,23 @@ class MeasureMatrix {
   }
 
   Stream<LiveMeasureDto> getChanged() {
-    return table.values()
-      .stream()
+    return table.values().stream()
       .filter(Objects::nonNull)
       .filter(MeasureCell::isChanged)
       .map(MeasureCell::getMeasure);
   }
 
-  private void changeCell(ComponentDto component, String metricKey, Predicate<LiveMeasureDto> changer) {
+  private void changeCell(ComponentDto component, String metricKey, Consumer<LiveMeasureDto> changer) {
     MeasureCell cell = table.get(component.uuid(), metricKey);
     if (cell == null) {
       LiveMeasureDto measure = new LiveMeasureDto()
         .setComponentUuid(component.uuid())
         .setProjectUuid(component.projectUuid())
         .setMetricUuid(metricsByKeys.get(metricKey).getUuid());
-      cell = new MeasureCell(measure, true);
+      cell = new MeasureCell(measure);
       table.put(component.uuid(), metricKey, cell);
-      changer.test(cell.getMeasure());
-    } else if (changer.test(cell.getMeasure())) {
-      cell.setChanged(true);
     }
+    changer.accept(cell.getMeasure());
   }
 
   /**
@@ -181,11 +144,17 @@ class MeasureMatrix {
 
   private static class MeasureCell {
     private final LiveMeasureDto measure;
-    private boolean changed;
+    private final Double initialVariation;
+    private final Double initialValue;
+    private final byte[] initialData;
+    private final String initialTextValue;
 
-    private MeasureCell(LiveMeasureDto measure, boolean changed) {
+    private MeasureCell(LiveMeasureDto measure) {
       this.measure = measure;
-      this.changed = changed;
+      this.initialValue = measure.getValue();
+      this.initialVariation = measure.getVariation();
+      this.initialData = measure.getData();
+      this.initialTextValue = measure.getTextValue();
     }
 
     public LiveMeasureDto getMeasure() {
@@ -193,11 +162,8 @@ class MeasureMatrix {
     }
 
     public boolean isChanged() {
-      return changed;
-    }
-
-    public void setChanged(boolean b) {
-      this.changed = b;
+      return !Objects.equals(initialValue, measure.getValue()) || !Objects.equals(initialVariation, measure.getVariation())
+        || !Arrays.equals(initialData, measure.getData()) || !Objects.equals(initialTextValue, measure.getTextValue());
     }
   }
 }

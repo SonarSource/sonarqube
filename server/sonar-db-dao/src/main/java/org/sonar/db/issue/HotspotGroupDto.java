@@ -17,19 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.measure.live;
+package org.sonar.db.issue;
 
-import org.sonar.core.platform.Module;
+public class HotspotGroupDto {
+  private String status;
+  private long count;
+  private boolean inLeak;
 
-public class LiveMeasureModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      MeasureUpdateFormulaFactoryImpl.class,
-      ComponentIndexFactory.class,
-      LiveMeasureTreeUpdaterImpl.class,
-      LiveMeasureComputerImpl.class,
-      HotspotMeasureUpdater.class,
-      LiveQualityGateComputerImpl.class);
+  public String getStatus() {
+    return status;
+  }
+
+  public HotspotGroupDto setStatus(String status) {
+    this.status = status;
+    return this;
+  }
+
+  public long getCount() {
+    return count;
+  }
+
+  public HotspotGroupDto setCount(long count) {
+    this.count = count;
+    return this;
+  }
+
+  public boolean isInLeak() {
+    return inLeak;
+  }
+
+  public HotspotGroupDto setInLeak(boolean inLeak) {
+    this.inLeak = inLeak;
+    return this;
   }
 }

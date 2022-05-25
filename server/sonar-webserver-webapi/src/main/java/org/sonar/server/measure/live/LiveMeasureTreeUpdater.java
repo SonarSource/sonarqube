@@ -19,17 +19,11 @@
  */
 package org.sonar.server.measure.live;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.config.Configuration;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.SnapshotDto;
 
-public class LiveMeasureModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      MeasureUpdateFormulaFactoryImpl.class,
-      ComponentIndexFactory.class,
-      LiveMeasureTreeUpdaterImpl.class,
-      LiveMeasureComputerImpl.class,
-      HotspotMeasureUpdater.class,
-      LiveQualityGateComputerImpl.class);
-  }
+public interface LiveMeasureTreeUpdater {
+  void update(DbSession dbSession, SnapshotDto lastAnalysis, Configuration config, ComponentIndex components, BranchDto branch, MeasureMatrix measures);
 }

@@ -20,24 +20,20 @@
 package org.sonar.server.measure.live;
 
 import java.util.List;
-import java.util.Set;
-import org.sonar.api.measures.Metric;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
-class TestIssueMetricFormulaFactory implements IssueMetricFormulaFactory {
+public class ComponentIndexFactory {
+  private final DbClient dbClient;
 
-  private final List<IssueMetricFormula> formulas;
-
-  TestIssueMetricFormulaFactory(List<IssueMetricFormula> formulas) {
-    this.formulas = formulas;
+  public ComponentIndexFactory(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
-  @Override
-  public List<IssueMetricFormula> getFormulas() {
-    return formulas;
-  }
-
-  @Override
-  public Set<Metric> getFormulaMetrics() {
-    return IssueMetricFormulaFactory.extractMetrics(formulas);
+  public ComponentIndex create(DbSession dbSession, List<ComponentDto> touchedComponents) {
+    ComponentIndexImpl idx = new ComponentIndexImpl(dbClient);
+    idx.load(dbSession, touchedComponents);
+    return idx;
   }
 }

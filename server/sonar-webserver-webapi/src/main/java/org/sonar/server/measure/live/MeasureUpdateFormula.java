@@ -20,6 +20,7 @@
 package org.sonar.server.measure.live;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.sonar.api.measures.Metric;
@@ -29,20 +30,28 @@ import org.sonar.server.measure.Rating;
 
 import static java.util.Collections.emptyList;
 
-class IssueMetricFormula {
+class MeasureUpdateFormula {
 
   private final Metric metric;
   private final boolean onLeak;
+  private final BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula;
   private final BiConsumer<Context, IssueCounter> formula;
   private final Collection<Metric> dependentMetrics;
 
-  IssueMetricFormula(Metric metric, boolean onLeak, BiConsumer<Context, IssueCounter> formula) {
-    this(metric, onLeak, formula, emptyList());
+  /**
+   * @param hierarchyFormula Called in a second pass through all the components, after 'formula' is called. Used to calculate the aggregate values for each component.
+   *                         For many metrics, we sum the value of the children to the value of the component
+   * @param formula          Used to calculate new values for a metric for each component, based on the issue counts
+   */
+  MeasureUpdateFormula(Metric metric, boolean onLeak, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula, BiConsumer<Context, IssueCounter> formula) {
+    this(metric, onLeak, hierarchyFormula, formula, emptyList());
   }
 
-  IssueMetricFormula(Metric metric, boolean onLeak, BiConsumer<Context, IssueCounter> formula, Collection<Metric> dependentMetrics) {
+  MeasureUpdateFormula(Metric metric, boolean onLeak, BiConsumer<Context, MeasureUpdateFormula> hierarchyFormula, BiConsumer<Context, IssueCounter> formula,
+    Collection<Metric> dependentMetrics) {
     this.metric = metric;
     this.onLeak = onLeak;
+    this.hierarchyFormula = hierarchyFormula;
     this.formula = formula;
     this.dependentMetrics = dependentMetrics;
   }
@@ -63,7 +72,15 @@ class IssueMetricFormula {
     formula.accept(context, issues);
   }
 
+  void computeHierarchy(Context context) {
+    hierarchyFormula.accept(context, this);
+  }
+
   interface Context {
+    List<Double> getChildrenValues();
+
+    List<Double> getChildrenLeakValues();
+
     ComponentDto getComponent();
 
     DebtRatingGrid getDebtRatingGrid();
@@ -72,9 +89,11 @@ class IssueMetricFormula {
      * Value that was just refreshed, otherwise value as computed
      * during last analysis.
      * The metric must be declared in the formula dependencies
-     * (see {@link IssueMetricFormula#getDependentMetrics()}).
+     * (see {@link MeasureUpdateFormula#getDependentMetrics()}).
      */
     Optional<Double> getValue(Metric metric);
+
+    Optional<String> getText(Metric metrc);
 
     Optional<Double> getLeakValue(Metric metric);
 

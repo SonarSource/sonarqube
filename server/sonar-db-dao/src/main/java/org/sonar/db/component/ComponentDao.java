@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
@@ -221,6 +222,11 @@ public class ComponentDao implements Dao {
     }
     ComponentDto component = componentOpt.get();
     return mapper(dbSession).selectDescendants(query, componentOpt.get().uuid(), query.getUuidPath(component));
+  }
+
+  public List<ComponentDto> selectChildren(DbSession dbSession, Collection<ComponentDto> components) {
+    Set<String> uuidPaths = components.stream().map(c -> c.getUuidPath() + c.uuid() + ".").collect(Collectors.toSet());
+    return mapper(dbSession).selectChildren(uuidPaths);
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

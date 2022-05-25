@@ -19,17 +19,22 @@
  */
 package org.sonar.server.measure.live;
 
-import org.sonar.core.platform.Module;
+import java.util.List;
+import org.junit.Test;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 
-public class LiveMeasureModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      MeasureUpdateFormulaFactoryImpl.class,
-      ComponentIndexFactory.class,
-      LiveMeasureTreeUpdaterImpl.class,
-      LiveMeasureComputerImpl.class,
-      HotspotMeasureUpdater.class,
-      LiveQualityGateComputerImpl.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ComponentIndexFactoryTest {
+  public DbTester db = DbTester.create();
+  private final ComponentIndexFactory factory = new ComponentIndexFactory(db.getDbClient());
+
+  @Test
+  public void creates_and_loads_instance() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentIndex index = factory.create(db.getSession(), List.of(project));
+
+    assertThat(index.getAllUuids()).containsOnly(project.uuid());
   }
 }

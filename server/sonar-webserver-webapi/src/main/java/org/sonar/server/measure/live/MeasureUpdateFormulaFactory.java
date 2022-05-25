@@ -27,12 +27,12 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
-public interface IssueMetricFormulaFactory {
-  List<IssueMetricFormula> getFormulas();
+public interface MeasureUpdateFormulaFactory {
+  List<MeasureUpdateFormula> getFormulas();
 
   Set<Metric> getFormulaMetrics();
 
-  static Set<Metric> extractMetrics(List<IssueMetricFormula> formulas) {
+  static Set<Metric> extractMetrics(List<MeasureUpdateFormula> formulas) {
     return formulas.stream()
       .flatMap(f -> Stream.concat(Stream.of(f.getMetric()), f.getDependentMetrics().stream()))
       .collect(Collectors.toSet());

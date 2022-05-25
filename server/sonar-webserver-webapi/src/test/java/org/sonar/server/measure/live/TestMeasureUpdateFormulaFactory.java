@@ -19,17 +19,25 @@
  */
 package org.sonar.server.measure.live;
 
-import org.sonar.core.platform.Module;
+import java.util.List;
+import java.util.Set;
+import org.sonar.api.measures.Metric;
 
-public class LiveMeasureModule extends Module {
+class TestMeasureUpdateFormulaFactory implements MeasureUpdateFormulaFactory {
+
+  private final List<MeasureUpdateFormula> formulas;
+
+  TestMeasureUpdateFormulaFactory(List<MeasureUpdateFormula> formulas) {
+    this.formulas = formulas;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      MeasureUpdateFormulaFactoryImpl.class,
-      ComponentIndexFactory.class,
-      LiveMeasureTreeUpdaterImpl.class,
-      LiveMeasureComputerImpl.class,
-      HotspotMeasureUpdater.class,
-      LiveQualityGateComputerImpl.class);
+  public List<MeasureUpdateFormula> getFormulas() {
+    return formulas;
+  }
+
+  @Override
+  public Set<Metric> getFormulaMetrics() {
+    return MeasureUpdateFormulaFactory.extractMetrics(formulas);
   }
 }

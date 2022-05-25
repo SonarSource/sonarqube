@@ -42,7 +42,6 @@ public class MeasureMatrixTest {
   private static final MetricDto METRIC_1 = newMetricDto().setUuid("100");
   private static final MetricDto METRIC_2 = newMetricDto().setUuid("200");
 
-
   @Test
   public void getMetric() {
     Collection<MetricDto> metrics = asList(METRIC_1, METRIC_2);
@@ -128,7 +127,7 @@ public class MeasureMatrixTest {
 
     assertThat(underTest.getChanged()).hasSize(1);
     verifyValue(underTest, PROJECT, metric, 3.56);
-    verifyVariation(underTest, PROJECT, metric, 3.56 - (3.14 - 1.14));
+    verifyVariation(underTest, PROJECT, metric, 1.14);
   }
 
   @Test
@@ -138,10 +137,11 @@ public class MeasureMatrixTest {
     MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(metric), asList(measure));
 
     underTest.setValue(PROJECT, metric.getKey(), 3.569);
+    underTest.setLeakValue(PROJECT, metric.getKey(), 3.569);
 
     assertThat(underTest.getChanged()).hasSize(1);
     verifyValue(underTest, PROJECT, metric, 3.57);
-    verifyVariation(underTest, PROJECT, metric, 1.57);
+    verifyVariation(underTest, PROJECT, metric, 3.57);
   }
 
   @Test

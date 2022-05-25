@@ -68,15 +68,12 @@ public class IssueUpdater {
     this.notificationSerializer = notificationSerializer;
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
-    IssueChangeContext context, boolean refreshMeasures) {
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context, boolean refreshMeasures) {
     BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
     return saveIssueAndPreloadSearchResponseData(dbSession, issue, context, refreshMeasures, branch);
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
-    IssueChangeContext context, boolean refreshMeasures, BranchDto branch) {
-
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context, boolean refreshMeasures, BranchDto branch) {
     Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());

@@ -69,6 +69,8 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 
+  List<ComponentDto> selectChildren(@Param("uuidPaths") Set<String> uuidPaths);
+
   /**
    * Returns all enabled projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
    * {@link org.sonar.api.resources.Qualifiers#PROJECT}) no matter if they are ghost project, provisioned projects or

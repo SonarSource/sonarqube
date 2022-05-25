@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -34,7 +33,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureComparator;
@@ -43,38 +41,36 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.measure.DebtRatingGrid;
-import org.sonar.server.measure.Rating;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.setting.ProjectConfigurationLoader;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   private final DbClient dbClient;
-  private final IssueMetricFormulaFactory formulaFactory;
+  private final MeasureUpdateFormulaFactory formulaFactory;
+  private final ComponentIndexFactory componentIndexFactory;
   private final LiveQualityGateComputer qGateComputer;
   private final ProjectConfigurationLoader projectConfigurationLoader;
   private final ProjectIndexers projectIndexer;
+  private final LiveMeasureTreeUpdater treeUpdater;
 
-  public LiveMeasureComputerImpl(DbClient dbClient, IssueMetricFormulaFactory formulaFactory,
-    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, ProjectIndexers projectIndexer) {
+  public LiveMeasureComputerImpl(DbClient dbClient, MeasureUpdateFormulaFactory formulaFactory, ComponentIndexFactory componentIndexFactory,
+    LiveQualityGateComputer qGateComputer, ProjectConfigurationLoader projectConfigurationLoader, ProjectIndexers projectIndexer, LiveMeasureTreeUpdater treeUpdater) {
     this.dbClient = dbClient;
     this.formulaFactory = formulaFactory;
+    this.componentIndexFactory = componentIndexFactory;
     this.qGateComputer = qGateComputer;
     this.projectConfigurationLoader = projectConfigurationLoader;
     this.projectIndexer = projectIndexer;
+    this.treeUpdater = treeUpdater;
   }
 
   @Override
@@ -93,131 +89,63 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   }
 
   private Optional<QGChangeEvent> refreshComponentsOnSameProject(DbSession dbSession, List<ComponentDto> touchedComponents) {
-    // load all the components to be refreshed, including their ancestors
-    List<ComponentDto> components = loadTreeOfComponents(dbSession, touchedComponents);
-    ComponentDto branchComponent = findBranchComponent(components);
-    BranchDto branch = loadBranch(dbSession, branchComponent);
-    ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
-    Optional<SnapshotDto> lastAnalysisResult = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
-    if (lastAnalysisResult.isEmpty()) {
+    ComponentIndex components = componentIndexFactory.create(dbSession, touchedComponents);
+    ComponentDto branchComponent = components.getBranch();
+    Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
+    if (lastAnalysis.isEmpty()) {
       return Optional.empty();
     }
 
-    var lastAnalysis = lastAnalysisResult.get();
-
-    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
-    Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
-    Map<String, MetricDto> metricsPerId = metrics.stream()
-      .collect(uniqueIndex(MetricDto::getUuid));
-    List<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(toArrayList(components.size()));
-    List<LiveMeasureDto> dbMeasures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerId.keySet());
-    // previous status must be load now as MeasureMatrix mutate the LiveMeasureDto which are passed to it
-    Metric.Level previousStatus = loadPreviousStatus(metrics, dbMeasures);
-
+    BranchDto branch = loadBranch(dbSession, branchComponent);
     Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, branchComponent);
-    DebtRatingGrid debtRatingGrid = new DebtRatingGrid(config);
+    ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
+    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
+    MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), qualityGate);
 
-    MeasureMatrix matrix = new MeasureMatrix(components, metricsPerId.values(), dbMeasures);
-    FormulaContextImpl context = new FormulaContextImpl(matrix, debtRatingGrid);
-    long beginningOfLeak = getBeginningOfLeakPeriod(lastAnalysis, branch);
+    treeUpdater.update(dbSession, lastAnalysis.get(), config, components, branch, matrix);
 
-    components.forEach(c -> {
-      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByBaseComponent(dbSession, c, beginningOfLeak));
-      for (IssueMetricFormula formula : formulaFactory.getFormulas()) {
-        // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
-        if (shouldUseLeakFormulas(lastAnalysis, branch) || !formula.isOnLeak()) {
-          context.change(c, formula);
-          try {
-            formula.compute(context, issueCounter);
-          } catch (RuntimeException e) {
-            throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on " + context.getComponent().getDbKey(), e);
-          }
-        }
-      }
-    });
-
+    Metric.Level previousStatus = loadPreviousStatus(dbSession, branchComponent);
     EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix, config);
+    persistAndIndex(dbSession, matrix, branchComponent);
 
+    return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
+  }
+
+  private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
+    Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
+    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(uniqueIndex(MetricDto::getUuid));
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerUuid.keySet());
+    return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
+  }
+
+  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, ComponentDto branchComponent) {
     // persist the measures that have been created or updated
-    matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE)
-      .forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
+    matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
     projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
-
-    return Optional.of(
-      new QGChangeEvent(project, branch, lastAnalysis, config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
-  }
-
-  private static long getBeginningOfLeakPeriod(SnapshotDto lastAnalysis, BranchDto branch) {
-    if (isPR(branch)) {
-      return 0L;
-    } else if (REFERENCE_BRANCH.name().equals(lastAnalysis.getPeriodMode())) {
-      return -1;
-    }
-    return ofNullable(lastAnalysis.getPeriodDate())
-        .orElse(Long.MAX_VALUE);
-
-  }
-
-  private static boolean isPR(BranchDto branch) {
-    return branch.getBranchType() == BranchType.PULL_REQUEST;
-  }
-
-  private static boolean shouldUseLeakFormulas(SnapshotDto lastAnalysis, BranchDto branch) {
-    return lastAnalysis.getPeriodDate() != null || isPR(branch) || REFERENCE_BRANCH.name().equals(lastAnalysis.getPeriodMode());
   }
 
   @CheckForNull
-  private static Metric.Level loadPreviousStatus(List<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
-    MetricDto alertStatusMetric = metrics.stream()
-      .filter(m -> ALERT_STATUS_KEY.equals(m.getKey()))
-      .findAny()
-      .orElseThrow(() -> new IllegalStateException(String.format("Metric with key %s is not registered", ALERT_STATUS_KEY)));
-    return dbMeasures.stream()
-      .filter(m -> m.getMetricUuid().equals(alertStatusMetric.getUuid()))
-      .map(LiveMeasureDto::getTextValue)
-      .filter(Objects::nonNull)
-      .map(m -> {
-        try {
-          return Metric.Level.valueOf(m);
-        } catch (IllegalArgumentException e) {
-          Loggers.get(LiveMeasureComputerImpl.class)
-            .trace("Failed to parse value of metric '{}'", m, e);
-          return null;
-        }
-      })
-      .filter(Objects::nonNull)
-      .findAny()
-      .orElse(null);
-  }
-
-  private List<ComponentDto> loadTreeOfComponents(DbSession dbSession, List<ComponentDto> touchedComponents) {
-    Set<String> componentUuids = new HashSet<>();
-    for (ComponentDto component : touchedComponents) {
-      componentUuids.add(component.uuid());
-      // ancestors, excluding self
-      componentUuids.addAll(component.getUuidPathAsList());
+  private Metric.Level loadPreviousStatus(DbSession dbSession, ComponentDto branchComponent) {
+    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, branchComponent.uuid(), ALERT_STATUS_KEY);
+    if (measure.isEmpty()) {
+      return null;
     }
-    // Contrary to the formulas in Compute Engine,
-    // measures do not aggregate values of descendant components.
-    // As a consequence nodes do not need to be sorted. Formulas can be applied
-    // on components in any order.
-    return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+
+    try {
+      return Metric.Level.valueOf(measure.get().getTextValue());
+    } catch (IllegalArgumentException e) {
+      Loggers.get(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
+      return null;
+    }
   }
 
   private Set<String> getKeysOfAllInvolvedMetrics(QualityGate gate) {
     Set<String> metricKeys = new HashSet<>();
-    for (Metric metric : formulaFactory.getFormulaMetrics()) {
+    for (Metric<?> metric : formulaFactory.getFormulaMetrics()) {
       metricKeys.add(metric.getKey());
     }
     metricKeys.addAll(qGateComputer.getMetricsRelatedTo(gate));
     return metricKeys;
-  }
-
-  private static ComponentDto findBranchComponent(Collection<ComponentDto> components) {
-    return components.stream().filter(ComponentDto::isRootProject).findFirst()
-      .orElseThrow(() -> new IllegalStateException("No project found in " + components));
   }
 
   private BranchDto loadBranch(DbSession dbSession, ComponentDto branchComponent) {
@@ -228,72 +156,5 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private ProjectDto loadProject(DbSession dbSession, String uuid) {
     return dbClient.projectDao().selectByUuid(dbSession, uuid)
       .orElseThrow(() -> new IllegalStateException("Project not found: " + uuid));
-  }
-
-  private static class FormulaContextImpl implements IssueMetricFormula.Context {
-    private final MeasureMatrix matrix;
-    private final DebtRatingGrid debtRatingGrid;
-    private ComponentDto currentComponent;
-    private IssueMetricFormula currentFormula;
-
-    private FormulaContextImpl(MeasureMatrix matrix, DebtRatingGrid debtRatingGrid) {
-      this.matrix = matrix;
-      this.debtRatingGrid = debtRatingGrid;
-    }
-
-    private void change(ComponentDto component, IssueMetricFormula formula) {
-      this.currentComponent = component;
-      this.currentFormula = formula;
-    }
-
-    @Override
-    public ComponentDto getComponent() {
-      return currentComponent;
-    }
-
-    @Override
-    public DebtRatingGrid getDebtRatingGrid() {
-      return debtRatingGrid;
-    }
-
-    @Override
-    public Optional<Double> getValue(Metric metric) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(currentComponent, metric.getKey());
-      return measure.map(LiveMeasureDto::getValue);
-    }
-
-    @Override
-    public Optional<Double> getLeakValue(Metric metric) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(currentComponent, metric.getKey());
-      return measure.map(LiveMeasureDto::getVariation);
-    }
-
-    @Override
-    public void setValue(double value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(!currentFormula.isOnLeak(), "Formula of metric %s accepts only leak values", metricKey);
-      matrix.setValue(currentComponent, metricKey, value);
-    }
-
-    @Override
-    public void setLeakValue(double value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(currentFormula.isOnLeak(), "Formula of metric %s does not accept leak values", metricKey);
-      matrix.setLeakValue(currentComponent, metricKey, value);
-    }
-
-    @Override
-    public void setValue(Rating value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(!currentFormula.isOnLeak(), "Formula of metric %s accepts only leak values", metricKey);
-      matrix.setValue(currentComponent, metricKey, value);
-    }
-
-    @Override
-    public void setLeakValue(Rating value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(currentFormula.isOnLeak(), "Formula of metric %s does not accept leak values", metricKey);
-      matrix.setLeakValue(currentComponent, metricKey, value);
-    }
   }
 }

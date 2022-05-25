@@ -1670,6 +1670,33 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_children() {
+    ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
+    db.components().insertProjectAndSnapshot(project);
+    ComponentDto module = newModuleDto(MODULE_UUID, project);
+    db.components().insertComponent(module);
+    ComponentDto fileInProject = newFileDto(project, null, FILE_1_UUID).setDbKey("file-key-1").setName("File One");
+    db.components().insertComponent(fileInProject);
+    ComponentDto file1InModule = newFileDto(module, null, FILE_2_UUID).setDbKey("file-key-2").setName("File Two");
+    db.components().insertComponent(file1InModule);
+    ComponentDto file2InModule = newFileDto(module, null, FILE_3_UUID).setDbKey("file-key-3").setName("File Three");
+    db.components().insertComponent(file2InModule);
+    db.commit();
+
+    // test children of root
+    assertThat(underTest.selectChildren(dbSession, List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
+
+    // test children of intermediate component (module here)
+    assertThat(underTest.selectChildren(dbSession, List.of(module))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
+
+    // test children of leaf component (file here)
+    assertThat(underTest.selectChildren(dbSession, List.of(fileInProject))).isEmpty();
+
+    // test children of 2 components
+    assertThat(underTest.selectChildren(dbSession, List.of(project, module))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID, FILE_2_UUID, FILE_3_UUID);
+  }
+
+  @Test
   public void select_descendants_with_children_strategy() {
     // project has 2 children: module and file 1. Other files are part of module.
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);

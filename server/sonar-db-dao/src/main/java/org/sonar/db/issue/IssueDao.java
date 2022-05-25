@@ -87,8 +87,12 @@ public class IssueDao implements Dao {
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
   }
 
-  public Collection<IssueGroupDto> selectIssueGroupsByBaseComponent(DbSession dbSession, ComponentDto baseComponent, long leakPeriodBeginningDate) {
-    return mapper(dbSession).selectIssueGroupsByBaseComponent(baseComponent, leakPeriodBeginningDate);
+  public Collection<HotspotGroupDto> selectBranchHotspotsCount(DbSession dbSession, String branchUuid, long leakPeriodBeginningDate) {
+    return mapper(dbSession).selectBranchHotspotsCount(branchUuid, leakPeriodBeginningDate);
+  }
+
+  public Collection<IssueGroupDto> selectIssueGroupsByComponent(DbSession dbSession, ComponentDto component, long leakPeriodBeginningDate) {
+    return mapper(dbSession).selectIssueGroupsByComponent(component, leakPeriodBeginningDate);
   }
 
   public void insert(DbSession session, IssueDto dto) {
