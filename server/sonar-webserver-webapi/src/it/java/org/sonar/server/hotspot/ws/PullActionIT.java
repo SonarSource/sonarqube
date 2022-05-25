@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -343,6 +344,7 @@ public class PullActionIT {
     IssueDto issueBefore = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
       .setMessage("openIssue")
       .setCreatedAt(NOW)
+      .setIssueUpdateDate(new Date(NOW))
       .setRule(javaRule)
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
@@ -353,12 +355,12 @@ public class PullActionIT {
     IssueDto issueAfter = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
       .setMessage("openIssue")
       .setCreatedAt(NOW)
+      .setIssueUpdateDate(new Date(NOW + 1L))
       .setRule(javaRule)
       .setRuleUuid(javaRule.getUuid())
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setLanguage("java")
       .setProject(correctMainBranch)
-      .setUpdatedAt(NOW)
       .setComponent(correctFile));
 
     TestRequest request = tester.newRequest()
