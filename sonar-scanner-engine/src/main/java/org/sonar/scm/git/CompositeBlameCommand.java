@@ -71,7 +71,7 @@ public class CompositeBlameCommand extends BlameCommand {
       profiler.startDebug("Collecting committed files");
       Set<String> committedFiles = collectAllCommittedFiles(repo);
       profiler.stopDebug();
-      nativeGitEnabled = nativeCmd.isEnabled();
+      nativeGitEnabled = nativeCmd.checkIfEnabled();
       ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new GitThreadFactory());
 
       for (InputFile inputFile : input.filesToBlame()) {

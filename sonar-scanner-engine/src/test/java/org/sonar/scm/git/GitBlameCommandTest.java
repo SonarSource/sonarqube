@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
@@ -37,10 +38,16 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.scm.git.ProcessWrapperFactory.ProcessWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.scm.git.GitUtils.createFile;
 import static org.sonar.scm.git.GitUtils.createRepository;
 import static org.sonar.scm.git.Utils.javaUnzip;
@@ -52,11 +59,12 @@ public class GitBlameCommandTest {
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public LogTester logTester = new LogTester();
-  private final GitBlameCommand blameCommand = new GitBlameCommand();
+  private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
+  private final GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
 
   @Before
   public void skipTestsIfNoGitFound() {
-    assumeTrue(blameCommand.isEnabled());
+    assumeTrue(blameCommand.checkIfEnabled());
   }
 
   @Test
@@ -134,20 +142,20 @@ public class GitBlameCommandTest {
 
   @Test
   public void git_should_be_detected() {
-    GitBlameCommand blameCommand = new GitBlameCommand();
-    assertThat(blameCommand.isEnabled()).isTrue();
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    assertThat(blameCommand.checkIfEnabled()).isTrue();
   }
 
   @Test
   public void git_should_not_be_detected() {
-    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound");
-    assertThat(blameCommand.isEnabled()).isFalse();
+    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
+    assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
   @Test
   public void throw_exception_if_command_fails() throws Exception {
     Path baseDir = temp.newFolder().toPath();
-    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound");
+    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
     assertThatThrownBy(() -> blameCommand.blame(baseDir, "file")).isInstanceOf(IOException.class);
   }
 
@@ -159,13 +167,70 @@ public class GitBlameCommandTest {
     createFile(filePath, "line", baseDir);
     commitWithNoEmail(git, filePath);
 
-    GitBlameCommand blameCommand = new GitBlameCommand();
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    assertThat(blameCommand.checkIfEnabled()).isTrue();
     List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
     assertThat(blame).hasSize(1);
     BlameLine blameLine = blame.get(0);
     assertThat(blameLine.author()).isNull();
     assertThat(blameLine.revision()).isNotNull();
     assertThat(blameLine.date()).isNotNull();
+  }
+
+  @Test
+  public void do_not_execute() throws Exception {
+    Path baseDir = temp.newFolder().toPath();
+    Git git = createRepository(baseDir);
+    String filePath = "file.txt";
+    createFile(filePath, "line", baseDir);
+    commitWithNoEmail(git, filePath);
+
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    assertThat(blameCommand.checkIfEnabled()).isTrue();
+    List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
+    assertThat(blame).hasSize(1);
+    BlameLine blameLine = blame.get(0);
+    assertThat(blameLine.author()).isNull();
+    assertThat(blameLine.revision()).isNotNull();
+    assertThat(blameLine.date()).isNotNull();
+  }
+
+  @Test
+  public void execution_on_windows_should_fallback_to_full_path() {
+    System2 system2 = mock(System2.class);
+    when(system2.isOsWindows()).thenReturn(true);
+
+    ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
+    ProcessWrapper mockProcess = mock(ProcessWrapper.class);
+    when(mockFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).then(invocation -> {
+      var argument = (Consumer<String>) invocation.getArgument(1);
+      argument.accept("C:\\mockGit.exe");
+      return mockProcess;
+    });
+
+    when(mockFactory.create(isNull(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
+      var argument = (Consumer<String>) invocation.getArgument(1);
+      argument.accept("git version 2.30.1");
+      return mockProcess;
+    });
+
+    GitBlameCommand blameCommand = new GitBlameCommand(system2, mockFactory);
+    assertThat(blameCommand.checkIfEnabled()).isTrue();
+    assertThat(logTester.logs()).contains("Found git.exe at C:\\mockGit.exe");
+  }
+
+  @Test
+  public void execution_on_windows_is_disabled_if_git_not_on_path() {
+    System2 system2 = mock(System2.class);
+    when(system2.isOsWindows()).thenReturn(true);
+    when(system2.property("PATH")).thenReturn("C:\\some-path;C:\\some-another-path");
+
+    ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
+    ProcessWrapper mockProcess = mock(ProcessWrapper.class);
+    when(mockFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).thenReturn(mockProcess);
+
+    GitBlameCommand blameCommand = new GitBlameCommand(system2, mockFactory);
+    assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
   private void commitWithNoEmail(Git git, String path) throws GitAPIException {
@@ -179,7 +244,7 @@ public class GitBlameCommandTest {
   }
 
   private File createNewTempFolder() throws IOException {
-    //This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
+    // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
   }
 }

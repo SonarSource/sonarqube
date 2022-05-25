@@ -19,53 +19,60 @@
  */
 package org.sonar.scm.git;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GitBlameCommand {
   private static final Logger LOG = Loggers.get(GitBlameCommand.class);
   private static final Pattern EMAIL_PATTERN = Pattern.compile("<(\\S*?)>");
-  private static final String COMITTER_TIME = "committer-time ";
-  private static final String COMITTER_MAIL = "committer-mail ";
+  private static final String COMMITTER_TIME = "committer-time ";
+  private static final String COMMITTER_MAIL = "committer-mail ";
 
-  private static final String GIT_COMMAND = "git";
+  private static final String DEFAULT_GIT_COMMAND = "git";
   private static final String BLAME_COMMAND = "blame";
   private static final String BLAME_LINE_PORCELAIN_FLAG = "--line-porcelain";
   private static final String IGNORE_WHITESPACES = "-w";
 
-  private final String gitCommand;
+  private final System2 system;
+  private final ProcessWrapperFactory processWrapperFactory;
+  private String gitCommand;
 
   @Autowired
-  public GitBlameCommand() {
-    this(GIT_COMMAND);
+  public GitBlameCommand(System2 system, ProcessWrapperFactory processWrapperFactory) {
+    this.system = system;
+    this.processWrapperFactory = processWrapperFactory;
   }
 
-  public GitBlameCommand(String gitCommand) {
+  GitBlameCommand(String gitCommand, System2 system, ProcessWrapperFactory processWrapperFactory) {
     this.gitCommand = gitCommand;
+    this.system = system;
+    this.processWrapperFactory = processWrapperFactory;
   }
 
-  public boolean isEnabled() {
+  /**
+   * This method must be executed before org.sonar.scm.git.GitBlameCommand#blame
+   *
+   * @return true, if native git is installed
+   */
+  public boolean checkIfEnabled() {
     try {
+      this.gitCommand = locateDefaultGit();
       MutableString stdOut = new MutableString();
-      executeCommand(null, l -> stdOut.string = l, gitCommand, "--version");
+      this.processWrapperFactory.create(null, l -> stdOut.string = l, gitCommand, "--version").execute();
       return stdOut.string != null && stdOut.string.startsWith("git version");
     } catch (Exception e) {
       LOG.debug("Failed to find git native client", e);
@@ -73,40 +80,43 @@ public class GitBlameCommand {
     }
   }
 
+  private String locateDefaultGit() throws IOException {
+    if (this.gitCommand != null) {
+      return this.gitCommand;
+    }
+    // if not set fall back to defaults
+    if (system.isOsWindows()) {
+      return locateGitOnWindows();
+    }
+    return DEFAULT_GIT_COMMAND;
+  }
+
+  private String locateGitOnWindows() throws IOException {
+    // Windows will search current directory in addition to the PATH variable, which is unsecure.
+    // To avoid it we use where.exe to find git binary only in PATH.
+    LOG.debug("Looking for git command in the PATH using where.exe (Windows)");
+    List<String> whereCommandResult = new LinkedList<>();
+    this.processWrapperFactory.create(null, whereCommandResult::add, "C:\\Windows\\System32\\where.exe", "$PATH:git.exe")
+      .execute();
+
+    if (!whereCommandResult.isEmpty()) {
+      String out = whereCommandResult.get(0).trim();
+      LOG.debug("Found git.exe at {}", out);
+      return out;
+    }
+    throw new IllegalStateException("git.exe not found in PATH. PATH value was: " + system.property("PATH"));
+  }
+
   public List<BlameLine> blame(Path baseDir, String fileName) throws Exception {
     BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
     try {
-      executeCommand(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, fileName);
+      this.processWrapperFactory.create(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, fileName)
+        .execute();
     } catch (UncommittedLineException e) {
       LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
       return emptyList();
     }
     return outputProcessor.getBlameLines();
-  }
-
-  private static void executeCommand(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) throws Exception {
-    ProcessBuilder pb = new ProcessBuilder()
-      .command(command)
-      .directory(baseDir != null ? baseDir.toFile() : null);
-
-    Process p = pb.start();
-    try {
-      InputStream processStdOutput = p.getInputStream();
-      // don't use BufferedReader#readLine because it will also parse CR, which may be part of the actual source code line
-      try (Scanner scanner = new Scanner(new InputStreamReader(processStdOutput, UTF_8))) {
-        scanner.useDelimiter("\n");
-        while (scanner.hasNext()) {
-          stdOutLineConsumer.accept(scanner.next());
-        }
-      }
-
-      int exit = p.waitFor();
-      if (exit != 0) {
-        throw new IllegalStateException(String.format("Command execution exited with code: %d", exit));
-      }
-    } finally {
-      p.destroy();
-    }
   }
 
   private static class BlameOutputProcessor {
@@ -124,11 +134,11 @@ public class GitBlameCommand {
         sha1 = line.split(" ")[0];
       } else if (line.startsWith("\t")) {
         saveEntry();
-      } else if (line.startsWith(COMITTER_TIME)) {
-        committerTime = line.substring(COMITTER_TIME.length());
-      } else if (line.startsWith(COMITTER_MAIL)) {
+      } else if (line.startsWith(COMMITTER_TIME)) {
+        committerTime = line.substring(COMMITTER_TIME.length());
+      } else if (line.startsWith(COMMITTER_MAIL)) {
         Matcher matcher = EMAIL_PATTERN.matcher(line);
-        if (!matcher.find(COMITTER_MAIL.length()) || matcher.groupCount() != 1) {
+        if (!matcher.find(COMMITTER_MAIL.length()) || matcher.groupCount() != 1) {
           throw new IllegalStateException("Couldn't parse committer email from: " + line);
         }
         committerMail = matcher.group(1);

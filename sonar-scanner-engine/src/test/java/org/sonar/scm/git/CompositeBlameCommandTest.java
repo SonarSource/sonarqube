@@ -61,8 +61,9 @@ import static org.sonar.scm.git.Utils.javaUnzip;
 public class CompositeBlameCommandTest {
   private static final String DUMMY_JAVA = "src/main/java/org/dummy/Dummy.java";
   private final PathResolver pathResolver = new PathResolver();
+  private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
   private final JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
-  private final GitBlameCommand gitBlameCommand = new GitBlameCommand();
+  private final GitBlameCommand gitBlameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
   private final CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitBlameCommand);
 
@@ -75,7 +76,7 @@ public class CompositeBlameCommandTest {
 
   @Test
   public void use_jgit_if_native_git_disabled() throws IOException {
-    GitBlameCommand gitCmd = new GitBlameCommand("invalidcommandnotfound");
+    GitBlameCommand gitCmd = new GitBlameCommand("invalidcommandnotfound", System2.INSTANCE, processWrapperFactory);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
@@ -96,7 +97,7 @@ public class CompositeBlameCommandTest {
     javaUnzip("dummy-git.zip", projectDir);
 
     File baseDir = new File(projectDir, "dummy-git");
-    when(gitCmd.isEnabled()).thenReturn(true);
+    when(gitCmd.checkIfEnabled()).thenReturn(true);
     when(gitCmd.blame(baseDir.toPath(), DUMMY_JAVA)).thenThrow(new IllegalStateException());
     setUpBlameInputWithFile(baseDir.toPath());
     TestBlameOutput output = new TestBlameOutput();
@@ -112,7 +113,7 @@ public class CompositeBlameCommandTest {
   @Test
   public void skip_files_not_committed() throws Exception {
     // skip if git not installed
-    assumeTrue(gitBlameCommand.isEnabled());
+    assumeTrue(gitBlameCommand.checkIfEnabled());
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
     BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
@@ -133,7 +134,7 @@ public class CompositeBlameCommandTest {
   @Test
   public void use_native_git_by_default() throws IOException {
     // skip test if git is not installed
-    assumeTrue(gitBlameCommand.isEnabled());
+    assumeTrue(gitBlameCommand.checkIfEnabled());
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
     File baseDir = new File(projectDir, "dummy-git");
@@ -299,14 +300,15 @@ public class CompositeBlameCommandTest {
   }
 
   private File createNewTempFolder() throws IOException {
-    //This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
+    // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
   }
 
   private static class TestBlameOutput implements BlameCommand.BlameOutput {
     private final Map<InputFile, List<BlameLine>> blame = new LinkedHashMap<>();
 
-    @Override public void blameResult(InputFile inputFile, List<BlameLine> list) {
+    @Override
+    public void blameResult(InputFile inputFile, List<BlameLine> list) {
       blame.put(inputFile, list);
     }
   }

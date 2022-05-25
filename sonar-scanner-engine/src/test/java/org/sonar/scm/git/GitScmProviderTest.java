@@ -138,7 +138,7 @@ public class GitScmProviderTest {
   @Test
   public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand();
-    GitBlameCommand nativeBlameCommand = new GitBlameCommand();
+    GitBlameCommand nativeBlameCommand = new GitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
     CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
     GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2);
 

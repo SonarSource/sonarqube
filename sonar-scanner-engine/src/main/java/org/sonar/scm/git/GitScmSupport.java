@@ -33,6 +33,7 @@ public final class GitScmSupport {
     return Arrays.asList(
       JGitBlameCommand.class,
       CompositeBlameCommand.class,
+      ProcessWrapperFactory.class,
       GitBlameCommand.class,
       GitScmProvider.class,
       GitIgnoreCommand.class);
