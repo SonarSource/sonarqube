@@ -21,10 +21,9 @@ exports[`should render correctly 1`] = `
     >
       <tbody>
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -50,20 +49,20 @@ exports[`should render correctly 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           renderDuplicationPopup={[MockFunction]}
           scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -89,10 +88,11 @@ exports[`should render correctly 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -112,10 +112,9 @@ exports[`should render correctly 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -141,10 +140,11 @@ exports[`should render correctly 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -201,10 +201,9 @@ exports[`should render correctly when at the bottom of the file 1`] = `
     >
       <tbody>
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -230,20 +229,20 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           renderDuplicationPopup={[MockFunction]}
           scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -269,10 +268,11 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -292,10 +292,9 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -321,10 +320,11 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -344,10 +344,9 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -373,10 +372,11 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -422,10 +422,9 @@ exports[`should render correctly when at the top of the file 1`] = `
     >
       <tbody>
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -451,20 +450,20 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           renderDuplicationPopup={[MockFunction]}
           scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -490,10 +489,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -513,10 +513,9 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -542,10 +541,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -565,10 +565,9 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -594,10 +593,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -617,10 +617,9 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -646,10 +645,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -669,10 +669,9 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -698,10 +697,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -721,10 +721,9 @@ exports[`should render correctly when at the top of the file 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           duplications={Array []}
           duplicationsCount={0}
@@ -750,10 +749,11 @@ exports[`should render correctly when at the top of the file 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -810,10 +810,9 @@ exports[`should render correctly with no SCM 1`] = `
     >
       <tbody>
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           displaySCM={false}
           duplications={Array []}
@@ -840,20 +839,20 @@ exports[`should render correctly with no SCM 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           renderDuplicationPopup={[MockFunction]}
           scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           displaySCM={false}
           duplications={Array []}
@@ -880,10 +879,11 @@ exports[`should render correctly with no SCM 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -903,10 +903,9 @@ exports[`should render correctly with no SCM 1`] = `
           verticalBuffer={0}
         />
         <Line
-          displayAllIssues={false}
           displayCoverage={true}
           displayDuplications={false}
-          displayIssues={true}
+          displayIssues={false}
           displayLocationMarkers={true}
           displaySCM={false}
           duplications={Array []}
@@ -933,10 +932,11 @@ exports[`should render correctly with no SCM 1`] = `
           loadDuplications={[MockFunction]}
           onIssueSelect={[Function]}
           onIssueUnselect={[Function]}
-          onIssuesClose={[MockFunction]}
-          onIssuesOpen={[MockFunction]}
+          onIssuesClose={[Function]}
+          onIssuesOpen={[Function]}
           onLocationSelect={[MockFunction]}
           onSymbolClick={[MockFunction]}
+          openIssues={false}
           previousLine={
             Object {
               "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",

@@ -423,8 +423,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         displayLineNumberOptions={false}
         displaySCM={false}
         expandBlock={[Function]}
-        handleCloseIssues={[Function]}
-        handleOpenIssues={[Function]}
         handleSymbolClick={[MockFunction]}
         highlightedSymbols={Array []}
         index={0}
@@ -514,12 +512,10 @@ exports[`should render correctly: with sourcelines 1`] = `
             ],
           }
         }
-        issuesByLine={Object {}}
         lastSnippetOfLastGroup={false}
         locations={Array []}
         locationsByLine={Object {}}
         onLocationSelect={[MockFunction]}
-        openIssuesByLine={Object {}}
         renderAdditionalChildInLine={[Function]}
         renderDuplicationPopup={[Function]}
         scroll={[Function]}

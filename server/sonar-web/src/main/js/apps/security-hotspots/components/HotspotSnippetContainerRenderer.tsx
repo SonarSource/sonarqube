@@ -185,19 +185,15 @@ export default function HotspotSnippetContainerRenderer(
               expandBlock={(_i, direction) =>
                 animateExpansion(scrollableRef, props.onExpandBlock, direction)
               }
-              handleCloseIssues={noop}
-              handleOpenIssues={noop}
               handleSymbolClick={props.onSymbolClick}
               highlightedLocationMessage={highlightedLocation}
               highlightedSymbols={highlightedSymbols}
               index={0}
               issue={hotspot}
-              issuesByLine={{}}
               lastSnippetOfLastGroup={false}
               locations={secondaryLocations}
               locationsByLine={primaryLocations}
               onLocationSelect={props.onLocationSelect}
-              openIssuesByLine={{}}
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}

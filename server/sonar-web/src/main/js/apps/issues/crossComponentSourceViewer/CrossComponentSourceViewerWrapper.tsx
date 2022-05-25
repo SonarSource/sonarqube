@@ -60,6 +60,7 @@ interface Props {
   issues: Issue[];
   locations: FlowLocation[];
   onIssueChange: (issue: Issue) => void;
+  onIssueSelect: (issueKey: string) => void;
   onLoaded?: () => void;
   onLocationSelect: (index: number) => void;
   scroll?: (element: HTMLElement) => void;
@@ -253,6 +254,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}
                 onIssueChange={this.props.onIssueChange}
+                onIssueSelect={this.props.onIssueSelect}
                 onIssuePopupToggle={this.handleIssuePopupToggle}
                 onLocationSelect={this.props.onLocationSelect}
                 renderDuplicationPopup={this.renderDuplicationPopup}
@@ -277,6 +279,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
             loadDuplications={this.fetchDuplications}
             locations={[]}
             onIssueChange={this.props.onIssueChange}
+            onIssueSelect={this.props.onIssueSelect}
             onIssuePopupToggle={this.handleIssuePopupToggle}
             onLocationSelect={this.props.onLocationSelect}
             renderDuplicationPopup={this.renderDuplicationPopup}

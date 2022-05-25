@@ -29,6 +29,7 @@ interface Props {
   issues: Issue[];
   locationsNavigator: boolean;
   onIssueChange: (issue: Issue) => void;
+  onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
   openIssue: Issue;
   selectedFlowIndex: number | undefined;
@@ -96,6 +97,7 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
           issues={this.props.issues}
           locations={locations}
           onIssueChange={this.props.onIssueChange}
+          onIssueSelect={this.props.onIssueSelect}
           onLoaded={this.handleLoaded}
           onLocationSelect={this.props.onLocationSelect}
           scroll={this.handleScroll}

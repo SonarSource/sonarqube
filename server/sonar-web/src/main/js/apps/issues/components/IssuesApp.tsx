@@ -1086,6 +1086,7 @@ export default class App extends React.PureComponent<Props, State> {
                     issues={issues}
                     locationsNavigator={this.state.locationsNavigator}
                     onIssueChange={this.handleIssueChange}
+                    onIssueSelect={this.openIssue}
                     onLocationSelect={this.selectLocation}
                     openIssue={openIssue}
                     selectedFlowIndex={this.state.selectedFlowIndex}

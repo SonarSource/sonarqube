@@ -71,6 +71,7 @@ function shallowRender(props: Partial<IssuesSourceViewer['props']> = {}) {
       issues={[mockIssue()]}
       locationsNavigator={true}
       onIssueChange={jest.fn()}
+      onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}
       openIssue={mockIssue()}
       selectedFlowIndex={undefined}

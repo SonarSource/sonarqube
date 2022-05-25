@@ -132,6 +132,7 @@ function shallowRender(props: Partial<CrossComponentSourceViewerWrapper['props']
       locations={[mockFlowLocation()]}
       onIssueChange={jest.fn()}
       onLoaded={jest.fn()}
+      onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
       selectedFlowIndex={0}

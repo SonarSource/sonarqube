@@ -158,6 +158,30 @@ export default class IssuesServiceMock {
           ],
           'component.key'
         )
+      },
+      {
+        issue: mockRawIssue(false, {
+          key: 'issue3',
+          component: 'project:file.bar',
+          message: 'Second issue',
+          rule: 'other',
+          textRange: {
+            startLine: 28,
+            endLine: 28,
+            startOffset: 0,
+            endOffset: 1
+          }
+        }),
+        snippets: keyBy(
+          [
+            mockSnippetsByComponent(
+              'file.bar',
+              'project',
+              times(40, i => i + 20)
+            )
+          ],
+          'component.key'
+        )
       }
     ];
     (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);

@@ -62,7 +62,6 @@ it('should render additional child in line', () => {
   wrapper.instance().renderLine({
     displayDuplications: false,
     index: 1,
-    issuesForLine: [],
     issueLocations: [],
     line: sourceline,
     snippet: [sourceline],
@@ -146,20 +145,16 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       duplications={undefined}
       duplicationsByLine={undefined}
       expandBlock={jest.fn()}
-      handleCloseIssues={jest.fn()}
-      handleOpenIssues={jest.fn()}
       handleSymbolClick={jest.fn()}
       highlightedLocationMessage={{ index: 0, text: '' }}
       highlightedSymbols={[]}
       index={0}
       issue={mockIssue()}
-      issuesByLine={{}}
       lastSnippetOfLastGroup={false}
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
       onLocationSelect={jest.fn()}
-      openIssuesByLine={{}}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
       snippet={[]}
@@ -175,20 +170,16 @@ function mountRender(props: Partial<SnippetViewer['props']> = {}) {
       duplications={undefined}
       duplicationsByLine={undefined}
       expandBlock={jest.fn()}
-      handleCloseIssues={jest.fn()}
-      handleOpenIssues={jest.fn()}
       handleSymbolClick={jest.fn()}
       highlightedLocationMessage={{ index: 0, text: '' }}
       highlightedSymbols={[]}
       index={0}
       issue={mockIssue()}
-      issuesByLine={{}}
       lastSnippetOfLastGroup={false}
       loadDuplications={jest.fn()}
       locations={[]}
       locationsByLine={{}}
       onLocationSelect={jest.fn()}
-      openIssuesByLine={{}}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
       snippet={[mockSourceLine()]}

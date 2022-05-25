@@ -79,6 +79,15 @@ it('should open issue and navigate', async () => {
   ).toBeInTheDocument();
 });
 
+it('should be able to navigate to other issue located in the same file', async () => {
+  const user = userEvent.setup();
+  renderIssueApp();
+  await user.click(await screen.findByRole('region', { name: 'Fix that' }));
+  expect(await screen.findByRole('region', { name: 'Second issue' })).toBeInTheDocument();
+  await user.click(await screen.findByRole('region', { name: 'Second issue' }));
+  expect(screen.getByRole('heading', { level: 1, name: 'Second issue' })).toBeInTheDocument();
+});
+
 it('should support OWASP Top 10 version 2021', async () => {
   const user = userEvent.setup();
   renderIssueApp();

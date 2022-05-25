@@ -21,7 +21,7 @@ import { noop } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../api/components';
 import Issue from '../../../components/issue/Issue';
-import LineIssuesList from '../../../components/SourceViewer/components/LineIssuesList';
+import SecondaryIssue from '../../../components/issue/SecondaryIssue';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
@@ -62,6 +62,7 @@ interface Props {
   loadDuplications: (component: string, line: SourceLine) => void;
   locations: FlowLocation[];
   onIssueChange: (issue: TypeIssue) => void;
+  onIssueSelect: (issueKey: string) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
   renderDuplicationPopup: (
@@ -77,7 +78,6 @@ interface State {
   additionalLines: { [line: number]: SourceLine };
   highlightedSymbols: string[];
   loading: boolean;
-  openIssuesByLine: Dict<boolean>;
   snippets: Snippet[];
 }
 
@@ -88,7 +88,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     additionalLines: {},
     highlightedSymbols: [],
     loading: false,
-    openIssuesByLine: {},
     snippets: []
   };
 
@@ -287,18 +286,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     );
   };
 
-  handleOpenIssues = (line: SourceLine) => {
-    this.setState(state => ({
-      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
-    }));
-  };
-
-  handleCloseIssues = (line: SourceLine) => {
-    this.setState(state => ({
-      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
-    }));
-  };
-
   handleSymbolClick = (clickedSymbols: string[]) => {
     this.setState(({ highlightedSymbols }) => {
       const newHighlightedSymbols = clickedSymbols.filter(
@@ -317,9 +304,13 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const { openIssuesByLine } = this.state;
-
-    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
+    const {
+      isLastOccurenceOfPrimaryComponent,
+      issue,
+      issuesByLine,
+      snippetGroup,
+      branchLike
+    } = this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -327,38 +318,52 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
     const isFlow = issue.secondaryLocations.length === 0;
     const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
-
     const issuesForLine = issuesByLine[line.line] || [];
+    const issueLocations = includeIssueLocation ? locations[line.line] : [];
 
-    const selectedIssue = issuesForLine.find(i => i.key === issue.key)?.key;
-
-    const issueLocationsByLine = includeIssueLocation ? locations : {};
     return (
-      <LineIssuesList
-        displayWhyIsThisAnIssue={false}
-        issueLocationsByLine={issueLocationsByLine}
-        issuesForLine={issuesForLine}
-        line={line}
-        openIssuesByLine={openIssuesByLine}
-        branchLike={this.props.branchLike}
-        issuePopup={this.props.issuePopup}
-        onIssueChange={this.props.onIssueChange}
-        onIssueClick={noop}
-        onIssuePopupToggle={this.props.onIssuePopupToggle}
-        selectedIssue={selectedIssue}
-      />
+      issuesForLine.length > 0 && (
+        <div className="issue-list">
+          {issuesForLine.map(issueToDisplay => {
+            if (issueToDisplay.key === issue.key && issueLocations && issueLocations.length) {
+              return (
+                <Issue
+                  branchLike={branchLike}
+                  displayWhyIsThisAnIssue={false}
+                  issue={issueToDisplay}
+                  key={issueToDisplay.key}
+                  onChange={this.props.onIssueChange}
+                  onClick={noop}
+                  onPopupToggle={this.props.onIssuePopupToggle}
+                  openPopup={
+                    this.props.issuePopup && this.props.issuePopup.issue === issueToDisplay.key
+                      ? this.props.issuePopup.name
+                      : undefined
+                  }
+                  selected={issue.key === issueToDisplay.key}
+                />
+              );
+            }
+            return (
+              <SecondaryIssue
+                key={issueToDisplay.key}
+                issue={issueToDisplay}
+                onClick={this.props.onIssueSelect}
+              />
+            );
+          })}
+        </div>
+      )
     );
   };
 
   renderSnippet({
     index,
-    issuesByLine,
     lastSnippetOfLastGroup,
     locationsByLine,
     snippet
   }: {
     index: number;
-    issuesByLine: IssuesByLine;
     lastSnippetOfLastGroup: boolean;
     locationsByLine: { [line: number]: LinearIssueLocation[] };
     snippet: SourceLine[];
@@ -370,20 +375,16 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         duplications={this.props.duplications}
         duplicationsByLine={this.props.duplicationsByLine}
         expandBlock={this.expandBlock}
-        handleCloseIssues={this.handleCloseIssues}
-        handleOpenIssues={this.handleOpenIssues}
         handleSymbolClick={this.handleSymbolClick}
         highlightedLocationMessage={this.props.highlightedLocationMessage}
         highlightedSymbols={this.state.highlightedSymbols}
         index={index}
         issue={this.props.issue}
-        issuesByLine={issuesByLine}
         lastSnippetOfLastGroup={lastSnippetOfLastGroup}
         loadDuplications={this.loadDuplications}
         locations={this.props.locations}
         locationsByLine={locationsByLine}
         onLocationSelect={this.props.onLocationSelect}
-        openIssuesByLine={this.state.openIssuesByLine}
         renderDuplicationPopup={this.renderDuplicationPopup}
         scroll={this.props.scroll}
         snippet={snippet}
@@ -396,7 +397,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       branchLike,
       isLastOccurenceOfPrimaryComponent,
       issue,
-      issuesByLine,
       issuePopup,
       lastSnippetGroup,
       snippetGroup
@@ -447,7 +447,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             {this.renderSnippet({
               snippet,
               index: snippets[index].index,
-              issuesByLine,
               locationsByLine: includeIssueLocation ? locations : {},
               lastSnippetOfLastGroup: lastSnippetGroup && index === snippets.length - 1
             })}

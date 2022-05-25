@@ -234,16 +234,6 @@ it('should get the right branch when expanding', async () => {
   expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'project:a', to: 67 });
 });
 
-it('should handle correctly open/close issue', () => {
-  const wrapper = shallowRender();
-  const sourceLine = mockSourceLine();
-  expect(wrapper.state('openIssuesByLine')).toEqual({});
-  wrapper.instance().handleOpenIssues(sourceLine);
-  expect(wrapper.state('openIssuesByLine')).toEqual({ [sourceLine.line]: true });
-  wrapper.instance().handleCloseIssues(sourceLine);
-  expect(wrapper.state('openIssuesByLine')).toEqual({ [sourceLine.line]: false });
-});
-
 it('should handle symbol highlighting', () => {
   const wrapper = shallowRender();
   expect(wrapper.state('highlightedSymbols')).toEqual([]);
@@ -294,19 +284,6 @@ it('should correctly handle lines actions', () => {
   );
 });
 
-it('should render correctly line with issue', () => {
-  const issue = mockIssue(false, {
-    textRange: { endLine: 1, startLine: 1, endOffset: 1, startOffset: 0 }
-  });
-  const wrapper = shallowRender({
-    issue,
-    issuesByLine: { '1': [issue] }
-  });
-  wrapper.instance().setState({ openIssuesByLine: { '1': true } });
-  const wrapperLine = shallow(wrapper.instance().renderIssuesList(mockSourceLine({ line: 1 })));
-  expect(wrapperLine).toMatchSnapshot();
-});
-
 describe('getNodes', () => {
   const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
@@ -324,6 +301,7 @@ describe('getNodes', () => {
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
+      onIssueSelect={jest.fn()}
       onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
@@ -386,6 +364,7 @@ describe('getHeight', () => {
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
+      onIssueSelect={jest.fn()}
       onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
@@ -437,6 +416,7 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
+      onIssueSelect={jest.fn()}
       onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}

@@ -171,6 +171,7 @@ exports[`should render correctly 2`] = `
       }
       onIssueChange={[MockFunction]}
       onIssuePopupToggle={[Function]}
+      onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
       scroll={[MockFunction]}
@@ -346,6 +347,7 @@ exports[`should render correctly: no component found 1`] = `
       locations={Array []}
       onIssueChange={[MockFunction]}
       onIssuePopupToggle={[Function]}
+      onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
       scroll={[MockFunction]}
@@ -506,6 +508,7 @@ exports[`should render correctly: no component found 1`] = `
       }
       onIssueChange={[MockFunction]}
       onIssuePopupToggle={[Function]}
+      onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
       scroll={[MockFunction]}
