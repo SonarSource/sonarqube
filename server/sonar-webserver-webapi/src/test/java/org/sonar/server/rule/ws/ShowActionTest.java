@@ -329,15 +329,20 @@ public class ShowActionTest {
 
   @Test
   public void show_adhoc_rule() {
-    RuleDto externalRule = db.rules().insert(r -> r
-      .setIsExternal(true)
-      .setIsAdHoc(true)
-      .setAdHocName("adhoc name")
-      .setAdHocDescription("<div>desc</div>")
-      .setAdHocSeverity(Severity.BLOCKER)
-      .setAdHocType(RuleType.VULNERABILITY)
-      .setNoteData(null)
-      .setNoteUserUuid(null));
+    RuleDto externalRule = db.rules().insert(r -> {
+        r.setIsExternal(true)
+          .setIsAdHoc(true)
+          .setAdHocName("adhoc name")
+          .setAdHocDescription("<div>desc</div>")
+          .setAdHocSeverity(Severity.BLOCKER)
+          .setAdHocType(RuleType.VULNERABILITY)
+          .setNoteData(null)
+          .setNoteUserUuid(null);
+        //Ad-hoc description has no description sections defined
+        r.getRuleDescriptionSectionDtos().clear();
+      }
+    );
+
     doReturn("&lt;div&gt;desc2&lt;/div&gt;").when(macroInterpreter).interpret(externalRule.getAdHocDescription());
 
     ShowResponse result = ws.newRequest()
@@ -348,6 +353,11 @@ public class ShowActionTest {
     assertThat(resultRule)
       .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
       .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;desc2&lt;/div&gt;", Severity.BLOCKER, VULNERABILITY);
+
+    assertThat(resultRule.getDescriptionSectionsList()).hasSize(1);
+    assertThat(resultRule.getDescriptionSectionsList().get(0))
+      .extracting(r -> r.getKey(), r -> r.getContent())
+      .containsExactly(DEFAULT_KEY, "&lt;div&gt;desc2&lt;/div&gt;");
   }
 
   @Test

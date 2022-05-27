@@ -160,6 +160,13 @@ public class RuleMapper {
     if (adHocDescription != null && shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
       ruleResponse.setHtmlDesc(macroInterpreter.interpret(adHocDescription));
     }
+
+    if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS) && adHocDescription != null) {
+      ruleResponse.clearDescriptionSections();
+      ruleResponse.addDescriptionSectionsBuilder()
+        .setKey(RuleDescriptionSectionDto.DEFAULT_KEY)
+        .setContent(macroInterpreter.interpret(adHocDescription));
+    }
   }
 
   private static void setAdHocSeverity(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
