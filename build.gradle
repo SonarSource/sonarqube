@@ -144,7 +144,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.19.3'
+    protobufVersion = '3.21.0'
   }
 
   sonarqube {
