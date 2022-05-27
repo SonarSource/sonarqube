@@ -27,6 +27,7 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate } from '../../../helpers/l10n';
 import { TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
+import DocumentationTooltip from '../../common/DocumentationTooltip';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
@@ -172,23 +173,38 @@ export default class TokenStep extends React.PureComponent<Props, State> {
       )}
       {this.state.selection === 'generate' && (
         <div className="big-spacer-top">
-          <form onSubmit={this.handleTokenGenerate}>
-            <input
-              autoFocus={true}
-              className="input-super-large spacer-right text-middle"
-              onChange={this.handleTokenNameChange}
-              placeholder={translate('onboarding.token.generate_project_token.placeholder')}
-              required={true}
-              type="text"
-              value={this.state.tokenName || ''}
-            />
-            {this.state.loading ? (
-              <i className="spinner text-middle" />
-            ) : (
-              <SubmitButton className="text-middle" disabled={!this.state.tokenName}>
-                {translate('onboarding.token.generate')}
-              </SubmitButton>
-            )}
+          <form className="display-flex-column" onSubmit={this.handleTokenGenerate}>
+            <label className="h3" htmlFor="generate-token-input">
+              {translate('onboarding.token.generate_project_token.label')}
+              <DocumentationTooltip
+                className="spacer-left"
+                content={translate('onboarding.token.generate_project_token.help')}
+                links={[
+                  {
+                    href: '/documentation/user-guide/user-token/',
+                    label: translate('learn_more')
+                  }
+                ]}
+              />
+            </label>
+            <div>
+              <input
+                id="generate-token-input"
+                autoFocus={true}
+                className="input-super-large spacer-right spacer-top text-middle"
+                onChange={this.handleTokenNameChange}
+                required={true}
+                type="text"
+                value={this.state.tokenName || ''}
+              />
+              {this.state.loading ? (
+                <i className="spinner text-middle" />
+              ) : (
+                <SubmitButton className="text-middle spacer-top" disabled={!this.state.tokenName}>
+                  {translate('onboarding.token.generate')}
+                </SubmitButton>
+              )}
+            </div>
           </form>
         </div>
       )}
@@ -208,12 +224,25 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           {translate('onboarding.token.use_existing_token')}
         </Radio>
         {this.state.selection === 'use-existing' && (
-          <div className="big-spacer-top">
+          <div className="big-spacer-top display-flex-column">
+            <label className="h3" htmlFor="existing-token-input">
+              {translate('onboarding.token.use_existing_token.label')}
+              <DocumentationTooltip
+                className="spacer-left"
+                content={translate('onboarding.token.use_existing_token.help')}
+                links={[
+                  {
+                    href: '/documentation/user-guide/user-token/',
+                    label: translate('learn_more')
+                  }
+                ]}
+              />
+            </label>
             <input
+              id="existing-token-input"
               autoFocus={true}
-              className="input-super-large spacer-right text-middle"
+              className="input-super-large spacer-right spacer-top text-middle"
               onChange={this.handleExisingTokenChange}
-              placeholder={translate('onboarding.token.use_existing_token.placeholder')}
               required={true}
               type="text"
               value={this.state.existingToken}

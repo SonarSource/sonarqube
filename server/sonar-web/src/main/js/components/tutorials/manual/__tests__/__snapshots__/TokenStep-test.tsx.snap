@@ -35,23 +35,44 @@ exports[`generates token 1`] = `
             className="big-spacer-top"
           >
             <form
+              className="display-flex-column"
               onSubmit={[Function]}
             >
-              <input
-                autoFocus={true}
-                className="input-super-large spacer-right text-middle"
-                onChange={[Function]}
-                placeholder="onboarding.token.generate_project_token.placeholder"
-                required={true}
-                type="text"
-                value=""
-              />
-              <SubmitButton
-                className="text-middle"
-                disabled={true}
+              <label
+                className="h3"
+                htmlFor="generate-token-input"
               >
-                onboarding.token.generate
-              </SubmitButton>
+                onboarding.token.generate_project_token.label
+                <DocumentationTooltip
+                  className="spacer-left"
+                  content="onboarding.token.generate_project_token.help"
+                  links={
+                    Array [
+                      Object {
+                        "href": "/documentation/user-guide/user-token/",
+                        "label": "learn_more",
+                      },
+                    ]
+                  }
+                />
+              </label>
+              <div>
+                <input
+                  autoFocus={true}
+                  className="input-super-large spacer-right spacer-top text-middle"
+                  id="generate-token-input"
+                  onChange={[Function]}
+                  required={true}
+                  type="text"
+                  value=""
+                />
+                <SubmitButton
+                  className="text-middle spacer-top"
+                  disabled={true}
+                >
+                  onboarding.token.generate
+                </SubmitButton>
+              </div>
             </form>
           </div>
         </div>
@@ -127,20 +148,41 @@ exports[`generates token 2`] = `
             className="big-spacer-top"
           >
             <form
+              className="display-flex-column"
               onSubmit={[Function]}
             >
-              <input
-                autoFocus={true}
-                className="input-super-large spacer-right text-middle"
-                onChange={[Function]}
-                placeholder="onboarding.token.generate_project_token.placeholder"
-                required={true}
-                type="text"
-                value="my token"
-              />
-              <i
-                className="spinner text-middle"
-              />
+              <label
+                className="h3"
+                htmlFor="generate-token-input"
+              >
+                onboarding.token.generate_project_token.label
+                <DocumentationTooltip
+                  className="spacer-left"
+                  content="onboarding.token.generate_project_token.help"
+                  links={
+                    Array [
+                      Object {
+                        "href": "/documentation/user-guide/user-token/",
+                        "label": "learn_more",
+                      },
+                    ]
+                  }
+                />
+              </label>
+              <div>
+                <input
+                  autoFocus={true}
+                  className="input-super-large spacer-right spacer-top text-middle"
+                  id="generate-token-input"
+                  onChange={[Function]}
+                  required={true}
+                  type="text"
+                  value="my token"
+                />
+                <i
+                  className="spinner text-middle"
+                />
+              </div>
             </form>
           </div>
         </div>
@@ -443,23 +485,44 @@ exports[`revokes token 3`] = `
             className="big-spacer-top"
           >
             <form
+              className="display-flex-column"
               onSubmit={[Function]}
             >
-              <input
-                autoFocus={true}
-                className="input-super-large spacer-right text-middle"
-                onChange={[Function]}
-                placeholder="onboarding.token.generate_project_token.placeholder"
-                required={true}
-                type="text"
-                value=""
-              />
-              <SubmitButton
-                className="text-middle"
-                disabled={true}
+              <label
+                className="h3"
+                htmlFor="generate-token-input"
               >
-                onboarding.token.generate
-              </SubmitButton>
+                onboarding.token.generate_project_token.label
+                <DocumentationTooltip
+                  className="spacer-left"
+                  content="onboarding.token.generate_project_token.help"
+                  links={
+                    Array [
+                      Object {
+                        "href": "/documentation/user-guide/user-token/",
+                        "label": "learn_more",
+                      },
+                    ]
+                  }
+                />
+              </label>
+              <div>
+                <input
+                  autoFocus={true}
+                  className="input-super-large spacer-right spacer-top text-middle"
+                  id="generate-token-input"
+                  onChange={[Function]}
+                  required={true}
+                  type="text"
+                  value=""
+                />
+                <SubmitButton
+                  className="text-middle spacer-top"
+                  disabled={true}
+                >
+                  onboarding.token.generate
+                </SubmitButton>
+              </div>
             </form>
           </div>
         </div>
