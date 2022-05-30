@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
@@ -68,10 +69,8 @@ export default class Issue extends React.PureComponent<Props> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    const { tagName } = event.target as HTMLElement;
-    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-    if (isInput) {
-      return false;
+    if (isInput(event) || isShortcut(event)) {
+      return true;
     } else if (event.key === KeyboardKeys.KeyF) {
       event.preventDefault();
       return this.togglePopup('transition');

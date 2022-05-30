@@ -104,6 +104,8 @@ it('shows warning about short input', () => {
 it('should open the results when pressing key S and close it when pressing Escape', () => {
   const router = mockRouter();
   const form = shallowRender({ router });
+  keydown({ key: KeyboardKeys.KeyS, ctrlKey: true });
+  expect(form.state().open).toBe(false);
   keydown({ key: KeyboardKeys.KeyS });
   expect(form.state().open).toBe(true);
   elementKeydown(form.find('SearchBox'), KeyboardKeys.Escape);

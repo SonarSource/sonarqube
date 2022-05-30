@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import { difference } from 'lodash';
 import * as React from 'react';
 import SearchBox from '../../components/controls/SearchBox';
+import { isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardCodes } from '../../helpers/keycodes';
 import { translateWithParameters } from '../../helpers/l10n';
 import MultiSelectOption from './MultiSelectOption';
@@ -139,6 +140,9 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
   };
 
   handleKeyboard = (event: KeyboardEvent) => {
+    if (isShortcut(event)) {
+      return true;
+    }
     switch (event.code) {
       case KeyboardCodes.DownArrow:
         event.stopPropagation();

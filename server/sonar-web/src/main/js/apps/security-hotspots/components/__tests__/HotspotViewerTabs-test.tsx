@@ -157,6 +157,19 @@ describe('keyboard navigation', () => {
   });
 });
 
+it("shouldn't navigate when ctrl or command are pressed with up and down", () => {
+  const wrapper = mount<HotspotViewerTabs>(
+    <HotspotViewerTabs codeTabContent={<div>CodeTabContent</div>} hotspot={mockHotspot()} />
+  );
+
+  wrapper.setState({ currentTab: wrapper.state().tabs[0] });
+  wrapper
+    .instance()
+    .handleKeyboardNavigation(mockEvent({ code: KeyboardCodes.LeftArrow, metaKey: true }));
+
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.Code);
+});
+
 it('should navigate when up and down key are pressed', () => {
   const wrapper = mount<HotspotViewerTabs>(
     <HotspotViewerTabs codeTabContent={<div>CodeTabContent</div>} hotspot={mockHotspot()} />

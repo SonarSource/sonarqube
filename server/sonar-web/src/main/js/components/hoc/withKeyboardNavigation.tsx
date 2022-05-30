@@ -20,6 +20,7 @@
 import * as React from 'react';
 import PageActions from '../../components/ui/PageActions';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
+import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardCodes } from '../../helpers/keycodes';
 import { ComponentMeasure } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
@@ -50,6 +51,9 @@ export default function withKeyboardNavigation<P>(
     }
 
     handleKeyDown = (event: KeyboardEvent) => {
+      if (isInput(event) || isShortcut(event)) {
+        return true;
+      }
       if (event.code === KeyboardCodes.UpArrow) {
         event.preventDefault();
         return this.skipIfFile(this.handleHighlightPrevious);

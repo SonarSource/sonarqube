@@ -82,7 +82,12 @@ export const KEYCODE_MAP: { [code in KeyboardCodes]?: string } = {
   [KeyboardCodes.DownArrow]: 'down'
 };
 
-export function keydown(args: { code?: KeyboardCodes; key?: KeyboardKeys }): void {
+export function keydown(args: {
+  code?: KeyboardCodes;
+  key?: KeyboardKeys;
+  metaKey?: boolean;
+  ctrlKey?: boolean;
+}): void {
   const event = new KeyboardEvent('keydown', args as KeyboardEventInit);
   document.dispatchEvent(event);
 }

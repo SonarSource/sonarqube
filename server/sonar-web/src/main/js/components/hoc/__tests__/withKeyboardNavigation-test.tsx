@@ -79,12 +79,16 @@ it('should correctly bind key events for component navigation', () => {
   keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
 
+  keydown({ code: KeyboardCodes.RightArrow, metaKey: true });
+  expect(onSelect).not.toBeCalled();
   keydown({ code: KeyboardCodes.RightArrow });
   expect(onSelect).toBeCalledWith(COMPONENTS[0]);
 
   keydown({ code: KeyboardCodes.Enter });
   expect(onSelect).toBeCalledWith(COMPONENTS[0]);
 
+  keydown({ code: KeyboardCodes.LeftArrow, metaKey: true });
+  expect(onGoToParent).not.toBeCalled();
   keydown({ code: KeyboardCodes.LeftArrow });
   expect(onGoToParent).toBeCalled();
 });

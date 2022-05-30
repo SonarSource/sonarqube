@@ -32,6 +32,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -152,10 +153,8 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleKeyPress = (event: KeyboardEvent) => {
-    const { tagName } = event.target as HTMLElement;
-    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-    if (isInput) {
-      return false;
+    if (isInput(event) || isShortcut(event)) {
+      return true;
     }
     switch (event.key) {
       case KeyboardKeys.LeftArrow:

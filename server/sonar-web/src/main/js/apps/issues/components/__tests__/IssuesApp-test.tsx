@@ -241,6 +241,8 @@ it('should correctly bind key events for issue navigation', async () => {
   keydown({ code: KeyboardCodes.DownArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[3].key);
 
+  keydown({ code: KeyboardCodes.RightArrow, ctrlKey: true });
+  expect(push).not.toBeCalled();
   keydown({ code: KeyboardCodes.RightArrow });
   expect(push).toBeCalledTimes(1);
 

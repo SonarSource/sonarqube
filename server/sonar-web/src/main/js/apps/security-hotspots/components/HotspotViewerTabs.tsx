@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
@@ -86,6 +87,9 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   }
 
   handleKeyboardNavigation = (event: KeyboardEvent) => {
+    if (isInput(event) || isShortcut(event)) {
+      return true;
+    }
     if (event.code === KeyboardCodes.LeftArrow) {
       event.preventDefault();
       this.selectNeighboringTab(-1);

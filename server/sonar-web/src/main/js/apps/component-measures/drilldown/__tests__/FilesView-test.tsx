@@ -92,6 +92,9 @@ it('should correctly bind key events for file navigation', () => {
   keydown({ code: KeyboardCodes.UpArrow });
   expect(handleSelect).toBeCalledWith(FILES[2]);
 
+  keydown({ code: KeyboardCodes.RightArrow, ctrlKey: true });
+  expect(handleOpen).not.toBeCalled();
+
   keydown({ code: KeyboardCodes.RightArrow });
   expect(handleOpen).toBeCalled();
 });

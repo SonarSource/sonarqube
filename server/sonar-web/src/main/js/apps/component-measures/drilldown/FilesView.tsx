@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
@@ -92,6 +93,9 @@ export default class FilesView extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
+    if (isInput(event) || isShortcut(event)) {
+      return true;
+    }
     if (event.code === KeyboardCodes.UpArrow) {
       event.preventDefault();
       this.selectPrevious();

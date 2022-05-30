@@ -50,6 +50,9 @@ it('should call the proper function with the proper props when pressing shortcut
   });
 
   shallowRender({ onPopupToggle, issue, onCheck });
+  keydown({ key: KeyboardKeys.KeyF, metaKey: true });
+  expect(onPopupToggle).not.toBeCalledWith(issue.key, 'transition', undefined);
+
   keydown({ key: KeyboardKeys.KeyF });
   expect(onPopupToggle).toBeCalledWith(issue.key, 'transition', undefined);
 
@@ -62,6 +65,9 @@ it('should call the proper function with the proper props when pressing shortcut
 
   keydown({ key: KeyboardKeys.KeyI });
   expect(onPopupToggle).toBeCalledWith(issue.key, 'set-severity', undefined);
+
+  keydown({ key: KeyboardKeys.KeyC, metaKey: true });
+  expect(onPopupToggle).not.toBeCalledWith(issue.key, 'comment', undefined);
 
   keydown({ key: KeyboardKeys.KeyC });
   expect(onPopupToggle).toBeCalledWith(issue.key, 'comment', undefined);

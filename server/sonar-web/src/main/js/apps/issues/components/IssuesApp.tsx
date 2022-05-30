@@ -45,6 +45,7 @@ import {
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardCodes, KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -261,6 +262,10 @@ export default class App extends React.PureComponent<Props, State> {
     // Ignore if modal is open
     if (this.state.bulkChangeModal) {
       return;
+    }
+
+    if (isInput(event) || isShortcut(event)) {
+      return true;
     }
 
     if (event.key === KeyboardKeys.Alt) {

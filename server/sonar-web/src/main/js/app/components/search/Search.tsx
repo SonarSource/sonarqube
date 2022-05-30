@@ -28,6 +28,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -272,9 +273,10 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
   };
 
   handleSKeyDown = (event: KeyboardEvent) => {
-    const { tagName } = event.target as HTMLElement;
-    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-    if (event.key === KeyboardKeys.KeyS && !isInput) {
+    if (isInput(event) || isShortcut(event)) {
+      return true;
+    }
+    if (event.key === KeyboardKeys.KeyS) {
       event.preventDefault();
       this.focusInput();
       this.openSearch();
