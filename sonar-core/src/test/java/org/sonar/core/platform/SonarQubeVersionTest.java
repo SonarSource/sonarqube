@@ -17,31 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.core.platform;
 
-import java.util.Optional;
 import org.junit.Test;
-import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class UpdateCenterMatrixFactoryTest {
-
-  private UpdateCenterMatrixFactory underTest;
+public class SonarQubeVersionTest {
 
   @Test
-  public void return_absent_update_center() {
-    UpdateCenterClient updateCenterClient = mock(UpdateCenterClient.class);
-    when(updateCenterClient.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
+  public void verify_methods() {
+    var version = Version.create(9, 5);
+    SonarQubeVersion underTest = new SonarQubeVersion(version);
+    assertThat(underTest).extracting(SonarQubeVersion::toString, SonarQubeVersion::get)
+      .containsExactly("9.5", version);
 
-    underTest = new UpdateCenterMatrixFactory(updateCenterClient, mock(SonarQubeVersion.class), mock(InstalledPluginReferentialFactory.class));
-
-    Optional<UpdateCenter> updateCenter = underTest.getUpdateCenter(false);
-
-    assertThat(updateCenter).isEmpty();
+    var otherVersion = Version.create(8, 5);
+    assertThat(underTest.isGreaterThanOrEqual(otherVersion)).isTrue();
   }
 }

@@ -20,22 +20,22 @@
 package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.platform.SonarQubeVersion;
 
 public class WriteMetadataStep implements ComputationStep {
 
   private final System2 system2;
   private final DumpWriter dumpWriter;
   private final ProjectHolder projectHolder;
-  private final SonarRuntime sonarRuntime;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public WriteMetadataStep(System2 system2, DumpWriter dumpWriter, ProjectHolder projectHolder, SonarRuntime sonarRuntime) {
+  public WriteMetadataStep(System2 system2, DumpWriter dumpWriter, ProjectHolder projectHolder, SonarQubeVersion sonarQubeVersion) {
     this.system2 = system2;
     this.dumpWriter = dumpWriter;
     this.projectHolder = projectHolder;
-    this.sonarRuntime = sonarRuntime;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -43,7 +43,7 @@ public class WriteMetadataStep implements ComputationStep {
     dumpWriter.write(ProjectDump.Metadata.newBuilder()
       .setProjectKey(projectHolder.projectDto().getKey())
       .setProjectUuid(projectHolder.projectDto().getUuid())
-      .setSonarqubeVersion(sonarRuntime.getApiVersion().toString())
+      .setSonarqubeVersion(sonarQubeVersion.get().toString())
       .setDumpDate(system2.now())
       .build());
   }

@@ -20,10 +20,10 @@
 package org.sonar.server.util;
 
 import okhttp3.OkHttpClient;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -54,7 +54,7 @@ public class OkHttpClientProvider {
    */
   @Primary
   @Bean("OkHttpClient")
-  public OkHttpClient provide(Configuration config, SonarRuntime runtime) {
+  public OkHttpClient provide(Configuration config, SonarQubeVersion version) {
     OkHttpClientBuilder builder = new OkHttpClientBuilder();
     builder.setConnectTimeoutMs(DEFAULT_CONNECT_TIMEOUT_IN_MS);
     builder.setReadTimeoutMs(DEFAULT_READ_TIMEOUT_IN_MS);
@@ -62,7 +62,7 @@ public class OkHttpClientProvider {
     // configured by bootstrap process.
     builder.setProxyLogin(config.get(HTTP_PROXY_USER.getKey()).orElse(null));
     builder.setProxyPassword(config.get(HTTP_PROXY_PASSWORD.getKey()).orElse(null));
-    builder.setUserAgent(format("SonarQube/%s", runtime.getApiVersion().toString()));
+    builder.setUserAgent(format("SonarQube/%s", version));
     return builder.build();
   }
 }

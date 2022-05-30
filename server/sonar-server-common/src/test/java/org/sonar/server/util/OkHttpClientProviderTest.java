@@ -30,19 +30,16 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OkHttpClientProviderTest {
 
   private final MapSettings settings = new MapSettings();
-  private final SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.parse("6.2"));
   private final OkHttpClientProvider underTest = new OkHttpClientProvider();
 
   @Rule
@@ -50,7 +47,7 @@ public class OkHttpClientProviderTest {
 
   @Test
   public void get_returns_a_OkHttpClient_with_default_configuration() throws Exception {
-    OkHttpClient client = underTest.provide(settings.asConfig(), runtime);
+    OkHttpClient client = underTest.provide(settings.asConfig(), sonarQubeVersion);
 
     assertThat(client.connectTimeoutMillis()).isEqualTo(10_000);
     assertThat(client.readTimeoutMillis()).isEqualTo(10_000);
@@ -66,7 +63,7 @@ public class OkHttpClientProviderTest {
     settings.setProperty("http.proxyUser", "the-login");
     settings.setProperty("http.proxyPassword", "the-password");
 
-    OkHttpClient client = underTest.provide(settings.asConfig(), runtime);
+    OkHttpClient client = underTest.provide(settings.asConfig(), sonarQubeVersion);
     Response response = new Response.Builder().protocol(Protocol.HTTP_1_1).request(new Request.Builder().url("http://foo").build()).code(407)
       .message("").build();
     Request request = client.proxyAuthenticator().authenticate(null, response);

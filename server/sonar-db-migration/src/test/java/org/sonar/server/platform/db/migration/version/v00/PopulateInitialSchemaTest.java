@@ -28,9 +28,9 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -48,16 +48,16 @@ public class PopulateInitialSchemaTest {
   private final Version version = Version.create(1 + random.nextInt(10), 1 + random.nextInt(10), random.nextInt(10));
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final System2 system2 = mock(System2.class);
-  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
 
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v89.sql");
 
-  private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarRuntime);
+  private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion);
 
   @Before
   public void setUp() {
-    when(sonarRuntime.getApiVersion()).thenReturn(version);
+    when(sonarQubeVersion.get()).thenReturn(version);
   }
 
   @Test

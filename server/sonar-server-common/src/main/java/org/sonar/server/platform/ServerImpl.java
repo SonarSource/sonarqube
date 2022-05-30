@@ -22,11 +22,11 @@ package org.sonar.server.platform;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.platform.SonarQubeVersion;
 
 @ComputeEngineSide
 @ServerSide
@@ -34,13 +34,13 @@ public class ServerImpl extends Server {
   private final Configuration config;
   private final StartupMetadata state;
   private final UrlSettings urlSettings;
-  private final SonarRuntime runtime;
+  private final SonarQubeVersion version;
 
-  public ServerImpl(Configuration config, StartupMetadata state, UrlSettings urlSettings, SonarRuntime runtime) {
+  public ServerImpl(Configuration config, StartupMetadata state, UrlSettings urlSettings, SonarQubeVersion version) {
     this.config = config;
     this.state = state;
     this.urlSettings = urlSettings;
-    this.runtime = runtime;
+    this.version = version;
   }
 
   /**
@@ -59,7 +59,7 @@ public class ServerImpl extends Server {
 
   @Override
   public String getVersion() {
-    return runtime.getApiVersion().toString();
+    return version.get().toString();
   }
 
   @Override

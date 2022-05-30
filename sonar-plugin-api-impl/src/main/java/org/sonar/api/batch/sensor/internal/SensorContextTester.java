@@ -125,7 +125,7 @@ public class SensorContextTester implements SensorContext {
     this.sensorStorage = new InMemorySensorStorage();
     this.project = new DefaultInputProject(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
     this.module = new DefaultInputModule(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
-    this.runtime = SonarRuntimeImpl.forSonarQube(MetadataLoader.loadVersion(System2.INSTANCE), SonarQubeSide.SCANNER, MetadataLoader.loadEdition(System2.INSTANCE));
+    this.runtime = SonarRuntimeImpl.forSonarQube(MetadataLoader.loadApiVersion(System2.INSTANCE), SonarQubeSide.SCANNER, MetadataLoader.loadEdition(System2.INSTANCE));
   }
 
   public static SensorContextTester create(File moduleBaseDir) {

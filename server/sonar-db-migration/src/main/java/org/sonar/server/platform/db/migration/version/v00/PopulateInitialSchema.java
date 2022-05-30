@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -46,13 +46,13 @@ public class PopulateInitialSchema extends DataChange {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-  private final SonarRuntime sonarRuntime;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public PopulateInitialSchema(Database db, System2 system2, UuidFactory uuidFactory, SonarRuntime sonarRuntime) {
+  public PopulateInitialSchema(Database db, System2 system2, UuidFactory uuidFactory, SonarQubeVersion sonarQubeVersion) {
     super(db);
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
-    this.sonarRuntime = sonarRuntime;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -108,7 +108,7 @@ public class PopulateInitialSchema extends DataChange {
     upsert
       .setString(1, "installation.version")
       .setBoolean(2, false)
-      .setString(3, sonarRuntime.getApiVersion().toString())
+      .setString(3, sonarQubeVersion.get().toString())
       .setLong(4, now)
       .addBatch();
     upsert

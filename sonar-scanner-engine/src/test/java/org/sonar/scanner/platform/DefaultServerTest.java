@@ -21,12 +21,9 @@ package org.sonar.scanner.platform;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.config.internal.Settings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,8 +40,7 @@ public class DefaultServerTest {
     DefaultScannerWsClient client = mock(DefaultScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer((settings).asConfig(), client,
-      SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+    DefaultServer metadata = new DefaultServer((settings).asConfig(), client, new SonarQubeVersion(Version.parse("2.2")));
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");

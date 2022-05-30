@@ -25,7 +25,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -270,13 +269,15 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   private static void populateLevel1(Container container, Props props, ComputeEngineStatus computeEngineStatus) {
-    Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
+    Version apiVersion = MetadataLoader.loadApiVersion(System2.INSTANCE);
+    Version sqVersion = MetadataLoader.loadSQVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     container.add(
       props.rawProperties(),
       ThreadLocalSettings.class,
       new ConfigurationProvider(),
-      new SonarQubeVersion(apiVersion),
+      new org.sonar.api.SonarQubeVersion(sqVersion),
+      new org.sonar.core.platform.SonarQubeVersion(sqVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.COMPUTE_ENGINE, edition),
       CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,

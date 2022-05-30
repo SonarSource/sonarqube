@@ -35,10 +35,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.PluginManifest;
 
@@ -54,14 +54,14 @@ public class PluginJarLoaderTest {
   @Rule
   public LogTester logs = new LogTester();
 
-  private ServerFileSystem fs = mock(ServerFileSystem.class);
-  private Set<String> blacklisted = new HashSet<>();
-  private SonarRuntime runtime = mock(SonarRuntime.class);
-  private PluginJarLoader underTest = new PluginJarLoader(fs, runtime, blacklisted);
+  private final ServerFileSystem fs = mock(ServerFileSystem.class);
+  private final Set<String> blacklisted = new HashSet<>();
+  private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
+  private final PluginJarLoader underTest = new PluginJarLoader(fs, sonarQubeVersion, blacklisted);
 
   @Before
   public void setUp() throws IOException {
-    when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
+    when(sonarQubeVersion.get()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
     when(fs.getDeployedPluginsDir()).thenReturn(temp.newFolder("deployed"));
     when(fs.getDownloadedPluginsDir()).thenReturn(temp.newFolder("downloaded"));
     when(fs.getHomeDir()).thenReturn(temp.newFolder("home"));
@@ -270,7 +270,7 @@ public class PluginJarLoaderTest {
   public void fail_when_report_is_installed() throws Exception {
     copyTestPluginTo("fake-report-plugin", fs.getInstalledExternalPluginsDir());
 
-    assertThatThrownBy(() ->  underTest.loadPlugins())
+    assertThatThrownBy(() -> underTest.loadPlugins())
       .isInstanceOf(MessageException.class)
       .hasMessage("The following plugin is no longer compatible with this version of SonarQube: 'report'");
   }
@@ -286,7 +286,7 @@ public class PluginJarLoaderTest {
 
   @Test
   public void fail_if_plugin_does_not_support_sq_version() throws Exception {
-    when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
+    when(sonarQubeVersion.get()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
     copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
 
     assertThatThrownBy(() -> underTest.loadPlugins())

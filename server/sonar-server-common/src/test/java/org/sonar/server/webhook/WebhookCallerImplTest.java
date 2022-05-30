@@ -33,15 +33,12 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -284,10 +281,10 @@ public class WebhookCallerImplTest {
   }
 
   private WebhookCaller newSender(boolean validateWebhook) {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
+    SonarQubeVersion version = new SonarQubeVersion(Version.parse("6.2"));
     when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
       .thenReturn(Optional.of(validateWebhook));
     WebhookCustomDns webhookCustomDns = new WebhookCustomDns(configuration, networkInterfaceProvider);
-    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime), webhookCustomDns);
+    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), version), webhookCustomDns);
   }
 }

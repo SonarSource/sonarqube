@@ -21,20 +21,20 @@ package org.sonar.server.platform;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ServerImplTest {
-  private MapSettings settings = new MapSettings();
-  private StartupMetadata state = mock(StartupMetadata.class);
-  private UrlSettings urlSettings = mock(UrlSettings.class);
-  private SonarRuntime runtime = mock(SonarRuntime.class);
-  private ServerImpl underTest = new ServerImpl(settings.asConfig(), state, urlSettings, runtime);
+  private final MapSettings settings = new MapSettings();
+  private final StartupMetadata state = mock(StartupMetadata.class);
+  private final UrlSettings urlSettings = mock(UrlSettings.class);
+  private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
+  private final ServerImpl underTest = new ServerImpl(settings.asConfig(), state, urlSettings, sonarQubeVersion);
 
   @Test
   public void test_url_information() {
@@ -66,7 +66,7 @@ public class ServerImplTest {
   @Test
   public void test_getVersion() {
     Version version = Version.create(6, 1);
-    when(runtime.getApiVersion()).thenReturn(version);
+    when(sonarQubeVersion.get()).thenReturn(version);
 
     assertThat(underTest.getVersion()).isEqualTo(version.toString());
   }

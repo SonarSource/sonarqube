@@ -22,10 +22,10 @@ package org.sonar.scanner.platform;
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
@@ -34,12 +34,12 @@ public class DefaultServer extends Server {
 
   private final Configuration settings;
   private final DefaultScannerWsClient client;
-  private final SonarRuntime runtime;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public DefaultServer(Configuration settings, DefaultScannerWsClient client, SonarRuntime runtime) {
+  public DefaultServer(Configuration settings, DefaultScannerWsClient client, SonarQubeVersion sonarQubeVersion) {
     this.settings = settings;
     this.client = client;
-    this.runtime = runtime;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -49,7 +49,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getVersion() {
-    return runtime.getApiVersion().toString();
+    return sonarQubeVersion.get().toString();
   }
 
   @Override

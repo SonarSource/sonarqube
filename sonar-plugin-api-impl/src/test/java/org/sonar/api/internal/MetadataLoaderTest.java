@@ -33,11 +33,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MetadataLoaderTest {
-  private System2 system = mock(System2.class);
+  private final System2 system = mock(System2.class);
 
   @Test
-  public void load_version_from_file_in_classpath() {
-    Version version = MetadataLoader.loadVersion(System2.INSTANCE);
+  public void load_api_version_from_file_in_classpath() {
+    Version version = MetadataLoader.loadApiVersion(System2.INSTANCE);
+    assertThat(version).isNotNull();
+    assertThat(version.major()).isGreaterThanOrEqualTo(5);
+  }
+
+  @Test
+  public void load_sq_version_from_file_in_classpath() {
+    Version version = MetadataLoader.loadSQVersion(System2.INSTANCE);
     assertThat(version).isNotNull();
     assertThat(version.major()).isGreaterThanOrEqualTo(5);
   }
@@ -66,9 +73,9 @@ public class MetadataLoaderTest {
   public void throw_ISE_if_fail_to_load_version() throws Exception {
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
 
-    assertThatThrownBy(() -> MetadataLoader.loadVersion(system))
+    assertThatThrownBy(() -> MetadataLoader.loadApiVersion(system))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Can not load /sq-version.txt from classpath");
+      .hasMessageContaining("Can not load /sonar-api-version.txt from classpath");
   }
 
 }

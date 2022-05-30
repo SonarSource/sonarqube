@@ -21,12 +21,10 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import org.junit.Test;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +42,7 @@ public class WriteMetadataStepTest {
   MutableProjectHolderImpl projectHolder = new MutableProjectHolderImpl();
   Version sqVersion = Version.create(6, 0);
   WriteMetadataStep underTest = new WriteMetadataStep(system2, dumpWriter, projectHolder,
-    SonarRuntimeImpl.forSonarQube(sqVersion, SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
+      new SonarQubeVersion(sqVersion));
 
   @Test
   public void write_metadata() {

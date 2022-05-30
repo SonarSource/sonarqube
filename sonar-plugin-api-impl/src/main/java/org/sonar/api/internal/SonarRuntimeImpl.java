@@ -36,24 +36,24 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 @Immutable
 public class SonarRuntimeImpl implements SonarRuntime {
 
-  private final Version version;
+  private final Version apiVersion;
   private final SonarProduct product;
   private final SonarQubeSide sonarQubeSide;
   private final SonarEdition edition;
 
-  private SonarRuntimeImpl(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide, @Nullable SonarEdition edition) {
+  private SonarRuntimeImpl(Version apiVersion, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide, @Nullable SonarEdition edition) {
     this.edition = edition;
     requireNonNull(product);
     checkArgument((product == SonarProduct.SONARQUBE) == (sonarQubeSide != null), "sonarQubeSide should be provided only for SonarQube product");
     checkArgument((product == SonarProduct.SONARQUBE) == (edition != null), "edition should be provided only for SonarQube product");
-    this.version = requireNonNull(version);
+    this.apiVersion = requireNonNull(apiVersion);
     this.product = product;
     this.sonarQubeSide = sonarQubeSide;
   }
 
   @Override
   public Version getApiVersion() {
-    return version;
+    return apiVersion;
   }
 
   @Override

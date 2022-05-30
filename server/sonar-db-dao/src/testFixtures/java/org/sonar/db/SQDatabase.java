@@ -27,15 +27,13 @@ import javax.sql.DataSource;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.Container;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.logs.Profiler;
@@ -147,7 +145,7 @@ public class SQDatabase extends DefaultDatabase {
     migrationConfigurationModule.configure(container);
 
     // dependencies required by DB migrations
-    container.add(SonarRuntimeImpl.forSonarQube(Version.create(8, 0), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
+    container.add(new SonarQubeVersion(Version.create(8, 0)));
     container.add(UuidFactoryFast.getInstance());
     container.add(System2.INSTANCE);
     container.add(MapSettings.class);

@@ -23,27 +23,27 @@ import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.SonarQubeVersion;
 
 @ServerSide
 public class LogServerVersion implements Startable {
 
   private static final Logger LOG = Loggers.get(LogServerVersion.class);
-  private final SonarRuntime runtime;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public LogServerVersion(SonarRuntime runtime) {
-    this.runtime = runtime;
+  public LogServerVersion(SonarQubeVersion sonarQubeVersion) {
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
   public void start() {
     String scmRevision = read("/build.properties").getProperty("Implementation-Build");
-    Version version = runtime.getApiVersion();
+    Version version = sonarQubeVersion.get();
     LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, scmRevision));
   }
 
