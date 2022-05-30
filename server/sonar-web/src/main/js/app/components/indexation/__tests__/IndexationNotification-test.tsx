@@ -61,7 +61,8 @@ describe('Completed banner', () => {
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
   });
 
-  it('should be hidden on refresh once displayed', () => {
+  it('should be hidden once displayed', () => {
+    jest.useFakeTimers();
     (IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock).mockReturnValueOnce(
       true
     );
@@ -74,6 +75,11 @@ describe('Completed banner', () => {
 
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
     expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
+
+    jest.runAllTimers();
+    expect(wrapper.state().notificationType).toBeUndefined();
+
+    jest.useRealTimers();
   });
 });
 

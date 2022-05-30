@@ -38,6 +38,8 @@ interface State {
   notificationType?: IndexationNotificationType;
 }
 
+const COMPLETED_NOTIFICATION_DISPLAY_DURATION = 5000;
+
 export class IndexationNotification extends React.PureComponent<Props, State> {
   state: State = {};
   isSystemAdmin = false;
@@ -77,6 +79,11 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
         notificationType: IndexationNotificationType.Completed
       });
       IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
+
+      // Hide after some time
+      setTimeout(() => {
+        this.refreshNotification();
+      }, COMPLETED_NOTIFICATION_DISPLAY_DURATION);
     } else {
       this.setState({ notificationType: undefined });
     }
