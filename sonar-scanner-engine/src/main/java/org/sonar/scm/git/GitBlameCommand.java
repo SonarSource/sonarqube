@@ -27,8 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +45,15 @@ public class GitBlameCommand {
   private static final String COMMITTER_TIME = "committer-time ";
   private static final String COMMITTER_MAIL = "committer-mail ";
 
+  private static final String MINIMUM_REQUIRED_GIT_VERSION = "2.24.0";
   private static final String DEFAULT_GIT_COMMAND = "git";
   private static final String BLAME_COMMAND = "blame";
   private static final String BLAME_LINE_PORCELAIN_FLAG = "--line-porcelain";
+  private static final String END_OF_OPTIONS_FLAG = "--end-of-options";
   private static final String IGNORE_WHITESPACES = "-w";
+
+  private static final Pattern whitespaceRegex = Pattern.compile("\\s+");
+  private static final Pattern semanticVersionDelimiter = Pattern.compile("\\.");
 
   private final System2 system;
   private final ProcessWrapperFactory processWrapperFactory;
@@ -73,7 +81,7 @@ public class GitBlameCommand {
       this.gitCommand = locateDefaultGit();
       MutableString stdOut = new MutableString();
       this.processWrapperFactory.create(null, l -> stdOut.string = l, gitCommand, "--version").execute();
-      return stdOut.string != null && stdOut.string.startsWith("git version");
+      return stdOut.string != null && stdOut.string.startsWith("git version") && isCompatibleGitVersion(stdOut.string);
     } catch (Exception e) {
       LOG.debug("Failed to find git native client", e);
       return false;
@@ -110,7 +118,7 @@ public class GitBlameCommand {
   public List<BlameLine> blame(Path baseDir, String fileName) throws Exception {
     BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
     try {
-      this.processWrapperFactory.create(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, fileName)
+      this.processWrapperFactory.create(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, END_OF_OPTIONS_FLAG, fileName)
         .execute();
     } catch (UncommittedLineException e) {
       LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
@@ -164,6 +172,26 @@ public class GitBlameCommand {
       sha1 = null;
       committerTime = null;
     }
+  }
+
+  private static boolean isCompatibleGitVersion(String gitVersionCommandOutput) {
+    // Due to the danger of argument injection on git blame the use of `--end-of-options` flag is necessary
+    // The flag is available only on git versions >= 2.24.0
+    String gitVersion = whitespaceRegex
+      .splitAsStream(gitVersionCommandOutput)
+      .skip(2)
+      .findFirst()
+      .orElse("");
+
+    String formattedGitVersion = formatGitSemanticVersion(gitVersion);
+    return Version.parse(formattedGitVersion).isGreaterThanOrEqual(Version.parse(MINIMUM_REQUIRED_GIT_VERSION));
+  }
+
+  private static String formatGitSemanticVersion(String version) {
+    return semanticVersionDelimiter
+      .splitAsStream(version)
+      .takeWhile(NumberUtils::isNumber)
+      .collect(Collectors.joining("."));
   }
 
   private static class MutableString {

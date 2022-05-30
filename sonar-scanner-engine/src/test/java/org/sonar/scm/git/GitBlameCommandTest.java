@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
@@ -153,6 +154,41 @@ public class GitBlameCommandTest {
   }
 
   @Test
+  public void git_should_not_be_enabled_if_version_command_is_not_found() {
+    ProcessWrapperFactory mockedCmd = mockGitVersionCommand("error: unknown option `version'");
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+    assertThat(blameCommand.checkIfEnabled()).isFalse();
+  }
+
+  @Test
+  public void git_should_not_be_enabled_if_version_command_does_not_return_string_output() {
+    ProcessWrapperFactory mockedCmd = mockGitVersionCommand(null);
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+    assertThat(blameCommand.checkIfEnabled()).isFalse();
+  }
+
+  @Test
+  public void git_should_be_enabled_if_version_is_equal_or_greater_than_required_minimum() {
+    Stream.of(
+      "git version 2.24.0",
+      "git version 2.25.2.1",
+      "git version 2.24.1.1.windows.2",
+      "git version 2.25.1.msysgit.2"
+    ).forEach(output -> {
+      ProcessWrapperFactory mockedCmd = mockGitVersionCommand(output);
+      GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+      assertThat(blameCommand.checkIfEnabled()).isTrue();
+    });
+  }
+
+  @Test
+  public void git_should_not_be_enabled_if_version_is_less_than_required_minimum() {
+    ProcessWrapperFactory mockFactory = mockGitVersionCommand("git version 1.9.0");
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockFactory);
+    assertThat(blameCommand.checkIfEnabled()).isFalse();
+  }
+
+  @Test
   public void throw_exception_if_command_fails() throws Exception {
     Path baseDir = temp.newFolder().toPath();
     GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
@@ -246,5 +282,18 @@ public class GitBlameCommandTest {
   private File createNewTempFolder() throws IOException {
     // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
+  }
+
+  private ProcessWrapperFactory mockGitVersionCommand(String commandOutput) {
+    ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
+    ProcessWrapper mockProcess = mock(ProcessWrapper.class);
+
+    when(mockFactory.create(isNull(), any(), eq("git"), eq("--version"))).then(invocation -> {
+      var argument = (Consumer<String>) invocation.getArgument(1);
+      argument.accept(commandOutput);
+      return mockProcess;
+    });
+
+    return mockFactory;
   }
 }
