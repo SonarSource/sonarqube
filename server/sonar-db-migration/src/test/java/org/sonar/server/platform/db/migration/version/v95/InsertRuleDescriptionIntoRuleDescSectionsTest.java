@@ -33,7 +33,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.sonar.server.platform.db.migration.version.v95.CreateRuleDescSectionsTable.RULE_DESCRIPTION_SECTIONS_TABLE;
-import static org.sonar.server.platform.db.migration.version.v95.InsertRuleDescriptionIntoRuleDescSections.DEFAULT_DESCRIPTION_KEY;
+import static org.sonar.server.platform.db.migration.version.v95.DbVersion95.DEFAULT_DESCRIPTION_KEY;
 
 public class InsertRuleDescriptionIntoRuleDescSectionsTest {
 
@@ -70,31 +70,31 @@ public class InsertRuleDescriptionIntoRuleDescSectionsTest {
   @Test
   public void insertRuleDescriptions_whenReentrant_doesNotFail() throws SQLException {
     String description1 = RandomStringUtils.randomAlphanumeric(5000);
-    String uuid1 = "uuid1";
-    insertRule(uuid1, description1);
+    String uuid = "uuid1";
+    insertRule(uuid, description1);
 
     insertRuleDescriptions.execute();
     insertRuleDescriptions.execute();
     insertRuleDescriptions.execute();
 
     assertThat(db.countRowsOfTable(RULE_DESCRIPTION_SECTIONS_TABLE)).isEqualTo(1);
-    assertRuleDescriptionCreated(uuid1, description1);
+    assertRuleDescriptionCreated(uuid, description1);
   }
 
   @Test
   public void insertRuleDescriptions_whenNoDescription_doesNotCreateRuleDescriptionSection() throws SQLException {
-    String uuid1 = "uuid1";
-    insertRule(uuid1, null);
+    String uuid = "uuid1";
+    insertRule(uuid, null);
 
     insertRuleDescriptions.execute();
 
     assertThat(db.countRowsOfTable(RULE_DESCRIPTION_SECTIONS_TABLE)).isZero();
   }
 
-  private void assertRuleDescriptionCreated(String uuid1, String description1) {
-    Map<String, Object> result1 = findRuleSectionDescription(uuid1);
+  private void assertRuleDescriptionCreated(String uuid, String description1) {
+    Map<String, Object> result1 = findRuleSectionDescription(uuid);
     assertThat(result1)
-      .containsEntry("RULE_UUID", uuid1)
+      .containsEntry("RULE_UUID", uuid)
       .containsEntry("KEE", DEFAULT_DESCRIPTION_KEY)
       .containsEntry("CONTENT", description1)
       .extractingByKey("UUID").isNotNull();

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.version.v95;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.core.util.UuidFactory;
@@ -31,8 +30,6 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 import static org.sonar.server.platform.db.migration.version.v95.CreateRuleDescSectionsTable.RULE_DESCRIPTION_SECTIONS_TABLE;
 
 public class InsertRuleDescriptionIntoRuleDescSections extends DataChange {
-  @VisibleForTesting
-  static final String DEFAULT_DESCRIPTION_KEY = "default";
 
   private static final String SELECT_EXISTING_RULE_DESCRIPTIONS = "select uuid, description from rules where description is not null "
     + "and uuid not in (select rule_uuid from " + RULE_DESCRIPTION_SECTIONS_TABLE + ")";
@@ -71,7 +68,7 @@ public class InsertRuleDescriptionIntoRuleDescSections extends DataChange {
       insertRuleDescSections
         .setString(1, uuidFactory.create())
         .setString(2, ruleDb.getUuid())
-        .setString(3, DEFAULT_DESCRIPTION_KEY)
+        .setString(3, DbVersion95.DEFAULT_DESCRIPTION_KEY)
         .setString(4, ruleDb.getDescription())
         .addBatch();
     }

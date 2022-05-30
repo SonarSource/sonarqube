@@ -23,6 +23,8 @@ import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
 public class DbVersion95 implements DbVersion {
+  static final String DEFAULT_DESCRIPTION_KEY = "default";
+
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
@@ -41,6 +43,8 @@ public class DbVersion95 implements DbVersion {
       .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
       .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)
       .add(6414, "Drop rules_metadata table", DropRuleMetadataTable.class)
-      ;
+
+      .add(6415, "Migrate hotspot rule descriptions", MigrateHotspotRuleDescriptions.class)
+    ;
   }
 }
