@@ -217,7 +217,7 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      dependency 'com.google.code.gson:gson:2.8.6'
+      dependency 'com.google.code.gson:gson:2.9.0'
       dependency('com.google.guava:guava:28.2-jre') {
         exclude 'com.google.errorprone:error_prone_annotations'
         exclude 'com.google.guava:listenablefuture'
