@@ -58,6 +58,7 @@ import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.push.SonarLintServerPushService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
+import org.sonarqube.ws.client.regulatoryreports.RegulatoryReportsService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.securityreports.SecurityReportsService;
@@ -139,6 +140,7 @@ class DefaultWsClient implements WsClient {
   private final WebservicesService webservicesService;
   private final BatchService batchService;
   private final SecurityReportsService securityReportsService;
+  private final RegulatoryReportsService regulatoryReportsService;
   private final SonarLintServerPushService sonarLintPushService;
 
   DefaultWsClient(WsConnector wsConnector) {
@@ -198,6 +200,7 @@ class DefaultWsClient implements WsClient {
     this.batchService = new BatchService(wsConnector);
     this.securityReportsService = new SecurityReportsService(wsConnector);
     this.sonarLintPushService = new SonarLintServerPushService(wsConnector);
+    this.regulatoryReportsService = new RegulatoryReportsService(wsConnector);
   }
 
   @Override
@@ -246,6 +249,11 @@ class DefaultWsClient implements WsClient {
     return developersService;
   }
 
+  @Override
+  public RegulatoryReportsService regulatoryReports() {
+    return regulatoryReportsService;
+  }
+  
   @Override
   public DuplicationsService duplications() {
     return duplicationsService;

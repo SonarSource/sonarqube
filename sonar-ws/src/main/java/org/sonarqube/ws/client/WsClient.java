@@ -58,6 +58,7 @@ import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.push.SonarLintServerPushService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
+import org.sonarqube.ws.client.regulatoryreports.RegulatoryReportsService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.securityreports.SecurityReportsService;
@@ -201,6 +202,8 @@ public interface WsClient {
   BatchService batch();
 
   SecurityReportsService securityReports();
+
+  RegulatoryReportsService regulatoryReports();
 
   MonitoringService monitoring();
 
