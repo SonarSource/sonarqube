@@ -464,8 +464,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(rootCauseSection.getContent());
-    assertThat(response.getRule().getRiskDescription()).isEqualTo(assesTheProblemSection.getContent());
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(rootCauseSection.getContent());
+    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(assesTheProblemSection.getContent());
     assertThat(response.getRule().getFixRecommendations()).isEqualTo(howToFixSection.getContent());
   }
 
@@ -516,8 +516,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(rootCauseSection.getContent());
-    assertThat(response.getRule().getRiskDescription()).isEqualTo(assesTheProblemSection.getContent());
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(rootCauseSection.getContent());
+    assertThat(response.getRule().getVulnerabilityDescription()).isEqualTo(assesTheProblemSection.getContent());
     assertThat(response.getRule().getFixRecommendations()).isEmpty();
   }
 
@@ -540,7 +540,7 @@ public class ShowActionTest {
 
     RuleDescriptionSectionDto sectionDto = RuleDescriptionSectionDto.builder()
       .uuid(uuidFactory.create())
-      .key(ASSESS_THE_PROBLEM_SECTION_KEY)
+      .key(DEFAULT_KEY)
       .content(description)
       .build();
 
