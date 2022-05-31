@@ -20,18 +20,27 @@
 import { shallow } from 'enzyme';
 import { clone } from 'lodash';
 import * as React from 'react';
+import { getRuleDetails } from '../../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../../api/security-hotspots';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { scrollToElement } from '../../../../helpers/scrolling';
+import { mockRuleDetails } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
+import { RuleDescriptionSections } from '../../../../types/types';
 import HotspotViewer from '../HotspotViewer';
 import HotspotViewerRenderer from '../HotspotViewerRenderer';
 
 const hotspotKey = 'hotspot-key';
 
 jest.mock('../../../../api/security-hotspots', () => ({
-  getSecurityHotspotDetails: jest.fn().mockResolvedValue({ id: `I am a detailled hotspot` })
+  getSecurityHotspotDetails: jest
+    .fn()
+    .mockResolvedValue({ id: `I am a detailled hotspot`, rule: {} })
+}));
+
+jest.mock('../../../../api/rules', () => ({
+  getRuleDetails: jest.fn().mockResolvedValue({ rule: { descriptionSections: [] } })
 }));
 
 jest.mock('../../../../helpers/scrolling', () => ({
@@ -52,6 +61,35 @@ it('should render correctly', async () => {
 
   await waitAndUpdate(wrapper);
   expect(getSecurityHotspotDetails).toHaveBeenCalledWith(newHotspotKey);
+});
+
+it('should render fetch rule details', async () => {
+  (getRuleDetails as jest.Mock).mockResolvedValueOnce({
+    rule: mockRuleDetails({
+      descriptionSections: [
+        {
+          key: RuleDescriptionSections.ASSESS_THE_PROBLEM,
+          content: 'assess'
+        },
+        {
+          key: RuleDescriptionSections.ROOT_CAUSE,
+          content: 'cause'
+        },
+        {
+          key: RuleDescriptionSections.HOW_TO_FIX,
+          content: 'how'
+        }
+      ]
+    })
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().hotspot?.rule).toStrictEqual({
+    fixRecommendations: 'how',
+    riskDescription: 'cause',
+    vulnerabilityDescription: 'assess'
+  });
 });
 
 it('should refresh hotspot list on status update', () => {

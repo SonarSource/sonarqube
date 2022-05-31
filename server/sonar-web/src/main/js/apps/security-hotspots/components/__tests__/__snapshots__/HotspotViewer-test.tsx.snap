@@ -71,6 +71,11 @@ exports[`should render correctly 2`] = `
   hotspot={
     Object {
       "id": "I am a detailled hotspot",
+      "rule": Object {
+        "fixRecommendations": undefined,
+        "riskDescription": undefined,
+        "vulnerabilityDescription": undefined,
+      },
     }
   }
   loading={false}

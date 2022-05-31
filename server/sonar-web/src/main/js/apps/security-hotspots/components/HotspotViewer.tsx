@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { scrollToElement } from '../../../helpers/scrolling';
 import {
@@ -25,7 +26,7 @@ import {
   HotspotStatusFilter,
   HotspotStatusOption
 } from '../../../types/security-hotspots';
-import { Component } from '../../../types/types';
+import { Component, RuleDescriptionSections } from '../../../types/types';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
@@ -74,16 +75,37 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchHotspot = () => {
+  fetchHotspot = async () => {
     this.setState({ loading: true });
-    return getSecurityHotspotDetails(this.props.hotspotKey)
-      .then(hotspot => {
-        if (this.mounted) {
-          this.setState({ hotspot, loading: false });
-        }
-        return hotspot;
-      })
-      .catch(() => this.mounted && this.setState({ loading: false }));
+    try {
+      const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
+      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then(r => r.rule);
+
+      if (this.mounted) {
+        hotspot.rule.riskDescription =
+          ruleDetails.descriptionSections?.find(section =>
+            [RuleDescriptionSections.DEFAULT, RuleDescriptionSections.ROOT_CAUSE].includes(
+              section.key
+            )
+          )?.content || hotspot.rule.riskDescription;
+
+        hotspot.rule.fixRecommendations =
+          ruleDetails.descriptionSections?.find(
+            section => RuleDescriptionSections.HOW_TO_FIX === section.key
+          )?.content || hotspot.rule.fixRecommendations;
+
+        hotspot.rule.vulnerabilityDescription =
+          ruleDetails.descriptionSections?.find(
+            section => RuleDescriptionSections.ASSESS_THE_PROBLEM === section.key
+          )?.content || hotspot.rule.vulnerabilityDescription;
+
+        this.setState({ hotspot, loading: false });
+      }
+    } catch (error) {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    }
   };
 
   handleHotspotUpdate = async (statusUpdate = false, statusOption?: HotspotStatusOption) => {
