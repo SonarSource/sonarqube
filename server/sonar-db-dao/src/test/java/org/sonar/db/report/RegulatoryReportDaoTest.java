@@ -64,8 +64,11 @@ public class RegulatoryReportDaoTest {
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
 
     // comments
-    db.issues().insertChange(issue1, ic -> ic.setChangeData("c2").setIssueChangeCreationDate(2000L).setChangeType("comment"));
     db.issues().insertChange(issue1, ic -> ic.setChangeData("c1").setIssueChangeCreationDate(1000L).setChangeType("comment"));
+    db.issues().insertChange(issue1, ic -> ic.setChangeData("c2").setIssueChangeCreationDate(2000L).setChangeType("comment"));
+    db.issues().insertChange(issue1, ic -> ic.setChangeData("c3").setIssueChangeCreationDate(3000L).setChangeType("diff").setKey(null));
+
+    db.issues().insertChange(issue2, ic -> ic.setChangeData("c4").setIssueChangeCreationDate(4000L).setChangeType("diff").setKey(null));
 
     // not returned
     IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CLOSED").setResolution(null));
@@ -89,6 +92,10 @@ public class RegulatoryReportDaoTest {
     assertThat(issue.getType().getDbConstant()).isEqualTo(issue1.getType());
     assertThat(issue.getSecurityStandards()).isEqualTo(rule.getSecurityStandards());
     assertThat(issue.isManualSeverity()).isEqualTo(issue1.isManualSeverity());
+    assertThat(issue.getCreationDate()).isEqualTo(issue1.getIssueCreationTime());
+    assertThat(issue.isNewCodeReferenceIssue()).isEqualTo(issue1.isNewCodeReferenceIssue());
+    assertThat(issue.getResolution()).isEqualTo(issue1.getResolution());
+    assertThat(issue.getStatus()).isEqualTo(issue1.getStatus());
     assertThat(issue.getComments()).containsExactly("c1", "c2");
   }
 }

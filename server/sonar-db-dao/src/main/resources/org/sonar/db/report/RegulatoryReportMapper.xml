@@ -5,8 +5,27 @@
 <mapper namespace="org.sonar.db.report.RegulatoryReportMapper">
   <resultMap id="issueResultMap" type="org.sonar.db.report.IssueFindingDto" autoMapping="true">
     <id property="kee" column="kee"/>
-    <collection property="comments" ofType="string">
-      <result column="change_data"/>
+    <result property="severity" column="severity"/>
+    <result property="isManualSeverity" column="isManualSeverity"/>
+    <result property="message" column="message"/>
+    <result property="line" column="line"/>
+    <result property="status" column="status"/>
+    <result property="resolution" column="resolution"/>
+    <result property="fileName" column="fileName"/>
+    <result property="type" column="type"/>
+    <result property="ruleRepository" column="ruleRepository"/>
+    <result property="ruleKey" column="ruleKey"/>
+    <result property="securityStandards" column="securityStandards"/>
+    <result property="ruleName" column="ruleName"/>
+    <result property="creationDate" column="creationDate"/>
+    <result property="isNewCodeReferenceIssue" column="isNewCodeReferenceIssue"/>
+    <!--Usage of notNullColumn allows to skip creating objects which are not matching discriminator-->
+    <collection property="comments" ofType="string" notNullColumn="issue_change_kee">
+      <discriminator javaType="string" column="change_type" >
+        <case value="comment">
+          <result column="change_data"/>
+        </case>
+      </discriminator>
     </collection>
   </resultMap>
 
@@ -18,7 +37,6 @@
     i.line as line,
     i.status as status,
     i.resolution as resolution,
-    p.kee as componentKey,
     p.path as fileName,
     i.issue_type as type,
     r.plugin_name as ruleRepository,
@@ -29,18 +47,19 @@
     <include refid="org.sonar.db.issue.IssueMapper.isNewCodeReferenceIssue"/>
   </sql>
 
-  <select id="scrollIssues" parameterType="String" resultMap="issueResultMap" resultOrdered="true" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollIssues" parameterType="String" resultMap="issueResultMap" resultOrdered="true"
+    fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>,
+    ic.kee as issue_change_kee,
     ic.change_data,
-    ic.issue_change_creation_date
+    ic.change_type
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     left join issue_changes ic on ic.issue_key = i.kee
     left join new_code_reference_issues n on i.kee = n.issue_key
     where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
-    and (ic.change_type = 'comment' or ic.change_type is null)
     and i.status !='CLOSED'
     order by i.kee, ic.issue_change_creation_date
   </select>
