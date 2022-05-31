@@ -42,6 +42,7 @@ import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
@@ -90,8 +91,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       PluginClassloaderFactory.class,
       ScannerPluginJarExploder.class,
       ExtensionInstaller.class,
-      new org.sonar.api.SonarQubeVersion(sqVersion),
-      new org.sonar.core.platform.SonarQubeVersion(sqVersion),
+      new SonarQubeVersion(sqVersion),
       new GlobalServerSettingsProvider(),
       new GlobalConfigurationProvider(),
       new ScannerWsClientProvider(),

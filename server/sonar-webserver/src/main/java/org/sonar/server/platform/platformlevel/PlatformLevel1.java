@@ -30,6 +30,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
@@ -92,8 +93,7 @@ public class PlatformLevel1 extends PlatformLevel {
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
 
     add(
-      new org.sonar.api.SonarQubeVersion(sqVersion),
-      new org.sonar.core.platform.SonarQubeVersion(sqVersion),
+      new SonarQubeVersion(sqVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition),
       ThreadLocalSettings.class,
       ConfigurationProvider.class,

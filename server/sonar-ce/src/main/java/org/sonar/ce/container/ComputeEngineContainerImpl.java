@@ -75,6 +75,7 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
@@ -276,8 +277,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       props.rawProperties(),
       ThreadLocalSettings.class,
       new ConfigurationProvider(),
-      new org.sonar.api.SonarQubeVersion(sqVersion),
-      new org.sonar.core.platform.SonarQubeVersion(sqVersion),
+      new SonarQubeVersion(sqVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.COMPUTE_ENGINE, edition),
       CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,
