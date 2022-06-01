@@ -35,6 +35,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -308,6 +309,32 @@ public class ProjectStatusActionTest {
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
       .executeProtobuf(ProjectStatusResponse.class);
+  }
+
+  @Test
+  public void user_with_project_scan_permission_is_allowed_to_get_project_status() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.SCAN, project);
+
+    var response = ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid()).execute();
+
+    assertThat(response.getStatus()).isEqualTo(200);
+  }
+
+  @Test
+  public void user_with_global_scan_permission_is_allowed_to_get_project_status() {
+    ComponentDto project = db.components().insertPrivateProject();
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    dbSession.commit();
+    userSession.addPermission(GlobalPermission.SCAN);
+
+    var response = ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid()).execute();
+
+    assertThat(response.getStatus()).isEqualTo(200);
   }
 
   @Test

@@ -37,6 +37,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -77,7 +78,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_PROJECT_STATUS)
       .setDescription(String.format("Get the quality gate status of a project or a Compute Engine task.<br />" +
-        MSG_ONE_PROJECT_PARAMETER_ONLY + "<br />" +
+        "%s <br />" +
         "The different statuses returned are: %s. The %s status is returned when there is no quality gate associated with the analysis.<br />" +
         "Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.<br />" +
         "Requires one of the following permissions:" +
@@ -85,11 +86,13 @@ public class ProjectStatusAction implements QualityGatesWsAction {
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
         "<li>'Browse' on the specified project</li>" +
-        "</ul>", QG_STATUSES_ONE_LINE, ProjectStatusResponse.Status.NONE))
+        "<li>'Execute Analysis' on the specified project</li>" +
+        "</ul>",MSG_ONE_PROJECT_PARAMETER_ONLY, QG_STATUSES_ONE_LINE, ProjectStatusResponse.Status.NONE))
       .setResponseExample(getClass().getResource("project_status-example.json"))
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
+        new Change("9.5", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("8.5", "The field 'periods' in the response is deprecated. Use 'period' instead"),
         new Change("7.7", "The parameters 'branch' and 'pullRequest' were added"),
         new Change("7.6", "The field 'warning' in the response is deprecated"),
@@ -212,7 +215,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   private void checkPermission(ProjectDto project) {
     if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
-      !userSession.hasProjectPermission(UserRole.USER, project)) {
+      !userSession.hasProjectPermission(UserRole.USER, project) &&
+      !userSession.hasProjectPermission(UserRole.SCAN, project) &&
+      !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
   }
