@@ -19,23 +19,14 @@
  */
 package org.sonar.db.qualitygate;
 
-import javax.annotation.CheckForNull;
-
 public class QualityGateFindingDto {
   public static final String RATING_VALUE_TYPE = "RATING";
   public static final String PERCENT_VALUE_TYPE = "PERCENT";
-  public static final String NEW_CODE_METRIC_PREFIX = "new_";
 
   private String description = null;
   private String operator = null;
-  private String kee = null;
-  private Boolean isEnabled = null;
   private String valueType = null;
-  private Double bestValue = null;
-  private Double worstValue = null;
-  private Boolean optimizedBestValue = null;
   private String errorThreshold = null;
-  private Integer decimalScale = null;
 
   public String getDescription() {
     return description;
@@ -49,51 +40,32 @@ public class QualityGateFindingDto {
     return PercentageType.valueOf(getOperator()).getDescription();
   }
 
-  public Boolean isNewCodeMetric() {
-    return kee.startsWith(NEW_CODE_METRIC_PREFIX);
-  }
-
-  public boolean isEnabled() {
-    return isEnabled;
-  }
-
-  public String getValueType() {
-    return valueType;
-  }
-
-  @CheckForNull
-  public Double getBestValue() {
-    return bestValue;
-  }
-
-  @CheckForNull
-  public Double getWorstValue() {
-    return worstValue;
-  }
-
   public String getErrorThreshold() {
     if (isRating(getValueType())) {
       return RatingValue.valueOf(Integer.parseInt(errorThreshold));
     }
 
+    if (isPercentage(getValueType())) {
+      return errorThreshold + "%";
+    }
+
     return errorThreshold;
-  }
-
-  public boolean isOptimizedBestValue() {
-    return optimizedBestValue;
-  }
-
-  @CheckForNull
-  public Integer getDecimalScale() {
-    return decimalScale;
   }
 
   private String getOperator() {
     return operator;
   }
 
+  private String getValueType() {
+    return valueType;
+  }
+
   private static boolean isRating(String metricType) {
     return RATING_VALUE_TYPE.equals(metricType);
+  }
+
+  private static boolean isPercentage(String metricType) {
+    return PERCENT_VALUE_TYPE.equals(metricType);
   }
 
   public enum RatingType {

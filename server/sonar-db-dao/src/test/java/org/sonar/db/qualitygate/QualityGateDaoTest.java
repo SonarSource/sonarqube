@@ -38,8 +38,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.within;
-import static org.sonar.db.qualitygate.QualityGateFindingDto.NEW_CODE_METRIC_PREFIX;
+import static org.sonar.db.qualitygate.QualityGateFindingDto.PERCENT_VALUE_TYPE;
 import static org.sonar.db.qualitygate.QualityGateFindingDto.RATING_VALUE_TYPE;
 
 public class QualityGateDaoTest {
@@ -133,13 +132,13 @@ public class QualityGateDaoTest {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(gate);
 
-    MetricDto metric1 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.PERCENT.name()).setDescription("metric 1 description").setDecimalScale(0));
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.PERCENT.name()).setShortName("metric 1"));
     QualityGateConditionDto condition1 = db.qualityGates().addCondition(gate, metric1, c -> c.setErrorThreshold("13"));
 
-    MetricDto metric2 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()).setDescription("metric 2 description").setDecimalScale(1));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()).setShortName("metric 2"));
     QualityGateConditionDto condition2 = db.qualityGates().addCondition(gate, metric2, c -> c.setErrorThreshold("1"));
 
-    MetricDto metric3 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()).setDescription("metric 3 description").setDecimalScale(0));
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()).setShortName("metric 3"));
     QualityGateConditionDto condition3 = db.qualityGates().addCondition(gate, metric3, c -> c.setErrorThreshold("0"));
 
     db.qualityGates().associateProjectToQualityGate(project, gate);
@@ -150,17 +149,16 @@ public class QualityGateDaoTest {
 
     // check fields
     assertThat(findings).hasSize(3);
-    assertThat(findings.stream().map(f -> f.getDescription()).collect(Collectors.toSet())).containsExactlyInAnyOrder(metric1.getDescription(), metric2.getDescription(), metric3.getDescription());
+    assertThat(findings.stream().map(QualityGateFindingDto::getDescription).collect(Collectors.toSet())).containsExactlyInAnyOrder(metric1.getShortName(), metric2.getShortName(), metric3.getShortName());
 
-    QualityGateFindingDto finding1 = findings.stream().filter(f -> f.getDescription().equals(metric1.getDescription())).findFirst().get();
+    QualityGateFindingDto finding1 = findings.stream().filter(f -> f.getDescription().equals(metric1.getShortName())).findFirst().get();
     validateQualityGateFindingFields(finding1, metric1, condition1);
 
-    QualityGateFindingDto finding2 = findings.stream().filter(f -> f.getDescription().equals(metric2.getDescription())).findFirst().get();
+    QualityGateFindingDto finding2 = findings.stream().filter(f -> f.getDescription().equals(metric2.getShortName())).findFirst().get();
     validateQualityGateFindingFields(finding2, metric2, condition2);
 
-    QualityGateFindingDto finding3 = findings.stream().filter(f -> f.getDescription().equals(metric3.getDescription())).findFirst().get();
+    QualityGateFindingDto finding3 = findings.stream().filter(f -> f.getDescription().equals(metric3.getShortName())).findFirst().get();
     validateQualityGateFindingFields(finding3, metric3, condition3);
-
   }
 
   @Test
@@ -255,19 +253,16 @@ public class QualityGateDaoTest {
       return QualityGateFindingDto.RatingValue.valueOf(Integer.parseInt(errorThreshold));
     }
 
+    if (PERCENT_VALUE_TYPE.equals(valueType)) {
+      return errorThreshold + "%";
+    }
+
     return errorThreshold;
   }
 
   private void validateQualityGateFindingFields(QualityGateFindingDto finding, MetricDto metric, QualityGateConditionDto condition) {
-    assertThat(finding.getDescription()).isEqualTo(metric.getDescription());
-    assertThat(finding.getOperatorDescription()).isEqualTo( getOperatorDescription(condition.getOperator(), metric.getValueType()));
+    assertThat(finding.getDescription()).isEqualTo(metric.getShortName());
+    assertThat(finding.getOperatorDescription()).isEqualTo(getOperatorDescription(condition.getOperator(), metric.getValueType()));
     assertThat(finding.getErrorThreshold()).isEqualTo(getErrorThreshold(condition.getErrorThreshold(), metric.getValueType()));
-    assertThat(finding.getValueType()).isEqualTo(metric.getValueType());
-    assertThat(finding.isNewCodeMetric()).isEqualTo(metric.getKey().startsWith(NEW_CODE_METRIC_PREFIX));
-    assertThat(finding.isEnabled()).isEqualTo(metric.isEnabled());
-    assertThat(finding.getBestValue()).isEqualTo(metric.getBestValue(), within(0.00001));
-    assertThat(finding.getWorstValue()).isEqualTo(metric.getWorstValue(), within(0.00001));
-    assertThat(finding.isOptimizedBestValue()).isEqualTo(metric.isOptimizedBestValue());
-    assertThat(finding.getDecimalScale()).isEqualTo(metric.getDecimalScale());
   }
 }

@@ -7,16 +7,10 @@
   </sql>
 
   <sql id="qualityGateFindingColumns">
-    m.description as description,
+    m.short_name as description,
     qgc.operator as operator,
-    m.name as kee,
-    m.enabled as isEnabled,
     m.val_type as valueType,
-    m.best_value as bestValue,
-    m.worst_value as worstValue,
-    m.optimized_best_value as optimizedBestValue,
-    qgc.value_error as errorThreshold,
-    m.decimal_scale as decimalScale
+    qgc.value_error as errorThreshold
   </sql>
 
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
