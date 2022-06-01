@@ -238,3 +238,19 @@
 .bulk-change-radio-button:hover {
   background-color: var(--barBackgroundColor);
 }
+
+.issue-header {
+  z-index: 100;
+  position: sticky;
+  top: 48px;
+  background-color: white;
+  padding-top: 20px;
+}
+
+.issue-project-level.issue-header {
+  top: 120px;
+}
+
+.layout-page-main.open-issue {
+  padding-top: 0;
+}

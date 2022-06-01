@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -89,7 +90,6 @@ import {
   STANDARDS
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
-import IssueRuleHeader from './IssueRuleHeader';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import IssueTabViewer from './IssueTabViewer';
@@ -1078,29 +1078,29 @@ export default class App extends React.PureComponent<Props, State> {
       paging,
       loadingRule
     } = this.state;
+    const { component } = this.props;
     return (
       <div className="layout-page-main-inner">
         <DeferredSpinner loading={loadingRule}>
           {openIssue && openRuleDetails ? (
-            <>
-              <IssueRuleHeader ruleDetails={openRuleDetails} issue={openIssue} />
-              <IssueTabViewer
-                codeTabContent={
-                  <IssuesSourceViewer
-                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                    issues={issues}
-                    locationsNavigator={this.state.locationsNavigator}
-                    onIssueChange={this.handleIssueChange}
-                    onIssueSelect={this.openIssue}
-                    onLocationSelect={this.selectLocation}
-                    openIssue={openIssue}
-                    selectedFlowIndex={this.state.selectedFlowIndex}
-                    selectedLocationIndex={this.state.selectedLocationIndex}
-                  />
-                }
-                ruleDetails={openRuleDetails}
-              />
-            </>
+            <IssueTabViewer
+              codeTabContent={
+                <IssuesSourceViewer
+                  branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                  issues={issues}
+                  locationsNavigator={this.state.locationsNavigator}
+                  onIssueChange={this.handleIssueChange}
+                  onIssueSelect={this.openIssue}
+                  onLocationSelect={this.selectLocation}
+                  openIssue={openIssue}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
+                  selectedLocationIndex={this.state.selectedLocationIndex}
+                />
+              }
+              issue={openIssue}
+              component={component}
+              ruleDetails={openRuleDetails}
+            />
           ) : (
             <DeferredSpinner loading={loading}>
               {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
@@ -1140,7 +1140,7 @@ export default class App extends React.PureComponent<Props, State> {
 
         {this.renderSide(openIssue)}
 
-        <div role="main" className="layout-page-main">
+        <div role="main" className={classNames('layout-page-main', { 'open-issue': !!openIssue })}>
           {this.renderHeader({ openIssue, paging, selectedIndex })}
 
           {this.renderPage()}

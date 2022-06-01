@@ -19,12 +19,16 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { Link } from 'react-router';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { RuleDescriptionSections, RuleDetails } from '../../../types/types';
+import { getRuleUrl } from '../../../helpers/urls';
+import { Component, Issue, RuleDescriptionSections, RuleDetails } from '../../../types/types';
 
 interface Props {
+  component?: Component;
+  issue: Issue;
   codeTabContent: React.ReactNode;
   ruleDetails: RuleDetails;
 }
@@ -113,13 +117,35 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { codeTabContent } = this.props;
+    const {
+      component,
+      codeTabContent,
+      ruleDetails: { name, key },
+      issue: { message }
+    } = this.props;
     const { tabs, currentTabKey } = this.state;
 
     return (
       <>
-        <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTabKey} tabs={tabs} />
-        <div className="bordered huge-spacer-bottom">
+        <div
+          className={classNames('issue-header', {
+            'issue-project-level': component !== undefined
+          })}>
+          <h1 className="text-bold">{message}</h1>
+          <div className="spacer-top big-spacer-bottom">
+            <span className="note padded-right">{name}</span>
+            <Link className="small" to={getRuleUrl(key)} target="_blank">
+              {key}
+            </Link>
+          </div>
+          <BoxedTabs
+            className="bordered-bottom"
+            onSelect={this.handleSelectTabs}
+            selected={currentTabKey}
+            tabs={tabs}
+          />
+        </div>
+        <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
           <div
             className={classNames('padded', {
               hidden: currentTabKey !== TabKeys.Code
