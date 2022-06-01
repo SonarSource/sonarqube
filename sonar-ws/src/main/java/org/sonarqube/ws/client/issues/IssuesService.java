@@ -19,8 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.io.InputStream;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.AddCommentResponse;
 import org.sonarqube.ws.Issues.AssignResponse;
 import org.sonarqube.ws.Issues.AuthorsResponse;
@@ -38,6 +40,7 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.batch.IssuesRequest;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues">Further information about this web service online</a>
@@ -298,5 +301,24 @@ public class IssuesService extends BaseService {
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
       TagsResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/api/issues/pull">Further information about this action online (including a response example)</a>
+   * @since 9.5
+   */
+  public InputStream pull(PullRequest request) {
+    return call(
+      new GetRequest(path("pull"))
+        .setParam("projectKey", request.getProjectKey())
+        .setParam("branchName", request.getBranchName())
+        .setParam("languages", request.getLanguages())
+        .setParam("ruleRepositories", request.getRuleRepositories())
+        .setParam("resolvedOnly", request.getResolvedOnly())
+        .setParam("changedSince", request.getChangedSince())
+    ).contentStream();
   }
 }
