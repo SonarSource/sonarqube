@@ -34,7 +34,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -143,6 +145,8 @@ public class ProjectMeasuresIndex {
   private static final double[] COVERAGE_THRESHOLDS = {30D, 50D, 70D, 80D};
   private static final double[] SECURITY_REVIEW_RATING_THRESHOLDS = {30D, 50D, 70D, 80D};
   private static final double[] DUPLICATIONS_THRESHOLDS = {3D, 5D, 10D, 20D};
+  private static final int SCROLL_SIZE = 5000;
+  private static final TimeValue KEEP_ALIVE_SCROLL_DURATION = TimeValue.timeValueMinutes(1L);
 
   public enum Facet {
     NCLOC(new RangeMeasureFacet(NCLOC_KEY, LINES_THRESHOLDS)),
@@ -242,6 +246,12 @@ public class ProjectMeasuresIndex {
   }
 
   public ProjectMeasuresStatistics searchTelemetryStatistics() {
+    SearchRequest projectMeasuresSearchRequest = buildProjectMeasureSearchRequest();
+    SearchResponse projectMeasures = client.search(projectMeasuresSearchRequest);
+    return buildProjectMeasuresStatistics(projectMeasures);
+  }
+
+  private static SearchRequest buildProjectMeasureSearchRequest() {
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
       .fetchSource(false)
       .size(0);
@@ -262,18 +272,19 @@ public class ProjectMeasuresIndex {
         .minDocCount(1)
         .order(BucketOrder.count(false))
         .subAggregation(sum(FIELD_NCLOC_DISTRIBUTION_NCLOC).field(FIELD_NCLOC_DISTRIBUTION_NCLOC))));
-
     searchSourceBuilder.aggregation(AggregationBuilders.nested(NCLOC_KEY, FIELD_MEASURES)
       .subAggregation(AggregationBuilders.filter(NCLOC_KEY + "_filter", termQuery(FIELD_MEASURES_MEASURE_KEY, NCLOC_KEY))
         .subAggregation(sum(NCLOC_KEY + "_filter_sum").field(FIELD_MEASURES_MEASURE_VALUE))));
+    searchSourceBuilder.size(SCROLL_SIZE);
 
+    return EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType()).source(searchSourceBuilder).scroll(KEEP_ALIVE_SCROLL_DURATION);
+  }
+
+  private static ProjectMeasuresStatistics buildProjectMeasuresStatistics(SearchResponse response) {
     ProjectMeasuresStatistics.Builder statistics = ProjectMeasuresStatistics.builder();
-
-    SearchResponse response = client.search(EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .source(searchSourceBuilder));
-
     statistics.setProjectCount(getTotalHits(response.getHits().getTotalHits()).value);
     statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
+
     Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_NCLOC_DISTRIBUTION_NCLOC)).getValue());
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))
       .map(nested -> (Terms) nested.getAggregations().get(nested.getName() + "_terms"))

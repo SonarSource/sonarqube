@@ -1639,6 +1639,36 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void search_statistics_for_large_instances() {
+    int nbProjects = 25000;
+    int javaLocByProjects = 100;
+    int jsLocByProjects = 900;
+    int csLocByProjects = 2;
+
+    ProjectMeasuresDoc[] documents = IntStream.range(0, nbProjects).mapToObj(i ->
+      newDoc("lines", 10, "coverage", 80)
+        .setLanguages(asList("java", "cs", "js"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", javaLocByProjects, "cs", csLocByProjects, "js", jsLocByProjects))).toArray(ProjectMeasuresDoc[]::new);
+
+    es.putDocuments(TYPE_PROJECT_MEASURES, documents);
+
+    ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(nbProjects);
+    assertThat(result.getProjectCountByLanguage())
+      .hasSize(3)
+      .containsEntry("java", (long) nbProjects)
+      .containsEntry("cs", (long) nbProjects)
+      .containsEntry("js", (long) nbProjects);
+
+    assertThat(result.getNclocByLanguage())
+      .hasSize(3)
+      .containsEntry("java",(long) nbProjects * javaLocByProjects)
+      .containsEntry("cs",(long) nbProjects * csLocByProjects)
+      .containsEntry("js",(long) nbProjects * jsLocByProjects);
+  }
+
+  @Test
   public void search_statistics_should_ignore_applications() {
     es.putDocuments(TYPE_PROJECT_MEASURES,
       // insert projects

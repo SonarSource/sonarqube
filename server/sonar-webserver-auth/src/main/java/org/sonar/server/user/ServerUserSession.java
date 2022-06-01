@@ -196,8 +196,7 @@ public class ServerUserSession extends AbstractUserSession {
 
     return portfolioHierarchyComponentUuids
       .stream()
-      .map(uuid -> hasPermission(permission, uuid))
-      .allMatch(Boolean::valueOf);
+      .allMatch(uuid -> hasPermission(permission, uuid));
   }
 
   private boolean hasPermission(String permission, String projectUuid) {
