@@ -120,8 +120,9 @@ export default function ComponentNav(props: ComponentNavProps) {
         </>
       }>
       <div
-        className={classNames('display-flex-center display-flex-space-between little-padded-top', {
-          'padded-bottom': warnings.length === 0
+        className={classNames('display-flex-center display-flex-space-between', {
+          'padded-bottom little-padded-top': warnings.length === 0,
+          'little-padded-bottom': warnings.length > 0
         })}>
         <Header
           branchLikes={branchLikes}

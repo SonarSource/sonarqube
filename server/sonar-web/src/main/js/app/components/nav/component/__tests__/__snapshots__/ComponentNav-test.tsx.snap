@@ -7,7 +7,7 @@ exports[`renders correctly: default 1`] = `
   notif={<React.Fragment />}
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+    className="display-flex-center display-flex-space-between padded-bottom little-padded-top"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
@@ -201,7 +201,7 @@ exports[`renders correctly: has failed notification 1`] = `
   }
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+    className="display-flex-center display-flex-space-between padded-bottom little-padded-top"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
@@ -381,7 +381,7 @@ exports[`renders correctly: has failed project binding 1`] = `
   }
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+    className="display-flex-center display-flex-space-between padded-bottom little-padded-top"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
@@ -563,7 +563,7 @@ exports[`renders correctly: has in progress notification 1`] = `
   }
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+    className="display-flex-center display-flex-space-between padded-bottom little-padded-top"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
@@ -745,7 +745,7 @@ exports[`renders correctly: has pending notification 1`] = `
   }
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+    className="display-flex-center display-flex-space-between padded-bottom little-padded-top"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
@@ -892,7 +892,7 @@ exports[`renders correctly: has warnings 1`] = `
   notif={<React.Fragment />}
 >
   <div
-    className="display-flex-center display-flex-space-between little-padded-top"
+    className="display-flex-center display-flex-space-between little-padded-bottom"
   >
     <withCurrentUserContext(Component)
       branchLikes={Array []}
