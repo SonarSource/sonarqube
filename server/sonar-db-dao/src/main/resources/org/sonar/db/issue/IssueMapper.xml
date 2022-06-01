@@ -449,5 +449,198 @@
     left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
   </select>
+
+  <sql id="selectByBranchColumnsFinal">
+    result.kee as kee,
+    result.ruleUuid as ruleUuid,
+    result.createdAt as createdAt,
+    result.status as status,
+    result.ruleType as ruleType,
+    result.ruleRepo as ruleRepo,
+    result.ruleKey as ruleKey,
+    result.message as message,
+    result.severity as severity,
+    result.manualSeverity as manualSeverity,
+    result.type as type,
+    result.locations as locations,
+    result.component_uuid,
+    c.path as filePath
+  </sql>
+
+  <sql id="selectByBranchColumnsOuterQuery">
+    t.kee as kee,
+    t.ruleUuid as ruleUuid,
+    t.createdAt as createdAt,
+    t.status as status,
+    t.ruleType as ruleType,
+    t.ruleRepo as ruleRepo,
+    t.ruleKey as ruleKey,
+    t.message as message,
+    t.severity as severity,
+    t.manualSeverity as manualSeverity,
+    t.type as type,
+    t.locations as locations,
+    t.component_uuid
+  </sql>
+
+  <sql id="selectByBranchColumns">
+    i.kee as kee,
+    i.rule_uuid as ruleUuid,
+    i.created_at as createdAt,
+    i.status as status,
+    r.rule_type as ruleType,
+    r.plugin_name as ruleRepo,
+    r.plugin_rule_key as ruleKey,
+    i.message as message,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.issue_type as type,
+    i.locations as locations,
+    i.component_uuid as component_uuid
+  </sql>
+
+  <select id="selectByBranch" parameterType="map" resultType="Issue">
+    select
+      <include refid="selectByBranchColumns"/>
+    , p.path as filePath
+    from issues i
+        inner join project_branches b on i.project_uuid = b.project_uuid
+        inner join rules r on r.uuid = i.rule_uuid
+        inner join components p on p.uuid=i.component_uuid
+    where
+      b.kee = #{queryParams.branchName}
+      AND i.project_uuid = #{queryParams.projectUuid}
+     <if test="queryParams.changedSince != null">
+      AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+     </if>
+     <if test="queryParams.resolvedOnly == true">
+       AND i.status = 'RESOLVED'
+     </if>
+      AND i.status &lt;&gt; 'CLOSED'
+      AND i.issue_type &lt;&gt; 4
+     <if test="queryParams.ruleRepositories != null">
+      AND r.plugin_name IN
+        <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
+          #{ruleRepository}
+        </foreach>
+    </if>
+    <if test="queryParams.languages != null">
+      AND r.language IN
+        <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
+            #{language}
+        </foreach>
+    </if>
+    order by i.issue_creation_date ASC
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByBranch" parameterType="map" resultType="Issue" databaseId="mssql">
+    select
+      <include refid="selectByBranchColumnsFinal"/>
+    from
+    (select
+      <include refid="selectByBranchColumnsOuterQuery"/>
+    from (
+      select
+        row_number() over(order by i.issue_creation_date ASC) as row_number,
+          <include refid="selectByBranchColumns"/>
+      from issues i
+          inner join project_branches b on i.project_uuid = b.project_uuid
+          inner join rules r on r.uuid = i.rule_uuid
+      where
+        b.kee = #{queryParams.branchName}
+        AND i.project_uuid = #{queryParams.projectUuid}
+          <if test="queryParams.changedSince != null">
+        AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+         </if>
+         <if test="queryParams.resolvedOnly == true">
+           AND i.status = 'RESOLVED'
+         </if>
+        AND i.status &lt;&gt; 'CLOSED'
+          AND i.issue_type &lt;&gt; 4
+        <if test="queryParams.ruleRepositories != null">
+          AND r.plugin_name IN
+            <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
+              #{ruleRepository}
+            </foreach>
+        </if>
+        <if test="queryParams.languages != null">
+          AND r.language IN
+            <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
+                #{language}
+            </foreach>
+        </if>
+      order by row_number asc
+      offset #{pagination.offset} rows
+      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    ) as t) as result
+    inner join components c on c.uuid=result.component_uuid
+  </select>
+
+  <select id="selectByBranch" parameterType="map" resultType="Issue" databaseId="oracle">
+    select <include refid="selectByBranchColumnsFinal"/> from
+      (select <include refid="selectByBranchColumnsOuterQuery"/> from (
+        select rownum as rn, a.* from (
+          select
+            <include refid="selectByBranchColumns"/>
+          from issues i
+              inner join project_branches b on i.project_uuid = b.project_uuid
+              inner join rules r on r.uuid = i.rule_uuid
+          where
+            b.kee = #{queryParams.branchName}
+            AND i.project_uuid = #{queryParams.projectUuid}
+              <if test="queryParams.changedSince != null">
+            AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+             </if>
+             <if test="queryParams.resolvedOnly == true">
+               AND i.status = 'RESOLVED'
+             </if>
+            AND i.status &lt;&gt; 'CLOSED'
+              AND i.issue_type &lt;&gt; 4
+            <if test="queryParams.ruleRepositories != null">
+              AND r.plugin_name IN
+                <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
+                  #{ruleRepository}
+                </foreach>
+            </if>
+            <if test="queryParams.languages != null">
+              AND r.language IN
+                <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
+                    #{language}
+                </foreach>
+            </if>
+            order by i.issue_creation_date ASC
+            ) a
+        ) t
+      where
+        t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+      order by t.rn asc) result
+    inner join components c on c.uuid=result.component_uuid
+  </select>
+
+  <select id="selectRecentlyClosedIssues" resultType="string">
+    select i.kee
+    from issues i
+        inner join project_branches b on i.project_uuid = b.project_uuid
+        inner join rules r on r.uuid = i.rule_uuid
+    where
+      i.project_uuid = #{queryParams.projectUuid}
+      AND issue_update_date &gt;= #{queryParams.changedSince}
+      AND b.kee = #{queryParams.branchName}
+        <if test="queryParams.ruleRepositories != null">
+          AND r.plugin_name IN
+          <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
+            #{ruleRepository}
+          </foreach>
+        </if>
+        <if test="queryParams.languages != null">
+          AND r.language IN
+          <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
+            #{language}
+          </foreach>
+        </if>
+      AND i.status = 'CLOSED'
+  </select>
+
 </mapper>
 

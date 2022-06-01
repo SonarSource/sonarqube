@@ -68,4 +68,9 @@ public interface IssueMapper {
     @Param("baseComponent") ComponentDto baseComponent,
     @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
 
+
+  List<IssueDto> selectByBranch(@Param("queryParams") IssueQueryParams issueQueryParams,
+    @Param("pagination") Pagination pagination);
+
+  List<String> selectRecentlyClosedIssues(@Param("queryParams") IssueQueryParams issueQueryParams);
 }

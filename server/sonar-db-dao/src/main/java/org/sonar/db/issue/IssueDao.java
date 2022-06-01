@@ -119,4 +119,12 @@ public class IssueDao implements Dao {
     return session.getMapper(IssueMapper.class);
   }
 
+  public List<IssueDto> selectByBranch(DbSession dbSession, IssueQueryParams issueQueryParams, int page) {
+    Pagination pagination = Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE);
+    return mapper(dbSession).selectByBranch(issueQueryParams, pagination);
+  }
+
+  public List<String> selectRecentlyClosedIssues(DbSession dbSession, IssueQueryParams issueQueryParams) {
+    return mapper(dbSession).selectRecentlyClosedIssues(issueQueryParams);
+  }
 }

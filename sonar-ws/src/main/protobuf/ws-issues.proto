@@ -235,5 +235,36 @@ message AuthorsResponse {
   repeated string authors = 1;
 }
 
+// Response of GET api/issues/pull
+message IssuesPullQueryTimestamp {
+  required int64 queryTimestamp = 1;
+}
+
+message TextRange {
+  optional int32 startLine = 1;
+  optional int32 startLineOffset = 2;
+  optional int32 endLine = 3;
+  optional int32 endLineOffset = 4;
+  optional string hash = 5;
+}
+
+message Location {
+  optional string filePath = 1;
+  optional string message = 2;
+  optional TextRange textRange = 3;
+}
+
+message IssueLite {
+  required string key = 1;
+  optional int64 creationDate = 2;
+  optional bool resolved = 3;
+  optional string ruleKey = 4;
+  optional string userSeverity = 5;
+  optional string type = 6;
+  optional Location mainLocation = 7;
+  optional bool closed = 8;
+}
+
+
 
 

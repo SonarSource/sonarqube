@@ -60,6 +60,7 @@ public class IssueDaoTest {
   private static final RuleDto RULE = RuleTesting.newXooX1();
   private static final String ISSUE_KEY1 = "I1";
   private static final String ISSUE_KEY2 = "I2";
+  private static final String DEFAULT_BRANCH_NAME = "master";
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
@@ -166,11 +167,11 @@ public class IssueDaoTest {
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), file.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), project.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), "does_not_exist")).isEmpty();
   }
@@ -198,11 +199,11 @@ public class IssueDaoTest {
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
       .extracting(IssueDto::getKey)
       .containsExactlyInAnyOrder(
-        Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+        Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), module))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
 
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto();
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), notPersisted)).isEmpty();
@@ -469,6 +470,99 @@ public class IssueDaoTest {
 
     underTest.deleteAsNewCodeOnReferenceBranch(db.getSession(), ISSUE_KEY1);
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).isNewCodeReferenceIssue()).isFalse();
+  }
+
+  @Test
+  public void selectByBranch_givenOneIssueOnTheRightBranchAndOneOnTheWrongOne_returnOneIssue() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID));
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid("another-branch-uuid"));
+    db.getSession().commit();
+
+    List<IssueDto> issueDtos = underTest.selectByBranch(db.getSession(),
+      new IssueQueryParams(PROJECT_UUID, DEFAULT_BRANCH_NAME, null, null, false, null),
+      1);
+
+    assertThat(issueDtos).hasSize(1);
+    assertThat(issueDtos.get(0).getKey()).isEqualTo(ISSUE_KEY1);
+  }
+
+  @Test
+  public void selectByBranch_ordersResultByCreationDate() {
+    prepareIssuesComponent();
+
+    int times = 1;
+    for (;times <= 1001; times++) {
+      underTest.insert(db.getSession(), newIssueDto(String.valueOf(times))
+        .setIssueCreationTime(Long.valueOf(times))
+        .setCreatedAt(times)
+        .setRuleUuid(RULE.getUuid())
+        .setComponentUuid(FILE_UUID)
+        .setProjectUuid(PROJECT_UUID));
+    }
+    // updating time's value to the last actual value that was used for creating an issue
+    times--;
+    db.getSession().commit();
+
+    List<IssueDto> issueDtos = underTest.selectByBranch(db.getSession(),
+      new IssueQueryParams(PROJECT_UUID, DEFAULT_BRANCH_NAME, null, null, false, null),
+      2);
+
+    assertThat(issueDtos).hasSize(1);
+    assertThat(issueDtos.get(0).getKey()).isEqualTo(String.valueOf(times));
+  }
+
+  @Test
+  public void selectByBranch_openIssueNotReturnedWhenResolvedOnlySet() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setStatus(Issue.STATUS_OPEN)
+      .setProjectUuid(PROJECT_UUID));
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setProjectUuid(PROJECT_UUID));
+    db.getSession().commit();
+
+    List<IssueDto> issueDtos = underTest.selectByBranch(db.getSession(),
+      new IssueQueryParams(PROJECT_UUID, DEFAULT_BRANCH_NAME, null, null, true, null),
+      1);
+
+    assertThat(issueDtos).hasSize(1);
+    assertThat(issueDtos.get(0).getKey()).isEqualTo(ISSUE_KEY2);
+  }
+
+  @Test
+  public void selectRecentlyClosedIssues_doNotReturnIssuesOlderThanTimestamp() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setIssueUpdateTime(10_000L)
+      .setProjectUuid(PROJECT_UUID));
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setIssueUpdateTime(5_000L)
+      .setProjectUuid(PROJECT_UUID));
+    db.getSession().commit();
+
+    List<String> issueUuids = underTest.selectRecentlyClosedIssues(db.getSession(),
+      new IssueQueryParams(PROJECT_UUID, DEFAULT_BRANCH_NAME, null, null, true, 8_000L));
+
+    assertThat(issueUuids).hasSize(1);
+    assertThat(issueUuids.get(0)).isEqualTo(ISSUE_KEY1);
   }
 
   private static IssueDto newIssueDto(String key) {

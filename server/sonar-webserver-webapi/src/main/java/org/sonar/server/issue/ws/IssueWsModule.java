@@ -30,6 +30,8 @@ import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
+import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
 
 public class IssueWsModule extends Module {
@@ -66,6 +68,9 @@ public class IssueWsModule extends Module {
       AuthorsAction.class,
       ChangelogAction.class,
       BulkChangeAction.class,
-      QGChangeEventListenersImpl.class);
+      QGChangeEventListenersImpl.class,
+      PullAction.class,
+      PullActionResponseWriter.class,
+      PullActionProtobufObjectGenerator.class);
   }
 }
