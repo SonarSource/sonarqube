@@ -126,6 +126,7 @@ public class CommandFactoryImpl implements CommandFactory {
         .add("-Des.path.conf=" + esInstallation.getConfDirectory().getAbsolutePath()))
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("ES_JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .setEnvVariable("LIBFFI_TMPDIR", this.tempDir.getAbsolutePath())
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
       .addClasspath("lib/*")
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
