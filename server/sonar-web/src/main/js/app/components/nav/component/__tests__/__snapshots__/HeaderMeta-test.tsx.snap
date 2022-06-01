@@ -30,10 +30,9 @@ exports[`should render correctly for a branch 1`] = `
     </span>
     <span
       className="spacer-left nowrap note"
+      title="overview.project.last_analysis.date_time.2017-01-02T00:00:00.000Z"
     >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
+      2017-01-02T00:00:00.000Z
     </span>
     <span
       className="spacer-left nowrap note"
@@ -84,10 +83,9 @@ exports[`should render correctly for a main project branch 1`] = `
     </span>
     <span
       className="spacer-left nowrap note"
+      title="overview.project.last_analysis.date_time.2017-01-02T00:00:00.000Z"
     >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
+      2017-01-02T00:00:00.000Z
     </span>
     <span
       className="spacer-left nowrap note"
@@ -179,10 +177,9 @@ exports[`should render correctly for a pull request 1`] = `
     </span>
     <span
       className="spacer-left nowrap note"
+      title="overview.project.last_analysis.date_time.2017-01-02T00:00:00.000Z"
     >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
+      2017-01-02T00:00:00.000Z
     </span>
   </div>
   <div

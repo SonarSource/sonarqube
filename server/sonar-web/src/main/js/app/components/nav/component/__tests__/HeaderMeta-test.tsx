@@ -27,6 +27,12 @@ import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
 
+jest.mock('react-intl', () => ({
+  useIntl: jest.fn().mockImplementation(() => ({
+    formatDate: jest.fn().mockImplementation(() => '2017-01-02T00:00:00.000Z')
+  }))
+}));
+
 it('should render correctly for a branch', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();

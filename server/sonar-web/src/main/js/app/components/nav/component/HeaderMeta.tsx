@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import DetachIcon from '../../../../components/icons/DetachIcon';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
+import { formatterOption } from '../../../../components/intl/DateTimeFormatter';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { TaskWarning } from '../../../../types/tasks';
@@ -48,6 +49,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
 
   const currentPage = getCurrentPage(component, branchLike);
   const displayVersion = component.version !== undefined && isABranch;
+  const lastAnalysisDate = useIntl().formatDate(component.analysisDate, formatterOption);
 
   return (
     <>
@@ -63,8 +65,13 @@ export function HeaderMeta(props: HeaderMetaProps) {
           </span>
         )}
         {component.analysisDate && (
-          <span className="spacer-left nowrap note">
-            <DateTimeFormatter date={component.analysisDate} />
+          <span
+            title={translateWithParameters(
+              'overview.project.last_analysis.date_time',
+              lastAnalysisDate
+            )}
+            className="spacer-left nowrap note">
+            {lastAnalysisDate}
           </span>
         )}
         {displayVersion && (
