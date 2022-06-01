@@ -300,9 +300,9 @@ task: #bitbucket
   env:
     QA_CATEGORY: BITBUCKET
   matrix:
-    - name: qa_bitbucket_5.15.0
+    - name: qa_bb_5.15.0
       bitbucket_background_script: ./private/cirrus/cirrus-start-bitbucket.sh 5.15.0
-    - name: qa_bitbucket_latest
+    - name: qa_bb_latest
       bitbucket_background_script: ./private/cirrus/cirrus-start-bitbucket.sh LATEST
   wait_for_bitbucket_to_boot_script: secs=3600; endTime=$(( $(date +%s) + secs )); while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7990/bitbucket/status)" != "200" ]] || [ $(date +%s) -gt $endTime ]; do sleep 5; done
   script:
