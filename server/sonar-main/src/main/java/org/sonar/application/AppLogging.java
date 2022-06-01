@@ -29,9 +29,9 @@ import ch.qos.logback.core.encoder.Encoder;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.process.StreamGobbler;
 import org.sonar.process.ProcessId;
+import org.sonar.process.Props;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.process.logging.PatternLayoutEncoder;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -131,9 +131,9 @@ public class AppLogging {
 
     helper.enableJulChangePropagation(ctx);
 
-    configureConsole(ctx);
+    configureConsole(appSettings.getProps(), ctx);
     if (helper.isAllLogsToConsoleEnabled(appSettings.getProps()) || !appSettings.getProps().valueAsBoolean("sonar.wrapped", false)) {
-      configureWithLogbackWritingToFile(ctx);
+      configureWithLogbackWritingToFile(appSettings.getProps(), ctx);
     } else {
       configureWithWrapperWritingToFile(ctx);
     }
@@ -153,8 +153,8 @@ public class AppLogging {
    *
    * It creates a dedicated appender to the System.out which applies no formatting the logs it receives.
    */
-  private void configureConsole(LoggerContext loggerContext) {
-    Encoder<ILoggingEvent> encoder = createGobblerEncoder(loggerContext);
+  private void configureConsole(Props props, LoggerContext loggerContext) {
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, APP_ROOT_LOGGER_CONFIG, loggerContext);
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_PLAIN_APPENDER, encoder);
 
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
@@ -167,7 +167,7 @@ public class AppLogging {
    * Therefor, APP's System.out (and System.err) are <strong>not</strong> copied to sonar.log by the wrapper and
    * printing to sonar.log must be done at logback level.
    */
-  private void configureWithLogbackWritingToFile(LoggerContext ctx) {
+  private void configureWithLogbackWritingToFile(Props props, LoggerContext ctx) {
     // configure all logs (ie. root logger) to be written to sonar.log and also to the console with formatting
     // in practice, this will be only APP's own logs as logs from sub processes LOGGER_GOBBLER and LOGGER_GOBBLER
     // is configured below to be detached from root
@@ -181,7 +181,7 @@ public class AppLogging {
     // they must be printed to App's System.out as is (as they are already formatted)
     // logger is configured to be non additive as we don't want these logs to be written to sonar.log and duplicated in
     // the console (with an incorrect formatting)
-    configureGobbler(ctx);
+    configureGobbler(props, ctx);
   }
 
   /**
@@ -204,7 +204,7 @@ public class AppLogging {
     // them to sonar.log
     // logger is configured to be non additive as we don't want these logs written to sonar.log and duplicated in the
     // console with an incorrect formatting
-    configureGobbler(ctx);
+    configureGobbler(appSettings.getProps(), ctx);
   }
 
   private void configureRootWithLogbackWritingToFile(LoggerContext ctx) {
@@ -225,25 +225,14 @@ public class AppLogging {
    *   <li>write exclusively to App's System.out</li>
    * </ol>
    */
-  private void configureGobbler(LoggerContext ctx) {
+  private void configureGobbler(Props props, LoggerContext ctx) {
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     gobblerLogger.setAdditive(false);
-    Encoder<ILoggingEvent> encoder = createGobblerEncoder(ctx);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, APP_ROOT_LOGGER_CONFIG, ctx);
     gobblerLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, encoder));
   }
 
   private ConsoleAppender<ILoggingEvent> createAppConsoleAppender(LoggerContext ctx, Encoder<ILoggingEvent> encoder) {
     return helper.newConsoleAppender(ctx, APP_CONSOLE_APPENDER, encoder);
-  }
-
-  /**
-   * Simply displays the message received as input.
-   */
-  private static Encoder<ILoggingEvent> createGobblerEncoder(LoggerContext context) {
-    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setContext(context);
-    encoder.setPattern("%msg%n");
-    encoder.start();
-    return encoder;
   }
 }
