@@ -136,7 +136,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
             className={classNames('button button-primary big-spacer-right', {
               disabled: downloadStarted
             })}
-            download={[component.name, selectedBranch, 'PDF Report.zip']
+            download={[component.name, selectedBranch, 'regulatory report.zip']
               .filter(s => !!s)
               .join(' - ')}
             onClick={() => this.setState({ downloadStarted: true })}
