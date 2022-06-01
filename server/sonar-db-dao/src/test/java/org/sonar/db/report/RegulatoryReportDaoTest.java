@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -48,20 +49,23 @@ public class RegulatoryReportDaoTest {
   private final RegulatoryReportDao underTest = db.getDbClient().regulatoryReportDao();
   private ComponentDto project;
   private RuleDto rule;
+  private RuleDto hotspotRule;
   private ComponentDto file;
 
   @Before
   public void prepare() {
     rule = db.rules().insertRule();
+    hotspotRule = db.rules().insertHotspotRule();
     project = db.components().insertPrivateProject(t -> t.setProjectUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
     file = db.components().insertComponent(newFileDto(project).setUuid(FILE_UUID).setDbKey(FILE_KEY));
   }
 
   @Test
   public void scrollIssues_returns_all_non_closed_issues_for_project() {
-    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CONFIRMED").setResolution(null));
-    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG).setStatus("OPEN").setResolution(null));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setStatus("CONFIRMED").setResolution(null));
+    IssueDto issue3 = db.issues().insertHotspot(hotspotRule, project, file, i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
+    IssueDto issueCodeSmell = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.CODE_SMELL).setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
 
     // comments
     db.issues().insertChange(issue1, ic -> ic.setChangeData("c1").setIssueChangeCreationDate(1000L).setChangeType("comment"));

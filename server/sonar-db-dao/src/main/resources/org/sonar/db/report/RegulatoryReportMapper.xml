@@ -61,6 +61,8 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
     and i.status !='CLOSED'
+    <!--BUG, VULNERABILITY, SECURITY_HOTSPOT    -->
+    and i.issue_type in (2, 3, 4)
     order by i.kee, ic.issue_change_creation_date
   </select>
 </mapper>
