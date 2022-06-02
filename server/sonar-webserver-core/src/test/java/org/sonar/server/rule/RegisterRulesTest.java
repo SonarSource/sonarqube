@@ -47,6 +47,10 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.qualityprofile.QProfileChangeQuery;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
@@ -58,6 +62,7 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -74,6 +79,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -91,6 +97,7 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.builder;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
 @RunWith(DataProviderRunner.class)
 public class RegisterRulesTest {
@@ -126,8 +133,8 @@ public class RegisterRulesTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
-  private RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock(RuleDescriptionSectionsGenerator.class);
-  private RuleDescriptionSectionsGeneratorResolver resolver = mock(RuleDescriptionSectionsGeneratorResolver.class);
+  private final RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock(RuleDescriptionSectionsGenerator.class);
+  private final RuleDescriptionSectionsGeneratorResolver resolver = mock(RuleDescriptionSectionsGeneratorResolver.class);
 
   @Before
   public void before() {
@@ -989,6 +996,34 @@ public class RegisterRulesTest {
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The rule 'newKey1' of repository 'fake' is declared several times");
+  }
+
+  @Test
+  public void removed_rule_should_appear_in_changelog() {
+    //GIVEN
+    QProfileDto qProfileDto = db.qualityProfiles().insert();
+    RuleDto ruleDto = db.rules().insert(RULE_KEY1);
+    db.qualityProfiles().activateRule(qProfileDto, ruleDto);
+    ActiveRuleChange arChange = new ActiveRuleChange(DEACTIVATED, ActiveRuleDto.createFor(qProfileDto, ruleDto), ruleDto);
+    when(qProfileRules.deleteRule(any(DbSession.class), eq(ruleDto))).thenReturn(List.of(arChange));
+    //WHEN
+    execute(context -> context.createRepository("fake", "java").done());
+    //THEN
+    List<QProfileChangeDto> qProfileChangeDtos = dbClient.qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfileDto.getKee()));
+    assertThat(qProfileChangeDtos).extracting(QProfileChangeDto::getRulesProfileUuid, QProfileChangeDto::getChangeType)
+      .contains(tuple(qProfileDto.getRulesProfileUuid(), "DEACTIVATED"));
+  }
+
+  @Test
+  public void removed_rule_should_be_deleted_when_renamed_repository() {
+    //GIVEN
+    RuleDto removedRuleDto = db.rules().insert(RuleKey.of("old_repo", "removed_rule"));
+    RuleDto renamedRuleDto = db.rules().insert(RuleKey.of("old_repo", "renamed_rule"));
+    //WHEN
+    execute(context -> createRule(context, "java", "new_repo", renamedRuleDto.getRuleKey(),
+      rule -> rule.addDeprecatedRuleKey(renamedRuleDto.getRepositoryKey(), renamedRuleDto.getRuleKey())));
+    //THEN
+    verify(qProfileRules).deleteRule(any(DbSession.class), eq(removedRuleDto));
   }
 
   private void execute(RulesDefinition... defs) {

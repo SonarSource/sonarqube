@@ -51,7 +51,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -143,6 +142,7 @@ public class RegisterRules implements Startable {
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDto::getUuid).collect(toSet()));
+      changes.forEach(arChange -> dbClient.qProfileChangeDao().insert(dbSession, arChange.toDto(null)));
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       registerRulesContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
@@ -779,21 +779,27 @@ public class RegisterRules implements Startable {
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
   private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, RegisterRulesContext recorder, List<RulesDefinition.Repository> context) {
-    List<String> repositoryKeys = context.stream()
-      .map(RulesDefinition.ExtendedRepository::key)
-      .collect(MoreCollectors.toList(context.size()));
-
+    Set<String> existingAndRenamedRepositories = getExistingAndRenamedRepositories(recorder, context);
     List<ActiveRuleChange> changes = new ArrayList<>();
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
-    recorder.getRemoved().forEach(rule -> {
-      // SONAR-4642 Remove active rules only when repository still exists
-      if (repositoryKeys.contains(rule.getRepositoryKey())) {
+
+    recorder.getRemoved()
+      .filter(rule -> existingAndRenamedRepositories.contains(rule.getRepositoryKey()))
+      .forEach(rule -> {
+        // SONAR-4642 Remove active rules only when repository still exists
         profiler.start();
         changes.addAll(qProfileRules.deleteRule(dbSession, rule));
         profiler.stopDebug(format("Remove active rule for rule %s", rule.getKey()));
-      }
-    });
+      });
+
     return changes;
+  }
+
+  private Set<String> getExistingAndRenamedRepositories(RegisterRulesContext recorder, Collection<RulesDefinition.Repository> context) {
+    return Stream.concat(
+        context.stream().map(RulesDefinition.ExtendedRepository::key),
+        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+      .collect(toSet());
   }
 
   private void update(DbSession session, RuleDto rule) {
