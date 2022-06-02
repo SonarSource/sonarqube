@@ -56,7 +56,7 @@ All these MBeans are read-only. It's not possible to modify or reset their value
 | ---|---
 | ProcessingTime | Measure the time (in ms) spent to process Background Tasks since the last restart of SonarQube. Its value will always increase and will be reset by a restart of SonarQube.  This measure is very powerful when combined with SuccessCount and ErrorCount measures to get the average time to handle a Background Task, or when used to understand how much time the SonarQube Server is spending during a day to handle Background Tasks. It gives you an indication of the load on your server.
 | ErrorCount | Number of Background Tasks which failed since the last restart of SonarQube
-| PendingCount | Number of Background Tasks waiting to be processed since the last restart of SonarQube
+| PendingCount | Number of Background Tasks waiting to be processed since the last restart of SonarQube. This measure is the same for all Compute Engine workers since Background Tasks are waiting in a common queue.
 | InProgressCount | Number of Background Tasks currently under processing. Its value is either 1 or 0, since SonarQube can process only one task at a time.
 | SuccessCount | Number of Background Tasks successfully processed since the last restart of SonarQube
 | WorkerCount | Number of Background Tasks that can be processed at the same time
@@ -133,7 +133,7 @@ admin  adminpassword
 
 Note: on `jmxremote.password`, you should apply `chmod 600` or `400` for security reasons.
 
-## Kubernetes Monitoring
+## Prometheus Monitoring
 You can monitor your SonarQube instance using SonarQube's native integration with Prometheus. Through this integration, you can ensure your instance is running properly and know if you need to take action to prevent future issues. 
 
 Prometheus monitors your SonarQube instance by collecting metrics from the `/api/monitoring/metrics` endpoint. Results are returned in OpenMetrics text format. See Prometheus' documentation on [Exposition Formats](https://prometheus.io/docs/instrumenting/exposition_formats/) for more information on the OpenMetrics text format. 

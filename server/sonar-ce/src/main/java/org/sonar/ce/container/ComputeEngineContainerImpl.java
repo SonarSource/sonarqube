@@ -52,7 +52,6 @@ import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
-import org.sonar.ce.monitoring.DistributedCEQueueStatusImpl;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.platform.DatabaseCompatibility;
@@ -422,6 +421,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // System
       ServerLogging.class,
+      CEQueueStatusImpl.class,
 
       // SonarSource editions
       PlatformEditionProvider.class,
@@ -456,8 +456,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // no cleaning job on sonarcloud and no distributed information
       container.add(
         NoopCeCleaningSchedulerImpl.class,
-        StandaloneCeDistributedInformation.class,
-        CEQueueStatusImpl.class);
+        StandaloneCeDistributedInformation.class);
     } else if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       container.add(
         new CeCleaningModule(),
@@ -467,14 +466,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
         // system info
         DbSection.class,
-        ProcessInfoProvider.class,
-
-        DistributedCEQueueStatusImpl.class);
+        ProcessInfoProvider.class);
     } else {
       container.add(
         new CeCleaningModule(),
-        StandaloneCeDistributedInformation.class,
-        CEQueueStatusImpl.class);
+        StandaloneCeDistributedInformation.class);
     }
   }
 
