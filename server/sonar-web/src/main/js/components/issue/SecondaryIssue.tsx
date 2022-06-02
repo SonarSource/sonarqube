@@ -32,7 +32,7 @@ export default function SecondaryIssue(props: SecondaryIssueProps) {
   const { issue } = props;
   return (
     <div
-      className="issue display-flex-row display-flex-center padded-right"
+      className="issue display-flex-row display-flex-center padded-right secondary-issue"
       key={issue.key}
       onClick={() => props.onClick(issue.key)}
       role="region"

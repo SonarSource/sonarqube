@@ -30,6 +30,10 @@
   cursor: initial;
 }
 
+.issue.secondary-issue {
+  background-color: var(--secondIssueBgColor);
+}
+
 .issue.hotspot {
   background-color: var(--hotspotBgColor);
 }

@@ -73,6 +73,7 @@ module.exports = {
     leakSecondaryColor: '#f1e8cb',
 
     // issues
+    secondIssueBgColor: '#f8eeee',
     issueBgColor: '#f2dede',
     hotspotBgColor: '#eeeff4',
     issueLocationSelected: '#f4b1b0',
