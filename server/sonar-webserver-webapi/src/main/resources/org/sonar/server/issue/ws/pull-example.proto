@@ -1,0 +1,29 @@
+# The response contains a single protocol buffer message: IssuesPullQueryTimestamp followed by 0..n number of IssueLite protocol buffer messages.
+message IssuesPullQueryTimestamp {
+  required int64 queryTimestamp = 1;
+}
+
+message IssueLite {
+  required string key = 1;
+  optional int64 creationDate = 2;
+  optional bool resolved = 3;
+  optional string ruleKey = 4;
+  optional string userSeverity = 5;
+  optional string type = 6;
+  optional Location mainLocation = 7;
+  optional bool closed = 8;
+}
+
+message Location {
+  optional string filePath = 1;
+  optional string message = 2;
+  optional TextRange textRange = 3;
+}
+
+message TextRange {
+  optional int32 startLine = 1;
+  optional int32 startLineOffset = 2;
+  optional int32 endLine = 3;
+  optional int32 endLineOffset = 4;
+  optional string hash = 5;
+}

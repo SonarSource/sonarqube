@@ -65,6 +65,7 @@ public class PullAction implements IssuesWsAction {
       .createAction(ACTION_PULL)
       .setHandler(this)
       .setInternal(true)
+      .setResponseExample(getClass().getResource("pull-example.proto"))
       .setDescription("This endpoint fetches and returns all (unless filtered by optional params) the issues for a given branch." +
         "The issues returned are not paginated, so the response size can be big.")
       .setSince("9.5");
