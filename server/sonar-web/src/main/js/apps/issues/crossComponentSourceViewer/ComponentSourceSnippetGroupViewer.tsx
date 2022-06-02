@@ -26,6 +26,7 @@ import { locationsByLine } from '../../../components/SourceViewer/helpers/indexi
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { isFile } from '../../../types/component';
 import {
   Dict,
   Duplication,
@@ -423,7 +424,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       <div className="component-source-container" ref={this.rootNodeRef}>
         <SourceViewerHeaderSlim
           branchLike={branchLike}
-          expandable={!fullyShown}
+          expandable={!fullyShown && isFile(snippetGroup.component.q)}
           loading={loading}
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
