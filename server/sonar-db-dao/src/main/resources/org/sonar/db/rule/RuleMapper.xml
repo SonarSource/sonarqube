@@ -3,17 +3,7 @@
 
 <mapper namespace="org.sonar.db.rule.RuleMapper">
 
-  <sql id="leftOuterJoinRulesDescriptionSections">
-    left outer join rule_desc_sections rds on
-      rds.rule_uuid = r.uuid
-  </sql>
-
-  <sql id="selectJoinedTablesColumns">
-    rds.content as "rds_content",
-    rds.uuid as "rds_uuid",
-    rds.kee as "rds_kee",
-
-    r.uuid as "r_uuid",
+  <sql id="ruleColumns">
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
     r.description_format as "descriptionFormat",
@@ -49,6 +39,20 @@
     r.ad_hoc_description as "adHocDescription",
     r.ad_hoc_severity as "adHocSeverity",
     r.ad_hoc_type as "adHocType"
+  </sql>
+
+  <sql id="leftOuterJoinRulesDescriptionSections">
+    left outer join rule_desc_sections rds on
+      rds.rule_uuid = r.uuid
+  </sql>
+
+  <sql id="selectJoinedTablesColumns">
+    rds.content as "rds_content",
+    rds.uuid as "rds_uuid",
+    rds.kee as "rds_kee",
+    r.uuid as "r_uuid",
+
+    <include refid="ruleColumns"/>
   </sql>
 
   <select id="selectAll" resultMap="ruleResultMap">
@@ -189,6 +193,18 @@
     <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and r.language in
     <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+  </select>
+
+  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+      r.uuid as uuid,
+      <include refid="ruleColumns"/>
+    from
+      rules r
+    where
+      r.status in ('READY', 'DEPRECATED')
+      and r.is_external=${_false}
+      and r.language=#{language, jdbcType=VARCHAR}
   </select>
 
   <insert id="insertRuleDescriptionSection" parameterType="Map" useGeneratedKeys="false">

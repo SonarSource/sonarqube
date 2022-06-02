@@ -288,6 +288,39 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void selectByLanguage() {
+    RuleDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+        .setType(RuleType.VULNERABILITY)
+        .setLanguage("java"));
+
+    RuleDto rule2 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("js", "S002"))
+        .setType(RuleType.SECURITY_HOTSPOT)
+        .setLanguage("js"));
+
+    RuleDto rule3 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S003"))
+        .setType(RuleType.BUG)
+        .setLanguage("java"));
+
+    assertThat(underTest.selectByLanguage(db.getSession(), "java")).hasSize(2);
+
+    assertThat(underTest.selectByLanguage(db.getSession(), "java"))
+      .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getUuid(), "java", RuleType.VULNERABILITY.getDbConstant()),
+        tuple(rule3.getUuid(), "java", RuleType.BUG.getDbConstant())
+      );
+
+    assertThat(underTest.selectByLanguage(db.getSession(), "js")).hasSize(1);
+
+    assertThat(underTest.selectByLanguage(db.getSession(), "js"))
+      .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(rule2.getUuid(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
+  }
+
+  @Test
   public void selectByTypeAndLanguages_return_nothing_when_no_rule_on_languages() {
     db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))

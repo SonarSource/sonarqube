@@ -20,32 +20,25 @@
 package org.sonar.db.qualityprofile;
 
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.SeverityUtil;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -404,55 +397,6 @@ public class QualityProfileDaoTest {
     assertThat(result.getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
-  }
-
-  @Test
-  public void selectQualityProfileFindings_returns_all_quality_profile_details_for_project() {
-    String projectUuid = "project_uuid";
-    String projectKey = "project_key";
-    String branchUuid = "branch_uuid";
-    String branchName = "branch";
-
-    BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.BRANCH)
-      .setKey(branchName)
-      .setUuid(branchUuid)
-      .setProjectUuid(projectUuid);
-
-    db.getDbClient().branchDao().insert(db.getSession(), branch);
-
-    ProjectDto project = db.components().insertPublicProjectDto(t -> t.setProjectUuid(projectUuid)
-      .setUuid(projectUuid)
-      .setDbKey(projectKey)
-      .setMainBranchProjectUuid(branchUuid));
-
-    QProfileDto cppQPWithoutActiveRules = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage("cpp"));
-    db.qualityProfiles().setAsDefault(cppQPWithoutActiveRules);
-
-    QProfileDto javaBuiltInQPWithActiveRules = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage("java"));
-    RuleDto rule1 = db.rules().insert(r -> r.setName("rule 1 title"));
-    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(javaBuiltInQPWithActiveRules, rule1);
-    RuleDto rule2 = db.rules().insert(r -> r.setName("rule 2 title"));
-    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(javaBuiltInQPWithActiveRules, rule2);
-    RuleDto rule3 = db.rules().insert(r -> r.setName("rule 3 title"));
-    ActiveRuleDto activeRule3 = db.qualityProfiles().activateRule(javaBuiltInQPWithActiveRules, rule3);
-
-    db.qualityProfiles().associateWithProject(project, cppQPWithoutActiveRules, javaBuiltInQPWithActiveRules);
-    db.getSession().commit();
-
-    List<QualityProfileFindingDto> findings = new ArrayList<>();
-    underTest.selectQualityProfileFindings(db.getSession(), javaBuiltInQPWithActiveRules.getKee(), result -> findings.add(result.getResultObject()));
-
-    QualityProfileFindingDto finding = findings.stream().filter(f -> f.getTitle().equals("rule 1 title")).findFirst().get();
-
-    assertThat(findings).hasSize(3);
-    assertThat(findings.stream().map(f -> f.getTitle()).collect(Collectors.toSet())).containsExactlyInAnyOrder("rule 1 title", "rule 2 title", "rule 3 title");
-    assertThat(finding.getLanguage()).isEqualTo(rule1.getLanguage());
-    assertThat(finding.getTitle()).isEqualTo(rule1.getName());
-    assertThat(finding.getReferenceKey()).isEqualTo(RuleKey.of(rule1.getRepositoryKey(), rule1.getRuleKey()));
-    assertThat(finding.getStatus()).isEqualTo(rule1.getStatus());
-    assertThat(finding.getType()).isEqualTo(RuleType.valueOf(rule1.getType()));
-    assertThat(finding.getSeverity()).isEqualTo(SeverityUtil.getSeverityFromOrdinal(activeRule1.getSeverity()));
   }
 
   @Test

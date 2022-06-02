@@ -94,10 +94,6 @@ public interface QualityProfileMapper {
 
   List<String> selectQProfileUuidsByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void selectQualityProfileFindings(
-    @Param("qualityProfileUuid") String qualityProfileUuid,
-    @Param("handler") ResultHandler<QualityProfileFindingDto> handler);
-
   void insertProjectProfileAssociation(
     @Param("uuid") String uuid,
     @Param("projectUuid") String projectUuid,

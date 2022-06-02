@@ -46,6 +46,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectByTypeAndLanguages(@Param("types") List<Integer> types, @Param("languages") List<String> languages);
 
+  List<RuleDto> selectByLanguage(@Param("language") String language);
+
   void insertRule(RuleDto ruleDefinitionDto);
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);

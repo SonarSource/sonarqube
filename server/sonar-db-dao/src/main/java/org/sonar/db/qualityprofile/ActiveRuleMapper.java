@@ -85,4 +85,6 @@ public interface ActiveRuleMapper {
   void scrollByUuidsForIndexing(@Param("uuids") Collection<String> uuids, ResultHandler<IndexedActiveRuleDto> handler);
 
   void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
+
+  List<OrgActiveRuleDto> selectByQualityProfileUuid(@Param("qualityProfileUuid") String qualityProfileUuid);
 }
