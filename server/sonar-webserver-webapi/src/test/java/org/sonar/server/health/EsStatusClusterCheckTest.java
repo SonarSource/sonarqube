@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 
 public class EsStatusClusterCheckTest {
 
@@ -56,11 +57,37 @@ public class EsStatusClusterCheckTest {
   public void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.YELLOW));
     when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.GREEN);
+    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(3);
 
     Health health = underTest.check(nodeHealths);
 
     assertThat(health).isEqualTo(Health.GREEN);
   }
+
+  @Test
+  public void check_returns_YELLOW_with_cause_if_ES_cluster_has_less_than_three_nodes_but_status_is_green() {
+    Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(GREEN));
+    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.GREEN);
+    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(2);
+
+    Health health = underTest.check(nodeHealths);
+
+    assertThat(health.getStatus()).isEqualTo(Health.Status.YELLOW);
+    assertThat(health.getCauses()).containsOnly("There should be at least three search nodes");
+  }
+
+  @Test
+  public void check_returns_RED_with_cause_if_ES_cluster_has_less_than_three_nodes_and_status_is_RED() {
+    Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(GREEN));
+    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.RED);
+    when(esClient.clusterHealth(any()).getNumberOfNodes()).thenReturn(2);
+
+    Health health = underTest.check(nodeHealths);
+
+    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
+    assertThat(health.getCauses()).contains("Elasticsearch status is RED", "There should be at least three search nodes");
+  }
+
 
   private NodeHealth newNodeHealth(NodeHealth.Status status) {
     return NodeHealth.newNodeHealthBuilder()

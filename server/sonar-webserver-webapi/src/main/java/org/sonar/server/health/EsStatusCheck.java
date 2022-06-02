@@ -20,6 +20,7 @@
 package org.sonar.server.health;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -38,7 +39,7 @@ abstract class EsStatusCheck {
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED")
     .build();
-  private static final Health RED_HEALTH_UNAVAILABLE = newHealthCheckBuilder()
+  protected static final Health RED_HEALTH_UNAVAILABLE = newHealthCheckBuilder()
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED (unavailable)")
     .build();
@@ -49,25 +50,30 @@ abstract class EsStatusCheck {
     this.esClient = esClient;
   }
 
-  Health checkEsStatus() {
+  protected ClusterHealthResponse getEsClusterHealth() {
     try {
-      ClusterHealthStatus esStatus = esClient.clusterHealth(new ClusterHealthRequest()).getStatus();
-      if (esStatus == null) {
-        return RED_HEALTH_UNAVAILABLE;
-      }
-      switch (esStatus) {
-        case GREEN:
-          return Health.GREEN;
-        case YELLOW:
-          return YELLOW_HEALTH;
-        case RED:
-          return RED_HEALTH;
-        default:
-          throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
-      }
+      return esClient.clusterHealth(new ClusterHealthRequest());
     } catch (Exception e) {
       LOG.error("Failed to query ES status", e);
-      return RED_HEALTH_UNAVAILABLE;
+      return null;
     }
   }
+
+  protected static Health extractStatusHealth(ClusterHealthResponse healthResponse) {
+    ClusterHealthStatus esStatus = healthResponse.getStatus();
+    if (esStatus == null) {
+      return RED_HEALTH_UNAVAILABLE;
+    }
+    switch (esStatus) {
+      case GREEN:
+        return Health.GREEN;
+      case YELLOW:
+        return YELLOW_HEALTH;
+      case RED:
+        return RED_HEALTH;
+      default:
+        throw new IllegalArgumentException("Unsupported Elasticsearch status " + esStatus);
+    }
+  }
+
 }

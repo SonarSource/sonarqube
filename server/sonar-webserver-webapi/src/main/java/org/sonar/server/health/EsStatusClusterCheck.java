@@ -20,10 +20,13 @@
 package org.sonar.server.health;
 
 import java.util.Set;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
 
 public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealthCheck {
+  private static final String MINIMUM_NODE_MESSAGE = "There should be at least three search nodes";
+  private static final int RECOMMENDED_MIN_NUMBER_OF_ES_NODES = 3;
 
   public EsStatusClusterCheck(EsClient esClient) {
     super(esClient);
@@ -31,7 +34,24 @@ public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealth
 
   @Override
   public Health check(Set<NodeHealth> nodeHealths) {
-    return checkEsStatus();
+    ClusterHealthResponse esClusterHealth = this.getEsClusterHealth();
+    if (esClusterHealth != null) {
+      Health minimumNodes = checkMinimumNodes(esClusterHealth);
+      Health clusterStatus = extractStatusHealth(esClusterHealth);
+      return HealthReducer.INSTANCE.apply(minimumNodes, clusterStatus);
+    }
+    return RED_HEALTH_UNAVAILABLE;
+  }
+
+  private static Health checkMinimumNodes(ClusterHealthResponse esClusterHealth) {
+    int nodeCount = esClusterHealth.getNumberOfNodes();
+    if (nodeCount < RECOMMENDED_MIN_NUMBER_OF_ES_NODES) {
+      return Health.newHealthCheckBuilder()
+        .setStatus(Health.Status.YELLOW)
+        .addCause(MINIMUM_NODE_MESSAGE)
+        .build();
+    }
+    return Health.GREEN;
   }
 
 }
