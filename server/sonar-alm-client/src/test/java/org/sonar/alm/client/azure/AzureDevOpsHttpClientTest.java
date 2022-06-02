@@ -137,7 +137,7 @@ public class AzureDevOpsHttpClientTest {
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get projects : [" + server.url("").toString() + "_apis/projects?api-version=3.0]");
+      .contains("get projects : [" + server.url("") + "_apis/projects?api-version=3.0]");
     assertThat(projects.getValues()).hasSize(2);
     assertThat(projects.getValues())
       .extracting(GsonAzureProject::getName, GsonAzureProject::getDescription)
@@ -151,6 +151,10 @@ public class AzureDevOpsHttpClientTest {
     assertThatThrownBy(() -> underTest.getProjects(server.url("").toString(), "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(UNABLE_TO_CONTACT_AZURE);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+      .contains("Response from Azure for request [" + server.url("") + "_apis/projects?api-version=3.0] could not be parsed:");
   }
 
   @Test
@@ -160,6 +164,23 @@ public class AzureDevOpsHttpClientTest {
     assertThatThrownBy(() -> underTest.getProjects(server.url("").toString(), "invalid-token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid personal access token");
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+      .contains("Unable to contact Azure DevOps server for request [" + server.url("") + "_apis/projects?api-version=3.0]: Invalid personal access token");
+  }
+
+  @Test
+  public void get_projects_with_invalid_url() {
+    enqueueResponse(404);
+
+    assertThatThrownBy(() -> underTest.getProjects(server.url("").toString(), "invalid-token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid Azure URL");
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+      .contains("Unable to contact Azure DevOps server for request [" + server.url("") + "_apis/projects?api-version=3.0]: URL Not Found");
   }
 
   @Test
@@ -169,6 +190,10 @@ public class AzureDevOpsHttpClientTest {
     assertThatThrownBy(() -> underTest.getProjects(server.url("").toString(), "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unable to contact Azure DevOps server");
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR).iterator().next())
+      .contains("Azure API call to [" + server.url("") + "_apis/projects?api-version=3.0] failed with 500 http code. Azure response content :");
   }
 
   @Test

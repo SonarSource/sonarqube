@@ -108,6 +108,7 @@ public class AzureDevOpsHttpClient {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
     } catch (IOException e) {
+      LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: [%s]", request.url(), e.getMessage()));
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER, e);
     }
   }
@@ -122,8 +123,12 @@ public class AzureDevOpsHttpClient {
       checkResponseIsSuccessful(response);
       return handler.apply(response);
     } catch (JsonSyntaxException e) {
+      LOG.error(String.format("Response from Azure for request [%s] could not be parsed: [%s]",
+        request.url(),
+        e.getMessage()));
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER + ", got an unexpected response", e);
     } catch (IOException e) {
+      LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: [%s]", request.url(), e.getMessage()));
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER, e);
     }
   }
@@ -138,14 +143,22 @@ public class AzureDevOpsHttpClient {
 
   protected static void checkResponseIsSuccessful(Response response) throws IOException {
     if (!response.isSuccessful()) {
-      LOG.debug(UNABLE_TO_CONTACT_AZURE_SERVER + ": {} {}", response.request().url().toString(), response.code());
       if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: Invalid personal access token",
+          response.request().url()));
         throw new AzureDevopsServerException(response.code(), "Invalid personal access token");
       }
+
+      if (response.code() == HttpURLConnection.HTTP_NOT_FOUND) {
+        LOG.error(String.format(UNABLE_TO_CONTACT_AZURE_SERVER + " for request [%s]: URL Not Found",
+          response.request().url()));
+        throw new AzureDevopsServerException(response.code(), "Invalid Azure URL");
+      }
+
       ResponseBody responseBody = response.body();
       String body = responseBody == null ? "" : responseBody.string();
       String errorMessage = generateErrorMessage(body, UNABLE_TO_CONTACT_AZURE_SERVER);
-      LOG.info(String.format("Azure API call to [%s] failed with %s http code. Azure response content : [%s]", response.request().url().toString(), response.code(), body));
+      LOG.error(String.format("Azure API call to [%s] failed with %s http code. Azure response content : [%s]", response.request().url(), response.code(), body));
       throw new AzureDevopsServerException(response.code(), errorMessage);
     }
   }
