@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -52,6 +53,8 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
@@ -67,11 +70,13 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.apache.commons.lang.StringUtils.trim;
 
 public class MigratePortfoliosToNewTables extends DataChange {
+  private static final Logger LOG = Loggers.get(MigratePortfoliosToNewTables.class);
   private static final String SELECT_DEFAULT_VISIBILITY = "select text_value from properties where prop_key = 'projects.default.visibility'";
   private static final String SELECT_UUID_VISIBILITY_BY_COMPONENT_KEY = "select c.uuid, c.private from components c where c.kee = ?";
   private static final String SELECT_PORTFOLIO_UUID_AND_SELECTION_MODE_BY_KEY = "select uuid,selection_mode from portfolios where kee = ?";
@@ -80,6 +85,11 @@ public class MigratePortfoliosToNewTables extends DataChange {
   private static final String SELECT_PROJECT_UUIDS_BY_KEYS = "select p.uuid,p.kee from projects p where p.kee in (PLACEHOLDER)";
   private static final String VIEWS_DEF_KEY = "views.def";
   private static final String PLACEHOLDER = "PLACEHOLDER";
+
+  protected static final String PORTFOLIO_CONSISTENCY_ERROR = "Some issues were found in portfolio definition. Please verify "
+    + VIEWS_DEF_KEY + " consistency in internal_properties datatable";
+  protected static final String PORTFOLIO_ROOT_NOT_FOUND = "root with key: %s not found for portfolio with name: %s and key: %s";
+  protected static final String PORTFOLIO_PARENT_NOT_FOUND = "parent with key: %s not found for portfolio with name: %s and key: %s";
 
   private final UuidFactory uuidFactory;
   private final System2 system;
@@ -113,14 +123,8 @@ public class MigratePortfoliosToNewTables extends DataChange {
       Map<String, ViewXml.ViewDef> portfolioXmlMap = ViewXml.parse(xml);
       List<ViewXml.ViewDef> portfolios = new LinkedList<>(portfolioXmlMap.values());
 
-      Map<String, PortfolioDb> portfolioDbMap = new HashMap<>();
-      for (ViewXml.ViewDef portfolio : portfolios) {
-        PortfolioDb createdPortfolio = insertPortfolio(context, portfolio);
-        if (createdPortfolio.selectionMode == SelectionMode.MANUAL) {
-          insertPortfolioProjects(context, portfolio, createdPortfolio);
-        }
-        portfolioDbMap.put(createdPortfolio.kee, createdPortfolio);
-      }
+      Map<String, PortfolioDb> portfolioDbMap = buildPortfolioDbMap(context, portfolios);
+      verifyPortfoliosConsistency(portfolios, portfolioDbMap);
       // all portfolio has been created and new uuids assigned
       // update portfolio hierarchy parent/root
       insertReferences(context, portfolioXmlMap, portfolioDbMap);
@@ -128,6 +132,18 @@ public class MigratePortfoliosToNewTables extends DataChange {
     } catch (Exception e) {
       throw new IllegalStateException("Failed to migrate views definitions property.", e);
     }
+  }
+
+  private Map<String, PortfolioDb> buildPortfolioDbMap(Context context, List<ViewDef> portfolios) throws SQLException {
+    Map<String, PortfolioDb> portfolioDbMap = new HashMap<>();
+    for (ViewDef portfolio : portfolios) {
+      PortfolioDb createdPortfolio = insertPortfolio(context, portfolio);
+      if (createdPortfolio.selectionMode == SelectionMode.MANUAL) {
+        insertPortfolioProjects(context, portfolio, createdPortfolio);
+      }
+      portfolioDbMap.put(createdPortfolio.kee, createdPortfolio);
+    }
+    return portfolioDbMap;
   }
 
   private PortfolioDb insertPortfolio(Context context, ViewXml.ViewDef portfolioFromXml) throws SQLException {
@@ -215,14 +231,44 @@ public class MigratePortfoliosToNewTables extends DataChange {
     return DatabaseUtils.executeLargeInputs(projectKeysToBeAdded, keys -> {
       try {
         String selectQuery = SELECT_PROJECT_UUIDS_BY_KEYS.replace(PLACEHOLDER,
-          keys.stream().map(key -> "'" + key + "'").collect(
-            Collectors.joining(",")));
+          keys.stream().map(key -> "'" + key + "'").collect(joining(",")));
         return context.prepareSelect(selectQuery)
           .list(r -> new ProjectDb(r.getString(1), r.getString(2)));
       } catch (SQLException e) {
         throw new IllegalStateException("Could not execute 'in' query", e);
       }
     });
+  }
+
+  private static void verifyPortfoliosConsistency(Collection<ViewDef> portfolios, Map<String, PortfolioDb> portfolioDbMap) {
+    List<String> errors = findConsistencyErrors(portfolios, portfolioDbMap);
+    if (!errors.isEmpty()) {
+      LOG.error(PORTFOLIO_CONSISTENCY_ERROR);
+      errors.forEach(LOG::error);
+      throw new IllegalStateException();
+    }
+  }
+
+  private static List<String> findConsistencyErrors(Collection<ViewDef> portfolios, Map<String, PortfolioDb> portfolioDbMap) {
+    return portfolios.stream()
+      .flatMap(portfolio -> findConsistencyErrors(portfolio, portfolioDbMap).stream())
+      .collect(Collectors.toList());
+  }
+
+  private static List<String> findConsistencyErrors(ViewDef portfolio, Map<String, PortfolioDb> portfolioDbMap) {
+    List<String> errors = new ArrayList<>();
+
+    String root = portfolio.root;
+    if (root != null && !portfolioDbMap.containsKey(root)) {
+      errors.add(String.format(PORTFOLIO_ROOT_NOT_FOUND, root, portfolio.name, portfolio.key));
+    }
+
+    String parent = portfolio.parent;
+    if (parent != null && !portfolioDbMap.containsKey(parent)) {
+      errors.add(String.format(PORTFOLIO_PARENT_NOT_FOUND, parent, portfolio.name, portfolio.key));
+    }
+
+    return errors;
   }
 
   private void insertReferences(Context context, Map<String, ViewDef> portfolioXmlMap,

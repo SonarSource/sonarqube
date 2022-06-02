@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
@@ -34,7 +36,11 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.server.platform.db.migration.version.v91.MigratePortfoliosToNewTables.PORTFOLIO_CONSISTENCY_ERROR;
+import static org.sonar.server.platform.db.migration.version.v91.MigratePortfoliosToNewTables.PORTFOLIO_PARENT_NOT_FOUND;
+import static org.sonar.server.platform.db.migration.version.v91.MigratePortfoliosToNewTables.PORTFOLIO_ROOT_NOT_FOUND;
 
 public class MigratePortfoliosToNewTablesTest {
   static final int TEXT_VALUE_MAX_LENGTH = 4000;
@@ -42,6 +48,9 @@ public class MigratePortfoliosToNewTablesTest {
 
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(MigratePortfoliosToNewTablesTest.class, "schema.sql");
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final System2 system2 = new TestSystem2().setNow(NOW);
@@ -183,6 +192,26 @@ public class MigratePortfoliosToNewTablesTest {
     + "    <tag_key>tag-key</tag_key>\n"
     + "    <tag_value>tag-value</tag_value>\n"
     + "  </vw>"
+    + "</views>";
+
+  private final String SIMPLE_XML_PORTFOLIOS_WRONG_HIERARCHY = "<views>"
+    + "  <vw key=\"port1\" def=\"false\">\n"
+    + "    <name><![CDATA[port1]]></name>\n"
+    + "    <desc><![CDATA[port1]]></desc>\n"
+    + "    <qualifier><![CDATA[VW]]></qualifier>\n"
+    + "  </vw>\n"
+    + "  <vw key=\"port2\" def=\"false\" root=\"NON_EXISTING_ROOT\" parent=\"port1\">\n"
+    + "    <name><![CDATA[port2]]></name>\n"
+    + "    <desc><![CDATA[port2]]></desc>\n"
+    + "  </vw>\n"
+    + "  <vw key=\"port3\" def=\"false\" root=\"port1\" parent=\"NON_EXISTING_PARENT\">\n"
+    + "    <name><![CDATA[port3]]></name>\n"
+    + "    <desc><![CDATA[port3]]></desc>\n"
+    + "  </vw>\n"
+    + "  <vw key=\"port4\" def=\"false\" root=\"port3\" parent=\"port3\">\n"
+    + "    <name><![CDATA[port4]]></name>\n"
+    + "    <desc><![CDATA[port4]]></desc>\n"
+    + "  </vw>\n"
     + "</views>";
 
   @Test
@@ -382,6 +411,28 @@ public class MigratePortfoliosToNewTablesTest {
       .containsExactlyInAnyOrder(
         tuple("port-language", "NONE", null),
         tuple("port-tag-value", "NONE", null));
+  }
+
+  @Test
+  public void migrate_xml_should_have_explicite_error_log_when_portfolio_hierarchy_nonexistent() {
+    //GIVEN
+    insertViewsDefInternalProperty(SIMPLE_XML_PORTFOLIOS_WRONG_HIERARCHY);
+    //WHEN, THEN
+    assertThatThrownBy(underTest::execute).isInstanceOf(IllegalStateException.class);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).containsExactly(
+      PORTFOLIO_CONSISTENCY_ERROR,
+      String.format(PORTFOLIO_ROOT_NOT_FOUND, "NON_EXISTING_ROOT", "port2", "port2"),
+      String.format(PORTFOLIO_PARENT_NOT_FOUND, "NON_EXISTING_PARENT", "port3", "port3"));
+  }
+
+  @Test
+  public void migrate_xml_should_not_have_explicite_error_log() throws SQLException {
+    //GIVEN
+    insertViewsDefInternalProperty(SIMPLE_XML_PORTFOLIOS_HIERARCHY);
+    //WHEN
+    underTest.execute();
+    //THEN
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   private void insertProject(String uuid, String key, String qualifier) {
