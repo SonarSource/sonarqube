@@ -36,7 +36,7 @@ interface Props {
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck?: (issue: string) => void;
-  onClick: (issueKey: string) => void;
+  onClick?: (issueKey: string) => void;
   onFilter?: (property: string, issue: TypeIssue) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup?: string;

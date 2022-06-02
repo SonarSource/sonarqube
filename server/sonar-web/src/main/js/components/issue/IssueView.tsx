@@ -40,7 +40,7 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   onCheck?: (issue: string) => void;
-  onClick: (issueKey: string) => void;
+  onClick?: (issueKey: string) => void;
   onFilter?: (property: string, issue: Issue) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
@@ -82,6 +82,7 @@ export default class IssueView extends React.PureComponent<Props> {
     const hasCheckbox = this.props.onCheck != null;
 
     const issueClass = classNames('issue', {
+      'no-click': this.props.onClick === undefined,
       hotspot: issue.type === 'SECURITY_HOTSPOT',
       'issue-with-checkbox': hasCheckbox,
       selected: this.props.selected

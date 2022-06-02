@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { noop } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../api/components';
 import Issue from '../../../components/issue/Issue';
@@ -333,7 +332,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
                   issue={issueToDisplay}
                   key={issueToDisplay.key}
                   onChange={this.props.onIssueChange}
-                  onClick={noop}
                   onPopupToggle={this.props.onIssuePopupToggle}
                   openPopup={
                     this.props.issuePopup && this.props.issuePopup.issue === issueToDisplay.key
@@ -435,7 +433,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             <Issue
               issue={issue}
               onChange={this.props.onIssueChange}
-              onClick={noop}
               onPopupToggle={this.props.onIssuePopupToggle}
               openPopup={issuePopup && issuePopup.issue === issue.key ? issuePopup.name : undefined}
               selected={true}
