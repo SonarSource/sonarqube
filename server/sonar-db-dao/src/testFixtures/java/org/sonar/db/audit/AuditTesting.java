@@ -44,7 +44,7 @@ public class AuditTesting {
     auditDto.setUuid(randomAlphanumeric(20));
     auditDto.setUserUuid(randomAlphanumeric(40));
     auditDto.setUserLogin(randomAlphanumeric(40));
-    auditDto.setNewValue("{ \"someKey\": \"someValue\" }");
+    auditDto.setNewValue("{ \"someKey\": \"someValue\",  \"anotherKey\": \"anotherValue\\\n\t\b\f\r\"}");
     auditDto.setOperation(operation);
     auditDto.setCategory("category");
     auditDto.setCreatedAt(createdAt);
