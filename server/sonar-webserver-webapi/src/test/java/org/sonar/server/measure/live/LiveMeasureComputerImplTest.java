@@ -49,6 +49,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
@@ -88,6 +89,8 @@ public class LiveMeasureComputerImplTest {
   private ComponentDto dir;
   private ComponentDto file1;
   private ComponentDto file2;
+  private ComponentDto prBranch;
+  private ComponentDto prBranchFile;
   private ComponentDto branch;
   private ComponentDto branchFile;
   private final LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class);
@@ -104,7 +107,11 @@ public class LiveMeasureComputerImplTest {
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
     file2 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
-    branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    prBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    prBranchFile = db.components().insertComponent(ComponentTesting.newFileDto(prBranch));
+
+    branch = db.components().insertProjectBranch(project);
     branchFile = db.components().insertComponent(ComponentTesting.newFileDto(branch));
   }
 
@@ -224,8 +231,50 @@ public class LiveMeasureComputerImplTest {
   }
 
   @Test
+  public void refresh_after_first_analysis() {
+    markProjectAsAnalyzed(project, null);
+    db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(null).setValue(42.0));
+    db.measures().insertLiveMeasure(project, ratingMetric, m -> m.setValue((double) Rating.E.getIndex()).setData(Rating.E.name()));
+    db.measures().insertLiveMeasure(dir, intMetric, m -> m.setVariation(null).setValue(42.0));
+    db.measures().insertLiveMeasure(dir, ratingMetric, m -> m.setValue((double) Rating.D.getIndex()).setData(Rating.D.name()));
+    db.measures().insertLiveMeasure(file1, intMetric, m -> m.setVariation(null).setValue(42.0));
+    db.measures().insertLiveMeasure(file1, ratingMetric, m -> m.setValue((double) Rating.C.getIndex()).setData(Rating.C.name()));
+
+    List<QGChangeEvent> result = run(file1, newQualifierBasedIntLeakFormula(), newIntConstantFormula(1337));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(6);
+
+    assertThatIntMeasureHasValue(file1, 1337);
+    assertThatRatingMeasureHasValue(file1, Rating.C);
+    assertThatIntMeasureHasValue(dir, 1337);
+    assertThatRatingMeasureHasValue(dir, Rating.D);
+    assertThatIntMeasureHasValue(project, 1337);
+    assertThatRatingMeasureHasValue(project, Rating.E);
+    assertThatProjectChanged(result, project);
+  }
+
+  @Test
   public void calculate_new_metrics_if_it_is_pr_or_branch() {
-    markProjectAsAnalyzed(branch, null);
+    markProjectAsAnalyzed(prBranch, null);
+    db.measures().insertLiveMeasure(prBranch, intMetric, m -> m.setVariation(42.0).setValue(null));
+    db.measures().insertLiveMeasure(prBranchFile, intMetric, m -> m.setVariation(42.0).setValue(null));
+
+    // generates values 1, 2, 3 on leak measures
+    List<QGChangeEvent> result = run(prBranchFile, newQualifierBasedIntLeakFormula(), newRatingLeakFormula(Rating.B));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(4);
+
+    // Numeric value depends on qualifier (see newQualifierBasedIntLeakFormula())
+    assertThatIntMeasureHasLeakValue(prBranchFile, ORDERED_BOTTOM_UP.indexOf(Qualifiers.FILE));
+    assertThatRatingMeasureHasLeakValue(prBranchFile, Rating.B);
+    assertThatIntMeasureHasLeakValue(prBranch, ORDERED_BOTTOM_UP.indexOf(Qualifiers.PROJECT));
+    assertThatRatingMeasureHasLeakValue(prBranch, Rating.B);
+    assertThatProjectChanged(result, prBranch);
+  }
+
+  @Test
+  public void calculate_new_metrics_if_it_is_branch_using_new_code_reference() {
+    markProjectAsAnalyzed(branch, null, NewCodePeriodType.REFERENCE_BRANCH);
     db.measures().insertLiveMeasure(branch, intMetric, m -> m.setVariation(42.0).setValue(null));
     db.measures().insertLiveMeasure(branchFile, intMetric, m -> m.setVariation(42.0).setValue(null));
 
@@ -411,7 +460,12 @@ public class LiveMeasureComputerImplTest {
 
   private void markProjectAsAnalyzed(ComponentDto p, @Nullable Long periodDate) {
     assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
-    db.components().insertSnapshot(p, s -> s.setPeriodDate(periodDate));
+    markProjectAsAnalyzed(p, periodDate, null);
+  }
+
+  private void markProjectAsAnalyzed(ComponentDto p, @Nullable Long periodDate, @Nullable NewCodePeriodType type) {
+    assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    db.components().insertSnapshot(p, s -> s.setPeriodDate(periodDate).setPeriodMode(type != null ? type.name() : null));
   }
 
   private LiveMeasureDto assertThatIntMeasureHasValue(ComponentDto component, double expectedValue) {

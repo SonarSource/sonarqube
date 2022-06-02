@@ -53,10 +53,12 @@ import org.sonar.server.setting.ProjectConfigurationLoader;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
@@ -96,10 +98,12 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     ComponentDto branchComponent = findBranchComponent(components);
     BranchDto branch = loadBranch(dbSession, branchComponent);
     ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
-    Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
-    if (!lastAnalysis.isPresent()) {
+    Optional<SnapshotDto> lastAnalysisResult = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
+    if (lastAnalysisResult.isEmpty()) {
       return Optional.empty();
     }
+
+    var lastAnalysis = lastAnalysisResult.get();
 
     QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
@@ -123,7 +127,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByBaseComponent(dbSession, c, beginningOfLeak));
       for (IssueMetricFormula formula : formulaFactory.getFormulas()) {
         // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
-        if (shouldUseLeakFormulas(lastAnalysis.get(), branch) || !formula.isOnLeak()) {
+        if (shouldUseLeakFormulas(lastAnalysis, branch) || !formula.isOnLeak()) {
           context.change(c, formula);
           try {
             formula.compute(context, issueCounter);
@@ -142,16 +146,18 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
 
     return Optional.of(
-      new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
+      new QGChangeEvent(project, branch, lastAnalysis, config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
 
-  private static long getBeginningOfLeakPeriod(Optional<SnapshotDto> lastAnalysis, BranchDto branch) {
+  private static long getBeginningOfLeakPeriod(SnapshotDto lastAnalysis, BranchDto branch) {
     if (isPR(branch)) {
       return 0L;
-    } else {
-      Optional<Long> beginningOfLeakPeriod = lastAnalysis.map(SnapshotDto::getPeriodDate);
-      return beginningOfLeakPeriod.orElse(Long.MAX_VALUE);
+    } else if (REFERENCE_BRANCH.name().equals(lastAnalysis.getPeriodMode())) {
+      return -1;
     }
+    return ofNullable(lastAnalysis.getPeriodDate())
+        .orElse(Long.MAX_VALUE);
+
   }
 
   private static boolean isPR(BranchDto branch) {
@@ -159,7 +165,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   }
 
   private static boolean shouldUseLeakFormulas(SnapshotDto lastAnalysis, BranchDto branch) {
-    return lastAnalysis.getPeriodDate() != null || isPR(branch);
+    return lastAnalysis.getPeriodDate() != null || isPR(branch) || REFERENCE_BRANCH.name().equals(lastAnalysis.getPeriodMode());
   }
 
   @CheckForNull

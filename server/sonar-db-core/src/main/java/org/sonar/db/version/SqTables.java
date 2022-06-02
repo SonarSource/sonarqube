@@ -61,6 +61,7 @@ public final class SqTables {
     "live_measures",
     "metrics",
     "new_code_periods",
+    "new_code_reference_issues",
     "notifications",
     "org_qprofiles",
     "permission_templates",

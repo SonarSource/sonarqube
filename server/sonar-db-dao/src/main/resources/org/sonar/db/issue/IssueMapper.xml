@@ -348,9 +348,16 @@
   </select>
 
   <select id="selectIssueGroupsByBaseComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
-    select i.issue_type as ruleType, i.severity as severity, i.resolution as resolution, i.status as status, sum(i.effort) as effort, count(i.issue_type) as "count", (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
+    select i.issue_type as ruleType, i.severity as severity, i.resolution as resolution, i.status as status, sum(i.effort) as effort, count(i.issue_type) as "count",
+    <if test="leakPeriodBeginningDate &gt;= 0">
+      (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
+    </if>
+    <if test="leakPeriodBeginningDate &lt; 0">
+      CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
+    </if>
     from issues i
     inner join components p on p.uuid = i.component_uuid and p.project_uuid = i.project_uuid
+    left join new_code_reference_issues n on n.issue_key = i.kee
     where i.status !='CLOSED'
     and i.project_uuid = #{baseComponent.projectUuid,jdbcType=VARCHAR}
     and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
@@ -360,9 +367,16 @@
   <select id="selectIssueGroupsByBaseComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
     select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
     from (
-      select i.issue_type, i.severity, i.resolution, i.status, i.effort, case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+      select i.issue_type, i.severity, i.resolution, i.status, i.effort,
+    <if test="leakPeriodBeginningDate &gt;= 0">
+        case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+    </if>
+    <if test="leakPeriodBeginningDate &lt; 0">
+      case when n.uuid is null then 0 else 1 end as inLeak
+    </if>
       from issues i
       inner join components p on p.uuid = i.component_uuid and p.project_uuid = i.project_uuid
+      left join new_code_reference_issues n on n.issue_key = i.kee
       where i.status !='CLOSED'
       and i.project_uuid = #{baseComponent.projectUuid,jdbcType=VARCHAR}
       and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
@@ -373,9 +387,16 @@
   <select id="selectIssueGroupsByBaseComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="mssql">
     select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
     from (
-    select i.issue_type, i.severity, i.resolution, i.status, i.effort, case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+    select i.issue_type, i.severity, i.resolution, i.status, i.effort,
+    <if test="leakPeriodBeginningDate &gt;= 0">
+    case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+    </if>
+    <if test="leakPeriodBeginningDate &lt; 0">
+      case when n.uuid is null then 0 else 1 end as inLeak
+    </if>
     from issues i
     inner join components p on p.uuid = i.component_uuid and p.project_uuid = i.project_uuid
+    left join new_code_reference_issues n on n.issue_key = i.kee
     where i.status !='CLOSED'
     and i.project_uuid = #{baseComponent.projectUuid,jdbcType=VARCHAR}
     and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
