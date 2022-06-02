@@ -30,8 +30,6 @@ For example:
 - If a project has 0 lines of code on its main branch (provisioned but never analyzed) and 200 on a secondary branch, then the number of LOCs counted is 200
 - If a project has 200 lines of code on its main branch and 100 on a secondary branch, then the number of LOCs counted is 200
 
-It is possible to download a detailed report which shows which is the largest branch for each project, how many lines of code it has, and the last time it was analyzed.
-
 ### Global Administrator notifications
 The License Manager has two built-in notification mechanisms (notifications are sent to Global Administrators). Global administrators will get notifications when:
 
