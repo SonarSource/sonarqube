@@ -27,7 +27,6 @@ public class LargestBranchNclocDto {
   private long loc;
   private String branchName;
   private String branchType;
-  private long lastAnalysisDate;
 
   public String getProjectUuid() {
     return projectUuid;
@@ -80,15 +79,6 @@ public class LargestBranchNclocDto {
 
   public LargestBranchNclocDto setLoc(long loc) {
     this.loc = loc;
-    return this;
-  }
-
-  public long getLastAnalysisDate() {
-    return lastAnalysisDate;
-  }
-
-  public LargestBranchNclocDto setLastAnalysisDate(long lastAnalysisDate) {
-    this.lastAnalysisDate = lastAnalysisDate;
     return this;
   }
 }

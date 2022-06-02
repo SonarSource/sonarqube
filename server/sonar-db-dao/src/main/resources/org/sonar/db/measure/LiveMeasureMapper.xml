@@ -71,14 +71,13 @@
     ) sumncloc
   </select>
 
-  <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="org.sonar.db.measure.LargestBranchNclocDto">
+  <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="LargestBranchNclocDto">
     select tie_breaker.projectUuid,
     tie_breaker.projectName,
     tie_breaker.projectKey,
     ncloc as loc,
     pb.kee as branchName,
-    pb.branch_type as branchType,
-    s.created_at as lastAnalysisDate
+    pb.branch_type as branchType
       from
         (select counter.projectUuid as projectUuid,
           counter.maxncloc ncloc,
@@ -107,8 +106,6 @@
           group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
       inner join components c2 on c2.kee  = tie_breaker.component_kee
       inner join project_branches pb on c2.uuid = pb.uuid
-      inner join snapshots s on s.component_uuid = c2.uuid
-      where s.islast = ${_true}
       order by ncloc desc
   </select>
 

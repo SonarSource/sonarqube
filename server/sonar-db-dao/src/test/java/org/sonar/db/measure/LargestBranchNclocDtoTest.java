@@ -37,7 +37,6 @@ public class LargestBranchNclocDtoTest {
     assertThat(underTest.getLoc()).isEqualTo(123L);
     assertThat(underTest.getBranchName()).isEqualTo("branchName");
     assertThat(underTest.getBranchType()).isEqualTo("branchType");
-    assertThat(underTest.getLastAnalysisDate()).isEqualTo(1L);
   }
 
   private void setUnderTest() {
@@ -47,8 +46,7 @@ public class LargestBranchNclocDtoTest {
       .setProjectKey("projectKey")
       .setLoc(123L)
       .setBranchName("branchName")
-      .setBranchType("branchType")
-      .setLastAnalysisDate(1L);
+      .setBranchType("branchType");
   }
 
 }

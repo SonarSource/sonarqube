@@ -76,6 +76,7 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.mapping.ProjectMappingDto;
 import org.sonar.db.mapping.ProjectMappingsMapper;
+import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureMapper;
@@ -201,6 +202,7 @@ public class MyBatis {
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
+    confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
