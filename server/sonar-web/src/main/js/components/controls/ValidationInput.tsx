@@ -23,39 +23,77 @@ import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import MandatoryFieldMarker from '../ui/MandatoryFieldMarker';
 import HelpTooltip from './HelpTooltip';
 
-interface Props {
+export interface ValidationInputProps {
   description?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
-  error: string | undefined;
+  error?: string;
+  errorPlacement?: ValidationInputErrorPlacement;
   help?: string;
-  id: string;
+  id?: string;
   isInvalid: boolean;
   isValid: boolean;
-  label: React.ReactNode;
+  label?: React.ReactNode;
   required?: boolean;
 }
 
-export default function ValidationInput(props: Props) {
-  const hasError = props.isInvalid && props.error !== undefined;
+export enum ValidationInputErrorPlacement {
+  Right,
+  Bottom
+}
+
+export default function ValidationInput(props: ValidationInputProps) {
+  const {
+    children,
+    className,
+    description,
+    error,
+    errorPlacement = ValidationInputErrorPlacement.Right,
+    help,
+    id,
+    isInvalid,
+    isValid,
+    label,
+    required
+  } = props;
+  const hasError = isInvalid && error !== undefined;
+
+  let childrenWithStatus: React.ReactNode;
+  if (errorPlacement === ValidationInputErrorPlacement.Right) {
+    childrenWithStatus = (
+      <>
+        {children}
+        {isValid && <AlertSuccessIcon className="spacer-left text-middle" />}
+        {isInvalid && <AlertErrorIcon className="spacer-left text-middle" />}
+        {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}
+      </>
+    );
+  } else {
+    childrenWithStatus = (
+      <>
+        {children}
+        {isValid && <AlertSuccessIcon className="spacer-left text-middle" />}
+        <div className="spacer-top">
+          {isInvalid && <AlertErrorIcon className="text-middle" />}
+          {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className={props.className}>
-      <label htmlFor={props.id}>
-        <span className="text-middle">
-          <strong>{props.label}</strong>
-          {props.required && <MandatoryFieldMarker />}
-        </span>
-        {props.help && <HelpTooltip className="spacer-left" overlay={props.help} />}
-      </label>
-      <div className="little-spacer-top spacer-bottom">
-        {props.children}
-        {props.isInvalid && <AlertErrorIcon className="spacer-left text-middle" />}
-        {hasError && (
-          <span className="little-spacer-left text-danger text-middle">{props.error}</span>
-        )}
-        {props.isValid && <AlertSuccessIcon className="spacer-left text-middle" />}
-      </div>
-      {props.description && <div className="note abs-width-400">{props.description}</div>}
+    <div className={className}>
+      {id && label && (
+        <label htmlFor={id}>
+          <span className="text-middle">
+            <strong>{label}</strong>
+            {required && <MandatoryFieldMarker />}
+          </span>
+          {help && <HelpTooltip className="spacer-left" overlay={help} />}
+        </label>
+      )}
+      <div className="little-spacer-top spacer-bottom">{childrenWithStatus}</div>
+      {description && <div className="note abs-width-400">{description}</div>}
     </div>
   );
 }

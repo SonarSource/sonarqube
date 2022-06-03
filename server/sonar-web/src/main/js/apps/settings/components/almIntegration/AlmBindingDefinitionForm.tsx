@@ -43,6 +43,7 @@ import {
   GitlabBindingDefinition,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
+import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
 interface Props {
@@ -224,9 +225,17 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
   };
 
   canSubmit = () => {
-    const { formData, touched } = this.state;
+    const { bitbucketVariant, formData, touched } = this.state;
+    const allFieldsProvided = touched && !Object.values(formData).some(v => !v);
 
-    return touched && !Object.values(formData).some(v => !v);
+    if (
+      bitbucketVariant === AlmKeys.BitbucketCloud &&
+      isBitbucketCloudBindingDefinition(formData)
+    ) {
+      return allFieldsProvided && BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace);
+    }
+
+    return allFieldsProvided;
   };
 
   render() {

@@ -21,6 +21,9 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { ButtonLink } from '../../../../components/controls/buttons';
+import ValidationInput, {
+  ValidationInputErrorPlacement
+} from '../../../../components/controls/ValidationInput';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { translate } from '../../../../helpers/l10n';
@@ -29,8 +32,10 @@ import '../../styles.css';
 
 export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefinitionBase> {
   autoFocus?: boolean;
+  error?: string;
   help?: React.ReactNode;
   id: string;
+  isInvalid?: boolean;
   isTextArea?: boolean;
   maxLength?: number;
   onFieldChange: (id: keyof B, value: string) => void;
@@ -46,8 +51,10 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
 ) {
   const {
     autoFocus,
+    error,
     help,
     id,
+    isInvalid = false,
     isTextArea,
     maxLength,
     optional,
@@ -94,17 +101,23 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
         )}
 
         {showField && !isTextArea && (
-          <input
-            className="width-100"
-            autoFocus={autoFocus}
-            id={id}
-            maxLength={maxLength || 100}
-            name={id}
-            onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
-            size={50}
-            type="text"
-            value={value}
-          />
+          <ValidationInput
+            error={error}
+            errorPlacement={ValidationInputErrorPlacement.Bottom}
+            isValid={false}
+            isInvalid={isInvalid}>
+            <input
+              className="width-100"
+              autoFocus={autoFocus}
+              id={id}
+              maxLength={maxLength || 100}
+              name={id}
+              onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
+              size={50}
+              type="text"
+              value={value}
+            />
+          </ValidationInput>
         )}
 
         {showField && isSecret && (

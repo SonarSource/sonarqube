@@ -91,6 +91,7 @@ public class CreateBitbucketCloudAction implements AlmSettingsWsAction {
       almSettingsSupport.checkAlmMultipleFeatureEnabled(BITBUCKET);
       almSettingsSupport.checkAlmMultipleFeatureEnabled(BITBUCKET_CLOUD);
       almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
+      almSettingsSupport.checkBitbucketCloudWorkspaceIDFormat(workspace);
       dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
         .setAlm(BITBUCKET_CLOUD)
         .setKey(key)

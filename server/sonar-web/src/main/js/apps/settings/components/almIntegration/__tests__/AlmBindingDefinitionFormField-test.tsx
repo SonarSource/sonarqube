@@ -34,6 +34,9 @@ it('should render correctly', () => {
   expect(shallowRender({ optional: true })).toMatchSnapshot('optional');
   expect(shallowRender({ overwriteOnly: true })).toMatchSnapshot('secret');
   expect(shallowRender({ isSecret: true })).toMatchSnapshot('encryptable');
+  expect(shallowRender({ error: 'some error message', isInvalid: true })).toMatchSnapshot(
+    'invalid with error'
+  );
 });
 
 it('should call onFieldChange', () => {

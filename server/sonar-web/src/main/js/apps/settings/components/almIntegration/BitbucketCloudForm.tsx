@@ -24,6 +24,7 @@ import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
+import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface BitbucketCloudFormProps {
@@ -33,6 +34,9 @@ export interface BitbucketCloudFormProps {
 
 export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
   const { formData } = props;
+  const workspaceIDIsInvalid = Boolean(
+    formData.workspace && !BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace)
+  );
 
   return (
     <>
@@ -62,6 +66,12 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
           />
         }
         id="workspace.bitbucketcloud"
+        error={
+          workspaceIDIsInvalid
+            ? translate('settings.almintegration.form.workspace.bitbucketcloud.error')
+            : undefined
+        }
+        isInvalid={workspaceIDIsInvalid}
         maxLength={80}
         onFieldChange={props.onFieldChange}
         propKey="workspace"

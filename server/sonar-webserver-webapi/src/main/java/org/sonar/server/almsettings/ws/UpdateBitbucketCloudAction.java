@@ -102,6 +102,8 @@ public class UpdateBitbucketCloudAction implements AlmSettingsWsAction {
         almSettingDto.setClientSecret(clientSecret);
       }
 
+      almSettingsSupport.checkBitbucketCloudWorkspaceIDFormat(workspace);
+
       dbClient.almSettingDao().update(dbSession, almSettingDto
         .setKey(isNotBlank(newKey) ? newKey : key)
         .setClientId(clientId)

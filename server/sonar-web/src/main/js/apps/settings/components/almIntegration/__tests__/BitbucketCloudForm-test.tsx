@@ -23,8 +23,10 @@ import { mockBitbucketCloudBindingDefinition } from '../../../../../helpers/mock
 import BitbucketCloudForm, { BitbucketCloudFormProps } from '../BitbucketCloudForm';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({ formData: mockBitbucketCloudBindingDefinition({ workspace: 'my/workspace' }) })
+  ).toMatchSnapshot('invalid workspace ID');
 });
 
 function shallowRender(props: Partial<BitbucketCloudFormProps> = {}) {

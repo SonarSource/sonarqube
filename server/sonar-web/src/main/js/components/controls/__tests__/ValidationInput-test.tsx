@@ -19,55 +19,46 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ValidationInput from '../ValidationInput';
+import ValidationInput, {
+  ValidationInputErrorPlacement,
+  ValidationInputProps
+} from '../ValidationInput';
 
-it('should render', () => {
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ help: 'Help message', isValid: false })).toMatchSnapshot('with help');
   expect(
-    shallow(
-      <ValidationInput
-        description="My description"
-        error={undefined}
-        help="Help message"
-        id="field-id"
-        isInvalid={false}
-        isValid={false}
-        label="Field label"
-        required={true}>
-        <div />
-      </ValidationInput>
-    )
-  ).toMatchSnapshot();
+    shallowRender({
+      description: <div>My description</div>,
+      error: 'Field error message',
+      isInvalid: true,
+      isValid: false,
+      required: false
+    })
+  ).toMatchSnapshot('with error');
+  expect(
+    shallowRender({
+      error: 'Field error message',
+      errorPlacement: ValidationInputErrorPlacement.Bottom,
+      isInvalid: true,
+      isValid: false
+    })
+  ).toMatchSnapshot('error under the input');
+  expect(shallowRender({ id: undefined, label: undefined })).toMatchSnapshot('no label');
 });
 
-it('should render with error', () => {
-  expect(
-    shallow(
-      <ValidationInput
-        description={<div>My description</div>}
-        error="Field error message"
-        id="field-id"
-        isInvalid={true}
-        isValid={false}
-        label="Field label">
-        <div />
-      </ValidationInput>
-    )
-  ).toMatchSnapshot();
-});
-
-it('should render when valid', () => {
-  expect(
-    shallow(
-      <ValidationInput
-        description="My description"
-        error={undefined}
-        id="field-id"
-        isInvalid={false}
-        isValid={true}
-        label="Field label"
-        required={true}>
-        <div />
-      </ValidationInput>
-    )
-  ).toMatchSnapshot();
-});
+function shallowRender(props: Partial<ValidationInputProps> = {}) {
+  return shallow<ValidationInputProps>(
+    <ValidationInput
+      description="My description"
+      error={undefined}
+      id="field-id"
+      isInvalid={false}
+      isValid={true}
+      label="Field label"
+      required={true}
+      {...props}>
+      <div />
+    </ValidationInput>
+  );
+}

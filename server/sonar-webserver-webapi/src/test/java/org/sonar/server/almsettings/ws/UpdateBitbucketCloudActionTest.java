@@ -29,6 +29,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -37,6 +38,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -186,6 +188,43 @@ public class UpdateBitbucketCloudActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_when_workspace_id_format_is_incorrect() {
+    String workspace = "workspace/name";
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("workspace", workspace)
+      .setParam("clientId", "id")
+      .setParam("clientSecret", "secret");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(String.format(
+        "Workspace ID '%s' has an incorrect format. Should only contain lowercase letters, numbers, dashes, and underscores.",
+        workspace
+      ));
+  }
+
+  @Test
+  public void do_not_fail_when_workspace_id_format_is_correct() {
+    String workspace = "work-space_123";
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("workspace", workspace)
+      .setParam("clientId", "id")
+      .setParam("clientSecret", "secret");
+
+    assertThatNoException().isThrownBy(request::execute);
   }
 
   @Test

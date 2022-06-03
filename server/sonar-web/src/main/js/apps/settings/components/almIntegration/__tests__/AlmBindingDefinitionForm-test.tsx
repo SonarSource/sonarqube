@@ -147,7 +147,11 @@ it.each([
 );
 
 it('should call the proper api for BBC', async () => {
-  const wrapper = shallowRender({ alm: AlmKeys.BitbucketServer, bindingDefinition: undefined });
+  const wrapper = shallowRender({
+    // Reminder: due to the way the settings app works, we never pass AlmKeys.BitbucketCloud as `alm`.
+    alm: AlmKeys.BitbucketServer,
+    bindingDefinition: undefined
+  });
 
   wrapper.instance().handleBitbucketVariantChange(AlmKeys.BitbucketCloud);
 
@@ -179,7 +183,25 @@ it('should store bitbucket variant', async () => {
   });
 });
 
-it('should (dis)allow submit by validating its state', () => {
+it('should (dis)allow submit by validating its state (Bitbucket Cloud)', () => {
+  const wrapper = shallowRender({
+    // Reminder: due to the way the settings app works, we never pass AlmKeys.BitbucketCloud as `alm`.
+    alm: AlmKeys.BitbucketServer,
+    bindingDefinition: mockBitbucketCloudBindingDefinition()
+  });
+  expect(wrapper.instance().canSubmit()).toBe(false);
+
+  wrapper.setState({
+    formData: mockBitbucketCloudBindingDefinition({ workspace: 'foo/bar' }),
+    touched: true
+  });
+  expect(wrapper.instance().canSubmit()).toBe(false);
+
+  wrapper.setState({ formData: mockBitbucketCloudBindingDefinition() });
+  expect(wrapper.instance().canSubmit()).toBe(true);
+});
+
+it('should (dis)allow submit by validating its state (others)', () => {
   const wrapper = shallowRender();
   expect(wrapper.instance().canSubmit()).toBe(false);
 

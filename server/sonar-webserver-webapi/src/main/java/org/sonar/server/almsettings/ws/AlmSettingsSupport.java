@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import java.util.regex.Pattern;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,6 +38,8 @@ import static org.sonar.api.web.UserRole.ADMIN;
 
 @ServerSide
 public class AlmSettingsSupport {
+
+  private static final Pattern WORKSPACE_ID_PATTERN = Pattern.compile("^[a-z0-9\\-_]+$");
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -67,6 +70,15 @@ public class AlmSettingsSupport {
       if (!multipleAlmFeatureProvider.enabled() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
         throw BadRequestException.create("A " + alm + " setting is already defined");
       }
+    }
+  }
+
+  public void checkBitbucketCloudWorkspaceIDFormat(String workspaceId) {
+    if (!WORKSPACE_ID_PATTERN.matcher(workspaceId).matches()) {
+      throw BadRequestException.create(String.format(
+        "Workspace ID '%s' has an incorrect format. Should only contain lowercase letters, numbers, dashes, and underscores.",
+        workspaceId
+      ));
     }
   }
 
