@@ -23,12 +23,12 @@ import ScreenPositionHelper from '../../../../components/common/ScreenPositionHe
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { mockLocation } from '../../../../helpers/testMocks';
 import {
-  ALM_INTEGRATION,
+  ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY
-} from '../AdditionalCategoryKeys';
+} from '../../constants';
 import { SettingsAppRenderer, SettingsAppRendererProps } from '../SettingsAppRenderer';
 
 it('should render loading correctly', () => {
@@ -46,7 +46,7 @@ it.each([
   [NEW_CODE_PERIOD_CATEGORY],
   [LANGUAGES_CATEGORY],
   [ANALYSIS_SCOPE_CATEGORY],
-  [ALM_INTEGRATION],
+  [ALM_INTEGRATION_CATEGORY],
   [PULL_REQUEST_DECORATION_BINDING_CATEGORY]
 ])('should render %s correctly', category => {
   const wrapper = shallowRender({

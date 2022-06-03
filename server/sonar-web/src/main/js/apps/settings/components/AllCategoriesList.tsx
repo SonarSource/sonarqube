@@ -25,9 +25,9 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { AppState } from '../../../types/appstate';
 import { Component } from '../../../types/types';
+import { CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
-import CATEGORY_OVERRIDES from './CategoryOverrides';
 
 export interface CategoriesListProps {
   appState: AppState;

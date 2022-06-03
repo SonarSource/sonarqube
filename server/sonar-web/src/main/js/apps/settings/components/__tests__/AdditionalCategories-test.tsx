@@ -19,8 +19,8 @@
  */
 import { find } from 'lodash';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../constants';
 import { ADDITIONAL_CATEGORIES } from '../AdditionalCategories';
-import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../AdditionalCategoryKeys';
 
 it('should render additional categories component correctly', () => {
   ADDITIONAL_CATEGORIES.forEach(cat => {

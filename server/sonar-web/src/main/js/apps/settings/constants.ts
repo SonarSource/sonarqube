@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dict } from '../../../types/types';
-import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
+import { Dict } from '../../types/types';
 
-const CATEGORY_OVERRIDES: Dict<string> = {
+export const ALM_INTEGRATION_CATEGORY = 'almintegration';
+export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
+export const LANGUAGES_CATEGORY = 'languages';
+export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
+export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration_binding';
+
+export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
   apex: LANGUAGES_CATEGORY,
   'c / c++ / objective-c': LANGUAGES_CATEGORY,
@@ -53,4 +58,6 @@ const CATEGORY_OVERRIDES: Dict<string> = {
   yaml: LANGUAGES_CATEGORY
 };
 
-export default CATEGORY_OVERRIDES;
+// As per Bitbucket Cloud's documentation, Workspace ID's can only contain lowercase letters,
+// numbers, dashes, and underscores.
+export const BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT = /^[a-z0-9\-_]+$/;

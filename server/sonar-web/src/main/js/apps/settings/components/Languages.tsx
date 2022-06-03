@@ -21,11 +21,10 @@ import * as React from 'react';
 import Select from '../../../components/controls/Select';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
+import { CATEGORY_OVERRIDES, LANGUAGES_CATEGORY } from '../constants';
 import { getCategoryName } from '../utils';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
-import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
-import CATEGORY_OVERRIDES from './CategoryOverrides';
 
 export interface LanguagesProps extends AdditionalCategoryComponentProps {
   location: Location;

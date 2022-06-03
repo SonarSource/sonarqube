@@ -22,12 +22,12 @@ import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import {
-  ALM_INTEGRATION,
+  ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY
-} from './AdditionalCategoryKeys';
+} from '../constants';
 import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
 import Languages from './Languages';
@@ -77,7 +77,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: false
   },
   {
-    key: ALM_INTEGRATION,
+    key: ALM_INTEGRATION_CATEGORY,
     name: translate('property.category.almintegration'),
     renderComponent: getAlmIntegrationComponent,
     availableGlobally: true,

@@ -30,7 +30,7 @@ import {
 } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
-import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
+import { ALM_INTEGRATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm from './AlmBindingDefinitionForm';
@@ -120,7 +120,7 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
 
       <div className="big-padded">
         <CategoryDefinitionsList
-          category={ALM_INTEGRATION}
+          category={ALM_INTEGRATION_CATEGORY}
           definitions={settingsDefinitions}
           subCategory={almTab}
         />

@@ -27,7 +27,7 @@ import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';
+import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/constants';
 
 export interface FirstAnalysisNextStepsNotifProps {
   branchesEnabled?: boolean;
