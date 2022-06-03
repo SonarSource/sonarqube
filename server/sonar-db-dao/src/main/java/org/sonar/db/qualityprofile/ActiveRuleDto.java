@@ -50,6 +50,7 @@ public class ActiveRuleDto {
   private String ruleField;
   private String ruleProfileUuid;
   private String securityStandards;
+  private boolean isExternal;
 
   public ActiveRuleDto() {
     // nothing to do here
@@ -157,6 +158,15 @@ public class ActiveRuleDto {
 
   public ActiveRuleDto setSecurityStandards(String securityStandards) {
     this.securityStandards = securityStandards;
+    return this;
+  }
+
+  public boolean isExternal() {
+    return this.isExternal;
+  }
+
+  public ActiveRuleDto setIsExternal(boolean isExternal) {
+    this.isExternal = isExternal;
     return this;
   }
 

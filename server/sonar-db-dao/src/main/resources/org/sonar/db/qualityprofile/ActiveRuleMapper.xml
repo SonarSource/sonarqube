@@ -28,7 +28,8 @@
     rp.uuid as "ruleProfileUuid",
     a.created_at as "createdAt",
     a.updated_at as "updatedAt",
-    oqp.uuid as "orgProfileUuid"
+    oqp.uuid as "orgProfileUuid",
+    r.is_external as "isExternal"
   </sql>
 
   <sql id="activeRuleKeyJoin">

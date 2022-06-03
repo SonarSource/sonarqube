@@ -694,6 +694,27 @@ public class QualityProfileDaoTest {
   }
 
   @Test
+  public void test_selectQProfilesByProjectUuid() {
+    ProjectDto project1 = db.components().insertPublicProjectDto();
+    ProjectDto project2 = db.components().insertPublicProjectDto();
+    ProjectDto project3 = db.components().insertPublicProjectDto();
+    QProfileDto javaProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
+    QProfileDto cProfile = db.qualityProfiles().insert(p -> p.setLanguage("c"));
+    db.qualityProfiles().associateWithProject(project1, javaProfile, cProfile);
+    db.qualityProfiles().associateWithProject(project2, jsProfile);
+
+    assertThat(underTest.selectQProfilesByProjectUuid(dbSession, project1.getUuid()))
+      .containsExactly(javaProfile, cProfile);
+
+    assertThat(underTest.selectQProfilesByProjectUuid(dbSession, project2.getUuid()))
+      .containsExactly(jsProfile);
+
+    assertThat(underTest.selectQProfilesByProjectUuid(dbSession, project3.getUuid()))
+      .isEmpty();
+  }
+
+  @Test
   public void test_updateProjectProfileAssociation() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto javaProfile1 = db.qualityProfiles().insert(p -> p.setLanguage("java"));

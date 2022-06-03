@@ -171,6 +171,10 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectQProfileUuidsByProjectUuid(projectUuid);
   }
 
+  public List<QProfileDto> selectQProfilesByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectQProfilesByProjectUuid(projectUuid);
+  }
+
   public List<QProfileDto> selectByLanguage(DbSession dbSession, String language) {
     return mapper(dbSession).selectByLanguage(language);
   }

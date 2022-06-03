@@ -259,6 +259,7 @@ public class ActiveRuleDaoTest {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
       .setInheritance(INHERITED)
+      .setIsExternal(false)
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
     underTest.insert(dbSession, activeRule);
@@ -271,6 +272,7 @@ public class ActiveRuleDaoTest {
     assertThat(result.getProfileUuid()).isEqualTo(profile1.getRulesProfileUuid());
     assertThat(result.getSeverityString()).isEqualTo(BLOCKER);
     assertThat(result.getInheritance()).isEqualTo(INHERITED);
+    assertThat(result.isExternal()).isFalse();
     assertThat(result.getCreatedAt()).isEqualTo(1000L);
     assertThat(result.getUpdatedAt()).isEqualTo(2000L);
   }

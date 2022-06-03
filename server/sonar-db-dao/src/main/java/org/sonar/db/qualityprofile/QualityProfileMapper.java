@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
@@ -93,6 +92,8 @@ public interface QualityProfileMapper {
     @Param("languages") Collection<String> languages);
 
   List<String> selectQProfileUuidsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  List<QProfileDto> selectQProfilesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void insertProjectProfileAssociation(
     @Param("uuid") String uuid,

@@ -287,6 +287,16 @@
     </where>
   </select>
 
+  <select id="selectQProfilesByProjectUuid" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+      inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
+      inner join project_qprofiles pqp on pqp.profile_key = oqp.uuid
+    where
+      pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+  </select>
+
   <insert id="insertProjectProfileAssociation" useGeneratedKeys="false">
     insert into project_qprofiles (
       uuid,
