@@ -80,7 +80,7 @@ public class ServerPluginManager implements Startable {
   }
 
   private static void logInstalledPlugins(Collection<ServerPluginInfo> plugins) {
-    plugins.stream().sorted().forEach(plugin -> LOG.info("Deploy plugin {} / {} / {}", plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
+    plugins.stream().sorted().forEach(plugin -> LOG.info("Deploy {} / {} / {}", plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
   }
 
   private Collection<ExplodedPlugin> extractPlugins(Collection<ServerPluginInfo> plugins) {

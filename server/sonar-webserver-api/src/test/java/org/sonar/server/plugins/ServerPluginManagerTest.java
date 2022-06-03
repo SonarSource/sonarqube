@@ -33,6 +33,7 @@ import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -44,7 +45,7 @@ import static org.sonar.server.plugins.PluginType.EXTERNAL;
 public class ServerPluginManagerTest {
 
   @Rule
-  public LogTester logs = new LogTester();
+  public LogTester logTester = new LogTester();
 
   private PluginClassLoader pluginClassLoader = mock(PluginClassLoader.class);
   private PluginJarExploder jarExploder = mock(PluginJarExploder.class);
@@ -80,6 +81,9 @@ public class ServerPluginManagerTest {
       .extracting(ServerPlugin::getPluginInfo, ServerPlugin::getCompressed, ServerPlugin::getJar, ServerPlugin::getInstance)
       .containsOnly(tuple(p1, p1Files.getCompressedJar(), p1Files.getLoadedJar(), instances.get("p1")),
         tuple(p2, p2Files.getCompressedJar(), p2Files.getLoadedJar(), instances.get("p2")));
+
+    assertThat(pluginRepository.getPlugins()).extracting(ServerPlugin::getPluginInfo)
+      .allMatch(p -> logTester.logs().contains(String.format("Deploy %s / %s / %s", p.getName(), p.getVersion(), p.getImplementationBuild())));
   }
 
   private static ServerPluginInfo newPluginInfo(String key) {
@@ -87,6 +91,11 @@ public class ServerPluginManagerTest {
     when(pluginInfo.getKey()).thenReturn(key);
     when(pluginInfo.getType()).thenReturn(EXTERNAL);
     when(pluginInfo.getNonNullJarFile()).thenReturn(new File(key + ".jar"));
+    when(pluginInfo.getName()).thenReturn(key + "_name");
+    Version version = mock(Version.class);
+    when(version.getName()).thenReturn(key + "_version");
+    when(pluginInfo.getVersion()).thenReturn(version);
+    when(pluginInfo.getImplementationBuild()).thenReturn(key + "_implementationBuild");
     return pluginInfo;
   }
 
