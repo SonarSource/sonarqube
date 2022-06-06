@@ -28,14 +28,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.Startable;
 import org.sonar.api.Plugin;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.ServerFileSystem;
+import org.sonar.server.plugins.PluginRequirementsValidator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -70,6 +71,9 @@ public class CePluginRepository implements PluginRepository, Startable {
     Loggers.get(getClass()).info("Load plugins");
     registerPluginsFromDir(fs.getInstalledBundledPluginsDir());
     registerPluginsFromDir(fs.getInstalledExternalPluginsDir());
+
+    PluginRequirementsValidator.unloadIncompatiblePlugins(pluginInfosByKeys);
+
     Map<String, ExplodedPlugin> explodedPluginsByKey = extractPlugins(pluginInfosByKeys);
     pluginInstancesByKeys.putAll(loader.load(explodedPluginsByKey));
     started.set(true);
