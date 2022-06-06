@@ -841,7 +841,7 @@ public class IssueIndex {
       t -> {
         AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(CREATED_AT.getName())
           .field(CREATED_AT.getFieldName())
-          .dateHistogramInterval(bucketSize)
+          .calendarInterval(bucketSize)
           .minDocCount(0L)
           .format(DateUtils.DATETIME_FORMAT)
           .timeZone(Optional.ofNullable(query.timeZone()).orElse(system.getDefaultTimeZone().toZoneId()))
