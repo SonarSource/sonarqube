@@ -19,12 +19,9 @@
  */
 package org.sonar.application.process;
 
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.net.ConnectException;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsConnector;
@@ -39,11 +36,9 @@ import static org.sonar.application.process.EsManagedProcess.Status.YELLOW;
 public class EsManagedProcess extends AbstractManagedProcess {
   private static final Logger LOG = LoggerFactory.getLogger(EsManagedProcess.class);
   private static final int WAIT_FOR_UP_DELAY_IN_MILLIS = 100;
-  private static final Set<String> SUPPRESSED_ERROR_MESSAGES = Set.of("Connection refused", "Timeout connecting");
 
   private volatile boolean nodeOperational = false;
   private final int waitForUpTimeout;
-  private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
   private final EsConnector esConnector;
 
   public EsManagedProcess(Process process, ProcessId processId, EsConnector esConnector) {
@@ -97,19 +92,11 @@ public class EsManagedProcess extends AbstractManagedProcess {
       return esConnector.getClusterHealthStatus()
         .map(EsManagedProcess::convert)
         .orElse(CONNECTION_REFUSED);
-    } catch (ElasticsearchStatusException e) {
-      if (e.status() == RestStatus.SERVICE_UNAVAILABLE && e.getMessage().contains("type=master_not_discovered_exception")) {
-        if (firstMasterNotDiscoveredLog.getAndSet(false)) {
-          LOG.info("Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?");
-        }
-      }
-      return KO;
     } catch (ElasticsearchException e) {
-      if (e.status() == RestStatus.INTERNAL_SERVER_ERROR && (SUPPRESSED_ERROR_MESSAGES.stream().anyMatch(s -> e.getMessage().contains(s)))) {
+      if (e.getRootCause() instanceof ConnectException) {
         return CONNECTION_REFUSED;
-      } else {
-        LOG.error("Failed to check status", e);
       }
+      LOG.error("Failed to check status", e);
       return KO;
     } catch (Exception e) {
       LOG.error("Failed to check status", e);

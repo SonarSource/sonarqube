@@ -19,26 +19,16 @@
  */
 package org.sonar.application.process;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
 import java.net.ConnectException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.rest.RestStatus;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsConnector;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -128,49 +118,29 @@ public class EsManagedProcessTest {
   }
 
   @Test
+  public void isOperational_should_not_be_os_language_sensitive() {
+    EsConnector esConnector = mock(EsConnector.class);
+    when(esConnector.getClusterHealthStatus())
+      .thenThrow(new ElasticsearchException(new ExecutionException(new ConnectException("Connexion refusée"))));
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
+    assertThat(underTest.isOperational()).isFalse();
+  }
+
+  @Test
+  public void isOperational_if_exception_root_cause_returned_by_ES_is_not_ConnectException_should_return_false() {
+    EsConnector esConnector = mock(EsConnector.class);
+    when(esConnector.getClusterHealthStatus())
+      .thenThrow(new ElasticsearchException(new ExecutionException(new Exception("Connexion refusée"))));
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
+    assertThat(underTest.isOperational()).isFalse();
+  }
+
+  @Test
   public void isOperational_should_return_false_if_ElasticsearchException_thrown() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
       .thenThrow(new ElasticsearchException("test"));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_must_log_once_when_master_is_not_elected() {
-    MemoryAppender<ILoggingEvent> memoryAppender = new MemoryAppender<>();
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.reset();
-    memoryAppender.setContext(lc);
-    memoryAppender.start();
-    lc.getLogger(EsManagedProcess.class).addAppender(memoryAppender);
-
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchStatusException("foobar[type=master_not_discovered_exception,acme]...", RestStatus.SERVICE_UNAVAILABLE));
-
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
-    assertThat(underTest.isOperational()).isFalse();
-    assertThat(memoryAppender.events).isNotEmpty();
-    assertThat(memoryAppender.events)
-      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
-      .containsOnlyOnce(
-        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?"));
-
-    // Second call must not log another message
-    assertThat(underTest.isOperational()).isFalse();
-    assertThat(memoryAppender.events)
-      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
-      .containsOnlyOnce(
-        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?"));
-  }
-
-  private static class MemoryAppender<E> extends AppenderBase<E> {
-    private final List<E> events = new ArrayList<>();
-
-    @Override
-    protected void append(E eventObject) {
-      events.add(eventObject);
-    }
   }
 }
