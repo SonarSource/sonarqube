@@ -228,11 +228,11 @@ public class SearchResponseLoader {
     }
     RuleType ruleType = RuleType.valueOf(issue.getType());
     availableActions.add(COMMENT_KEY);
+    availableActions.add("set_tags");
     if (issue.getResolution() != null) {
       return availableActions;
     }
     availableActions.add(ASSIGN_KEY);
-    availableActions.add("set_tags");
     if (ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
       availableActions.add(SET_TYPE_KEY);
       availableActions.add(SET_SEVERITY_KEY);

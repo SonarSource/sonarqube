@@ -88,6 +88,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -100,11 +101,14 @@ import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.Common.RuleType.BUG;
 import static org.sonarqube.ws.Common.RuleType.SECURITY_HOTSPOT_VALUE;
 import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -114,6 +118,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 
 public class SearchActionTest {
 
@@ -182,6 +187,44 @@ public class SearchActionTest {
         tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
           simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate()), false));
+  }
+
+  @Test
+  public void response_contains_correct_actions() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = newIssueRule();
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
+      .setParam(PARAM_STATUSES, STATUS_OPEN)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(
+      response
+        .getIssuesList()
+        .get(0)
+        .getActions()
+        .getActionsList()
+    ).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
+
+    response = ws.newRequest()
+      .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
+      .setParam(PARAM_STATUSES, STATUS_RESOLVED)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(
+      response
+        .getIssuesList()
+        .get(0)
+        .getActions()
+        .getActionsList()
+    ).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
   }
 
   @Test
