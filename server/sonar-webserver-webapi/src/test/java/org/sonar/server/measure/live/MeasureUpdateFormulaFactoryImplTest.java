@@ -102,6 +102,26 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
   @Test
   public void hierarchy_combining_other_metrics() {
+    new HierarchyTester(SECURITY_HOTSPOTS_TO_REVIEW_STATUS)
+      .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1d)
+      .withChildrenHotspotsCounts(10, 10, 2, 10)
+      .expectedResult(3d);
+
+    new HierarchyTester(SECURITY_HOTSPOTS_REVIEWED_STATUS)
+      .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
+      .withChildrenHotspotsCounts(2, 10, 10, 10)
+      .expectedResult(3d);
+
+    new HierarchyTester(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS)
+      .withValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1d)
+      .withChildrenHotspotsCounts(10, 10, 10, 2)
+      .expectedResult(3d);
+
+    new HierarchyTester(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)
+      .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
+      .withChildrenHotspotsCounts(10, 2, 10, 10)
+      .expectedResult(3d);
+
     new HierarchyTester(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED)
       .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1d)
       .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
@@ -818,44 +838,44 @@ public class MeasureUpdateFormulaFactoryImplTest {
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "160")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 160.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 12.5)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.C);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "10")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 10.0D)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 200.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.E);
 
     // A is 5% --> min debt is exactly 200*0.05=10
-    with(CoreMetrics.NEW_DEVELOPMENT_COST, "200")
+    withLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
       .andLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 5.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "0")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "80")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "0")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // bug, debt can't be negative
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "80")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // bug, cost can't be negative
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andText(CoreMetrics.NEW_DEVELOPMENT_COST, "-80")
+      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, -80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
   }
@@ -992,11 +1012,33 @@ public class MeasureUpdateFormulaFactoryImplTest {
       this.initialValues = initialValues;
     }
 
-    @Override public List<Double> getChildrenValues() {
+    @Override
+    public List<Double> getChildrenValues() {
       return initialValues.childrenValues;
     }
 
-    @Override public List<Double> getChildrenLeakValues() {
+    @Override
+    public long getChildrenHotspotsReviewed() {
+      return initialValues.childrenHotspotsReviewed;
+    }
+
+    @Override
+    public long getChildrenHotspotsToReview() {
+      return initialValues.childrenHotspotsToReview;
+    }
+
+    @Override
+    public long getChildrenNewHotspotsReviewed() {
+      return initialValues.childrenNewHotspotsReviewed;
+    }
+
+    @Override
+    public long getChildrenNewHotspotsToReview() {
+      return initialValues.childrenNewHotspotsToReview;
+    }
+
+    @Override
+    public List<Double> getChildrenLeakValues() {
       return initialValues.childrenLeakValues;
     }
 
@@ -1067,6 +1109,11 @@ public class MeasureUpdateFormulaFactoryImplTest {
     private final List<Double> childrenValues = new ArrayList<>();
     private final List<Double> childrenLeakValues = new ArrayList<>();
     private final Map<Metric, String> text = new HashMap<>();
+    private long childrenHotspotsReviewed = 0;
+    private long childrenNewHotspotsReviewed = 0;
+    private long childrenHotspotsToReview = 0;
+    private long childrenNewHotspotsToReview = 0;
+
   }
 
   private class HierarchyTester {
@@ -1086,6 +1133,15 @@ public class MeasureUpdateFormulaFactoryImplTest {
       } else {
         this.initialValues.values.put(metric, value);
       }
+      return this;
+    }
+
+    public HierarchyTester withChildrenHotspotsCounts(long childrenHotspotsReviewed, long childrenNewHotspotsReviewed, long childrenHotspotsToReview,
+      long childrenNewHotspotsToReview) {
+      this.initialValues.childrenHotspotsReviewed = childrenHotspotsReviewed;
+      this.initialValues.childrenNewHotspotsReviewed = childrenNewHotspotsReviewed;
+      this.initialValues.childrenHotspotsToReview = childrenHotspotsToReview;
+      this.initialValues.childrenNewHotspotsToReview = childrenNewHotspotsToReview;
       return this;
     }
 

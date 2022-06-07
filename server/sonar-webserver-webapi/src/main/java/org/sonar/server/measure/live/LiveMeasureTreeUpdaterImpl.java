@@ -22,6 +22,7 @@ package org.sonar.server.measure.live;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
@@ -36,17 +37,23 @@ import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
 public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
   private final DbClient dbClient;
   private final MeasureUpdateFormulaFactory formulaFactory;
-  private final HotspotMeasureUpdater hotspotMeasureUpdater;
 
-  public LiveMeasureTreeUpdaterImpl(DbClient dbClient, MeasureUpdateFormulaFactory formulaFactory, HotspotMeasureUpdater hotspotMeasureUpdater) {
+  public LiveMeasureTreeUpdaterImpl(DbClient dbClient, MeasureUpdateFormulaFactory formulaFactory) {
     this.dbClient = dbClient;
     this.formulaFactory = formulaFactory;
-    this.hotspotMeasureUpdater = hotspotMeasureUpdater;
   }
 
   @Override
@@ -59,12 +66,6 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     // 2. aggregate new measures up the component tree
     updateMatrixWithHierarchy(measures, components, config, shouldUseLeakFormulas);
-
-    // 3. Count hotspots at root level
-    // this is only necessary because the count of reviewed and to_review hotspots is only saved for the root (not for all components).
-    // For that reason, we can't incrementally generate the new counts up the tree. To have the correct numbers for the root component, we
-    // run this extra step that set the hotspots measures to the root based on the total count of hotspots.
-    hotspotMeasureUpdater.apply(dbSession, measures, components, shouldUseLeakFormulas, beginningOfLeak);
   }
 
   private void updateMatrixWithHierarchy(MeasureMatrix matrix, ComponentIndex components, Configuration config, boolean useLeakFormulas) {
@@ -135,7 +136,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       this.debtRatingGrid = debtRatingGrid;
     }
 
-    private void change(ComponentDto component, MeasureUpdateFormula formula) {
+    void change(ComponentDto component, MeasureUpdateFormula formula) {
       this.currentComponent = component;
       this.currentFormula = formula;
     }
@@ -147,6 +148,65 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
         .map(LiveMeasureDto::getValue)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
+    }
+
+    /**
+     * Some child components may not have the measures 'SECURITY_HOTSPOTS_TO_REVIEW_STATUS' and 'SECURITY_HOTSPOTS_REVIEWED_STATUS' saved for them,
+     * so we may need to calculate them based on 'SECURITY_HOTSPOTS_REVIEWED' and 'SECURITY_HOTSPOTS'.
+     */
+    @Override
+    public long getChildrenHotspotsReviewed() {
+      return getChildrenHotspotsReviewed(LiveMeasureDto::getValue, SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_HOTSPOTS_KEY);
+    }
+
+    /**
+     * Some child components may not have the measure 'SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY'. We assume that 'SECURITY_HOTSPOTS_KEY' has the same value.
+     */
+    @Override
+    public long getChildrenHotspotsToReview() {
+      return componentIndex.getChildren(currentComponent)
+        .stream()
+        .map(c -> matrix.getMeasure(c, SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).or(() -> matrix.getMeasure(c, SECURITY_HOTSPOTS_KEY)))
+        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getValue())).orElse(0D).longValue())
+        .sum();
+    }
+
+    @Override
+    public long getChildrenNewHotspotsReviewed() {
+      return getChildrenHotspotsReviewed(LiveMeasureDto::getVariation, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, NEW_SECURITY_HOTSPOTS_KEY);
+    }
+
+    /**
+     * Some child components may not have the measure 'NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY'. We assume that 'NEW_SECURITY_HOTSPOTS_KEY' has the same value.
+     */
+    @Override
+    public long getChildrenNewHotspotsToReview() {
+      return componentIndex.getChildren(currentComponent)
+        .stream()
+        .map(c -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).or(() -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_KEY)))
+        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getVariation())).orElse(0D).longValue())
+        .sum();
+    }
+
+    private long getChildrenHotspotsReviewed(Function<LiveMeasureDto, Double> valueFunc, String metricKey, String percMetricKey, String hotspotsMetricKey) {
+      return componentIndex.getChildren(currentComponent)
+        .stream()
+        .mapToLong(c -> getHotspotsReviewed(c, valueFunc, metricKey, percMetricKey, hotspotsMetricKey))
+        .sum();
+    }
+
+    private long getHotspotsReviewed(ComponentDto c, Function<LiveMeasureDto, Double> valueFunc, String metricKey, String percMetricKey, String hotspotsMetricKey) {
+      Optional<LiveMeasureDto> measure = matrix.getMeasure(c, metricKey);
+      return measure.map(lm -> Optional.ofNullable(valueFunc.apply(lm)).orElse(0D).longValue())
+        .orElseGet(() -> matrix.getMeasure(c, percMetricKey)
+          .flatMap(percentage -> matrix.getMeasure(c, hotspotsMetricKey)
+            .map(hotspots -> {
+              double perc = Optional.ofNullable(valueFunc.apply(percentage)).orElse(0D) / 100D;
+              double toReview = Optional.ofNullable(valueFunc.apply(hotspots)).orElse(0D);
+              double reviewed = (toReview * perc) / (1D - perc);
+              return Math.round(reviewed);
+            }))
+          .orElse(0L));
     }
 
     public List<Double> getChildrenLeakValues() {

@@ -224,9 +224,9 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectDescendants(query, componentOpt.get().uuid(), query.getUuidPath(component));
   }
 
-  public List<ComponentDto> selectChildren(DbSession dbSession, Collection<ComponentDto> components) {
+  public List<ComponentDto> selectChildren(DbSession dbSession, String branchUuid, Collection<ComponentDto> components) {
     Set<String> uuidPaths = components.stream().map(c -> c.getUuidPath() + c.uuid() + ".").collect(Collectors.toSet());
-    return mapper(dbSession).selectChildren(uuidPaths);
+    return mapper(dbSession).selectChildren(branchUuid, uuidPaths);
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

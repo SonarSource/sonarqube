@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -40,19 +41,24 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.api.CoreProperties.RATING_GRID;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
 
 public class LiveMeasureTreeUpdaterImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
   private final Configuration config = new MapSettings().setProperty(RATING_GRID, "0.05,0.1,0.2,0.5").asConfig();
-  private final HotspotMeasureUpdater hotspotMeasureUpdater = mock(HotspotMeasureUpdater.class);
   private LiveMeasureTreeUpdaterImpl treeUpdater;
   private ComponentIndexImpl componentIndex;
   private MeasureMatrix matrix;
@@ -84,7 +90,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void should_aggregate_values_up_the_hierarchy() {
     snapshot = db.components().insertSnapshot(project);
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula());
 
     componentIndex.load(db.getSession(), List.of(file1));
     List<LiveMeasureDto> initialValues = List.of(
@@ -106,7 +112,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void should_set_values_up_the_hierarchy() {
     snapshot = db.components().insertSnapshot(project);
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new SetValuesFormula(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new SetValuesFormula());
 
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
@@ -121,7 +127,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void dont_use_leak_formulas_if_no_period() {
     snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(null));
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak());
 
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
@@ -133,7 +139,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   public void use_leak_formulas_if_pr() {
     snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(null));
     branch.setBranchType(BranchType.PULL_REQUEST);
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak());
 
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
@@ -144,7 +150,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void calculate_new_metrics_if_using_new_code_branch_reference() {
     snapshot = db.components().insertSnapshot(project, s -> s.setPeriodMode(NewCodePeriodType.REFERENCE_BRANCH.name()));
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak());
 
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
@@ -155,9 +161,9 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void issue_counter_based_on_new_code_branch_reference() {
     snapshot = db.components().insertSnapshot(project, s -> s.setPeriodMode(NewCodePeriodType.REFERENCE_BRANCH.name()));
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak());
 
-    RuleDto rule = db.rules().insert();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.BUG));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file1);
     IssueDto issue2 = db.issues().insertIssue(rule, project, file1);
     db.issues().insertNewCodeReferenceIssue(issue1);
@@ -170,7 +176,7 @@ public class LiveMeasureTreeUpdaterImplTest {
   @Test
   public void issue_counter_uses_begin_of_leak() {
     snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(1000L));
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak());
 
     db.issues().insertIssue(i -> i.setIssueCreationDate(new Date(999)).setComponentUuid(file1.uuid()));
     db.issues().insertIssue(i -> i.setIssueCreationDate(new Date(1001)).setComponentUuid(file1.uuid()));
@@ -183,13 +189,64 @@ public class LiveMeasureTreeUpdaterImplTest {
   }
 
   @Test
-  public void calls_hotspot_updater() {
-    snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(1000L));
-
+  public void context_calculates_hotspot_counts_from_percentage() {
+    List<MetricDto> metrics = List.of(new MetricDto().setKey(SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
     componentIndex.load(db.getSession(), List.of(file1));
-    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new CountUnresolvedInLeak(), hotspotMeasureUpdater);
-    treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
-    verify(hotspotMeasureUpdater).apply(eq(db.getSession()), any(), eq(componentIndex), eq(true), eq(1000L));
+    matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
+
+    LiveMeasureTreeUpdaterImpl.FormulaContextImpl context = new LiveMeasureTreeUpdaterImpl.FormulaContextImpl(matrix, componentIndex, null);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_KEY, 4d);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_REVIEWED_KEY, 33d);
+
+    matrix.setValue(file2, SECURITY_HOTSPOTS_KEY, 2d);
+    matrix.setValue(file2, SECURITY_HOTSPOTS_REVIEWED_KEY, 50d);
+
+    context.change(dir, null);
+    assertThat(context.getChildrenHotspotsToReview()).isEqualTo(6);
+    assertThat(context.getChildrenHotspotsReviewed()).isEqualTo(4);
+  }
+
+  @Test
+  public void context_calculates_new_hotspot_counts_from_percentage() {
+    List<MetricDto> metrics = List.of(new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY),
+      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
+    componentIndex.load(db.getSession(), List.of(file1));
+    matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
+
+    LiveMeasureTreeUpdaterImpl.FormulaContextImpl context = new LiveMeasureTreeUpdaterImpl.FormulaContextImpl(matrix, componentIndex, null);
+    matrix.setLeakValue(file1, NEW_SECURITY_HOTSPOTS_KEY, 4d);
+    matrix.setLeakValue(file1, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 33d);
+
+    matrix.setLeakValue(file2, NEW_SECURITY_HOTSPOTS_KEY, 2d);
+    matrix.setLeakValue(file2, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 50d);
+
+    context.change(dir, null);
+    assertThat(context.getChildrenNewHotspotsToReview()).isEqualTo(6);
+    assertThat(context.getChildrenNewHotspotsReviewed()).isEqualTo(4);
+  }
+
+  @Test
+  public void context_returns_hotspots_counts_from_measures() {
+    List<MetricDto> metrics = List.of(new MetricDto().setKey(SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
+    componentIndex.load(db.getSession(), List.of(file1));
+    matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
+
+    LiveMeasureTreeUpdaterImpl.FormulaContextImpl context = new LiveMeasureTreeUpdaterImpl.FormulaContextImpl(matrix, componentIndex, null);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, 5D);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, 5D);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_KEY, 6d);
+    matrix.setValue(file1, SECURITY_HOTSPOTS_REVIEWED_KEY, 33d);
+
+    matrix.setValue(file2, SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, 5D);
+    matrix.setValue(file2, SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, 5D);
+    matrix.setValue(file2, SECURITY_HOTSPOTS_KEY, 4d);
+    matrix.setValue(file2, SECURITY_HOTSPOTS_REVIEWED_KEY, 50d);
+
+    context.change(dir, null);
+    assertThat(context.getChildrenHotspotsToReview()).isEqualTo(10);
+    assertThat(context.getChildrenHotspotsReviewed()).isEqualTo(10);
   }
 
   private class AggregateValuesFormula implements MeasureUpdateFormulaFactory {
@@ -202,6 +259,18 @@ public class LiveMeasureTreeUpdaterImplTest {
     @Override
     public Set<Metric> getFormulaMetrics() {
       return Set.of(metric);
+    }
+  }
+
+  private class NoOpFormula implements MeasureUpdateFormulaFactory {
+
+    @Override
+    public List<MeasureUpdateFormula> getFormulas() {
+      return emptyList();
+    }
+
+    @Override public Set<Metric> getFormulaMetrics() {
+      return emptySet();
     }
   }
 

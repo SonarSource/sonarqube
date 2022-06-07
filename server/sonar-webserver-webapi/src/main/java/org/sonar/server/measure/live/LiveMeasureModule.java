@@ -29,7 +29,6 @@ public class LiveMeasureModule extends Module {
       ComponentIndexFactory.class,
       LiveMeasureTreeUpdaterImpl.class,
       LiveMeasureComputerImpl.class,
-      HotspotMeasureUpdater.class,
       LiveQualityGateComputerImpl.class);
   }
 }

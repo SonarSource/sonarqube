@@ -40,17 +40,17 @@ public class SecurityReviewRating {
     if (total == 0) {
       return Optional.empty();
     }
-    return Optional.of(hotspotsReviewed * 100.0 / total);
+    return Optional.of(hotspotsReviewed * 100.0D / total);
   }
 
   public static Rating computeRating(@Nullable Double percent) {
-    if (percent == null || percent >= 80.0) {
+    if (percent == null || percent >= 80.0D) {
       return A;
-    } else if (percent >= 70.0) {
+    } else if (percent >= 70.0D) {
       return B;
-    } else if (percent >= 50.0) {
+    } else if (percent >= 50.0D) {
       return C;
-    } else if (percent >= 30.0) {
+    } else if (percent >= 30.0D) {
       return D;
     }
     return E;

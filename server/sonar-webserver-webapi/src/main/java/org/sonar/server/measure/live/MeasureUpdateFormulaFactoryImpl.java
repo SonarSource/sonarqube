@@ -119,10 +119,12 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.SECURITY_RATING, false, new MaxRatingChildren(),
       (context, issues) -> context.setValue(RATING_BY_SEVERITY.get(issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, false).orElse(Severity.INFO)))),
 
-    new MeasureUpdateFormula(SECURITY_HOTSPOTS_REVIEWED_STATUS, false, new AddChildren(),
+    new MeasureUpdateFormula(SECURITY_HOTSPOTS_REVIEWED_STATUS, false,
+      (context, formula) -> context.setValue(context.getValue(SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenHotspotsReviewed()),
       (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))),
 
-    new MeasureUpdateFormula(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, false, new AddChildren(),
+    new MeasureUpdateFormula(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, false,
+      (context, formula) -> context.setValue(context.getValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenHotspotsToReview()),
       (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false,
@@ -193,10 +195,12 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
         context.setLeakValue(RATING_BY_SEVERITY.get(highestSeverity));
       }),
 
-    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true, new AddChildren(),
+    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true,
+      (context, formula) -> context.setLeakValue(context.getLeakValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenNewHotspotsReviewed()),
       (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
 
-    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, true, new AddChildren(),
+    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, true,
+      (context, formula) -> context.setLeakValue(context.getLeakValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenNewHotspotsToReview()),
       (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED, true,
@@ -239,7 +243,7 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
   private static double newDebtDensity(MeasureUpdateFormula.Context context) {
     double debt = Math.max(context.getLeakValue(CoreMetrics.NEW_TECHNICAL_DEBT).orElse(0.0D), 0.0D);
-    Optional<Double> devCost = context.getText(CoreMetrics.NEW_DEVELOPMENT_COST).map(Double::parseDouble);
+    Optional<Double> devCost = context.getLeakValue(CoreMetrics.NEW_DEVELOPMENT_COST);
     if (devCost.isPresent() && Double.doubleToRawLongBits(devCost.get()) > 0L) {
       return debt / devCost.get();
     }

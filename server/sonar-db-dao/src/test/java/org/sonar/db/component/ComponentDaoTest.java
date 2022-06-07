@@ -1684,16 +1684,16 @@ public class ComponentDaoTest {
     db.commit();
 
     // test children of root
-    assertThat(underTest.selectChildren(dbSession, List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
 
     // test children of intermediate component (module here)
-    assertThat(underTest.selectChildren(dbSession, List.of(module))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(module))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
 
     // test children of leaf component (file here)
-    assertThat(underTest.selectChildren(dbSession, List.of(fileInProject))).isEmpty();
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(fileInProject))).isEmpty();
 
     // test children of 2 components
-    assertThat(underTest.selectChildren(dbSession, List.of(project, module))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID, FILE_2_UUID, FILE_3_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project, module))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID, FILE_2_UUID, FILE_3_UUID);
   }
 
   @Test

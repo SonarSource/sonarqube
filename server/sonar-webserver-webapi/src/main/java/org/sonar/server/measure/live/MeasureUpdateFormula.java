@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.DoubleStream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.measure.DebtRatingGrid;
@@ -78,6 +79,14 @@ class MeasureUpdateFormula {
 
   interface Context {
     List<Double> getChildrenValues();
+
+    long getChildrenHotspotsReviewed();
+
+    long getChildrenHotspotsToReview();
+
+    long getChildrenNewHotspotsReviewed();
+
+    long getChildrenNewHotspotsToReview();
 
     List<Double> getChildrenLeakValues();
 

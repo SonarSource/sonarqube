@@ -53,7 +53,7 @@ public class ComponentIndexImpl implements ComponentIndex {
     sortedComponentsToRoot = loadTreeOfComponents(dbSession, touchedComponents);
     branchComponent = findBranchComponent(sortedComponentsToRoot);
     children = new HashMap<>();
-    List<ComponentDto> childComponents = loadChildren(dbSession, sortedComponentsToRoot);
+    List<ComponentDto> childComponents = loadChildren(dbSession, branchComponent.uuid(), sortedComponentsToRoot);
     for (ComponentDto c : childComponents) {
       List<String> uuidPathAsList = c.getUuidPathAsList();
       String parentUuid = uuidPathAsList.get(uuidPathAsList.size() - 1);
@@ -66,8 +66,8 @@ public class ComponentIndexImpl implements ComponentIndex {
       .orElseThrow(() -> new IllegalStateException("No project found in " + components));
   }
 
-  private List<ComponentDto> loadChildren(DbSession dbSession, Collection<ComponentDto> components) {
-    return dbClient.componentDao().selectChildren(dbSession, components);
+  private List<ComponentDto> loadChildren(DbSession dbSession, String branchUuid, Collection<ComponentDto> components) {
+    return dbClient.componentDao().selectChildren(dbSession, branchUuid, components);
   }
 
   private List<ComponentDto> loadTreeOfComponents(DbSession dbSession, List<ComponentDto> touchedComponents) {
