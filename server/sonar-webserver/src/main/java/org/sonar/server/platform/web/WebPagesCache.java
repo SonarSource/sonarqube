@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Configuration;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.Platform.Status;
@@ -35,7 +33,6 @@ import org.sonar.server.platform.Platform.Status;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.platform.Platform.Status.UP;
 
 public class WebPagesCache {
@@ -45,24 +42,21 @@ public class WebPagesCache {
   private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
   private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";
 
-  private static final String SONARCLOUD_INSTANCE_VALUE = "SonarCloud";
   private static final String SONARQUBE_INSTANCE_VALUE = "SonarQube";
 
   private static final String INDEX_HTML_PATH = "/index.html";
 
-  private static final Set<String> HTML_PATHS = ImmutableSet.of(INDEX_HTML_PATH);
+  private static final Set<String> HTML_PATHS = Set.of(INDEX_HTML_PATH);
 
   private final Platform platform;
-  private final Configuration configuration;
   private final OfficialDistribution officialDistribution;
 
   private ServletContext servletContext;
   private Map<String, String> indexHtmlByPath;
   private Status status;
 
-  public WebPagesCache(Platform platform, Configuration configuration, OfficialDistribution officialDistribution) {
+  public WebPagesCache(Platform platform, OfficialDistribution officialDistribution) {
     this.platform = platform;
-    this.configuration = configuration;
     this.indexHtmlByPath = new HashMap<>();
     this.officialDistribution = officialDistribution;
   }
@@ -93,19 +87,17 @@ public class WebPagesCache {
 
   private String provide(String path) {
     getClass().getResourceAsStream(INDEX_HTML_PATH);
-    boolean isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
-    String instance = isSonarCloud ? SONARCLOUD_INSTANCE_VALUE : SONARQUBE_INSTANCE_VALUE;
-    return loadHtmlFile(path, status.name(), instance);
+    return loadHtmlFile(path, status.name());
   }
 
-  private String loadHtmlFile(String path, String serverStatus, String instance) {
+  private String loadHtmlFile(String path, String serverStatus) {
     try (InputStream input = servletContext.getResourceAsStream(path)) {
       String template = IOUtils.toString(requireNonNull(input), UTF_8);
       return template
-        .replaceAll(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
-        .replaceAll(SERVER_STATUS_PLACEHOLDER, serverStatus)
-        .replaceAll(INSTANCE_PLACEHOLDER, instance)
-        .replaceAll(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
+        .replace(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
+        .replace(SERVER_STATUS_PLACEHOLDER, serverStatus)
+        .replace(INSTANCE_PLACEHOLDER, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
+        .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load file " + path, e);
     }

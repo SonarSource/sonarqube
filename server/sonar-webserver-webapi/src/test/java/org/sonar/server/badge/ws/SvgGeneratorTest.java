@@ -42,13 +42,10 @@ public class SvgGeneratorTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings mapSettings = new MapSettings();
-
   private SvgGenerator underTest;
 
   @Test
   public void generate_badge() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
     String result = underTest.generateBadge("label", "10", DEFAULT);
@@ -58,7 +55,6 @@ public class SvgGeneratorTest {
 
   @Test
   public void generate_quality_gate() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
     String result = underTest.generateQualityGate(ERROR);
@@ -68,7 +64,6 @@ public class SvgGeneratorTest {
 
   @Test
   public void generate_deprecated_warning_quality_gate() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
     String result = underTest.generateQualityGate(WARN);
@@ -78,7 +73,6 @@ public class SvgGeneratorTest {
 
   @Test
   public void generate_error() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
     String result = underTest.generateError("Error");
@@ -88,7 +82,6 @@ public class SvgGeneratorTest {
 
   @Test
   public void fail_when_unknown_character() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
     assertThatThrownBy(() -> underTest.generateError("Méssage with accent"))
@@ -96,7 +89,7 @@ public class SvgGeneratorTest {
   }
 
   private void initSvgGenerator() {
-    underTest = new SvgGenerator(mapSettings.asConfig());
+    underTest = new SvgGenerator();
   }
 
   private void checkBadge(String svg, String expectedLabel, String expectedValue, SvgGenerator.Color expectedColorValue) {

@@ -45,6 +45,8 @@ public class DbVersion95 implements DbVersion {
       .add(6414, "Drop rules_metadata table", DropRuleMetadataTable.class)
 
       .add(6415, "Migrate hotspot rule descriptions", MigrateHotspotRuleDescriptions.class)
+
+      .add(6416, "Remove onboarded column from User table", DropOnboardedColumnFromUserTable.class)
     ;
   }
 }

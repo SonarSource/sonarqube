@@ -86,7 +86,8 @@ public class CurrentAction implements UsersWsAction {
       .setChangelog(
         new Change("6.5", "showOnboardingTutorial is now returned in the response"),
         new Change("7.1", "'parameter' is replaced by 'component' and 'organization' in the response"),
-        new Change("9.2", "boolean 'usingSonarLintConnectedMode' and 'sonarLintAdSeen' fields are now returned in the response"));
+        new Change("9.2", "boolean 'usingSonarLintConnectedMode' and 'sonarLintAdSeen' fields are now returned in the response"),
+        new Change("9.5", "showOnboardingTutorial is not returned anymore in the response"));
   }
 
   @Override
@@ -118,7 +119,6 @@ public class CurrentAction implements UsersWsAction {
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
-      .setShowOnboardingTutorial(!user.isOnboarded())
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .setSonarLintAdSeen(user.isSonarlintAdSeen());
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);

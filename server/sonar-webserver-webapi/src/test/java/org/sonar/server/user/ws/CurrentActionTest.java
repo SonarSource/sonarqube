@@ -71,8 +71,7 @@ public class CurrentActionTest {
       .setLocal(true)
       .setExternalLogin("obiwan")
       .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(false));
+      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
     userSession.logIn(user);
 
     CurrentWsResponse response = call();
@@ -80,9 +79,9 @@ public class CurrentActionTest {
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar,
         CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
-        newArrayList("obiwan:github", "obiwan:bitbucket"), true);
+        newArrayList("obiwan:github", "obiwan:bitbucket"));
   }
 
   @Test
@@ -185,7 +184,6 @@ public class CurrentActionTest {
       .setExternalLogin("obiwan.kenobi")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(true)
       .setHomepageType("PROJECT")
       .setHomepageParameter("UUID-of-the-death-star"));
     userSession
@@ -231,7 +229,7 @@ public class CurrentActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).hasSize(3);
+    assertThat(definition.changelog()).hasSize(4);
   }
 
   private CurrentWsResponse call() {

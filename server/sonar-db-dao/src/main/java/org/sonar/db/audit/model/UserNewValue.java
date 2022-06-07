@@ -56,9 +56,6 @@ public class UserNewValue extends NewValue {
   private Boolean local;
 
   @Nullable
-  private Boolean onboarded;
-
-  @Nullable
   private Boolean root;
 
   @Nullable
@@ -80,7 +77,6 @@ public class UserNewValue extends NewValue {
     this.externalLogin = userDto.getExternalLogin();
     this.externalIdentityProvider = userDto.getExternalIdentityProvider();
     this.local = userDto.isLocal();
-    this.onboarded = userDto.isOnboarded();
     this.root = userDto.isRoot();
     this.lastConnectionDate = userDto.getLastConnectionDate();
   }
@@ -134,11 +130,6 @@ public class UserNewValue extends NewValue {
   }
 
   @CheckForNull
-  public Boolean isOnboarded() {
-    return this.onboarded;
-  }
-
-  @CheckForNull
   public Boolean isRoot() {
     return this.root;
   }
@@ -161,7 +152,6 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"externalLogin\": ", this.externalLogin, true);
     addField(sb, "\"externalIdentityProvider\": ", this.externalIdentityProvider, true);
     addField(sb, "\"local\": ", ObjectUtils.toString(this.local), false);
-    addField(sb, "\"onboarded\": ", ObjectUtils.toString(this.onboarded), false);
     addField(sb, "\"root\": ", ObjectUtils.toString(this.root), false);
     addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
       "" : DateUtils.formatDateTime(this.lastConnectionDate), true);

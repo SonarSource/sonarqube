@@ -132,23 +132,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_sonarcloud_settings() {
-    settings.setProperty("sonar.sonarcloud.enabled", true);
-    settings.setProperty("sonar.prismic.accessToken", "secret");
-    settings.setProperty("sonar.analytics.gtm.trackingId", "gtm_id");
-    settings.setProperty("sonar.homepage.url", "https://s3/homepage.json");
-    init();
-
-    assertJson(call()).isSimilarTo("{" +
-      "  \"settings\": {" +
-      "    \"sonar.prismic.accessToken\": \"secret\"," +
-      "    \"sonar.analytics.gtm.trackingId\": \"gtm_id\"," +
-      "    \"sonar.homepage.url\": \"https://s3/homepage.json\"" +
-      "  }" +
-      "}");
-  }
-
-  @Test
   public void return_developer_info_disabled_setting() {
     init();
     settings.setProperty("sonar.developerAggregatedInfo.disabled", true);

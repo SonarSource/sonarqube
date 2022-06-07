@@ -53,7 +53,6 @@ public class UserDto implements UserId {
   private String homepageParameter;
   private boolean local = true;
   private boolean root = false;
-  private boolean onboarded = false;
   private boolean resetPassword = false;
   private boolean sonarlintAdSeen = false;
 
@@ -259,15 +258,6 @@ public class UserDto implements UserId {
    */
   protected void setRoot(boolean root) {
     this.root = root;
-  }
-
-  public boolean isOnboarded() {
-    return onboarded;
-  }
-
-  public UserDto setOnboarded(boolean onboarded) {
-    this.onboarded = onboarded;
-    return this;
   }
 
   public boolean isResetPassword() {

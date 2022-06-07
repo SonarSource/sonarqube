@@ -32,7 +32,7 @@ public class ChangeLogLevelServiceModuleTest {
   private final ChangeLogLevelServiceModule underTest = new ChangeLogLevelServiceModule(webServer);
 
   @Test
-  public void provide_returns_ChangeLogLevelClusterService_if_cluster_not_on_SonarCloud() {
+  public void provide_returns_ChangeLogLevelClusterService() {
     when(webServer.isStandalone()).thenReturn(false);
     ListContainer container = new ListContainer();
 

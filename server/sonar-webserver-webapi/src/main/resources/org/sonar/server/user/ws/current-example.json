@@ -7,7 +7,6 @@
   "local": true,
   "externalIdentity": "obiwan.kenobi",
   "externalProvider": "sonarqube",
-  "showOnboardingTutorial": false,
   "scmAccounts": ["obiwan:github", "obiwan:bitbucket"],
   "groups": ["Jedi", "Rebel"],
   "usingSonarLintConnectedMode": false,

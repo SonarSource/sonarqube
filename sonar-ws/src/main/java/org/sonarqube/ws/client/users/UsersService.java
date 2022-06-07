@@ -171,19 +171,6 @@ public class UsersService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/skip_onboarding_tutorial">Further information about this action online (including a response example)</a>
-   * @since 6.5
-   */
-  public void skipOnboardingTutorial() {
-    call(
-      new PostRequest(path("skip_onboarding_tutorial"))
-        .setMediaType(MediaTypes.JSON)).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/update">Further information about this action online (including a response example)</a>
    * @since 3.7
    */

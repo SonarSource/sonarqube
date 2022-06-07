@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
@@ -34,7 +33,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 @ServerSide
 public class SvgGenerator {
@@ -109,8 +107,7 @@ public class SvgGenerator {
     .put('\'', 3)
     .build();
 
-  private static final String TEMPLATES_SONARCLOUD = "templates/sonarcloud";
-  private static final String TEMPLATES_SONARQUBE = "templates/sonarqube";
+  private static final String TEMPLATES_PATH = "templates/sonarqube";
 
   private static final int MARGIN = 6;
   private static final int ICON_WIDTH = 20;
@@ -130,15 +127,13 @@ public class SvgGenerator {
   private final String badgeTemplate;
   private final Map<Metric.Level, String> qualityGateTemplates;
 
-  public SvgGenerator(Configuration config) {
-    boolean isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
-    String templatePath = isOnSonarCloud ? TEMPLATES_SONARCLOUD : TEMPLATES_SONARQUBE;
+  public SvgGenerator() {
     this.errorTemplate = readTemplate("templates/error.svg");
-    this.badgeTemplate = readTemplate(templatePath + "/badge.svg");
-    this.qualityGateTemplates = ImmutableMap.of(
-      OK, readTemplate(templatePath + "/quality_gate_passed.svg"),
-      WARN, readTemplate(templatePath + "/quality_gate_warn.svg"),
-      ERROR, readTemplate(templatePath + "/quality_gate_failed.svg"));
+    this.badgeTemplate = readTemplate(TEMPLATES_PATH + "/badge.svg");
+    this.qualityGateTemplates = Map.of(
+      OK, readTemplate(TEMPLATES_PATH + "/quality_gate_passed.svg"),
+      WARN, readTemplate(TEMPLATES_PATH + "/quality_gate_warn.svg"),
+      ERROR, readTemplate(TEMPLATES_PATH + "/quality_gate_failed.svg"));
   }
 
   public String generateBadge(String label, String value, Color backgroundValueColor) {

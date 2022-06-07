@@ -343,7 +343,6 @@ public class UserDaoTest {
     assertThat(user).isNotNull();
     assertThat(user.getUuid()).isNotNull();
     assertThat(user.isActive()).isTrue();
-    assertThat(user.isOnboarded()).isFalse();
     assertThat(user.isResetPassword()).isFalse();
     assertThat(user.isLocal()).isTrue();
     assertThat(user.isRoot()).isFalse();
@@ -366,7 +365,6 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setScmAccounts(",jo.hn,john2,")
       .setActive(true)
-      .setOnboarded(true)
       .setResetPassword(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
@@ -389,7 +387,6 @@ public class UserDaoTest {
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
     assertThat(user.isActive()).isTrue();
-    assertThat(user.isOnboarded()).isTrue();
     assertThat(user.isResetPassword()).isTrue();
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
@@ -423,7 +420,6 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setActive(true)
       .setLocal(true)
-      .setOnboarded(false)
       .setResetPassword(false));
 
     underTest.update(db.getSession(), newUserDto()
@@ -433,7 +429,6 @@ public class UserDaoTest {
       .setEmail("jodoo@hn.com")
       .setScmAccounts(",jo.hn,john2,johndoo,")
       .setActive(false)
-      .setOnboarded(true)
       .setResetPassword(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
@@ -453,7 +448,6 @@ public class UserDaoTest {
     assertThat(reloaded.getName()).isEqualTo("John Doo");
     assertThat(reloaded.getEmail()).isEqualTo("jodoo@hn.com");
     assertThat(reloaded.isActive()).isFalse();
-    assertThat(reloaded.isOnboarded()).isTrue();
     assertThat(reloaded.isResetPassword()).isTrue();
     assertThat(reloaded.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(reloaded.getSalt()).isEqualTo("12345");

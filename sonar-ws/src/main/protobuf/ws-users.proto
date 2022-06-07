@@ -107,7 +107,7 @@ message CurrentWsResponse {
   repeated string scmAccounts = 8;
   repeated string groups = 9;
   optional Permissions permissions = 10;
-  optional bool showOnboardingTutorial = 11;
+  reserved 11; // showOnboardingTutorial removed
   optional string avatar = 12;
   optional Homepage homepage = 13;
   reserved 15; // settings removed

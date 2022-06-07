@@ -36,7 +36,6 @@ public class UserTesting {
       .setLogin(randomAlphanumeric(30))
       .setName(randomAlphanumeric(30))
       .setEmail(randomAlphanumeric(30))
-      .setOnboarded(nextBoolean())
       .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalId(randomAlphanumeric(40))
       .setExternalLogin(randomAlphanumeric(40))

@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.cleaning;
+package org.sonar.server.platform.db.migration.version.v95;
 
-public class NoopCeCleaningSchedulerImpl implements CeCleaningScheduler {
-  @Override
-  public void startScheduling() {
-    // do nothing
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
+
+public class DropOnboardedColumnFromUserTable extends DropColumnChange {
+
+  protected DropOnboardedColumnFromUserTable(Database db) {
+    super(db, "users", "onboarded");
   }
 }

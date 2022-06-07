@@ -174,12 +174,6 @@ public class ProcessProperties {
 
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
-    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", DEFAULT_FALSE),
-    SONARCLOUD_HOMEPAGE_URL("sonar.homepage.url", ""),
-    SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
-    SONAR_ANALYTICS_GTM_TRACKING_ID("sonar.analytics.gtm.trackingId", ""),
-    ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS("sonar.onboardingTutorial.showToNewUsers", "true"),
-
     /**
      * Used by Orchestrator to ask for shutdown of monitor process
      */

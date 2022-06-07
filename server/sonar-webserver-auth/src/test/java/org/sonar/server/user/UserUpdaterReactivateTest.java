@@ -47,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 
 public class UserUpdaterReactivateTest {
 
@@ -235,36 +234,6 @@ public class UserUpdaterReactivateTest {
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList(userDto.getLogin()));
     assertThat(groups.get(userDto.getLogin()).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isTrue();
-  }
-
-  @Test
-  public void reactivate_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
-    UserDto user = db.users().insertDisabledUser(u -> u.setOnboarded(false));
-    createDefaultGroup();
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .build(), u -> {
-      });
-
-    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
-  }
-
-  @Test
-  public void reactivate_onboarded_user_if_onboarding_setting_is_set_to_true() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
-    UserDto user = db.users().insertDisabledUser(u -> u.setOnboarded(true));
-    createDefaultGroup();
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .build(), u -> {
-      });
-
-    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }
 
   @Test

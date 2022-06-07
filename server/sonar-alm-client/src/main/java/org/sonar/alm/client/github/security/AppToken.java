@@ -25,13 +25,13 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * JWT (Json Web Token) to authenticate API requests on behalf
- * of the SonarCloud App.
+ * of the Github App.
  *
  * Token expires after {@link #EXPIRATION_PERIOD_IN_MINUTES} minutes.
  *
  * IMPORTANT
  * Rate limit is 5'000 API requests per hour for ALL the clients
- * of the SonarCloud App (all instances of {@link AppToken} from Compute Engines/web servers
+ * of the Github App (all instances of {@link AppToken} from Compute Engines/web servers
  * and from the other SonarSource services using the App). For example three calls with
  * three different tokens will consume 3 hits. Remaining quota will be 4'997.
  * When the token is expired, the rate limit is 60 calls per hour for the public IP
@@ -42,7 +42,7 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class AppToken implements AccessToken {
 
-  // SONARCLOUD-468 maximum allowed by GitHub is 10 minutes but we use 9 minutes just in case clocks are not synchronized
+  // maximum allowed by GitHub is 10 minutes but we use 9 minutes just in case clocks are not synchronized
   static final int EXPIRATION_PERIOD_IN_MINUTES = 9;
 
   private final String jwt;

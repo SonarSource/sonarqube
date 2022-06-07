@@ -65,7 +65,7 @@ public class FileSystemMediumTest {
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
-    .setEdition(SonarEdition.SONARCLOUD)
+    .setEdition(SonarEdition.COMMUNITY)
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addDefaultQProfile("xoo2", "Sonar Way");

@@ -163,7 +163,7 @@ public class DefaultSensorStorage implements SensorStorage {
     }
 
     if (!measure.isFromCore() && NEWLY_CORE_METRICS_KEYS.contains(measure.metric().key())) {
-      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube/SonarCloud. Provided value is ignored.", measure.metric().key());
+      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.", measure.metric().key());
       return;
     }
 

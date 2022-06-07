@@ -55,7 +55,6 @@ import static java.util.stream.Stream.concat;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -118,7 +117,6 @@ public class UserUpdater {
     if (password != null) {
       updateUser.setPassword(password);
     }
-    setOnboarded(reactivatedUser);
     updateDto(dbSession, updateUser, reactivatedUser);
     updateUser(dbSession, reactivatedUser);
     addUserToDefaultGroup(dbSession, reactivatedUser);
@@ -177,7 +175,6 @@ public class UserUpdater {
     }
 
     setExternalIdentity(dbSession, userDto, newUser.externalIdentity());
-    setOnboarded(userDto);
 
     checkRequest(messages.isEmpty(), messages);
     return userDto;
@@ -304,11 +301,6 @@ public class UserUpdater {
     UserDto existingUser = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, dto.getExternalId(), dto.getExternalIdentityProvider());
     checkArgument(existingUser == null || Objects.equals(dto.getUuid(), existingUser.getUuid()),
       "A user with provider id '%s' and identity provider '%s' already exists", dto.getExternalId(), dto.getExternalIdentityProvider());
-  }
-
-  private void setOnboarded(UserDto userDto) {
-    boolean showOnboarding = config.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey()).orElse(false);
-    userDto.setOnboarded(!showOnboarding);
   }
 
   private static boolean checkNotEmptyParam(@Nullable String value, String param, List<String> messages) {

@@ -40,7 +40,6 @@ public class UserNewValueTest {
     userDto.setExternalLogin("name");
     userDto.setExternalIdentityProvider("github");
     userDto.setLocal(false);
-    userDto.setOnboarded(true);
     userDto.setLastConnectionDate(System.currentTimeMillis());
     UserNewValue userNewValue = new UserNewValue(userDto);
 

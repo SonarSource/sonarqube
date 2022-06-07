@@ -62,7 +62,7 @@ public class ScmMediumTest {
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
-    .setEdition(SonarEdition.SONARCLOUD)
+    .setEdition(SonarEdition.COMMUNITY)
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())

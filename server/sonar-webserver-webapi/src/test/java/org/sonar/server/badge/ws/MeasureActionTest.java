@@ -82,14 +82,14 @@ public class MeasureActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
+  private final MapSettings mapSettings = new MapSettings();
   private final Configuration config = mapSettings.asConfig();
 
   private final WsActionTester ws = new WsActionTester(
     new MeasureAction(
       db.getDbClient(),
       new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient(), config),
-      new SvgGenerator(mapSettings.asConfig())));
+      new SvgGenerator()));
 
   @Before
   public void before(){

@@ -51,7 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 
 public class UserRegistrarImplTest {
@@ -165,24 +164,6 @@ public class UserRegistrarImplTest {
 
     Optional<UserDto> user = db.users().selectUserByLogin(loggedInUser.getLogin());
     checkGroupMembership(user.get(), group1, group2, defaultGroup);
-  }
-
-  @Test
-  public void authenticate_new_user_sets_onboarded_flag_to_false_when_onboarding_setting_is_set_to_true() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
-
-    UserDto user = underTest.register(newUserRegistration());
-
-    assertThat(db.users().selectUserByLogin(user.getLogin()).get().isOnboarded()).isFalse();
-  }
-
-  @Test
-  public void authenticate_new_user_sets_onboarded_flag_to_true_when_onboarding_setting_is_set_to_false() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
-
-    UserDto user = underTest.register(newUserRegistration());
-
-    assertThat(db.users().selectUserByLogin(user.getLogin()).get().isOnboarded()).isTrue();
   }
 
   @Test

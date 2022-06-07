@@ -24,7 +24,6 @@ import javax.servlet.ServletContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.Platform;
 
@@ -45,11 +44,10 @@ public class WebPagesCacheTest {
 
   private ServletContext servletContext = mock(ServletContext.class);
 
-  private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
-  private Platform platform = mock(Platform.class);
-  private MapSettings mapSettings = new MapSettings();
+  private final OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
+  private final Platform platform = mock(Platform.class);
 
-  private WebPagesCache underTest = new WebPagesCache(platform, mapSettings.asConfig(), officialDistribution);
+  private final WebPagesCache underTest = new WebPagesCache(platform, officialDistribution);
 
   @Before
   public void setUp() {
@@ -102,24 +100,6 @@ public class WebPagesCacheTest {
 
     assertThat(underTest.getContent("/foo"))
       .contains("SonarQube");
-  }
-
-  @Test
-  public void sonarcloud_setting_is_false() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
-    doInit();
-
-    assertThat(underTest.getContent("/foo"))
-      .contains("SonarQube");
-  }
-
-  @Test
-  public void sonarcloud_setting_is_true() {
-    mapSettings.setProperty("sonar.sonarcloud.enabled", true);
-    doInit();
-
-    assertThat(underTest.getContent("/foo"))
-      .contains("SonarCloud");
   }
 
   @Test
