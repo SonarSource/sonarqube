@@ -51,7 +51,7 @@ only_default_depending_on_build_template: &ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPL
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
   builder_image_project: sonarqube-team
-  builder_image_name: docker-builder-v20200915
+  builder_image_name: family/docker-builder
   cluster_name: cirrus-ci-cluster
   zone: us-central1-a
   namespace: default
