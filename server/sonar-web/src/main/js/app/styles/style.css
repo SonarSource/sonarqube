@@ -100,20 +100,36 @@
   margin: 1em 0;
 }
 
-.rule-desc h2,
 .markdown h2 {
   font-size: var(--bigFontSize);
   font-weight: 400;
 }
 
-.rule-desc h3,
 .markdown h3,
-.rule-desc h4,
 .markdown h4,
-.rule-desc h5,
 .markdown h5,
-.rule-desc h6,
 .markdown h6 {
+  font-size: var(--baseFontSize);
+  font-weight: 600;
+}
+
+.rule-desc h2 {
+  font-size: 20px;
+  font-weight: 400;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.rule-desc h3 {
+  font-size: 18px;
+  font-weight: 500;
+}
+.rule-desc h4 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rule-desc h5,
+.rule-desc h6 {
   font-size: var(--baseFontSize);
   font-weight: 600;
 }

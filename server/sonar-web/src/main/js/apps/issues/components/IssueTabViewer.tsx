@@ -42,6 +42,7 @@ interface Tab {
   key: TabKeys;
   label: React.ReactNode;
   content: string;
+  isDefault: boolean;
 }
 
 export enum TabKeys {
@@ -91,21 +92,27 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
           [RuleDescriptionSections.DEFAULT, RuleDescriptionSections.ROOT_CAUSE].includes(
             section.key
           )
-        )?.content
+        )?.content,
+        isDefault:
+          ruleDetails.descriptionSections?.find(
+            section => section.key === RuleDescriptionSections.DEFAULT
+          ) !== undefined
       },
       {
         key: TabKeys.HowToFixIt,
         label: translate('issue.tabs', TabKeys.HowToFixIt),
         content: ruleDetails.descriptionSections?.find(
           section => section.key === RuleDescriptionSections.HOW_TO_FIX
-        )?.content
+        )?.content,
+        isDefault: false
       },
       {
         key: TabKeys.Resources,
         label: translate('issue.tabs', TabKeys.Resources),
         content: ruleDetails.descriptionSections?.find(
           section => section.key === RuleDescriptionSections.RESOURCES
-        )?.content
+        )?.content,
+        isDefault: false
       }
     ].filter(tab => tab.content !== undefined) as Array<Tab>;
 
@@ -155,8 +162,10 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
           {tabs.slice(1).map(tab => (
             <div
               key={tab.key}
-              className={classNames('markdown big-padded', {
-                hidden: currentTabKey !== tab.key
+              className={classNames('big-padded', {
+                hidden: currentTabKey !== tab.key,
+                markdown: tab.isDefault,
+                'rule-desc': !tab.isDefault
               })}
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: sanitizeString(tab.content) }}

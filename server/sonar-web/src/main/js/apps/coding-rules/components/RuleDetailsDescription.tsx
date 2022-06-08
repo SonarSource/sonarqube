@@ -211,7 +211,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     if (section.key === RuleDescriptionSections.DEFAULT) {
       return (
         <section
-          className="coding-rules-detail-description rule-desc markdown"
+          className="coding-rules-detail-description markdown"
           key={section.key}
           /* eslint-disable-next-line react/no-danger */
           dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
@@ -226,7 +226,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         : translate('coding_rules.description_section.title', section.key);
 
     return (
-      <section className="coding-rules-detail-description rule-desc markdown" key={section.key}>
+      <section className="coding-rules-detail-description rule-desc" key={section.key}>
         <h2>{title}</h2>
         <div
           /* eslint-disable-next-line react/no-danger */
