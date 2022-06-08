@@ -273,10 +273,10 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyHotspotStatusMeasures(FILE_1_REF, null, null);
-    verifyHotspotStatusMeasures(FILE_2_REF, null, null);
-    verifyHotspotStatusMeasures(DIRECTORY_REF, null, null);
-    verifyHotspotStatusMeasures(ROOT_DIR_REF, null, null);
+    verifyHotspotStatusMeasures(FILE_1_REF, 1, 1);
+    verifyHotspotStatusMeasures(FILE_2_REF, 3, 2);
+    verifyHotspotStatusMeasures(DIRECTORY_REF, 4, 3);
+    verifyHotspotStatusMeasures(ROOT_DIR_REF, 4, 3);
     verifyHotspotStatusMeasures(PROJECT_REF, 4, 3);
   }
 

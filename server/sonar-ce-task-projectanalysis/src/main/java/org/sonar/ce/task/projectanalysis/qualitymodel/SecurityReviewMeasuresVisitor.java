@@ -62,9 +62,6 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   @Override
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
     computeMeasure(project, path);
-    // The following measures are only computed on projects level as they are required to compute the others measures on applications
-    measureRepository.add(project, securityHotspotsReviewedStatusMetric, newMeasureBuilder().create(path.current().getHotspotsReviewed()));
-    measureRepository.add(project, securityHotspotsToReviewStatusMetric, newMeasureBuilder().create(path.current().getHotspotsToReview()));
   }
 
   @Override
@@ -83,6 +80,8 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
       .forEach(issue -> path.current().processHotspot(issue));
 
+    measureRepository.add(component, securityHotspotsReviewedStatusMetric, newMeasureBuilder().create(path.current().getHotspotsReviewed()));
+    measureRepository.add(component, securityHotspotsToReviewStatusMetric, newMeasureBuilder().create(path.current().getHotspotsToReview()));
     Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
     measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent.orElse(null))));
     percent.ifPresent(p -> measureRepository.add(component, securityHotspotsReviewedMetric, newMeasureBuilder().create(p, securityHotspotsReviewedMetric.getDecimalScale())));
