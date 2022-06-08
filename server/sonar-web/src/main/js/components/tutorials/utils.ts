@@ -27,7 +27,7 @@ export function quote(os: string): (s: string) => string {
 
 export function buildGradleSnippet(key: string) {
   return `plugins {
-  id "org.sonarqube" version "3.3"
+  id "org.sonarqube" version "3.4.0.2513"
 }
 
 sonarqube {

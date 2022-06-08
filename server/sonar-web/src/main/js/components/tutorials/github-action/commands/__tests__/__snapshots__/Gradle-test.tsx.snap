@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
     />
     <CodeSnippet
       snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.3\\"
+  id \\"org.sonarqube\\" version \\"3.4.0.2513\\"
 }
 
 sonarqube {
@@ -116,7 +116,7 @@ exports[`should render correctly: without branch enabled 1`] = `
     />
     <CodeSnippet
       snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.3\\"
+  id \\"org.sonarqube\\" version \\"3.4.0.2513\\"
 }
 
 sonarqube {
