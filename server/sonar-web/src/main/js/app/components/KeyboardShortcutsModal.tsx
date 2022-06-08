@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { Button } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
+import { isInput } from '../../helpers/keyboardEventHelpers';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';
 
 type Shortcuts = Array<{
@@ -129,22 +131,20 @@ export default function KeyboardShortcutsModal() {
   const [display, setDisplay] = React.useState(false);
 
   React.useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      const { tagName } = event.target as HTMLElement;
-
-      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)) {
-        return; // Ignore keys when typed in an input
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isInput(event)) {
+        return true;
       }
 
-      if (event.key === '?') {
+      if (event.key === KeyboardKeys.KeyQuestionMark) {
         setDisplay(d => !d);
       }
     };
 
-    window.addEventListener('keypress', handleKeyPress);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.removeEventListener('keypress', handleKeyPress);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [setDisplay]);
 

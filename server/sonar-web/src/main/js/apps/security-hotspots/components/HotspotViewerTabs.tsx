@@ -100,11 +100,11 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   };
 
   registerKeyboardEvents() {
-    window.addEventListener('keydown', this.handleKeyboardNavigation);
+    document.addEventListener('keydown', this.handleKeyboardNavigation);
   }
 
   unregisterKeyboardEvents() {
-    window.removeEventListener('keydown', this.handleKeyboardNavigation);
+    document.removeEventListener('keydown', this.handleKeyboardNavigation);
   }
 
   handleSelectTabs = (tabKey: TabKeys) => {

@@ -46,36 +46,36 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('hidden');
 
-  window.dispatchEvent(new KeyboardEvent('keypress', { key: '?' }));
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
 
   expect(wrapper).toMatchSnapshot('visible');
 });
 
 it('should close correctly', () => {
   const wrapper = shallowRender();
-  window.dispatchEvent(new KeyboardEvent('keypress', { key: '?' }));
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
 
   wrapper.find(Modal).props().onRequestClose!(mockEvent());
 
   expect(wrapper.type()).toBeNull();
 });
 
-it('should ignore other keypresses', () => {
+it('should ignore other keydownes', () => {
   const wrapper = shallowRender();
-  window.dispatchEvent(new KeyboardEvent('keypress', { key: '!' }));
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: '!' }));
   expect(wrapper.type()).toBeNull();
 });
 
 it.each([['input'], ['select'], ['textarea']])('should ignore events on a %s', type => {
   const wrapper = shallowRender();
 
-  const fakeEvent = new KeyboardEvent('keypress', { key: '!' });
+  const fakeEvent = new KeyboardEvent('keydown', { key: '!' });
 
   Object.defineProperty(fakeEvent, 'target', {
     value: document.createElement(type)
   });
 
-  window.dispatchEvent(fakeEvent);
+  document.dispatchEvent(fakeEvent);
 
   expect(wrapper.type()).toBeNull();
 });
