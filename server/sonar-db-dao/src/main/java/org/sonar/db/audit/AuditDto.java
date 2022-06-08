@@ -26,6 +26,7 @@ public class AuditDto {
   private String uuid;
   private String userUuid;
   private String userLogin;
+  private boolean userTriggered;
   private String category;
   private String operation;
   private String newValue;
@@ -53,6 +54,14 @@ public class AuditDto {
 
   public void setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
+  }
+
+  public boolean isUserTriggered() {
+    return userTriggered;
+  }
+
+  public void setUserTriggered(boolean userTriggered) {
+    this.userTriggered = userTriggered;
   }
 
   public String getCategory() {
