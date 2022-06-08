@@ -22,7 +22,6 @@ package org.sonarqube.ws.client.issues;
 import java.io.InputStream;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
-import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.AddCommentResponse;
 import org.sonarqube.ws.Issues.AssignResponse;
 import org.sonarqube.ws.Issues.AuthorsResponse;
@@ -40,7 +39,6 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.client.batch.IssuesRequest;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues">Further information about this web service online</a>

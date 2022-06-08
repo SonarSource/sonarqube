@@ -109,7 +109,7 @@ message Issue {
   optional string component = 4;
   optional int64 unusedComponentId = 5;
   optional string project = 6;
-  optional string subProject = 7;
+  reserved 7; // drop subProject
   optional int32 line = 8;
   optional string hash = 31;
   optional sonarqube.ws.commons.TextRange textRange = 9;

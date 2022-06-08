@@ -74,16 +74,12 @@ public class ShowResponseBuilderTest {
         "      \"name\": \"" + file1.longName() + "\",\n" +
         "      \"project\": \"" + project.getKey() + "\",\n" +
         "      \"projectName\": \"" + project.longName() + "\",\n" +
-        "      \"subProject\": \"" + module.getKey() + "\",\n" +
-        "      \"subProjectName\": \"" + module.longName() + "\"\n" +
         "    },\n" +
         "    \"2\": {\n" +
         "      \"key\": \"" + file2.getKey() + "\",\n" +
         "      \"name\": \"" + file2.longName() + "\",\n" +
         "      \"project\": \"" + project.getKey() + "\",\n" +
         "      \"projectName\": \"" + project.longName() + "\",\n" +
-        "      \"subProject\": \"" + module.getKey() + "\",\n" +
-        "      \"subProjectName\": \"" + module.longName() + "\"\n" +
         "    }\n" +
         "  }" +
         "}");

@@ -171,10 +171,6 @@ public class SearchResponseFormat {
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
-      ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
-      if (subProject != null && !subProject.getDbKey().equals(project.getDbKey())) {
-        issueBuilder.setSubProject(subProject.getKey());
-      }
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     if (dto.isExternal()) {

@@ -116,7 +116,6 @@ public class MovedIssueVisitorTest {
 
     verify(issue).setComponentUuid(FILE.getUuid());
     verify(issue).setComponentKey(FILE.getKey());
-    verify(issue).setModuleUuid(null);
     verify(issue).setModuleUuidPath(null);
     verify(issue).setChanged(true);
     ArgumentCaptor<IssueChangeContext> issueChangeContextCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);

@@ -66,6 +66,7 @@ public class ShowAction implements DuplicationsWsAction {
       .setResponseExample(getClass().getResource("show-example.json"));
 
     action.setChangelog(
+      new Change("9.6", "The fields 'subProject', 'subProjectName' were removed from the response."),
       new Change("8.8", "Deprecated parameter 'uuid' was removed."),
       new Change("8.8", "The fields 'uuid', 'projectUuid', 'subProjectUuid' were removed from the response."),
       new Change("6.5", "Parameter 'uuid' is now deprecated."),

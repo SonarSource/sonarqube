@@ -79,7 +79,6 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
-import static org.sonar.server.issue.index.IssueIndex.FACET_MODULES;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
@@ -135,7 +134,6 @@ public class SearchAction implements IssuesWsAction {
 
   static final List<String> SUPPORTED_FACETS = List.of(
     FACET_PROJECTS,
-    FACET_MODULES,
     PARAM_FILES,
     FACET_ASSIGNED_TO_ME,
     PARAM_SEVERITIES,
@@ -158,7 +156,7 @@ public class SearchAction implements IssuesWsAction {
   );
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(FACET_MODULES, PARAM_FILES, PARAM_DIRECTORIES);
+  private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -191,6 +189,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+
+        new Change("9.6", "Facet 'moduleUuids' is dropped."),
         new Change("9.4", format("Parameter '%s' is deprecated, please use '%s' instead", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.2", "Response field 'quickFixAvailable' added"),
         new Change("9.1", "Deprecated parameters 'authors', 'facetMode' and 'moduleUuids' were dropped"),
@@ -447,7 +447,6 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, ISSUE_STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
-    addMandatoryValuesToFacet(facets, FACET_MODULES, query.moduleUuids());
     addMandatoryValuesToFacet(facets, PARAM_FILES, query.files());
 
     List<String> assignees = Lists.newArrayList("");

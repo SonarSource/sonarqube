@@ -33,7 +33,7 @@ message Issue {
   optional int32 ruleType = 2;
   optional string componentUuid = 3;
   optional string componentKey = 4;
-  optional string moduleUuid = 5;
+  reserved 5; //moduleUuid
   optional string moduleUuidPath = 6;
   optional string projectUuid = 7;
   optional string projectKey = 8;

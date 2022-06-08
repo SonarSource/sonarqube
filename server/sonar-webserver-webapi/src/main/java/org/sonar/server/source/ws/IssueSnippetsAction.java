@@ -129,7 +129,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     writer.name(fileDto.getKey()).beginObject();
 
     writer.name("component").beginObject();
-    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession, false);
+    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession);
     componentViewerJsonWriter.writeMeasures(writer, fileDto, dbSession);
     writer.endObject();
     linesJsonWriter.writeSource(lineSources, writer, periodDateSupplier);

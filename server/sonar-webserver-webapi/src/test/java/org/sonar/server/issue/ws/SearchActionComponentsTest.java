@@ -166,30 +166,6 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void do_not_return_module_key_on_single_module_projects() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
-    ComponentDto module = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setDbKey("FK1"));
-    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    db.issues().insertIssue(rule, project, file, i -> i.setKee("ISSUE_IN_MODULE"));
-    db.issues().insertIssue(rule, project, project, i -> i.setKee("ISSUE_IN_ROOT_MODULE"));
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    SearchWsResponse searchResponse = ws.newRequest().executeProtobuf(SearchWsResponse.class);
-    assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
-
-    for (Issue issue : searchResponse.getIssuesList()) {
-      assertThat(issue.getProject()).isEqualTo("PK1");
-      if (issue.getKey().equals("ISSUE_IN_MODULE")) {
-        assertThat(issue.getSubProject()).isEqualTo("MK1");
-      } else if (issue.getKey().equals("ISSUE_IN_ROOT_MODULE")) {
-        assertThat(issue.hasSubProject()).isFalse();
-      }
-    }
-  }
-
-  @Test
   public void search_since_leak_period_on_project() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
@@ -301,41 +277,6 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
-
-    ws.newRequest()
-      .setParam(PARAM_DIRECTORIES, "src/main/java")
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json");
-  }
-
-  @Test
-  public void search_by_directory_path_in_different_modules() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto("M2", project).setDbKey("MK2"));
-    ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "D1", "src/main/java/dir"));
-    ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "D2", "src/main/java/dir"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(module1, directory1, "F1").setDbKey("FK1").setPath(directory1.path() + "/MyComponent.java"));
-    db.components().insertComponent(newFileDto(module2, directory2, "F2").setDbKey("FK2").setPath(directory2.path() + "/MyComponent.java"));
-    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    db.issues().insertIssue(rule, project, file1, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, directory1.getKey())
-      .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, directory2.getKey())
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json");
-
-    ws.newRequest()
-      .setParam(PARAM_DIRECTORIES, "src/main/java/dir")
-      .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
     ws.newRequest()
       .setParam(PARAM_DIRECTORIES, "src/main/java")

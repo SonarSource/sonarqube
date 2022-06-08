@@ -106,8 +106,6 @@ public class AppActionTest {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"subProject\": \"" + module.getKey() + "\",\n" +
-      "  \"subProjectName\": \"" + module.longName() + "\",\n" +
       "  \"project\": \"" + project.getKey() + "\",\n" +
       "  \"projectName\": \"" + project.longName() + "\",\n" +
       "  \"fav\": false,\n" +
@@ -275,8 +273,6 @@ public class AppActionTest {
       "  \"name\": \"" + file.name() + "\",\n" +
       "  \"longName\": \"" + file.longName() + "\",\n" +
       "  \"q\": \"" + file.qualifier() + "\",\n" +
-      "  \"subProject\": \"" + module.getKey() + "\",\n" +
-      "  \"subProjectName\": \"" + module.longName() + "\",\n" +
       "  \"project\": \"" + project.getKey() + "\",\n" +
       "  \"projectName\": \"" + project.longName() + "\",\n" +
       "  \"fav\": false,\n" +

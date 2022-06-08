@@ -111,7 +111,6 @@ class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
       issueUpdater.setIssueMoved(i, component.getUuid(), context);
       // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
       i.setComponentKey(component.getKey());
-      i.setModuleUuid(null);
       i.setModuleUuidPath(null);
     }
     return issuesOnModule;

@@ -311,7 +311,6 @@ public class IssueQueryFactoryTest {
 
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
-    assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.moduleRootUuids()).isEmpty();
     assertThat(query.directories()).isEmpty();
     assertThat(query.files()).isEmpty();
@@ -508,7 +507,6 @@ public class IssueQueryFactoryTest {
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.moduleUuids()).containsOnly(dir.moduleUuid());
     assertThat(query.directories()).containsOnly(dir.path());
     assertThat(query.onComponentOnly()).isFalse();
   }

@@ -96,7 +96,6 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setType(RuleType.valueOf(next.getRuleType()));
     defaultIssue.setComponentUuid(next.hasComponentUuid() ? next.getComponentUuid() : null);
     defaultIssue.setComponentKey(next.getComponentKey());
-    defaultIssue.setModuleUuid(next.hasModuleUuid() ? next.getModuleUuid() : null);
     defaultIssue.setModuleUuidPath(next.hasModuleUuidPath() ? next.getModuleUuidPath() : null);
     defaultIssue.setProjectUuid(next.getProjectUuid());
     defaultIssue.setProjectKey(next.getProjectKey());
@@ -146,7 +145,6 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setRuleType(defaultIssue.type().getDbConstant());
     ofNullable(defaultIssue.componentUuid()).ifPresent(builder::setComponentUuid);
     builder.setComponentKey(defaultIssue.componentKey());
-    ofNullable(defaultIssue.moduleUuid()).ifPresent(builder::setModuleUuid);
     ofNullable(defaultIssue.moduleUuidPath()).ifPresent(builder::setModuleUuidPath);
     builder.setProjectUuid(defaultIssue.projectUuid());
     builder.setProjectKey(defaultIssue.projectKey());

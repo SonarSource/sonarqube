@@ -86,7 +86,6 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.ruleUuid()).isEqualTo(rule.getUuid());
     assertThat(issue.componentUuid()).isEqualTo(file.uuid());
     assertThat(issue.projectUuid()).isEqualTo(file.projectUuid());
-    assertThat(issue.moduleUuid()).isEqualTo(file.projectUuid());
     assertThat(issue.modulePath()).isEqualTo(file.moduleUuidPath());
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");

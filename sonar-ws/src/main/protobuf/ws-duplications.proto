@@ -48,9 +48,9 @@ message File {
   string project = 4;
   string projectUuid = 5;
   string projectName = 6;
-  string subProject = 7;
-  string subProjectUuid = 8;
-  string subProjectName = 9;
+  reserved 7; //subProject
+  reserved 8; //subProjectUuid
+  reserved 9; //subProjectName
   string branch = 10;
   string pullRequest = 11;
 }

@@ -113,25 +113,6 @@ public class IssueIndexFiltersTest {
   }
 
   @Test
-  public void filter_by_modules() {
-    ComponentDto project = newPrivateProjectDto();
-    ComponentDto module = newModuleDto(project);
-    ComponentDto subModule = newModuleDto(module);
-    ComponentDto file = newFileDto(subModule, null);
-
-    indexIssues(
-      newDoc("I3", module),
-      newDoc("I5", subModule),
-      newDoc("I2", file));
-
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(file.uuid())));
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(module.uuid())), "I3");
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(subModule.uuid())), "I2", "I5");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(project.uuid())));
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList("unknown")));
-  }
-
-  @Test
   public void filter_by_components_on_contextualized_search() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto module = newModuleDto(project);
@@ -181,8 +162,6 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList("unknown")));
     assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(module.uuid())), "I3", "I4");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(subModule.uuid())), "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().files(singletonList(file1.path())), "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().files(asList(file1.path(), file2.path(), file3.path())), "I2", "I4", "I6");
   }
@@ -296,7 +275,6 @@ public class IssueIndexFiltersTest {
       newDoc("I6", branchFile));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()).mainBranch(false), "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(branchModule.uuid())).branchUuid(branch.uuid()).mainBranch(false), "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().files(singletonList(branchFile.path())).branchUuid(branch.uuid()).mainBranch(false), "I6");
     assertThatSearchReturnsEmpty(IssueQuery.builder().files(singletonList(branchFile.uuid())).mainBranch(false).branchUuid("unknown"));
   }

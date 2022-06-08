@@ -398,14 +398,8 @@ public class IssueQueryFactory {
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {
-    Collection<String> directoryModuleUuids = new HashSet<>();
-    Collection<String> directoryPaths = new HashSet<>();
-    for (ComponentDto directory : directories) {
-      directoryModuleUuids.add(directory.moduleUuid());
-      directoryPaths.add(directory.path());
-    }
-    builder.moduleUuids(directoryModuleUuids);
-    builder.directories(directoryPaths);
+    Set<String> paths = directories.stream().map(ComponentDto::path).collect(Collectors.toSet());
+    builder.directories(paths);
   }
 
   private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch, @Nullable String pullRequest) {

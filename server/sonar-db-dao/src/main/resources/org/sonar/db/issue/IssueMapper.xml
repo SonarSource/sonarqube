@@ -32,7 +32,6 @@
     r.security_standards as securityStandards,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
-    p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
     p.path as filePath,
     root.kee as projectKey,

@@ -109,7 +109,7 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,files,assignees")
+      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,files,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
@@ -125,7 +125,6 @@ public class SearchActionFacetsTest {
         tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule.getLanguage(), 1L)),
         tuple("projects", of(project.getKey(), 1L)),
-        tuple("moduleUuids", of(module.uuid(), 1L)),
         tuple("files", of(file.path(), 1L)),
         tuple("assignees", of("", 0L, user.getLogin(), 1L)));
   }
@@ -290,7 +289,7 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "files,directories,moduleUuids,statuses,resolutions,severities,types,rules,languages,assignees")
+      .setParam(FACETS, "files,directories,statuses,resolutions,severities,types,rules,languages,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getFacets().getFacetsList())
@@ -298,7 +297,6 @@ public class SearchActionFacetsTest {
       .containsExactlyInAnyOrder(
         tuple("files", 100),
         tuple("directories", 100),
-        tuple("moduleUuids", 100),
         tuple("rules", 100),
         tuple("languages", 100),
         // Assignees contains one additional element : it's the empty string that will return number of unassigned issues
@@ -358,7 +356,7 @@ public class SearchActionFacetsTest {
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", rule1.getLanguage() + "," + rule2.getLanguage())
       .setParam("assignees", user1.getLogin() + "," + user2.getLogin())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,files,assignees")
+      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,files,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
@@ -374,7 +372,6 @@ public class SearchActionFacetsTest {
         tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
         tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
-        tuple("moduleUuids", of(module1.uuid(), 1L)),
         tuple("files", of(file1.path(), 1L, file2.path(), 0L)),
         tuple("assignees", of("", 0L, user1.getLogin(), 1L, user2.getLogin(), 0L)));
   }

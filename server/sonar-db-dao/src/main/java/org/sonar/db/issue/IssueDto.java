@@ -92,7 +92,6 @@ public final class IssueDto implements Serializable {
   private boolean isExternal;
   private String language;
   private String componentKey;
-  private String moduleUuid;
   private String moduleUuidPath;
   private String projectKey;
   private String filePath;
@@ -128,7 +127,6 @@ public final class IssueDto implements Serializable {
       .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
-      .setModuleUuid(issue.moduleUuid())
       .setModuleUuidPath(issue.moduleUuidPath())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
@@ -177,7 +175,6 @@ public final class IssueDto implements Serializable {
       .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
-      .setModuleUuid(issue.moduleUuid())
       .setModuleUuidPath(issue.moduleUuidPath())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
@@ -208,7 +205,6 @@ public final class IssueDto implements Serializable {
   public IssueDto setComponent(ComponentDto component) {
     this.componentKey = component.getDbKey();
     this.componentUuid = component.uuid();
-    this.moduleUuid = component.moduleUuid();
     this.moduleUuidPath = component.moduleUuidPath();
     this.filePath = component.path();
     return this;
@@ -526,21 +522,6 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public String getModuleUuid() {
-    return moduleUuid;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setComponent(ComponentDto)} instead
-   */
-  public IssueDto setModuleUuid(@Nullable String moduleUuid) {
-    this.moduleUuid = moduleUuid;
-    return this;
-  }
-
-  @CheckForNull
   public String getModuleUuidPath() {
     return moduleUuidPath;
   }
@@ -737,7 +718,6 @@ public final class IssueDto implements Serializable {
     issue.setAssigneeUuid(assigneeUuid);
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);
-    issue.setModuleUuid(moduleUuid);
     issue.setModuleUuidPath(moduleUuidPath);
     issue.setProjectUuid(projectUuid);
     issue.setProjectKey(projectKey);

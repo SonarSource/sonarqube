@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterators;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -213,7 +212,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setLanguage(rs.getString(13));
       doc.setComponentUuid(rs.getString(14));
       String moduleUuidPath = rs.getString(15);
-      doc.setModuleUuid(extractModule(moduleUuidPath));
       doc.setModuleUuidPath(moduleUuidPath);
       String scope = rs.getString(17);
       String filePath = extractFilePath(rs.getString(16), scope);
@@ -274,8 +272,5 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       return null;
     }
 
-    private static String extractModule(String moduleUuidPath) {
-      return Iterators.getLast(IssueIteratorForSingleChunk.MODULE_PATH_SPLITTER.split(moduleUuidPath).iterator());
-    }
   }
 }

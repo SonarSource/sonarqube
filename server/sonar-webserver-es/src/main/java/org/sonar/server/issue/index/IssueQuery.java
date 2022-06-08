@@ -66,7 +66,6 @@ public class IssueQuery {
   private final Collection<String> statuses;
   private final Collection<String> resolutions;
   private final Collection<String> components;
-  private final Collection<String> modules;
   private final Collection<String> moduleRoots;
   private final Collection<String> projects;
   private final Collection<String> directories;
@@ -107,7 +106,6 @@ public class IssueQuery {
     this.statuses = defaultCollection(builder.statuses);
     this.resolutions = defaultCollection(builder.resolutions);
     this.components = defaultCollection(builder.components);
-    this.modules = defaultCollection(builder.modules);
     this.moduleRoots = defaultCollection(builder.moduleRoots);
     this.projects = defaultCollection(builder.projects);
     this.directories = defaultCollection(builder.directories);
@@ -161,10 +159,6 @@ public class IssueQuery {
 
   public Collection<String> componentUuids() {
     return components;
-  }
-
-  public Collection<String> moduleUuids() {
-    return modules;
   }
 
   public Collection<String> moduleRootUuids() {
@@ -326,7 +320,6 @@ public class IssueQuery {
     private Collection<String> statuses;
     private Collection<String> resolutions;
     private Collection<String> components;
-    private Collection<String> modules;
     private Collection<String> moduleRoots;
     private Collection<String> projects;
     private Collection<String> directories;
@@ -387,11 +380,6 @@ public class IssueQuery {
 
     public Builder componentUuids(@Nullable Collection<String> l) {
       this.components = l;
-      return this;
-    }
-
-    public Builder moduleUuids(@Nullable Collection<String> l) {
-      this.modules = l;
       return this;
     }
 

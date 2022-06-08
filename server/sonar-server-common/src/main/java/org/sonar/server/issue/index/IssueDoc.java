@@ -58,11 +58,6 @@ public class IssueDoc extends BaseDoc {
     return getField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID);
   }
 
-  @CheckForNull
-  public String moduleUuid() {
-    return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID);
-  }
-
   public String modulePath() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH);
   }
@@ -165,11 +160,6 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setComponentUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, s);
-    return this;
-  }
-
-  public IssueDoc setModuleUuid(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, s);
     return this;
   }
 

@@ -45,7 +45,6 @@ public class IssueQueryTest {
       .resolutions(List.of(Issue.RESOLUTION_FALSE_POSITIVE))
       .projectUuids(List.of("PROJECT"))
       .componentUuids(List.of("org/struts/Action.java"))
-      .moduleUuids(List.of("org.struts:core"))
       .rules(List.of(rule))
       .assigneeUuids(List.of("gargantua"))
       .languages(List.of("xoo"))
@@ -73,7 +72,6 @@ public class IssueQueryTest {
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(query.projectUuids()).containsOnly("PROJECT");
     assertThat(query.componentUuids()).containsOnly("org/struts/Action.java");
-    assertThat(query.moduleUuids()).containsOnly("org.struts:core");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
@@ -128,7 +126,6 @@ public class IssueQueryTest {
       .issueKeys(null)
       .projectUuids(null)
       .componentUuids(null)
-      .moduleUuids(null)
       .statuses(null)
       .assigneeUuids(null)
       .resolutions(null)
@@ -145,7 +142,6 @@ public class IssueQueryTest {
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
-    assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.assignees()).isEmpty();
     assertThat(query.resolutions()).isEmpty();
@@ -166,7 +162,6 @@ public class IssueQueryTest {
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
-    assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.assignees()).isEmpty();
     assertThat(query.resolutions()).isEmpty();

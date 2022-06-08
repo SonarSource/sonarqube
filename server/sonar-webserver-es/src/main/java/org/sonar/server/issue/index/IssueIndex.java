@@ -122,7 +122,6 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.MODULE_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
@@ -151,7 +150,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_KEY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LANGUAGE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LINE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021;
@@ -203,7 +201,6 @@ public class IssueIndex {
 
   public static final String FACET_PROJECTS = "projects";
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
-  public static final String FACET_MODULES = "moduleUuids";
 
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final int MAX_FACET_SIZE = 100;
@@ -244,7 +241,6 @@ public class IssueIndex {
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, STICKY, MAX_FACET_SIZE),
     AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
     PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, STICKY, MAX_FACET_SIZE),
-    MODULE_UUIDS(FACET_MODULES, FIELD_ISSUE_MODULE_UUID, STICKY, MAX_FACET_SIZE),
     FILES(PARAM_FILES, FIELD_ISSUE_FILE_PATH, STICKY, MAX_FACET_SIZE),
     DIRECTORIES(PARAM_DIRECTORIES, FIELD_ISSUE_DIRECTORY_PATH, STICKY, MAX_FACET_SIZE),
     ASSIGNEES(PARAM_ASSIGNEES, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, MAX_FACET_SIZE),
@@ -511,9 +507,6 @@ public class IssueIndex {
         "__module", new SimpleFieldFilterScope(FIELD_ISSUE_MODULE_PATH),
         createTermsFilter(FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids()));
       filters.addFilter(
-        FIELD_ISSUE_MODULE_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_MODULE_UUID),
-        createTermsFilter(FIELD_ISSUE_MODULE_UUID, query.moduleUuids()));
-      filters.addFilter(
         FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
         createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
       filters.addFilter(
@@ -701,7 +694,6 @@ public class IssueIndex {
     AllFilters queryFilters, SearchSourceBuilder esRequest) {
     addFacetIfNeeded(options, aggregationHelper, esRequest, STATUSES, NO_SELECTED_VALUES);
     addFacetIfNeeded(options, aggregationHelper, esRequest, PROJECT_UUIDS, query.projectUuids().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, MODULE_UUIDS, query.moduleUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, DIRECTORIES, query.directories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, FILES, query.files().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, SCOPES, query.scopes().toArray());

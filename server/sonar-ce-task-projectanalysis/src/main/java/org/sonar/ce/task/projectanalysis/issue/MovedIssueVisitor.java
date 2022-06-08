@@ -60,7 +60,6 @@ public class MovedIssueVisitor extends IssueVisitor {
     issueUpdater.setIssueMoved(issue, component.getUuid(), IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null));
     // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
     issue.setComponentKey(component.getKey());
-    issue.setModuleUuid(null);
     issue.setModuleUuidPath(null);
   }
 }

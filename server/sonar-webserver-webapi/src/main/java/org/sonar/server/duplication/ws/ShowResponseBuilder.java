@@ -20,7 +20,14 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import static java.util.Optional.ofNullable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -30,14 +37,7 @@ import org.sonarqube.ws.Duplications;
 import org.sonarqube.ws.Duplications.Block;
 import org.sonarqube.ws.Duplications.ShowResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import static java.util.Optional.ofNullable;
 
 public class ShowResponseBuilder {
 
@@ -100,8 +100,7 @@ public class ShowResponseBuilder {
 
       if (file != null) {
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto parentModule = getParentProject(file.moduleUuid(), parentModulesByUuid, session);
-        response.putFiles(ref.getId(), toWsFile(file, project, parentModule, branch, pullRequest));
+        response.putFiles(ref.getId(), toWsFile(file, project, branch, pullRequest));
       } else {
         response.putFiles(ref.getId(), toWsFile(ref.getComponentKey(), branch, pullRequest));
       }
@@ -118,24 +117,16 @@ public class ShowResponseBuilder {
     return wsFile.build();
   }
 
-  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject,
+  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project,
     @Nullable String branch, @Nullable String pullRequest) {
     Duplications.File.Builder wsFile = Duplications.File.newBuilder();
     wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
     wsFile.setName(file.longName());
-    // Do not return sub project if sub project and project are the same
     ofNullable(project).ifPresent(p -> {
       wsFile.setProject(p.getKey());
       wsFile.setProjectUuid(p.uuid());
       wsFile.setProjectName(p.longName());
-      // Do not return sub project if sub project and project are the same
-      boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
-      if (displaySubProject) {
-        wsFile.setSubProject(subProject.getKey());
-        wsFile.setSubProjectUuid(subProject.uuid());
-        wsFile.setSubProjectName(subProject.longName());
-      }
       ofNullable(branch).ifPresent(wsFile::setBranch);
       ofNullable(pullRequest).ifPresent(wsFile::setPullRequest);
     });
@@ -149,18 +140,6 @@ public class ShowResponseBuilder {
       if (projectOptional.isPresent()) {
         project = projectOptional.get();
         projectsByUuid.put(project.uuid(), project);
-      }
-    }
-    return project;
-  }
-
-  private ComponentDto getParentProject(String rootUuid, Map<String, ComponentDto> subProjectsByUuid, DbSession session) {
-    ComponentDto project = subProjectsByUuid.get(rootUuid);
-    if (project == null) {
-      Optional<ComponentDto> projectOptional = componentDao.selectByUuid(session, rootUuid);
-      if (projectOptional.isPresent()) {
-        project = projectOptional.get();
-        subProjectsByUuid.put(project.uuid(), project);
       }
     }
     return project;

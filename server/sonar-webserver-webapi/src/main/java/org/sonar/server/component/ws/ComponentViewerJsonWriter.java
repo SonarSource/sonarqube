@@ -62,7 +62,7 @@ public class ComponentViewerJsonWriter {
     this.dbClient = dbClient;
   }
 
-  public void writeComponentWithoutFav(JsonWriter json, ComponentDto component, DbSession session, boolean includeSubProject) {
+  public void writeComponentWithoutFav(JsonWriter json, ComponentDto component, DbSession session) {
     json.prop("key", component.getKey());
     json.prop("uuid", component.uuid());
     json.prop("path", component.path());
@@ -72,14 +72,6 @@ public class ComponentViewerJsonWriter {
 
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
-    if (includeSubProject) {
-      ComponentDto parentModule = retrieveParentModuleIfNotCurrentComponent(component, session);
-
-      // Do not display parent module if parent module and project are the same
-      boolean displayParentModule = parentModule != null && !parentModule.uuid().equals(project.uuid());
-      json.prop("subProject", displayParentModule ? parentModule.getKey() : null);
-      json.prop("subProjectName", displayParentModule ? parentModule.longName() : null);
-    }
     json.prop("project", project.getKey());
     json.prop("projectName", project.longName());
     String branch = project.getBranch();
@@ -93,7 +85,7 @@ public class ComponentViewerJsonWriter {
   }
 
   public void writeComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
-    writeComponentWithoutFav(json, component, session, true);
+    writeComponentWithoutFav(json, component, session);
 
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey("favourite")
@@ -151,12 +143,4 @@ public class ComponentViewerJsonWriter {
     return value;
   }
 
-  @CheckForNull
-  private ComponentDto retrieveParentModuleIfNotCurrentComponent(ComponentDto componentDto, DbSession session) {
-    final String moduleUuid = componentDto.moduleUuid();
-    if (moduleUuid == null || componentDto.uuid().equals(moduleUuid)) {
-      return null;
-    }
-    return dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
-  }
 }
