@@ -122,7 +122,11 @@ message Rule {
   optional sonarqube.ws.commons.RuleScope scope = 46;
   optional bool isExternal = 47;
   optional DeprecatedKeys deprecatedKeys = 48;
-  repeated DescriptionSection descriptionSections = 49;
+  optional DescriptionSections descriptionSections = 49;
+
+  message DescriptionSections {
+    repeated DescriptionSection descriptionSections = 1;
+  }
 
   message DescriptionSection {
     required string key = 1;

@@ -163,7 +163,7 @@ public class RuleMapper {
 
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS) && adHocDescription != null) {
       ruleResponse.clearDescriptionSections();
-      ruleResponse.addDescriptionSectionsBuilder()
+      ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
         .setKey(RuleDescriptionSectionDto.DEFAULT_KEY)
         .setContent(macroInterpreter.interpret(adHocDescription));
     }
@@ -339,7 +339,7 @@ public class RuleMapper {
 
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS)) {
       for (var section : ruleDto.getRuleDescriptionSectionDtos()) {
-        ruleResponse.addDescriptionSectionsBuilder()
+        ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
           .setKey(section.getKey())
           .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section))
           .build();

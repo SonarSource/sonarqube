@@ -354,10 +354,9 @@ public class ShowActionTest {
       .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
       .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;desc2&lt;/div&gt;", Severity.BLOCKER, VULNERABILITY);
 
-    assertThat(resultRule.getDescriptionSectionsList()).hasSize(1);
-    assertThat(resultRule.getDescriptionSectionsList().get(0))
-      .extracting(r -> r.getKey(), r -> r.getContent())
-      .containsExactly(DEFAULT_KEY, "&lt;div&gt;desc2&lt;/div&gt;");
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(DEFAULT_KEY, "&lt;div&gt;desc2&lt;/div&gt;"));
   }
 
   @Test
@@ -397,7 +396,7 @@ public class ShowActionTest {
           + "<h2>How can you fix it?</h2>"
           + "<div>I don't want to fix</div><br/>");
 
-    assertThat(resultRule.getDescriptionSectionsList())
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
       .containsExactlyInAnyOrder(
         tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
@@ -425,7 +424,7 @@ public class ShowActionTest {
     assertThat(resultRule.getHtmlDesc()).contains("<strong>toto is toto</strong>");
     assertThat(resultRule.getMdDesc()).contains("*toto is toto*");
 
-    assertThat(resultRule.getDescriptionSectionsList())
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
       .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
       .contains(tuple(DEFAULT_KEY, "<strong>toto is toto</strong>"));
   }
