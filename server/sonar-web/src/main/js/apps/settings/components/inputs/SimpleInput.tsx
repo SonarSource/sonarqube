@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 export interface SimpleInputProps extends DefaultSpecializedInputProps {
@@ -32,9 +32,9 @@ export default class SimpleInput extends React.PureComponent<SimpleInputProps> {
   };
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.nativeEvent.code === KeyboardCodes.Enter && this.props.onSave) {
+    if (event.nativeEvent.key === KeyboardKeys.Enter && this.props.onSave) {
       this.props.onSave();
-    } else if (event.nativeEvent.code === KeyboardCodes.Escape && this.props.onCancel) {
+    } else if (event.nativeEvent.key === KeyboardKeys.Escape && this.props.onCancel) {
       this.props.onCancel();
     }
   };

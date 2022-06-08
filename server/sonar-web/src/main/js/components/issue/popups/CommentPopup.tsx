@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { IssueComment } from '../../../types/types';
 import FormattingTips from '../../common/FormattingTips';
@@ -62,15 +62,15 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps,
   };
 
   handleKeyboard = (event: React.KeyboardEvent) => {
-    if (event.nativeEvent.code === KeyboardCodes.Enter && (event.metaKey || event.ctrlKey)) {
+    if (event.nativeEvent.key === KeyboardKeys.Enter && (event.metaKey || event.ctrlKey)) {
       this.handleCommentClick();
     } else if (
       [
-        KeyboardCodes.UpArrow,
-        KeyboardCodes.DownArrow,
-        KeyboardCodes.LeftArrow,
-        KeyboardCodes.RightArrow
-      ].includes(event.nativeEvent.code as KeyboardCodes)
+        KeyboardKeys.UpArrow,
+        KeyboardKeys.DownArrow,
+        KeyboardKeys.LeftArrow,
+        KeyboardKeys.RightArrow
+      ].includes(event.nativeEvent.key as KeyboardKeys)
     ) {
       // Arrow keys
       event.stopPropagation();

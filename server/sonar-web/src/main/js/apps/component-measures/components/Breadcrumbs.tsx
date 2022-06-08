@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 import Breadcrumb from './Breadcrumb';
@@ -63,7 +63,7 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === KeyboardCodes.LeftArrow) {
+    if (event.key === KeyboardKeys.LeftArrow) {
       event.preventDefault();
       const { breadcrumbs } = this.state;
       if (breadcrumbs.length > 1) {

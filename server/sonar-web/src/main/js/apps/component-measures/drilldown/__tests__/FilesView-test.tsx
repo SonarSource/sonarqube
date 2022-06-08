@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { keydown } from '../../../../helpers/testUtils';
 import FilesView from '../FilesView';
@@ -86,16 +86,16 @@ it('should correctly bind key events for file navigation', () => {
     components: FILES
   });
 
-  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(handleSelect).toBeCalledWith(FILES[0]);
 
-  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ key: KeyboardKeys.UpArrow });
   expect(handleSelect).toBeCalledWith(FILES[2]);
 
-  keydown({ code: KeyboardCodes.RightArrow, ctrlKey: true });
+  keydown({ key: KeyboardKeys.RightArrow, ctrlKey: true });
   expect(handleOpen).not.toBeCalled();
 
-  keydown({ code: KeyboardCodes.RightArrow });
+  keydown({ key: KeyboardKeys.RightArrow });
   expect(handleOpen).toBeCalled();
 });
 

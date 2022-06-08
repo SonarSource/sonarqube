@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum KeyboardCodes {
+
+export enum KeyboardKeys {
   LeftArrow = 'ArrowLeft',
   UpArrow = 'ArrowUp',
   RightArrow = 'ArrowRight',
@@ -33,17 +34,7 @@ export enum KeyboardCodes {
   PageDown = 'PageDown',
   PageUp = 'PageUp',
   Space = 'Space',
-  Tab = 'Tab'
-}
-
-export enum KeyboardKeys {
-  Escape = 'Escape',
-  UpArrow = 'ArrowUp',
-  DownArrow = 'ArrowDown',
-  RightArrow = 'ArrowRight',
-  LeftArrow = 'ArrowLeft',
-  Enter = 'Enter',
-  Space = ' ',
+  Tab = 'Tab',
   Alt = 'Alt',
   KeyF = 'f',
   KeyA = 'a',

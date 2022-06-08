@@ -19,7 +19,7 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockEvent } from '../../../helpers/testUtils';
 import MultiSelect, { MultiSelectProps } from '../MultiSelect';
 
@@ -63,15 +63,15 @@ it('should render with the focus inside the search input', () => {
 });
 
 it.each([
-  [KeyboardCodes.DownArrow, 1, 1],
-  [KeyboardCodes.UpArrow, 1, 1],
-  [KeyboardCodes.LeftArrow, 1, 0]
-])('should handle keyboard event: %s', (code, stopPropagationCalls, preventDefaultCalls) => {
+  [KeyboardKeys.DownArrow, 1, 1],
+  [KeyboardKeys.UpArrow, 1, 1],
+  [KeyboardKeys.LeftArrow, 1, 0]
+])('should handle keyboard event: %s', (key, stopPropagationCalls, preventDefaultCalls) => {
   const wrapper = shallowRender();
 
   const stopPropagation = jest.fn();
   const preventDefault = jest.fn();
-  const event = mockEvent({ preventDefault, stopPropagation, code });
+  const event = mockEvent({ preventDefault, stopPropagation, key });
 
   wrapper.instance().handleKeyboard(event);
 
@@ -84,7 +84,7 @@ it('should handle keyboard event: enter', () => {
 
   wrapper.instance().toggleSelect = jest.fn();
 
-  wrapper.instance().handleKeyboard(mockEvent({ code: KeyboardCodes.Enter }));
+  wrapper.instance().handleKeyboard(mockEvent({ key: KeyboardKeys.Enter }));
 
   expect(wrapper.instance().toggleSelect).toBeCalled();
 });

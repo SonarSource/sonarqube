@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { Cancelable, debounce } from 'lodash';
 import * as React from 'react';
-import { KeyboardCodes } from '../../helpers/keycodes';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import SearchIcon from '../icons/SearchIcon';
 import DeferredSpinner from '../ui/DeferredSpinner';
@@ -95,7 +95,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
   };
 
   handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.nativeEvent.code === KeyboardCodes.Escape) {
+    if (event.nativeEvent.key === KeyboardKeys.Escape) {
       event.preventDefault();
       this.handleResetClick();
     }

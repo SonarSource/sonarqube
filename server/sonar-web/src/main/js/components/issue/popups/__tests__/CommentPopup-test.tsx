@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockEvent } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import CommentPopup, { CommentPopupProps } from '../CommentPopup';
@@ -58,7 +58,7 @@ it('should handle ctrl+enter', () => {
 
   wrapper
     .instance()
-    .handleKeyboard(mockEvent({ ctrlKey: true, nativeEvent: { code: KeyboardCodes.Enter } }));
+    .handleKeyboard(mockEvent({ ctrlKey: true, nativeEvent: { key: KeyboardKeys.Enter } }));
 
   expect(onComment).toBeCalled();
 });
@@ -67,7 +67,7 @@ it('should stopPropagation for arrow keys events', () => {
   const wrapper = shallowRender();
 
   const event = mockEvent({
-    nativeEvent: { code: KeyboardCodes.UpArrow },
+    nativeEvent: { key: KeyboardKeys.UpArrow },
     stopPropagation: jest.fn()
   });
   wrapper.instance().handleKeyboard(event);

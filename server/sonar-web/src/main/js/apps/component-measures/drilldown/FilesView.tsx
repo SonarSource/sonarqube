@@ -23,7 +23,7 @@ import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -96,13 +96,13 @@ export default class FilesView extends React.PureComponent<Props, State> {
     if (isInput(event) || isShortcut(event)) {
       return true;
     }
-    if (event.code === KeyboardCodes.UpArrow) {
+    if (event.key === KeyboardKeys.UpArrow) {
       event.preventDefault();
       this.selectPrevious();
-    } else if (event.code === KeyboardCodes.DownArrow) {
+    } else if (event.key === KeyboardKeys.DownArrow) {
       event.preventDefault();
       this.selectNext();
-    } else if (event.code === KeyboardCodes.RightArrow) {
+    } else if (event.key === KeyboardKeys.RightArrow) {
       event.preventDefault();
       this.openSelected();
     }

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { mockEvent } from '../../../../../helpers/testMocks';
 import { change } from '../../../../../helpers/testUtils';
@@ -49,7 +49,7 @@ it('should handle enter', () => {
   const onSave = jest.fn();
   shallowRender({ onSave })
     .instance()
-    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Enter } }));
+    .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
   expect(onSave).toBeCalled();
 });
 
@@ -57,7 +57,7 @@ it('should handle esc', () => {
   const onCancel = jest.fn();
   shallowRender({ onCancel })
     .instance()
-    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Escape } }));
+    .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Escape } }));
   expect(onCancel).toBeCalled();
 });
 
@@ -66,7 +66,7 @@ it('should ignore other keys', () => {
   const onCancel = jest.fn();
   shallowRender({ onCancel, onSave })
     .instance()
-    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.LeftArrow } }));
+    .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.LeftArrow } }));
   expect(onSave).not.toBeCalled();
   expect(onCancel).not.toBeCalled();
 });

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { searchIssues } from '../../../../api/issues';
 import { getRuleDetails } from '../../../../api/rules';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
-import { KeyboardCodes, KeyboardKeys } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
@@ -226,27 +226,27 @@ it('should correctly bind key events for issue navigation', async () => {
 
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[1].key);
 
-  keydown({ code: KeyboardCodes.UpArrow });
-  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ key: KeyboardKeys.UpArrow });
+  keydown({ key: KeyboardKeys.UpArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown({ code: KeyboardCodes.DownArrow });
-  keydown({ code: KeyboardCodes.DownArrow });
-  keydown({ code: KeyboardCodes.DownArrow });
-  keydown({ code: KeyboardCodes.DownArrow });
-  keydown({ code: KeyboardCodes.DownArrow });
-  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[3].key);
 
-  keydown({ code: KeyboardCodes.RightArrow, ctrlKey: true });
+  keydown({ key: KeyboardKeys.RightArrow, ctrlKey: true });
   expect(push).not.toBeCalled();
-  keydown({ code: KeyboardCodes.RightArrow });
+  keydown({ key: KeyboardKeys.RightArrow });
   expect(push).toBeCalledTimes(1);
 
-  keydown({ code: KeyboardCodes.LeftArrow });
+  keydown({ key: KeyboardKeys.LeftArrow });
   expect(push).toBeCalledTimes(2);
 
   addEventListenerSpy.mockReset();
@@ -433,19 +433,19 @@ describe('keydown event handler', () => {
     expect(instance.setState).toHaveBeenCalledWith(enableLocationsNavigator);
   });
   it('should handle alt+↓', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.DownArrow }));
+    instance.handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.DownArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextLocation);
   });
   it('should handle alt+↑', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.UpArrow }));
+    instance.handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.UpArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectPreviousLocation);
   });
   it('should handle alt+←', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.LeftArrow }));
+    instance.handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.LeftArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectPreviousFlow);
   });
   it('should handle alt+→', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.RightArrow }));
+    instance.handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.RightArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextFlow);
   });
   it('should ignore if modal is open', () => {

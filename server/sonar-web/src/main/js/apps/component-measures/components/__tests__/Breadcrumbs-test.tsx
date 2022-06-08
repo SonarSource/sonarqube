@@ -20,7 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../../api/components';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { keydown, waitAndUpdate } from '../../../../helpers/testUtils';
 import Breadcrumbs from '../Breadcrumbs';
 
@@ -75,7 +75,7 @@ it('should correctly handle keyboard action', async () => {
   const handleSelect = jest.fn();
   const wrapper = shallowRender({ handleSelect });
   await waitAndUpdate(wrapper);
-  keydown({ code: KeyboardCodes.LeftArrow });
+  keydown({ key: KeyboardKeys.LeftArrow });
   expect(handleSelect).toHaveBeenCalled();
 });
 

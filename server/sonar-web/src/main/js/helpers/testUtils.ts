@@ -19,7 +19,7 @@
  */
 import { ReactWrapper, ShallowWrapper } from 'enzyme';
 import { setImmediate } from 'timers';
-import { KeyboardCodes, KeyboardKeys } from './keycodes';
+import { KeyboardKeys } from './keycodes';
 
 export function mockEvent(overrides = {}) {
   return {
@@ -74,20 +74,15 @@ export function change(
   }
 }
 
-export const KEYCODE_MAP: { [code in KeyboardCodes]?: string } = {
-  [KeyboardCodes.Enter]: 'enter',
-  [KeyboardCodes.LeftArrow]: 'left',
-  [KeyboardCodes.UpArrow]: 'up',
-  [KeyboardCodes.RightArrow]: 'right',
-  [KeyboardCodes.DownArrow]: 'down'
+export const KEYCODE_MAP: { [code in KeyboardKeys]?: string } = {
+  [KeyboardKeys.Enter]: 'enter',
+  [KeyboardKeys.LeftArrow]: 'left',
+  [KeyboardKeys.UpArrow]: 'up',
+  [KeyboardKeys.RightArrow]: 'right',
+  [KeyboardKeys.DownArrow]: 'down'
 };
 
-export function keydown(args: {
-  code?: KeyboardCodes;
-  key?: KeyboardKeys;
-  metaKey?: boolean;
-  ctrlKey?: boolean;
-}): void {
+export function keydown(args: { key?: KeyboardKeys; metaKey?: boolean; ctrlKey?: boolean }): void {
   const event = new KeyboardEvent('keydown', args as KeyboardEventInit);
   document.dispatchEvent(event);
 }

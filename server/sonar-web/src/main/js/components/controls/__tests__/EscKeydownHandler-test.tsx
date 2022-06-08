@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { keydown } from '../../../helpers/testUtils';
 import EscKeydownHandler from '../EscKeydownHandler';
 
@@ -40,7 +40,7 @@ it('should correctly trigger the keydown handler when hitting Esc', () => {
   const onKeydown = jest.fn();
   shallowRender({ onKeydown });
   jest.runAllTimers();
-  keydown({ code: KeyboardCodes.Escape });
+  keydown({ key: KeyboardKeys.Escape });
   expect(onKeydown).toBeCalled();
 });
 

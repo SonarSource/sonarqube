@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { KeyboardCodes } from '../../helpers/keycodes';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import SelectListItem from './SelectListItem';
 
 interface Props {
@@ -59,15 +59,15 @@ export default class SelectList extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === KeyboardCodes.DownArrow) {
+    if (event.key === KeyboardKeys.DownArrow) {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.setState(this.selectNextElement);
-    } else if (event.code === KeyboardCodes.UpArrow) {
+    } else if (event.key === KeyboardKeys.UpArrow) {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.setState(this.selectPreviousElement);
-    } else if (event.code === KeyboardCodes.Enter) {
+    } else if (event.key === KeyboardKeys.Enter) {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (this.state.active != null) {

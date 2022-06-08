@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { mockRouter } from '../../../../helpers/testMocks';
@@ -98,11 +98,11 @@ describe('instance', () => {
 
   it('should handle "enter" keyboard event', () => {
     wrapper.setState({ selectedResult: undefined });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Enter } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
     expect(router.push).not.toBeCalled();
 
     wrapper.setState({ selectedResult: 'foo' });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Enter } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
 
     expect(router.push).toBeCalledWith({
       hash: '#foo',
@@ -113,27 +113,27 @@ describe('instance', () => {
 
   it('should handle "down" keyboard event', () => {
     wrapper.setState({ selectedResult: undefined });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.DownArrow } }));
     expect(wrapper.state().selectedResult).toBeUndefined();
 
     wrapper.setState({ selectedResult: 'foo' });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.DownArrow } }));
     expect(wrapper.state().selectedResult).toBe('sonar.new_code_period');
 
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.DownArrow } }));
     expect(wrapper.state().selectedResult).toBe('sonar.new_code_period');
   });
 
   it('should handle "up" keyboard event', () => {
     wrapper.setState({ selectedResult: undefined });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.UpArrow } }));
     expect(wrapper.state().selectedResult).toBeUndefined();
 
     wrapper.setState({ selectedResult: 'sonar.new_code_period' });
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.UpArrow } }));
     expect(wrapper.state().selectedResult).toBe('foo');
 
-    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
+    wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.UpArrow } }));
     expect(wrapper.state().selectedResult).toBe('foo');
   });
 });

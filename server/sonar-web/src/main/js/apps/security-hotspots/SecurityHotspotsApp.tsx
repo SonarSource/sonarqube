@@ -27,7 +27,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import { Router } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
-import { KeyboardCodes, KeyboardKeys } from '../../helpers/keycodes';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
@@ -150,8 +150,8 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       return;
     }
 
-    switch (event.code) {
-      case KeyboardCodes.DownArrow: {
+    switch (event.key) {
+      case KeyboardKeys.DownArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectNextLocation();
@@ -160,7 +160,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         }
         break;
       }
-      case KeyboardCodes.UpArrow: {
+      case KeyboardKeys.UpArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectPreviousLocation();

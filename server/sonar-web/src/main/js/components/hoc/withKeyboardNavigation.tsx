@@ -21,7 +21,7 @@ import * as React from 'react';
 import PageActions from '../../components/ui/PageActions';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
-import { KeyboardCodes } from '../../helpers/keycodes';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { ComponentMeasure } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 
@@ -54,16 +54,16 @@ export default function withKeyboardNavigation<P>(
       if (isInput(event) || isShortcut(event)) {
         return true;
       }
-      if (event.code === KeyboardCodes.UpArrow) {
+      if (event.key === KeyboardKeys.UpArrow) {
         event.preventDefault();
         return this.skipIfFile(this.handleHighlightPrevious);
-      } else if (event.code === KeyboardCodes.DownArrow) {
+      } else if (event.key === KeyboardKeys.DownArrow) {
         event.preventDefault();
         return this.skipIfFile(this.handleHighlightNext);
-      } else if (event.code === KeyboardCodes.RightArrow || event.code === KeyboardCodes.Enter) {
+      } else if (event.key === KeyboardKeys.RightArrow || event.key === KeyboardKeys.Enter) {
         event.preventDefault();
         return this.skipIfFile(this.handleSelectCurrent);
-      } else if (event.code === KeyboardCodes.LeftArrow) {
+      } else if (event.key === KeyboardKeys.LeftArrow) {
         event.preventDefault();
         this.handleSelectParent();
         return false; // always hijack left / Why did you put this @wouter?

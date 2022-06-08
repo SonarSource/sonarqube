@@ -47,7 +47,7 @@ import {
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
-import { KeyboardCodes, KeyboardKeys } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -274,8 +274,8 @@ export default class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    switch (event.code) {
-      case KeyboardCodes.DownArrow: {
+    switch (event.key) {
+      case KeyboardKeys.DownArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectNextLocation();
@@ -284,7 +284,7 @@ export default class App extends React.PureComponent<Props, State> {
         }
         break;
       }
-      case KeyboardCodes.UpArrow: {
+      case KeyboardKeys.UpArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectPreviousLocation();
@@ -293,7 +293,7 @@ export default class App extends React.PureComponent<Props, State> {
         }
         break;
       }
-      case KeyboardCodes.LeftArrow: {
+      case KeyboardKeys.LeftArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectPreviousFlow();
@@ -302,7 +302,7 @@ export default class App extends React.PureComponent<Props, State> {
         }
         break;
       }
-      case KeyboardCodes.RightArrow: {
+      case KeyboardKeys.RightArrow: {
         event.preventDefault();
         if (event.altKey) {
           this.selectNextFlow();

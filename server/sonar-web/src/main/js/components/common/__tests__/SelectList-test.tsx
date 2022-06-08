@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { keydown } from '../../../helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
@@ -54,15 +54,15 @@ it('should correclty handle user actions', () => {
   ));
   const list = shallowRender({ items, onSelect }, children);
   expect(list.state().active).toBe('seconditem');
-  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(list.state().active).toBe('third');
-  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(list.state().active).toBe('item');
-  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ key: KeyboardKeys.UpArrow });
   expect(list.state().active).toBe('third');
-  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ key: KeyboardKeys.UpArrow });
   expect(list.state().active).toBe('seconditem');
-  keydown({ code: KeyboardCodes.Enter });
+  keydown({ key: KeyboardKeys.Enter });
   expect(onSelect).toBeCalledWith('seconditem');
   list.instance().componentWillUnmount!();
 });

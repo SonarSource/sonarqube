@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockHtmlElement } from '../../../helpers/mocks/dom';
@@ -465,7 +465,7 @@ describe('keyboard navigation', () => {
     ['selecting next locations, non-existent', 2, undefined]
   ])('should work when %s', (_, start, expected) => {
     wrapper.setState({ selectedHotspotLocationIndex: start, selectedHotspot: hotspotsForLocation });
-    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.DownArrow }));
+    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.DownArrow }));
 
     expect(wrapper.state().selectedHotspotLocationIndex).toBe(expected);
   });
@@ -476,7 +476,7 @@ describe('keyboard navigation', () => {
     ['selecting previous locations, non-existent', 0, undefined]
   ])('should work when %s', (_, start, expected) => {
     wrapper.setState({ selectedHotspotLocationIndex: start, selectedHotspot: hotspotsForLocation });
-    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.UpArrow }));
+    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.UpArrow }));
 
     expect(wrapper.state().selectedHotspotLocationIndex).toBe(expected);
   });
@@ -484,10 +484,10 @@ describe('keyboard navigation', () => {
   it('should not change location index when locations are empty', () => {
     wrapper.setState({ selectedHotspotLocationIndex: undefined, selectedHotspot: hotspots[0] });
 
-    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.UpArrow }));
+    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.UpArrow }));
     expect(wrapper.state().selectedHotspotLocationIndex).toBeUndefined();
 
-    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.DownArrow }));
+    wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.DownArrow }));
     expect(wrapper.state().selectedHotspotLocationIndex).toBeUndefined();
   });
 });

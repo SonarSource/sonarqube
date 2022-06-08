@@ -24,7 +24,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { KeyboardCodes } from '../../../helpers/keycodes';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasure } from '../../../types/types';
@@ -76,10 +76,10 @@ export class Search extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    switch (event.nativeEvent.code) {
-      case KeyboardCodes.Enter:
-      case KeyboardCodes.UpArrow:
-      case KeyboardCodes.DownArrow:
+    switch (event.nativeEvent.key) {
+      case KeyboardKeys.Enter:
+      case KeyboardKeys.UpArrow:
+      case KeyboardKeys.DownArrow:
         event.preventDefault();
         event.currentTarget.blur();
         break;
