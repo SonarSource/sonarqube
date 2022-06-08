@@ -23,8 +23,17 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DropPrimaryKeyOnKeeColumnOfIssuesTableTest {
 
@@ -36,10 +45,27 @@ public class DropPrimaryKeyOnKeeColumnOfIssuesTableTest {
     new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database())));
 
   @Test
-  public void migration_should_drop_PK_on_ce_activity() throws SQLException {
+  public void migration_should_have_no_effect_when_using_h2_database() throws SQLException {
     db.assertPrimaryKey("issues", "pk_issues", "kee");
     underTest.execute();
-    db.assertNoPrimaryKey("issues");
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
+  }
+
+  @Test
+  public void migration_should_call_generator_when_using_oracle_database() throws SQLException {
+    DropPrimaryKeySqlGenerator generator = mock(DropPrimaryKeySqlGenerator.class);
+    Database mockedDb = mock(Database.class);
+    DropPrimaryKeyOnKeeColumnOfIssuesTable underTest = new DropPrimaryKeyOnKeeColumnOfIssuesTable(
+      mockedDb, generator);
+
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    Dialect dialect = mock(Dialect.class);
+    when(dialect.getId()).thenReturn(Oracle.ID);
+    when(mockedDb.getDialect()).thenReturn(dialect);
+
+    underTest.execute(context);
+
+    verify(generator, only()).generate("issues", "kee", false);
   }
 
   @Test
@@ -48,6 +74,6 @@ public class DropPrimaryKeyOnKeeColumnOfIssuesTableTest {
     underTest.execute();
     // re-entrant
     underTest.execute();
-    db.assertNoPrimaryKey("issues");
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
   }
 }

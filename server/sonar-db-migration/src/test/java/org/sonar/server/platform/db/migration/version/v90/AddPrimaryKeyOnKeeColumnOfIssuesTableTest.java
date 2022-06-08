@@ -23,6 +23,16 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AddPrimaryKeyOnKeeColumnOfIssuesTableTest {
   @Rule
@@ -31,9 +41,36 @@ public class AddPrimaryKeyOnKeeColumnOfIssuesTableTest {
   private final AddPrimaryKeyOnKeeColumnOfIssuesTable underTest = new AddPrimaryKeyOnKeeColumnOfIssuesTable(db.database());
 
   @Test
-  public void migration_should_drop_PK_on_ce_activity() throws SQLException {
-    db.assertNoPrimaryKey("issues");
-    underTest.execute();
+  public void migration_should_not_create_another_PK_on_issues_when_using_H2_database() throws SQLException {
     db.assertPrimaryKey("issues", "pk_issues", "kee");
+
+    underTest.execute();
+
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
+  }
+
+  @Test
+  public void migration_should_have_no_effect_when_using_h2_database_and_running_it_twice() throws SQLException {
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
+
+    underTest.execute();
+    underTest.execute();
+
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
+  }
+
+  @Test
+  public void migration_should_execute_when_using_oracle_database() throws SQLException {
+    Database mockedDb = mock(Database.class);
+    AddPrimaryKeyOnKeeColumnOfIssuesTable underTest = new AddPrimaryKeyOnKeeColumnOfIssuesTable(mockedDb);
+
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    Dialect dialect = mock(Dialect.class);
+    when(dialect.getId()).thenReturn(Oracle.ID);
+    when(mockedDb.getDialect()).thenReturn(dialect);
+
+    underTest.execute(context);
+
+    verify(context, only()).execute("ALTER TABLE issues ADD CONSTRAINT pk_issues PRIMARY KEY (kee)");
   }
 }

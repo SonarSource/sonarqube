@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v90;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -35,6 +36,8 @@ public class DropPrimaryKeyOnKeeColumnOfIssuesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, "kee", false));
+    if (Oracle.ID.equals(getDialect().getId())) {
+      context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, "kee", false));
+    }
   }
 }
