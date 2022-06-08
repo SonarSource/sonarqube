@@ -40,6 +40,7 @@ interface Props {
   previous?: TypeComponentMeasure;
   rootComponent: TypeComponentMeasure;
   selected?: boolean;
+  newCodeSelected?: boolean;
 }
 
 export class Component extends React.PureComponent<Props> {
@@ -54,7 +55,8 @@ export class Component extends React.PureComponent<Props> {
       metrics,
       previous,
       rootComponent,
-      selected = false
+      selected = false,
+      newCodeSelected
     } = this.props;
 
     const isFile =
@@ -91,6 +93,7 @@ export class Component extends React.PureComponent<Props> {
               previous={previous}
               rootComponent={rootComponent}
               unclickable={isBaseComponent}
+              newCodeSelected={newCodeSelected}
             />
           </div>
         </td>

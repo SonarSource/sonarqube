@@ -34,7 +34,7 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
@@ -217,9 +217,12 @@ export class CodeApp extends React.Component<Props, State> {
 
   handleSelect = (component: ComponentMeasure) => {
     const { branchLike, component: rootComponent } = this.props;
+    const { newCodeSelected } = this.state;
 
     if (component.refKey) {
-      this.props.router.push(getProjectUrl(component.refKey, component.branch));
+      const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
+      const url = getProjectUrl(component.refKey, component.branch, codeType);
+      this.props.router.push(url);
     } else {
       this.props.router.push(getCodeUrl(rootComponent.key, branchLike, component.key));
     }
@@ -350,6 +353,7 @@ export class CodeApp extends React.Component<Props, State> {
                   onSelect={this.handleSelect}
                   rootComponent={component}
                   selected={highlighted}
+                  newCodeSelected={newCodeSelected}
                 />
               </div>
               <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />

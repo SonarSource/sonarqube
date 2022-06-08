@@ -34,13 +34,22 @@ interface Props {
   metrics: Metric[];
   rootComponent: ComponentMeasure;
   selected?: ComponentMeasure;
+  newCodeSelected?: boolean;
 }
 
 const BASE_COLUMN_COUNT = 4;
 
 export class Components extends React.PureComponent<Props> {
   render() {
-    const { baseComponent, branchLike, components, rootComponent, selected, metrics } = this.props;
+    const {
+      baseComponent,
+      branchLike,
+      components,
+      rootComponent,
+      selected,
+      metrics,
+      newCodeSelected
+    } = this.props;
 
     const colSpan = metrics.length + BASE_COLUMN_COUNT;
     const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
@@ -67,6 +76,7 @@ export class Components extends React.PureComponent<Props> {
                 key={baseComponent.key}
                 metrics={metrics}
                 rootComponent={rootComponent}
+                newCodeSelected={newCodeSelected}
               />
               <tr className="blank">
                 <td colSpan={3}>
@@ -96,6 +106,7 @@ export class Components extends React.PureComponent<Props> {
                 metrics={this.props.metrics}
                 previous={index > 0 ? list[index - 1] : undefined}
                 rootComponent={rootComponent}
+                newCodeSelected={newCodeSelected}
                 selected={
                   selected &&
                   getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)

@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter, Location } from '../../../components/hoc/withRouter';
 import { rawSizes } from '../../../app/theme';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { findMeasure, isDiffMetric } from '../../../helpers/measures';
+import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -31,7 +33,7 @@ import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
 import { Component, MeasureEnhanced, Period } from '../../../types/types';
 import MeasurementLabel from '../components/MeasurementLabel';
-import { MeasurementType } from '../utils';
+import { MeasurementType, parseQuery } from '../utils';
 import { DrilldownMeasureValue } from './DrilldownMeasureValue';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
 import MeasuresPanelIssueMeasureRow from './MeasuresPanelIssueMeasureRow';
@@ -44,6 +46,7 @@ export interface MeasuresPanelProps {
   loading?: boolean;
   measures?: MeasureEnhanced[];
   period?: Period;
+  location: Location;
 }
 
 export enum MeasuresPanelTabs {
@@ -51,14 +54,19 @@ export enum MeasuresPanelTabs {
   Overall
 }
 
-export function MeasuresPanel(props: MeasuresPanelProps) {
-  const { appLeak, branch, component, loading, measures = [], period } = props;
+function MeasuresPanel(props: MeasuresPanelProps) {
+  const { appLeak, branch, component, loading, measures = [], period, location } = props;
 
   const hasDiffMeasures = measures.some(m => isDiffMetric(m.metric.key));
   const isApp = component.qualifier === ComponentQualifier.Application;
   const leakPeriod = isApp ? appLeak : period;
+  const query = parseQuery(location.query);
 
-  const [tab, selectTab] = React.useState(MeasuresPanelTabs.New);
+  const [tab, selectTab] = React.useState(() => {
+    return query.codeScope === CodeScope.Overall
+      ? MeasuresPanelTabs.Overall
+      : MeasuresPanelTabs.New;
+  });
 
   const isNewCodeTab = tab === MeasuresPanelTabs.New;
 
@@ -188,4 +196,4 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
   );
 }
 
-export default React.memo(MeasuresPanel);
+export default withRouter(React.memo(MeasuresPanel));

@@ -36,16 +36,26 @@ export interface Location {
   query?: Dict<string | undefined | number>;
 }
 
+export enum CodeScope {
+  Overall = 'overall',
+  New = 'new'
+}
+
+type CodeScopeType = CodeScope.Overall | CodeScope.New;
+
 type Query = Location['query'];
+
+const PROJECT_BASE_URL = '/dashboard';
 
 export function getComponentOverviewUrl(
   componentKey: string,
   componentQualifier: ComponentQualifier | string,
-  branchParameters?: BranchParameters
+  branchParameters?: BranchParameters,
+  codeScope?: CodeScopeType
 ) {
   return isPortfolioLike(componentQualifier)
     ? getPortfolioUrl(componentKey)
-    : getProjectQueryUrl(componentKey, branchParameters);
+    : getProjectQueryUrl(componentKey, branchParameters, codeScope);
 }
 
 export function getComponentAdminUrl(
@@ -61,12 +71,30 @@ export function getComponentAdminUrl(
   }
 }
 
-export function getProjectUrl(project: string, branch?: string): Location {
-  return { pathname: '/dashboard', query: { id: project, branch } };
+export function getProjectUrl(
+  project: string,
+  branch?: string,
+  codeScope?: CodeScopeType
+): Location {
+  return {
+    pathname: PROJECT_BASE_URL,
+    query: { id: project, branch, ...(codeScope && { code_scope: codeScope }) }
+  };
 }
 
-export function getProjectQueryUrl(project: string, branchParameters?: BranchParameters): Location {
-  return { pathname: '/dashboard', query: { id: project, ...branchParameters } };
+export function getProjectQueryUrl(
+  project: string,
+  branchParameters?: BranchParameters,
+  codeScope?: CodeScopeType
+): Location {
+  return {
+    pathname: PROJECT_BASE_URL,
+    query: {
+      id: project,
+      ...branchParameters,
+      ...(codeScope && { code_scope: codeScope })
+    }
+  };
 }
 
 export function getPortfolioUrl(key: string): Location {
@@ -106,11 +134,11 @@ export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Loca
 }
 
 export function getBranchUrl(project: string, branch: string): Location {
-  return { pathname: '/dashboard', query: { branch, id: project } };
+  return { pathname: PROJECT_BASE_URL, query: { branch, id: project } };
 }
 
 export function getPullRequestUrl(project: string, pullRequest: string): Location {
-  return { pathname: '/dashboard', query: { id: project, pullRequest } };
+  return { pathname: PROJECT_BASE_URL, query: { id: project, pullRequest } };
 }
 
 /**

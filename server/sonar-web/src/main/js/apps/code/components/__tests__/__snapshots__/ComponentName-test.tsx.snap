@@ -237,6 +237,40 @@ foo:src/index.tsx"
 </span>
 `;
 
+exports[`#ComponentName should render correctly for files 6`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="src/index.tsx
+
+foo:src/index.tsx"
+>
+  <span>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+     
+    index.tsx
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render correctly for files 7`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="src/index.tsx
+
+foo:src/index.tsx"
+>
+  <span>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+     
+    index.tsx
+  </span>
+</span>
+`;
+
 exports[`#ComponentName should render correctly for refs 1`] = `
 <span
   className="max-width-100 display-inline-block text-ellipsis"
@@ -255,6 +289,7 @@ foo"
         "pathname": "/dashboard",
         "query": Object {
           "branch": undefined,
+          "code_scope": "new",
           "id": "src/main/ts/app",
         },
       }
@@ -292,6 +327,7 @@ foo"
           "pathname": "/dashboard",
           "query": Object {
             "branch": "foo",
+            "code_scope": "new",
             "id": "src/main/ts/app",
           },
         }
@@ -340,6 +376,7 @@ foo"
           "pathname": "/dashboard",
           "query": Object {
             "branch": undefined,
+            "code_scope": "new",
             "id": "src/main/ts/app",
           },
         }

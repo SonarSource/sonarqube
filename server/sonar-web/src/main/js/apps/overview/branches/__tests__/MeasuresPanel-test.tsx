@@ -22,15 +22,30 @@ import * as React from 'react';
 import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockMeasureEnhanced, mockMetric, mockPeriod } from '../../../../helpers/testMocks';
+import {
+  mockLocation,
+  mockMeasureEnhanced,
+  mockMetric,
+  mockPeriod
+} from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
-import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
+import MeasuresPanel, { MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
+
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => f())
+  };
+});
 
 it('should render correctly for projects', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
+  wrapper
+    .dive()
+    .find(BoxedTabs)
+    .prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -39,7 +54,10 @@ it('should render correctly for applications', () => {
     component: mockComponent({ qualifier: ComponentQualifier.Application })
   });
   expect(wrapper).toMatchSnapshot();
-  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
+  wrapper
+    .dive()
+    .find(BoxedTabs)
+    .prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -50,7 +68,10 @@ it('should render correctly if there is no new code measures', () => {
       mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })
     ]
   });
-  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
+  wrapper
+    .dive()
+    .find(BoxedTabs)
+    .prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -63,7 +84,10 @@ it('should render correctly if branch is misconfigured', () => {
     ],
     period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'own-reference' })
   });
-  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
+  wrapper
+    .dive()
+    .find(BoxedTabs)
+    .prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot('hide settings');
 
   wrapper.setProps({ component: mockComponent({ configuration: { showSettings: true } }) });
@@ -85,6 +109,22 @@ it('should render correctly if the data is still loading', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot();
 });
 
+it('should render correctly when code scope is overall code', () => {
+  expect(
+    shallowRender({
+      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'overall' } })
+    })
+  ).toMatchSnapshot();
+});
+
+it('should render correctly when code scope is new code', () => {
+  expect(
+    shallowRender({
+      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'new' } })
+    })
+  ).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<MeasuresPanelProps> = {}) {
   return shallow<MeasuresPanelProps>(
     <MeasuresPanel
@@ -96,6 +136,7 @@ function shallowRender(props: Partial<MeasuresPanelProps> = {}) {
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) })
       ]}
+      location={mockLocation()}
       {...props}
     />
   );

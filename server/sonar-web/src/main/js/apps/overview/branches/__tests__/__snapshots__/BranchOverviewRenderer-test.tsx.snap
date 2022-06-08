@@ -73,7 +73,7 @@ exports[`should render correctly: default 1`] = `
           <div
             className="display-flex-column"
           >
-            <MeasuresPanel
+            <withRouter(Component)
               branch={
                 Object {
                   "analysisDate": "2018-01-01",
@@ -336,7 +336,7 @@ exports[`should render correctly: loading 1`] = `
           <div
             className="display-flex-column"
           >
-            <MeasuresPanel
+            <withRouter(Component)
               branch={
                 Object {
                   "analysisDate": "2018-01-01",

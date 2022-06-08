@@ -49,6 +49,8 @@ describe('#ComponentName', () => {
         rootComponent: mockComponentMeasure(false, { qualifier: 'APP' })
       })
     ).toMatchSnapshot();
+    expect(shallowRender({ newCodeSelected: true })).toMatchSnapshot();
+    expect(shallowRender({ newCodeSelected: false })).toMatchSnapshot();
   });
 
   it('should render correctly for dirs', () => {

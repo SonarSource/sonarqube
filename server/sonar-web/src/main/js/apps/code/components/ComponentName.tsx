@@ -24,7 +24,7 @@ import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getComponentOverviewUrl } from '../../../helpers/urls';
+import { CodeScope, getComponentOverviewUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import {
   ComponentQualifier,
@@ -52,6 +52,7 @@ export interface Props {
   previous?: ComponentMeasure;
   rootComponent: ComponentMeasure;
   unclickable?: boolean;
+  newCodeSelected?: boolean;
 }
 
 export default function ComponentName({
@@ -60,7 +61,8 @@ export default function ComponentName({
   unclickable = false,
   rootComponent,
   previous,
-  canBrowse = false
+  canBrowse = false,
+  newCodeSelected
 }: Props) {
   const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
@@ -81,7 +83,8 @@ export default function ComponentName({
             previous,
             rootComponent,
             unclickable,
-            canBrowse
+            canBrowse,
+            newCodeSelected
           )}
         </span>
         {component.branch ? (
@@ -111,10 +114,11 @@ function renderNameWithIcon(
   previous: ComponentMeasure | undefined,
   rootComponent: ComponentMeasure,
   unclickable = false,
-  canBrowse = false
+  canBrowse = false,
+  newCodeSelected = true
 ) {
   const name = renderName(component, previous);
-
+  const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
   if (
     !unclickable &&
     (isPortfolioLike(component.qualifier) ||
@@ -129,9 +133,14 @@ function renderNameWithIcon(
     return (
       <Link
         className="link-with-icon"
-        to={getComponentOverviewUrl(component.refKey || component.key, component.qualifier, {
-          branch
-        })}>
+        to={getComponentOverviewUrl(
+          component.refKey || component.key,
+          component.qualifier,
+          {
+            branch
+          },
+          codeType
+        )}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );

@@ -214,14 +214,22 @@ it('should handle select correctly', () => {
   wrapper.instance().handleSelect(mockComponentMeasure(true, { refKey: 'test' }));
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
-    query: { branch: undefined, id: 'test' }
+    query: { branch: undefined, id: 'test', code_scope: 'new' }
   });
   expect(wrapper.state().highlighted).toBeUndefined();
 
-  wrapper.instance().handleSelect(mockComponentMeasure());
+  wrapper.setState({ newCodeSelected: false });
+
+  wrapper.instance().handleSelect(mockComponentMeasure(true, { refKey: 'test' }));
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
-    query: { branch: undefined, id: 'test' }
+    query: { branch: undefined, id: 'test', code_scope: 'overall' }
+  });
+
+  wrapper.instance().handleSelect(mockComponentMeasure());
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/code',
+    query: { id: 'foo', line: undefined, selected: 'foo' }
   });
 });
 

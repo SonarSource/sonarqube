@@ -23,6 +23,7 @@ import { IssueType } from '../../types/issues';
 import { SecurityStandard } from '../../types/security';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import {
+  CodeScope,
   convertGithubApiUrlToLink,
   getComponentDrilldownUrl,
   getComponentDrilldownUrlWithSelection,
@@ -128,6 +129,32 @@ describe('#getComponentOverviewUrl', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Project)).toEqual({
       pathname: '/dashboard',
       query: { id: SIMPLE_COMPONENT_KEY }
+    });
+  });
+  it('should return correct dashboard url for a project when navigating from new code', () => {
+    expect(
+      getComponentOverviewUrl(
+        SIMPLE_COMPONENT_KEY,
+        ComponentQualifier.Project,
+        undefined,
+        CodeScope.New
+      )
+    ).toEqual({
+      pathname: '/dashboard',
+      query: { id: SIMPLE_COMPONENT_KEY, code_scope: 'new' }
+    });
+  });
+  it('should return correct dashboard url for a project when navigating from overall code', () => {
+    expect(
+      getComponentOverviewUrl(
+        SIMPLE_COMPONENT_KEY,
+        ComponentQualifier.Project,
+        undefined,
+        CodeScope.Overall
+      )
+    ).toEqual({
+      pathname: '/dashboard',
+      query: { id: SIMPLE_COMPONENT_KEY, code_scope: 'overall' }
     });
   });
   it('should return a dashboard url for an app', () => {

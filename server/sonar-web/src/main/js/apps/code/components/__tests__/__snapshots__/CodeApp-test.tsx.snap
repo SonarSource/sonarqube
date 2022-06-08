@@ -55,6 +55,7 @@ Object {
       "type": "RATING",
     },
   ],
+  "newCodeSelected": true,
   "onEndOfList": [Function],
   "onGoToParent": [Function],
   "onHighlight": [Function],
@@ -139,6 +140,7 @@ Object {
       "type": "RATING",
     },
   ],
+  "newCodeSelected": false,
   "onEndOfList": [Function],
   "onGoToParent": [Function],
   "onHighlight": [Function],
@@ -385,6 +387,7 @@ exports[`should render correclty when no sub component for APP: with sub compone
             },
           ]
         }
+        newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
@@ -571,6 +574,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
         }
         cycle={true}
         metrics={Array []}
+        newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
@@ -767,6 +771,7 @@ exports[`should render correclty when no sub component for TRK: with sub compone
             },
           ]
         }
+        newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
@@ -953,6 +958,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
         }
         cycle={true}
         metrics={Array []}
+        newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
