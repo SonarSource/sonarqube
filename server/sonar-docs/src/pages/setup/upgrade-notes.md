@@ -3,6 +3,13 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.5 Upgrade notes
+**Project analysis token**  
+You can now generate tokens of different types and can create a different analysis token for every specific project. The new tokens will include a prefix to help you quickly identify SonarQube tokens and their type. The usage of project analysis tokens is encouraged to limit the access this token has. See [Generating and Using Tokens](/user-guide/user-token/) documentation for more information.
+([SONAR-16260](https://jira.sonarsource.com/browse/SONAR-16260)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17328)
+
 ## Release 9.4 Upgrade notes
 **Password of old inactive account needs reset**  
 The support for SHA1 hashed password has been removed. This algorithm was replaced by a stronger hashing algorithm since version 7.2. As a result, local accounts that did not log in since 7.2 will be forced to have their password reset by a SonarQube administrator. Accounts using external authentication such as SAML, LDAP, GitHub authentication, etc., are not impacted. Information about the possibly impacted accounts will appear in the logs during the upgrade. ([SONAR-16204](https://jira.sonarsource.com/browse/SONAR-16204)).
