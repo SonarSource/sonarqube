@@ -15,11 +15,12 @@ These tokens can be used to run analysis on a specific project.
 
 In order to create this type of token, the user should have Global Execute Analysis permission or Execute Analysis permission on the token's associated project.
 
-If the token's author loses Execute Analysis permissions for the associated project, the token will no longer be valid for performing an analysis.
+If the token's author loses Execute Analysis permissions for the associated project, the token will no longer be valid for performing an
+analysis.
 
 [[info]]
-| The usage of Project Analysis Tokens is encouraged for security reasons. 
-| If such a token were to leak, an attacker would only gain access to analyze a single project. Interacting with the web services would not be possible for them.
+| The usage of Project Analysis Tokens is encouraged for security reasons.
+| If such a token were to leak, an attacker would only gain access to analyze a single project or to interact with the related web services requiring Execute Analysis permissions.
 
 
 ### Global Analysis Tokens
