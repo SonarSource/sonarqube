@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;

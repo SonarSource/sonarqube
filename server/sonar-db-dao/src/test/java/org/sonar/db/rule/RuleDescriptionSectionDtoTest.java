@@ -22,11 +22,33 @@ package org.sonar.db.rule;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 public class RuleDescriptionSectionDtoTest {
   private static final RuleDescriptionSectionDto SECTION = RuleDescriptionSectionDto.builder()
     .key("key")
     .uuid("uuid")
     .content("desc").build();
+
+
+  @Test
+  public void setDefault_whenKeyAlreadySet_shouldThrow() {
+    RuleDescriptionSectionDto.RuleDescriptionSectionDtoBuilder builderWithKey = RuleDescriptionSectionDto.builder()
+      .key("tagada");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(builderWithKey::setDefault)
+      .withMessage("Only one of setDefault and key methods can be called");
+  }
+
+  @Test
+  public void setKey_whenDefaultAlreadySet_shouldThrow() {
+    RuleDescriptionSectionDto.RuleDescriptionSectionDtoBuilder builderWithDefault = RuleDescriptionSectionDto.builder()
+      .setDefault();
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> builderWithDefault.key("balbal"))
+      .withMessage("Only one of setDefault and key methods can be called");
+  }
+
 
   @Test
   public void testToString() {

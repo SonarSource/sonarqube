@@ -19,7 +19,15 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.util.Set;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.core.extension.PluginRiskConsent;
@@ -30,15 +38,6 @@ import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.REQUIRED;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Set;
 
 public class PluginsRiskConsentFilter extends ServletFilter {
 

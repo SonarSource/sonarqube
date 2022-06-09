@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
 
 @RunWith(DataProviderRunner.class)
 public class CeTaskTest {
@@ -76,7 +75,10 @@ public class CeTaskTest {
     assertThat(task.getSubmitter()).isEqualTo(submitter);
     assertThat(task.getComponent()).contains(component);
     assertThat(task.getMainComponent()).contains(mainComponent);
-    assertThat(task.getCharacteristics()).containsExactly(entry("k1", "v1"), entry("k2", "v2"));
+    assertThat(task.getCharacteristics())
+      .hasSize(2)
+      .containsEntry("k1", "v1")
+      .containsEntry("k2", "v2");
   }
 
   @Test
