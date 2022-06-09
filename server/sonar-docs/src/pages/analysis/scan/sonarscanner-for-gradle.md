@@ -30,7 +30,7 @@ systemProp.sonar.host.url=http://localhost:9000
 ```
 
 ## Analyzing
-First, include the scanner in your build in `build.gradle`:
+First, you need to activate the scanner in your build. For Gradle 2.1+, apply the SonarQube plugin dependency to your build.gradle file below::
 
 ```
 plugins {
@@ -38,7 +38,7 @@ plugins {
 }
 ```
 
-More details on https://plugins.gradle.org/plugin/org.sonarqube
+Ensure that you declare the plugins in the correct sequence required by Gradle, that is, after the buildscript block in your build.gradle file. More details on https://plugins.gradle.org/plugin/org.sonarqube
 
 Assuming a local SonarQube server with out-of-the-box settings is up and running, no further configuration is required.
 
