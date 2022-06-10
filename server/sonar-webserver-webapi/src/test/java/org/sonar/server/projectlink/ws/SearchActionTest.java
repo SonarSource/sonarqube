@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -41,6 +40,8 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -117,7 +118,8 @@ public class SearchActionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project1);
     ProjectLinkDto link2 = db.componentLinks().insertCustomLink(project2);
-    userSession.logIn().setRoot();
+    userSession.addProjectPermission(USER, project1);
+    userSession.addProjectPermission(USER, project2);
 
     SearchWsResponse response = callByKey(project1.getKey());
 
@@ -143,7 +145,7 @@ public class SearchActionTest {
   public void project_administrator_can_search_for_links() {
     ComponentDto project = db.components().insertPrivateProject();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByKey(project.getKey());
 
@@ -156,7 +158,7 @@ public class SearchActionTest {
   public void project_user_can_search_for_links() {
     ComponentDto project = db.components().insertPrivateProject();
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(USER, project);
 
     SearchWsResponse response = callByKey(project.getKey());
 
@@ -237,7 +239,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -250,7 +252,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_using_branch_db_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -283,11 +285,11 @@ public class SearchActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ADMIN, project);
   }
 
   private void failIfNotAProjectWithKey(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+    userSession.logIn().addProjectPermission(USER, root);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, component.getDbKey())
@@ -297,7 +299,7 @@ public class SearchActionTest {
   }
 
   private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+    userSession.logIn().addProjectPermission(USER, root);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_ID, component.uuid())

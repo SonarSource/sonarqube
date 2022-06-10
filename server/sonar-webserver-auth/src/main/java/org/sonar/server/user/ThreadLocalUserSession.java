@@ -101,16 +101,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkIsRoot() {
-    return get().checkIsRoot();
-  }
-
-  @Override
-  public boolean isRoot() {
-    return get().isRoot();
-  }
-
-  @Override
   public UserSession checkLoggedIn() {
     get().checkLoggedIn();
     return this;

@@ -56,9 +56,6 @@ public class UserNewValue extends NewValue {
   private Boolean local;
 
   @Nullable
-  private Boolean root;
-
-  @Nullable
   private Long lastConnectionDate;
 
   public UserNewValue(String userUuid, String userLogin) {
@@ -77,7 +74,6 @@ public class UserNewValue extends NewValue {
     this.externalLogin = userDto.getExternalLogin();
     this.externalIdentityProvider = userDto.getExternalIdentityProvider();
     this.local = userDto.isLocal();
-    this.root = userDto.isRoot();
     this.lastConnectionDate = userDto.getLastConnectionDate();
   }
 
@@ -130,11 +126,6 @@ public class UserNewValue extends NewValue {
   }
 
   @CheckForNull
-  public Boolean isRoot() {
-    return this.root;
-  }
-
-  @CheckForNull
   public Long getLastConnectionDate() {
     return this.lastConnectionDate;
   }
@@ -152,7 +143,6 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"externalLogin\": ", this.externalLogin, true);
     addField(sb, "\"externalIdentityProvider\": ", this.externalIdentityProvider, true);
     addField(sb, "\"local\": ", ObjectUtils.toString(this.local), false);
-    addField(sb, "\"root\": ", ObjectUtils.toString(this.root), false);
     addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
       "" : DateUtils.formatDateTime(this.lastConnectionDate), true);
     endString(sb);

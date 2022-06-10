@@ -228,9 +228,6 @@ public class IssueIndexTest {
 
     userSessionRule.logIn().setGroups(group1, group2);
     assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.uuid())));
-
-    userSessionRule.setRoot();
-    assertThatSearchReturnsOnly(IssueQuery.builder(), "I1", "I2", "I3");
   }
 
   @Test
@@ -261,18 +258,6 @@ public class IssueIndexTest {
     // another user
     userSessionRule.logIn(newUserDto());
     assertThatSearchReturnsEmpty(IssueQuery.builder());
-
-    userSessionRule.setRoot();
-    assertThatSearchReturnsOnly(IssueQuery.builder(), "I1", "I2", "I3");
-  }
-
-  @Test
-  public void root_user_is_authorized_to_access_all_issues() {
-    ComponentDto project = newPrivateProjectDto();
-    indexIssue(newDoc("I1", project));
-    userSessionRule.logIn().setRoot();
-
-    assertThatSearchReturnsOnly(IssueQuery.builder(), "I1");
   }
 
   @Test

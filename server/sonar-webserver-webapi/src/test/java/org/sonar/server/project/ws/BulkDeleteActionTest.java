@@ -70,7 +70,7 @@ public class BulkDeleteActionTest {
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public final UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final DbClient dbClient = db.getDbClient();
@@ -81,7 +81,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_projects() {
-    userSession.logIn().setRoot();
+    userSession.addPermission(ADMINISTER);
     ComponentDto project1ToDelete = db.components().insertPrivateProject();
     ComponentDto project2ToDelete = db.components().insertPrivateProject();
     ComponentDto toKeep = db.components().insertPrivateProject();
@@ -98,7 +98,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_projects_by_keys() {
-    userSession.logIn().setRoot();
+    userSession.addPermission(ADMINISTER);
     ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject();
     ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject();
     ComponentDto toKeep = db.components().insertPrivateProject();
@@ -113,8 +113,8 @@ public class BulkDeleteActionTest {
 
   @Test
   public void throw_IllegalArgumentException_if_request_without_any_parameters() {
-    userSession.logIn().setRoot();
-    db.components().insertPrivateProject();
+    userSession.addPermission(ADMINISTER);
+    ComponentDto project = db.components().insertPrivateProject();
 
     try {
       TestRequest request = ws.newRequest();
@@ -129,7 +129,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
-    userSession.logIn().setRoot();
+    userSession.addPermission(ADMINISTER);
     ComponentDto toDelete1 = db.components().insertPrivateProject();
     ComponentDto toDelete2 = db.components().insertPrivateProject();
 
@@ -273,6 +273,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
+    userSession.anonymous();
     TestRequest request = ws.newRequest().setParam("ids", "whatever-the-uuid");
     assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class)

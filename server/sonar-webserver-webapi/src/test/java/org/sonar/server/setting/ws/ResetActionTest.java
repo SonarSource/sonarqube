@@ -291,7 +291,7 @@ public class ResetActionTest {
 
   @Test
   public void fail_when_qualifier_not_included() {
-    userSession.logIn().setRoot();
+    userSession.logIn().addProjectPermission(ADMIN, project);
     definitions.addComponent(PropertyDefinition.builder("foo")
       .onQualifiers(VIEW)
       .build());
@@ -306,7 +306,7 @@ public class ResetActionTest {
 
   @Test
   public void fail_to_reset_setting_component_when_setting_is_global() {
-    userSession.logIn().setRoot();
+    userSession.logIn().addProjectPermission(ADMIN, project);
 
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     i18n.put("qualifier." + PROJECT, "project");

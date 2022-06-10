@@ -166,22 +166,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void root_user() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().setRoot();
-
-    SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
-      .setParam(PARAM_SELECTED, ALL.value())
-      .executeProtobuf(SearchResponse.class);
-
-    assertThat(response.getResultsList())
-      .extracting(Result::getName)
-      .containsExactlyInAnyOrder(project.name());
-  }
-
-  @Test
   public void test_paging() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPublicProjectDto();

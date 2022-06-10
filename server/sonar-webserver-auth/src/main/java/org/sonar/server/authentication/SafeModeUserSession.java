@@ -100,11 +100,6 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
-  public boolean isRoot() {
-    return false;
-  }
-
-  @Override
   public boolean isSystemAdministrator() {
     return false;
   }

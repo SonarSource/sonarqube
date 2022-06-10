@@ -329,7 +329,7 @@ public class AddActionTest {
   @Test
   public void fail_when_user_does_not_have_USER_permission_on_private_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().setNonRoot().setNonSystemAdministrator();
+    userSession.logIn().setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 

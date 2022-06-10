@@ -62,6 +62,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
@@ -78,7 +79,7 @@ public class SearchEventsActionTest {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   private Server server = mock(Server.class);
   private IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null);
   private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
@@ -106,8 +107,8 @@ public class SearchEventsActionTest {
 
   @Test
   public void json_example() {
-    userSession.logIn().setRoot();
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     IntStream.range(0, 15).forEach(x -> insertIssue(project, analysis));
@@ -124,9 +125,9 @@ public class SearchEventsActionTest {
 
   @Test
   public void events() {
-    userSession.logIn().setRoot();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = insertAnalysis(project, 1_500_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Passed"));
@@ -154,8 +155,8 @@ public class SearchEventsActionTest {
 
   @Test
   public void does_not_return_old_events() {
-    userSession.logIn().setRoot();
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     insertIssue(project, analysis);
     db.events().insertEvent(newQualityGateEvent(analysis).setDate(analysis.getCreatedAt()).setName("Passed"));
@@ -178,8 +179,6 @@ public class SearchEventsActionTest {
 
   @Test
   public void empty_response_for_empty_list_of_projects() {
-    userSession.logIn().setRoot();
-
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, "")
       .setParam(PARAM_FROM, "")
@@ -190,14 +189,12 @@ public class SearchEventsActionTest {
 
   @Test
   public void does_not_return_events_of_project_for_which_the_current_user_has_no_browse_permission() {
-    userSession.logIn();
-
     ComponentDto project1 = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project1);
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project1);
 
     ComponentDto project2 = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project2);
+    userSession.addProjectPermission(USER, project2);
 
     SnapshotDto a1 = insertAnalysis(project1, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(a1).setDate(a1.getCreatedAt()));
@@ -222,8 +219,6 @@ public class SearchEventsActionTest {
 
   @Test
   public void empty_response_if_project_key_is_unknown() {
-    userSession.logIn().setRoot();
-
     long from = 1_500_000_000_000L;
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, "unknown")
@@ -249,8 +244,6 @@ public class SearchEventsActionTest {
 
   @Test
   public void fail_if_date_format_is_not_valid() {
-    userSession.logIn().setRoot();
-
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam(PARAM_PROJECTS, "foo")

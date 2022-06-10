@@ -108,11 +108,6 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    public boolean isRoot() {
-      throw notImplemented();
-    }
-
-    @Override
     protected boolean hasPermissionImpl(GlobalPermission permission) {
       throw notImplemented();
     }

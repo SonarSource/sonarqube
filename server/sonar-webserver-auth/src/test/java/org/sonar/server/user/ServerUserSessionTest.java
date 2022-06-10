@@ -138,62 +138,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void isRoot_is_false_is_flag_root_is_false_on_UserDto() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    assertThat(newUserSession(root).isRoot()).isTrue();
-
-    UserDto notRoot = db.users().insertUser();
-    assertThat(newUserSession(notRoot).isRoot()).isFalse();
-  }
-
-  @Test
-  public void checkIsRoot_throws_IPFE_if_flag_root_is_false_on_UserDto() {
-    UserDto user = db.users().insertUser();
-    UserSession underTest = newUserSession(user);
-
-    assertThatForbiddenExceptionIsThrown(underTest::checkIsRoot);
-  }
-
-  @Test
-  public void checkIsRoot_does_not_fail_if_flag_root_is_true_on_UserDto() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-
-    UserSession underTest = newUserSession(root);
-
-    assertThat(underTest.checkIsRoot()).isSameAs(underTest);
-  }
-
-  @Test
-  public void hasComponentUuidPermission_returns_true_when_flag_root_is_true_on_UserDto_no_matter_if_user_has_project_permission_for_given_uuid() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-
-    UserSession underTest = newUserSession(root);
-
-    assertThat(underTest.hasComponentUuidPermission(USER, file.uuid())).isTrue();
-    assertThat(underTest.hasComponentUuidPermission(CODEVIEWER, file.uuid())).isTrue();
-    assertThat(underTest.hasComponentUuidPermission(ADMIN, file.uuid())).isTrue();
-    assertThat(underTest.hasComponentUuidPermission("whatever", "who cares?")).isTrue();
-  }
-
-  @Test
-  public void checkComponentUuidPermission_succeeds_if_user_has_permission_for_specified_uuid_in_db() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-
-    UserSession underTest = newUserSession(root);
-
-    assertThat(underTest.checkComponentUuidPermission(USER, file.uuid())).isSameAs(underTest);
-    assertThat(underTest.checkComponentUuidPermission("whatever", "who cares?")).isSameAs(underTest);
-  }
-
-  @Test
   public void checkComponentUuidPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
@@ -201,19 +145,6 @@ public class ServerUserSessionTest {
     UserSession session = newUserSession(user);
 
     assertThatForbiddenExceptionIsThrown(() -> session.checkComponentUuidPermission(USER, "another-uuid"));
-  }
-
-  @Test
-  public void checkChildProjectsPermission_succeeds_if_user_is_root() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto application = db.components().insertPrivateApplication();
-    db.components().addApplicationProject(application, project);
-
-    UserSession underTest = newUserSession(root);
-
-    assertThat(underTest.checkChildProjectsPermission(USER, application)).isSameAs(underTest);
   }
 
   @Test
@@ -262,19 +193,10 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkPermission_succeeds_when_user_has_the_specified_permission() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    db.users().insertPermissionOnUser(root, PROVISIONING);
+    UserDto adminUser = db.users().insertAdminByUserPermission();
+    db.users().insertPermissionOnUser(adminUser, PROVISIONING);
 
-    newUserSession(root).checkPermission(PROVISION_PROJECTS);
-  }
-
-  @Test
-  public void checkPermission_succeeds_when_user_is_root() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-
-    newUserSession(root).checkPermission(PROVISION_PROJECTS);
+    newUserSession(adminUser).checkPermission(PROVISION_PROJECTS);
   }
 
   @Test
@@ -652,17 +574,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasComponentPermissionByDtoOrUuid_returns_true_for_any_project_or_permission_for_root_user() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    ComponentDto publicProject = db.components().insertPublicProject();
-
-    ServerUserSession underTest = newUserSession(root);
-
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "does not matter", publicProject)).isTrue();
-  }
-
-  @Test
   public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_logged_in_user() {
     UserDto user = db.users().insertUser();
     ComponentDto publicProject = db.components().insertPublicProject();
@@ -806,74 +717,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedComponents_returns_all_specified_components_if_root() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    UserSession underTest = newUserSession(root);
-
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ComponentDto project5 = db.components().insertPrivateProject();
-    ComponentDto project6 = db.components().insertPrivateProject();
-
-    ComponentDto portfolio = db.components().insertPrivatePortfolio();
-
-    ComponentDto subPortfolio = db.components().insertComponent(newSubPortfolio(portfolio));
-
-    ComponentDto app = db.components().insertPrivateApplication();
-
-    ComponentDto app2 = db.components().insertPrivateApplication();
-
-    // Add public project1 to private portfolio
-    db.components().addPortfolioProject(portfolio, project1);
-    db.components().insertComponent(newProjectCopy(project1, portfolio));
-
-    // Add private project2 to private portfolio
-    db.components().addPortfolioProject(portfolio, project2);
-    db.components().insertComponent(newProjectCopy(project2, portfolio));
-
-    // Add private project4 to sub-portfolio
-    db.components().addPortfolioProject(subPortfolio, project4);
-    db.components().insertComponent(newProjectCopy(project4, subPortfolio));
-    db.components().addPortfolioReference(portfolio, subPortfolio.uuid());
-
-    // Add private project3 without permissions to private portfolio
-    db.components().addPortfolioProject(portfolio, project3);
-    db.components().insertComponent(newProjectCopy(project3, portfolio));
-
-    // Add private project5 to app
-    db.components().addApplicationProject(app, project5);
-    db.components().insertComponent(newProjectCopy(project5, app));
-    db.components().addPortfolioReference(portfolio, app.uuid());
-
-    // Add private project6 to private app2
-    db.components().addApplicationProject(app2, project6);
-    db.components().insertComponent(newProjectCopy(project6, app2));
-    db.components().addPortfolioReference(portfolio, app2.uuid());
-
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).hasSize(1);
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).containsExactly(portfolio);
-
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).hasSize(3);
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio, app2);
-
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).hasSize(6);
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project3, project4, project5, project6);
-  }
-
-  @Test
-  public void isSystemAdministrator_returns_true_if_org_feature_is_enabled_and_user_is_root() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-
-    UserSession session = newUserSession(root);
-
-    assertThat(session.isSystemAdministrator()).isTrue();
-  }
-
-  @Test
   public void isSystemAdministrator_returns_false_if_org_feature_is_enabled_and_user_is_not_root() {
     UserDto user = db.users().insertUser();
 
@@ -915,16 +758,6 @@ public class ServerUserSessionTest {
     db.commit();
 
     // should fail but succeeds because flag is kept in cache
-    session.checkIsSystemAdministrator();
-  }
-
-  @Test
-  public void checkIsSystemAdministrator_succeeds_if_system_administrator() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-
-    UserSession session = newUserSession(root);
-
     session.checkIsSystemAdministrator();
   }
 

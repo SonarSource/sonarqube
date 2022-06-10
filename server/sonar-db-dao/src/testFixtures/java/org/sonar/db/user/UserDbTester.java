@@ -88,12 +88,6 @@ public class UserDbTester {
     return updatedUser;
   }
 
-  public UserDto makeRoot(UserDto userDto) {
-    dbClient.userDao().setRoot(db.getSession(), userDto.getLogin(), true);
-    db.commit();
-    return dbClient.userDao().selectByLogin(db.getSession(), userDto.getLogin());
-  }
-
   public UserDto insertAdminByUserPermission() {
     UserDto user = insertUser();
     insertPermissionOnUser(user, ADMINISTER);

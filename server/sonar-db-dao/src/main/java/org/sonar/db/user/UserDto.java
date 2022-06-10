@@ -52,7 +52,6 @@ public class UserDto implements UserId {
   private String homepageType;
   private String homepageParameter;
   private boolean local = true;
-  private boolean root = false;
   private boolean resetPassword = false;
   private boolean sonarlintAdSeen = false;
 
@@ -242,22 +241,6 @@ public class UserDto implements UserId {
   public UserDto setHomepageParameter(@Nullable String homepageParameter) {
     this.homepageParameter = homepageParameter;
     return this;
-  }
-
-  public boolean isRoot() {
-    return root;
-  }
-
-  /**
-   * Setters is not accessible as MyBatis doesn't need setter to set the field and dedicated SQL requests must be used
-   * to update the root flag of a user:
-   * <ul>
-   *   <li>a user can not be created root</li>
-   *   <li>the generic update method of a user can not change its root flag</li>
-   * </ul>
-   */
-  protected void setRoot(boolean root) {
-    this.root = root;
   }
 
   public boolean isResetPassword() {

@@ -217,7 +217,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   @Override
   public boolean isSystemAdministrator() {
-    return isRoot() || systemAdministrator;
+    return systemAdministrator;
   }
 
   public T setResetPassword(boolean b) {

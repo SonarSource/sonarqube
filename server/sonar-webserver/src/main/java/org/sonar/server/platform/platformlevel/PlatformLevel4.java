@@ -209,7 +209,6 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
-import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
@@ -594,9 +593,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // UI
       new NavigationWsModule(),
-
-      // root
-      new RootWsModule(),
 
       // webhooks
       WebhookQGChangeEventListener.class,

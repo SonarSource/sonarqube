@@ -49,10 +49,6 @@ public class WebAuthorizationTypeSupport {
    * user has read access.
    */
   public QueryBuilder createQueryFilter() {
-    if (userSession.isRoot()) {
-      return QueryBuilders.matchAllQuery();
-    }
-
     BoolQueryBuilder filter = boolQuery();
 
     // anyone

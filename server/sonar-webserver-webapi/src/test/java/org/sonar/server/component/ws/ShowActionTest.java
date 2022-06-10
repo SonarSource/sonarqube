@@ -61,7 +61,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PUL
 
 public class ShowActionTest {
   @Rule
-  public final UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -97,7 +97,6 @@ public class ShowActionTest {
 
   @Test
   public void json_example() {
-    userSession.logIn().setRoot();
     insertJsonExampleComponentsAndSnapshots();
 
     String response = ws.newRequest()
@@ -110,7 +109,6 @@ public class ShowActionTest {
 
   @Test
   public void tags_displayed_only_for_project() {
-    userSession.logIn().setRoot();
     insertJsonExampleComponentsAndSnapshots();
 
     String response = ws.newRequest()
@@ -125,7 +123,7 @@ public class ShowActionTest {
   public void show_with_browse_permission() {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    userSession.logIn().addProjectPermission(USER, project);
+    userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(project.getDbKey());
 
@@ -205,8 +203,8 @@ public class ShowActionTest {
 
   @Test
   public void should_return_visibility_for_private_project() {
-    userSession.logIn().setRoot();
     ComponentDto privateProject = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, privateProject);
 
     ShowWsResponse result = newRequest(privateProject.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
@@ -215,8 +213,8 @@ public class ShowActionTest {
 
   @Test
   public void should_return_visibility_for_public_project() {
-    userSession.logIn().setRoot();
     ComponentDto publicProject = db.components().insertPublicProject();
+    userSession.registerComponents(publicProject);
 
     ShowWsResponse result = newRequest(publicProject.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
@@ -225,8 +223,8 @@ public class ShowActionTest {
 
   @Test
   public void should_return_visibility_for_portfolio() {
-    userSession.logIn().setRoot();
     ComponentDto view = db.components().insertPrivatePortfolio();
+    userSession.addProjectPermission(USER, view);
 
     ShowWsResponse result = newRequest(view.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
@@ -234,8 +232,8 @@ public class ShowActionTest {
 
   @Test
   public void should_not_return_visibility_for_module() {
-    userSession.logIn().setRoot();
     ComponentDto privateProject = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, privateProject);
     ComponentDto module = db.components().insertComponent(newModuleDto(privateProject));
 
     ShowWsResponse result = newRequest(module.getDbKey());
@@ -378,8 +376,6 @@ public class ShowActionTest {
 
   @Test
   public void throw_ForbiddenException_if_user_doesnt_have_browse_permission_on_project() {
-    userSession.logIn();
-
     ComponentDto componentDto = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(componentDto);
 
@@ -397,8 +393,9 @@ public class ShowActionTest {
 
   @Test
   public void fail_if_component_is_removed() {
-    userSession.logIn().setRoot();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
+    ComponentDto privateProjectDto = newPrivateProjectDto();
+    ComponentDto project = db.components().insertComponent(privateProjectDto);
+    userSession.addProjectPermission(USER, project);
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
 
     assertThatThrownBy(() -> newRequest("file-key"))
@@ -451,6 +448,7 @@ public class ShowActionTest {
       .setDescription("Java Markdown Project")
       .setQualifier(Qualifiers.PROJECT),
       p -> p.setTagsString("language, plugin"));
+    userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setProjectVersion("1.1")
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())

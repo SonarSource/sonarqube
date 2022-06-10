@@ -114,7 +114,6 @@ public class CreateActionTest {
     // exists in db
     Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
     assertThat(dbUser).isPresent();
-    assertThat(dbUser.get().isRoot()).isFalse();
 
     // member of default group
     assertThat(db.users().selectGroupUuidsOfUser(dbUser.get())).containsOnly(defaultGroup.getUuid());
@@ -132,8 +131,8 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get())
-      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin, UserDto::isRoot)
-      .containsOnly(true, "sonarqube", "john", false);
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin)
+      .containsOnly(true, "sonarqube", "john");
   }
 
   @Test
@@ -147,8 +146,8 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get())
-      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin, UserDto::isRoot)
-      .containsOnly(false, "sonarqube", "john", false);
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin)
+      .containsOnly(false, "sonarqube", "john");
   }
 
   @Test

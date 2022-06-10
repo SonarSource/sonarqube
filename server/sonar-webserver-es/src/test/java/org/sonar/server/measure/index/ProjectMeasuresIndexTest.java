@@ -541,15 +541,6 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void root_user_can_access_all_projects_and_applications() {
-    indexForUser(USER1, newDoc(PROJECT1), newDoc(APP1));
-    // connecting with a root but not USER1
-    userSession.logIn().setRoot();
-
-    assertResults(new ProjectMeasuresQuery(), APP1, PROJECT1);
-  }
-
-  @Test
   public void return_all_projects_and_applications_when_setIgnoreAuthorization_is_true() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2), newDoc(APP1), newDoc(APP2));
     indexForUser(USER2, newDoc(PROJECT3), newDoc(APP3));

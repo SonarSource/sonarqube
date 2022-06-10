@@ -102,10 +102,6 @@ public class UserDao implements Dao {
     return mapper(dbSession).selectUsers(query);
   }
 
-  public long countRootUsersButLogin(DbSession dbSession, String login) {
-    return mapper(dbSession).countRootUsersButLogin(login);
-  }
-
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
     mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));
@@ -131,10 +127,6 @@ public class UserDao implements Dao {
 
   public void dismissSonarlintAd(DbSession session, String login) {
     mapper(session).dismissSonarlintAd(login);
-  }
-
-  public void setRoot(DbSession session, String login, boolean root) {
-    mapper(session).setRoot(login, root, system2.now());
   }
 
   public void deactivateUser(DbSession dbSession, UserDto user) {

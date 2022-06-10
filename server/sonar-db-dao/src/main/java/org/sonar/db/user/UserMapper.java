@@ -68,16 +68,9 @@ public interface UserMapper {
 
   void updateSonarlintLastConnectionDate(@Param("login") String login, @Param("now") long now);
 
-  /**
-   * Count actives users which are root and which login is not the specified one.
-   */
-  long countRootUsersButLogin(@Param("login") String login);
-
   void insert(@Param("user") UserDto userDto);
 
   void update(@Param("user") UserDto userDto);
-
-  void setRoot(@Param("login") String login, @Param("root") boolean root, @Param("now") long now);
 
   void deactivateUser(@Param("login") String login, @Param("now") long now);
 

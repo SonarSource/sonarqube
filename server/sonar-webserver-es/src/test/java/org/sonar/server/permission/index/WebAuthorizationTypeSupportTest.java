@@ -41,15 +41,6 @@ public class WebAuthorizationTypeSupportTest {
   private WebAuthorizationTypeSupport underTest = new WebAuthorizationTypeSupport(userSession);
 
   @Test
-  public void createQueryFilter_does_not_include_permission_filters_if_user_is_flagged_as_root() {
-    userSession.logIn().setRoot();
-
-    QueryBuilder filter = underTest.createQueryFilter();
-
-    assertThat(filter).isInstanceOf(MatchAllQueryBuilder.class);
-  }
-
-  @Test
   public void createQueryFilter_sets_filter_on_anyone_group_if_user_is_anonymous() {
     userSession.anonymous();
 

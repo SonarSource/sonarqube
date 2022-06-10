@@ -83,67 +83,45 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasPermission(GlobalPermission permission) {
-    return isRoot() || hasPermissionImpl(permission);
+    return hasPermissionImpl(permission);
   }
 
   protected abstract boolean hasPermissionImpl(GlobalPermission permission);
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
-    if (isRoot()) {
-      return true;
-    }
     String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
     return hasProjectUuidPermission(permission, projectUuid);
   }
 
   @Override
   public final boolean hasProjectPermission(String permission, ProjectDto project) {
-    if (isRoot()) {
-      return true;
-    }
     return hasProjectUuidPermission(permission, project.getUuid());
   }
 
   @Override
   public final boolean hasProjectPermission(String permission, String projectUuid) {
-    if (isRoot()) {
-      return true;
-    }
     return hasProjectUuidPermission(permission, projectUuid);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
-    if (isRoot()) {
-      return true;
-    }
     String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
     return hasChildProjectsPermission(permission, applicationUuid);
   }
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ProjectDto project) {
-    if (isRoot()) {
-      return true;
-    }
     return hasChildProjectsPermission(permission, project.getUuid());
   }
 
   @Override
   public final boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto portfolio) {
-    if (isRoot()) {
-      return true;
-    }
-
     return hasPortfolioChildProjectsPermission(permission, portfolio.uuid());
   }
 
   @Override
   public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    if (isRoot()) {
-      return true;
-    }
     Optional<String> projectUuid = componentUuidToProjectUuid(componentUuid);
     return projectUuid
       .map(s -> hasProjectUuidPermission(permission, s))
@@ -160,17 +138,11 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
-    if (isRoot()) {
-      return new ArrayList<>(components);
-    }
     return doKeepAuthorizedComponents(permission, components);
   }
 
   @Override
   public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
-    if (isRoot()) {
-      return new ArrayList<>(projects);
-    }
     return doKeepAuthorizedProjects(permission, projects);
   }
 
@@ -192,14 +164,6 @@ public abstract class AbstractUserSession implements UserSession {
     return components.stream()
       .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasComponentPermission(permission, c))
       .collect(MoreCollectors.toList());
-  }
-
-  @Override
-  public UserSession checkIsRoot() {
-    if (!isRoot()) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
   }
 
   @Override
@@ -228,7 +192,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
-    if (isRoot() || hasProjectUuidPermission(projectPermission, project.getUuid())) {
+    if (hasProjectUuidPermission(projectPermission, project.getUuid())) {
       return this;
     }
 
@@ -237,7 +201,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
-    if (isRoot() || !APP.equals(component.qualifier()) || hasChildProjectsPermission(projectPermission, component)) {
+    if (!APP.equals(component.qualifier()) || hasChildProjectsPermission(projectPermission, component)) {
       return this;
     }
 
@@ -246,7 +210,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application) {
-    if (isRoot() || !APP.equals(application.getQualifier()) || hasChildProjectsPermission(projectPermission, application)) {
+    if (!APP.equals(application.getQualifier()) || hasChildProjectsPermission(projectPermission, application)) {
       return this;
     }
 

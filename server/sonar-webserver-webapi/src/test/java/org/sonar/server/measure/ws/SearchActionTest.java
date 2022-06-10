@@ -251,21 +251,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void do_not_verify_permissions_if_user_is_root() {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project1 = db.components().insertPrivateProject();
-    db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
-
-    userSession.setNonRoot();
-    SearchWsResponse result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
-    assertThat(result.getMeasuresCount()).isZero();
-
-    userSession.setRoot();
-    result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
-    assertThat(result.getMeasuresCount()).isOne();
-  }
-
-  @Test
   public void does_not_return_branch_when_using_db_key() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     ComponentDto project = db.components().insertPrivateProject();

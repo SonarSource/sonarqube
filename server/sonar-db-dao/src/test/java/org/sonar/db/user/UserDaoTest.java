@@ -214,118 +214,6 @@ public class UserDaoTest {
     assertThat(users).isEmpty();
   }
 
-  @Test
-  public void selectUsers_returns_both_only_root_or_only_non_root_depending_on_mustBeRoot_and_mustNotBeRoot_calls_on_query() {
-    UserDto user1 = insertUser(true);
-    UserDto root1 = insertRootUser(newUserDto());
-    UserDto user2 = insertUser(true);
-    UserDto root2 = insertRootUser(newUserDto());
-
-    assertThat(underTest.selectUsers(session, UserQuery.builder().build()))
-      .extracting(UserDto::getLogin)
-      .containsOnly(user1.getLogin(), user2.getLogin(), root1.getLogin(), root2.getLogin());
-    assertThat(underTest.selectUsers(session, UserQuery.builder().mustBeRoot().build()))
-      .extracting(UserDto::getLogin)
-      .containsOnly(root1.getLogin(), root2.getLogin());
-    assertThat(underTest.selectUsers(session, UserQuery.builder().mustNotBeRoot().build()))
-      .extracting(UserDto::getLogin)
-      .containsOnly(user1.getLogin(), user2.getLogin());
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_0_when_there_is_no_user_at_all() {
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_0_when_there_is_no_root() {
-    underTest.insert(session, newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_0_when_there_is_no_active_root() {
-    insertNonRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_there_specified_login_does_not_exist() {
-    insertRootUser(newUserDto());
-    insertNonRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(3);
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_specified_login_is_not_root() {
-    insertRootUser(newUserDto());
-    String login = insertNonRootUser(newUserDto()).getLogin();
-    insertRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, login)).isEqualTo(3);
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_specified_login_is_inactive_root() {
-    insertRootUser(newUserDto());
-    insertNonRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    String inactiveRootLogin = insertInactiveRootUser(newUserDto()).getLogin();
-    insertInactiveRootUser(newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, inactiveRootLogin)).isEqualTo(3);
-  }
-
-  @Test
-  public void countRootUsersButLogin_returns_count_of_all_active_roots_minus_one_when_specified_login_is_active_root() {
-    insertRootUser(newUserDto());
-    insertNonRootUser(newUserDto());
-    insertRootUser(newUserDto());
-    String rootLogin = insertRootUser(newUserDto()).getLogin();
-    insertInactiveRootUser(newUserDto());
-    insertInactiveRootUser(newUserDto());
-    session.commit();
-
-    assertThat(underTest.countRootUsersButLogin(session, rootLogin)).isEqualTo(2);
-  }
-
-  private UserDto insertInactiveRootUser(UserDto dto) {
-    insertRootUser(dto);
-    dto.setActive(false);
-    underTest.update(session, dto);
-    session.commit();
-    return dto;
-  }
-
-  private UserDto insertRootUser(UserDto dto) {
-    underTest.insert(session, dto);
-    underTest.setRoot(session, dto.getLogin(), true);
-    session.commit();
-    return dto;
-  }
-
-  private UserDto insertNonRootUser(UserDto dto) {
-    underTest.insert(session, dto);
-    session.commit();
-    return dto;
-  }
 
   @Test
   public void insert_user_with_default_values() {
@@ -345,7 +233,6 @@ public class UserDaoTest {
     assertThat(user.isActive()).isTrue();
     assertThat(user.isResetPassword()).isFalse();
     assertThat(user.isLocal()).isTrue();
-    assertThat(user.isRoot()).isFalse();
 
     assertThat(user.getScmAccountsAsList()).isEmpty();
     assertThat(user.getScmAccounts()).isNull();
@@ -396,7 +283,6 @@ public class UserDaoTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.getExternalId()).isEqualTo("EXT_ID");
     assertThat(user.isLocal()).isTrue();
-    assertThat(user.isRoot()).isFalse();
     assertThat(user.getHomepageType()).isEqualTo("project");
     assertThat(user.getHomepageParameter()).isEqualTo("OB1");
   }
@@ -457,7 +343,6 @@ public class UserDaoTest {
     assertThat(reloaded.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(reloaded.getExternalId()).isEqualTo("EXT_ID");
     assertThat(reloaded.isLocal()).isFalse();
-    assertThat(reloaded.isRoot()).isFalse();
     assertThat(reloaded.getHomepageType()).isEqualTo("project");
     assertThat(reloaded.getHomepageParameter()).isEqualTo("OB1");
     assertThat(reloaded.getLastConnectionDate()).isEqualTo(10_000_000_000L);
@@ -484,7 +369,6 @@ public class UserDaoTest {
     assertThat(userReloaded.getScmAccounts()).isNull();
     assertThat(userReloaded.getSalt()).isNull();
     assertThat(userReloaded.getCryptedPassword()).isNull();
-    assertThat(userReloaded.isRoot()).isFalse();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
@@ -568,8 +452,6 @@ public class UserDaoTest {
       .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg")
       .setHomepageType("project")
       .setHomepageParameter("OB1"));
-    UserDto user2 = db.users().insertUser();
-    underTest.setRoot(session, user2.getLogin(), true);
 
     UserDto dto = underTest.selectByLogin(session, user1.getLogin());
     assertThat(dto.getUuid()).isEqualTo(user1.getUuid());
@@ -580,14 +462,11 @@ public class UserDaoTest {
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
     assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
-    assertThat(dto.isRoot()).isFalse();
     assertThat(dto.getCreatedAt()).isEqualTo(user1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(user1.getUpdatedAt());
     assertThat(dto.getHomepageType()).isEqualTo("project");
     assertThat(dto.getHomepageParameter()).isEqualTo("OB1");
 
-    dto = underTest.selectByLogin(session, user2.getLogin());
-    assertThat(dto.isRoot()).isTrue();
   }
 
   @Test
@@ -666,69 +545,6 @@ public class UserDaoTest {
     assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, activeUser.getExternalLogin(), activeUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, disableUser.getExternalLogin(), disableUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "unknown", "unknown")).isNull();
-  }
-
-  @Test
-  public void setRoot_does_not_fail_on_non_existing_login() {
-    underTest.setRoot(session, "unkown", true);
-    underTest.setRoot(session, "unkown", false);
-  }
-
-  @Test
-  public void setRoot_set_root_flag_of_specified_user_to_specified_value_and_updates_udpateAt() {
-    String login = insertActiveUser().getLogin();
-    UserDto otherUser = insertActiveUser();
-    assertThat(underTest.selectByLogin(session, login).isRoot()).isFalse();
-    assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isFalse();
-
-    // does not fail when changing to same value
-    system2.setNow(15_000L);
-    commit(() -> underTest.setRoot(session, login, false));
-    verifyRootAndUpdatedAt(login, false, 15_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-
-    // change value
-    system2.setNow(26_000L);
-    commit(() -> underTest.setRoot(session, login, true));
-    verifyRootAndUpdatedAt(login, true, 26_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-
-    // does not fail when changing to same value
-    system2.setNow(37_000L);
-    commit(() -> underTest.setRoot(session, login, true));
-    verifyRootAndUpdatedAt(login, true, 37_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-
-    // change value back
-    system2.setNow(48_000L);
-    commit(() -> underTest.setRoot(session, login, false));
-    verifyRootAndUpdatedAt(login, false, 48_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-  }
-
-  private void verifyRootAndUpdatedAt(String login1, boolean root, long updatedAt) {
-    UserDto userDto = underTest.selectByLogin(session, login1);
-    assertThat(userDto.isRoot()).isEqualTo(root);
-    assertThat(userDto.getUpdatedAt()).isEqualTo(updatedAt);
-  }
-
-  @Test
-  public void setRoot_has_no_effect_on_root_flag_of_inactive_user() {
-    String nonRootInactiveUser = insertUser(false).getLogin();
-    commit(() -> underTest.setRoot(session, nonRootInactiveUser, true));
-    assertThat(underTest.selectByLogin(session, nonRootInactiveUser).isRoot()).isFalse();
-
-    // create inactive root user
-    UserDto rootUser = insertActiveUser();
-    commit(() -> underTest.setRoot(session, rootUser.getLogin(), true));
-    rootUser.setActive(false);
-    commit(() -> underTest.update(session, rootUser));
-    UserDto inactiveRootUser = underTest.selectByLogin(session, rootUser.getLogin());
-    assertThat(inactiveRootUser.isRoot()).isTrue();
-    assertThat(inactiveRootUser.isActive()).isFalse();
-
-    commit(() -> underTest.setRoot(session, inactiveRootUser.getLogin(), false));
-    assertThat(underTest.selectByLogin(session, inactiveRootUser.getLogin()).isRoot()).isTrue();
   }
 
   @Test

@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.root.ws;
+package org.sonar.server.platform.db.migration.version.v96;
 
-import org.sonar.api.server.ws.WebService;
+import org.junit.Test;
 
-public class RootsWs implements WebService {
-  private final RootsWsAction[] actions;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  public RootsWs(RootsWsAction... actions) {
-    this.actions = actions;
+public class DbVersion96Test {
+
+
+  private final DbVersion96 underTest = new DbVersion96();
+
+  @Test
+  public void migrationNumber_starts_at_6401() {
+    verifyMinimumMigrationNumber(underTest, 6500);
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/roots")
-        .setSince("6.2")
-        .setDescription("Manage root users");
-
-    for (RootsWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationNotEmpty(underTest);
   }
+
+
 }

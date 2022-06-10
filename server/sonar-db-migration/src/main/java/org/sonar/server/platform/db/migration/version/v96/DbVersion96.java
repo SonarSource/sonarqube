@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.root.ws;
+package org.sonar.server.platform.db.migration.version.v96;
 
-import org.sonar.core.platform.Module;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class RootWsModule extends Module {
+public class DbVersion96 implements DbVersion {
+
   @Override
-  protected void configureModule() {
-    add(RootsWs.class,
-      SetRootAction.class,
-      UnsetRootAction.class,
-      SearchAction.class);
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(6500, "remove root column from users table", DropRootColumnFromUsersTable.class)
+    ;
   }
 }

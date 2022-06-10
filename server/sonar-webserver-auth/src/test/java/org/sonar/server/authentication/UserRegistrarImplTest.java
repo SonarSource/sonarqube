@@ -104,7 +104,6 @@ public class UserRegistrarImplTest {
     assertThat(user.getExternalLogin()).isEqualTo(USER_LOGIN);
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.getExternalId()).isEqualTo("ABCD");
-    assertThat(user.isRoot()).isFalse();
     checkGroupMembership(user, defaultGroup);
   }
 
@@ -132,7 +131,6 @@ public class UserRegistrarImplTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("sonarqube");
     assertThat(user.getExternalId()).isEqualTo("ABCD");
     assertThat(user.isLocal()).isFalse();
-    assertThat(user.isRoot()).isFalse();
     checkGroupMembership(user, defaultGroup);
   }
 
@@ -479,7 +477,6 @@ public class UserRegistrarImplTest {
     assertThat(userDto.getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userDto.getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo(GH_IDENTITY_PROVIDER.getKey());
-    assertThat(userDto.isRoot()).isFalse();
   }
 
   @Test

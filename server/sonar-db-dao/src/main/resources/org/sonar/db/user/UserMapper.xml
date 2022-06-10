@@ -17,7 +17,6 @@
         u.external_login as "externalLogin",
         u.external_identity_provider as "externalIdentityProvider",
         u.user_local as "local",
-        u.is_root as "root",
         u.reset_password as "resetPassword",
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter",
@@ -102,12 +101,6 @@
             <if test="searchText != null">
                 AND (u.login LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/' OR u.name LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/')
             </if>
-            <if test="mustBeRoot != null and mustBeRoot==true">
-                AND u.is_root = ${_true}
-            </if>
-            <if test="mustBeRoot != null and mustBeRoot==false">
-                AND u.is_root = ${_false}
-            </if>
         </where>
         ORDER BY u.name
     </select>
@@ -147,17 +140,6 @@
         <include refid="userColumns"/>
         FROM users u
         WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
-    </select>
-
-    <select id="countRootUsersButLogin" parameterType="String" resultType="long">
-        select
-        count(1)
-        from
-        users u
-        where
-        u.active = ${_true}
-        and u.is_root = ${_true}
-        and u.login &lt;&gt; #{login}
     </select>
 
     <sql id="deactivateUserUpdatedFields">
@@ -211,15 +193,6 @@
         login = #{login, jdbcType=VARCHAR}
     </update>
 
-    <update id="setRoot">
-        update users set
-        is_root = #{root, jdbcType=BOOLEAN},
-        updated_at = #{now, jdbcType=BIGINT}
-        where
-        login = #{login, jdbcType=VARCHAR}
-        and active = ${_true}
-    </update>
-
     <insert id="insert" parameterType="map" useGeneratedKeys="false">
         insert into users (
         uuid,
@@ -235,7 +208,6 @@
         salt,
         crypted_password,
         hash_method,
-        is_root,
         last_sonarlint_connection,
         sonarlint_ad_seen,
         reset_password,
@@ -257,7 +229,6 @@
         #{user.salt,jdbcType=VARCHAR},
         #{user.cryptedPassword,jdbcType=VARCHAR},
         #{user.hashMethod,jdbcType=VARCHAR},
-        #{user.root,jdbcType=BOOLEAN},
         #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
         #{user.sonarlintAdSeen,jdbcType=BOOLEAN},
         #{user.resetPassword,jdbcType=BOOLEAN},

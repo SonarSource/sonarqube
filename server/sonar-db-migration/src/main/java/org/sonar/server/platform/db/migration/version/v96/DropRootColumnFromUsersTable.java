@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.root.ws;
+package org.sonar.server.platform.db.migration.version.v96;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropRootColumnFromUsersTable extends DropColumnChange {
 
-public class RootsWsModuleTest {
-  private RootWsModule underTest = new RootWsModule();
+  public static final String TABLE_NAME = "users";
+  public static final String COLUMN_NAME = "is_root";
 
-  @Test
-  public void verify_number_of_components_added_by_module() {
-    ListContainer container = new ListContainer();
-    underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(4);
+  public DropRootColumnFromUsersTable(Database db) {
+    super(db, TABLE_NAME, COLUMN_NAME);
   }
+
 }

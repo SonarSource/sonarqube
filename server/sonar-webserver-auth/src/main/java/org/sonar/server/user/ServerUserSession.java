@@ -122,11 +122,6 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public boolean isRoot() {
-    return userDto != null && userDto.isRoot();
-  }
-
-  @Override
   public Optional<IdentityProvider> getIdentityProvider() {
     return ofNullable(userDto).map(d -> computeIdentity(d).getIdentityProvider());
   }
@@ -351,9 +346,6 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private boolean loadIsSystemAdministrator() {
-    if (isRoot()) {
-      return true;
-    }
     return hasPermission(GlobalPermission.ADMINISTER);
   }
 }

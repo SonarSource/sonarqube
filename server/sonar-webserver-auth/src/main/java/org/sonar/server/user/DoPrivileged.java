@@ -97,11 +97,6 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean isRoot() {
-        return true;
-      }
-
-      @Override
       public Optional<IdentityProvider> getIdentityProvider() {
         return Optional.empty();
       }

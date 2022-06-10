@@ -55,6 +55,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
@@ -82,9 +83,10 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void issue_event() {
-    userSession.logIn().setRoot();
+    userSession.logIn();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     insertIssue(project, analysis);
     insertIssue(project, analysis);
@@ -109,9 +111,10 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void many_issues_events() {
-    userSession.logIn().setRoot();
+    userSession.logIn();
     long from = 1_500_000_000_000L;
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName("SonarQube"));
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, from);
     insertIssue(project, analysis);
     insertIssue(project, analysis);
@@ -130,8 +133,9 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void does_not_return_old_issue() {
-    userSession.logIn().setRoot();
+    userSession.logIn();
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     db.issues().insert(db.rules().insert(), project, project, i -> i.setIssueCreationDate(new Date(analysis.getCreatedAt() - 10_000L)));
     issueIndexer.indexAllIssues();
@@ -146,8 +150,9 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void return_link_to_issue_search_for_new_issues_event() {
-    userSession.logIn("my_login").setRoot();
+    userSession.logIn("my_login");
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("my_project"));
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_400_000_000_000L);
     insertIssue(project, analysis);
     issueIndexer.indexAllIssues();
@@ -164,9 +169,10 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void branch_issues_events() {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch1"));
     SnapshotDto branch1Analysis = insertAnalysis(branch1, 1_500_000_000_000L);
     insertIssue(branch1, branch1Analysis);
@@ -197,9 +203,10 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void pull_request_issues_events() {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("nonMain"));
     SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, 1_500_000_000_000L);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
@@ -231,9 +238,10 @@ public class SearchEventsActionNewIssuesTest {
 
   @Test
   public void encode_link() {
-    userSession.logIn("rågnar").setRoot();
+    userSession.logIn("rågnar").setSystemAdministrator();
     long from = 1_500_000_000_000L;
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("M&M's"));
+    userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, from);
     insertIssue(project, analysis);
     issueIndexer.indexAllIssues();

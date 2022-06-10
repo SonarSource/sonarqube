@@ -52,7 +52,6 @@ import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.source.FileSourceTester;
-import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
@@ -80,7 +79,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final RuleDbTester ruleDbTester;
   private final NewCodePeriodDbTester newCodePeriodTester;
   private final NotificationDbTester notificationDbTester;
-  private final RootFlagAssertions rootFlagAssertions;
   private final QualityProfileDbTester qualityProfileDbTester;
   private final MeasureDbTester measureDbTester;
   private final FileSourceTester fileSourceTester;
@@ -109,7 +107,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.issueDbTester = new IssueDbTester(this);
     this.ruleDbTester = new RuleDbTester(this);
     this.notificationDbTester = new NotificationDbTester(this);
-    this.rootFlagAssertions = new RootFlagAssertions(this);
     this.qualityProfileDbTester = new QualityProfileDbTester(this);
     this.measureDbTester = new MeasureDbTester(this);
     this.fileSourceTester = new FileSourceTester(this);
@@ -193,10 +190,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public QualityGateDbTester qualityGates() {
     return qualityGateDbTester;
-  }
-
-  public RootFlagAssertions rootFlag() {
-    return rootFlagAssertions;
   }
 
   public IssueDbTester issues() {

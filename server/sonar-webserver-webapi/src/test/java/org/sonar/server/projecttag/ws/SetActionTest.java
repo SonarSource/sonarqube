@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -47,12 +46,14 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class SetActionTest {
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -69,6 +70,7 @@ public class SetActionTest {
   @Before
   public void setUp() {
     project = db.components().insertPrivateProjectDto();
+    userSession.addProjectPermission(ADMIN, project);
   }
 
   @Test
@@ -85,6 +87,7 @@ public class SetActionTest {
   public void reset_tags() {
     project = db.components().insertPrivateProjectDto(c -> {
     }, p -> p.setTagsString("platform,scanner"));
+    userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "");
 
@@ -95,6 +98,7 @@ public class SetActionTest {
   public void override_existing_tags() {
     project = db.components().insertPrivateProjectDto(c -> {
     }, p -> p.setTagsString("marketing,languages"));
+    userSession.addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "finance,offshore,platform");
 
@@ -103,7 +107,7 @@ public class SetActionTest {
 
   @Test
   public void set_tags_as_project_admin() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(ADMIN, project);
 
     call(project.getKey(), "platform, lambda");
 
@@ -127,7 +131,7 @@ public class SetActionTest {
 
   @Test
   public void fail_if_not_project_admin() {
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(USER, project);
 
     String projectKey = project.getKey();
     assertThatThrownBy(() -> call(projectKey, "platform"))
@@ -182,7 +186,7 @@ public class SetActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     String branchDbKey = branch.getDbKey();

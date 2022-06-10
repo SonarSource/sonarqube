@@ -150,18 +150,6 @@ public interface UserSession {
   boolean isLoggedIn();
 
   /**
-   * Whether the user has root privileges. If {@code true}, then user automatically
-   * benefits from all the permissions on all projects.
-   */
-  boolean isRoot();
-
-  /**
-   * Ensures that {@link #isRoot()} returns {@code true} otherwise throws a
-   * {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkIsRoot();
-
-  /**
    * Ensures that user is logged in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
    */
   UserSession checkLoggedIn();
@@ -169,7 +157,6 @@ public interface UserSession {
   /**
    * Returns {@code true} if the permission is granted, otherwise {@code false}.
    *
-   * Always returns {@code true} if {@link #isRoot()} is {@code true}.
    */
   boolean hasPermission(GlobalPermission permission);
 
@@ -184,9 +171,6 @@ public interface UserSession {
    * otherwise {@code false}.
    *
    * If the component does not exist, then returns {@code false}.
-   *
-   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
-   * component does not exist.
    *
    * @param component non-null component.
    * @param permission project permission as defined by {@link org.sonar.server.permission.PermissionService}
@@ -263,7 +247,6 @@ public interface UserSession {
    *
    * Returns {@code true} if:
    * <ul>
-   *   <li>{@link #isRoot()} is {@code true}</li>
    *   <li>user is administrator</li>
    * </ul>
    */

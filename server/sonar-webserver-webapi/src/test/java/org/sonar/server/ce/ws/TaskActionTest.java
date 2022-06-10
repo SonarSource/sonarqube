@@ -53,11 +53,12 @@ import org.sonarqube.ws.Common;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.SCAN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class TaskActionTest {
 
@@ -79,13 +80,14 @@ public class TaskActionTest {
   @Before
   public void setUp() {
     privateProject = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(ADMIN, privateProject);
     publicProject = db.components().insertPublicProject();
   }
 
   @Test
   public void task_is_in_queue() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).setRoot();
+    userSession.addProjectPermission(SCAN, privateProject);
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
@@ -112,7 +114,7 @@ public class TaskActionTest {
   @Test
   public void no_warning_detail_on_task_in_queue() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).setRoot();
+    userSession.logIn(user).setSystemAdministrator();
     CeQueueDto queueDto = createAndPersistQueueTask(null, user);
     IntStream.range(0, 1 + new Random().nextInt(5))
       .forEach(i -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(),
@@ -135,7 +137,7 @@ public class TaskActionTest {
   @Test
   public void task_is_archived() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).setRoot();
+    userSession.logIn(user).addProjectPermission(SCAN, privateProject);
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
@@ -157,7 +159,7 @@ public class TaskActionTest {
 
   @Test
   public void branch_in_past_activity() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
@@ -178,7 +180,8 @@ public class TaskActionTest {
   @Test
   public void branch_in_queue_analysis() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).setRoot();
+    userSession.logIn(user).setSystemAdministrator();
+    ;
     String branch = "my_branch";
     CeQueueDto queueDto = createAndPersistQueueTask(null, user);
     insertCharacteristic(queueDto, BRANCH_KEY, branch);
@@ -195,7 +198,7 @@ public class TaskActionTest {
 
   @Test
   public void return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_set() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg")
@@ -215,7 +218,7 @@ public class TaskActionTest {
 
   @Test
   public void do_not_return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_not_set() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg")
@@ -233,7 +236,7 @@ public class TaskActionTest {
 
   @Test
   public void return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_set() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     String scannerContext = "this is some scanner context, yeah!";
     persist(createActivityDto(SOME_TASK_UUID));
@@ -250,7 +253,7 @@ public class TaskActionTest {
 
   @Test
   public void do_not_return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_not_set() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     String scannerContext = "this is some scanner context, yeah!";
     persist(createActivityDto(SOME_TASK_UUID));
@@ -267,7 +270,7 @@ public class TaskActionTest {
 
   @Test
   public void do_not_return_stacktrace_of_failed_activity_without_stacktrace() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg");
@@ -284,7 +287,7 @@ public class TaskActionTest {
 
   @Test
   public void throw_NotFoundException_if_id_does_not_exist() {
-    logInAsRoot();
+    logInAsSystemAdministrator();
 
     TestRequest request = ws.newRequest()
       .setParam("id", "DOES_NOT_EXIST");
@@ -335,7 +338,7 @@ public class TaskActionTest {
   @Test
   public void get_project_queue_task_with_scan_permission_but_not_on_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(SCAN);
+    userSession.logIn(user).addPermission(GlobalPermission.SCAN);
     CeQueueDto task = createAndPersistQueueTask(privateProject, user);
 
     call(task.getUuid());
@@ -392,7 +395,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_archived_task_with_scan_permission_but_not_on_project() {
-    userSession.logIn().addPermission(SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
     CeActivityDto task = createAndPersistArchivedTask(privateProject);
 
     call(task.getUuid());
@@ -570,10 +573,7 @@ public class TaskActionTest {
 
   private void logInAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
-  }
-
-  private void logInAsRoot() {
-    userSession.logIn().setRoot();
+    userSession.addPermission(GlobalPermission.ADMINISTER);
   }
 
   private void call(String taskUuid) {

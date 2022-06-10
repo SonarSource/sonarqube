@@ -38,7 +38,6 @@ import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
   private String uuid;
-  private boolean root = false;
   private String name;
   private List<GroupDto> groups = new ArrayList<>();
   private UserSession.IdentityProvider identityProvider;
@@ -82,17 +81,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   }
 
   @Override
-  public boolean isRoot() {
-    return root;
-  }
-
-  @Override
   public boolean isActive() {
     return true;
-  }
-
-  public void setRoot(boolean root) {
-    this.root = root;
   }
 
   @Override

@@ -29,7 +29,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -40,7 +39,6 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
 public class ComponentIndexSearchTest {
   @Rule
@@ -48,7 +46,7 @@ public class ComponentIndexSearchTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
@@ -116,18 +114,6 @@ public class ComponentIndexSearchTest {
   }
 
   @Test
-  public void returns_correct_total_number_if_default_index_window_exceeded() {
-    userSession.logIn().setRoot();
-
-    index(IntStream.range(0, 12_000)
-      .mapToObj(i -> newDoc(ComponentTesting.newPrivateProjectDto()))
-      .toArray(ComponentDoc[]::new));
-
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
-    assertThat(result.getTotal()).isEqualTo(12_000);
-  }
-
-  @Test
   public void filter_unauthorized_components() {
     ComponentDto unauthorizedProject = db.components().insertPrivateProject();
     ComponentDto project1 = db.components().insertPrivateProject();
@@ -145,18 +131,5 @@ public class ComponentIndexSearchTest {
   private void index(ComponentDto... components) {
     indexer.indexAll();
     Arrays.stream(components).forEach(authorizationIndexerTester::allowOnlyAnyone);
-  }
-
-  private void index(ComponentDoc... componentDocs) {
-    es.putDocuments(TYPE_COMPONENT.getMainType(), componentDocs);
-  }
-
-  private ComponentDoc newDoc(ComponentDto componentDoc) {
-    return new ComponentDoc()
-      .setId(componentDoc.uuid())
-      .setKey(componentDoc.getKey())
-      .setName(componentDoc.name())
-      .setProjectUuid(componentDoc.projectUuid())
-      .setQualifier(componentDoc.qualifier());
   }
 }

@@ -43,7 +43,6 @@ public class SafeModeUserSessionTest {
   @Test
   public void session_has_no_permissions() {
     assertThat(underTest.shouldResetPassword()).isFalse();
-    assertThat(underTest.isRoot()).isFalse();
     assertThat(underTest.isSystemAdministrator()).isFalse();
     assertThat(underTest.hasPermissionImpl(GlobalPermission.ADMINISTER)).isFalse();
     assertThat(underTest.hasProjectUuidPermission(UserRole.USER, "foo")).isFalse();

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,12 +52,11 @@ public class GroupsActionTest {
 
   private static final String USER_LOGIN = "john";
 
-
   @Rule
   public DbTester db = DbTester.create();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().addPermission(GlobalPermission.ADMINISTER);
 
   private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession,
     new DefaultGroupFinder(db.getDbClient())));

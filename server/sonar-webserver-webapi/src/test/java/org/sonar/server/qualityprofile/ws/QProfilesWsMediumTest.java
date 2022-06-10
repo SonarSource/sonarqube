@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -32,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -70,8 +72,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class QProfilesWsMediumTest {
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone()
-    .logIn().setRoot();
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -93,6 +94,13 @@ public class QProfilesWsMediumTest {
   private final WsActionTester wsDeactivateRules = new WsActionTester(new DeactivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
   private final WsActionTester wsActivateRule = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
   private final WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
+
+  @Before
+  public void before(){
+    userSessionRule.logIn().setSystemAdministrator();
+    userSessionRule.addPermission(GlobalPermission.ADMINISTER);
+    userSessionRule.addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+  }
 
   @Test
   public void deactivate_rule() {

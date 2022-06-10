@@ -110,7 +110,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_analysis_not_found() {
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
 
     assertThatThrownBy(() -> call("A42"))
       .isInstanceOf(NotFoundException.class)

@@ -120,16 +120,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule setRoot() {
-    ensureMockUserSession().setRoot(true);
-    return this;
-  }
-
-  public UserSessionRule setNonRoot() {
-    ensureMockUserSession().setRoot(false);
-    return this;
-  }
-
   public UserSessionRule setSystemAdministrator() {
     ensureMockUserSession().setSystemAdministrator(true);
     return this;
@@ -343,16 +333,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public boolean isLoggedIn() {
     return currentUserSession.isLoggedIn();
-  }
-
-  @Override
-  public boolean isRoot() {
-    return currentUserSession.isRoot();
-  }
-
-  @Override
-  public UserSession checkIsRoot() {
-    return currentUserSession.checkIsRoot();
   }
 
   @Override

@@ -273,14 +273,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void can_admin_on_global_level() {
-    init();
-    userSession.logIn().setRoot();
-
-    assertJson(call()).isSimilarTo("{\"canAdmin\":true}");
-  }
-
-  @Test
   public void regulatory_report_feature_enabled_ee_dce() {
     init();
     when(editionProvider.get()).thenReturn(Optional.of(ENTERPRISE));
@@ -322,7 +314,7 @@ public class GlobalActionTest {
   @Test
   public void standalone_flag() {
     init();
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
     when(webServer.isStandalone()).thenReturn(true);
 
     assertJson(call()).isSimilarTo("{\"standalone\":true}");
@@ -331,7 +323,7 @@ public class GlobalActionTest {
   @Test
   public void not_standalone_flag() {
     init();
-    userSession.logIn().setRoot();
+    userSession.logIn().setSystemAdministrator();
     when(webServer.isStandalone()).thenReturn(false);
 
     assertJson(call()).isSimilarTo("{\"standalone\":false}");
