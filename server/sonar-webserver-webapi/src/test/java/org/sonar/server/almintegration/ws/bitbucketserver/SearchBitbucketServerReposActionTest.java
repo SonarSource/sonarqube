@@ -240,6 +240,7 @@ public class SearchBitbucketServerReposActionTest {
 
     assertThat(def.since()).isEqualTo("8.2");
     assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleFormat()).isEqualTo("json");
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(

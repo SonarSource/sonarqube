@@ -77,6 +77,7 @@ public class SearchAzureReposActionTest {
 
     assertThat(def.since()).isEqualTo("8.6");
     assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleFormat()).isEqualTo("json");
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(

@@ -30,6 +30,7 @@ import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -256,6 +257,19 @@ public class ListGithubOrganizationsActionTest {
     Mockito.verifyNoMoreInteractions(appClient);
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), userSession.getUuid(), githubAlmSettings).get().getPersonalAccessToken())
       .isEqualTo(pat.getPersonalAccessToken());
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action def = ws.getDef();
+
+    assertThat(def.since()).isEqualTo("8.4");
+    assertThat(def.isPost()).isFalse();
+    assertThat(def.isInternal()).isTrue();
+    assertThat(def.responseExampleFormat()).isEqualTo("json");
+    assertThat(def.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(tuple("p", false), tuple("ps", false), tuple("almSetting", true), tuple("token", false));
   }
 
   private void setupGhOrganizations(AlmSettingDto almSetting, String pat) {

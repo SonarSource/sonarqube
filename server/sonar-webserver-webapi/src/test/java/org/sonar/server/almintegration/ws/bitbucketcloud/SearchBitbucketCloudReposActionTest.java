@@ -184,6 +184,7 @@ public class SearchBitbucketCloudReposActionTest {
 
     assertThat(def.since()).isEqualTo("9.0");
     assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleFormat()).isEqualTo("json");
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
@@ -209,8 +210,7 @@ public class SearchBitbucketCloudReposActionTest {
 
   private Repository getBBCRepo2() {
     Project project2 = new Project("PROJECT-UUID-TWO", "projectKey2", "projectName2");
-    Repository repo2 = new Repository("REPO-UUID-TWO", "repo-slug-2", "repoName2", project2, null);
-    return repo2;
+    return new Repository("REPO-UUID-TWO", "repo-slug-2", "repoName2", project2, null);
   }
 
 }

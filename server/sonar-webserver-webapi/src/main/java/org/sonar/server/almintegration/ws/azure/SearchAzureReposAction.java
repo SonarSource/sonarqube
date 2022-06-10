@@ -84,6 +84,7 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
         "Requires the 'Create Projects' permission")
       .setPost(false)
       .setSince("8.6")
+      .setResponseExample(getClass().getResource("example-search_azure_repos.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ALM_SETTING)

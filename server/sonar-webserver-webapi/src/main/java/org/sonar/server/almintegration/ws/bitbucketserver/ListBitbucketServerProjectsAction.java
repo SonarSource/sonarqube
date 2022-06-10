@@ -63,6 +63,7 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
         "Requires the 'Create Projects' permission")
       .setPost(false)
       .setSince("8.2")
+      .setResponseExample(getClass().getResource("example-list_bitbucketserver_projects.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ALM_SETTING)

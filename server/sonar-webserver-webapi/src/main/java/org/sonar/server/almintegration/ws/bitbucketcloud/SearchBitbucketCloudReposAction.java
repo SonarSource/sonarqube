@@ -79,6 +79,7 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
         "Requires the 'Create Projects' permission")
       .setPost(false)
       .setSince("9.0")
+      .setResponseExample(getClass().getResource("example-search_bitbucketcloud_repos.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ALM_SETTING)

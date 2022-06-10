@@ -1,0 +1,12 @@
+{
+  "repositories": [
+    {
+      "name": "repoName1",
+      "projectName": "project1"
+    },
+    {
+      "name": "repoName2",
+      "projectName": "project2"
+    }
+  ]
+}

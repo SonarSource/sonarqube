@@ -1,0 +1,6 @@
+{
+  "canBeExported": true,
+  "canBeImported": false,
+  "exportedDump": "/data/governance/export/my_project.zip",
+  "dumpToImport": "/data/governance/import/my_project.zip"
+}

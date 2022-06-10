@@ -1,0 +1,20 @@
+{
+  "isLastPage": false,
+  "repositories": [
+    {
+      "slug": "repo-slug-1",
+      "uuid": "REPO-UUID-ONE",
+      "name": "repoName1",
+      "projectKey": "projectKey1",
+      "workspace": "60Mna3eiSKjB2JqXucUVXoQMQbl2q0mTxJ2fyR0xfRuAcibVepy7yEfptuuFM3kd3f9v7eKtoT3JPd01"
+    },
+    {
+      "slug": "repo-slug-2",
+      "uuid": "REPO-UUID-TWO",
+      "name": "repoName2",
+      "sqProjectKey": "KEY_01814E2745E7D394BD",
+      "projectKey": "projectKey2",
+      "workspace": "60Mna3eiSKjB2JqXucUVXoQMQbl2q0mTxJ2fyR0xfRuAcibVepy7yEfptuuFM3kd3f9v7eKtoT3JPd01"
+    }
+  ]
+}

@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Slug;
@@ -49,6 +50,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Comparator.reverseOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -94,6 +96,23 @@ public class StatusActionTest {
   @AfterClass
   public static void cleanUp() throws Exception {
     cleanUpFilesystem();
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = underTest.getDef();
+
+    assertThat(definition.key()).isEqualTo("status");
+    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.description()).isNotEmpty();
+    assertThat(definition.since()).isEqualTo("1.0");
+    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.responseExampleFormat()).isEqualTo("json");
+    assertThat(definition.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(
+        tuple("id", false),
+        tuple("key", false));
   }
 
   @Test
