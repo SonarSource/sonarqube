@@ -37,7 +37,7 @@ By default the schema named "public" is used. It can be overridden with the para
 **`SONAR_JDBC_URL=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true`**  
 A database named sonar must exist and its collation must be case-sensitive (CS) and accent-sensitive (AS). Use this connection string if you want to use integrated security with Microsoft Sql Server. Do not set the `SONAR_JDBC_USERNAME` or `SONAR_JDBC_PASSWORD` property if you are using Integrated Security. 
 
-For Integrated Security to work, you have to download the Microsoft SQL JDBC Driver 9.4.1 package [here](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#94) and copy `mssql-jdbc_auth-9.4.1.x64.dll` to your path.
+For Integrated Security to work, you have to download the Microsoft SQL JDBC Auth 10.2.1 package [here](https://github.com/microsoft/mssql-jdbc/releases/download/v10.2.1/mssql-jdbc_auth.zip) and copy `mssql-jdbc_auth-10.2.1.x64.dll` to your path.
 
 **`SONAR_JDBC_URL=jdbc:sqlserver://localhost;databaseName=sonar`**  
 Use this connection string if you want to use SQL Auth while connecting to MS Sql Server. Set the `SONAR_JDBC_USERNAME` and `SONAR_JDBC_PASSWORD` appropriately.
