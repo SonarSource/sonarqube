@@ -18,32 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Actions } from '../../../api/quality-profiles';
-import { Location } from '../../../components/hoc/withRouter';
-import { Profile } from '../types';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { QualityProfilesContextProps } from '../qualityProfilesContext';
 import Evolution from './Evolution';
 import PageHeader from './PageHeader';
 import ProfilesList from './ProfilesList';
 
-interface Props {
-  actions: Actions;
-  languages: Array<{ key: string; name: string }>;
-  location: Location;
-  profiles: Profile[];
-  updateProfiles: () => Promise<void>;
-}
+export default function HomeContainer() {
+  const context = useOutletContext<QualityProfilesContextProps>();
+  const [searchParams] = useSearchParams();
 
-export default function HomeContainer(props: Props) {
+  const selectedLanguage = searchParams.get('language') ?? undefined;
+
   return (
     <div>
-      <PageHeader {...props} />
+      <PageHeader {...context} />
 
       <div className="page-with-sidebar">
         <div className="page-main">
-          <ProfilesList {...props} />
+          <ProfilesList {...context} language={selectedLanguage} />
         </div>
         <div className="page-sidebar">
-          <Evolution {...props} />
+          <Evolution {...context} />
         </div>
       </div>
     </div>

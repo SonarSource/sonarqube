@@ -76,15 +76,11 @@ exports[`should render correctly when open: results 1`] = `
           <Link
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "hash": "#foo",
                 "pathname": "/admin/settings",
-                "query": Object {
-                  "category": "foo category",
-                },
+                "search": "?category=foo+category",
               }
             }
           >
@@ -109,15 +105,11 @@ exports[`should render correctly when open: results 1`] = `
           <Link
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "hash": "#bar",
                 "pathname": "/admin/settings",
-                "query": Object {
-                  "category": "foo category",
-                },
+                "search": "?category=foo+category",
               }
             }
           >

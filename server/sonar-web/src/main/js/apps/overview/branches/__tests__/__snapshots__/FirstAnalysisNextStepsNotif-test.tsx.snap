@@ -11,14 +11,10 @@ exports[`should render correctly: show prompt to configure CI 1`] = `
     values={
       Object {
         "link": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/tutorials",
-              "query": Object {
-                "id": "my-project",
-              },
+              "search": "?id=my-project",
             }
           }
         >
@@ -41,29 +37,20 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
     values={
       Object {
         "link_ci": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/tutorials",
-              "query": Object {
-                "id": "my-project",
-              },
+              "search": "?id=my-project",
             }
           }
         >
           overview.project.next_steps.links.set_up_ci
         </Link>,
         "link_project_settings": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/settings",
-              "query": Object {
-                "category": "pull_request_decoration_binding",
-                "id": "my-project",
-              },
+              "search": "?id=my-project&category=pull_request_decoration_binding",
             }
           }
         >
@@ -86,14 +73,10 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, r
     values={
       Object {
         "link_ci": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/tutorials",
-              "query": Object {
-                "id": "my-project",
-              },
+              "search": "?id=my-project",
             }
           }
         >
@@ -116,15 +99,10 @@ exports[`should render correctly: show prompt to configure PR decoration, projec
     values={
       Object {
         "link_project_settings": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/settings",
-              "query": Object {
-                "category": "pull_request_decoration_binding",
-                "id": "my-project",
-              },
+              "search": "?id=my-project&category=pull_request_decoration_binding",
             }
           }
         >

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { WithRouterProps } from 'react-router';
+import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import { fetchQualityGates } from '../../../api/quality-gates';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
@@ -39,13 +39,18 @@ import Details from './Details';
 import List from './List';
 import ListHeader from './ListHeader';
 
+interface Props {
+  id?: string;
+  navigate: NavigateFunction;
+}
+
 interface State {
   canCreate: boolean;
   loading: boolean;
   qualityGates: QualityGate[];
 }
 
-class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { canCreate: false, loading: true, qualityGates: [] };
 
@@ -56,8 +61,8 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
     addSideBarClass();
   }
 
-  componentDidUpdate(prevProps: WithRouterProps) {
-    if (prevProps.params.id !== undefined && this.props.params.id === undefined) {
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.id !== undefined && this.props.id === undefined) {
       this.openDefault(this.state.qualityGates);
     }
   }
@@ -74,7 +79,7 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
         if (this.mounted) {
           this.setState({ canCreate: actions.create, loading: false, qualityGates });
 
-          if (!this.props.params.id) {
+          if (!this.props.id) {
             this.openDefault(qualityGates);
           }
         }
@@ -89,7 +94,7 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
 
   openDefault(qualityGates: QualityGate[]) {
     const defaultQualityGate = qualityGates.find(gate => Boolean(gate.isDefault))!;
-    this.props.router.replace(getQualityGateUrl(String(defaultQualityGate.id)));
+    this.props.navigate(getQualityGateUrl(String(defaultQualityGate.id)), { replace: true });
   }
 
   handleSetDefault = (qualityGate: QualityGate) => {
@@ -106,7 +111,7 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
   };
 
   render() {
-    const { id } = this.props.params;
+    const { id } = this.props;
     const { canCreate, qualityGates } = this.state;
     const defaultTitle = translate('quality_gates.page');
 
@@ -148,4 +153,9 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
   }
 }
 
-export default App;
+export default function AppWrapper() {
+  const params = useParams();
+  const navigate = useNavigate();
+
+  return <App id={params['id']} navigate={navigate} />;
+}

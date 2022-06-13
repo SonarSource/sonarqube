@@ -38,6 +38,23 @@ jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
 }));
 
+/*
+ * Quick & dirty fix to make the tests pass
+ * this whole thing should be replaced by RTL tests!
+ */
+jest.mock('react-router-dom', () => {
+  const routerDom = jest.requireActual('react-router-dom');
+
+  function Link() {
+    return <div>Link</div>;
+  }
+
+  return {
+    ...routerDom,
+    Link
+  };
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
 });

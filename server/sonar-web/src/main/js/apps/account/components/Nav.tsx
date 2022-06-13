@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexLink, Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import NavBarTabs from '../../../components/ui/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 
@@ -27,24 +27,18 @@ export default function Nav() {
     <nav className="account-nav">
       <NavBarTabs>
         <li>
-          <IndexLink activeClassName="active" to="/account/">
+          <NavLink end={true} to="/account">
             {translate('my_account.profile')}
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <Link activeClassName="active" to="/account/security/">
-            {translate('my_account.security')}
-          </Link>
+          <NavLink to="/account/security">{translate('my_account.security')}</NavLink>
         </li>
         <li>
-          <Link activeClassName="active" to="/account/notifications">
-            {translate('my_account.notifications')}
-          </Link>
+          <NavLink to="/account/notifications">{translate('my_account.notifications')}</NavLink>
         </li>
         <li>
-          <Link activeClassName="active" to="/account/projects/">
-            {translate('my_account.projects')}
-          </Link>
+          <NavLink to="/account/projects">{translate('my_account.projects')}</NavLink>
         </li>
       </NavBarTabs>
     </nav>

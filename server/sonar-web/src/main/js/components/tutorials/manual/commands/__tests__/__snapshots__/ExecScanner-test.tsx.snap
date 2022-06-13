@@ -34,8 +34,6 @@ exports[`should render correctly for "linux" 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
@@ -106,8 +104,6 @@ exports[`should render correctly for "mac" 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
@@ -178,8 +174,6 @@ exports[`should render correctly for "win" 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
@@ -250,8 +244,6 @@ exports[`should render correctly for cfamily 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >

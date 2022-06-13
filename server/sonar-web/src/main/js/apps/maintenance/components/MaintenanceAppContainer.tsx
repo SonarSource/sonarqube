@@ -18,12 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { omitNil } from '../../../helpers/request';
 import App from './App';
 
-interface Props {
-  location: { query: { return_to: string } };
-}
+export default function MaintenanceAppContainer() {
+  const [searchParams] = useSearchParams();
 
-export default function MaintenanceAppContainer(props: Props) {
-  return <App setup={false} {...props} />;
+  return (
+    <App
+      setup={false}
+      location={{ query: omitNil({ return_to: searchParams.get('return_to') }) }}
+    />
+  );
 }

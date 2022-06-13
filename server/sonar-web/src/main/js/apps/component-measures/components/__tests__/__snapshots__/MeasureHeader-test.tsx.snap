@@ -31,16 +31,10 @@ exports[`should render correctly 1`] = `
       >
         <Link
           className="js-show-history spacer-left button button-small"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/activity",
-              "query": Object {
-                "custom_metrics": "reliability_rating",
-                "graph": "custom",
-                "id": "foo",
-              },
+              "search": "?id=foo&graph=custom&custom_metrics=reliability_rating",
             }
           }
         >
@@ -212,16 +206,10 @@ exports[`should work with measure without value 1`] = `
       >
         <Link
           className="js-show-history spacer-left button button-small"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/activity",
-              "query": Object {
-                "custom_metrics": "reliability_rating",
-                "graph": "custom",
-                "id": "foo",
-              },
+              "search": "?id=foo&graph=custom&custom_metrics=reliability_rating",
             }
           }
         >

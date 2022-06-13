@@ -22,6 +22,7 @@ import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { elementKeydown, keydown } from '../../../../helpers/testUtils';
+import { queryToSearch } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
 
@@ -54,7 +55,10 @@ it('opens selected project on enter', () => {
   });
 
   elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
-  expect(router.push).toBeCalledWith({ pathname: '/dashboard', query: { id: selectedKey } });
+  expect(router.push).toBeCalledWith({
+    pathname: '/dashboard',
+    search: queryToSearch({ id: selectedKey })
+  });
 });
 
 it('opens selected portfolio on enter', () => {
@@ -70,7 +74,10 @@ it('opens selected portfolio on enter', () => {
   });
 
   elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
-  expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
+  expect(router.push).toBeCalledWith({
+    pathname: '/portfolio',
+    search: queryToSearch({ id: selectedKey })
+  });
 });
 
 it('opens selected subportfolio on enter', () => {
@@ -86,7 +93,10 @@ it('opens selected subportfolio on enter', () => {
   });
 
   elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
-  expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
+  expect(router.push).toBeCalledWith({
+    pathname: '/portfolio',
+    search: queryToSearch({ id: selectedKey })
+  });
 });
 
 it('shows warning about short input', () => {

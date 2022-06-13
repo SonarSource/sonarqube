@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { getFacet } from '../../../api/issues';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Tooltip from '../../../components/controls/Tooltip';

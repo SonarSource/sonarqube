@@ -3,15 +3,10 @@
 exports[`renders 1`] = `
 <Link
   className="measures-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/component_measures",
-      "query": Object {
-        "id": "foo",
-        "metric": "security_rating",
-      },
+      "search": "?id=foo&metric=security_rating",
     }
   }
 >
@@ -28,15 +23,10 @@ exports[`renders 1`] = `
 exports[`renders 2`] = `
 <Link
   className="measures-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/component_measures",
-      "query": Object {
-        "id": "foo",
-        "metric": "security_rating",
-      },
+      "search": "?id=foo&metric=security_rating",
     }
   }
 >
@@ -53,15 +43,10 @@ exports[`renders 2`] = `
 exports[`renders 3`] = `
 <Link
   className="measures-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/component_measures",
-      "query": Object {
-        "id": "foo",
-        "metric": "security_rating",
-      },
+      "search": "?id=foo&metric=security_rating",
     }
   }
 >

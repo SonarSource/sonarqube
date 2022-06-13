@@ -22,6 +22,7 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -320,4 +321,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppStateContext(App);
+export default withComponentContext(withAppStateContext(App));

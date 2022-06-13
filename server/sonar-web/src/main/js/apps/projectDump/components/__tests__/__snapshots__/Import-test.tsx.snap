@@ -43,16 +43,11 @@ exports[`should render correctly: failed 1`] = `
       project_dump.failed_import
       <Link
         className="spacer-left"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to={
           Object {
+            "hash": "",
             "pathname": "/project/background_tasks",
-            "query": Object {
-              "id": "key",
-              "status": "FAILED",
-              "taskType": "PROJECT_IMPORT",
-            },
+            "search": "?id=key&status=FAILED&taskType=PROJECT_IMPORT",
           }
         }
       >

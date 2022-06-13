@@ -11,15 +11,10 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-          },
+          "search": "?qprofile=bar&activation=true",
         }
       }
     >
@@ -33,15 +28,10 @@ exports[`should render correctly 1`] = `
   >
     <Link
       className="small text-muted"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "false",
-            "qprofile": "bar",
-          },
+          "search": "?qprofile=bar&activation=false",
         }
       }
     >
@@ -64,15 +54,10 @@ exports[`should render correctly if there is 0 rules 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-          },
+          "search": "?qprofile=bar&activation=true",
         }
       }
     >
@@ -104,15 +89,10 @@ exports[`should render correctly if there is missing data 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-          },
+          "search": "?qprofile=bar&activation=true",
         }
       }
     >

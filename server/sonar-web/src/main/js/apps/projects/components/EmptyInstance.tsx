@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import { Button } from '../../../components/controls/buttons';
-import { withRouter } from '../../../components/hoc/withRouter';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
@@ -28,7 +27,7 @@ import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface EmptyInstanceProps {
   currentUser: CurrentUser;
-  router: WithRouterProps['router'];
+  router: Router;
 }
 
 export function EmptyInstance(props: EmptyInstanceProps) {

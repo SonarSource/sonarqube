@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
+import { Navigate } from 'react-router-dom';
+import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { CurrentUser } from '../../../types/users';
-import { Landing } from '../Landing';
+import { Landing, LandingProps } from '../Landing';
 
 it.each([
   [mockCurrentUser(), '/projects'],
@@ -30,14 +31,12 @@ it.each([
     mockLoggedInUser({ homepage: { type: 'ISSUES' } }),
     expect.objectContaining({ pathname: '/issues' })
   ]
-])('should render correctly', (currentUser: CurrentUser, homepageUrl: string) => {
-  const router = mockRouter();
-  shallowRender({ router, currentUser });
-  expect(router.replace).toHaveBeenCalledWith(homepageUrl);
+])('should render correctly', (currentUser: CurrentUser, expected: string) => {
+  const wrapper = shallowRender({ currentUser });
+
+  expect(wrapper.find(Navigate).props().to).toEqual(expected);
 });
 
-function shallowRender(props: Partial<Landing['props']> = {}) {
-  return shallow<Landing>(
-    <Landing currentUser={mockCurrentUser()} router={mockRouter()} {...props} />
-  );
+function shallowRender(props: Partial<LandingProps> = {}) {
+  return shallow<LandingProps>(<Landing currentUser={mockCurrentUser()} {...props} />);
 }

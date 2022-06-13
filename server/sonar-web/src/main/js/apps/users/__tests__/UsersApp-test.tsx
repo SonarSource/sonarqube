@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Location } from '../../../components/hoc/withRouter';
+import { mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { UsersApp } from '../UsersApp';
 
@@ -78,11 +79,6 @@ it('should render correctly', async () => {
 
 function getWrapper(props: Partial<UsersApp['props']> = {}) {
   return shallow(
-    <UsersApp
-      currentUser={currentUser}
-      location={location}
-      router={{ push: jest.fn() }}
-      {...props}
-    />
+    <UsersApp currentUser={currentUser} location={location} router={mockRouter()} {...props} />
   );
 }

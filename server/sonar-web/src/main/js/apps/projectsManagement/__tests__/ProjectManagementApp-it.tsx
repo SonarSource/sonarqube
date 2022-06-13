@@ -154,5 +154,5 @@ function mockComponents(n: number) {
 }
 
 function renderGlobalBackgroundTasksApp() {
-  renderAdminApp('admin/background_tasks', routes, {});
+  renderAdminApp('admin/projects_management', routes, {});
 }

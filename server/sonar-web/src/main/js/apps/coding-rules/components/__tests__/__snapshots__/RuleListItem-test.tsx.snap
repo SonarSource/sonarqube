@@ -119,15 +119,10 @@ exports[`should render correctly: default 1`] = `
             <Link
               className="link-no-underline"
               onClick={[Function]}
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/coding_rules",
-                  "query": Object {
-                    "open": "javascript:S1067",
-                    "rule_key": "javascript:S1067",
-                  },
+                  "search": "?open=javascript%3AS1067&rule_key=javascript%3AS1067",
                 }
               }
             >
@@ -221,15 +216,10 @@ exports[`should render correctly: with activation 1`] = `
             <Link
               className="link-no-underline"
               onClick={[Function]}
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/coding_rules",
-                  "query": Object {
-                    "open": "javascript:S1067",
-                    "rule_key": "javascript:S1067",
-                  },
+                  "search": "?open=javascript%3AS1067&rule_key=javascript%3AS1067",
                 }
               }
             >

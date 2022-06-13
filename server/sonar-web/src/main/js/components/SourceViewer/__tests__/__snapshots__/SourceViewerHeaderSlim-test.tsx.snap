@@ -52,16 +52,11 @@ exports[`should render correctly 1`] = `
     className="flex-0 big-spacer-left"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
+          "hash": "",
           "pathname": "/project/issues",
-          "query": Object {
-            "files": "foo/bar.ts",
-            "id": "my-project",
-            "resolved": "false",
-          },
+          "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",
         }
       }
     >
@@ -132,16 +127,11 @@ exports[`should render correctly: no link to project 1`] = `
     className="flex-0 big-spacer-left"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
+          "hash": "",
           "pathname": "/project/issues",
-          "query": Object {
-            "files": "foo/bar.ts",
-            "id": "my-project",
-            "resolved": "false",
-          },
+          "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",
         }
       }
     >
@@ -201,16 +191,11 @@ exports[`should render correctly: no project name 1`] = `
     className="flex-0 big-spacer-left"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
+          "hash": "",
           "pathname": "/project/issues",
-          "query": Object {
-            "files": "foo/bar.ts",
-            "id": "my-project",
-            "resolved": "false",
-          },
+          "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",
         }
       }
     >

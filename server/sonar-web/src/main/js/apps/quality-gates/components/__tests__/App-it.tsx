@@ -359,8 +359,15 @@ describe('The Project section', () => {
 });
 
 describe('The Permissions section', () => {
-  it('should not show button to grant permission when user is not admin', () => {
+  it('should not show button to grant permission when user is not admin', async () => {
     renderQualityGateApp();
+
+    // await just to make sure we've loaded the page
+    expect(
+      await screen.findByRole('menuitem', {
+        name: `${handler.getDefaultQualityGate().name} default`
+      })
+    ).toBeInTheDocument();
 
     expect(screen.queryByText('quality_gates.permissions')).not.toBeInTheDocument();
   });

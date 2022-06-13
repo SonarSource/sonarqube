@@ -19,7 +19,7 @@
  */
 import { filter } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { activateRule, deactivateRule, Profile } from '../../../api/quality-profiles';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { Button } from '../../../components/controls/buttons';

@@ -17,14 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getHistory from '../getHistory';
 import handleRequiredAuthentication from '../handleRequiredAuthentication';
 
-jest.mock('../getHistory', () => jest.fn());
+const originalLocation = window.location;
+
+const replace = jest.fn();
+
+beforeAll(() => {
+  const location = {
+    ...window.location,
+    pathname: '/path',
+    search: '?id=12',
+    hash: '#tag',
+    replace
+  };
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: location
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: originalLocation
+  });
+});
 
 it('should not render for anonymous user', () => {
-  const replace = jest.fn();
-  (getHistory as jest.Mock<any>).mockReturnValue({ replace });
   handleRequiredAuthentication();
-  expect(replace).toBeCalledWith(expect.objectContaining({ pathname: '/sessions/new' }));
+  expect(replace).toBeCalledWith('/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag');
 });

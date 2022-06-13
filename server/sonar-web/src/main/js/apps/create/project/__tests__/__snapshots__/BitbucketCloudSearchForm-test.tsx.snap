@@ -11,15 +11,10 @@ exports[`Should render correctly 1`] = `
     values={
       Object {
         "link": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/projects/create",
-              "query": Object {
-                "mode": "bitbucketcloud",
-                "resetPat": 1,
-              },
+              "search": "?mode=bitbucketcloud&resetPat=1",
             }
           }
         >
@@ -109,15 +104,10 @@ exports[`Should render correctly: Importing 1`] = `
               className="project-name display-inline-block text-ellipsis"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "sq-key",
-                    },
+                    "search": "?id=sq-key",
                   }
                 }
               >
@@ -373,15 +363,10 @@ exports[`Should render correctly: Show more 1`] = `
               className="project-name display-inline-block text-ellipsis"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "sq-key",
-                    },
+                    "search": "?id=sq-key",
                   }
                 }
               >

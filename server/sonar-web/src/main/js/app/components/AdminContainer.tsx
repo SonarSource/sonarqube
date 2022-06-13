@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Outlet } from 'react-router-dom';
 import { getSettingsNavigation } from '../../api/nav';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translate } from '../../helpers/l10n';
+import { AdminPagesContext } from '../../types/admin';
 import { AppState } from '../../types/appstate';
 import { PendingPluginResult } from '../../types/plugins';
 import { Extension, SysStatus } from '../../types/types';
@@ -33,7 +35,6 @@ import SettingsNav from './nav/settings/SettingsNav';
 
 export interface AdminContainerProps {
   appState: AppState;
-  children: React.ReactElement;
 }
 
 interface State {
@@ -120,6 +121,8 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
     const { pendingPlugins, systemStatus } = this.state;
     const defaultTitle = translate('layout.settings');
 
+    const adminPagesContext: AdminPagesContext = { adminPages };
+
     return (
       <div>
         <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
@@ -137,9 +140,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
             pendingPlugins,
             systemStatus
           }}>
-          {React.cloneElement(this.props.children, {
-            adminPages
-          })}
+          <Outlet context={adminPagesContext} />
         </AdminContext.Provider>
       </div>
     );

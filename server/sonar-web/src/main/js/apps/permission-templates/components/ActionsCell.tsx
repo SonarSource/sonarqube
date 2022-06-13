@@ -28,6 +28,7 @@ import ActionsDropdown, { ActionsDropdownItem } from '../../../components/contro
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
@@ -37,7 +38,7 @@ interface Props {
   fromDetails?: boolean;
   permissionTemplate: PermissionTemplate;
   refresh: () => void;
-  router: Pick<Router, 'replace'>;
+  router: Router;
   topQualifiers: string[];
 }
 
@@ -160,7 +161,8 @@ export class ActionsCell extends React.PureComponent<Props, State> {
           {this.renderSetDefaultsControl()}
 
           {!this.props.fromDetails && (
-            <ActionsDropdownItem to={{ pathname: PERMISSION_TEMPLATES_PATH, query: { id: t.id } }}>
+            <ActionsDropdownItem
+              to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}>
               {translate('edit_permissions')}
             </ActionsDropdownItem>
           )}

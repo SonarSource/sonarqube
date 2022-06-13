@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Actions } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -34,7 +34,7 @@ interface Props {
   languages: Array<{ key: string; name: string }>;
   location: Location;
   profiles: Profile[];
-  router: Pick<Router, 'push'>;
+  router: Router;
   updateProfiles: () => Promise<void>;
 }
 

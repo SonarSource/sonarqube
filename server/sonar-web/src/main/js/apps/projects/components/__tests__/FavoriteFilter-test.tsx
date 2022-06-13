@@ -17,37 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { save } from '../../../../helpers/storage';
-import { click } from '../../../../helpers/testUtils';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { FavoriteFilter } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn()
 }));
 
-const currentUser = { isLoggedIn: true };
-const query = { size: 1 };
-
 beforeEach(() => {
   (save as jest.Mock<any>).mockClear();
 });
 
 it('renders for logged in user', () => {
-  expect(shallow(<FavoriteFilter currentUser={currentUser} query={query} />)).toMatchSnapshot();
+  renderFavoriteFilter();
+  expect(screen.queryByText('my_favorites')).toBeInTheDocument();
+  expect(screen.queryByText('all')).toBeInTheDocument();
 });
 
-it('saves last selection', () => {
-  const wrapper = shallow(<FavoriteFilter currentUser={currentUser} query={query} />);
-  click(wrapper.find('#favorite-projects'));
+it('saves last selection', async () => {
+  const user = userEvent.setup();
+
+  renderFavoriteFilter();
+
+  await user.click(screen.getByText('my_favorites'));
   expect(save).toBeCalledWith('sonarqube.projects.default', 'favorite');
-  click(wrapper.find('#all-projects'));
+  await user.click(screen.getByText('all'));
   expect(save).toBeCalledWith('sonarqube.projects.default', 'all');
 });
 
 it('does not render for anonymous', () => {
-  expect(
-    shallow(<FavoriteFilter currentUser={{ isLoggedIn: false }} query={query} />).type()
-  ).toBeNull();
+  renderFavoriteFilter({ currentUser: mockCurrentUser() });
+  expect(screen.queryByText('my_favorites')).not.toBeInTheDocument();
 });
+
+function renderFavoriteFilter({
+  currentUser = mockLoggedInUser(),
+  query = { size: 1 }
+}: Partial<FavoriteFilter['props']> = {}) {
+  renderComponent(<FavoriteFilter currentUser={currentUser} query={query} />);
+}

@@ -13,14 +13,10 @@ exports[`renders favorite 1`] = `
     <Link
       data-key="foo"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
+          "search": "?id=foo",
         }
       }
     >
@@ -64,14 +60,10 @@ exports[`renders match 1`] = `
     <Link
       data-key="foo"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
+          "search": "?id=foo",
         }
       }
     >
@@ -114,14 +106,10 @@ exports[`renders projects 1`] = `
     <Link
       data-key="qwe"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "qwe",
-          },
+          "search": "?id=qwe",
         }
       }
     >
@@ -169,14 +157,10 @@ exports[`renders recently browsed 1`] = `
     <Link
       data-key="foo"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
+          "search": "?id=foo",
         }
       }
     >
@@ -219,14 +203,10 @@ exports[`renders selected 1`] = `
     <Link
       data-key="foo"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
+          "search": "?id=foo",
         }
       }
     >
@@ -267,14 +247,10 @@ exports[`renders selected 2`] = `
     <Link
       data-key="foo"
       onClick={[MockFunction]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
+          "search": "?id=foo",
         }
       }
     >

@@ -20,8 +20,7 @@
 import { debounce, keyBy } from 'lodash';
 import lunr, { LunrIndex } from 'lunr';
 import * as React from 'react';
-import { InjectedRouter } from 'react-router';
-import { withRouter } from '../../../components/hoc/withRouter';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';
@@ -36,7 +35,7 @@ interface Props {
   className?: string;
   component?: Component;
   definitions: ExtendedSettingDefinition[];
-  router: InjectedRouter;
+  router: Router;
 }
 
 interface State {

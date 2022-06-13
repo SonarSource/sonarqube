@@ -29,6 +29,7 @@ import {
 } from '../../../../api/quality-profiles';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { queryToSearch } from '../../../../helpers/urls';
 import { ProfileActionModals } from '../../types';
 import { PROFILE_PATH } from '../../utils';
 import DeleteProfileForm from '../DeleteProfileForm';
@@ -119,7 +120,7 @@ describe('copy a profile', () => {
     expect(updateProfiles).toBeCalled();
     expect(push).toBeCalledWith({
       pathname: '/profiles/show',
-      query: { language: 'js', name }
+      search: queryToSearch({ name, language: 'js' })
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
@@ -182,7 +183,7 @@ describe('extend a profile', () => {
 
     expect(push).toBeCalledWith({
       pathname: '/profiles/show',
-      query: { language: 'js', name }
+      search: queryToSearch({ name, language: 'js' })
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
@@ -234,7 +235,7 @@ describe('rename a profile', () => {
     expect(updateProfiles).toBeCalled();
     expect(push).toBeCalledWith({
       pathname: '/profiles/show',
-      query: { language: 'js', name }
+      search: queryToSearch({ name, language: 'js' })
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });

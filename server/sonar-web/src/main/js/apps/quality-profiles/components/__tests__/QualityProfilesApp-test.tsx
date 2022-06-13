@@ -55,11 +55,13 @@ it('should render child with additional props', () => {
   wrapper.setState({ loading: false, actions, profiles, exporters });
 
   expect(wrapper.childAt(2).props()).toEqual({
-    actions,
-    profiles,
-    languages: [language],
-    exporters,
-    updateProfiles: wrapper.instance().updateProfiles
+    context: {
+      actions,
+      profiles,
+      languages: [language],
+      exporters,
+      updateProfiles: wrapper.instance().updateProfiles
+    }
   });
 });
 

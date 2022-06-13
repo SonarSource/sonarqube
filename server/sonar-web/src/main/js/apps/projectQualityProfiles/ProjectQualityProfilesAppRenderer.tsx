@@ -20,7 +20,7 @@
 import { groupBy, orderBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Profile } from '../../api/quality-profiles';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import { Button } from '../../components/controls/buttons';

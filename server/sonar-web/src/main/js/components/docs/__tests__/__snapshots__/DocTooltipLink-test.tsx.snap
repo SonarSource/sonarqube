@@ -2,9 +2,7 @@
 
 exports[`should render internal link 1`] = `
 <Link
-  onlyActiveOnIndex={false}
   rel="noopener noreferrer"
-  style={Object {}}
   target="_blank"
   to="/documentation/foo/bar"
 />
@@ -12,9 +10,7 @@ exports[`should render internal link 1`] = `
 
 exports[`should render links with custom props 1`] = `
 <Link
-  onlyActiveOnIndex={false}
   rel="noopener noreferrer"
-  style={Object {}}
   target="_blank"
   to="/documentation/foo/baz"
 />

@@ -20,8 +20,6 @@ exports[`renders background task license info correctly 1`] = `
     Foo
   </span>
   <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to="/admin/extension/license/app"
   >
     license.component_navigation.button.LICENSING
@@ -55,8 +53,6 @@ exports[`renders correctly for LICENSING_LOC error 1`] = `
     Foo
   </span>
   <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to="/admin/extension/license/app"
   >
     license.component_navigation.button.LICENSING_LOC

@@ -11,8 +11,6 @@ exports[`should render 1`] = `
     <li>
       <Link
         onClick={[MockFunction]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
         target="_blank"
         to="/documentation"
       >
@@ -22,8 +20,6 @@ exports[`should render 1`] = `
     <li>
       <Link
         onClick={[MockFunction]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/web_api"
       >
         api_documentation.page

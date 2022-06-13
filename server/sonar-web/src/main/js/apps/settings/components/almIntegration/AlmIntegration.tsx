@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import {
   countBindedProjects,
   deleteConfiguration,
@@ -26,7 +25,7 @@ import {
   validateAlmSettings
 } from '../../../../api/alm-settings';
 import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
-import { withRouter } from '../../../../components/hoc/withRouter';
+import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
   AlmKeys,
@@ -39,9 +38,11 @@ import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
-interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
+interface Props {
   appState: AppState;
   definitions: ExtendedSettingDefinition[];
+  location: Location;
+  router: Router;
 }
 
 export type AlmTabs = AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.GitLab | AlmKeys.BitbucketServer;

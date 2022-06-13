@@ -19,8 +19,6 @@ exports[`should render correctly: default 1`] = `
       >
         <Link
           className="display-flex-center"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/projects/create",

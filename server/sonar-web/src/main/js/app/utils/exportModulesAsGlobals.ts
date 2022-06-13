@@ -26,7 +26,7 @@ import React from 'react';
 import * as ReactDom from 'react-dom';
 import * as ReactIntl from 'react-intl';
 import ReactModal from 'react-modal';
-import * as ReactRouter from 'react-router';
+import * as ReactRouterDom from 'react-router-dom';
 
 /*
  * Expose dependencies to extensions
@@ -41,5 +41,5 @@ export default function exportModulesAsGlobals() {
   w.ReactDOM = ReactDom;
   w.ReactIntl = ReactIntl;
   w.ReactModal = ReactModal;
-  w.ReactRouter = ReactRouter;
+  w.ReactRouterDom = ReactRouterDom;
 }

@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { LocationDescriptorObject } from 'history';
-import { omit } from 'lodash';
 import * as React from 'react';
-import { Link, LinkProps } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import Dropdown from '../../../../components/controls/Dropdown';
 import Tooltip from '../../../../components/controls/Tooltip';
 import BulletListIcon from '../../../../components/icons/BulletListIcon';
@@ -33,7 +31,7 @@ import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { AppState } from '../../../../types/appstate';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
-import { Component, Extension } from '../../../../types/types';
+import { Component, Dict, Extension } from '../../../../types/types';
 import withAppStateContext from '../../app-state/withAppStateContext';
 import './Menu.css';
 
@@ -131,11 +129,12 @@ export class Menu extends React.PureComponent<Props> {
 
   renderMenuLink = ({
     label,
-    to,
-    ...props
-  }: Omit<LinkProps, 'to'> & {
+    pathname,
+    additionalQueryParams = {}
+  }: {
     label: React.ReactNode;
-    to: LocationDescriptorObject;
+    pathname: string;
+    additionalQueryParams?: Dict<string>;
   }) => {
     const hasAnalysis = this.hasAnalysis();
     const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
@@ -146,12 +145,13 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li>
         {hasAnalysis ? (
-          <Link
-            activeClassName="active"
-            to={{ ...to, query: { ...query, ...to.query } }}
-            {...omit(props, ['to'])}>
+          <NavLink
+            to={{
+              pathname,
+              search: new URLSearchParams({ ...query, ...additionalQueryParams }).toString()
+            }}>
             {label}
-          </Link>
+          </NavLink>
         ) : (
           <Tooltip overlay={translate('layout.must_be_configured')}>
             <a aria-disabled="true" className="disabled-link">
@@ -169,9 +169,7 @@ export class Menu extends React.PureComponent<Props> {
     if (this.isPortfolio()) {
       return this.isGovernanceEnabled() ? (
         <li>
-          <Link activeClassName="active" to={getPortfolioUrl(id)}>
-            {translate('overview.page')}
-          </Link>
+          <NavLink to={getPortfolioUrl(id)}>{translate('overview.page')}</NavLink>
         </li>
       ) : null;
     }
@@ -182,9 +180,7 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li>
-        <Link activeClassName="active" to={getProjectQueryUrl(id, branchLike)}>
-          {translate('overview.page')}
-        </Link>
+        <NavLink to={getProjectQueryUrl(id, branchLike)}>{translate('overview.page')}</NavLink>
       </li>
     );
   };
@@ -193,7 +189,7 @@ export class Menu extends React.PureComponent<Props> {
     return this.isPortfolio() && this.isGovernanceEnabled()
       ? this.renderMenuLink({
           label: translate('portfolio_breakdown.page'),
-          to: { pathname: '/code' }
+          pathname: '/code'
         })
       : null;
   };
@@ -205,7 +201,7 @@ export class Menu extends React.PureComponent<Props> {
 
     const label = this.isApplication() ? translate('view_projects.page') : translate('code.page');
 
-    return this.renderMenuLink({ label, to: { pathname: '/code' } });
+    return this.renderMenuLink({ label, pathname: '/code' });
   };
 
   renderActivityLink = () => {
@@ -217,21 +213,22 @@ export class Menu extends React.PureComponent<Props> {
 
     return this.renderMenuLink({
       label: translate('project_activity.page'),
-      to: { pathname: '/project/activity' }
+      pathname: '/project/activity'
     });
   };
 
   renderIssuesLink = () => {
     return this.renderMenuLink({
       label: translate('issues.page'),
-      to: { pathname: '/project/issues', query: { resolved: 'false' } }
+      pathname: '/project/issues',
+      additionalQueryParams: { resolved: 'false' }
     });
   };
 
   renderComponentMeasuresLink = () => {
     return this.renderMenuLink({
       label: translate('layout.measures'),
-      to: { pathname: '/component_measures' }
+      pathname: '/component_measures'
     });
   };
 
@@ -241,7 +238,7 @@ export class Menu extends React.PureComponent<Props> {
       !isPortfolio &&
       this.renderMenuLink({
         label: translate('layout.security_hotspots'),
-        to: { pathname: '/security_hotspots' }
+        pathname: '/security_hotspots'
       })
     );
   };
@@ -264,7 +261,7 @@ export class Menu extends React.PureComponent<Props> {
 
     return this.renderMenuLink({
       label: translate('layout.security_reports'),
-      to: { pathname: '/project/extension/securityreport/securityreport' }
+      pathname: '/project/extension/securityreport/securityreport'
     });
   };
 
@@ -373,9 +370,10 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="settings">
-        <Link activeClassName="active" to={{ pathname: '/project/settings', query }}>
+        <NavLink
+          to={{ pathname: '/project/settings', search: new URLSearchParams(query).toString() }}>
           {translate('project_settings.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -391,9 +389,10 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li key="branches">
-        <Link activeClassName="active" to={{ pathname: '/project/branches', query }}>
+        <NavLink
+          to={{ pathname: '/project/branches', search: new URLSearchParams(query).toString() }}>
           {translate('project_branch_pull_request.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -404,9 +403,10 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="baseline">
-        <Link activeClassName="active" to={{ pathname: '/project/baseline', query }}>
+        <NavLink
+          to={{ pathname: '/project/baseline', search: new URLSearchParams(query).toString() }}>
           {translate('project_baseline.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -417,9 +417,13 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="import-export">
-        <Link activeClassName="active" to={{ pathname: '/project/import_export', query }}>
+        <NavLink
+          to={{
+            pathname: '/project/import_export',
+            search: new URLSearchParams(query).toString()
+          }}>
           {translate('project_dump.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -430,9 +434,13 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="profiles">
-        <Link activeClassName="active" to={{ pathname: '/project/quality_profiles', query }}>
+        <NavLink
+          to={{
+            pathname: '/project/quality_profiles',
+            search: new URLSearchParams(query).toString()
+          }}>
           {translate('project_quality_profiles.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -443,9 +451,10 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="quality_gate">
-        <Link activeClassName="active" to={{ pathname: '/project/quality_gate', query }}>
+        <NavLink
+          to={{ pathname: '/project/quality_gate', search: new URLSearchParams(query).toString() }}>
           {translate('project_quality_gate.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -456,9 +465,9 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="links">
-        <Link activeClassName="active" to={{ pathname: '/project/links', query }}>
+        <NavLink to={{ pathname: '/project/links', search: new URLSearchParams(query).toString() }}>
           {translate('project_links.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -469,9 +478,9 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="permissions">
-        <Link activeClassName="active" to={{ pathname: '/project_roles', query }}>
+        <NavLink to={{ pathname: '/project_roles', search: new URLSearchParams(query).toString() }}>
           {translate('permissions.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -482,9 +491,13 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="background_tasks">
-        <Link activeClassName="active" to={{ pathname: '/project/background_tasks', query }}>
+        <NavLink
+          to={{
+            pathname: '/project/background_tasks',
+            search: new URLSearchParams(query).toString()
+          }}>
           {translate('background_tasks.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -495,9 +508,9 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="update_key">
-        <Link activeClassName="active" to={{ pathname: '/project/key', query }}>
+        <NavLink to={{ pathname: '/project/key', search: new URLSearchParams(query).toString() }}>
           {translate('update_key.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -508,9 +521,10 @@ export class Menu extends React.PureComponent<Props> {
     }
     return (
       <li key="webhooks">
-        <Link activeClassName="active" to={{ pathname: '/project/webhooks', query }}>
+        <NavLink
+          to={{ pathname: '/project/webhooks', search: new URLSearchParams(query).toString() }}>
           {translate('webhooks.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -534,9 +548,10 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li key="project_delete">
-        <Link activeClassName="active" to={{ pathname: '/project/deletion', query }}>
+        <NavLink
+          to={{ pathname: '/project/deletion', search: new URLSearchParams(query).toString() }}>
           {translate('deletion.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   };
@@ -546,9 +561,7 @@ export class Menu extends React.PureComponent<Props> {
     const query = { ...baseQuery, qualifier: this.props.component.qualifier };
     return (
       <li key={key}>
-        <Link activeClassName="active" to={{ pathname, query }}>
-          {name}
-        </Link>
+        <NavLink to={{ pathname, search: new URLSearchParams(query).toString() }}>{name}</NavLink>
       </li>
     );
   };

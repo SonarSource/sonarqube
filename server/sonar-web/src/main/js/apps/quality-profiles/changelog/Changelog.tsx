@@ -20,7 +20,7 @@
 import { isSameMinute } from 'date-fns';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';

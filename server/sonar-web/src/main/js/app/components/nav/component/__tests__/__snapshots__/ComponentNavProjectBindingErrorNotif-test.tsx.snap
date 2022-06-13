@@ -28,15 +28,10 @@ exports[`should render correctly: project admin 1`] = `
     values={
       Object {
         "action": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/settings",
-              "query": Object {
-                "category": "pull_request_decoration_binding",
-                "id": "my-project",
-              },
+              "search": "?id=my-project&category=pull_request_decoration_binding",
             }
           }
         >

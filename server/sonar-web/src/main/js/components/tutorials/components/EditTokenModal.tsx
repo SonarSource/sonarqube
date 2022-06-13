@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { Button, DeleteButton } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';

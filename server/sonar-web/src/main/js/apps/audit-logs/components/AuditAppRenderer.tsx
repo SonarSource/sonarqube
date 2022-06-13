@@ -21,11 +21,12 @@ import { subDays } from 'date-fns';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import Radio from '../../../components/controls/Radio';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import '../style.css';
 import { HousekeepingPolicy, now, RangeOption } from '../utils';
 import DownloadButton from './DownloadButton';
@@ -90,7 +91,7 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
               <Link
                 to={{
                   pathname: '/admin/settings',
-                  query: { category: 'housekeeping' },
+                  search: queryToSearch({ category: 'housekeeping' }),
                   hash: '#auditLogs'
                 }}>
                 {translate('audit_logs.page.description.link')}

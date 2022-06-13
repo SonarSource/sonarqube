@@ -97,8 +97,6 @@ exports[`generates token 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >
@@ -207,8 +205,6 @@ exports[`generates token 2`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >
@@ -273,8 +269,6 @@ exports[`generates token 3`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >
@@ -349,8 +343,6 @@ exports[`revokes token 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >
@@ -424,8 +416,6 @@ exports[`revokes token 2`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >
@@ -547,8 +537,6 @@ exports[`revokes token 3`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/account/security"
               >

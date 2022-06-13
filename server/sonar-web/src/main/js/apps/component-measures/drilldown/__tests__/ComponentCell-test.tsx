@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import {
   mockComponentMeasure,
   mockComponentMeasureEnhanced
@@ -63,7 +63,12 @@ it('should properly deal with key and refKey', () => {
     })
       .find(Link)
       .props().to
-  ).toEqual(expect.objectContaining({ query: expect.objectContaining({ id: 'port-key' }) }));
+  ).toEqual(
+    expect.objectContaining({
+      pathname: '/component_measures',
+      search: '?id=port-key&metric=bugs&view=list'
+    })
+  );
 
   expect(
     shallowRender()
@@ -71,7 +76,8 @@ it('should properly deal with key and refKey', () => {
       .props().to
   ).toEqual(
     expect.objectContaining({
-      query: expect.objectContaining({ id: 'foo', selected: 'foo:src/index.tsx' })
+      pathname: '/component_measures',
+      search: '?id=foo&metric=bugs&view=list&selected=foo%3Asrc%2Findex.tsx'
     })
   );
 });
@@ -80,62 +86,66 @@ it.each([
   [
     ComponentQualifier.File,
     MetricKey.bugs,
-    expect.objectContaining({
+    {
       pathname: '/component_measures',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`
+    }
   ],
   [
     ComponentQualifier.Directory,
     MetricKey.bugs,
-    expect.objectContaining({
+    {
       pathname: '/component_measures',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`
+    }
   ],
   [
     ComponentQualifier.Project,
     MetricKey.projects,
-    expect.objectContaining({
+    {
       pathname: '/dashboard',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: '?id=foo&branch=develop'
+    }
   ],
   [
     ComponentQualifier.Application,
     MetricKey.releasability_rating,
-    expect.objectContaining({
+    {
       pathname: '/dashboard',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: '?id=foo&branch=develop'
+    }
   ],
   [
     ComponentQualifier.Project,
     MetricKey.releasability_rating,
-    expect.objectContaining({
+    {
       pathname: '/dashboard',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: '?id=foo&branch=develop'
+    }
   ],
   [
     ComponentQualifier.Application,
     MetricKey.alert_status,
-    expect.objectContaining({
+    {
       pathname: '/dashboard',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: '?id=foo&branch=develop'
+    }
   ],
   [
     ComponentQualifier.Project,
     MetricKey.alert_status,
-    expect.objectContaining({
+    {
       pathname: '/dashboard',
-      query: expect.objectContaining({ branch: 'develop' })
-    })
+      search: '?id=foo&branch=develop'
+    }
   ]
 ])(
   'should display the proper link path for %s component qualifier and %s metric key',
-  (componentQualifier: ComponentQualifier, metricKey: MetricKey, expectedTo: any) => {
+  (
+    componentQualifier: ComponentQualifier,
+    metricKey: MetricKey,
+    expectedTo: { pathname: string; search: string }
+  ) => {
     const wrapper = shallowRender(
       {
         component: mockComponentMeasureEnhanced({
@@ -146,7 +156,7 @@ it.each([
       metricKey
     );
 
-    expect(wrapper.find(Link).props().to).toEqual(expectedTo);
+    expect(wrapper.find(Link).props().to).toEqual(expect.objectContaining(expectedTo));
   }
 );
 

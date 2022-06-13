@@ -28,7 +28,7 @@ import Form from './Form';
 interface Props {
   ready?: boolean;
   refresh: () => Promise<void>;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 interface State {

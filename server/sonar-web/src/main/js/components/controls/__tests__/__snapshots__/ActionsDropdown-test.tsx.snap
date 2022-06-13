@@ -81,8 +81,6 @@ exports[`ActionsDropdownItem should render correctly 2`] = `
   <Link
     className="foo text-danger"
     id="baz"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to="path/name"
   >
     <span>

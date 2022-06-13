@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import SearchBox from '../../../../../../components/controls/SearchBox';
 import { KeyboardKeys } from '../../../../../../helpers/keycodes';
 import {
@@ -29,6 +29,7 @@ import {
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { mockRouter } from '../../../../../../helpers/testMocks';
 import { click, mockEvent } from '../../../../../../helpers/testUtils';
+import { queryToSearch } from '../../../../../../helpers/urls';
 import { Menu } from '../Menu';
 import { MenuItemList } from '../MenuItemList';
 
@@ -67,10 +68,10 @@ it('should change url and close menu when an element is selected', () => {
   expect(onClose).toHaveBeenCalled();
   expect(push).toHaveBeenCalledWith(
     expect.objectContaining({
-      query: {
+      search: queryToSearch({
         id: component.key,
         pullRequest: pr.key
-      }
+      })
     })
   );
 });

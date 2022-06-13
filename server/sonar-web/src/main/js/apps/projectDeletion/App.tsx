@@ -19,21 +19,23 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
 import { translate } from '../../helpers/l10n';
-import { Component } from '../../types/types';
 import Form from './Form';
 import Header from './Header';
 
-interface Props {
-  component: Pick<Component, 'key' | 'name' | 'qualifier'>;
-}
+export default function App() {
+  const { component } = React.useContext(ComponentContext);
 
-export default function App(props: Props) {
+  if (component === undefined) {
+    return null;
+  }
+
   return (
     <div className="page page-limited">
       <Helmet defer={false} title={translate('deletion.page')} />
-      <Header component={props.component} />
-      <Form component={props.component} />
+      <Header component={component} />
+      <Form component={component} />
     </div>
   );
 }

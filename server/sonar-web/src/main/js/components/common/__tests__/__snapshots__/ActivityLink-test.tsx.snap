@@ -3,15 +3,10 @@
 exports[`renders correctly 1`] = `
 <Link
   className="activity-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/project/activity",
-      "query": Object {
-        "graph": undefined,
-        "id": "foo",
-      },
+      "search": "?id=foo",
     }
   }
 >
@@ -28,16 +23,10 @@ exports[`renders correctly 1`] = `
 exports[`renders correctly 2`] = `
 <Link
   className="activity-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/project/activity",
-      "query": Object {
-        "branch": "branch-6.7",
-        "graph": undefined,
-        "id": "foo",
-      },
+      "search": "?id=foo&branch=branch-6.7",
     }
   }
 >
@@ -54,15 +43,10 @@ exports[`renders correctly 2`] = `
 exports[`renders correctly 3`] = `
 <Link
   className="activity-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/project/activity",
-      "query": Object {
-        "graph": "coverage",
-        "id": "foo",
-      },
+      "search": "?id=foo&graph=coverage",
     }
   }
 >
@@ -79,16 +63,10 @@ exports[`renders correctly 3`] = `
 exports[`renders correctly 4`] = `
 <Link
   className="activity-link"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/project/activity",
-      "query": Object {
-        "custom_metrics": "new_bugs,bugs",
-        "graph": "custom",
-        "id": "foo",
-      },
+      "search": "?id=foo&graph=custom&custom_metrics=new_bugs%2Cbugs",
     }
   }
 >

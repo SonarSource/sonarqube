@@ -30,7 +30,7 @@ import { Component } from '../../types/types';
 
 interface Props {
   component: Pick<Component, 'key' | 'name' | 'qualifier'>;
-  router: Pick<Router, 'replace'>;
+  router: Router;
 }
 
 export class Form extends React.PureComponent<Props> {

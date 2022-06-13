@@ -7,23 +7,20 @@ exports[`should render correctly 1`] = `
   <div
     className="note spacer-bottom"
   >
-    <IndexLink
+    <NavLink
       className="text-muted"
+      end={true}
       to="/profiles"
     >
       quality_profiles.page
-    </IndexLink>
+    </NavLink>
      / 
     <Link
       className="text-muted"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/profiles",
-          "query": Object {
-            "language": "js",
-          },
+          "search": "?language=js",
         }
       }
     >
@@ -71,15 +68,10 @@ exports[`should render correctly 1`] = `
       <li>
         <Link
           className="button"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/profiles/changelog",
-              "query": Object {
-                "language": "js",
-                "name": "name",
-              },
+              "search": "?language=js&name=name",
             }
           }
         >
@@ -120,23 +112,20 @@ exports[`should render correctly: for default profile 1`] = `
   <div
     className="note spacer-bottom"
   >
-    <IndexLink
+    <NavLink
       className="text-muted"
+      end={true}
       to="/profiles"
     >
       quality_profiles.page
-    </IndexLink>
+    </NavLink>
      / 
     <Link
       className="text-muted"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/profiles",
-          "query": Object {
-            "language": "js",
-          },
+          "search": "?language=js",
         }
       }
     >
@@ -193,15 +182,10 @@ exports[`should render correctly: for default profile 1`] = `
       <li>
         <Link
           className="button"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/profiles/changelog",
-              "query": Object {
-                "language": "js",
-                "name": "name",
-              },
+              "search": "?language=js&name=name",
             }
           }
         >

@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
@@ -66,7 +67,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/tutorials',
-        query: { id: component.key }
+        search: queryToSearch({ id: component.key })
       }}>
       {translate('overview.project.next_steps.links.set_up_ci')}
     </Link>
@@ -75,10 +76,10 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/project/settings',
-        query: {
+        search: queryToSearch({
           id: component.key,
           category: PULL_REQUEST_DECORATION_BINDING_CATEGORY
-        }
+        })
       }}>
       {translate('overview.project.next_steps.links.project_settings')}
     </Link>

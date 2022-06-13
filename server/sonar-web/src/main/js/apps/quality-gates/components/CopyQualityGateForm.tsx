@@ -31,7 +31,7 @@ interface Props {
   onClose: () => void;
   onCopy: () => Promise<void>;
   qualityGate: QualityGate;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 interface State {

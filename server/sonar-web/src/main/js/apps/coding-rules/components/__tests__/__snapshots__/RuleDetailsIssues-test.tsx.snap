@@ -16,15 +16,10 @@ exports[`should fetch issues and render 1`] = `
       >
         (
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/issues",
-              "query": Object {
-                "resolved": "false",
-                "rules": "foo",
-              },
+              "search": "?resolved=false&rules=foo",
             }
           }
         >
@@ -57,16 +52,10 @@ exports[`should fetch issues and render 1`] = `
             className="coding-rules-detail-list-parameters"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/issues",
-                  "query": Object {
-                    "projects": "sample-key",
-                    "resolved": "false",
-                    "rules": "foo",
-                  },
+                  "search": "?resolved=false&rules=foo&projects=sample-key",
                 }
               }
             >
@@ -86,16 +75,10 @@ exports[`should fetch issues and render 1`] = `
             className="coding-rules-detail-list-parameters"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/issues",
-                  "query": Object {
-                    "projects": "example-key",
-                    "resolved": "false",
-                    "rules": "foo",
-                  },
+                  "search": "?resolved=false&rules=foo&projects=example-key",
                 }
               }
             >

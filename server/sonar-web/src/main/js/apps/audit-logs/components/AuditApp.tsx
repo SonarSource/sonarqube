@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { getValues } from '../../../api/settings';
+import withAdminPagesOutletContext from '../../../app/components/admin/withAdminPagesOutletContext';
 import { AdminPageExtension } from '../../../types/extension';
 import { SettingsKey } from '../../../types/settings';
 import { Extension } from '../../../types/types';
@@ -37,7 +38,7 @@ interface State {
   selection: RangeOption;
 }
 
-export default class AuditApp extends React.PureComponent<Props, State> {
+export class AuditApp extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -102,3 +103,5 @@ export default class AuditApp extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withAdminPagesOutletContext(AuditApp);

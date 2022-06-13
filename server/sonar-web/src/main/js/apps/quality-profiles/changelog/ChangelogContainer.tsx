@@ -18,19 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import { getProfileChangelog } from '../../../api/quality-profiles';
-import { withRouter } from '../../../components/hoc/withRouter';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile, ProfileChangelogEvent } from '../types';
 import { getProfileChangelogPath } from '../utils';
 import Changelog from './Changelog';
 import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
-interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
+interface Props {
   profile: Profile;
+  location: Location;
+  router: Router;
 }
 
 interface State {
@@ -166,4 +168,4 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(ChangelogContainer);
+export default withQualityProfilesContext(withRouter(ChangelogContainer));

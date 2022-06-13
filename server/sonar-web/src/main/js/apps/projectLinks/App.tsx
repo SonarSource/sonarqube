@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createLink, deleteLink, getProjectLinks } from '../../api/projectLinks';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { Component, ProjectLink } from '../../types/types';
@@ -27,7 +28,7 @@ import Header from './Header';
 import Table from './Table';
 
 interface Props {
-  component: Pick<Component, 'key'>;
+  component: Component;
 }
 
 interface State {
@@ -35,7 +36,7 @@ interface State {
   loading: boolean;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -102,3 +103,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withComponentContext(App);

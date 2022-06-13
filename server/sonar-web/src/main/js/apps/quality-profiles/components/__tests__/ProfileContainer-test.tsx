@@ -17,57 +17,77 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { WithRouterProps } from 'react-router';
-import { mockLocation, mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
-import ProfileHeader from '../../details/ProfileHeader';
-import ProfileContainer from '../ProfileContainer';
-import ProfileNotFound from '../ProfileNotFound';
+import { HelmetProvider } from 'react-helmet-async';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
+import {
+  QualityProfilesContextProps,
+  withQualityProfilesContext
+} from '../../qualityProfilesContext';
+import { Profile } from '../../types';
+import { ProfileContainer } from '../ProfileContainer';
 
-it('should render ProfileHeader', () => {
-  const targetProfile = mockQualityProfile({ name: 'fake' });
-  const profiles = [targetProfile, mockQualityProfile({ name: 'another' })];
-  const updateProfiles = jest.fn();
-  const location = mockLocation({ pathname: '', query: { language: 'js', name: 'fake' } });
+it('should render the header and child', () => {
+  const targetProfile = mockQualityProfile({ name: 'profile1' });
+  renderProfileContainer('/?language=js&name=profile1', {
+    profiles: [mockQualityProfile({ language: 'Java', name: 'profile1' }), targetProfile]
+  });
 
-  const output = shallowRender({ profiles, updateProfiles, location });
-
-  const header = output.find(ProfileHeader);
-  expect(header.length).toBe(1);
-  expect(header.prop('profile')).toBe(targetProfile);
-  expect(header.prop('updateProfiles')).toBe(updateProfiles);
+  expect(screen.getByText('profile1')).toBeInTheDocument();
 });
 
-it('should render ProfileNotFound', () => {
-  const profiles = [mockQualityProfile({ name: 'fake' }), mockQualityProfile({ name: 'another' })];
-  const location = mockLocation({ pathname: '', query: { language: 'js', name: 'random' } });
+it('should render "not found"', () => {
+  renderProfileContainer('/?language=java&name=profile2', {
+    profiles: [mockQualityProfile({ name: 'profile1' }), mockQualityProfile({ name: 'profile2' })]
+  });
 
-  const output = shallowRender({ profiles, location });
-
-  expect(output.is(ProfileNotFound)).toBe(true);
+  expect(screen.getByText('quality_profiles.not_found')).toBeInTheDocument();
 });
 
-it('should render Helmet', () => {
-  const name = 'First Profile';
-  const profiles = [mockQualityProfile({ name })];
-  const updateProfiles = jest.fn();
-  const location = mockLocation({ pathname: '', query: { language: 'js', name } });
+it('should render "not found" for wrong key', () => {
+  renderProfileContainer('/?key=wrongKey', {
+    profiles: [mockQualityProfile({ key: 'profileKey' })]
+  });
 
-  const output = shallowRender({ profiles, updateProfiles, location });
-
-  const helmet = output.find(Helmet);
-  expect(helmet.length).toBe(1);
-  expect(helmet.prop('title')).toContain(name);
+  expect(screen.getByText('quality_profiles.not_found')).toBeInTheDocument();
 });
 
-function shallowRender(overrides: Partial<ProfileContainer['props']> = {}) {
-  const routerProps = { router: mockRouter(), ...overrides } as WithRouterProps;
+it('should handle getting profile by key', () => {
+  renderProfileContainer('/?key=profileKey', {
+    profiles: [mockQualityProfile({ key: 'profileKey', name: 'found the profile' })]
+  });
 
-  return shallow(
-    <ProfileContainer profiles={[]} updateProfiles={jest.fn()} {...routerProps} {...overrides}>
-      <div />
-    </ProfileContainer>
+  expect(screen.getByText('found the profile')).toBeInTheDocument();
+});
+
+function Child(props: { profile?: Profile }) {
+  return <div>{JSON.stringify(props.profile)}</div>;
+}
+
+const WrappedChild = withQualityProfilesContext(Child);
+
+function renderProfileContainer(path: string, overrides: Partial<QualityProfilesContextProps>) {
+  return render(
+    <HelmetProvider context={{}}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            element={
+              <ProfileContainer
+                actions={{}}
+                exporters={[]}
+                languages={[]}
+                profiles={[]}
+                updateProfiles={jest.fn()}
+                {...overrides}
+              />
+            }>
+            <Route path="*" element={<WrappedChild />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </HelmetProvider>
   );
 }

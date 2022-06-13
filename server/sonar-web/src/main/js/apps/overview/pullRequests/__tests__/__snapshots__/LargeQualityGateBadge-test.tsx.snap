@@ -19,8 +19,6 @@ exports[`should render correctly for SQ 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/quality_gates/show/30",
@@ -67,8 +65,6 @@ exports[`should render correctly for SQ 2`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/quality_gates/show/30",

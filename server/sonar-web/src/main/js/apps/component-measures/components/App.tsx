@@ -21,13 +21,14 @@ import styled from '@emotion/styled';
 import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { withRouter, WithRouterProps } from 'react-router';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { Alert } from '../../../components/ui/Alert';
@@ -73,10 +74,12 @@ import MeasureContent from './MeasureContent';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import MeasuresEmpty from './MeasuresEmpty';
 
-interface Props extends WithRouterProps {
+interface Props {
   branchLike?: BranchLike;
   component: ComponentMeasure;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
+  location: Location;
+  router: Router;
 }
 
 interface State {
@@ -359,4 +362,17 @@ const AlertContent = styled.div`
   align-items: center;
 `;
 
-export default withRouter(withBranchStatusActions(App));
+/*
+ * This needs to be refactored: the issue
+ * is that we can't use the usual withComponentContext HOC, because the type
+ * of `component` isn't the same. It probably used to work because of the lazy loading
+ */
+const WrappedApp = withRouter(withBranchStatusActions(App));
+
+function AppWithComponentContext() {
+  const { branchLike, component } = React.useContext(ComponentContext);
+
+  return <WrappedApp branchLike={branchLike} component={component as ComponentMeasure} />;
+}
+
+export default AppWithComponentContext;

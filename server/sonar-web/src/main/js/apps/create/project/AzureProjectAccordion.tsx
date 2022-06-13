@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { colors } from '../../../app/theme';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -29,7 +29,7 @@ import CheckIcon from '../../../components/icons/CheckIcon';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, queryToSearch } from '../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 
@@ -110,7 +110,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                     <Link
                       to={{
                         pathname: '/projects/create',
-                        query: { mode: CreateProjectModes.AzureDevOps, resetPat: 1 }
+                        search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 })
                       }}>
                       {translate('onboarding.create_project.update_your_token')}
                     </Link>

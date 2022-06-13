@@ -19,8 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockLocation } from '../../../../../helpers/testMocks';
 import { AdminPageExtension } from '../../../../../types/extension';
-import SettingsNav from '../SettingsNav';
+import { SettingsNav } from '../SettingsNav';
 
 it('should work with extensions', () => {
   const wrapper = shallowRender();
@@ -65,6 +66,7 @@ function shallowRender(props: Partial<SettingsNav['props']> = {}) {
       extensions={[{ key: 'foo', name: 'Foo' }]}
       fetchPendingPlugins={jest.fn()}
       fetchSystemStatus={jest.fn()}
+      location={mockLocation()}
       pendingPlugins={{ installing: [], removing: [], updating: [] }}
       systemStatus="UP"
       {...props}

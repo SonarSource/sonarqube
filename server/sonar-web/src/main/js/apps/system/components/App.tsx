@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { withRouter, WithRouterProps } from 'react-router';
 import { getSystemInfo } from '../../../api/system';
 import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';
@@ -40,7 +40,10 @@ import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
 
-type Props = WithRouterProps;
+interface Props {
+  location: Location;
+  router: Router;
+}
 
 interface State {
   loading: boolean;

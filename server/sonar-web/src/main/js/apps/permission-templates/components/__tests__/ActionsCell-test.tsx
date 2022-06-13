@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockRouter } from '../../../../helpers/testMocks';
 import { ActionsCell } from '../ActionsCell';
 
 const SAMPLE = {
@@ -34,7 +35,7 @@ function renderActionsCell(props?: Partial<ActionsCell['props']>) {
     <ActionsCell
       permissionTemplate={SAMPLE}
       refresh={() => true}
-      router={{ replace: jest.fn() }}
+      router={mockRouter()}
       topQualifiers={['TRK', 'VW']}
       {...props}
     />

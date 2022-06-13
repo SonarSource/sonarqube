@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/dom';
 import * as React from 'react';
-import { mockAppState } from '../../../../../helpers/testMocks';
+import { mockAppState, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { GlobalNavMenu } from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
@@ -27,13 +28,12 @@ it('should work with extensions', () => {
     globalPages: [{ key: 'foo', name: 'Foo' }],
     qualifiers: ['TRK']
   });
+
   const currentUser = {
     isLoggedIn: false
   };
-  const wrapper = shallow(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
-  );
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
+  renderGlobalNavMenu({ appState, currentUser });
+  expect(screen.getByText('more')).toBeInTheDocument();
 });
 
 it('should show administration menu if the user has the rights', () => {
@@ -45,8 +45,17 @@ it('should show administration menu if the user has the rights', () => {
   const currentUser = {
     isLoggedIn: false
   };
-  const wrapper = shallow(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
-  );
-  expect(wrapper).toMatchSnapshot();
+
+  renderGlobalNavMenu({ appState, currentUser });
+  expect(screen.getByText('layout.settings')).toBeInTheDocument();
 });
+
+function renderGlobalNavMenu({
+  appState = mockAppState(),
+  currentUser = mockCurrentUser(),
+  location = { pathname: '' }
+}: Partial<GlobalNavMenu['props']>) {
+  renderComponent(
+    <GlobalNavMenu appState={appState} currentUser={currentUser} location={location} />
+  );
+}

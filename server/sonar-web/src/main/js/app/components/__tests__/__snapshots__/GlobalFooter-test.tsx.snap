@@ -45,8 +45,6 @@ exports[`should display the sq version 1`] = `
       className="page-footer-menu-item"
     >
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/documentation"
       >
         footer.documentation
@@ -67,8 +65,6 @@ exports[`should display the sq version 1`] = `
       className="page-footer-menu-item"
     >
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/web_api"
       >
         footer.web_api
@@ -113,8 +109,6 @@ exports[`should not render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/documentation"
       >
         footer.documentation
@@ -180,8 +174,6 @@ exports[`should render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/documentation"
       >
         footer.documentation
@@ -202,8 +194,6 @@ exports[`should render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to="/web_api"
       >
         footer.web_api

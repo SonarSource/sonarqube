@@ -18,21 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import {
   importBitbucketCloudRepository,
   searchForBitbucketCloudRepositories
 } from '../../../api/alm-integrations';
+import { Location, Router } from '../../../components/hoc/withRouter';
 import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { Paging } from '../../../types/types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
-interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
+interface Props {
   canAdmin: boolean;
   settings: AlmSettingsInstance[];
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
+  location: Location;
+  router: Router;
 }
 
 interface State {

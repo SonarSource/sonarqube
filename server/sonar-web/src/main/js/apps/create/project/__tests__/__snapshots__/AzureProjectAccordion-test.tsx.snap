@@ -151,16 +151,11 @@ exports[`should render correctly: search results 1`] = `
             className="little-spacer-bottom text-ellipsis"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               title="SQ Name"
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "sq-key",
-                  },
+                  "search": "?id=sq-key",
                 }
               }
             >
@@ -236,16 +231,11 @@ exports[`should render correctly: with repositories 1`] = `
             className="little-spacer-bottom text-ellipsis"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               title="SQ Name"
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "sq-key",
-                  },
+                  "search": "?id=sq-key",
                 }
               }
             >

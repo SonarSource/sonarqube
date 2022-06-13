@@ -24,7 +24,7 @@ import { showLicense } from '../../../api/editions';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { hasMessage } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
-import { mockAppState } from '../../../helpers/testMocks';
+import { mockAppState, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
 import { LoggedInUser } from '../../../types/users';
@@ -89,7 +89,7 @@ it('should render only the children', async () => {
     getWrapper({
       appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
-      location: { pathname: '/documentation/' }
+      location: mockLocation({ pathname: '/documentation/' })
     })
   );
 
@@ -97,7 +97,7 @@ it('should render only the children', async () => {
     getWrapper({
       appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
-      location: { pathname: '/create-organization' }
+      location: mockLocation({ pathname: '/create-organization' })
     })
   );
 });
@@ -129,8 +129,8 @@ function getWrapper(props: Partial<StartupModal['props']> = {}) {
     <StartupModal
       appState={mockAppState({ edition: EditionKey.enterprise, canAdmin: true })}
       currentUser={LOGGED_IN_USER}
-      location={{ pathname: 'foo/bar' }}
-      router={{ push: jest.fn() }}
+      location={mockLocation({ pathname: 'foo/bar' })}
+      router={mockRouter()}
       {...props}>
       <div />
     </StartupModal>

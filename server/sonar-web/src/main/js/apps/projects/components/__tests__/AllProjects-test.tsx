@@ -20,9 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from '../../../../helpers/storage';
-import { mockAppState } from '../../../../helpers/testMocks';
+import { mockAppState, mockLocation } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
-import { Dict } from '../../../../types/types';
 import { AllProjects, LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
 
 jest.mock(
@@ -103,25 +102,6 @@ it('fetches projects', () => {
   );
 });
 
-it('redirects to the saved search', () => {
-  const localeStorageMock: Dict<string> = {
-    [LS_PROJECTS_VIEW]: 'leak',
-    [LS_PROJECTS_SORT]: 'coverage'
-  };
-
-  (get as jest.Mock).mockImplementation((key: string) => localeStorageMock[key]);
-  const replace = jest.fn();
-  shallowRender({}, jest.fn(), replace);
-
-  expect(replace).lastCalledWith({
-    pathname: '/projects',
-    query: {
-      view: localeStorageMock[LS_PROJECTS_VIEW],
-      sort: localeStorageMock[LS_PROJECTS_SORT]
-    }
-  });
-});
-
 it('changes sort', () => {
   const push = jest.fn();
   const wrapper = shallowRender({}, push);
@@ -174,7 +154,7 @@ function shallowRender(
     <AllProjects
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
-      location={{ pathname: '/projects', query: {} }}
+      location={mockLocation({ pathname: '/projects', query: {} })}
       appState={mockAppState({
         qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application]
       })}

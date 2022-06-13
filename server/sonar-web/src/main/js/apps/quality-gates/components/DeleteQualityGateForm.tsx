@@ -29,7 +29,7 @@ import { QualityGate } from '../../../types/types';
 interface Props {
   onDelete: () => Promise<void>;
   qualityGate: QualityGate;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 export class DeleteQualityGateForm extends React.PureComponent<Props> {

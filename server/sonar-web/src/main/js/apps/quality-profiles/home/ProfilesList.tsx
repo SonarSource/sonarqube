@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -30,8 +29,8 @@ import ProfilesListHeader from './ProfilesListHeader';
 import ProfilesListRow from './ProfilesListRow';
 
 interface Props {
+  language?: string;
   languages: Language[];
-  location: Pick<Location, 'query'>;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
@@ -94,8 +93,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
   };
 
   render() {
-    const { profiles, languages } = this.props;
-    const { language } = this.props.location.query;
+    const { profiles, languages, language } = this.props;
 
     const profilesIndex: Dict<Profile[]> = groupBy<Profile>(profiles, profile => profile.language);
 

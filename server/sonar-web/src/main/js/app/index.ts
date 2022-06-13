@@ -19,9 +19,11 @@
  */
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
 import { loadL10nBundle } from '../helpers/l10nBundle';
-import { parseJSON, request } from '../helpers/request';
+import { HttpStatus, parseJSON, request } from '../helpers/request';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
 import { AppState } from '../types/appstate';
+import { L10nBundle } from '../types/l10nBundle';
+import { CurrentUser } from '../types/users';
 import './styles/sonar.ts';
 
 installWebAnalyticsHandler();
@@ -29,12 +31,12 @@ installWebAnalyticsHandler();
 if (isMainApp()) {
   installExtensionsHandler();
 
-  Promise.all([loadL10nBundle(), loadUser(), loadAppState(), loadApp()]).then(
+  loadAll(loadAppState, loadUser).then(
     ([l10nBundle, user, appState, startReactApp]) => {
       startReactApp(l10nBundle.locale, appState, user);
     },
     error => {
-      if (isResponse(error) && error.status === 401) {
+      if (isResponse(error) && error.status === HttpStatus.Unauthorized) {
         redirectToLogin();
       } else {
         logError(error);
@@ -44,30 +46,47 @@ if (isMainApp()) {
 } else {
   // login, maintenance or setup pages
 
-  const appStatePromise: Promise<AppState> = new Promise(resolve => {
-    loadAppState()
-      .then(data => {
-        resolve(data);
-      })
-      .catch(() => {
-        resolve({
-          edition: undefined,
-          productionDatabase: true,
-          qualifiers: [],
-          settings: {},
-          version: ''
-        });
-      });
-  });
+  const appStateLoader = () =>
+    loadAppState().catch(() => {
+      return {
+        edition: undefined,
+        productionDatabase: true,
+        qualifiers: [],
+        settings: {},
+        version: ''
+      };
+    });
 
-  Promise.all([loadL10nBundle(), appStatePromise, loadApp()]).then(
-    ([l10nBundle, appState, startReactApp]) => {
+  loadAll(appStateLoader).then(
+    ([l10nBundle, _user, appState, startReactApp]) => {
       startReactApp(l10nBundle.locale, appState);
     },
     error => {
       logError(error);
     }
   );
+}
+
+async function loadAll(
+  appStateLoader: () => Promise<AppState>,
+  userLoader?: () => Promise<CurrentUser | undefined>
+): Promise<
+  [
+    Required<L10nBundle>,
+    CurrentUser | undefined,
+    AppState,
+    (lang: string, appState: AppState, currentUser?: CurrentUser) => void
+  ]
+> {
+  const [l10nBundle, user, appState] = await Promise.all([
+    loadL10nBundle(),
+    userLoader ? userLoader() : undefined,
+    appStateLoader()
+  ]);
+
+  const startReactApp = await loadApp();
+
+  return [l10nBundle, user, appState, startReactApp];
 }
 
 function loadUser() {

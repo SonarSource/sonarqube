@@ -27,7 +27,6 @@ exports[`should render React extensions correctly 1`] = `
   intl={Object {}}
   location={
     Object {
-      "action": "PUSH",
       "hash": "",
       "key": "key",
       "pathname": "/path",
@@ -87,7 +86,6 @@ exports[`should render React extensions correctly 2`] = `
   intl={Object {}}
   location={
     Object {
-      "action": "PUSH",
       "hash": "",
       "key": "key",
       "pathname": "/path",

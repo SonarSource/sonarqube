@@ -74,15 +74,10 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
 exports[`should show a button to activate more rules for admins 1`] = `
 <Link
   className="button js-activate-rules"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
       "pathname": "/coding_rules",
-      "query": Object {
-        "activation": "false",
-        "qprofile": "key",
-      },
+      "search": "?qprofile=key&activation=false",
     }
   }
 >

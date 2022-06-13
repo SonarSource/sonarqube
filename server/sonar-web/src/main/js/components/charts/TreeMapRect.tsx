@@ -20,8 +20,8 @@
 import classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import * as React from 'react';
-import { Link } from 'react-router';
-import { Location } from '../../helpers/urls';
+import { Link } from 'react-router-dom';
+import { convertToTo, Location } from '../../helpers/urls';
 import Tooltip, { Placement } from '../controls/Tooltip';
 import LinkIcon from '../icons/LinkIcon';
 
@@ -69,8 +69,9 @@ export default class TreeMapRect extends React.PureComponent<Props> {
     if (!hasMinSize || link == null) {
       return null;
     }
+
     return (
-      <Link className="treemap-link" onClick={this.handleLinkClick} to={link}>
+      <Link className="treemap-link" onClick={this.handleLinkClick} to={convertToTo(link)}>
         <LinkIcon />
       </Link>
     );

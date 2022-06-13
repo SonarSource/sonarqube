@@ -96,7 +96,6 @@ exports[`should render correctly for azure mode 1`] = `
       loadingBindings={true}
       location={
         Object {
-          "action": "PUSH",
           "hash": "",
           "key": "key",
           "pathname": "/path",
@@ -149,7 +148,6 @@ exports[`should render correctly for bitbucket mode 1`] = `
       loadingBindings={true}
       location={
         Object {
-          "action": "PUSH",
           "hash": "",
           "key": "key",
           "pathname": "/path",
@@ -200,7 +198,6 @@ exports[`should render correctly for bitbucketcloud mode 1`] = `
       loadingBindings={true}
       location={
         Object {
-          "action": "PUSH",
           "hash": "",
           "key": "key",
           "pathname": "/path",
@@ -252,7 +249,6 @@ exports[`should render correctly for github mode 1`] = `
       loadingBindings={true}
       location={
         Object {
-          "action": "PUSH",
           "hash": "",
           "key": "key",
           "pathname": "/path",
@@ -304,7 +300,6 @@ exports[`should render correctly for gitlab mode 1`] = `
       loadingBindings={true}
       location={
         Object {
-          "action": "PUSH",
           "hash": "",
           "key": "key",
           "pathname": "/path",

@@ -10,19 +10,10 @@ exports[`should render correctly for a "APP" root component and a component with
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "branch": "develop",
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
       }
     >
@@ -60,18 +51,10 @@ exports[`should render correctly for a "APP" root component and a component with
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
       }
     >
@@ -106,19 +89,10 @@ exports[`should render correctly for a "TRK" root component and a component with
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "branch": "develop",
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
       }
     >
@@ -148,18 +122,10 @@ exports[`should render correctly for a "TRK" root component and a component with
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
       }
     >
@@ -189,19 +155,10 @@ exports[`should render correctly for a "VW" root component and a component with 
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "branch": "develop",
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
       }
     >
@@ -239,18 +196,10 @@ exports[`should render correctly for a "VW" root component and a component with 
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
       }
     >
@@ -285,18 +234,10 @@ exports[`should render correctly: default 1`] = `
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo:src/index.tsx"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/component_measures",
-          "query": Object {
-            "asc": undefined,
-            "id": "foo",
-            "metric": "bugs",
-            "selected": "foo:src/index.tsx",
-            "view": "list",
-          },
+          "search": "?id=foo&metric=bugs&view=list&selected=foo%3Asrc%2Findex.tsx",
         }
       }
     >

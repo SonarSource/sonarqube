@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import { AppState } from '../../types/appstate';
 import { GlobalSettingKeys } from '../../types/settings';
@@ -91,7 +92,7 @@ export class App extends React.PureComponent<Props> {
     return (
       <>
         <PageTracker>{this.renderPreconnectLink()}</PageTracker>
-        {this.props.children}
+        <Outlet />
         <KeyboardShortcutsModal />
       </>
     );

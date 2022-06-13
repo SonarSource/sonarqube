@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexLink } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
 import { PROFILE_PATH } from '../utils';
 
@@ -26,9 +26,9 @@ export default function ProfileNotFound() {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <IndexLink className="text-muted" to={PROFILE_PATH}>
+        <NavLink end={true} className="text-muted" to={PROFILE_PATH}>
           {translate('quality_profiles.page')}
-        </IndexLink>
+        </NavLink>
       </div>
 
       <div>{translate('quality_profiles.not_found')}</div>

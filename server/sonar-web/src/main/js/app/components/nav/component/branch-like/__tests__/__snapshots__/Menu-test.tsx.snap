@@ -148,14 +148,10 @@ exports[`should render correctly 1`] = `
   >
     <Link
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/project/branches",
-          "query": Object {
-            "id": "my-project",
-          },
+          "search": "?id=my-project",
         }
       }
     >
@@ -313,14 +309,10 @@ exports[`should render correctly with no current branch like 1`] = `
   >
     <Link
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/project/branches",
-          "query": Object {
-            "id": "my-project",
-          },
+          "search": "?id=my-project",
         }
       }
     >

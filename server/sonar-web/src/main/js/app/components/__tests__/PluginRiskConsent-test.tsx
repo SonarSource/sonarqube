@@ -28,6 +28,17 @@ jest.mock('../../../api/settings', () => ({
   setSimpleSettingValue: jest.fn().mockResolvedValue({})
 }));
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => f())
+  };
+});
+
+afterAll(() => {
+  jest.clearAllMocks();
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
 });

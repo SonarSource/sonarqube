@@ -19,7 +19,7 @@
  */
 import { forEach } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import DetachIcon from '../../components/icons/DetachIcon';
 import { Dict } from '../../types/types';
 

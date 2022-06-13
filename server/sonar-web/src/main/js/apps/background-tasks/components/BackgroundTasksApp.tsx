@@ -27,13 +27,14 @@ import {
   getStatus,
   getTypes
 } from '../../../api/ce';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router } from '../../../components/hoc/withRouter';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
-import { Component } from '../../../types/types';
+import { Component, RawQuery } from '../../../types/types';
 import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { mapFiltersToParameters, Query, updateTask } from '../utils';
@@ -44,9 +45,9 @@ import Stats from './Stats';
 import Tasks from './Tasks';
 
 interface Props {
-  component?: Pick<Component, 'key'> & { id: string }; // id should be removed when api/ce/activity accept a component key instead of an id
+  component?: Component;
   location: Location;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 interface State {
@@ -58,7 +59,7 @@ interface State {
   types?: string[];
 }
 
-export default class BackgroundTasksApp extends React.PureComponent<Props, State> {
+export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   loadTasksDebounced: () => void;
   mounted = false;
 
@@ -134,7 +135,7 @@ export default class BackgroundTasksApp extends React.PureComponent<Props, State
   };
 
   handleFilterUpdate = (nextState: Partial<Query>) => {
-    const nextQuery = { ...this.props.location.query, ...nextState };
+    const nextQuery: RawQuery = { ...this.props.location.query, ...nextState };
 
     // remove defaults
     Object.keys(DEFAULT_FILTERS).forEach((key: keyof typeof DEFAULT_FILTERS) => {
@@ -253,3 +254,5 @@ export default class BackgroundTasksApp extends React.PureComponent<Props, State
     );
   }
 }
+
+export default withComponentContext(withRouter(BackgroundTasksApp));

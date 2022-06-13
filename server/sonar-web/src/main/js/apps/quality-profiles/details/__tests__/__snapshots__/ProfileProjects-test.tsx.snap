@@ -37,15 +37,10 @@ exports[`should render correctly: default 1`] = `
       >
         <Link
           className="link-with-icon"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "org.sonarsource.xml:xml",
-              },
+              "search": "?id=org.sonarsource.xml%3Axml",
             }
           }
         >
@@ -142,15 +137,10 @@ exports[`should render correctly: no active rules, but associated projects 1`] =
       >
         <Link
           className="link-with-icon"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "org.sonarsource.xml:xml",
-              },
+              "search": "?id=org.sonarsource.xml%3Axml",
             }
           }
         >
@@ -232,15 +222,10 @@ exports[`should render correctly: no rights 1`] = `
       >
         <Link
           className="link-with-icon"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "org.sonarsource.xml:xml",
-              },
+              "search": "?id=org.sonarsource.xml%3Axml",
             }
           }
         >

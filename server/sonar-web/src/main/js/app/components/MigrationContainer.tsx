@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { getSystemStatus } from '../../helpers/system';
 
-export default class MigrationContainer extends React.PureComponent<WithRouterProps> {
-  componentDidMount() {
-    if (getSystemStatus() !== 'UP') {
-      this.props.router.push({
-        pathname: '/maintenance',
-        query: {
-          return_to: window.location.pathname + window.location.search + window.location.hash
-        }
-      });
-    }
-  }
+export function MigrationContainer() {
+  const location = useLocation();
 
-  render() {
-    if (getSystemStatus() !== 'UP') {
-      return null;
-    }
-    return this.props.children;
+  if (getSystemStatus() !== 'UP') {
+    const to = {
+      pathname: '/maintenance',
+      search: new URLSearchParams({
+        return_to: location.pathname + location.search + location.hash
+      }).toString()
+    };
+
+    return <Navigate to={to} />;
   }
+  return <Outlet />;
 }
+
+export default MigrationContainer;

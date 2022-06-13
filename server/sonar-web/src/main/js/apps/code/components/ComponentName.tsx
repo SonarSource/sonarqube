@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { colors } from '../../../app/theme';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { CodeScope, getComponentOverviewUrl } from '../../../helpers/urls';
+import { CodeScope, getComponentOverviewUrl, queryToSearch } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import {
   ComponentQualifier,
@@ -150,7 +150,7 @@ function renderNameWithIcon(
       Object.assign(query, { selected: component.key });
     }
     return (
-      <Link className="link-with-icon" to={{ pathname: '/code', query }}>
+      <Link className="link-with-icon" to={{ pathname: '/code', search: queryToSearch(query) }}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );

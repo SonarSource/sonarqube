@@ -37,15 +37,10 @@ exports[`should display applications 1`] = `
         title="Foo"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >
@@ -145,15 +140,10 @@ exports[`should display applications: with project count 1`] = `
         title="Foo"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >
@@ -234,15 +224,10 @@ exports[`should display configure analysis button for logged in user: default 1`
         title="Foo"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >
@@ -280,15 +265,10 @@ exports[`should display configure analysis button for logged in user: default 1`
         </span>
         <Link
           className="button spacer-left"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >
@@ -458,15 +438,10 @@ exports[`should display not analyzed yet 1`] = `
         title="Foo"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >
@@ -532,15 +507,10 @@ exports[`should display the overall measures and quality gate 1`] = `
         title="Foo"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "foo",
-              },
+              "search": "?id=foo",
             }
           }
         >

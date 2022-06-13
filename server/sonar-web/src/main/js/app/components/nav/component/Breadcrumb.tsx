@@ -19,7 +19,7 @@
  */
 import { last } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import QualifierIcon from '../../../../components/icons/QualifierIcon';
 import { isMainBranch } from '../../../../helpers/branch-like';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';

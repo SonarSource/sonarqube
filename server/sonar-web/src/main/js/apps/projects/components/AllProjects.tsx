@@ -20,6 +20,7 @@
 import { omitBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
@@ -37,7 +38,7 @@ import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import { hasFilterParams, hasViewParams, parseUrlQuery, Query } from '../query';
+import { hasFilterParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
@@ -48,9 +49,9 @@ import ProjectsList from './ProjectsList';
 interface Props {
   currentUser: CurrentUser;
   isFavorite: boolean;
-  location: Pick<Location, 'pathname' | 'query'>;
+  location: Location;
   appState: AppState;
-  router: Pick<Router, 'push' | 'replace'>;
+  router: Router;
 }
 
 interface State {
@@ -80,13 +81,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
       handleRequiredAuthentication();
       return;
     }
-    this.handleQueryChange(true);
+    this.handleQueryChange();
     addSideBarClass();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange(false);
+      this.handleQueryChange();
     }
   }
 
@@ -127,20 +128,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   getSort = () => this.state.query.sort || 'name';
-
-  getStorageOptions = () => {
-    const options: {
-      sort?: string;
-      view?: string;
-    } = {};
-    if (get(LS_PROJECTS_SORT)) {
-      options.sort = get(LS_PROJECTS_SORT) || undefined;
-    }
-    if (get(LS_PROJECTS_VIEW)) {
-      options.view = get(LS_PROJECTS_VIEW) || undefined;
-    }
-    return options;
-  };
 
   getView = () => this.state.query.view || 'overall';
 
@@ -184,16 +171,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(LS_PROJECTS_VIEW, query.view);
   };
 
-  handleQueryChange(initialMount: boolean) {
+  handleQueryChange() {
     const query = parseUrlQuery(this.props.location.query);
-    const savedOptions = this.getStorageOptions();
-    const savedOptionsSet = savedOptions.sort || savedOptions.view;
 
-    if (initialMount && !hasViewParams(query) && savedOptionsSet) {
-      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
-    } else {
-      this.fetchProjects(query);
-    }
+    this.fetchProjects(query);
   }
 
   handleSortChange = (sort: string, desc: boolean) => {
@@ -318,4 +299,40 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withCurrentUserContext(withAppStateContext(AllProjects)));
+function getStorageOptions() {
+  const options: {
+    sort?: string;
+    view?: string;
+  } = {};
+  if (get(LS_PROJECTS_SORT)) {
+    options.sort = get(LS_PROJECTS_SORT) || undefined;
+  }
+  if (get(LS_PROJECTS_VIEW)) {
+    options.view = get(LS_PROJECTS_VIEW) || undefined;
+  }
+  return options;
+}
+
+function SetSearchParamsWrapper(props: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const savedOptions = getStorageOptions();
+
+  React.useEffect(
+    () => {
+      const hasViewParams = searchParams.get('sort') || searchParams.get('view');
+      const hasSavedOptions = savedOptions.sort || savedOptions.view;
+
+      if (!hasViewParams && hasSavedOptions) {
+        setSearchParams(savedOptions);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      /* Run once on mount only */
+    ]
+  );
+
+  return <AllProjects {...props} />;
+}
+
+export default withRouter(withCurrentUserContext(withAppStateContext(SetSearchParamsWrapper)));

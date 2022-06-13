@@ -25,15 +25,10 @@ exports[`should render source file 1`] = `
           qualifier="TRK"
         />
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": "feature",
-                "id": "project-key",
-              },
+              "search": "?branch=feature&id=project-key",
             }
           }
         >
@@ -594,15 +589,10 @@ exports[`should render source file 2`] = `
           qualifier="TRK"
         />
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": "feature",
-                "id": "project-key",
-              },
+              "search": "?branch=feature&id=project-key",
             }
           }
         >
@@ -1746,15 +1736,10 @@ exports[`should render test file 1`] = `
           qualifier="TRK"
         />
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": "feature",
-                "id": "project-key",
-              },
+              "search": "?branch=feature&id=project-key",
             }
           }
         >

@@ -3,8 +3,6 @@
 exports[`should render correctly: default 1`] = `
 <Link
   className="navbar-brand"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to="/"
 >
   <img
@@ -20,8 +18,6 @@ exports[`should render correctly: default 1`] = `
 exports[`should render correctly: with logo 1`] = `
 <Link
   className="navbar-brand"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to="/"
 >
   <img
@@ -37,8 +33,6 @@ exports[`should render correctly: with logo 1`] = `
 exports[`should render correctly: with logo and width 1`] = `
 <Link
   className="navbar-brand"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to="/"
 >
   <img

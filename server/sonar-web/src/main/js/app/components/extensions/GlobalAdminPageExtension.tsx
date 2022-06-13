@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Extension as TypeExtension } from '../../../types/types';
+import { useOutletContext, useParams } from 'react-router-dom';
+import { AdminPagesContext } from '../../../types/admin';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
-interface Props {
-  adminPages: TypeExtension[] | undefined;
-  params: { extensionKey: string; pluginKey: string };
-}
+export default function GlobalAdminPageExtension() {
+  const { pluginKey, extensionKey } = useParams();
+  const { adminPages } = useOutletContext<AdminPagesContext>();
 
-export default function GlobalAdminPageExtension(props: Props) {
-  const {
-    params: { extensionKey, pluginKey },
-    adminPages
-  } = props;
   const extension = (adminPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }

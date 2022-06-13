@@ -24,7 +24,7 @@ import { getValues } from '../../../../api/settings';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { AdminPageExtension } from '../../../../types/extension';
 import { HousekeepingPolicy, RangeOption } from '../../utils';
-import AuditApp from '../AuditApp';
+import { AuditApp } from '../AuditApp';
 import AuditAppRenderer from '../AuditAppRenderer';
 
 jest.mock('../../../../api/settings', () => ({

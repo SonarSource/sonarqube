@@ -8,10 +8,7 @@ exports[`renders correctly: all permissions 1`] = `
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "false",
-            "qprofile": "key",
-          },
+          "search": "?qprofile=key&activation=false",
         }
       }
     >
@@ -29,10 +26,7 @@ exports[`renders correctly: all permissions 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -89,10 +83,7 @@ exports[`renders correctly: copy modal 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -141,10 +132,7 @@ exports[`renders correctly: delete modal 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -184,10 +172,7 @@ exports[`renders correctly: edit only 1`] = `
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "false",
-            "qprofile": "key",
-          },
+          "search": "?qprofile=key&activation=false",
         }
       }
     >
@@ -205,10 +190,7 @@ exports[`renders correctly: edit only 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -239,10 +221,7 @@ exports[`renders correctly: extend modal 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -291,10 +270,7 @@ exports[`renders correctly: no permissions 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -319,10 +295,7 @@ exports[`renders correctly: rename modal 1`] = `
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >
@@ -371,10 +344,7 @@ exports[`should not allow to set a profile as the default if the profile has no 
       to={
         Object {
           "pathname": "/profiles/compare",
-          "query": Object {
-            "language": "js",
-            "name": "name",
-          },
+          "search": "?language=js&name=name",
         }
       }
     >

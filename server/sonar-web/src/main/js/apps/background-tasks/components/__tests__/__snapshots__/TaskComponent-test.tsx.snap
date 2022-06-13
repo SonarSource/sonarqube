@@ -11,15 +11,10 @@ exports[`renders correctly 1`] = `
   </span>
   <Link
     className="spacer-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "id": "foo",
-        },
+        "search": "?id=foo",
       }
     }
   >
@@ -38,15 +33,10 @@ exports[`renders correctly: branch 1`] = `
   />
   <Link
     className="spacer-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/dashboard",
-        "query": Object {
-          "branch": "feature",
-          "id": "foo",
-        },
+        "search": "?branch=feature&id=foo",
       }
     }
   >
@@ -81,15 +71,10 @@ exports[`renders correctly: branch 2`] = `
   />
   <Link
     className="spacer-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/dashboard",
-        "query": Object {
-          "branch": "branch-6.7",
-          "id": "foo",
-        },
+        "search": "?branch=branch-6.7&id=foo",
       }
     }
   >
@@ -128,14 +113,10 @@ exports[`renders correctly: portfolio 1`] = `
   </span>
   <Link
     className="spacer-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/portfolio",
-        "query": Object {
-          "id": "foo",
-        },
+        "search": "?id=foo",
       }
     }
   >
@@ -154,15 +135,10 @@ exports[`renders correctly: pull request 1`] = `
   />
   <Link
     className="spacer-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/dashboard",
-        "query": Object {
-          "id": "foo",
-          "pullRequest": "pr-89",
-        },
+        "search": "?id=foo&pullRequest=pr-89",
       }
     }
   >

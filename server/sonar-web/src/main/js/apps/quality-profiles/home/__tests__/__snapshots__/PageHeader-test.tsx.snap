@@ -17,8 +17,6 @@ exports[`should render correctly 1`] = `
     quality_profiles.intro2
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       target="_blank"
       to={
         Object {
@@ -67,8 +65,6 @@ exports[`should render correctly 2`] = `
     quality_profiles.intro2
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       target="_blank"
       to={
         Object {
@@ -123,8 +119,6 @@ exports[`should render correctly 3`] = `
     quality_profiles.intro2
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       target="_blank"
       to={
         Object {
@@ -173,8 +167,6 @@ exports[`should show a create form 1`] = `
     quality_profiles.intro2
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       target="_blank"
       to={
         Object {
@@ -196,7 +188,6 @@ exports[`should show a create form 1`] = `
     }
     location={
       Object {
-        "action": "PUSH",
         "hash": "",
         "key": "key",
         "pathname": "/path",
@@ -264,8 +255,6 @@ exports[`should show a restore form 1`] = `
     quality_profiles.intro2
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       target="_blank"
       to={
         Object {

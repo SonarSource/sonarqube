@@ -3,6 +3,7 @@
 exports[`should render correctly: default 1`] = `
 <Fragment>
   <LazyComponentWrapper />
+  <Outlet />
   <KeyboardShortcutsModal />
 </Fragment>
 `;
@@ -15,6 +16,7 @@ exports[`should render correctly: with gravatar 1`] = `
       rel="preconnect"
     />
   </LazyComponentWrapper>
+  <Outlet />
   <KeyboardShortcutsModal />
 </Fragment>
 `;

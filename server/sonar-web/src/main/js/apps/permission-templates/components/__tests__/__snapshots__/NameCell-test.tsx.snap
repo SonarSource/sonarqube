@@ -5,14 +5,10 @@ exports[`render correctly 1`] = `
   className="little-padded-left little-padded-right"
 >
   <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/permission_templates",
-        "query": Object {
-          "id": "1",
-        },
+        "search": "?id=1",
       }
     }
   >

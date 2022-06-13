@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { QualityGate } from '../../../types/types';
@@ -32,8 +32,7 @@ export default function List({ qualityGates }: Props) {
   return (
     <div className="list-group" role="menu">
       {qualityGates.map(qualityGate => (
-        <Link
-          activeClassName="active"
+        <NavLink
           className="list-group-item display-flex-center"
           role="menuitem"
           data-id={qualityGate.id}
@@ -44,7 +43,7 @@ export default function List({ qualityGates }: Props) {
             <span className="badge little-spacer-left">{translate('default')}</span>
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
-        </Link>
+        </NavLink>
       ))}
     </div>
   );

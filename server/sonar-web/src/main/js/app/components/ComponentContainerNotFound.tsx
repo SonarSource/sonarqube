@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { translate } from '../../helpers/l10n';
 
 export default function ComponentContainerNotFound() {

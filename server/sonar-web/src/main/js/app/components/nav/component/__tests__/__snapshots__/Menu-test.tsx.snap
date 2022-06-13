@@ -86,21 +86,16 @@ exports[`should disable links if application has inaccessible projects 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -130,21 +125,16 @@ exports[`should disable links if no analysis has been done 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "?id=foo",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
       <Tooltip
@@ -233,22 +223,16 @@ exports[`should render correctly for security extensions 1`] = `
       className="menu"
     >
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/extension/component-bar",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           ComponentBar
-        </Link>
+        </NavLink>
       </li>
     </ul>
   }
@@ -266,113 +250,76 @@ exports[`should work for a branch 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "?id=foo&branch=release",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&branch=release&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         code.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
     <Dropdown
       data-test="extensions"
@@ -381,23 +328,16 @@ exports[`should work for a branch 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/extension/component-foo",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                    "qualifier": "TRK",
-                  },
+                  "search": "id=foo&branch=release&qualifier=TRK",
                 }
               }
             >
               ComponentFoo
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -414,112 +354,76 @@ exports[`should work for a branch 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/settings",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               project_settings.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/branches",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               project_branch_pull_request.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/baseline",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               project_baseline.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/import_export",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               project_dump.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/webhooks",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               webhooks.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                  },
+                  "search": "id=foo&branch=release",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -550,113 +454,76 @@ exports[`should work for a branch 2`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "?id=foo&branch=release",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&branch=release&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         code.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "branch": "release",
-              "id": "foo",
-            },
+            "search": "id=foo&branch=release",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
     <Dropdown
       data-test="extensions"
@@ -665,23 +532,16 @@ exports[`should work for a branch 2`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/extension/component-foo",
-                  "query": Object {
-                    "branch": "release",
-                    "id": "foo",
-                    "qualifier": "TRK",
-                  },
+                  "search": "id=foo&branch=release&qualifier=TRK",
                 }
               }
             >
               ComponentFoo
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -714,95 +574,64 @@ exports[`should work for pull requests 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "?id=foo&pullRequest=1001",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-              "resolved": "false",
-            },
+            "search": "id=foo&pullRequest=1001&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         code.page
-      </Link>
+      </NavLink>
     </li>
     <Dropdown
       data-test="extensions"
@@ -811,23 +640,16 @@ exports[`should work for pull requests 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/extension/component-foo",
-                  "query": Object {
-                    "id": "foo",
-                    "pullRequest": "1001",
-                    "qualifier": "TRK",
-                  },
+                  "search": "id=foo&pullRequest=1001&qualifier=TRK",
                 }
               }
             >
               ComponentFoo
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -846,95 +668,64 @@ exports[`should work for pull requests 2`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "?id=foo&pullRequest=1001",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-              "resolved": "false",
-            },
+            "search": "id=foo&pullRequest=1001&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-              "pullRequest": "1001",
-            },
+            "search": "id=foo&pullRequest=1001",
           }
         }
       >
         code.page
-      </Link>
+      </NavLink>
     </li>
     <Dropdown
       data-test="extensions"
@@ -943,23 +734,16 @@ exports[`should work for pull requests 2`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/extension/component-foo",
-                  "query": Object {
-                    "id": "foo",
-                    "pullRequest": "1001",
-                    "qualifier": "TRK",
-                  },
+                  "search": "id=foo&pullRequest=1001&qualifier=TRK",
                 }
               }
             >
               ComponentFoo
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -978,107 +762,76 @@ exports[`should work for qualifier: APP, false 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "?id=foo",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         view_projects.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -1089,21 +842,16 @@ exports[`should work for qualifier: APP, false 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -1134,56 +882,40 @@ exports[`should work for qualifier: SVW, false 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs />
@@ -1196,90 +928,64 @@ exports[`should work for qualifier: SVW, true 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/portfolio",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "?id=foo",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         portfolio_breakdown.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs />
@@ -1292,107 +998,76 @@ exports[`should work for qualifier: TRK, false 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "?id=foo",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/security_hotspots",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.security_hotspots
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         code.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -1403,106 +1078,76 @@ exports[`should work for qualifier: TRK, false 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/settings",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               project_settings.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/branches",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               project_branch_pull_request.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/baseline",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               project_baseline.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/import_export",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               project_dump.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/webhooks",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               webhooks.page
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -1533,56 +1178,40 @@ exports[`should work for qualifier: VW, false 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -1593,21 +1222,16 @@ exports[`should work for qualifier: VW, false 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -1625,90 +1249,64 @@ exports[`should work for qualifier: VW, true 1`] = `
 >
   <NavBarTabs>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/portfolio",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "?id=foo",
           }
         }
       >
         overview.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/code",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         portfolio_breakdown.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/issues",
-            "query": Object {
-              "id": "foo",
-              "resolved": "false",
-            },
+            "search": "id=foo&resolved=false",
           }
         }
       >
         issues.page
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/component_measures",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         layout.measures
-      </Link>
+      </NavLink>
     </li>
     <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+      <NavLink
         to={
           Object {
             "pathname": "/project/activity",
-            "query": Object {
-              "id": "foo",
-            },
+            "search": "id=foo",
           }
         }
       >
         project_activity.page
-      </Link>
+      </NavLink>
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -1719,21 +1317,16 @@ exports[`should work for qualifier: VW, true 1`] = `
           className="menu"
         >
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to={
                 Object {
                   "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "foo",
-                  },
+                  "search": "id=foo",
                 }
               }
             >
               deletion.page
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -1753,22 +1346,16 @@ exports[`should work with extensions 1`] = `
       className="menu"
     >
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/extension/component-foo",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           ComponentFoo
-        </Link>
+        </NavLink>
       </li>
     </ul>
   }
@@ -1786,124 +1373,88 @@ exports[`should work with extensions 2`] = `
       className="menu"
     >
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_settings.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/branches",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_branch_pull_request.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/baseline",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_baseline.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/admin/extension/foo",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           Foo
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/import_export",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_dump.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           webhooks.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           deletion.page
-        </Link>
+        </NavLink>
       </li>
     </ul>
   }
@@ -1921,40 +1472,28 @@ exports[`should work with multiple extensions 1`] = `
       className="menu"
     >
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/extension/component-foo",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           ComponentFoo
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/extension/component-bar",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           ComponentBar
-        </Link>
+        </NavLink>
       </li>
     </ul>
   }
@@ -1972,142 +1511,100 @@ exports[`should work with multiple extensions 2`] = `
       className="menu"
     >
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_settings.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/branches",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_branch_pull_request.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/baseline",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_baseline.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/admin/extension/foo",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           Foo
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/admin/extension/bar",
-              "query": Object {
-                "id": "foo",
-                "qualifier": "TRK",
-              },
+              "search": "id=foo&qualifier=TRK",
             }
           }
         >
           Bar
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/import_export",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           project_dump.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           webhooks.page
-        </Link>
+        </NavLink>
       </li>
       <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
+        <NavLink
           to={
             Object {
               "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
+              "search": "id=foo",
             }
           }
         >
           deletion.page
-        </Link>
+        </NavLink>
       </li>
     </ul>
   }

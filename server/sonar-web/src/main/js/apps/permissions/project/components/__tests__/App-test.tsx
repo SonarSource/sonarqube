@@ -27,7 +27,7 @@ import {
 } from '../../../../../api/permissions';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import App from '../App';
+import { App } from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({
   getPermissionsGroupsForComponent: jest.fn().mockResolvedValue({

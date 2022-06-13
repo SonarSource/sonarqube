@@ -36,8 +36,6 @@ exports[`should render the right interface for logged in user 1`] = `
       />
       <li>
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to="/account"
         >
           my_account.page

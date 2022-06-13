@@ -19,9 +19,10 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
 import { getActionKey, serializeQuery } from '../utils';
 import ActionChangelog from './ActionChangelog';
@@ -136,10 +137,12 @@ export default class Action extends React.PureComponent<Props, State> {
             className="spacer-right link-no-underline"
             to={{
               pathname: '/web_api/' + actionKey,
-              query: serializeQuery({
-                deprecated: Boolean(action.deprecatedSince),
-                internal: Boolean(action.internal)
-              })
+              search: queryToSearch(
+                serializeQuery({
+                  deprecated: Boolean(action.deprecatedSince),
+                  internal: Boolean(action.internal)
+                })
+              )
             }}>
             <LinkIcon />
           </Link>

@@ -29,7 +29,7 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 interface Props {
   onClose: () => void;
   onCreate: () => Promise<void>;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 interface State {

@@ -66,7 +66,6 @@ function shallowRender(props: Partial<WebApiApp['props']> = {}) {
       location={mockLocation()}
       params={{ splat: 'foo/bar' }}
       router={mockRouter()}
-      routes={[]}
       {...props}
     />
   );

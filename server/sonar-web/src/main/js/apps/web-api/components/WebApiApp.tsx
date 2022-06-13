@@ -20,11 +20,12 @@
 import { maxBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, withRouter, WithRouterProps } from 'react-router';
+import { Link, Params, useParams } from 'react-router-dom';
 import { fetchWebApi } from '../../../api/web-api';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -42,7 +43,11 @@ import Domain from './Domain';
 import Menu from './Menu';
 import Search from './Search';
 
-type Props = WithRouterProps;
+interface Props {
+  location: Location;
+  params: Params;
+  router: Router;
+}
 
 interface State {
   domains: WebApi.Domain[];
@@ -197,7 +202,13 @@ export class WebApiApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(WebApiApp);
+function WebApiAppWithParams(props: { router: Router; location: Location }) {
+  const params = useParams();
+
+  return <WebApiApp {...props} params={{ splat: params['*'] }} />;
+}
+
+export default withRouter(WebApiAppWithParams);
 
 /** Checks if all actions are deprecated, and returns the latest deprecated one */
 function getLatestDeprecatedAction(domain: Pick<WebApi.Domain, 'actions'>) {

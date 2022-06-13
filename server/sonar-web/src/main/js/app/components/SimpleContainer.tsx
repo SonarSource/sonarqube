@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import NavBar from '../../components/ui/NavBar';
 import { rawSizes } from '../theme';
 import GlobalFooter from './GlobalFooter';
 
-interface Props {
-  children?: React.ReactNode;
-}
-
-export default function SimpleContainer({ children }: Props) {
+/*
+ * We need to render either children or the Outlet,
+ * because this component is used both in the context of routes and as a regular container
+ */
+export default function SimpleContainer({ children }: { children?: React.ReactNode }) {
   return (
     <div className="global-container">
       <div className="page-wrapper" id="container">
         <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
-        {children}
+        {children !== undefined ? children : <Outlet />}
       </div>
       <GlobalFooter />
     </div>

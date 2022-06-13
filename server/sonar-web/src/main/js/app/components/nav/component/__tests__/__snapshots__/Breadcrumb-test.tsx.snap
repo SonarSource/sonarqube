@@ -14,15 +14,11 @@ exports[`should render correctly 1`] = `
     />
     <Link
       className="link-no-underline text-ellipsis"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       title="parent-portfolio"
       to={
         Object {
           "pathname": "/portfolio",
-          "query": Object {
-            "id": "parent-portfolio",
-          },
+          "search": "?id=parent-portfolio",
         }
       }
     >

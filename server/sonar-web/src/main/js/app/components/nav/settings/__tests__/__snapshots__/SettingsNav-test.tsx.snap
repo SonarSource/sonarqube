@@ -43,38 +43,35 @@ exports[`should render correctly when governance is active 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/settings"
             >
               settings.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/settings/encryption"
             >
               property.category.security.encryption
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/webhooks"
             >
               webhooks.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to="/admin/extension/governance/views_console"
             >
               governance
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -88,36 +85,36 @@ exports[`should render correctly when governance is active 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/users"
             >
               users.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/groups"
             >
               user_groups.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/permissions"
             >
               global_permissions.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/permission_templates"
             >
               permission_templates
-            </IndexLink>
+            </NavLink>
           </li>
         </ul>
       }
@@ -131,20 +128,20 @@ exports[`should render correctly when governance is active 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/projects_management"
             >
               management
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/background_tasks"
             >
               background_tasks.page
-            </IndexLink>
+            </NavLink>
           </li>
         </ul>
       }
@@ -153,28 +150,28 @@ exports[`should render correctly when governance is active 1`] = `
       <Component />
     </Dropdown>
     <li>
-      <IndexLink
-        activeClassName="active"
+      <NavLink
+        end={true}
         to="/admin/system"
       >
         sidebar.system
-      </IndexLink>
+      </NavLink>
     </li>
     <li>
-      <IndexLink
-        activeClassName="active"
+      <NavLink
+        end={true}
         to="/admin/marketplace"
       >
         marketplace.page
-      </IndexLink>
+      </NavLink>
     </li>
     <li>
-      <IndexLink
-        activeClassName="active"
+      <NavLink
+        end={true}
         to="/admin/audit"
       >
         audit_logs.page
-      </IndexLink>
+      </NavLink>
     </li>
   </NavBarTabs>
 </ContextNavBar>
@@ -199,38 +196,35 @@ exports[`should work with extensions 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/settings"
             >
               settings.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/settings/encryption"
             >
               property.category.security.encryption
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/webhooks"
             >
               webhooks.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
+            <NavLink
               to="/admin/extension/foo"
             >
               Foo
-            </Link>
+            </NavLink>
           </li>
         </ul>
       }
@@ -244,36 +238,36 @@ exports[`should work with extensions 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/users"
             >
               users.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/groups"
             >
               user_groups.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/permissions"
             >
               global_permissions.page
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/permission_templates"
             >
               permission_templates
-            </IndexLink>
+            </NavLink>
           </li>
         </ul>
       }
@@ -287,20 +281,20 @@ exports[`should work with extensions 1`] = `
           className="menu"
         >
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/projects_management"
             >
               management
-            </IndexLink>
+            </NavLink>
           </li>
           <li>
-            <IndexLink
-              activeClassName="active"
+            <NavLink
+              end={true}
               to="/admin/background_tasks"
             >
               background_tasks.page
-            </IndexLink>
+            </NavLink>
           </li>
         </ul>
       }
@@ -309,20 +303,20 @@ exports[`should work with extensions 1`] = `
       <Component />
     </Dropdown>
     <li>
-      <IndexLink
-        activeClassName="active"
+      <NavLink
+        end={true}
         to="/admin/system"
       >
         sidebar.system
-      </IndexLink>
+      </NavLink>
     </li>
     <li>
-      <IndexLink
-        activeClassName="active"
+      <NavLink
+        end={true}
         to="/admin/marketplace"
       >
         marketplace.page
-      </IndexLink>
+      </NavLink>
     </li>
   </NavBarTabs>
 </ContextNavBar>
@@ -336,38 +330,35 @@ Array [
         className="menu"
       >
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/settings"
           >
             settings.page
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/settings/encryption"
           >
             property.category.security.encryption
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/webhooks"
           >
             webhooks.page
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <Link
-            activeClassName="active"
-            onlyActiveOnIndex={false}
-            style={Object {}}
+          <NavLink
             to="/admin/extension/foo"
           >
             Foo
-          </Link>
+          </NavLink>
         </li>
       </ul>
     }
@@ -381,36 +372,36 @@ Array [
         className="menu"
       >
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/users"
           >
             users.page
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/groups"
           >
             user_groups.page
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/permissions"
           >
             global_permissions.page
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/permission_templates"
           >
             permission_templates
-          </IndexLink>
+          </NavLink>
         </li>
       </ul>
     }
@@ -424,20 +415,20 @@ Array [
         className="menu"
       >
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/projects_management"
           >
             management
-          </IndexLink>
+          </NavLink>
         </li>
         <li>
-          <IndexLink
-            activeClassName="active"
+          <NavLink
+            end={true}
             to="/admin/background_tasks"
           >
             background_tasks.page
-          </IndexLink>
+          </NavLink>
         </li>
       </ul>
     }

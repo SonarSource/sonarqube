@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link, WithRouterProps } from 'react-router';
+import { Link } from 'react-router-dom';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
-import { withRouter } from '../../../../components/hoc/withRouter';
+import { Location, withRouter } from '../../../../components/hoc/withRouter';
 import { Alert } from '../../../../components/ui/Alert';
 import { hasMessage, translate } from '../../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
@@ -29,12 +29,13 @@ import { Task, TaskStatuses } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 
-interface Props extends Pick<WithRouterProps, 'location'> {
+interface Props {
   component: Component;
   currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
+  location: Location;
 }
 
 export class ComponentNavBgTaskNotif extends React.PureComponent<Props> {

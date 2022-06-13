@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getScannableProjects } from '../../api/components';
 import { getValues } from '../../api/settings';
@@ -29,15 +28,17 @@ import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { withRouter } from '../hoc/withRouter';
+import { Location, Router, withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
 
-interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
+interface Props {
   component: Component;
   currentUser: LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
+  location: Location;
+  router: Router;
 }
 
 interface State {

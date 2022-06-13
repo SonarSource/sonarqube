@@ -82,8 +82,6 @@ exports[`should render correctly: encryptable 1`] = `
         values={
           Object {
             "learn_more": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to={
                 Object {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
+import { Location } from '../../../components/hoc/withRouter';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
@@ -29,7 +29,7 @@ interface Props {
   branchLike?: BranchLike;
   component: string;
   componentMeasures: Measure[] | undefined;
-  location: Pick<Location, 'query'>;
+  location: Location;
   onIssueChange?: (issue: Issue) => void;
 }
 

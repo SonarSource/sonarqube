@@ -24,7 +24,7 @@ import { request } from '../../../../helpers/request';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { InstalledPlugin } from '../../../../types/plugins';
 import getPages from '../../pages';
-import App from '../App';
+import { App } from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
 

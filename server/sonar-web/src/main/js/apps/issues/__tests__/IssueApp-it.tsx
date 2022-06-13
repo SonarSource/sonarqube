@@ -19,10 +19,13 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
-import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { renderApp, renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { IssueType } from '../../../types/issues';
 import AppContainer from '../components/AppContainer';
+import { projectIssuesRoutes } from '../routes';
 
 jest.mock('../../../api/issues');
 jest.mock('../../../api/rules');
@@ -106,6 +109,28 @@ it('should support OWASP Top 10 version 2021', async () => {
   );
 });
 
+describe('redirects', () => {
+  it('should work for hotspots', () => {
+    renderProjectIssuesApp(`project/issues?types=${IssueType.SecurityHotspot}`);
+
+    expect(screen.getByText('/security_hotspots?assignedToMe=false')).toBeInTheDocument();
+  });
+
+  it('should filter out hotspots', async () => {
+    renderProjectIssuesApp(
+      `project/issues?types=${IssueType.SecurityHotspot},${IssueType.CodeSmell}`
+    );
+
+    expect(
+      await screen.findByRole('link', { name: `issue.type.${IssueType.CodeSmell}` })
+    ).toBeInTheDocument();
+  });
+});
+
 function renderIssueApp() {
-  renderComponentApp('project/issues', AppContainer);
+  renderComponentApp('project/issues', <AppContainer />);
+}
+
+function renderProjectIssuesApp(navigateTo?: string) {
+  renderApp('project/issues', projectIssuesRoutes, { navigateTo });
 }

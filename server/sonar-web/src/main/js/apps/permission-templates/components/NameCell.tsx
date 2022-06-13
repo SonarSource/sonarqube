@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
+import { queryToSearch } from '../../../helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Defaults from './Defaults';
@@ -32,7 +33,7 @@ export default function NameCell({ template }: Props) {
 
   return (
     <td className="little-padded-left little-padded-right">
-      <Link to={{ pathname, query: { id: template.id } }}>
+      <Link to={{ pathname, search: queryToSearch({ id: template.id }) }}>
         <strong className="js-name">{template.name}</strong>
       </Link>
 

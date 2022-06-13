@@ -28,7 +28,7 @@ import {
   removeWhitePageClass
 } from '../../../../helpers/pages';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import SettingsApp from '../SettingsApp';
+import { SettingsApp } from '../SettingsApp';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),

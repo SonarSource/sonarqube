@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Query } from 'history';
 import { memoize } from 'lodash';
 import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
@@ -183,10 +182,8 @@ export function getMeasurementLabelKeys(type: MeasurementType, useDiffMetric: bo
   };
 }
 
-export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => {
-    return {
-      codeScope: parseAsString(urlQuery['code_scope'])
-    };
-  }
-);
+export const parseQuery = memoize((urlQuery: RawQuery): { codeScope: string } => {
+  return {
+    codeScope: parseAsString(urlQuery['code_scope'])
+  };
+});

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -30,7 +30,7 @@ import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, queryToSearch } from '../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
 import { CreateProjectModes } from './types';
@@ -72,7 +72,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
               <Link
                 to={{
                   pathname: '/projects/create',
-                  query: { mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }
+                  search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 })
                 }}>
                 {translate('onboarding.create_project.update_your_token')}
               </Link>

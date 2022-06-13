@@ -48,8 +48,6 @@ exports[`should render correctly when user is admin 1`] = `
       values={
         Object {
           "settings": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/admin/settings"
           >
             settings.page

@@ -23,6 +23,7 @@ import { getComponentNavigation } from '../../../../api/nav';
 import CreateApplicationForm from '../../../../app/components/extensions/CreateApplicationForm';
 import { Button } from '../../../../components/controls/buttons';
 import { mockAppState, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
+import { queryToSearch } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { ApplicationCreation, ApplicationCreationProps } from '../ApplicationCreation';
 
@@ -51,9 +52,9 @@ it('should show form and callback when submitted - admin', async () => {
 
   expect(routerPush).toBeCalledWith({
     pathname: '/project/admin/extension/developer-server/application-console',
-    query: {
+    search: queryToSearch({
       id: 'new app'
-    }
+    })
   });
 });
 
@@ -68,9 +69,9 @@ it('should show form and callback when submitted - user', async () => {
 
   expect(routerPush).toBeCalledWith({
     pathname: '/dashboard',
-    query: {
+    search: queryToSearch({
       id: 'new app'
-    }
+    })
   });
 });
 

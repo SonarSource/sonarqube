@@ -21,6 +21,7 @@ import { differenceInYears } from 'date-fns';
 import { sortBy } from 'lodash';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
+import { queryToSearch } from '../../helpers/urls';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
@@ -66,12 +67,12 @@ export const PROFILE_PATH = '/profiles';
 
 export const getProfilesForLanguagePath = (language: string) => ({
   pathname: PROFILE_PATH,
-  query: { language }
+  search: queryToSearch({ language })
 });
 
 export const getProfilePath = (name: string, language: string) => ({
   pathname: `${PROFILE_PATH}/show`,
-  query: { name, language }
+  search: queryToSearch({ name, language })
 });
 
 export const getProfileComparePath = (name: string, language: string, withKey?: string) => {
@@ -81,7 +82,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
   }
   return {
     pathname: `${PROFILE_PATH}/compare`,
-    query
+    search: queryToSearch(query)
   };
 };
 
@@ -101,6 +102,6 @@ export const getProfileChangelogPath = (
   }
   return {
     pathname: `${PROFILE_PATH}/changelog`,
-    query
+    search: queryToSearch(query)
   };
 };

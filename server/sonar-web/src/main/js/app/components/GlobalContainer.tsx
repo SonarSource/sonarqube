@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import A11yProvider from '../../components/a11y/A11yProvider';
 import A11ySkipLinks from '../../components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
@@ -33,15 +34,10 @@ import PromotionNotification from './promotion-notification/PromotionNotificatio
 import StartupModal from './StartupModal';
 import UpdateNotification from './update-notification/UpdateNotification';
 
-export interface Props {
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-  location: { pathname: string };
-}
-
-export default function GlobalContainer(props: Props) {
+export default function GlobalContainer() {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
-  const { footer = <GlobalFooter /> } = props;
+  const location = useLocation();
+
   return (
     <SuggestionsProvider>
       <A11yProvider>
@@ -55,10 +51,10 @@ export default function GlobalContainer(props: Props) {
                     <IndexationContextProvider>
                       <LanguagesContextProvider>
                         <MetricsContextProvider>
-                          <GlobalNav location={props.location} />
+                          <GlobalNav location={location} />
                           <IndexationNotification />
                           <UpdateNotification dismissable={true} />
-                          {props.children}
+                          <Outlet />
                         </MetricsContextProvider>
                       </LanguagesContextProvider>
                     </IndexationContextProvider>
@@ -67,7 +63,7 @@ export default function GlobalContainer(props: Props) {
               </div>
               <PromotionNotification />
             </div>
-            {footer}
+            <GlobalFooter />
           </div>
         </StartupModal>
       </A11yProvider>

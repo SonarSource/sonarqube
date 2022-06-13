@@ -8,8 +8,6 @@ exports[`should render correctly 1`] = `
     settings.analysis_scope.wildcards.introduction
     <Link
       className="spacer-left"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to="/documentation/project-administration/narrowing-the-focus/"
     >
       learn_more

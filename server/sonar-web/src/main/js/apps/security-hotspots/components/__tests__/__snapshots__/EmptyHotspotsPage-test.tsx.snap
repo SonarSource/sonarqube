@@ -22,8 +22,6 @@ exports[`should render correctly 1`] = `
   </div>
   <Link
     className="big-spacer-top"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     target="_blank"
     to={
       Object {
@@ -58,8 +56,6 @@ exports[`should render correctly: file 1`] = `
   </div>
   <Link
     className="big-spacer-top"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     target="_blank"
     to={
       Object {

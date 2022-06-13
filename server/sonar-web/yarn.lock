@@ -609,6 +609,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.7.6":
+  version: 7.18.3
+  resolution: "@babel/runtime@npm:7.18.3"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: db8526226aa02cfa35a5a7ac1a34b5f303c62a1f000c7db48cb06c6290e616483e5036ab3c4e7a84d0f3be6d4e2148d5fe5cec9564bf955f505c3e764b83d7f1
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.1.0, @babel/template@npm:^7.4.4":
   version: 7.4.4
   resolution: "@babel/template@npm:7.4.4"
@@ -1823,13 +1832,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/history@npm:^3":
-  version: 3.2.3
-  resolution: "@types/history@npm:3.2.3"
-  checksum: da2e2ca56921ef86703f1a19317bf4af409e425b90d174892fe2fb4a6b8c5856cc5113096ccd94e9436e11720be38920452a612a0e1b2fce1670956a68a3a0a1
-  languageName: node
-  linkType: hard
-
 "@types/hoist-non-react-statics@npm:^3.3.1":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
@@ -2004,16 +2006,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: b0ad403e0051a2882e9086c6006cc342901b1c90caf760893b31717a5cbc04f86cc1ea7b5ce12a2c8350c9c09e9b344de3783404e70b7c7ea6a037d0ffd70e99
-  languageName: node
-  linkType: hard
-
-"@types/react-router@npm:3.0.20":
-  version: 3.0.20
-  resolution: "@types/react-router@npm:3.0.20"
-  dependencies:
-    "@types/history": ^3
-    "@types/react": "*"
-  checksum: fe9b2b00feb6fb6911b47e89109f434c0673878734ad906ceeafa8bc1a99202d6e654bef90cf8216d3f1bb9f00e3b2994982c4307ce87af841db3b67a5d0e793
   languageName: node
   linkType: hard
 
@@ -2301,7 +2293,6 @@ __metadata:
     "@types/react-dom": 16.8.4
     "@types/react-helmet": 5.0.15
     "@types/react-modal": 3.13.1
-    "@types/react-router": 3.0.20
     "@types/react-select": 4.0.16
     "@types/react-virtualized": 9.21.20
     "@types/valid-url": 1.0.3
@@ -2338,7 +2329,6 @@ __metadata:
     fs-extra: 10.0.1
     glob: 7.2.0
     glob-promise: 4.2.2
-    history: 3.3.0
     http-proxy: 1.18.1
     jest: 27.5.1
     jest-emotion: 10.0.32
@@ -2359,7 +2349,7 @@ __metadata:
     react-helmet-async: 1.2.3
     react-intl: 3.12.1
     react-modal: 3.14.4
-    react-router: 3.2.6
+    react-router-dom: 6.3.0
     react-select: 4.3.1
     react-select-event: 5.4.0
     react-virtualized: 9.22.3
@@ -3475,17 +3465,6 @@ __metadata:
     path-type: ^4.0.0
     yaml: ^1.7.2
   checksum: 8eed7c854b91643ecb820767d0deb038b50780ecc3d53b0b19e03ed8aabed4ae77271198d1ae3d49c3b110867edf679f5faad924820a8d1774144a87cb6f98fc
-  languageName: node
-  linkType: hard
-
-"create-react-class@npm:^15.5.1":
-  version: 15.6.3
-  resolution: "create-react-class@npm:15.6.3"
-  dependencies:
-    fbjs: ^0.8.9
-    loose-envify: ^1.3.1
-    object-assign: ^4.1.1
-  checksum: 8ad00603815efafe44d511dc39beb0e2d03177c99c60c85978c2d791db880e83be64042e0ee718ccdeb596cd850f3649333adbbd08783980ba3882488bb2bf7d
   languageName: node
   linkType: hard
 
@@ -5143,7 +5122,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fbjs@npm:^0.8.0, fbjs@npm:^0.8.9":
+"fbjs@npm:^0.8.0":
   version: 0.8.17
   resolution: "fbjs@npm:0.8.17"
   dependencies:
@@ -5842,15 +5821,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"history@npm:3.3.0, history@npm:^3.0.0":
-  version: 3.3.0
-  resolution: "history@npm:3.3.0"
+"history@npm:^5.2.0":
+  version: 5.3.0
+  resolution: "history@npm:5.3.0"
   dependencies:
-    invariant: ^2.2.1
-    loose-envify: ^1.2.0
-    query-string: ^4.2.2
-    warning: ^3.0.0
-  checksum: 1570a278a9821d81fba37db7460eb06416c13805df0a9802432ce3161b0fa6d3d4e50fb7c538d1bf84de0f1c697771e5f252d684a4931b25ccb0128cffbc08aa
+    "@babel/runtime": ^7.7.6
+  checksum: d73c35df49d19ac172f9547d30a21a26793e83f16a78386d99583b5bf1429cc980799fcf1827eb215d31816a6600684fba9686ce78104e23bd89ec239e7c726f
   languageName: node
   linkType: hard
 
@@ -6185,7 +6161,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.1, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -7629,7 +7605,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.2.0, loose-envify@npm:^1.3.1, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -8952,16 +8928,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"query-string@npm:^4.2.2":
-  version: 4.3.4
-  resolution: "query-string@npm:4.3.4"
-  dependencies:
-    object-assign: ^4.1.0
-    strict-uri-encode: ^1.0.0
-  checksum: 3b2bae6a8454cf0edf11cf1aa4d1f920398bbdabc1c39222b9bb92147e746fcd97faf00e56f494728fb66b2961b495ba0fde699d5d3bd06b11472d664b36c6cf
-  languageName: node
-  linkType: hard
-
 "raf@npm:^3.4.1":
   version: 3.4.1
   resolution: "raf@npm:3.4.1"
@@ -9089,7 +9055,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.12.0, react-is@npm:^16.13.0":
+"react-is@npm:^16.12.0":
   version: 16.13.0
   resolution: "react-is@npm:16.13.0"
   checksum: 9da7d02ebeb5f2bedb781db5427097dbff9a23d7800b06f0a788bd557a47cd863ebf80de21348207edb66d7667c1adbd65a434e81a3b84c3fdae2597bb697ac5
@@ -9139,21 +9105,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:3.2.6":
-  version: 3.2.6
-  resolution: "react-router@npm:3.2.6"
+"react-router-dom@npm:6.3.0":
+  version: 6.3.0
+  resolution: "react-router-dom@npm:6.3.0"
   dependencies:
-    create-react-class: ^15.5.1
-    history: ^3.0.0
-    hoist-non-react-statics: ^3.3.2
-    invariant: ^2.2.1
-    loose-envify: ^1.2.0
-    prop-types: ^15.7.2
-    react-is: ^16.13.0
-    warning: ^3.0.0
+    history: ^5.2.0
+    react-router: 6.3.0
   peerDependencies:
-    react: ^0.14.0 || ^15.0.0 || ^16.0.0
-  checksum: 1604dab702ce2dbf2b9754fc62e0ce78ad9ec359e8414a282e633d162bc7294b46fd85ef54fd2edf179a5ea299775d06c35d334edad0798174fd88e9f871f4ed
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 77603a654f8a8dc7f65535a2e5917a65f8d9ffcb06546d28dd297e52adcc4b8a84377e0115f48dca330b080af2da3e78f29d590c89307094d36927d2b1751ec3
+  languageName: node
+  linkType: hard
+
+"react-router@npm:6.3.0":
+  version: 6.3.0
+  resolution: "react-router@npm:6.3.0"
+  dependencies:
+    history: ^5.2.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 7be673f5e72104be01e6ab274516bdb932efd93305243170690f6560e3bd1035dd1df3d3c9ce1e0f452638a2529f43a1e77dcf0934fc8031c4783da657be13ca
   languageName: node
   linkType: hard
 
@@ -10063,13 +10035,6 @@ resolve@^1.3.2:
   version: 1.0.3
   resolution: "state-toggle@npm:1.0.3"
   checksum: 17398af928413e8d8b866cf0c81fd1b1348bb7d65d8983126ff6ff2317a80d6ee023484fba0c54d8169f5aa544f125434a650ae3a71eddc935cae307d4692b4f
-  languageName: node
-  linkType: hard
-
-"strict-uri-encode@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "strict-uri-encode@npm:1.1.0"
-  checksum: 9466d371f7b36768d43f7803f26137657559e4c8b0161fb9e320efb8edba3ae22f8e99d4b0d91da023b05a13f62ec5412c3f4f764b5788fac11d1fea93720bb3
   languageName: node
   linkType: hard
 

@@ -1,1151 +1,5884 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for applications 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "APP",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+exports[`should render correctly for applications: default 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "APP",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={true}
+        />
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "APP",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
-exports[`should render correctly for applications 2`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "APP",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+exports[`should render correctly for applications: overall 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={1}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "APP",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "APP",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="tests"
+          />
+        </div>
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "APP",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "APP",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="duplicated_blocks"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
-exports[`should render correctly for projects 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+exports[`should render correctly for projects: default 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={true}
+        />
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
-exports[`should render correctly for projects 2`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+exports[`should render correctly for projects: overall 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={1}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="tests"
+          />
+        </div>
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="duplicated_blocks"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`should render correctly if branch is misconfigured: hide settings 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": false,
-      "name": "own-reference",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+            <LeakPeriodInfo
+              leakPeriod={
+                Object {
+                  "date": undefined,
+                  "index": 0,
+                  "mode": "REFERENCE_BRANCH",
+                  "parameter": "own-reference",
+                }
+              }
+            />
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-  period={
-    Object {
-      "date": undefined,
-      "index": 0,
-      "mode": "REFERENCE_BRANCH",
-      "parameter": "own-reference",
-    }
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelNoNewCode
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      period={
+        Object {
+          "date": undefined,
+          "index": 0,
+          "mode": "REFERENCE_BRANCH",
+          "parameter": "own-reference",
+        }
+      }
+    />
+  </div>
+</div>
 `;
 
 exports[`should render correctly if branch is misconfigured: show settings 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": false,
-      "name": "own-reference",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "configuration": Object {
-        "showSettings": true,
-      },
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "configuration": Object {
+            "showSettings": true,
+          },
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+            <LeakPeriodInfo
+              leakPeriod={
+                Object {
+                  "date": undefined,
+                  "index": 0,
+                  "mode": "REFERENCE_BRANCH",
+                  "parameter": "own-reference",
+                }
+              }
+            />
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-  period={
-    Object {
-      "date": undefined,
-      "index": 0,
-      "mode": "REFERENCE_BRANCH",
-      "parameter": "own-reference",
-    }
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelNoNewCode
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "configuration": Object {
+            "showSettings": true,
+          },
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      period={
+        Object {
+          "date": undefined,
+          "index": 0,
+          "mode": "REFERENCE_BRANCH",
+          "parameter": "own-reference",
+        }
+      }
+    />
+  </div>
+</div>
 `;
 
 exports[`should render correctly if the data is still loading 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
-        },
-      ],
-      "tags": Array [],
-    }
-  }
-  loading={true}
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <div
+    className="overview-panel-content overview-panel-big-padded"
+  >
+    <DeferredSpinner
+      loading={true}
+    />
+  </div>
+</div>
 `;
 
 exports[`should render correctly if there is no coverage 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`should render correctly if there is no new code measures 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/path",
-      "query": Object {},
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelNoNewCode
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+</div>
 `;
 
 exports[`should render correctly when code scope is new code 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/dashboard",
-      "query": Object {
-        "code_scope": "new",
-      },
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={true}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={true}
+        />
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={true}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`should render correctly when code scope is overall code 1`] = `
-<Memo(MeasuresPanel)
-  branch={
-    Object {
-      "analysisDate": "2018-01-01",
-      "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
-    }
-  }
-  component={
-    Object {
-      "breadcrumbs": Array [],
-      "key": "my-project",
-      "name": "MyProject",
-      "qualifier": "TRK",
-      "qualityGate": Object {
-        "isDefault": true,
-        "key": "30",
-        "name": "Sonar way",
-      },
-      "qualityProfiles": Array [
+<div
+  className="overview-panel"
+  data-test="overview__measures-panel"
+>
+  <div
+    className="display-flex-space-between display-flex-start"
+  >
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <withCurrentUserContext(withAppStateContext(ComponentReportActions))
+      branch={
         Object {
-          "deleted": false,
-          "key": "my-qp",
-          "language": "ts",
-          "name": "Sonar way",
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={1}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+            >
+              overview.new_code
+            </span>
+          </div>,
         },
-      ],
-      "tags": Array [],
+        Object {
+          "key": 1,
+          "label": <div
+            className="text-left overview-measures-tab"
+          >
+            <span
+              className="text-bold"
+              style={
+                Object {
+                  "position": "absolute",
+                  "top": 16,
+                }
+              }
+            >
+              overview.overall_code
+            </span>
+          </div>,
+        },
+      ]
     }
-  }
-  location={
-    Object {
-      "action": "PUSH",
-      "hash": "",
-      "key": "key",
-      "pathname": "/dashboard",
-      "query": Object {
-        "code_scope": "overall",
-      },
-      "search": "",
-      "state": Object {},
-    }
-  }
-  measures={
-    Array [
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_coverage",
-          "key": "new_coverage",
-          "name": "New_coverage",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "bugs",
-          "key": "bugs",
-          "name": "Bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-      Object {
-        "bestValue": true,
-        "leak": "1",
-        "metric": Object {
-          "id": "new_bugs",
-          "key": "new_bugs",
-          "name": "New_bugs",
-          "type": "PERCENT",
-        },
-        "period": Object {
-          "bestValue": true,
-          "index": 1,
-          "value": "1.0",
-        },
-        "value": "1.0",
-      },
-    ]
-  }
-/>
+  />
+  <div
+    className="overview-panel-content flex-1 bordered"
+  >
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="BUG"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="BUG"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="VULNERABILITY"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="VULNERABILITY"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="SECURITY_HOTSPOT"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="SECURITY_HOTSPOT"
+    />
+    <MeasuresPanelIssueMeasureRow
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isNewCodeTab={false}
+      key="CODE_SMELL"
+      measures={
+        Array [
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "New_coverage",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "bugs",
+              "key": "bugs",
+              "name": "Bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+          Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "new_bugs",
+              "key": "new_bugs",
+              "name": "New_bugs",
+              "type": "PERCENT",
+            },
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+            "value": "1.0",
+          },
+        ]
+      }
+      type="CODE_SMELL"
+    />
+    <div
+      className="display-flex-row overview-measures-row"
+    >
+      <div
+        className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
+        data-test="overview__measures-coverage"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="tests"
+          />
+        </div>
+      </div>
+      <div
+        className="overview-panel-huge-padded flex-1 display-flex-center"
+      >
+        <MeasurementLabel
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          centered={false}
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "period": Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+          useDiffMetric={false}
+        />
+        <div
+          className="huge-spacer-left"
+        >
+          <DrilldownMeasureValue
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_coverage",
+                    "key": "new_coverage",
+                    "name": "New_coverage",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "bugs",
+                    "key": "bugs",
+                    "name": "Bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_bugs",
+                    "key": "new_bugs",
+                    "name": "New_bugs",
+                    "type": "PERCENT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            metric="duplicated_blocks"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 `;

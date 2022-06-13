@@ -21,6 +21,7 @@ import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
+import withComponentContext from '../../../../app/components/componentContext/withComponentContext';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import { translate } from '../../../../helpers/l10n';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
@@ -46,7 +47,7 @@ interface State {
   usersPaging?: Paging;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -389,3 +390,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withComponentContext(App);

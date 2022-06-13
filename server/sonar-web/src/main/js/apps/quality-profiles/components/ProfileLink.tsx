@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { getProfilePath } from '../utils';
 
 interface Props {
@@ -30,8 +30,11 @@ interface Props {
 
 export default function ProfileLink({ name, language, children, ...other }: Props) {
   return (
-    <Link activeClassName="link-no-underline" to={getProfilePath(name, language)} {...other}>
+    <NavLink
+      className={({ isActive }) => (isActive ? 'link-no-underline' : '')}
+      to={getProfilePath(name, language)}
+      {...other}>
       {children}
-    </Link>
+    </NavLink>
   );
 }

@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { testPathAgainstUrl } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
 

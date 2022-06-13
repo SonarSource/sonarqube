@@ -60,15 +60,10 @@ exports[`should render correctly: default 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >
@@ -132,15 +127,10 @@ exports[`should render correctly: disable options 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >
@@ -204,15 +194,10 @@ exports[`should render correctly: no click handler 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >
@@ -276,15 +261,10 @@ exports[`should render correctly: no project info 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >
@@ -324,15 +304,10 @@ exports[`should render correctly: no repos 1`] = `
         values={
           Object {
             "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/projects/create",
-                  "query": Object {
-                    "mode": "bitbucket",
-                    "resetPat": 1,
-                  },
+                  "search": "?mode=bitbucket&resetPat=1",
                 }
               }
             >
@@ -393,15 +368,10 @@ exports[`should render correctly: not showing all repos 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >
@@ -470,15 +440,10 @@ exports[`should render correctly: selected repo 1`] = `
             title="Bar"
           >
             <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "bar",
-                  },
+                  "search": "?id=bar",
                 }
               }
             >

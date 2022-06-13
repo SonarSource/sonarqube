@@ -112,8 +112,6 @@ exports[`should render correctly: error for admin 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to="/admin/settings?category=almintegration"
               >
                 onboarding.create_project.github.warning.message_admin.link
@@ -375,15 +373,10 @@ exports[`should render correctly: repositories 1`] = `
           >
             <Link
               className="display-flex-center max-width-60"
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "repo2",
-                  },
+                  "search": "?id=repo2",
                 }
               }
             >

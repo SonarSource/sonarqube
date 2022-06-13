@@ -40,8 +40,6 @@ exports[`should render bubble links 1`] = `
 <Tooltip>
   <g>
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to="foo"
     >
       <circle
@@ -64,8 +62,6 @@ exports[`should render bubble links 2`] = `
 <Tooltip>
   <g>
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to="bar"
     >
       <circle

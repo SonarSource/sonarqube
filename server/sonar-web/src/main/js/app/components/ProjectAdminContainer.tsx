@@ -18,23 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
-import { BranchLike } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import withComponentContext from './componentContext/withComponentContext';
 
 interface Props {
-  children: JSX.Element;
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component: Component;
-  isInProgress?: boolean;
-  isPending?: boolean;
-  onBranchesChange: () => void;
-  onComponentChange: (changes: {}) => void;
 }
 
-export default class ProjectAdminContainer extends React.PureComponent<Props> {
+export class ProjectAdminContainer extends React.PureComponent<Props> {
   componentDidMount() {
     this.checkPermissions();
   }
@@ -59,12 +53,13 @@ export default class ProjectAdminContainer extends React.PureComponent<Props> {
       return null;
     }
 
-    const { children, ...props } = this.props;
     return (
       <>
         <A11ySkipTarget anchor="admin_main" />
-        {React.cloneElement(children, props)}
+        <Outlet />
       </>
     );
   }
 }
+
+export default withComponentContext(ProjectAdminContainer);

@@ -19,7 +19,6 @@
  */
 import { groupBy } from 'lodash';
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
@@ -28,16 +27,19 @@ import {
   searchAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
+import { Location, Router } from '../../../components/hoc/withRouter';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { Dict } from '../../../types/types';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
-interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
+interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
   settings: AlmSettingsInstance[];
+  location: Location;
+  router: Router;
 }
 
 interface State {

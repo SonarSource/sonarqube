@@ -18,22 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Component } from '../../../types/types';
+import { useParams } from 'react-router-dom';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
-export interface ProjectAdminPageExtensionProps {
-  component: Component;
-  params: { extensionKey: string; pluginKey: string };
-}
-
-export default function ProjectAdminPageExtension(props: ProjectAdminPageExtensionProps) {
-  const {
-    component,
-    params: { extensionKey, pluginKey }
-  } = props;
+export default function ProjectAdminPageExtension() {
+  const { extensionKey, pluginKey } = useParams();
+  const { component } = React.useContext(ComponentContext);
 
   const extension =
+    component &&
     component.configuration &&
     (component.configuration.extensions || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
 

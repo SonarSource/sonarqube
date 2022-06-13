@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, Location } from '../../../components/hoc/withRouter';
 import { rawSizes } from '../../../app/theme';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
+import { Location, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { findMeasure, isDiffMetric } from '../../../helpers/measures';
@@ -54,7 +54,7 @@ export enum MeasuresPanelTabs {
   Overall
 }
 
-function MeasuresPanel(props: MeasuresPanelProps) {
+export function MeasuresPanel(props: MeasuresPanelProps) {
   const { appLeak, branch, component, loading, measures = [], period, location } = props;
 
   const hasDiffMeasures = measures.some(m => isDiffMetric(m.metric.key));

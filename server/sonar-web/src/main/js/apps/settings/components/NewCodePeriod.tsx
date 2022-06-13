@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { getNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';

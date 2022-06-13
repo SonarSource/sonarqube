@@ -44,7 +44,7 @@ import ProfileModalForm from './ProfileModalForm';
 interface Props {
   className?: string;
   profile: Profile;
-  router: Pick<Router, 'push' | 'replace'>;
+  router: Router;
   updateProfiles: () => Promise<void>;
 }
 

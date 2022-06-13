@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Exporter, Profile } from '../types';
 import ProfileExporters from './ProfileExporters';
 import ProfileInheritance from './ProfileInheritance';
@@ -34,7 +35,7 @@ export interface ProfileDetailsProps {
   updateProfiles: () => Promise<void>;
 }
 
-export default function ProfileDetails(props: ProfileDetailsProps) {
+export function ProfileDetails(props: ProfileDetailsProps) {
   const { profile } = props;
   return (
     <div>
@@ -69,3 +70,5 @@ export default function ProfileDetails(props: ProfileDetailsProps) {
     </div>
   );
 }
+
+export default withQualityProfilesContext(ProfileDetails);

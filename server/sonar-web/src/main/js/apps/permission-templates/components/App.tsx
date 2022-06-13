@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getPermissionTemplates } from '../../../api/permissions';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Permission, PermissionTemplate } from '../../../types/types';
@@ -121,4 +121,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppStateContext(App);
+export default withRouter(withAppStateContext(App));

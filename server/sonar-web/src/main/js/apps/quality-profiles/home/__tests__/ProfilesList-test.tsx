@@ -19,26 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLanguage, mockLocation, mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
 import ProfilesList from '../ProfilesList';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 
-  expect(
-    shallowRender({ location: mockLocation({ query: { language: 'css' } }) })
-  ).toMatchSnapshot();
+  expect(shallowRender({ language: 'css' })).toMatchSnapshot();
 
-  expect(
-    shallowRender({ location: mockLocation({ query: { language: 'unknown' } }) })
-  ).toMatchSnapshot();
+  expect(shallowRender({ language: 'unknown' })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<ProfilesList['props']> = {}) {
   return shallow(
     <ProfilesList
       languages={[mockLanguage(), mockLanguage({ key: 'js', name: 'JS' })]}
-      location={mockLocation()}
       profiles={[
         mockQualityProfile(),
         mockQualityProfile({ language: 'css', languageName: 'CSS' })

@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router-dom';
 import { isMySet } from '../../../../apps/issues/utils';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
@@ -37,6 +37,7 @@ interface Props {
   location: { pathname: string };
 }
 
+const ACTIVE_CLASS_NAME = 'active';
 export class GlobalNavMenu extends React.PureComponent<Props> {
   renderProjects() {
     const active =
@@ -55,9 +56,9 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   renderPortfolios() {
     return (
       <li>
-        <Link activeClassName="active" to="/portfolios">
+        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/portfolios">
           {translate('portfolios.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   }
@@ -65,13 +66,13 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   renderIssuesLink() {
     const active = this.props.location.pathname.startsWith('/issues');
 
-    const query =
-      this.props.currentUser.isLoggedIn && isMySet()
-        ? { resolved: 'false', myIssues: 'true' }
-        : { resolved: 'false' };
+    const search = (this.props.currentUser.isLoggedIn && isMySet()
+      ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
+      : new URLSearchParams({ resolved: 'false' })
+    ).toString();
     return (
       <li>
-        <Link className={classNames({ active })} to={{ pathname: '/issues', query }}>
+        <Link className={classNames({ active })} to={{ pathname: '/issues', search }}>
           {translate('issues.page')}
         </Link>
       </li>
@@ -81,9 +82,11 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   renderRulesLink() {
     return (
       <li>
-        <Link activeClassName="active" to="/coding_rules">
+        <NavLink
+          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
+          to="/coding_rules">
           {translate('coding_rules.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   }
@@ -91,9 +94,9 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   renderProfilesLink() {
     return (
       <li>
-        <Link activeClassName="active" to="/profiles">
+        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/profiles">
           {translate('quality_profiles.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   }
@@ -101,9 +104,11 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   renderQualityGatesLink() {
     return (
       <li>
-        <Link activeClassName="active" to={getQualityGatesUrl()}>
+        <NavLink
+          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
+          to={getQualityGatesUrl()}>
           {translate('quality_gates.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   }
@@ -115,9 +120,9 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link activeClassName="active" to="/admin">
+        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/admin">
           {translate('layout.settings')}
-        </Link>
+        </NavLink>
       </li>
     );
   }

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location, LocationDescriptor } from 'history';
-import { InjectedRouter } from 'react-router';
+import { To } from 'react-router-dom';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
@@ -402,7 +402,6 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
 
 export function mockLocation(overrides: Partial<Location> = {}): Location {
   return {
-    action: 'PUSH',
     hash: '',
     key: 'key',
     pathname: '/path',
@@ -518,8 +517,8 @@ export function mockQualityProfileExporter(override?: Partial<Exporter>): Export
 
 export function mockRouter(
   overrides: {
-    push?: (loc: LocationDescriptor) => void;
-    replace?: (loc: LocationDescriptor) => void;
+    push?: (loc: To) => void;
+    replace?: (loc: To) => void;
   } = {}
 ) {
   return {
@@ -533,7 +532,7 @@ export function mockRouter(
     replace: jest.fn(),
     setRouteLeaveHook: jest.fn(),
     ...overrides
-  } as InjectedRouter;
+  } as Router;
 }
 
 export function mockRule(overrides: Partial<Rule> = {}): Rule {

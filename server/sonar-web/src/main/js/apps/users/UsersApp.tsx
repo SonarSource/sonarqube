@@ -34,8 +34,8 @@ import { parseQuery, Query, serializeQuery } from './utils';
 
 interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
-  location: Pick<Location, 'query'>;
-  router: Pick<Router, 'push'>;
+  location: Location;
+  router: Router;
 }
 
 interface State {

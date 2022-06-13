@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightComponent } from './types';
+import { ProjectAlmBindingResponse } from './alm-settings';
+import { BranchLike } from './branch-like';
+import { Component, LightComponent } from './types';
 
 export enum Visibility {
   Public = 'public',
@@ -93,4 +95,15 @@ export function isView(componentQualifier?: string | ComponentQualifier): boolea
     ComponentQualifier.SubPortfolio,
     ComponentQualifier.Application
   ].includes(componentQualifier as ComponentQualifier);
+}
+
+export interface ComponentContextShape {
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
+  component?: Component;
+  isInProgress?: boolean;
+  isPending?: boolean;
+  onBranchesChange: (updateBranches?: boolean, updatePRs?: boolean) => void;
+  onComponentChange: (changes: Partial<Component>) => void;
+  projectBinding?: ProjectAlmBindingResponse;
 }

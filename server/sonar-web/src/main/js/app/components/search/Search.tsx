@@ -20,11 +20,11 @@
 import { debounce, keyBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { withRouter, WithRouterProps } from 'react-router';
 import { getSuggestions } from '../../../api/components';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -42,6 +42,10 @@ import { ComponentResult, More, Results, sortQualifiers } from './utils';
 const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
 const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
 
+interface Props {
+  router: Router;
+}
+
 interface State {
   loading: boolean;
   loadingMore?: string;
@@ -54,13 +58,13 @@ interface State {
   shortQuery: boolean;
 }
 
-export class Search extends React.PureComponent<WithRouterProps, State> {
+export class Search extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
   nodes: Dict<HTMLElement>;
   mounted = false;
 
-  constructor(props: WithRouterProps) {
+  constructor(props: Props) {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
@@ -80,7 +84,7 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
     document.addEventListener('keydown', this.handleSKeyDown);
   }
 
-  componentDidUpdate(_prevProps: WithRouterProps, prevState: State) {
+  componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.selected !== this.state.selected) {
       this.scrollToSelected();
     }
@@ -403,4 +407,4 @@ export class Search extends React.PureComponent<WithRouterProps, State> {
   }
 }
 
-export default withRouter<{}>(Search);
+export default withRouter(Search);

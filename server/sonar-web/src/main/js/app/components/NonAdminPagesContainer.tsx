@@ -18,25 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isApplication } from '../../types/component';
-import { Component } from '../../types/types';
+import { ComponentContext } from './componentContext/ComponentContext';
 
-export interface NonAdminPagesContainerProps {
-  children: JSX.Element;
-  component: Component;
-}
-
-export default function NonAdminPagesContainer(props: NonAdminPagesContainerProps) {
-  const { children, component } = props;
+export default function NonAdminPagesContainer() {
+  const { component } = React.useContext(ComponentContext);
 
   /*
    * Catch Applications for which the user does not have access to all child projects
    * and prevent displaying whatever page was requested.
    * This doesn't apply to admin pages (those are not within this container)
    */
-  if (isApplication(component.qualifier) && !component.canBrowseAllChildProjects) {
+  if (component && isApplication(component.qualifier) && !component.canBrowseAllChildProjects) {
     return (
       <div className="page page-limited display-flex-justify-center">
         <Alert
@@ -51,5 +47,5 @@ export default function NonAdminPagesContainer(props: NonAdminPagesContainerProp
     );
   }
 
-  return React.cloneElement(children, props);
+  return <Outlet />;
 }

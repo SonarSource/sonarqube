@@ -4,18 +4,11 @@ exports[`should render correctly for bugs 1`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "false",
-          "types": "BUG",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=BUG&sinceLeakPeriod=false&id=my-project",
       }
     }
   >
@@ -32,18 +25,11 @@ exports[`should render correctly for bugs 2`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "true",
-          "types": "BUG",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=BUG&sinceLeakPeriod=true&id=my-project",
       }
     }
   >
@@ -60,18 +46,11 @@ exports[`should render correctly for code smells 1`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "false",
-          "types": "CODE_SMELL",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&sinceLeakPeriod=false&id=my-project",
       }
     }
   >
@@ -88,18 +67,11 @@ exports[`should render correctly for code smells 2`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "true",
-          "types": "CODE_SMELL",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&sinceLeakPeriod=true&id=my-project",
       }
     }
   >
@@ -116,20 +88,11 @@ exports[`should render correctly for hotspots 1`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/security_hotspots",
-        "query": Object {
-          "assignedToMe": undefined,
-          "branch": undefined,
-          "file": undefined,
-          "hotspots": undefined,
-          "id": "my-project",
-          "pullRequest": "1001",
-          "sinceLeakPeriod": "false",
-        },
+        "search": "?id=my-project&pullRequest=1001&sinceLeakPeriod=false",
       }
     }
   >
@@ -150,20 +113,11 @@ exports[`should render correctly for hotspots 2`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/security_hotspots",
-        "query": Object {
-          "assignedToMe": undefined,
-          "branch": undefined,
-          "file": undefined,
-          "hotspots": undefined,
-          "id": "my-project",
-          "pullRequest": "1001",
-          "sinceLeakPeriod": "true",
-        },
+        "search": "?id=my-project&pullRequest=1001&sinceLeakPeriod=true",
       }
     }
   >
@@ -184,18 +138,11 @@ exports[`should render correctly for vulnerabilities 1`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "false",
-          "types": "VULNERABILITY",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&sinceLeakPeriod=false&id=my-project",
       }
     }
   >
@@ -212,18 +159,11 @@ exports[`should render correctly for vulnerabilities 2`] = `
 <Fragment>
   <Link
     className="overview-measures-value text-light"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
+        "hash": "",
         "pathname": "/project/issues",
-        "query": Object {
-          "id": "my-project",
-          "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "true",
-          "types": "VULNERABILITY",
-        },
+        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&sinceLeakPeriod=true&id=my-project",
       }
     }
   >

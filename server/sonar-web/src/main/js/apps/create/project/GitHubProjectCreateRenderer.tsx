@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { colors } from '../../../app/theme';
 import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';

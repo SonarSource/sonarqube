@@ -18,14 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import getHistory from '../../../helpers/getHistory';
 import handleRequiredAuthorization from '../handleRequiredAuthorization';
 
-jest.mock('../../../helpers/getHistory', () => jest.fn());
+const originalLocation = window.location;
+
+const replace = jest.fn();
+
+beforeAll(() => {
+  const location = {
+    ...window.location,
+    pathname: '/path',
+    search: '?id=12',
+    hash: '#tag',
+    replace
+  };
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: location
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: originalLocation
+  });
+});
 
 it('should not render for anonymous user', () => {
-  const replace = jest.fn();
-  (getHistory as jest.Mock<any>).mockReturnValue({ replace });
   handleRequiredAuthorization();
-  expect(replace).toBeCalledWith(expect.objectContaining({ pathname: '/sessions/new' }));
+  expect(replace).toBeCalledWith(
+    '/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag&authorizationError=true'
+  );
 });

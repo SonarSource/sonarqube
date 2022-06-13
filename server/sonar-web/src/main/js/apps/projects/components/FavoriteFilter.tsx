@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexLink, Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
+import { queryToSearch } from '../../../helpers/urls';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
@@ -30,6 +31,9 @@ interface Props {
   currentUser: CurrentUser;
   query?: RawQuery;
 }
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive ? 'button button-active' : 'button';
 
 export class FavoriteFilter extends React.PureComponent<Props> {
   handleSaveFavorite = () => {
@@ -48,25 +52,26 @@ export class FavoriteFilter extends React.PureComponent<Props> {
     const pathnameForFavorite = '/projects/favorite';
     const pathnameForAll = '/projects';
 
+    const search = queryToSearch(this.props.query);
+
     return (
       <div className="page-header text-center">
         <div className="button-group little-spacer-top">
-          <Link
-            activeClassName="button-active"
-            className="button"
+          <NavLink
+            className={linkClass}
             id="favorite-projects"
             onClick={this.handleSaveFavorite}
-            to={{ pathname: pathnameForFavorite, query: this.props.query }}>
+            to={{ pathname: pathnameForFavorite, search }}>
             {translate('my_favorites')}
-          </Link>
-          <IndexLink
-            activeClassName="button-active"
-            className="button"
+          </NavLink>
+          <NavLink
+            end={true}
+            className={linkClass}
             id="all-projects"
             onClick={this.handleSaveAll}
-            to={{ pathname: pathnameForAll, query: this.props.query }}>
+            to={{ pathname: pathnameForAll, search }}>
             {translate('all')}
-          </IndexLink>
+          </NavLink>
         </div>
       </div>
     );

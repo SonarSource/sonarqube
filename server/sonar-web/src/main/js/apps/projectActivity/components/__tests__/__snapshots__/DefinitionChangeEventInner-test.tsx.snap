@@ -71,16 +71,11 @@ exports[`should render 2`] = `
               </span>,
               "project": <Link
                 onClick={[Function]}
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 title="Foo"
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": "master",
-                      "id": "foo",
-                    },
+                    "search": "?id=foo&branch=master",
                   }
                 }
               >
@@ -114,16 +109,11 @@ exports[`should render 2`] = `
               </span>,
               "project": <Link
                 onClick={[Function]}
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 title="Bar"
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": "master",
-                      "id": "bar",
-                    },
+                    "search": "?id=bar&branch=master",
                   }
                 }
               >
@@ -185,16 +175,11 @@ exports[`should render for a branch 1`] = `
               </span>,
               "project": <Link
                 onClick={[Function]}
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 title="Foo"
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": "feature-x",
-                      "id": "foo",
-                    },
+                    "search": "?id=foo&branch=feature-x",
                   }
                 }
               >
@@ -234,16 +219,11 @@ exports[`should render for a branch 1`] = `
             </span>,
             "project": <Link
               onClick={[Function]}
-              onlyActiveOnIndex={false}
-              style={Object {}}
               title="Bar"
               to={
                 Object {
                   "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": "feature-y",
-                    "id": "bar",
-                  },
+                  "search": "?id=bar&branch=feature-y",
                 }
               }
             >

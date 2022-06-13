@@ -21,17 +21,11 @@ import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
-import ProjectAdminContainer from '../ProjectAdminContainer';
+import { ProjectAdminContainer } from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {
   return jest.fn();
 });
-
-class ChildComponent extends React.Component {
-  render() {
-    return null;
-  }
-}
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -40,13 +34,6 @@ it('should render correctly', () => {
 it('should redirect for authorization if needed', () => {
   mountRender({ component: mockComponent({ configuration: { showSettings: false } }) });
   expect(handleRequiredAuthorization).toBeCalled();
-});
-
-it('should pass props to its children', () => {
-  const child = shallowRender().find(ChildComponent);
-  // No need to check all...
-  expect(child.prop('component')).toBeDefined();
-  expect(child.prop('onBranchesChange')).toBeDefined();
 });
 
 function mountRender(props: Partial<ProjectAdminContainer['props']> = {}) {
@@ -60,12 +47,8 @@ function shallowRender(props: Partial<ProjectAdminContainer['props']> = {}) {
 function createComponent(props: Partial<ProjectAdminContainer['props']> = {}) {
   return (
     <ProjectAdminContainer
-      branchLikes={[]}
       component={mockComponent({ configuration: { showSettings: true } })}
-      onBranchesChange={jest.fn()}
-      onComponentChange={jest.fn()}
-      {...props}>
-      <ChildComponent />
-    </ProjectAdminContainer>
+      {...props}
+    />
   );
 }

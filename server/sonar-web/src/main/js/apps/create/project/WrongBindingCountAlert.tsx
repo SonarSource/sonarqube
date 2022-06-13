@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../helpers/urls';

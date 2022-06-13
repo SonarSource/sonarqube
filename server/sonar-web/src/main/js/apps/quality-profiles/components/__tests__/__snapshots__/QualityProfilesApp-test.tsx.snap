@@ -13,12 +13,16 @@ exports[`should render correctly: full 1`] = `
     prioritizeSeoTags={false}
     title="quality_profiles.page"
   />
-  <div
-    actions={Object {}}
-    exporters={Array []}
-    languages={Array []}
-    profiles={Array []}
-    updateProfiles={[Function]}
+  <Outlet
+    context={
+      Object {
+        "actions": Object {},
+        "exporters": Array [],
+        "languages": Array [],
+        "profiles": Array [],
+        "updateProfiles": [Function],
+      }
+    }
   />
 </div>
 `;

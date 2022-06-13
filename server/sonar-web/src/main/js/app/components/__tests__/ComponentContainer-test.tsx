@@ -102,7 +102,7 @@ it('changes component', () => {
     loading: false
   });
 
-  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
+  wrapper.instance().handleComponentChange({ visibility: 'private' });
   expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
 });
 
@@ -136,8 +136,6 @@ it("doesn't load branches portfolio", async () => {
   expect(getPullRequests).not.toBeCalled();
   expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
   expect(getComponentNavigation).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
-  wrapper.update();
-  expect(wrapper.find(Inner).exists()).toBe(true);
 });
 
 it('updates branches on change', async () => {
@@ -153,7 +151,7 @@ it('updates branches on change', async () => {
     }),
     loading: false
   });
-  wrapper.find(Inner).prop<Function>('onBranchesChange')();
+  wrapper.instance().handleBranchesChange();
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
   await waitAndUpdate(wrapper);
@@ -355,7 +353,7 @@ it('should redirect if the component is a portfolio', async () => {
     router: mockRouter({ replace })
   });
   await waitAndUpdate(wrapper);
-  expect(replace).toBeCalledWith({ pathname: '/portfolio', query: { id: componentKey } });
+  expect(replace).toBeCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
 });
 
 it('should display display the unavailable page if the component needs issue sync', async () => {

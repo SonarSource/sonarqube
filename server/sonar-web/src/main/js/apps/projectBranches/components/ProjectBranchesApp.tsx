@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
@@ -49,4 +50,4 @@ export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   );
 }
 
-export default React.memo(ProjectBranchesApp);
+export default withComponentContext(React.memo(ProjectBranchesApp));

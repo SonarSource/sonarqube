@@ -19,9 +19,14 @@
  */
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
+import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 
 const IssuesAppContainer = lazyLoadComponent(() => import('./IssuesApp'), 'IssuesAppContainer');
 
-export default withRouter(withCurrentUserContext(withBranchStatusActions(IssuesAppContainer)));
+export default withIndexationGuard(
+  withRouter(withCurrentUserContext(withBranchStatusActions(IssuesAppContainer))),
+  PageContext.Issues
+);

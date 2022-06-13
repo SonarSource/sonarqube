@@ -20,14 +20,14 @@
 import * as React from 'react';
 import AdminContext from '../../app/components/AdminContext';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import { Location, withRouter } from '../../components/hoc/withRouter';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { GlobalSettingKeys } from '../../types/settings';
-import { RawQuery } from '../../types/types';
 import App from './App';
 
 export interface MarketplaceAppContainerProps {
-  location: { pathname: string; query: RawQuery };
+  location: Location;
   appState: AppState;
 }
 
@@ -54,4 +54,4 @@ export function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
   );
 }
 
-export default withAppStateContext(MarketplaceAppContainer);
+export default withRouter(withAppStateContext(MarketplaceAppContainer));

@@ -20,8 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { createLink, deleteLink, getProjectLinks } from '../../../api/projectLinks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import App from '../App';
+import { App } from '../App';
 
 // import { getProjectLinks, createLink, deleteLink } from '../../api/projectLinks';
 jest.mock('../../../api/projectLinks', () => ({
@@ -36,14 +37,14 @@ jest.mock('../../../api/projectLinks', () => ({
 }));
 
 it('should fetch links and render', async () => {
-  const wrapper = shallow(<App component={{ key: 'comp' }} />);
+  const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(getProjectLinks).toBeCalledWith('comp');
 });
 
 it('should fetch links when component changes', async () => {
-  const wrapper = shallow(<App component={{ key: 'comp' }} />);
+  const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
   expect(getProjectLinks).lastCalledWith('comp');
 
@@ -52,7 +53,7 @@ it('should fetch links when component changes', async () => {
 });
 
 it('should create link', async () => {
-  const wrapper = shallow(<App component={{ key: 'comp' }} />);
+  const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
 
   wrapper.find('Header').prop<Function>('onCreate')('bar', 'http://example.com/bar');
@@ -66,7 +67,7 @@ it('should create link', async () => {
 });
 
 it('should delete link', async () => {
-  const wrapper = shallow(<App component={{ key: 'comp' }} />);
+  const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
 
   wrapper.find('Table').prop<Function>('onDelete')('foo');

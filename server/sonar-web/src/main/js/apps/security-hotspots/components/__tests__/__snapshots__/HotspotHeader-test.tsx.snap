@@ -22,16 +22,11 @@ exports[`should render correctly 1`] = `
       </span>
       <Link
         className="small"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         target="_blank"
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "open": "squid:S2077",
-              "rule_key": "squid:S2077",
-            },
+            "search": "?open=squid%3AS2077&rule_key=squid%3AS2077",
           }
         }
       >

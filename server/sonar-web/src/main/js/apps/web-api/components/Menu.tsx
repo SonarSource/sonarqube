@@ -19,7 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
+import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
 import { actionsFilter, isDomainPathActive, Query, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';
@@ -48,7 +49,7 @@ export default function Menu(props: Props) {
           active: isDomainPathActive(domain.path, splat)
         })}
         key={domain.path}
-        to={{ pathname: '/web_api/' + domain.path, query: serializeQuery(query) }}>
+        to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}>
         <h3 className="list-group-item-heading">
           {domain.path}
           {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}

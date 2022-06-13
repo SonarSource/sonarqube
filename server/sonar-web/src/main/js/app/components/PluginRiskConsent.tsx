@@ -38,8 +38,15 @@ export interface PluginRiskConsentProps {
 export function PluginRiskConsent(props: PluginRiskConsentProps) {
   const { router, currentUser } = props;
 
-  if (!hasGlobalPermission(currentUser, Permissions.Admin)) {
-    router.replace('/');
+  const isAdmin = hasGlobalPermission(currentUser, Permissions.Admin);
+
+  React.useEffect(() => {
+    if (!isAdmin) {
+      router.replace('/');
+    }
+  }, [isAdmin, router]);
+
+  if (!isAdmin) {
     return null;
   }
 

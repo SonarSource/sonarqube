@@ -112,9 +112,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
         isLoggedIn: true
       })}
       location={mockLocation()}
-      params={{}}
       router={mockRouter()}
-      routes={[]}
       {...props}
     />
   );

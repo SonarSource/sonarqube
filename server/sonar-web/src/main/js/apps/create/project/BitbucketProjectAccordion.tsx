@@ -20,14 +20,14 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { colors } from '../../../app/theme';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import Radio from '../../../components/controls/Radio';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, queryToSearch } from '../../../helpers/urls';
 import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 
@@ -85,7 +85,10 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                       <Link
                         to={{
                           pathname: '/projects/create',
-                          query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
+                          search: queryToSearch({
+                            mode: CreateProjectModes.BitbucketServer,
+                            resetPat: 1
+                          })
                         }}>
                         {translate('onboarding.create_project.update_your_token')}
                       </Link>

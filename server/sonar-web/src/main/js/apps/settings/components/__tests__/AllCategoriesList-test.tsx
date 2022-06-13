@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/dom';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAppState } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { AdditionalCategory } from '../AdditionalCategories';
 import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
 
@@ -63,16 +64,34 @@ jest.mock('../AdditionalCategories', () => ({
 }));
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('global mode');
-  expect(shallowRender({ selectedCategory: 'CAT_2' })).toMatchSnapshot('selected category');
-  expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('project mode');
-  expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
-    'branches disabled'
-  );
+  renderCategoriesList({ selectedCategory: 'CAT_2' });
+
+  expect(screen.getByText('CAT_1_NAME')).toBeInTheDocument();
+  expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
+  expect(screen.queryByText('CAT_3_NAME')).not.toBeInTheDocument();
+  expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
+  expect(screen.getByText('CAT_2_NAME').className).toBe('active');
 });
 
-function shallowRender(props?: Partial<CategoriesListProps>) {
-  return shallow<CategoriesListProps>(
+it('should correctly for project', () => {
+  renderCategoriesList({ component: mockComponent() });
+
+  expect(screen.getByText('CAT_1_NAME')).toBeInTheDocument();
+  expect(screen.queryByText('CAT_2_NAME')).not.toBeInTheDocument();
+  expect(screen.getByText('CAT_3_NAME')).toBeInTheDocument();
+  expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
+});
+
+it('should render correctly when branches are disabled', () => {
+  renderCategoriesList({ appState: mockAppState({ branchesEnabled: false }) });
+
+  expect(screen.queryByText('CAT_1_NAME')).not.toBeInTheDocument();
+  expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
+  expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
+});
+
+function renderCategoriesList(props?: Partial<CategoriesListProps>) {
+  return renderComponent(
     <CategoriesList
       appState={mockAppState({ branchesEnabled: true })}
       categories={['general']}

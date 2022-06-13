@@ -19,6 +19,7 @@
  */
 import { differenceBy } from 'lodash';
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
@@ -46,16 +47,15 @@ import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAppStateContext from './app-state/withAppStateContext';
 import withBranchStatusActions from './branch-status/withBranchStatusActions';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
-import { ComponentContext } from './ComponentContext';
+import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props {
   appState: AppState;
-  children: React.ReactElement;
-  location: Pick<Location, 'query' | 'pathname'>;
+  location: Location;
   updateBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
-  router: Pick<Router, 'replace'>;
+  router: Router;
 }
 
 interface State {
@@ -448,8 +448,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             <i className="spinner" />
           </div>
         ) : (
-          <ComponentContext.Provider value={{ branchLike, component }}>
-            {React.cloneElement(this.props.children, {
+          <ComponentContext.Provider
+            value={{
               branchLike,
               branchLikes,
               component,
@@ -458,7 +458,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               onBranchesChange: this.handleBranchesChange,
               onComponentChange: this.handleComponentChange,
               projectBinding
-            })}
+            }}>
+            <Outlet />
           </ComponentContext.Provider>
         )}
       </div>

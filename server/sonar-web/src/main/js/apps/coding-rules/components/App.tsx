@@ -20,7 +20,6 @@
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { withRouter, WithRouterProps } from 'react-router';
 import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesApp, searchRules } from '../../../api/rules';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -30,6 +29,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -79,8 +79,10 @@ const PAGE_SIZE = 100;
 const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
-interface Props extends WithRouterProps {
+interface Props {
   currentUser: CurrentUser;
+  location: Location;
+  router: Router;
 }
 
 interface State {

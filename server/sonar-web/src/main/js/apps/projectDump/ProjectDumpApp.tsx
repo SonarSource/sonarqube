@@ -21,6 +21,7 @@ import * as React from 'react';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
@@ -199,4 +200,4 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   }
 }
 
-export default withAppStateContext(ProjectDumpApp);
+export default withComponentContext(withAppStateContext(ProjectDumpApp));

@@ -78,9 +78,7 @@ exports[`renders correctly: with links 1`] = `
         >
           <Link
             className="display-inline-flex-center link-with-icon"
-            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
-            style={Object {}}
             target="_blank"
             to="http://link.tosome.place"
           >
@@ -98,9 +96,7 @@ exports[`renders correctly: with links 1`] = `
         >
           <Link
             className="display-inline-flex-center link-with-icon"
-            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
-            style={Object {}}
             target="_blank"
             to="/documentation/guide"
           >
@@ -113,8 +109,6 @@ exports[`renders correctly: with links 1`] = `
           className="little-spacer-bottom"
         >
           <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/projects"
           >
             <span>

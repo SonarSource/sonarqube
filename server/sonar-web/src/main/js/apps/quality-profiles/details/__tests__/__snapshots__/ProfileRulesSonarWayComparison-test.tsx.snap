@@ -20,17 +20,10 @@ exports[`should render correctly 1`] = `
   <Link
     className="pull-right"
     data-test="rules"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/coding_rules",
-        "query": Object {
-          "activation": "false",
-          "compareToProfile": "baz",
-          "languages": "Java",
-          "qprofile": "bar",
-        },
+        "search": "?qprofile=bar&activation=false&compareToProfile=baz&languages=Java",
       }
     }
   >

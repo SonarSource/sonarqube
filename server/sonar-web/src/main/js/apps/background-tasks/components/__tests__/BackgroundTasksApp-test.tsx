@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import BackgroundTasksApp from '../BackgroundTasksApp';
+import { BackgroundTasksApp } from '../BackgroundTasksApp';
 
 jest.mock('../../../../api/ce', () => ({
   getTypes: jest.fn().mockResolvedValue({
@@ -88,7 +89,7 @@ it('should render correctly', async () => {
 function shallowRender(props: Partial<BackgroundTasksApp['props']> = {}) {
   return shallow(
     <BackgroundTasksApp
-      component={{ key: 'foo', id: '564' }}
+      component={mockComponent({ key: 'foo' })}
       location={mockLocation()}
       router={mockRouter()}
       {...props}

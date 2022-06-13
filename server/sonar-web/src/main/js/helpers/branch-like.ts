@@ -120,9 +120,8 @@ export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
     return { branch: branchLike.name };
   } else if (isPullRequest(branchLike)) {
     return { pullRequest: branchLike.key };
-  } else {
-    return {};
   }
+  return {};
 }
 
 // Create branch object from branch name or pull request key

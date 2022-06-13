@@ -17,8 +17,6 @@ exports[`should render documentation anchor 1`] = `
 
 exports[`should render documentation link 1`] = `
 <Link
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to="/documentation/foo/bar"
 >
   link text
@@ -52,8 +50,6 @@ exports[`should render sonarqube admin link on sonarqube for admin 1`] = `
 
 exports[`should render sonarqube admin link on sonarqube for admin 2`] = `
 <Link
-  onlyActiveOnIndex={false}
-  style={Object {}}
   target="_blank"
   to="/foo/bar"
 >
@@ -71,8 +67,6 @@ exports[`should render sonarqube link on sonarqube 1`] = `
 
 exports[`should render sonarqube link on sonarqube 2`] = `
 <Link
-  onlyActiveOnIndex={false}
-  style={Object {}}
   target="_blank"
   to="/foo/bar"
 >

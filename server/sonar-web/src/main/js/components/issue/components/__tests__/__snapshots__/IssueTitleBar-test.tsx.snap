@@ -73,19 +73,13 @@ exports[`should render correctly: default 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           target="_blank"
           title="permalink"
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "id": "myproject",
-                "issues": "AVsae-CQS-9G3txfbFN2",
-                "open": "AVsae-CQS-9G3txfbFN2",
-                "types": undefined,
-              },
+              "search": "?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject",
             }
           }
         >
@@ -170,19 +164,13 @@ exports[`should render correctly: with filter 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           target="_blank"
           title="permalink"
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "id": "myproject",
-                "issues": "AVsae-CQS-9G3txfbFN2",
-                "open": "AVsae-CQS-9G3txfbFN2",
-                "types": undefined,
-              },
+              "search": "?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject",
             }
           }
         >
@@ -386,19 +374,13 @@ exports[`should render correctly: with multi locations 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           target="_blank"
           title="permalink"
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "id": "myproject",
-                "issues": "AVsae-CQS-9G3txfbFN2",
-                "open": "AVsae-CQS-9G3txfbFN2",
-                "types": undefined,
-              },
+              "search": "?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject",
             }
           }
         >
@@ -549,19 +531,12 @@ exports[`should render correctly: with multi locations and link 1`] = `
         className="issue-meta"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           target="_blank"
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "branch": "branch-6.7",
-                "id": "myproject",
-                "issues": "AVsae-CQS-9G3txfbFN2",
-                "open": "AVsae-CQS-9G3txfbFN2",
-                "types": undefined,
-              },
+              "search": "?branch=branch-6.7&issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject",
             }
           }
         >
@@ -579,20 +554,13 @@ exports[`should render correctly: with multi locations and link 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           target="_blank"
           title="permalink"
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "branch": "branch-6.7",
-                "id": "myproject",
-                "issues": "AVsae-CQS-9G3txfbFN2",
-                "open": "AVsae-CQS-9G3txfbFN2",
-                "types": undefined,
-              },
+              "search": "?branch=branch-6.7&issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject",
             }
           }
         >

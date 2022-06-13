@@ -43,27 +43,27 @@ export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: s
 
   if (format === 'url') {
     return url;
-  } else {
-    let label;
-    let projectUrl;
-
-    switch (type) {
-      case BadgeType.measure:
-        label = getLocalizedMetricName({ key: metric });
-        break;
-      case BadgeType.qualityGate:
-      default:
-        label = 'Quality gate';
-        break;
-    }
-
-    if (project) {
-      projectUrl = getPathUrlAsString(getProjectUrl(project, branch), false);
-    }
-
-    const mdImage = `![${label}](${url})`;
-    return projectUrl ? `[${mdImage}](${projectUrl})` : mdImage;
   }
+
+  let label;
+  let projectUrl;
+
+  switch (type) {
+    case BadgeType.measure:
+      label = getLocalizedMetricName({ key: metric });
+      break;
+    case BadgeType.qualityGate:
+    default:
+      label = 'Quality gate';
+      break;
+  }
+
+  if (project) {
+    projectUrl = getPathUrlAsString(getProjectUrl(project, branch), false);
+  }
+
+  const mdImage = `![${label}](${url})`;
+  return projectUrl ? `[${mdImage}](${projectUrl})` : mdImage;
 }
 
 export function getBadgeUrl(

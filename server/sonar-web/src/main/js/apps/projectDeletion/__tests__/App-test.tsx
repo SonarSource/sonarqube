@@ -17,12 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { mockComponent } from '../../../helpers/mocks/component';
+import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { ComponentContextShape } from '../../../types/component';
+import { Component } from '../../../types/types';
 import App from '../App';
 
-it('should render', () => {
-  expect(
-    shallow(<App component={{ key: 'foo', name: 'Foo', qualifier: 'TRK' }} />)
-  ).toMatchSnapshot();
+it('should render with component', () => {
+  renderProjectDeletionApp(mockComponent({ key: 'foo', name: 'Foo', qualifier: 'TRK' }));
+
+  expect(screen.getByText('deletion.page')).toBeInTheDocument();
 });
+
+it('should render with no component', () => {
+  renderProjectDeletionApp();
+
+  expect(screen.queryByText('deletion.page')).not.toBeInTheDocument();
+});
+
+function renderProjectDeletionApp(component?: Component) {
+  renderComponentApp(
+    'project-delete',
+    <ComponentContext.Provider value={{ component } as ComponentContextShape}>
+      <App />
+    </ComponentContext.Provider>
+  );
+}

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Profile } from '../../../../api/quality-profiles';
 import ComparisonEmpty from '../ComparisonEmpty';
 import ComparisonResults from '../ComparisonResults';
@@ -75,10 +75,7 @@ it('should compare', () => {
   const leftDiffs = output.find('.js-comparison-in-left');
   expect(leftDiffs.length).toBe(1);
   expect(leftDiffs.find(Link).length).toBe(1);
-  expect(leftDiffs.find(Link).prop('to')).toHaveProperty('query', {
-    rule_key: 'rule1',
-    open: 'rule1'
-  });
+  expect(leftDiffs.find(Link).prop('to')).toHaveProperty('search', '?rule_key=rule1&open=rule1');
   expect(leftDiffs.find(Link).prop('children')).toContain('rule1');
   expect(leftDiffs.find('SeverityIcon').length).toBe(1);
   expect(leftDiffs.find('SeverityIcon').prop('severity')).toBe('BLOCKER');
@@ -91,7 +88,7 @@ it('should compare', () => {
       .at(0)
       .find(Link)
       .prop('to')
-  ).toHaveProperty('query', { rule_key: 'rule2', open: 'rule2' });
+  ).toHaveProperty('search', '?rule_key=rule2&open=rule2');
   expect(
     rightDiffs
       .at(0)
@@ -113,7 +110,7 @@ it('should compare', () => {
       .find(Link)
       .at(0)
       .prop('to')
-  ).toHaveProperty('query', { rule_key: 'rule4', open: 'rule4' });
+  ).toHaveProperty('search', '?rule_key=rule4&open=rule4');
   expect(
     modifiedDiffs
       .find(Link)

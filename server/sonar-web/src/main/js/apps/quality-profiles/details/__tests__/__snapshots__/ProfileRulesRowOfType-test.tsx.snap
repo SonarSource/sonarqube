@@ -15,16 +15,10 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-            "types": "BUG",
-          },
+          "search": "?qprofile=bar&activation=true&types=BUG",
         }
       }
     >
@@ -36,16 +30,10 @@ exports[`should render correctly 1`] = `
   >
     <Link
       className="small text-muted"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "false",
-            "qprofile": "bar",
-            "types": "BUG",
-          },
+          "search": "?qprofile=bar&activation=false&types=BUG",
         }
       }
     >
@@ -70,16 +58,10 @@ exports[`should render correctly if there is 0 rules 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-            "types": "VULNERABILITY",
-          },
+          "search": "?qprofile=bar&activation=true&types=VULNERABILITY",
         }
       }
     >
@@ -113,16 +95,10 @@ exports[`should render correctly if there is missing data 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/coding_rules",
-          "query": Object {
-            "activation": "true",
-            "qprofile": "bar",
-            "types": "VULNERABILITY",
-          },
+          "search": "?qprofile=bar&activation=true&types=VULNERABILITY",
         }
       }
     >

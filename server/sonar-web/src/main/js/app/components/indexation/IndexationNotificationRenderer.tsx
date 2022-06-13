@@ -22,9 +22,10 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Alert, AlertProps } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
@@ -143,10 +144,10 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
     <Link
       to={{
         pathname: '/admin/background_tasks',
-        query: {
+        search: queryToSearch({
           taskType: TaskTypes.IssueSync,
           status: hasError ? TaskStatuses.Failed : undefined
-        }
+        })
       }}>
       {text}
     </Link>

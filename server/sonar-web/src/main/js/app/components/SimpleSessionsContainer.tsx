@@ -18,23 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Outlet } from 'react-router-dom';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import GlobalFooter from './GlobalFooter';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
-interface Props {
-  children?: React.ReactNode;
-}
-
-export default function SimpleSessionsContainer({ children }: Props) {
+export default function SimpleSessionsContainer() {
   return (
     <>
       <PageTracker />
 
       <div className="global-container">
         <div className="page-wrapper" id="container">
-          {children}
+          <Outlet />
         </div>
         <GlobalFooter hideLoggedInInfo={true} />
       </div>

@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexRoute } from 'react-router';
-import { lazyLoadComponent } from '../../components/lazyLoadComponent';
+import { Route } from 'react-router-dom';
+import MaintenanceAppContainer from './components/MaintenanceAppContainer';
+import SetupAppContainer from './components/SetupAppContainer';
 
-export const maintenanceRoutes = (
-  <IndexRoute component={lazyLoadComponent(() => import('./components/MaintenanceAppContainer'))} />
+const routes = () => (
+  <>
+    <Route path="maintenance" element={<MaintenanceAppContainer />} />
+    <Route path="setup" element={<SetupAppContainer />} />
+  </>
 );
 
-export const setupRoutes = (
-  <IndexRoute component={lazyLoadComponent(() => import('./components/SetupAppContainer'))} />
-);
+export default routes;

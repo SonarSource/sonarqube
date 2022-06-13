@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { components, OptionProps } from 'react-select';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';

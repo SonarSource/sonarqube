@@ -164,9 +164,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
       component={mockComponent({ key: 'foo', name: 'Foo' })}
       fetchBranchStatus={jest.fn()}
       location={mockLocation({ pathname: '/component_measures', query: { metric: 'coverage' } })}
-      params={{}}
       router={mockRouter()}
-      routes={[]}
       {...props}
     />
   );

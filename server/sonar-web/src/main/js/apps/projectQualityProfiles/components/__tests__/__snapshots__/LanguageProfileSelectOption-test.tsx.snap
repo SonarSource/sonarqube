@@ -34,15 +34,10 @@ exports[`tooltip should render correctly: default 1`] = `
     project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
   </p>
   <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/profiles/show",
-        "query": Object {
-          "language": "Java",
-          "name": "Profile 1",
-        },
+        "search": "?name=Profile+1&language=Java",
       }
     }
   >

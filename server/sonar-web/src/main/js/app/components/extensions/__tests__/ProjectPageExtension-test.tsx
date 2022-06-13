@@ -17,33 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { HelmetProvider } from 'react-helmet-async';
+import { IntlProvider } from 'react-intl';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { getExtensionStart } from '../../../../helpers/extensions';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { ComponentContextShape } from '../../../../types/component';
+import { Component } from '../../../../types/types';
+import { ComponentContext } from '../../componentContext/ComponentContext';
 import ProjectPageExtension, { ProjectPageExtensionProps } from '../ProjectPageExtension';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+jest.mock('../../../../helpers/extensions', () => ({
+  getExtensionStart: jest.fn().mockResolvedValue(jest.fn())
+}));
+
+it('should not render when no component is passed', () => {
+  renderProjectPageExtension();
+  expect(screen.queryByText('page_not_found')).not.toBeInTheDocument();
+  expect(getExtensionStart).not.toBeCalledWith('pluginId/extensionId');
+});
+
+it('should render correctly when the extension is found', () => {
+  renderProjectPageExtension(
+    mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
+    { params: { pluginKey: 'pluginId', extensionKey: 'extensionId' } }
+  );
+  expect(getExtensionStart).toBeCalledWith('pluginId/extensionId');
 });
 
 it('should render correctly when the extension is not found', () => {
-  const wrapper = shallowRender({
-    params: { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' }
-  });
-  expect(wrapper).toMatchSnapshot();
+  renderProjectPageExtension(
+    mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
+    { params: { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' } }
+  );
+  expect(screen.getByText('page_not_found')).toBeInTheDocument();
 });
 
-function shallowRender(props?: Partial<ProjectPageExtensionProps>) {
-  return shallow(
-    <ProjectPageExtension
-      branchLike={mockMainBranch()}
-      component={mockComponent({
-        extensions: [{ key: 'plugin-key/extension-key', name: 'plugin' }]
-      })}
-      params={{ extensionKey: 'extension-key', pluginKey: 'plugin-key' }}
-      {...props}
-    />
+function renderProjectPageExtension(
+  component?: Component,
+  props?: Partial<ProjectPageExtensionProps>
+) {
+  return render(
+    <HelmetProvider context={{}}>
+      <IntlProvider defaultLocale="en" locale="en">
+        <ComponentContext.Provider value={{ component } as ComponentContextShape}>
+          <MemoryRouter>
+            <Routes>
+              <Route
+                path="*"
+                element={
+                  <ProjectPageExtension
+                    params={{ extensionKey: 'extensionId', pluginKey: 'pluginId' }}
+                    {...props}
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </ComponentContext.Provider>
+      </IntlProvider>
+    </HelmetProvider>
   );
 }

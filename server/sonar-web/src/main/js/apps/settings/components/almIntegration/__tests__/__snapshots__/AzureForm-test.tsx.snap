@@ -42,8 +42,6 @@ exports[`should render correctly: create 1`] = `
         values={
           Object {
             "doc_link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to="/documentation/analysis/azuredevops-integration/"
             >
@@ -117,8 +115,6 @@ exports[`should render correctly: edit 1`] = `
         values={
           Object {
             "doc_link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to="/documentation/analysis/azuredevops-integration/"
             >

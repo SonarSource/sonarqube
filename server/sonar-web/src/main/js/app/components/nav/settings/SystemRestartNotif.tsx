@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getInstance } from '../../../../helpers/system';
@@ -32,11 +32,7 @@ export default function SystemRestartNotif() {
         id="system.instance_restarting"
         values={{
           instance: getInstance(),
-          link: (
-            <Link to={{ pathname: '/admin/background_tasks' }}>
-              {translate('background_tasks.page')}
-            </Link>
-          )
+          link: <Link to="/admin/background_tasks">{translate('background_tasks.page')}</Link>
         }}
       />
     </Alert>

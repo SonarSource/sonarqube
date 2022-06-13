@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import SearchBox from '../../../components/controls/SearchBox';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
@@ -64,7 +65,7 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
               <Link
                 to={{
                   pathname: '/projects/create',
-                  query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
+                  search: queryToSearch({ mode: CreateProjectModes.BitbucketServer, resetPat: 1 })
                 }}>
                 {translate('onboarding.create_project.update_your_token')}
               </Link>

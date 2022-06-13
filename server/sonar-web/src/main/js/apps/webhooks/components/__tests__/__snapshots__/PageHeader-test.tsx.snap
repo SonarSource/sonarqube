@@ -22,8 +22,6 @@ exports[`should render correctly 1`] = `
       values={
         Object {
           "url": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/documentation/project-administration/webhooks/"
           >
             webhooks.documentation_link

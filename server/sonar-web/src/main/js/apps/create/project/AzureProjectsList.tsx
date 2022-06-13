@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { Dict } from '../../../types/types';
 import AzureProjectAccordion from './AzureProjectAccordion';
@@ -73,7 +74,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
                 <Link
                   to={{
                     pathname: '/projects/create',
-                    query: { mode: CreateProjectModes.AzureDevOps, resetPat: 1 }
+                    search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 })
                   }}>
                   {translate('onboarding.create_project.update_your_token')}
                 </Link>

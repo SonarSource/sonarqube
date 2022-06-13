@@ -19,18 +19,20 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { withRouter, WithRouterProps } from 'react-router';
 import { changeKey } from '../../api/components';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import RecentHistory from '../../app/components/RecentHistory';
+import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { Component } from '../../types/types';
 import UpdateForm from './UpdateForm';
 
 interface Props {
-  component: Pick<Component, 'key' | 'name'>;
+  component: Component;
+  router: Router;
 }
 
-export class Key extends React.PureComponent<Props & WithRouterProps> {
+export class Key extends React.PureComponent<Props> {
   handleChangeKey = (newKey: string) => {
     return changeKey({ from: this.props.component.key, to: newKey }).then(() => {
       RecentHistory.remove(this.props.component.key);
@@ -53,4 +55,4 @@ export class Key extends React.PureComponent<Props & WithRouterProps> {
   }
 }
 
-export default withRouter(Key);
+export default withComponentContext(withRouter(Key));

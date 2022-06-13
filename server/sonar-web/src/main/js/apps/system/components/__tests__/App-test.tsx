@@ -80,7 +80,5 @@ it('should toggle cards and update the URL', () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App location={mockLocation()} params={{}} router={mockRouter()} routes={[]} {...props} />
-  );
+  return shallow<App>(<App location={mockLocation()} router={mockRouter()} {...props} />);
 }

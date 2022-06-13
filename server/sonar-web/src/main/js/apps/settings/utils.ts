@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LocationDescriptor } from 'history';
 import { sortBy } from 'lodash';
+import { Path } from 'react-router-dom';
 import { hasMessage, translate } from '../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
@@ -212,7 +212,7 @@ export function isRealSettingKey(key: string) {
 export function buildSettingLink(
   definition: ExtendedSettingDefinition,
   component?: Component
-): LocationDescriptor {
+): Partial<Path> {
   const { category, key } = definition;
 
   if (component !== undefined) {

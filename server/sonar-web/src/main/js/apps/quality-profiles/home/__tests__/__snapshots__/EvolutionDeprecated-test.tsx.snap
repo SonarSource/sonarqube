@@ -39,16 +39,10 @@ exports[`should render correctly 1`] = `
         , 
         <Link
           className="text-muted"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/coding_rules",
-              "query": Object {
-                "activation": "true",
-                "qprofile": "qp-5",
-                "statuses": "DEPRECATED",
-              },
+              "search": "?qprofile=qp-5&activation=true&statuses=DEPRECATED",
             }
           }
         >
@@ -92,16 +86,10 @@ exports[`should render correctly 1`] = `
         , 
         <Link
           className="text-muted"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/coding_rules",
-              "query": Object {
-                "activation": "true",
-                "qprofile": "qp-4",
-                "statuses": "DEPRECATED",
-              },
+              "search": "?qprofile=qp-4&activation=true&statuses=DEPRECATED",
             }
           }
         >
@@ -138,16 +126,10 @@ exports[`should render correctly 1`] = `
         , 
         <Link
           className="text-muted"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/coding_rules",
-              "query": Object {
-                "activation": "true",
-                "qprofile": "qp-2",
-                "statuses": "DEPRECATED",
-              },
+              "search": "?qprofile=qp-2&activation=true&statuses=DEPRECATED",
             }
           }
         >
@@ -177,16 +159,10 @@ exports[`should render correctly 1`] = `
         , 
         <Link
           className="text-muted"
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/coding_rules",
-              "query": Object {
-                "activation": "true",
-                "qprofile": "qp-3",
-                "statuses": "DEPRECATED",
-              },
+              "search": "?qprofile=qp-3&activation=true&statuses=DEPRECATED",
             }
           }
         >

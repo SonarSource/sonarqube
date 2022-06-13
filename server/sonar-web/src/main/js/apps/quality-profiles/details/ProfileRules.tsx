@@ -19,7 +19,7 @@
  */
 import { keyBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { Button } from '../../../components/controls/buttons';

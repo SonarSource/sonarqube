@@ -71,18 +71,12 @@ exports[`should render correctly for a regular file 1`] = `
         <li>
           <Link
             className="js-new-window"
-            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
-            style={Object {}}
             target="_blank"
             to={
               Object {
                 "pathname": "/code",
-                "query": Object {
-                  "id": "project",
-                  "line": undefined,
-                  "selected": "project:foo/bar.ts",
-                },
+                "search": "?id=project&selected=project%3Afoo%2Fbar.ts",
               }
             }
           >
@@ -210,18 +204,12 @@ exports[`should render correctly for a unit test 1`] = `
         <li>
           <Link
             className="js-new-window"
-            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
-            style={Object {}}
             target="_blank"
             to={
               Object {
                 "pathname": "/code",
-                "query": Object {
-                  "id": "my-project",
-                  "line": undefined,
-                  "selected": "my-project:foo/bar.ts",
-                },
+                "search": "?id=my-project&selected=my-project%3Afoo%2Fbar.ts",
               }
             }
           >
@@ -374,17 +362,11 @@ exports[`should render correctly if issue details are passed 1`] = `
         className="source-viewer-header-measure-value"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "files": "foo/bar.ts",
-                "id": "project",
-                "resolved": "false",
-                "types": "BUG",
-              },
+              "search": "?files=foo%2Fbar.ts&resolved=false&types=BUG&id=project",
             }
           }
         >
@@ -405,17 +387,11 @@ exports[`should render correctly if issue details are passed 1`] = `
         className="source-viewer-header-measure-value"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "files": "foo/bar.ts",
-                "id": "project",
-                "resolved": "false",
-                "types": "VULNERABILITY",
-              },
+              "search": "?files=foo%2Fbar.ts&resolved=false&types=VULNERABILITY&id=project",
             }
           }
         >
@@ -436,17 +412,11 @@ exports[`should render correctly if issue details are passed 1`] = `
         className="source-viewer-header-measure-value"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "files": "foo/bar.ts",
-                "id": "project",
-                "resolved": "false",
-                "types": "CODE_SMELL",
-              },
+              "search": "?files=foo%2Fbar.ts&resolved=false&types=CODE_SMELL&id=project",
             }
           }
         >
@@ -467,17 +437,11 @@ exports[`should render correctly if issue details are passed 1`] = `
         className="source-viewer-header-measure-value"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
+              "hash": "",
               "pathname": "/project/issues",
-              "query": Object {
-                "files": "foo/bar.ts",
-                "id": "project",
-                "resolved": "false",
-                "types": "SECURITY_HOTSPOT",
-              },
+              "search": "?files=foo%2Fbar.ts&resolved=false&types=SECURITY_HOTSPOT&id=project",
             }
           }
         >
@@ -504,18 +468,12 @@ exports[`should render correctly if issue details are passed 1`] = `
         <li>
           <Link
             className="js-new-window"
-            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
-            style={Object {}}
             target="_blank"
             to={
               Object {
                 "pathname": "/code",
-                "query": Object {
-                  "id": "project",
-                  "line": undefined,
-                  "selected": "project:foo/bar.ts",
-                },
+                "search": "?id=project&selected=project%3Afoo%2Fbar.ts",
               }
             }
           >

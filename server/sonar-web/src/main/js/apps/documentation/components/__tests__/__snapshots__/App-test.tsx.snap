@@ -69,8 +69,6 @@ exports[`should render correctly for SonarQube 2`] = `
           weight={10}
         />
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to="/documentation/"
         >
           <h1>

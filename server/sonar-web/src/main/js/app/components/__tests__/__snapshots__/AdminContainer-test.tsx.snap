@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
     prioritizeSeoTags={false}
     titleTemplate="%s - layout.settings"
   />
-  <SettingsNav
+  <WithLocation
     extensions={Array []}
     fetchPendingPlugins={[Function]}
     fetchSystemStatus={[Function]}
@@ -36,8 +36,12 @@ exports[`should render correctly 1`] = `
       }
     }
   >
-    <div
-      adminPages={Array []}
+    <Outlet
+      context={
+        Object {
+          "adminPages": Array [],
+        }
+      }
     />
   </ContextProvider>
 </div>

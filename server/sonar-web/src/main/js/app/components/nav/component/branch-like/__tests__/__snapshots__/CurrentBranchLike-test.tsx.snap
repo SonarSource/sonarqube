@@ -77,14 +77,10 @@ exports[`applications should render correctly when there is only one branch and 
           className="spacer-top spacer-bottom"
         />
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/project/admin/extension/developer-server/application-console",
-              "query": Object {
-                "id": "my-project",
-              },
+              "search": "?id=my-project",
             }
           }
         >

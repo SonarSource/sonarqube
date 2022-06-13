@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import { changeKey } from '../../../api/components';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { Key } from '../Key';
 
 jest.mock('../../../api/components', () => ({
@@ -28,8 +28,10 @@ jest.mock('../../../api/components', () => ({
 }));
 
 it('should render and change key', async () => {
-  const withRouterProps = { router: { replace: jest.fn() } as any } as WithRouterProps;
-  const wrapper = shallow(<Key component={{ key: 'foo', name: 'Foo' }} {...withRouterProps} />);
+  const withRouterProps = { router: { replace: jest.fn() } as any };
+  const wrapper = shallow(
+    <Key component={mockComponent({ key: 'foo', name: 'Foo' })} {...withRouterProps} />
+  );
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('UpdateForm').prop<Function>('onKeyChange')('bar');

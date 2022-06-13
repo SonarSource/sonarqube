@@ -5,35 +5,6 @@ exports[`should render correctly 1`] = `
   <A11ySkipTarget
     anchor="admin_main"
   />
-  <ChildComponent
-    branchLikes={Array []}
-    component={
-      Object {
-        "breadcrumbs": Array [],
-        "configuration": Object {
-          "showSettings": true,
-        },
-        "key": "my-project",
-        "name": "MyProject",
-        "qualifier": "TRK",
-        "qualityGate": Object {
-          "isDefault": true,
-          "key": "30",
-          "name": "Sonar way",
-        },
-        "qualityProfiles": Array [
-          Object {
-            "deleted": false,
-            "key": "my-qp",
-            "language": "ts",
-            "name": "Sonar way",
-          },
-        ],
-        "tags": Array [],
-      }
-    }
-    onBranchesChange={[MockFunction]}
-    onComponentChange={[MockFunction]}
-  />
+  <Outlet />
 </Fragment>
 `;

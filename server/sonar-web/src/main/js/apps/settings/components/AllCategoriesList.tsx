@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { IndexLink } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { AppState } from '../../../types/appstate';
@@ -65,10 +65,13 @@ export function CategoriesList(props: CategoriesListProps) {
         const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
         return (
           <li key={c.key}>
-            <IndexLink
-              className={classNames({
-                active: c.key.toLowerCase() === selectedCategory.toLowerCase()
-              })}
+            <NavLink
+              end={true}
+              className={_ =>
+                classNames({
+                  active: c.key.toLowerCase() === selectedCategory.toLowerCase()
+                })
+              }
               title={c.name}
               to={
                 component
@@ -76,7 +79,7 @@ export function CategoriesList(props: CategoriesListProps) {
                   : getGlobalSettingsUrl(category)
               }>
               {c.name}
-            </IndexLink>
+            </NavLink>
           </li>
         );
       })}

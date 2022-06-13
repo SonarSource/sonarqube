@@ -42,8 +42,8 @@ interface StateProps {
 
 type Props = {
   children?: React.ReactNode;
-  location: Pick<Location, 'pathname'>;
-  router: Pick<Router, 'push'>;
+  location: Location;
+  router: Router;
   appState: AppState;
 };
 

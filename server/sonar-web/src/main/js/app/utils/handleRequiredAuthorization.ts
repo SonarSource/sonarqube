@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getHistory from '../../helpers/getHistory';
-
 export default function handleRequiredAuthorization() {
-  const history = getHistory();
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
-  history.replace({
-    pathname: '/sessions/new',
-    query: { return_to: returnTo, authorizationError: true }
-  });
+  const searchParams = new URLSearchParams({ return_to: returnTo, authorizationError: 'true' });
+  window.location.replace(`/sessions/new?${searchParams.toString()}`);
 }

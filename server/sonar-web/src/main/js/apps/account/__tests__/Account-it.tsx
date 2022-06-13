@@ -24,7 +24,6 @@ import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
-import getHistory from '../../../helpers/getHistory';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
@@ -128,11 +127,21 @@ jest.mock('../../../api/users', () => ({
   changePassword: jest.fn().mockResolvedValue(true)
 }));
 
-it('should handle a currentUser not logged in', async () => {
+it('should handle a currentUser not logged in', () => {
+  const replace = jest.fn();
+  const locationMock = jest.spyOn(window, 'location', 'get').mockReturnValue(({
+    pathname: '/account',
+    search: '',
+    hash: '',
+    replace
+  } as unknown) as Location);
+
   renderAccountApp(mockCurrentUser());
 
   // Make sure we're redirected to the login screen
-  expect(await screen.findByText('/sessions/new?return_to=%2Faccount')).toBeInTheDocument();
+  expect(replace).toBeCalledWith('/sessions/new?return_to=%2Faccount');
+
+  locationMock.mockRestore();
 });
 
 it('should render the top menu', () => {
@@ -544,5 +553,5 @@ function getCheckboxByRowName(name: string) {
 }
 
 function renderAccountApp(currentUser: CurrentUser, navigateTo?: string) {
-  renderApp('account', routes, { currentUser, history: getHistory(), navigateTo });
+  renderApp('account', routes, { currentUser, navigateTo });
 }

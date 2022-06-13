@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { queryToSearch } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 
 export interface ProjectCreationMenuItemProps {
@@ -37,7 +38,7 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
   return (
     <Link
       className="display-flex-center"
-      to={{ pathname: '/projects/create', query: { mode: alm } }}>
+      to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}>
       {alm === 'manual' ? (
         <ChevronsIcon className="spacer-right" />
       ) : (

@@ -19,16 +19,10 @@ exports[`should render correctly 1`] = `
   </span>
   <Link
     className="pull-right"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/coding_rules",
-        "query": Object {
-          "activation": "true",
-          "qprofile": "bar",
-          "statuses": "DEPRECATED",
-        },
+        "search": "?qprofile=bar&activation=true&statuses=DEPRECATED",
       }
     }
   >

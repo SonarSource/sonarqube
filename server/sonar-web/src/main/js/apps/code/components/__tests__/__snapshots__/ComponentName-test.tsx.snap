@@ -163,15 +163,10 @@ foo:src/index.tsx"
 >
   <Link
     className="link-with-icon"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/code",
-        "query": Object {
-          "id": "foo",
-          "selected": "foo:src/index.tsx",
-        },
+        "search": "?id=foo&selected=foo%3Asrc%2Findex.tsx",
       }
     }
   >
@@ -282,16 +277,10 @@ foo"
 >
   <Link
     className="link-with-icon"
-    onlyActiveOnIndex={false}
-    style={Object {}}
     to={
       Object {
         "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "code_scope": "new",
-          "id": "src/main/ts/app",
-        },
+        "search": "?id=src%2Fmain%2Fts%2Fapp&code_scope=new",
       }
     }
   >
@@ -320,16 +309,10 @@ foo"
   >
     <Link
       className="link-with-icon"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "branch": "foo",
-            "code_scope": "new",
-            "id": "src/main/ts/app",
-          },
+          "search": "?id=src%2Fmain%2Fts%2Fapp&branch=foo&code_scope=new",
         }
       }
     >
@@ -369,16 +352,10 @@ foo"
   >
     <Link
       className="link-with-icon"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "branch": undefined,
-            "code_scope": "new",
-            "id": "src/main/ts/app",
-          },
+          "search": "?id=src%2Fmain%2Fts%2Fapp&code_scope=new",
         }
       }
     >

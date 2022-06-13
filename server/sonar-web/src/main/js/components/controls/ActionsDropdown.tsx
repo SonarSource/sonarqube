@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { LocationDescriptor } from 'history';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, To } from 'react-router-dom';
 import { translate } from '../../helpers/l10n';
 import DropdownIcon from '../icons/DropdownIcon';
 import SettingsIcon from '../icons/SettingsIcon';
@@ -68,7 +67,7 @@ interface ItemProps {
   download?: string;
   id?: string;
   onClick?: () => void;
-  to?: LocationDescriptor;
+  to?: To;
 }
 
 export class ActionsDropdownItem extends React.PureComponent<ItemProps> {

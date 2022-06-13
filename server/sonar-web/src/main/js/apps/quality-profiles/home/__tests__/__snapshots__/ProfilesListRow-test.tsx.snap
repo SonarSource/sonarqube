@@ -49,16 +49,10 @@ exports[`should render correctly: built-in profile 1`] = `
         >
           <Link
             className="badge badge-error"
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "pathname": "/coding_rules",
-                "query": Object {
-                  "activation": "true",
-                  "qprofile": "key",
-                  "statuses": "DEPRECATED",
-                },
+                "search": "?qprofile=key&activation=true&statuses=DEPRECATED",
               }
             }
           >
@@ -67,15 +61,10 @@ exports[`should render correctly: built-in profile 1`] = `
         </Tooltip>
       </span>
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "activation": "true",
-              "qprofile": "key",
-            },
+            "search": "?qprofile=key&activation=true",
           }
         }
       >
@@ -158,15 +147,10 @@ exports[`should render correctly: default 1`] = `
   >
     <div>
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "activation": "true",
-              "qprofile": "key",
-            },
+            "search": "?qprofile=key&activation=true",
           }
         }
       >
@@ -262,16 +246,10 @@ exports[`should render correctly: default profile 1`] = `
         >
           <Link
             className="badge badge-error"
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "pathname": "/coding_rules",
-                "query": Object {
-                  "activation": "true",
-                  "qprofile": "key",
-                  "statuses": "DEPRECATED",
-                },
+                "search": "?qprofile=key&activation=true&statuses=DEPRECATED",
               }
             }
           >
@@ -280,15 +258,10 @@ exports[`should render correctly: default profile 1`] = `
         </Tooltip>
       </span>
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "activation": "true",
-              "qprofile": "key",
-            },
+            "search": "?qprofile=key&activation=true",
           }
         }
       >
@@ -378,16 +351,10 @@ exports[`should render correctly: with deprecated rules 1`] = `
         >
           <Link
             className="badge badge-error"
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "pathname": "/coding_rules",
-                "query": Object {
-                  "activation": "true",
-                  "qprofile": "key",
-                  "statuses": "DEPRECATED",
-                },
+                "search": "?qprofile=key&activation=true&statuses=DEPRECATED",
               }
             }
           >
@@ -396,15 +363,10 @@ exports[`should render correctly: with deprecated rules 1`] = `
         </Tooltip>
       </span>
       <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "activation": "true",
-              "qprofile": "key",
-            },
+            "search": "?qprofile=key&activation=true",
           }
         }
       >

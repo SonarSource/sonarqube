@@ -3,8 +3,6 @@
 exports[`SearchResultEntry should render 1`] = `
 <Link
   className="list-group-item active"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to="/documentation/foo/bar"
 >
   <SearchResultTitle

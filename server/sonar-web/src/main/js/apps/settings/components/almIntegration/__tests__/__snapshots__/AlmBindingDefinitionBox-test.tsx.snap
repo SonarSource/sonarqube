@@ -523,8 +523,6 @@ exports[`should render correctly: success with alert 1`] = `
         values={
           Object {
             "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to="/documentation/analysis/github-integration/"
             >
@@ -652,8 +650,6 @@ exports[`should render correctly: success with branches disabled 1`] = `
         values={
           Object {
             "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to="/documentation/analysis/github-integration/"
             >

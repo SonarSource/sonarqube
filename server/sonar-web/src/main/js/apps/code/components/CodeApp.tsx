@@ -20,17 +20,17 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Location } from 'history';
 import { debounce, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { InjectedRouter } from 'react-router';
 import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -55,8 +55,8 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
-  location: Pick<Location, 'query'>;
-  router: Pick<InjectedRouter, 'push'>;
+  location: Location;
+  router: Router;
   metrics: Dict<Metric>;
 }
 
@@ -402,4 +402,6 @@ const AlertContent = styled.div`
   align-items: center;
 `;
 
-export default withBranchStatusActions(withMetricsContext(CodeApp));
+export default withRouter(
+  withComponentContext(withBranchStatusActions(withMetricsContext(CodeApp)))
+);

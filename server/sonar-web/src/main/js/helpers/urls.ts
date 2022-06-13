@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isNil, omitBy, pick } from 'lodash';
+import { isArray, mapValues, omitBy, pick } from 'lodash';
+import { Path, To } from 'react-router-dom';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
-import { Dict } from '../types/types';
+import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 import { IS_SSR } from './browser';
@@ -47,6 +48,35 @@ type Query = Location['query'];
 
 const PROJECT_BASE_URL = '/dashboard';
 
+export function queryToSearch(query: RawQuery = {}) {
+  const arrayParams: Array<{ key: string; values: string[] }> = [];
+
+  const stringParams = mapValues(query, (value, key) => {
+    // array values are added afterwards
+    if (isArray(value)) {
+      arrayParams.push({ key, values: value });
+      return '';
+    }
+
+    return value != null ? `${value}` : '';
+  });
+  const filteredParams = omitBy(stringParams, (v: string) => v.length === 0);
+  const searchParams = new URLSearchParams(filteredParams);
+
+  /*
+   * Add each value separately
+   * e.g. author: ['a', 'b'] should be serialized as
+   * author=a&author=b
+   */
+  arrayParams.forEach(({ key, values }) => {
+    values.forEach(value => {
+      searchParams.append(key, value);
+    });
+  });
+
+  return `?${searchParams.toString()}`;
+}
+
 export function getComponentOverviewUrl(
   componentKey: string,
   componentQualifier: ComponentQualifier | string,
@@ -66,19 +96,18 @@ export function getComponentAdminUrl(
     return getPortfolioAdminUrl(componentKey);
   } else if (isApplication(componentQualifier)) {
     return getApplicationAdminUrl(componentKey);
-  } else {
-    return getProjectUrl(componentKey);
   }
+  return getProjectUrl(componentKey);
 }
 
 export function getProjectUrl(
   project: string,
   branch?: string,
   codeScope?: CodeScopeType
-): Location {
+): Partial<Path> {
   return {
     pathname: PROJECT_BASE_URL,
-    query: { id: project, branch, ...(codeScope && { code_scope: codeScope }) }
+    search: queryToSearch({ id: project, branch, ...(codeScope && { code_scope: codeScope }) })
   };
 }
 
@@ -86,32 +115,32 @@ export function getProjectQueryUrl(
   project: string,
   branchParameters?: BranchParameters,
   codeScope?: CodeScopeType
-): Location {
+): To {
   return {
     pathname: PROJECT_BASE_URL,
-    query: {
+    search: queryToSearch({
       id: project,
       ...branchParameters,
       ...(codeScope && { code_scope: codeScope })
-    }
+    })
   };
 }
 
-export function getPortfolioUrl(key: string): Location {
-  return { pathname: '/portfolio', query: { id: key } };
+export function getPortfolioUrl(key: string): To {
+  return { pathname: '/portfolio', search: queryToSearch({ id: key }) };
 }
 
-export function getPortfolioAdminUrl(key: string) {
+export function getPortfolioAdminUrl(key: string): To {
   return {
     pathname: '/project/admin/extension/governance/console',
-    query: { id: key, qualifier: ComponentQualifier.Portfolio }
+    search: queryToSearch({ id: key, qualifier: ComponentQualifier.Portfolio })
   };
 }
 
-export function getApplicationAdminUrl(key: string) {
+export function getApplicationAdminUrl(key: string): To {
   return {
     pathname: '/project/admin/extension/developer-server/application-console',
-    query: { id: key }
+    search: queryToSearch({ id: key })
   };
 }
 
@@ -119,51 +148,58 @@ export function getComponentBackgroundTaskUrl(
   componentKey: string,
   status?: string,
   taskType?: string
-): Location {
-  return { pathname: '/project/background_tasks', query: { id: componentKey, status, taskType } };
+): Path {
+  return {
+    pathname: '/project/background_tasks',
+    search: queryToSearch({ id: componentKey, status, taskType }),
+    hash: ''
+  };
 }
 
-export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Location {
+export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Partial<Path> {
   if (isPullRequest(branchLike)) {
     return getPullRequestUrl(project, branchLike.key);
   } else if (isBranch(branchLike) && !isMainBranch(branchLike)) {
     return getBranchUrl(project, branchLike.name);
-  } else {
-    return getProjectUrl(project);
   }
+  return getProjectUrl(project);
 }
 
-export function getBranchUrl(project: string, branch: string): Location {
-  return { pathname: PROJECT_BASE_URL, query: { branch, id: project } };
+export function getBranchUrl(project: string, branch: string): Partial<Path> {
+  return { pathname: PROJECT_BASE_URL, search: queryToSearch({ branch, id: project }) };
 }
 
-export function getPullRequestUrl(project: string, pullRequest: string): Location {
-  return { pathname: PROJECT_BASE_URL, query: { id: project, pullRequest } };
+export function getPullRequestUrl(project: string, pullRequest: string): Partial<Path> {
+  return { pathname: PROJECT_BASE_URL, search: queryToSearch({ id: project, pullRequest }) };
 }
 
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query: Query): Location {
+export function getIssuesUrl(query: Query): To {
   const pathname = '/issues';
-  return { pathname, query };
+  return { pathname, search: queryToSearch(query) };
 }
 
 /**
  * Generate URL for a component's issues page
  */
-export function getComponentIssuesUrl(componentKey: string, query?: Query): Location {
-  return { pathname: '/project/issues', query: { ...(query || {}), id: componentKey } };
+export function getComponentIssuesUrl(componentKey: string, query?: Query): Path {
+  return {
+    pathname: '/project/issues',
+    search: queryToSearch({ ...(query || {}), id: componentKey }),
+    hash: ''
+  };
 }
 
 /**
  * Generate URL for a component's security hotspot page
  */
-export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Location {
+export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Path {
   const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe, file } = query;
   return {
     pathname: '/security_hotspots',
-    query: {
+    search: queryToSearch({
       id: componentKey,
       branch,
       pullRequest,
@@ -178,7 +214,8 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
         SecurityStandard.SANS_TOP25,
         SecurityStandard.CWE
       ])
-    }
+    }),
+    hash: ''
   };
 }
 
@@ -193,7 +230,7 @@ export function getComponentDrilldownUrl(options: {
   treemapView?: boolean;
   listView?: boolean;
   asc?: boolean;
-}): Location {
+}): To {
   const { componentKey, metric, branchLike, selectionKey, treemapView, listView, asc } = options;
   const query: Query = { id: componentKey, metric, ...getBranchLikeQuery(branchLike) };
   if (treemapView) {
@@ -206,7 +243,7 @@ export function getComponentDrilldownUrl(options: {
   if (selectionKey) {
     query.selected = selectionKey;
   }
-  return { pathname: '/component_measures', query };
+  return { pathname: '/component_measures', search: queryToSearch(query) };
 }
 
 export function getComponentDrilldownUrlWithSelection(
@@ -215,7 +252,7 @@ export function getComponentDrilldownUrlWithSelection(
   metric: string,
   branchLike?: BranchLike,
   view?: MeasurePageView
-): Location {
+): To {
   return getComponentDrilldownUrl({
     componentKey,
     selectionKey,
@@ -233,7 +270,7 @@ export function getMeasureTreemapUrl(componentKey: string, metric: string) {
 export function getActivityUrl(component: string, branchLike?: BranchLike, graph?: GraphType) {
   return {
     pathname: '/project/activity',
-    query: { id: component, graph, ...getBranchLikeQuery(branchLike) }
+    search: queryToSearch({ id: component, graph, ...getBranchLikeQuery(branchLike) })
   };
 }
 
@@ -243,36 +280,36 @@ export function getActivityUrl(component: string, branchLike?: BranchLike, graph
 export function getMeasureHistoryUrl(component: string, metric: string, branchLike?: BranchLike) {
   return {
     pathname: '/project/activity',
-    query: {
+    search: queryToSearch({
       id: component,
       graph: 'custom',
       custom_metrics: metric,
       ...getBranchLikeQuery(branchLike)
-    }
+    })
   };
 }
 
 /**
  * Generate URL for a component's permissions page
  */
-export function getComponentPermissionsUrl(componentKey: string): Location {
-  return { pathname: '/project_roles', query: { id: componentKey } };
+export function getComponentPermissionsUrl(componentKey: string): To {
+  return { pathname: '/project_roles', search: queryToSearch({ id: componentKey }) };
 }
 
 /**
  * Generate URL for a quality profile
  */
-export function getQualityProfileUrl(name: string, language: string): Location {
+export function getQualityProfileUrl(name: string, language: string): To {
   return getProfilePath(name, language);
 }
 
-export function getQualityGateUrl(key: string): Location {
+export function getQualityGateUrl(key: string): To {
   return {
     pathname: '/quality_gates/show/' + encodeURIComponent(key)
   };
 }
 
-export function getQualityGatesUrl(): Location {
+export function getQualityGatesUrl(): To {
   return {
     pathname: '/quality_gates'
   };
@@ -281,31 +318,31 @@ export function getQualityGatesUrl(): Location {
 export function getGlobalSettingsUrl(
   category?: string,
   query?: Dict<string | undefined | number>
-): Location {
+): Partial<Path> {
   return {
     pathname: '/admin/settings',
-    query: { category, ...query }
+    search: queryToSearch({ category, ...query })
   };
 }
 
-export function getProjectSettingsUrl(id: string, category?: string): Location {
+export function getProjectSettingsUrl(id: string, category?: string): Partial<Path> {
   return {
     pathname: '/project/settings',
-    query: { id, category }
+    search: queryToSearch({ id, category })
   };
 }
 
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query): Location {
-  return { pathname: '/coding_rules', query };
+export function getRulesUrl(query: Query): To {
+  return { pathname: '/coding_rules', search: queryToSearch(query) };
 }
 
 /**
  * Generate URL for the rules page filtering only active deprecated rules
  */
-export function getDeprecatedActiveRulesUrl(query: Query = {}): Location {
+export function getDeprecatedActiveRulesUrl(query: Query = {}): To {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery });
 }
@@ -323,10 +360,15 @@ export function getCodeUrl(
   branchLike?: BranchLike,
   selected?: string,
   line?: number
-): Location {
+): Partial<Path> {
   return {
     pathname: '/code',
-    query: { id: project, ...getBranchLikeQuery(branchLike), selected, line: line?.toFixed() }
+    search: queryToSearch({
+      id: project,
+      ...getBranchLikeQuery(branchLike),
+      selected,
+      line: line?.toFixed()
+    })
   };
 }
 
@@ -372,14 +414,13 @@ export function getHostUrl(): string {
   return window.location.origin + getBaseUrl();
 }
 
-export function getPathUrlAsString(path: Location, internal = true): string {
-  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${new URLSearchParams(
-    omitBy(path.query, isNil)
-  ).toString()}`;
+export function getPathUrlAsString(path: Partial<Path>, internal = true): string {
+  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname ?? '/'}${path.search ?? ''}`;
 }
 
 export function getReturnUrl(location: { hash?: string; query?: { return_to?: string } }) {
   const returnTo = location.query && location.query['return_to'];
+
   if (isRelativeUrl(returnTo)) {
     return returnTo + (location.hash ? location.hash : '');
   }
@@ -389,4 +430,29 @@ export function getReturnUrl(location: { hash?: string; query?: { return_to?: st
 export function isRelativeUrl(url?: string): boolean {
   const regex = new RegExp(/^\/[^/\\]/);
   return Boolean(url && regex.test(url));
+}
+
+export function searchParamsToQuery(searchParams: URLSearchParams) {
+  const result: RawQuery = {};
+
+  searchParams.forEach((value, key) => {
+    if (result[key]) {
+      result[key] = ([] as string[]).concat(result[key], value);
+    } else {
+      result[key] = value;
+    }
+  });
+
+  return result;
+}
+
+export function convertToTo(link: string | Location) {
+  if (linkIsLocation(link)) {
+    return { pathname: link.pathname, search: queryToSearch(link.query) } as Partial<Path>;
+  }
+  return link;
+}
+
+function linkIsLocation(link: string | Location): link is Location {
+  return (link as Location).query !== undefined;
 }

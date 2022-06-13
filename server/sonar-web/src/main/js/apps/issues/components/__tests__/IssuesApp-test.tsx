@@ -52,7 +52,7 @@ import {
   selectPreviousLocation
 } from '../../actions';
 import BulkChangeModal from '../BulkChangeModal';
-import App from '../IssuesApp';
+import { App } from '../IssuesApp';
 import IssuesSourceViewer from '../IssuesSourceViewer';
 import IssueViewerTabs from '../IssueTabViewer';
 

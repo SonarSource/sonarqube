@@ -20,16 +20,17 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent, Webhook } from '../../../types/types';
+import { Component, Webhook } from '../../../types/types';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
 
 interface Props {
   // eslint-disable-next-line react/no-unused-prop-types
-  component?: LightComponent;
+  component?: Component;
 }
 
 interface State {
@@ -37,7 +38,7 @@ interface State {
   webhooks: Webhook[];
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true, webhooks: [] };
 
@@ -148,3 +149,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withComponentContext(App);

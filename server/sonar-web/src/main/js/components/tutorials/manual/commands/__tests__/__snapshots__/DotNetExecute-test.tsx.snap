@@ -29,8 +29,6 @@ exports[`should render correctly 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
           >

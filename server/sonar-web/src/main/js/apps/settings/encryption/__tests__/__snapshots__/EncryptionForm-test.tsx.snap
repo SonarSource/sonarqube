@@ -51,8 +51,6 @@ exports[`should render correctly 1`] = `
         values={
           Object {
             "moreInformationLink": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               target="_blank"
               to="/documentation/instance-administration/security/"
             >

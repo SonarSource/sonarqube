@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import * as React from 'react';
-import { InjectedRouter } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { getAllMetrics } from '../../../api/metrics';
 import {
   changeEvent,
@@ -30,12 +29,14 @@ import {
   ProjectActivityStatuses
 } from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import {
   DEFAULT_GRAPH,
   getActivityGraph,
   getHistoryMetrics,
   isCustomGraph
 } from '../../../components/activity-graph/utils';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
@@ -57,7 +58,7 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   location: Location;
-  router: Pick<InjectedRouter, 'push' | 'replace'>;
+  router: Router;
 }
 
 export interface State {
@@ -75,7 +76,7 @@ export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
 const ACTIVITY_PAGE_SIZE = 500;
 
-export default class ProjectActivityAppContainer extends React.PureComponent<Props, State> {
+export class ProjectActivityAppContainer extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -93,25 +94,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
 
   componentDidMount() {
     this.mounted = true;
-    if (this.shouldRedirect()) {
-      const { graph, customGraphs } = getActivityGraph(
-        PROJECT_ACTIVITY_GRAPH,
-        this.props.component.key
-      );
-      const newQuery = { ...this.state.query, graph };
-      if (isCustomGraph(newQuery.graph)) {
-        newQuery.customMetrics = customGraphs;
-      }
-      this.props.router.replace({
-        pathname: this.props.location.pathname,
-        query: {
-          ...serializeUrlQuery(newQuery),
-          ...getBranchLikeQuery(this.props.branchLike)
-        }
-      });
-    } else {
-      this.firstLoadData(this.state.query, this.props.component);
-    }
+
+    this.firstLoadData(this.state.query, this.props.component);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -371,10 +355,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   };
 
   render() {
-    if (this.shouldRedirect()) {
-      return null;
-    }
-
     return (
       <ProjectActivityApp
         addCustomEvent={this.addCustomEvent}
@@ -395,3 +375,42 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     );
   }
 }
+
+const isFiltered = (searchParams: URLSearchParams) => {
+  let filtered = false;
+  searchParams.forEach((value, key) => {
+    if (key !== 'id' && value !== '') {
+      filtered = true;
+    }
+  });
+  return filtered;
+};
+
+function RedirectWrapper(props: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filtered = isFiltered(searchParams);
+
+  const { graph, customGraphs } = getActivityGraph(PROJECT_ACTIVITY_GRAPH, props.component.key);
+  const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
+
+  // if there is no filter, but there are saved preferences in the localStorage
+  // also don't redirect to custom if there is no metrics selected for it
+  const shouldRedirect = !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
+
+  React.useEffect(() => {
+    if (shouldRedirect) {
+      const query = parseQuery(searchParams);
+      const newQuery = { ...query, graph };
+      if (isCustomGraph(newQuery.graph)) {
+        searchParams.set('custom_metrics', customGraphs.join(','));
+      }
+      searchParams.set('graph', graph);
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [customGraphs, graph, searchParams, setSearchParams, shouldRedirect]);
+
+  return shouldRedirect ? null : <ProjectActivityAppContainer {...props} />;
+}
+
+export default withComponentContext(withRouter(RedirectWrapper));

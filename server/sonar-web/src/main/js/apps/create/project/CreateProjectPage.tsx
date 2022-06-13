@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { WithRouterProps } from 'react-router';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
@@ -38,8 +38,10 @@ import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 import { CreateProjectModes } from './types';
 
-interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
+interface Props {
   appState: AppState;
+  location: Location;
+  router: Router;
 }
 
 interface State {
@@ -270,4 +272,4 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppStateContext(CreateProjectPage);
+export default withRouter(withAppStateContext(CreateProjectPage));

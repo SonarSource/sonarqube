@@ -32,7 +32,7 @@ import { getReturnUrl } from '../../../helpers/urls';
 import '../styles.css';
 
 interface Props {
-  location: { query: { return_to?: string } };
+  location: { query?: { return_to?: string } };
   setup: boolean;
 }
 

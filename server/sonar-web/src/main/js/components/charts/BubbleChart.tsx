@@ -24,10 +24,10 @@ import { event, select } from 'd3-selection';
 import { zoom, ZoomBehavior, zoomIdentity } from 'd3-zoom';
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { translate } from '../../helpers/l10n';
-import { Location } from '../../helpers/urls';
+import { convertToTo, Location } from '../../helpers/urls';
 import Tooltip from '../controls/Tooltip';
 import './BubbleChart.css';
 
@@ -117,7 +117,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     });
   };
 
-  resetZoom = (e: React.MouseEvent<Link>) => {
+  resetZoom = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (this.zoom && this.node) {
@@ -377,7 +377,7 @@ function Bubble<T>(props: BubbleProps<T>) {
   );
 
   if (props.link && !props.onClick) {
-    circle = <Link to={props.link}>{circle}</Link>;
+    circle = <Link to={convertToTo(props.link)}>{circle}</Link>;
   }
 
   return (

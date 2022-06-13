@@ -18,30 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Router, withRouter } from '../../components/hoc/withRouter';
+import { Navigate, To } from 'react-router-dom';
 import { getHomePageUrl } from '../../helpers/urls';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 
 export interface LandingProps {
   currentUser: CurrentUser;
-  router: Router;
 }
 
-export class Landing extends React.PureComponent<LandingProps> {
-  componentDidMount() {
-    const { currentUser } = this.props;
-    if (isLoggedIn(currentUser) && currentUser.homepage) {
-      const homepage = getHomePageUrl(currentUser.homepage);
-      this.props.router.replace(homepage);
-    } else {
-      this.props.router.replace('/projects');
-    }
+export function Landing({ currentUser }: LandingProps) {
+  let redirectUrl: To;
+  if (isLoggedIn(currentUser) && currentUser.homepage) {
+    redirectUrl = getHomePageUrl(currentUser.homepage);
+  } else {
+    redirectUrl = '/projects';
   }
 
-  render() {
-    return null;
-  }
+  return <Navigate to={redirectUrl} replace={true} />;
 }
 
-export default withRouter(withCurrentUserContext(Landing));
+export default withCurrentUserContext(Landing);

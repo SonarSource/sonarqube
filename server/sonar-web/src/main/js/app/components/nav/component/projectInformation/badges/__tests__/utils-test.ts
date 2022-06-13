@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from '../../../../../../../helpers/urls';
+import { Location } from '../../../../../../../components/hoc/withRouter';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
 jest.mock('../../../../../../../helpers/urls', () => ({
   ...jest.requireActual('../../../../../../../helpers/urls'),
   getHostUrl: () => 'host',
-  getPathUrlAsString: (o: Location) =>
-    `host${o.pathname}?id=${o.query ? o.query.id : ''}&branch=${o.query ? o.query.branch : ''}`
+  getPathUrlAsString: (o: Location) => `host${o.pathname}${o.search}`
 }));
 
 const options: BadgeOptions = {

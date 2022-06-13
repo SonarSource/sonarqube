@@ -19,17 +19,18 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Outlet } from 'react-router-dom';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
+import { QualityProfilesContextProps } from '../qualityProfilesContext';
 import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
 
 interface Props {
-  children: React.ReactElement;
   languages: Languages;
 }
 
@@ -87,18 +88,22 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
   };
 
   renderChild() {
-    if (this.state.loading) {
+    const { actions, loading, profiles, exporters } = this.state;
+
+    if (loading) {
       return <i className="spinner" />;
     }
     const finalLanguages = Object.values(this.props.languages);
 
-    return React.cloneElement(this.props.children, {
-      actions: this.state.actions || {},
-      profiles: this.state.profiles || [],
+    const context: QualityProfilesContextProps = {
+      actions: actions || {},
+      profiles: profiles || [],
       languages: finalLanguages,
-      exporters: this.state.exporters,
+      exporters: exporters || [],
       updateProfiles: this.updateProfiles
-    });
+    };
+
+    return <Outlet context={context} />;
   }
 
   render() {

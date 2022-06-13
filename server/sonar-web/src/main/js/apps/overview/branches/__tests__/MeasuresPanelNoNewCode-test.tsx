@@ -61,8 +61,6 @@ it('should render the default message', () => {
           values={
             Object {
               "learn_more_link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to="/documentation/user-guide/clean-as-you-code/"
               >
                 learn_more

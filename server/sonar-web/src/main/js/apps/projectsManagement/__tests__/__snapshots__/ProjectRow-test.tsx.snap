@@ -18,14 +18,10 @@ exports[`renders 1`] = `
   >
     <Link
       className="link-with-icon"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "project",
-          },
+          "search": "?id=project",
         }
       }
     >
@@ -114,14 +110,10 @@ exports[`renders: portfolio 1`] = `
   >
     <Link
       className="link-with-icon"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/portfolio",
-          "query": Object {
-            "id": "project",
-          },
+          "search": "?id=project",
         }
       }
     >
@@ -210,14 +202,10 @@ exports[`renders: with lastAnalysisDate 1`] = `
   >
     <Link
       className="link-with-icon"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/dashboard",
-          "query": Object {
-            "id": "project",
-          },
+          "search": "?id=project",
         }
       }
     >

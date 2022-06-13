@@ -35,8 +35,6 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
         values={
           Object {
             "learn_more_link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to="/documentation/user-guide/clean-as-you-code/"
             >
               learn_more
@@ -84,8 +82,6 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
         values={
           Object {
             "learn_more_link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to="/documentation/user-guide/clean-as-you-code/"
             >
               learn_more
@@ -165,8 +161,6 @@ exports[`should render the default message 6`] = `
         values={
           Object {
             "learn_more_link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
               to="/documentation/user-guide/clean-as-you-code/"
             >
               learn_more

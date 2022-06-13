@@ -100,15 +100,10 @@ exports[`should render correctly: add language 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "bar",
-                    },
+                    "search": "?activation=true&qprofile=bar",
                   }
                 }
               >
@@ -147,15 +142,10 @@ exports[`should render correctly: add language 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "baz",
-                    },
+                    "search": "?activation=true&qprofile=baz",
                   }
                 }
               >
@@ -196,15 +186,10 @@ exports[`should render correctly: add language 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "foo",
-                    },
+                    "search": "?activation=true&qprofile=foo",
                   }
                 }
               >
@@ -415,15 +400,10 @@ exports[`should render correctly: default 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "bar",
-                    },
+                    "search": "?activation=true&qprofile=bar",
                   }
                 }
               >
@@ -462,15 +442,10 @@ exports[`should render correctly: default 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "baz",
-                    },
+                    "search": "?activation=true&qprofile=baz",
                   }
                 }
               >
@@ -511,15 +486,10 @@ exports[`should render correctly: default 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "foo",
-                    },
+                    "search": "?activation=true&qprofile=foo",
                   }
                 }
               >
@@ -751,15 +721,10 @@ exports[`should render correctly: open profile 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "bar",
-                    },
+                    "search": "?activation=true&qprofile=bar",
                   }
                 }
               >
@@ -798,15 +763,10 @@ exports[`should render correctly: open profile 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "baz",
-                    },
+                    "search": "?activation=true&qprofile=baz",
                   }
                 }
               >
@@ -847,15 +807,10 @@ exports[`should render correctly: open profile 1`] = `
               className="nowrap text-right"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/coding_rules",
-                    "query": Object {
-                      "activation": "true",
-                      "qprofile": "foo",
-                    },
+                    "search": "?activation=true&qprofile=foo",
                   }
                 }
               >

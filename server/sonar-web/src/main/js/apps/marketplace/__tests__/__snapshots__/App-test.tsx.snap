@@ -44,8 +44,6 @@ exports[`should render correctly: loaded 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/documentation/instance-administration/marketplace/"
               >
@@ -144,8 +142,6 @@ exports[`should render correctly: loading 1`] = `
           values={
             Object {
               "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 target="_blank"
                 to="/documentation/instance-administration/marketplace/"
               >

@@ -269,7 +269,7 @@ export default class IssuesServiceMock {
   };
 
   handleSearchIssues = (query: RequestData): Promise<RawIssuesResponse> => {
-    const facets = query.facets.split(',').map((name: string) => {
+    const facets = (query.facets ?? '').split(',').map((name: string) => {
       if (name === 'owaspTop10-2021') {
         return this.owasp2021FacetList();
       }

@@ -18,22 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useParams } from 'react-router-dom';
 import { AppState } from '../../../types/appstate';
 import withAppStateContext from '../app-state/withAppStateContext';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
-interface Props {
+export interface GlobalPageExtensionProps {
   appState: AppState;
-  params: { extensionKey: string; pluginKey: string };
+  params?: {
+    extensionKey: string;
+    pluginKey: string;
+  };
 }
 
-function GlobalPageExtension(props: Props) {
+function GlobalPageExtension(props: GlobalPageExtensionProps) {
   const {
-    params: { extensionKey, pluginKey },
-    appState: { globalPages }
+    appState: { globalPages },
+    params
   } = props;
-  const extension = (globalPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
+  const { extensionKey, pluginKey } = useParams();
+
+  const fullKey =
+    params !== undefined
+      ? `${params.pluginKey}/${params.extensionKey}`
+      : `${pluginKey}/${extensionKey}`;
+
+  const extension = (globalPages || []).find(p => p.key === fullKey);
   return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }
 

@@ -24,6 +24,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
+import { queryToSearch } from '../../../../helpers/urls';
 import { SettingsSearch } from '../SettingsSearch';
 
 jest.mock('lunr', () =>
@@ -107,7 +108,7 @@ describe('instance', () => {
     expect(router.push).toBeCalledWith({
       hash: '#foo',
       pathname: '/admin/settings',
-      query: { category: 'foo category' }
+      search: queryToSearch({ category: 'foo category' })
     });
   });
 

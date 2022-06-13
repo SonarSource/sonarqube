@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
-import ProfileDetails, { ProfileDetailsProps } from '../ProfileDetails';
+import { ProfileDetails, ProfileDetailsProps } from '../ProfileDetails';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');

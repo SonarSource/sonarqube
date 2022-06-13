@@ -30,7 +30,7 @@ import {
 } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
-import MeasuresPanel, { MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
+import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
 
 jest.mock('react', () => {
   return {
@@ -41,24 +41,18 @@ jest.mock('react', () => {
 
 it('should render correctly for projects', () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-  wrapper
-    .dive()
-    .find(BoxedTabs)
-    .prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('default');
+  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
+  expect(wrapper).toMatchSnapshot('overall');
 });
 
 it('should render correctly for applications', () => {
   const wrapper = shallowRender({
     component: mockComponent({ qualifier: ComponentQualifier.Application })
   });
-  expect(wrapper).toMatchSnapshot();
-  wrapper
-    .dive()
-    .find(BoxedTabs)
-    .prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('default');
+  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
+  expect(wrapper).toMatchSnapshot('overall');
 });
 
 it('should render correctly if there is no new code measures', () => {
@@ -68,10 +62,7 @@ it('should render correctly if there is no new code measures', () => {
       mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })
     ]
   });
-  wrapper
-    .dive()
-    .find(BoxedTabs)
-    .prop<Function>('onSelect')(MeasuresPanelTabs.New);
+  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -84,10 +75,7 @@ it('should render correctly if branch is misconfigured', () => {
     ],
     period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'own-reference' })
   });
-  wrapper
-    .dive()
-    .find(BoxedTabs)
-    .prop<Function>('onSelect')(MeasuresPanelTabs.New);
+  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot('hide settings');
 
   wrapper.setProps({ component: mockComponent({ configuration: { showSettings: true } }) });

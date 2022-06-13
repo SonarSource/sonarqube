@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import ProfileLink from '../components/ProfileLink';

@@ -18,26 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { BranchLike } from '../../../types/branch-like';
-import { Component } from '../../../types/types';
+import { useParams } from 'react-router-dom';
+import { ComponentContext } from '../componentContext/ComponentContext';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
 export interface ProjectPageExtensionProps {
-  branchLike?: BranchLike;
-  component: Component;
-  params: {
+  params?: {
     extensionKey: string;
     pluginKey: string;
   };
 }
 
-export default function ProjectPageExtension(props: ProjectPageExtensionProps) {
-  const { extensionKey, pluginKey } = props.params;
-  const { branchLike, component } = props;
-  const extension =
-    component.extensions &&
-    component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
+export default function ProjectPageExtension({ params }: ProjectPageExtensionProps) {
+  const { extensionKey, pluginKey } = useParams();
+  const { branchLike, component } = React.useContext(ComponentContext);
+
+  if (component === undefined) {
+    return null;
+  }
+
+  const fullKey =
+    params !== undefined
+      ? `${params.pluginKey}/${params.extensionKey}`
+      : `${pluginKey}/${extensionKey}`;
+
+  const extension = component.extensions && component.extensions.find(p => p.key === fullKey);
   return extension ? (
     <Extension extension={extension} options={{ branchLike, component }} />
   ) : (

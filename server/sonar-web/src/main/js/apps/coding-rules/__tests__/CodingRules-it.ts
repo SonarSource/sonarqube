@@ -317,6 +317,16 @@ it('should be able to bulk deactivate quality profile', async () => {
   ).toBeInTheDocument();
 });
 
+it('should handle hash parameters', async () => {
+  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules#languages=c,js|types=BUG');
+
+  // 2 languages
+  expect(await screen.findByText('x_selected.2')).toBeInTheDocument();
+  expect(screen.getAllByTitle('issue.type.BUG')).toHaveLength(2);
+  // Only 3 rules shown
+  expect(screen.getByText('x_of_y_shown.3.3')).toBeInTheDocument();
+});
+
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
   renderApp('coding_rules', routes, {
     navigateTo,

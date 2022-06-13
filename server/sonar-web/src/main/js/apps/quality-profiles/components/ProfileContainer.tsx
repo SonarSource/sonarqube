@@ -19,67 +19,53 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { WithRouterProps } from 'react-router';
+import { Outlet, useSearchParams } from 'react-router-dom';
+import { useLocation } from '../../../components/hoc/withRouter';
 import ProfileHeader from '../details/ProfileHeader';
-import { Profile } from '../types';
+import { QualityProfilesContextProps, withQualityProfilesContext } from '../qualityProfilesContext';
 import ProfileNotFound from './ProfileNotFound';
 
-interface Props {
-  children: React.ReactElement<any>;
-  profiles: Profile[];
-  updateProfiles: () => Promise<void>;
-}
+export function ProfileContainer(props: QualityProfilesContextProps) {
+  const [_, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
-export default class ProfileContainer extends React.PureComponent<Props & WithRouterProps> {
-  componentDidMount() {
-    const { location, profiles, router } = this.props;
-    if (location.query.key) {
-      // try to find a quality profile with the given key
-      // if managed to find one, redirect to a new version
-      // otherwise do nothing, `render` will show not found page
-      const profile = profiles.find(profile => profile.key === location.query.key);
-      if (profile) {
-        router.replace({
-          pathname: location.pathname,
-          query: { language: profile.language, name: profile.name }
-        });
-      }
+  const { key, language, name } = location.query;
+
+  const { profiles } = props;
+
+  // try to find a quality profile with the given key
+  // if managed to find one, redirect to a new version
+  // otherwise show not found page
+  const profileForKey = key && profiles.find(p => p.key === location.query.key);
+
+  React.useEffect(() => {
+    if (profileForKey) {
+      setSearchParams({ language: profileForKey.language, name: profileForKey.name });
     }
+  });
+
+  if (key) {
+    return profileForKey ? null : <ProfileNotFound />;
   }
 
-  render() {
-    const { profiles, location, ...other } = this.props;
-    const { key, language, name } = location.query;
+  const profile = profiles.find(p => p.language === language && p.name === name);
 
-    if (key) {
-      // if there is a `key` parameter,
-      // then if we managed to find a quality profile with this key
-      // then we will be redirected in `componentDidMount`
-      // otherwise show `ProfileNotFound`
-      const profile = profiles.find(profile => profile.key === location.query.key);
-      return profile ? null : <ProfileNotFound />;
-    }
-
-    const profile = profiles.find(
-      profile => profile.language === language && profile.name === name
-    );
-
-    if (!profile) {
-      return <ProfileNotFound />;
-    }
-
-    const child = React.cloneElement(this.props.children, {
-      profile,
-      profiles,
-      ...other
-    });
-
-    return (
-      <div id="quality-profile">
-        <Helmet defer={false} title={profile.name} />
-        <ProfileHeader profile={profile} updateProfiles={this.props.updateProfiles} />
-        {child}
-      </div>
-    );
+  if (!profile) {
+    return <ProfileNotFound />;
   }
+
+  const context: QualityProfilesContextProps = {
+    profile,
+    ...props
+  };
+
+  return (
+    <div id="quality-profile">
+      <Helmet defer={false} title={profile.name} />
+      <ProfileHeader profile={profile} updateProfiles={props.updateProfiles} />
+      <Outlet context={context} />
+    </div>
+  );
 }
+
+export default withQualityProfilesContext(ProfileContainer);

@@ -21,7 +21,7 @@ import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import {
   getAvailablePlugins,
   getInstalledPlugins,
@@ -51,7 +51,7 @@ interface Props {
   fetchPendingPlugins: () => void;
   pendingPlugins: PendingPluginResult;
   location: Location;
-  router: Pick<Router, 'push'>;
+  router: Router;
   standaloneMode?: boolean;
   updateCenterActive: boolean;
 }

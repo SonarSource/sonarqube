@@ -18,16 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
 import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Profile } from '../types';
 import { getProfileComparePath } from '../utils';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 
-interface Props extends WithRouterProps {
+interface Props {
   profile: Profile;
   profiles: Profile[];
+  location: Location;
+  router: Router;
 }
 
 type State = { loading: boolean } & Partial<CompareResponse>;
@@ -123,4 +126,4 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(ComparisonContainer);
+export default withQualityProfilesContext(withRouter(ComparisonContainer));

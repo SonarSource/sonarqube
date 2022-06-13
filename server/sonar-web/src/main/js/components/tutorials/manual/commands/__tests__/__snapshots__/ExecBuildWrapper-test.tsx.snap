@@ -24,8 +24,6 @@ exports[`Shoud renders for "linux" correctly 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/languages/cfamily/"
           >
@@ -62,8 +60,6 @@ exports[`Shoud renders for "mac" correctly 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/languages/cfamily/"
           >
@@ -100,8 +96,6 @@ exports[`Shoud renders for "win" correctly 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/languages/cfamily/"
           >

@@ -99,12 +99,10 @@ exports[`should render correctly 1`] = `
   >
     <Link
       className="spacer-right link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo/foo",
-          "query": Object {},
+          "search": "?",
         }
       }
     >

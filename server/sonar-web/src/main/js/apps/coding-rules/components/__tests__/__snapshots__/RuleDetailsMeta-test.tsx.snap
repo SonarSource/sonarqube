@@ -17,16 +17,11 @@ exports[`should display right meta info 1`] = `
       </span>
       <Link
         className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
-        onlyActiveOnIndex={false}
-        style={Object {}}
         title="permalink"
         to={
           Object {
             "pathname": "/coding_rules",
-            "query": Object {
-              "open": "squid:S1133",
-              "rule_key": "squid:S1133",
-            },
+            "search": "?open=squid%3AS1133&rule_key=squid%3AS1133",
           }
         }
       >

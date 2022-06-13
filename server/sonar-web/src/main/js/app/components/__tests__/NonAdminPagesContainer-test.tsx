@@ -17,48 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { ComponentQualifier } from '../../../types/component';
-import NonAdminPagesContainer, { NonAdminPagesContainerProps } from '../NonAdminPagesContainer';
+import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { Component } from '../../../types/types';
+import { ComponentContext } from '../componentContext/ComponentContext';
+import NonAdminPagesContainer from '../NonAdminPagesContainer';
 
 function Child() {
-  return <div />;
+  return <div>Test Child</div>;
 }
 
-it('should render correctly', () => {
-  expect(
-    shallowRender()
-      .find(Child)
-      .exists()
-  ).toBe(true);
-
-  expect(
-    shallowRender({
-      component: mockComponent({
-        qualifier: ComponentQualifier.Application,
-        canBrowseAllChildProjects: true
-      })
-    })
-      .find(Child)
-      .exists()
-  ).toBe(true);
-
-  const wrapper = shallowRender({
-    component: mockComponent({
-      qualifier: ComponentQualifier.Application
-    })
-  });
-
-  expect(wrapper.find(Child).exists()).toBe(false);
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly for an user that does not have access to all children', () => {
+  renderNonAdminPagesContainer(
+    mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false })
+  );
+  expect(screen.getByText('application.cannot_access_all_child_projects1')).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<NonAdminPagesContainerProps> = {}) {
-  return shallow<NonAdminPagesContainerProps>(
-    <NonAdminPagesContainer component={mockComponent()} {...props}>
-      <Child />
-    </NonAdminPagesContainer>
+it('should render correctly', () => {
+  renderNonAdminPagesContainer(mockComponent());
+  expect(screen.getByText('Test Child')).toBeInTheDocument();
+});
+
+function renderNonAdminPagesContainer(component: Component) {
+  return render(
+    <ComponentContext.Provider value={{ component } as ComponentContextShape}>
+      <MemoryRouter>
+        <Routes>
+          <Route element={<NonAdminPagesContainer />}>
+            <Route path="*" element={<Child />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </ComponentContext.Provider>
   );
 }

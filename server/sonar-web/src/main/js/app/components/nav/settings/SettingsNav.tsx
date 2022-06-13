@@ -19,8 +19,9 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { IndexLink, Link } from 'react-router';
+import { Location, NavLink } from 'react-router-dom';
 import Dropdown from '../../../../components/controls/Dropdown';
+import withLocation from '../../../../components/hoc/withLocation';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import ContextNavBar from '../../../../components/ui/ContextNavBar';
 import NavBarTabs from '../../../../components/ui/NavBarTabs';
@@ -37,19 +38,20 @@ interface Props {
   extensions: Extension[];
   fetchPendingPlugins: () => void;
   fetchSystemStatus: () => void;
+  location: Location;
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
 }
 
-export default class SettingsNav extends React.PureComponent<Props> {
+export class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
     extensions: []
   };
 
-  isSomethingActive(urls: string[]): boolean {
-    const path = window.location.pathname;
+  isSomethingActive = (urls: string[]) => {
+    const path = this.props.location.pathname;
     return urls.some((url: string) => path.indexOf(getBaseUrl() + url) === 0);
-  }
+  };
 
   isSecurityActive() {
     const urls = [
@@ -84,9 +86,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   renderExtension = ({ key, name }: Extension) => {
     return (
       <li key={key}>
-        <Link activeClassName="active" to={`/admin/extension/${key}`}>
-          {name}
-        </Link>
+        <NavLink to={`/admin/extension/${key}`}>{name}</NavLink>
       </li>
     );
   };
@@ -100,19 +100,19 @@ export default class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu">
             <li>
-              <IndexLink activeClassName="active" to="/admin/settings">
+              <NavLink end={true} to="/admin/settings">
                 {translate('settings.page')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/settings/encryption">
+              <NavLink end={true} to="/admin/settings/encryption">
                 {translate('property.category.security.encryption')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/webhooks">
+              <NavLink end={true} to="/admin/webhooks">
                 {translate('webhooks.page')}
-              </IndexLink>
+              </NavLink>
             </li>
             {extensionsWithoutSupport.map(this.renderExtension)}
           </ul>
@@ -150,14 +150,14 @@ export default class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu">
             <li>
-              <IndexLink activeClassName="active" to="/admin/projects_management">
+              <NavLink end={true} to="/admin/projects_management">
                 {translate('management')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/background_tasks">
+              <NavLink end={true} to="/admin/background_tasks">
                 {translate('background_tasks.page')}
-              </IndexLink>
+              </NavLink>
             </li>
           </ul>
         }
@@ -184,24 +184,24 @@ export default class SettingsNav extends React.PureComponent<Props> {
         overlay={
           <ul className="menu">
             <li>
-              <IndexLink activeClassName="active" to="/admin/users">
+              <NavLink end={true} to="/admin/users">
                 {translate('users.page')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/groups">
+              <NavLink end={true} to="/admin/groups">
                 {translate('user_groups.page')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/permissions">
+              <NavLink end={true} to="/admin/permissions">
                 {translate('global_permissions.page')}
-              </IndexLink>
+              </NavLink>
             </li>
             <li>
-              <IndexLink activeClassName="active" to="/admin/permission_templates">
+              <NavLink end={true} to="/admin/permission_templates">
                 {translate('permission_templates')}
-              </IndexLink>
+              </NavLink>
             </li>
           </ul>
         }
@@ -262,30 +262,30 @@ export default class SettingsNav extends React.PureComponent<Props> {
           {this.renderProjectsTab()}
 
           <li>
-            <IndexLink activeClassName="active" to="/admin/system">
+            <NavLink end={true} to="/admin/system">
               {translate('sidebar.system')}
-            </IndexLink>
+            </NavLink>
           </li>
 
           <li>
-            <IndexLink activeClassName="active" to="/admin/marketplace">
+            <NavLink end={true} to="/admin/marketplace">
               {translate('marketplace.page')}
-            </IndexLink>
+            </NavLink>
           </li>
 
           {hasGovernanceExtension && (
             <li>
-              <IndexLink activeClassName="active" to="/admin/audit">
+              <NavLink end={true} to="/admin/audit">
                 {translate('audit_logs.page')}
-              </IndexLink>
+              </NavLink>
             </li>
           )}
 
           {hasSupportExtension && (
             <li>
-              <IndexLink activeClassName="active" to="/admin/extension/license/support">
+              <NavLink end={true} to="/admin/extension/license/support">
                 {translate('support')}
-              </IndexLink>
+              </NavLink>
             </li>
           )}
         </NavBarTabs>
@@ -293,3 +293,5 @@ export default class SettingsNav extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withLocation(SettingsNav);

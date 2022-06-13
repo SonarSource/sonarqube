@@ -25,7 +25,8 @@ import {
   searchWebhooks,
   updateWebhook
 } from '../../../../api/webhooks';
-import App from '../App';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { App } from '../App';
 
 jest.mock('../../../../api/webhooks', () => ({
   createWebhook: jest.fn(() =>
@@ -43,7 +44,7 @@ jest.mock('../../../../api/webhooks', () => ({
   updateWebhook: jest.fn(() => Promise.resolve())
 }));
 
-const component = { key: 'bar', qualifier: 'TRK' };
+const component = mockComponent({ key: 'bar', qualifier: 'TRK' });
 
 beforeEach(() => {
   (createWebhook as jest.Mock<any>).mockClear();

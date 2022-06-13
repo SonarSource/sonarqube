@@ -25,6 +25,7 @@ import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -104,7 +105,7 @@ interface Props {
   currentUser: CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
   location: Location;
-  router: Pick<Router, 'push' | 'replace'>;
+  router: Router;
 }
 
 export interface State {
@@ -141,7 +142,7 @@ const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
 const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -1154,3 +1155,5 @@ const AlertContent = styled.div`
   display: flex;
   align-items: center;
 `;
+
+export default withComponentContext(App);

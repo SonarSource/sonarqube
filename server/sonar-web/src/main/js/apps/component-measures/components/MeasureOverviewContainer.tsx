@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { InjectedRouter } from 'react-router';
 import { getComponentShow } from '../../../api/components';
+import { Router } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -43,7 +43,7 @@ interface Props {
   metrics: Dict<Metric>;
   onIssueChange?: (issue: Issue) => void;
   rootComponent: ComponentMeasure;
-  router: InjectedRouter;
+  router: Router;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
 }

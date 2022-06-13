@@ -12,13 +12,7 @@ exports[`should render correctly 1`] = `
       Object {
         "instance": undefined,
         "link": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/admin/background_tasks",
-            }
-          }
+          to="/admin/background_tasks"
         >
           background_tasks.page
         </Link>,

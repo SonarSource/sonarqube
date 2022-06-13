@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LocationDescriptor } from 'history';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, To } from 'react-router-dom';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
@@ -64,7 +63,7 @@ export default function ComponentCell(props: ComponentCellProps) {
     ({ head, tail } = splitPath(component.path));
   }
 
-  let path: LocationDescriptor;
+  let path: To;
   const targetKey = component.refKey || rootComponent.key;
   const selectionKey = component.refKey ? '' : component.key;
 

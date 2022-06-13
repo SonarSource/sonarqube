@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ComponentContext } from '../../../app/components/ComponentContext';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { AnalysisEvent } from '../../../types/types';

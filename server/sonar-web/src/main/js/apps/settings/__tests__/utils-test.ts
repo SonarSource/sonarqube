@@ -92,7 +92,7 @@ describe('buildSettingLink', () => {
     [
       mockDefinition({ key: 'anykey' }),
       undefined,
-      { hash: '#anykey', pathname: '/admin/settings', query: { category: 'foo category' } }
+      { hash: '#anykey', pathname: '/admin/settings', search: '?category=foo+category' }
     ],
     [
       mockDefinition({ key: 'sonar.auth.gitlab.name' }),
@@ -100,7 +100,7 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.gitlab.name',
         pathname: '/admin/settings',
-        query: { alm: 'gitlab', category: 'foo category' }
+        search: '?category=foo+category&alm=gitlab'
       }
     ],
     [
@@ -109,7 +109,7 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.github.token',
         pathname: '/admin/settings',
-        query: { alm: 'github', category: 'foo category' }
+        search: '?category=foo+category&alm=github'
       }
     ],
     [
@@ -118,7 +118,7 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.almintegration.azure',
         pathname: '/admin/settings',
-        query: { alm: 'azure', category: 'foo category' }
+        search: '?category=foo+category&alm=azure'
       }
     ],
     [
@@ -127,7 +127,7 @@ describe('buildSettingLink', () => {
       {
         hash: '#defKey',
         pathname: '/project/settings',
-        query: { id: 'componentKey', category: 'foo category' }
+        search: '?id=componentKey&category=foo+category'
       }
     ]
   ])('should work as expected', (definition, component, expectedUrl) => {

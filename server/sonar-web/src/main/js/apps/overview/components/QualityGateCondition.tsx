@@ -19,18 +19,14 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, Path } from 'react-router-dom';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
-import {
-  getComponentIssuesUrl,
-  getComponentSecurityHotspotsUrl,
-  Location
-} from '../../../helpers/urls';
+import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
@@ -97,7 +93,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    const METRICS_TO_URL_MAPPING: Dict<() => Location> = {
+    const METRICS_TO_URL_MAPPING: Dict<() => Path> = {
       [MetricKey.reliability_rating]: () =>
         this.getUrlForBugsOrVulnerabilities(IssueType.Bug, false),
       [MetricKey.new_reliability_rating]: () =>

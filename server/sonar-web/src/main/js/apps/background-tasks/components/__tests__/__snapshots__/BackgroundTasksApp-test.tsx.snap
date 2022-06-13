@@ -26,16 +26,48 @@ exports[`should render correctly: loaded 1`] = `
   <Header
     component={
       Object {
-        "id": "564",
+        "breadcrumbs": Array [],
         "key": "foo",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
   />
   <Stats
     component={
       Object {
-        "id": "564",
+        "breadcrumbs": Array [],
         "key": "foo",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
     failingCount={15}
@@ -46,8 +78,24 @@ exports[`should render correctly: loaded 1`] = `
   <Search
     component={
       Object {
-        "id": "564",
+        "breadcrumbs": Array [],
         "key": "foo",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
     currents="__ALL__"
@@ -71,8 +119,24 @@ exports[`should render correctly: loaded 1`] = `
   <Tasks
     component={
       Object {
-        "id": "564",
+        "breadcrumbs": Array [],
         "key": "foo",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
     loading={false}

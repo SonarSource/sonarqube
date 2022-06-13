@@ -75,15 +75,10 @@ exports[`should render correctly: importing 1`] = `
               className="project-name display-inline-block text-ellipsis"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "already-imported",
-                    },
+                    "search": "?id=already-imported",
                   }
                 }
               >
@@ -154,15 +149,10 @@ exports[`should render correctly: no projects 1`] = `
     values={
       Object {
         "link": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/projects/create",
-              "query": Object {
-                "mode": "gitlab",
-                "resetPat": 1,
-              },
+              "search": "?mode=gitlab&resetPat=1",
             }
           }
         >
@@ -276,15 +266,10 @@ exports[`should render correctly: projects 1`] = `
               className="project-name display-inline-block text-ellipsis"
             >
               <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
                 to={
                   Object {
                     "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "already-imported",
-                    },
+                    "search": "?id=already-imported",
                   }
                 }
               >
@@ -355,15 +340,10 @@ exports[`should render correctly: undefined projects 1`] = `
     values={
       Object {
         "link": <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/projects/create",
-              "query": Object {
-                "mode": "gitlab",
-                "resetPat": 1,
-              },
+              "search": "?mode=gitlab&resetPat=1",
             }
           }
         >

@@ -71,8 +71,6 @@ exports[`should render correctly 2`] = `
         className="web-api-page-header"
       >
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to="/web_api/"
         >
           <h1>

@@ -165,14 +165,10 @@ exports[`should render correctly: setting missing url, admin 1`] = `
         Object {
           "alm": "onboarding.alm.azure",
           "url": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "pathname": "/admin/settings",
-                "query": Object {
-                  "category": "almintegration",
-                },
+                "search": "?category=almintegration",
               }
             }
           >

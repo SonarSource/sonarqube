@@ -23,7 +23,7 @@ import { mockAnalysisEvent } from '../../../../helpers/testMocks';
 import { BranchLike } from '../../../../types/branch-like';
 import EventInner, { EventInnerProps } from '../EventInner';
 
-jest.mock('../../../../app/components/ComponentContext', () => {
+jest.mock('../../../../app/components/componentContext/ComponentContext', () => {
   const { mockBranch } = jest.requireActual('../../../../helpers/mocks/branch-like');
   return {
     ComponentContext: {

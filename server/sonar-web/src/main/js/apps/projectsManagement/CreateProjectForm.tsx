@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { createProject } from '../../api/components';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';

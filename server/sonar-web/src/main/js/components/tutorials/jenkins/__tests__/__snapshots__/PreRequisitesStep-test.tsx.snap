@@ -47,8 +47,6 @@ exports[`should render correctly: content 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >
@@ -109,8 +107,6 @@ exports[`should render correctly: content for branches disabled 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >
@@ -174,8 +170,6 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >

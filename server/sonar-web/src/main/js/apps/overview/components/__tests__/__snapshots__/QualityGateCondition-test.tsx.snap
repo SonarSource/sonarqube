@@ -45,17 +45,11 @@ exports[`should render correclty 1`] = `
 exports[`should render correclty 2`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "types": "BUG",
-      },
+      "search": "?resolved=false&types=BUG&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&id=abcd-key",
     }
   }
 >
@@ -97,17 +91,11 @@ exports[`should render correclty 2`] = `
 exports[`should render correclty 3`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "types": "VULNERABILITY",
-      },
+      "search": "?resolved=false&types=VULNERABILITY&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&id=abcd-key",
     }
   }
 >
@@ -149,16 +137,11 @@ exports[`should render correclty 3`] = `
 exports[`should render correclty 4`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "types": "CODE_SMELL",
-      },
+      "search": "?resolved=false&types=CODE_SMELL&id=abcd-key",
     }
   }
 >
@@ -200,18 +183,11 @@ exports[`should render correclty 4`] = `
 exports[`should render correclty 5`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "sinceLeakPeriod": "true",
-        "types": "BUG",
-      },
+      "search": "?resolved=false&types=BUG&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&sinceLeakPeriod=true&id=abcd-key",
     }
   }
 >
@@ -253,18 +229,11 @@ exports[`should render correclty 5`] = `
 exports[`should render correclty 6`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "sinceLeakPeriod": "true",
-        "types": "VULNERABILITY",
-      },
+      "search": "?resolved=false&types=VULNERABILITY&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&sinceLeakPeriod=true&id=abcd-key",
     }
   }
 >
@@ -306,17 +275,11 @@ exports[`should render correclty 6`] = `
 exports[`should render correclty 7`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "sinceLeakPeriod": "true",
-        "types": "CODE_SMELL",
-      },
+      "search": "?resolved=false&types=CODE_SMELL&sinceLeakPeriod=true&id=abcd-key",
     }
   }
 >
@@ -358,20 +321,11 @@ exports[`should render correclty 7`] = `
 exports[`should render correclty 8`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/security_hotspots",
-      "query": Object {
-        "assignedToMe": undefined,
-        "branch": undefined,
-        "file": undefined,
-        "hotspots": undefined,
-        "id": "abcd-key",
-        "pullRequest": undefined,
-        "sinceLeakPeriod": undefined,
-      },
+      "search": "?id=abcd-key",
     }
   }
 >
@@ -413,20 +367,11 @@ exports[`should render correclty 8`] = `
 exports[`should render correclty 9`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/security_hotspots",
-      "query": Object {
-        "assignedToMe": undefined,
-        "branch": undefined,
-        "file": undefined,
-        "hotspots": undefined,
-        "id": "abcd-key",
-        "pullRequest": undefined,
-        "sinceLeakPeriod": "true",
-      },
+      "search": "?id=abcd-key&sinceLeakPeriod=true",
     }
   }
 >
@@ -468,18 +413,11 @@ exports[`should render correclty 9`] = `
 exports[`should work with branch 1`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
   to={
     Object {
+      "hash": "",
       "pathname": "/project/issues",
-      "query": Object {
-        "branch": "branch-6.7",
-        "id": "abcd-key",
-        "resolved": "false",
-        "sinceLeakPeriod": "true",
-        "types": "CODE_SMELL",
-      },
+      "search": "?resolved=false&branch=branch-6.7&types=CODE_SMELL&sinceLeakPeriod=true&id=abcd-key",
     }
   }
 >

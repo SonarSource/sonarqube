@@ -43,15 +43,10 @@ exports[`should render correctly 1`] = `
           )
         </span>
         <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
           to={
             Object {
               "pathname": "/profiles/show",
-              "query": Object {
-                "language": "css",
-                "name": "name",
-              },
+              "search": "?name=name&language=css",
             }
           }
         >
@@ -110,15 +105,10 @@ exports[`should render correctly 2`] = `
             )
           </span>
           <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to={
               Object {
                 "pathname": "/profiles/show",
-                "query": Object {
-                  "language": "css",
-                  "name": "name",
-                },
+                "search": "?name=name&language=css",
               }
             }
           >

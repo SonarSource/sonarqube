@@ -10,14 +10,10 @@ exports[`should also render domains with an actions description matching the que
     <Link
       className="list-group-item"
       key="bar"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/bar",
-          "query": Object {
-            "query": "Bar",
-          },
+          "search": "?query=Bar",
         }
       }
     >
@@ -30,14 +26,10 @@ exports[`should also render domains with an actions description matching the que
     <Link
       className="list-group-item"
       key="baz"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/baz",
-          "query": Object {
-            "query": "Bar",
-          },
+          "search": "?query=Bar",
         }
       }
     >
@@ -61,12 +53,10 @@ exports[`should not render deprecated domains 1`] = `
     <Link
       className="list-group-item"
       key="foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo",
-          "query": Object {},
+          "search": "?",
         }
       }
     >
@@ -90,12 +80,10 @@ exports[`should not render internal domains 1`] = `
     <Link
       className="list-group-item"
       key="foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo",
-          "query": Object {},
+          "search": "?",
         }
       }
     >
@@ -119,14 +107,10 @@ exports[`should render deprecated domains 1`] = `
     <Link
       className="list-group-item"
       key="foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo",
-          "query": Object {
-            "deprecated": true,
-          },
+          "search": "?deprecated=true",
         }
       }
     >
@@ -139,14 +123,10 @@ exports[`should render deprecated domains 1`] = `
     <Link
       className="list-group-item"
       key="bar"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/bar",
-          "query": Object {
-            "deprecated": true,
-          },
+          "search": "?deprecated=true",
         }
       }
     >
@@ -173,14 +153,10 @@ exports[`should render internal domains 1`] = `
     <Link
       className="list-group-item"
       key="foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo",
-          "query": Object {
-            "internal": true,
-          },
+          "search": "?internal=true",
         }
       }
     >
@@ -193,14 +169,10 @@ exports[`should render internal domains 1`] = `
     <Link
       className="list-group-item"
       key="bar"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/bar",
-          "query": Object {
-            "internal": true,
-          },
+          "search": "?internal=true",
         }
       }
     >
@@ -225,14 +197,10 @@ exports[`should render only domains with an action matching the query 1`] = `
     <Link
       className="list-group-item"
       key="foo"
-      onlyActiveOnIndex={false}
-      style={Object {}}
       to={
         Object {
           "pathname": "/web_api/foo",
-          "query": Object {
-            "query": "Foo",
-          },
+          "search": "?query=Foo",
         }
       }
     >

@@ -18,23 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
-import { Component } from '../../../types/types';
 import { PageContext } from '../indexation/PageUnavailableDueToIndexation';
 import ProjectPageExtension from './ProjectPageExtension';
 
-export interface PortfolioPageProps extends WithRouterProps {
-  component: Component;
-}
-
-export function PortfolioPage({ component }: PortfolioPageProps) {
-  return (
-    <ProjectPageExtension
-      component={component}
-      params={{ pluginKey: 'governance', extensionKey: 'portfolio' }}
-    />
-  );
+export function PortfolioPage() {
+  return <ProjectPageExtension params={{ pluginKey: 'governance', extensionKey: 'portfolio' }} />;
 }
 
 export default withIndexationGuard(PortfolioPage, PageContext.Portfolios);

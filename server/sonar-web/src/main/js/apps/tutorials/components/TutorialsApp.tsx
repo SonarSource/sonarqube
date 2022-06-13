@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
@@ -50,4 +51,4 @@ export function TutorialsApp(props: TutorialsAppProps) {
   );
 }
 
-export default withCurrentUserContext(TutorialsApp);
+export default withComponentContext(withCurrentUserContext(TutorialsApp));

@@ -18,8 +18,6 @@ exports[`should render correctly: can admin 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/documentation/project-administration/new-code-period/"
           >
             project_baseline.page.description.link
@@ -34,8 +32,6 @@ exports[`should render correctly: can admin 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/admin/settings?category=new_code_period"
           >
             project_baseline.page.description2.link
@@ -65,8 +61,6 @@ exports[`should render correctly: cannot admin 1`] = `
       values={
         Object {
           "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
             to="/documentation/project-administration/new-code-period/"
           >
             project_baseline.page.description.link

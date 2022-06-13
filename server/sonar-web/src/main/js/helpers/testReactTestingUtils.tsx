@@ -18,26 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render, RenderResult } from '@testing-library/react';
-import { History } from 'history';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
-import {
-  createMemoryHistory,
-  Route,
-  RouteComponent,
-  RouteConfig,
-  Router,
-  withRouter,
-  WithRouterProps
-} from 'react-router';
+
+import { MemoryRouter, Outlet, parsePath, Route, Routes } from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
+import IndexationContextProvider from '../app/components/indexation/IndexationContextProvider';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
-import { RouteWithChildRoutes } from '../app/utils/startReactApp';
+import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
@@ -46,7 +39,6 @@ import { mockAppState, mockCurrentUser } from './testMocks';
 
 interface RenderContext {
   metrics?: Dict<Metric>;
-  history?: History;
   appState?: AppState;
   languages?: Languages;
   currentUser?: CurrentUser;
@@ -55,11 +47,11 @@ interface RenderContext {
 
 export function renderAdminApp(
   indexPath: string,
-  routes: RouteConfig,
+  routes: () => JSX.Element,
   context: RenderContext = {},
   overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {}
 ): RenderResult {
-  function MockAdminContainer(props: { children: React.ReactElement }) {
+  function MockAdminContainer() {
     return (
       <AdminContext.Provider
         value={{
@@ -72,29 +64,33 @@ export function renderAdminApp(
           pendingPlugins: { installing: [], removing: [], updating: [] },
           systemStatus: overrides.systemStatus ?? 'UP'
         }}>
-        {React.cloneElement(props.children, {
-          adminPages: overrides.adminPages ?? []
-        })}
+        <Outlet
+          context={{
+            adminPages: overrides.adminPages ?? []
+          }}
+        />
       </AdminContext.Provider>
     );
   }
 
-  const innerPath = indexPath.split('admin/').pop();
-
   return renderRoutedApp(
-    <Route component={MockAdminContainer} path="admin">
-      <RouteWithChildRoutes path={innerPath} childRoutes={routes} />
+    <Route element={<MockAdminContainer />} path="admin">
+      {routes()}
     </Route>,
     indexPath,
     context
   );
 }
 
-export function renderComponent(component: React.ReactElement) {
+export function renderComponent(component: React.ReactElement, pathname = '/') {
   function Wrapper({ children }: { children: React.ReactElement }) {
     return (
       <IntlProvider defaultLocale="en" locale="en">
-        {children}
+        <MemoryRouter initialEntries={[pathname]}>
+          <Routes>
+            <Route path="*" element={children} />
+          </Routes>
+        </MemoryRouter>
       </IntlProvider>
     );
   }
@@ -104,31 +100,25 @@ export function renderComponent(component: React.ReactElement) {
 
 export function renderComponentApp(
   indexPath: string,
-  component: RouteComponent,
+  component: JSX.Element,
   context: RenderContext = {}
 ): RenderResult {
-  return renderRoutedApp(<Route path={indexPath} component={component} />, indexPath, context);
+  return renderRoutedApp(<Route path={indexPath} element={component} />, indexPath, context);
 }
 
 export function renderApp(
   indexPath: string,
-  routes: RouteConfig,
+  routes: () => JSX.Element,
   context?: RenderContext
 ): RenderResult {
-  return renderRoutedApp(
-    <RouteWithChildRoutes path={indexPath} childRoutes={routes} />,
-    indexPath,
-    context
-  );
+  return renderRoutedApp(routes(), indexPath, context);
 }
 
-const CatchAll = withRouter((props: WithRouterProps) => {
-  return (
-    <div>{`${props.location.pathname}?${new URLSearchParams(
-      props.location.query
-    ).toString()}`}</div>
-  );
-});
+export function CatchAll() {
+  const location = useLocation();
+
+  return <div>{`${location.pathname}${location.search}`}</div>;
+}
 
 function renderRoutedApp(
   children: React.ReactElement,
@@ -138,11 +128,12 @@ function renderRoutedApp(
     navigateTo = indexPath,
     metrics = DEFAULT_METRICS,
     appState = mockAppState(),
-    history = createMemoryHistory(),
     languages = {}
   }: RenderContext = {}
 ): RenderResult {
-  history.push(`/${navigateTo}`);
+  const path = parsePath(navigateTo);
+  path.pathname = `/${path.pathname}`;
+
   return render(
     <HelmetProvider context={{}}>
       <IntlProvider defaultLocale="en" locale="en">
@@ -150,11 +141,15 @@ function renderRoutedApp(
           <LanguagesContext.Provider value={languages}>
             <CurrentUserContextProvider currentUser={currentUser}>
               <AppStateContextProvider appState={appState}>
-                <GlobalMessagesContainer />
-                <Router history={history}>
-                  {children}
-                  <Route path="*" component={CatchAll} />
-                </Router>
+                <IndexationContextProvider>
+                  <GlobalMessagesContainer />
+                  <MemoryRouter initialEntries={[path]}>
+                    <Routes>
+                      {children}
+                      <Route path="*" element={<CatchAll />} />
+                    </Routes>
+                  </MemoryRouter>
+                </IndexationContextProvider>
               </AppStateContextProvider>
             </CurrentUserContextProvider>
           </LanguagesContext.Provider>

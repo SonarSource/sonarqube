@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { getDefinitions } from '../../../api/settings';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -39,7 +40,7 @@ interface State {
   loading: boolean;
 }
 
-export default class SettingsApp extends React.PureComponent<Props, State> {
+export class SettingsApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { definitions: [], loading: true };
 
@@ -79,3 +80,5 @@ export default class SettingsApp extends React.PureComponent<Props, State> {
     return <SettingsAppRenderer component={component} {...this.state} />;
   }
 }
+
+export default withComponentContext(SettingsApp);

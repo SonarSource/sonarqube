@@ -479,8 +479,6 @@ exports[`should render correctly: show new code warning 1`] = `
             values={
               Object {
                 "link": <Link
-                  onlyActiveOnIndex={false}
-                  style={Object {}}
                   to={
                     Object {
                       "pathname": "/quality_gates/show/3",

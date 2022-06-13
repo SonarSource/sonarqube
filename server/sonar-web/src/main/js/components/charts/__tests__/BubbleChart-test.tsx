@@ -21,7 +21,7 @@ import { select } from 'd3-selection';
 import { zoom } from 'd3-zoom';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { AutoSizer, AutoSizerProps } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { mockComponentMeasureEnhanced } from '../../../helpers/mocks/component';
 import { mockHtmlElement } from '../../../helpers/mocks/dom';

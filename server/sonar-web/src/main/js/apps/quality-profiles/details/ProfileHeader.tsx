@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexLink, Link } from 'react-router';
+import { Link, NavLink } from 'react-router-dom';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate } from '../../../helpers/l10n';
@@ -40,9 +40,9 @@ export default class ProfileHeader extends React.PureComponent<Props> {
     return (
       <header className="page-header quality-profile-header">
         <div className="note spacer-bottom">
-          <IndexLink className="text-muted" to={PROFILE_PATH}>
+          <NavLink end={true} className="text-muted" to={PROFILE_PATH}>
             {translate('quality_profiles.page')}
-          </IndexLink>
+          </NavLink>
           {' / '}
           <Link className="text-muted" to={getProfilesForLanguagePath(profile.language)}>
             {profile.languageName}

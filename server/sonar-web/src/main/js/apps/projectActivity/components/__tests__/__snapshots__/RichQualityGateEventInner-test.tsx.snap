@@ -87,16 +87,11 @@ exports[`should render 2`] = `
       >
         <Link
           onClick={[Function]}
-          onlyActiveOnIndex={false}
-          style={Object {}}
           title="Foo"
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": "master",
-                "id": "foo",
-              },
+              "search": "?id=foo&branch=master",
             }
           }
         >
@@ -123,16 +118,11 @@ exports[`should render 2`] = `
       >
         <Link
           onClick={[Function]}
-          onlyActiveOnIndex={false}
-          style={Object {}}
           title="Bar"
           to={
             Object {
               "pathname": "/dashboard",
-              "query": Object {
-                "branch": "master",
-                "id": "bar",
-              },
+              "search": "?id=bar&branch=master",
             }
           }
         >

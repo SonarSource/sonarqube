@@ -21,7 +21,7 @@ import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree
 import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { getInstalledPlugins } from '../../../api/plugins';
 import { getPluginStaticFileContent } from '../../../api/static';
 import NotFound from '../../../app/components/NotFound';
@@ -54,7 +54,7 @@ interface State {
 
 const LANGUAGES_BASE_URL = 'analysis/languages';
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     loading: false,
@@ -226,4 +226,11 @@ export default class App extends React.PureComponent<Props, State> {
       </div>
     );
   }
+}
+
+export default function AppWrapper() {
+  const params = useParams();
+  const location = useLocation();
+
+  return <App params={{ splat: params['*'] }} location={location} />;
 }

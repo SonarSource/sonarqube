@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { Router } from '../../components/hoc/withRouter';
+import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { KeyboardKeys } from '../../helpers/keycodes';
@@ -550,4 +550,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(withBranchStatusActions(SecurityHotspotsApp));
+export default withRouter(
+  withComponentContext(withCurrentUserContext(withBranchStatusActions(SecurityHotspotsApp)))
+);

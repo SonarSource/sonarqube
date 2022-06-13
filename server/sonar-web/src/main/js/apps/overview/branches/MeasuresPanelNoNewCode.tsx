@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { queryToSearch } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Component, Period } from '../../../types/types';
@@ -77,7 +78,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
                     <Link
                       to={{
                         pathname: '/project/baseline',
-                        query: { id: component.key, ...getBranchLikeQuery(branch) }
+                        search: queryToSearch({ id: component.key, ...getBranchLikeQuery(branch) })
                       }}>
                       {translate('settings.new_code_period.category')}
                     </Link>

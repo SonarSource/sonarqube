@@ -30,7 +30,7 @@ import {
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
-import ProjectActivityAppContainer from '../ProjectActivityAppContainer';
+import { ProjectActivityAppContainer } from '../ProjectActivityAppContainer';
 
 jest.mock('../../../../helpers/dates', () => ({
   parseDate: jest.fn(date => `PARSED:${date}`)

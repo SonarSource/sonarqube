@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
@@ -30,7 +30,7 @@ import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, queryToSearch } from '../../../helpers/urls';
 import { GitlabProject } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
 import { Paging } from '../../../types/types';
@@ -69,7 +69,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
               <Link
                 to={{
                   pathname: '/projects/create',
-                  query: { mode: CreateProjectModes.GitLab, resetPat: 1 }
+                  search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 })
                 }}>
                 {translate('onboarding.create_project.update_your_token')}
               </Link>

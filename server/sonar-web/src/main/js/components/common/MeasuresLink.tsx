@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import MeasuresIcon from '../../components/icons/MeasuresIcon';
 import { translate } from '../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../helpers/urls';

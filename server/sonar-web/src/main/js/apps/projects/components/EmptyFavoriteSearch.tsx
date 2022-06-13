@@ -19,9 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import '../../../components/common/EmptySearch.css';
 import { translate } from '../../../helpers/l10n';
+import { queryToSearch } from '../../../helpers/urls';
+import { Dict } from '../../../types/types';
 import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {
@@ -33,7 +35,15 @@ export default function EmptyFavoriteSearch({ query }: { query: Query }) {
           defaultMessage={translate('no_results_search.favorites.2')}
           id="no_results_search.favorites.2"
           values={{
-            url: <Link to={{ pathname: '/projects', query }}>{translate('all')}</Link>
+            url: (
+              <Link
+                to={{
+                  pathname: '/projects',
+                  search: queryToSearch(query as Dict<string | undefined | number>)
+                }}>
+                {translate('all')}
+              </Link>
+            )
           }}
         />
       </p>

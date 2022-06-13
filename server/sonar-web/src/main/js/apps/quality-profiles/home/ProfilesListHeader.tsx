@@ -26,7 +26,7 @@ import { getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
 interface Props {
   currentFilter?: string;
   languages: Array<{ key: string; name: string }>;
-  router: Pick<Router, 'replace'>;
+  router: Router;
 }
 
 export class ProfilesListHeader extends React.PureComponent<Props> {
