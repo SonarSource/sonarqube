@@ -10,7 +10,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.sonarqube' version '3.4.0.2513'
   id "de.undercouch.download" version "5.0.1" apply false
-  id "org.cyclonedx.bom" version "1.5.0" apply false
+  id "org.cyclonedx.bom" version "1.6.1" apply false
 }
 
 if (!JavaVersion.current().java11Compatible) {
