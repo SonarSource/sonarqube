@@ -379,13 +379,6 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               <Link to={getBranchLikeUrl(sourceViewerFile.project, branchLike)}>
                 {sourceViewerFile.projectName}
               </Link>
-
-              {sourceViewerFile.subProject && (
-                <>
-                  <QualifierIcon className="big-spacer-left little-spacer-right" qualifier="BRC" />
-                  {sourceViewerFile.subProjectName}
-                </>
-              )}
             </div>
 
             <div className="display-flex-center little-spacer-top">

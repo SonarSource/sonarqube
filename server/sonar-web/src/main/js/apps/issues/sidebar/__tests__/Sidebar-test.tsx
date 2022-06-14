@@ -22,8 +22,8 @@ import { flatten } from 'lodash';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { GlobalSettingKeys } from '../../../../types/settings';
 import { ComponentQualifier } from '../../../../types/component';
+import { GlobalSettingKeys } from '../../../../types/settings';
 import { Query } from '../../utils';
 import { Sidebar } from '../Sidebar';
 
@@ -39,7 +39,6 @@ it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Portfolio],
   [ComponentQualifier.SubPortfolio],
-  [ComponentQualifier.SubProject],
   [ComponentQualifier.Directory],
   [ComponentQualifier.Developper]
 ])('should render facets for %p', qualifier => {

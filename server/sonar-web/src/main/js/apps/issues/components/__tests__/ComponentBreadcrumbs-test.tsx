@@ -57,8 +57,3 @@ it('renders issues properly for views', () => {
     )
   ).toMatchSnapshot('with branch information');
 });
-
-it('renders with sub-project', () => {
-  const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  expect(shallow(<ComponentBreadcrumbs component={undefined} issue={issue} />)).toMatchSnapshot();
-});

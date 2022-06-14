@@ -114,16 +114,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
 
   render() {
     const { showMeasures } = this.props;
-    const {
-      key,
-      measures,
-      path,
-      project,
-      projectName,
-      q,
-      subProject,
-      subProjectName
-    } = this.props.sourceViewerFile;
+    const { key, measures, path, project, projectName, q } = this.props.sourceViewerFile;
     const unitTestsOrLines = q === ComponentQualifier.TestFile ? 'tests' : 'lines';
     const workspace = false;
     const query = new URLSearchParams(
@@ -143,12 +134,6 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </a>
             </div>
-
-            {subProject !== undefined && (
-              <div className="component-name-parent">
-                <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
-              </div>
-            )}
 
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>

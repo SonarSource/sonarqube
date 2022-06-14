@@ -32,7 +32,6 @@ export enum ComponentQualifier {
   Portfolio = 'VW',
   Project = 'TRK',
   SubPortfolio = 'SVW',
-  SubProject = 'BRC',
   TestFile = 'UTS'
 }
 

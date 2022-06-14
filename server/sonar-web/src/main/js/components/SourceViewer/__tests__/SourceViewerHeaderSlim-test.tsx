@@ -37,17 +37,6 @@ it('should render correctly', () => {
   ).toMatchSnapshot('project root');
 });
 
-it('should render correctly for subproject', () => {
-  expect(
-    shallowRender({
-      sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
-        subProject: 'foo',
-        subProjectName: 'Foo'
-      })
-    })
-  ).toMatchSnapshot();
-});
-
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <SourceViewerHeaderSlim

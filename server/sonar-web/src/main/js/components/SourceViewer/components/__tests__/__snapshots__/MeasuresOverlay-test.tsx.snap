@@ -39,11 +39,6 @@ exports[`should render source file 1`] = `
         >
           Project Name
         </Link>
-        <QualifierIcon
-          className="big-spacer-left little-spacer-right"
-          qualifier="BRC"
-        />
-        Sub-Project Name
       </div>
       <div
         className="display-flex-center little-spacer-top"
@@ -613,11 +608,6 @@ exports[`should render source file 2`] = `
         >
           Project Name
         </Link>
-        <QualifierIcon
-          className="big-spacer-left little-spacer-right"
-          qualifier="BRC"
-        />
-        Sub-Project Name
       </div>
       <div
         className="display-flex-center little-spacer-top"
@@ -1770,11 +1760,6 @@ exports[`should render test file 1`] = `
         >
           Project Name
         </Link>
-        <QualifierIcon
-          className="big-spacer-left little-spacer-right"
-          qualifier="BRC"
-        />
-        Sub-Project Name
       </div>
       <div
         className="display-flex-center little-spacer-top"

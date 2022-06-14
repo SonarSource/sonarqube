@@ -96,7 +96,7 @@ export class Search extends React.PureComponent<Props, State> {
       });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
-      const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
+      const qualifiers = isPortfolio ? 'SVW,TRK' : 'UTS,FIL';
 
       getTree({
         component: component.key,

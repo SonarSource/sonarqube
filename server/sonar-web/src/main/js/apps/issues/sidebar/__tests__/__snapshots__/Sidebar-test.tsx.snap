@@ -34,25 +34,6 @@ Array [
 ]
 `;
 
-exports[`should render facets for "BRC" 1`] = `
-Array [
-  "TypeFacet",
-  "SeverityFacet",
-  "ScopeFacet",
-  "ResolutionFacet",
-  "StatusFacet",
-  "StandardFacet",
-  "injectIntl(CreationDateFacet)",
-  "withLanguagesContext(LanguageFacet)",
-  "RuleFacet",
-  "TagFacet",
-  "DirectoryFacet",
-  "FileFacet",
-  "AssigneeFacet",
-  "AuthorFacet",
-]
-`;
-
 exports[`should render facets for "DEV" 1`] = `
 Array [
   "TypeFacet",

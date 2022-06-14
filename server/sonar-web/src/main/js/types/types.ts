@@ -214,8 +214,6 @@ export interface DuplicatedFile {
   name: string;
   project: string;
   projectName: string;
-  subProject?: string;
-  subProjectName?: string;
 }
 
 export type ExpandDirection = 'up' | 'down';
@@ -291,8 +289,6 @@ export interface Issue {
   secondaryLocations: FlowLocation[];
   severity: string;
   status: string;
-  subProject?: string;
-  subProjectName?: string;
   tags?: string[];
   textRange?: TextRange;
   transitions: string[];
@@ -681,8 +677,6 @@ export interface SourceViewerFile {
   project: string;
   projectName: string;
   q: ComponentQualifier;
-  subProject?: string;
-  subProjectName?: string;
   uuid: string;
 }
 

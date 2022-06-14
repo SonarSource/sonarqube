@@ -51,7 +51,7 @@ it('should filter properly', () => {
 function shallowRender(props: Partial<SimilarIssuesPopup['props']> = {}) {
   return shallow(
     <SimilarIssuesPopup
-      issue={mockIssue(false, { subProject: 'foo', subProjectName: 'Foo', tags: ['test-tag'] })}
+      issue={mockIssue(false, { tags: ['test-tag'] })}
       onFilter={jest.fn()}
       {...props}
     />

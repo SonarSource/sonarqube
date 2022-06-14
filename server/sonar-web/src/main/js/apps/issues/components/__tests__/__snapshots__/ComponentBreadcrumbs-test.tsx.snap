@@ -85,36 +85,3 @@ exports[`renders issues properly for views: with branch information 1`] = `
   </span>
 </div>
 `;
-
-exports[`renders with sub-project 1`] = `
-<div
-  aria-label="issues.on_file_x.proj-name, comp-name"
-  className="component-name text-ellipsis"
->
-  <QualifierIcon
-    className="spacer-right"
-    qualifier="FIL"
-  />
-  <span
-    title="proj-name - test-branch"
-  >
-    proj-name
-    <span
-      className="slash-separator"
-    />
-  </span>
-  <span
-    title="sub-proj-name"
-  >
-    sub-proj-name
-    <span
-      className="slash-separator"
-    />
-  </span>
-  <span
-    title="comp-name"
-  >
-    comp-name
-  </span>
-</div>
-`;

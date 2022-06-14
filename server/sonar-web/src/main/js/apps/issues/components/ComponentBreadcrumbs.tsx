@@ -41,16 +41,10 @@ export default function ComponentBreadcrumbs({
 }: Props) {
   const displayProject =
     !component ||
-    ![
-      ComponentQualifier.Project,
-      ComponentQualifier.SubProject,
-      ComponentQualifier.Directory
-    ].includes(component.qualifier as ComponentQualifier);
-  const displaySubProject =
-    !component ||
-    ![ComponentQualifier.SubProject, ComponentQualifier.Directory].includes(
+    ![ComponentQualifier.Project, ComponentQualifier.Directory].includes(
       component.qualifier as ComponentQualifier
     );
+
   const displayBranchInformation = isView(component?.qualifier);
 
   const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
@@ -82,13 +76,6 @@ export default function ComponentBreadcrumbs({
               )}
             </>
           )}
-          <span className="slash-separator" />
-        </span>
-      )}
-
-      {displaySubProject && issue.subProject !== undefined && issue.subProjectName !== undefined && (
-        <span title={issue.subProjectName}>
-          {limitComponentName(issue.subProjectName)}
           <span className="slash-separator" />
         </span>
       )}

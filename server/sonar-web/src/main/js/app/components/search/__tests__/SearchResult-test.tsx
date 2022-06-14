@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import SearchResult from '../SearchResult';
 
 beforeAll(() => {
@@ -75,7 +76,7 @@ it('renders projects', () => {
     isRecentlyBrowsed: true,
     key: 'qwe',
     name: 'qwe',
-    qualifier: 'BRC',
+    qualifier: ComponentQualifier.Project,
     project: 'foo'
   };
   const wrapper = shallowRender({ component });

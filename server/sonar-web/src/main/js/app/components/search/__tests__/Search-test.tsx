@@ -28,20 +28,16 @@ import { Search } from '../Search';
 it('selects results', () => {
   const form = shallowRender();
   form.setState({
-    more: { TRK: 15, BRC: 0 },
+    more: { TRK: 15 },
     open: true,
     results: {
-      TRK: [component('foo'), component('bar')],
-      BRC: [component('qwe', ComponentQualifier.SubProject)]
+      TRK: [component('foo'), component('bar')]
     },
     selected: 'foo'
   });
   expect(form.state().selected).toBe('foo');
   next(form, 'bar');
   next(form, 'qualifier###TRK');
-  next(form, 'qwe');
-  next(form, 'qwe');
-  prev(form, 'qualifier###TRK');
   prev(form, 'bar');
   select(form, 'foo');
   prev(form, 'foo');

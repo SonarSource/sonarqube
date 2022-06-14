@@ -33,7 +33,6 @@ it('renders different components and dividers between them', () => {
         renderResult={component => <span key={component.key}>{component.name}</span>}
         results={{
           TRK: [component('foo'), component('bar')],
-          BRC: [component('qwe', 'BRC'), component('qux', 'BRC')],
           FIL: [component('zux', 'FIL')]
         }}
       />
@@ -46,14 +45,13 @@ it('renders "Show More" link', () => {
     shallow(
       <SearchResults
         allowMore={true}
-        more={{ TRK: 175, BRC: 0 }}
+        more={{ TRK: 175 }}
         onMoreClick={jest.fn()}
         onSelect={jest.fn()}
         renderNoResults={() => <div />}
         renderResult={component => <span key={component.key}>{component.name}</span>}
         results={{
-          TRK: [component('foo'), component('bar')],
-          BRC: [component('qwe', 'BRC'), component('qux', 'BRC')]
+          TRK: [component('foo'), component('bar')]
         }}
       />
     )

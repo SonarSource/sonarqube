@@ -142,7 +142,6 @@ export function parseIssueFromResponse(
     ...issue,
     ...injectRelational(issue, components, 'component', 'key'),
     ...injectRelational(issue, components, 'project', 'key'),
-    ...injectRelational(issue, components, 'subProject', 'key'),
     ...injectRelational(issue, rules, 'rule', 'key'),
     ...injectRelational(issue, users, 'assignee', 'login'),
     ...injectCommentsRelational(issue, users),

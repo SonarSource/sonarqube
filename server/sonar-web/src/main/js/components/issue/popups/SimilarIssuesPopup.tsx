@@ -53,7 +53,6 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
       'rule',
       ...(issue.tags || []).map(tag => `tag###${tag}`),
       'project',
-      issue.subProject ? 'module' : undefined,
       'file'
     ].filter(item => item) as string[];
 
@@ -130,13 +129,6 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
             <QualifierIcon className="little-spacer-right" qualifier="TRK" />
             {issue.projectName}
           </SelectListItem>
-
-          {issue.subProject != null && (
-            <SelectListItem item="module">
-              <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-              {issue.subProjectName}
-            </SelectListItem>
-          )}
 
           <SelectListItem item="file">
             <QualifierIcon className="little-spacer-right" qualifier={issue.componentQualifier} />

@@ -58,7 +58,6 @@ export interface RawIssue {
   message?: string;
   severity: string;
   status: string;
-  subProject?: string;
   textRange?: TextRange;
   type: IssueType;
 }

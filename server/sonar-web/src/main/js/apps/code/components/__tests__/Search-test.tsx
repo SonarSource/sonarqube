@@ -63,7 +63,7 @@ it('should search correct query on mount', async () => {
   expect(getTree).toHaveBeenCalledWith({
     component: 'my-project',
     q: 'bar',
-    qualifiers: 'BRC,UTS,FIL',
+    qualifiers: 'UTS,FIL',
     s: 'qualifier,name'
   });
   expect(onSearchResults).toHaveBeenCalledWith([
@@ -94,7 +94,7 @@ it('should handle search correctly', async () => {
   expect(getTree).toHaveBeenCalledWith({
     component: 'my-project',
     q: 'foo',
-    qualifiers: 'BRC,UTS,FIL',
+    qualifiers: 'UTS,FIL',
     s: 'qualifier,name'
   });
 

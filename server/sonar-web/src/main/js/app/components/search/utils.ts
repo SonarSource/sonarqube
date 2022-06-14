@@ -25,8 +25,7 @@ const ORDER = [
   ComponentQualifier.Portfolio,
   ComponentQualifier.SubPortfolio,
   ComponentQualifier.Application,
-  ComponentQualifier.Project,
-  ComponentQualifier.SubProject
+  ComponentQualifier.Project
 ];
 
 export function sortQualifiers(qualifiers: string[]) {

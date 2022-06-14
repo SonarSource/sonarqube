@@ -28,26 +28,6 @@ exports[`renders "Show More" link 1`] = `
     qualifier="TRK"
     selected={false}
   />
-  <li
-    className="divider"
-    key="divider-BRC"
-  />
-  <li
-    className="menu-header"
-    key="header-BRC"
-  >
-    qualifiers.BRC
-  </li>
-  <span
-    key="qwe"
-  >
-    qwe
-  </span>
-  <span
-    key="qux"
-  >
-    qux
-  </span>
 </ul>
 `;
 
@@ -85,26 +65,6 @@ exports[`renders different components and dividers between them 1`] = `
     key="bar"
   >
     bar
-  </span>
-  <li
-    className="divider"
-    key="divider-BRC"
-  />
-  <li
-    className="menu-header"
-    key="header-BRC"
-  >
-    qualifiers.BRC
-  </li>
-  <span
-    key="qwe"
-  >
-    qwe
-  </span>
-  <span
-    key="qux"
-  >
-    qux
   </span>
 </ul>
 `;

@@ -3,7 +3,6 @@
 exports[`[Function isApplication] should work properly 1`] = `
 Object {
   "APP": true,
-  "BRC": false,
   "DEV": false,
   "DIR": false,
   "FIL": false,
@@ -17,7 +16,6 @@ Object {
 exports[`[Function isFile] should work properly 1`] = `
 Object {
   "APP": false,
-  "BRC": false,
   "DEV": false,
   "DIR": false,
   "FIL": true,
@@ -31,7 +29,6 @@ Object {
 exports[`[Function isPortfolioLike] should work properly 1`] = `
 Object {
   "APP": false,
-  "BRC": false,
   "DEV": false,
   "DIR": false,
   "FIL": false,
@@ -45,7 +42,6 @@ Object {
 exports[`[Function isProject] should work properly 1`] = `
 Object {
   "APP": false,
-  "BRC": false,
   "DEV": false,
   "DIR": false,
   "FIL": false,
@@ -59,7 +55,6 @@ Object {
 exports[`[Function isView] should work properly 1`] = `
 Object {
   "APP": true,
-  "BRC": false,
   "DEV": false,
   "DIR": false,
   "FIL": false,

@@ -71,7 +71,6 @@ export interface RawHotspot {
   rule: string;
   securityCategory: string;
   status: HotspotStatus;
-  subProject?: string;
   updateDate: string;
   vulnerabilityProbability: RiskExposure;
   flows?: Array<{

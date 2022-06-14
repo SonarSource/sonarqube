@@ -25,20 +25,13 @@ import Icon, { IconProps } from './Icon';
 
 const qualifierIcons: Dict<(props: IconProps) => React.ReactElement> = {
   app: ApplicationIcon,
-  brc: SubProjectIcon,
   dev: DeveloperIcon,
   dir: DirectoryIcon,
   fil: FileIcon,
   svw: SubPortfolioIcon,
   trk: ProjectIcon,
   uts: UnitTestIcon,
-  vw: PortfolioIcon,
-
-  // deprecated:
-  cla: UnitTestIcon,
-  dev_prj: ProjectIcon,
-  lib: LibraryIcon,
-  pac: DirectoryIcon
+  vw: PortfolioIcon
 };
 
 interface QualifierIconProps {
@@ -104,17 +97,6 @@ function FileIcon({ fill, ariaLabel, ...iconProps }: IconProps) {
   );
 }
 
-function LibraryIcon({ fill, ariaLabel, ...iconProps }: IconProps) {
-  return (
-    <Icon {...iconProps} ariaLabel={ariaLabel}>
-      <path
-        d="M1 13h4V3H1v10zm3-1H2v-2h2v2zM2 4h2v4H2V4zm4 9h4V3H6v10zm3-1H7v-2h2v2zM7 4h2v4H7V4zm4 9h4V3h-4v10zm3-1h-2v-2h2v2zm-2-8h2v4h-2V4z"
-        style={{ fill: fill || colors.blue }}
-      />
-    </Icon>
-  );
-}
-
 function PortfolioIcon({ fill, ariaLabel, ...iconProps }: IconProps) {
   return (
     <Icon {...iconProps} ariaLabel={ariaLabel}>
@@ -142,17 +124,6 @@ function SubPortfolioIcon({ fill, ariaLabel, ...iconProps }: IconProps) {
     <Icon {...iconProps} ariaLabel={ariaLabel}>
       <path
         d="M14 7h2v9H7v-2H0V0h14v7zM8 8v7h7V8H8zm3 6H9v-2h2v2zm3 0h-2v-2h2v2zm-1-7V1H1v12h6V7h6zm-7 5H2V8h4v4zm5-1H9V9h2v2zm3 0h-2V9h2v2zM5 9H3v2h2V9zm1-3H2V2h4v4zm6 0H8V2h4v4zM5 3H3v2h2V3zm6 0H9v2h2V3z"
-        style={{ fill: fill || colors.blue }}
-      />
-    </Icon>
-  );
-}
-
-function SubProjectIcon({ fill, ariaLabel, ...iconProps }: IconProps) {
-  return (
-    <Icon {...iconProps} ariaLabel={ariaLabel}>
-      <path
-        d="M8 9V8h6v1h1v1h1v6H6v-6h1V9h1zm7 2H7v4h8v-4zm-1-7v3h-1V5H1v7h4v1H0V4h14zm-1-2v1.5h-1V3H2v.5H1V2h12zm-1-2v1.5h-1V1H3v.5H2V0h10z"
         style={{ fill: fill || colors.blue }}
       />
     </Icon>

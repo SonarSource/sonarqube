@@ -45,11 +45,8 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     return !isPullRequest(branchLike);
   }
 
-  isDifferentComponent = (
-    a: { project: string; subProject?: string },
-    b: { project: string; subProject?: string }
-  ) => {
-    return Boolean(a && b && (a.project !== b.project || a.subProject !== b.subProject));
+  isDifferentComponent = (a: { project: string }, b: { project: string }) => {
+    return Boolean(a && b && a.project !== b.project);
   };
 
   handleFileClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -98,7 +95,6 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     duplications = sortBy(
       duplications,
       d => d.file.projectName !== sourceViewerFile.projectName,
-      d => d.file.subProjectName !== sourceViewerFile.subProjectName,
       d => d.file.key !== sourceViewerFile.key
     );
 
@@ -118,20 +114,12 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
               <div className="spacer-top text-ellipsis" key={duplication.file.key}>
                 <div className="component-name">
                   {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
-                    <>
-                      <div className="component-name-parent">
-                        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-                        <Link to={getProjectUrl(duplication.file.project)}>
-                          {duplication.file.projectName}
-                        </Link>
-                      </div>
-                      {duplication.file.subProject && duplication.file.subProjectName && (
-                        <div className="component-name-parent">
-                          <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-                          {duplication.file.subProjectName}
-                        </div>
-                      )}
-                    </>
+                    <div className="component-name-parent">
+                      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+                      <Link to={getProjectUrl(duplication.file.project)}>
+                        {duplication.file.projectName}
+                      </Link>
+                    </div>
                   )}
 
                   {duplication.file.key !== this.props.sourceViewerFile.key && (

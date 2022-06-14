@@ -148,8 +148,6 @@ const sourceViewerFile: SourceViewerFile = {
   project: 'project-key',
   projectName: 'Project Name',
   q: ComponentQualifier.File,
-  subProject: 'sub-project-key',
-  subProjectName: 'Sub-Project Name',
   uuid: 'abcd123'
 };
 

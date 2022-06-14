@@ -24,7 +24,6 @@ exports[`should render correctly 1`] = `
         "rule",
         "tag###test-tag",
         "project",
-        "module",
         "file",
       ]
     }
@@ -96,15 +95,6 @@ exports[`should render correctly 1`] = `
       <QualifierIcon
         className="little-spacer-right"
         qualifier="TRK"
-      />
-      Foo
-    </SelectListItem>
-    <SelectListItem
-      item="module"
-    >
-      <QualifierIcon
-        className="little-spacer-right"
-        qualifier="BRC"
       />
       Foo
     </SelectListItem>
