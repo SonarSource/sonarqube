@@ -100,7 +100,7 @@ The Payload is a JSON document which includes:
 
 ## Securing your webhooks
 
-After you've configured your server to receive payloads, you want to be sure that the payloads you receive are initiated by {instance} and not by hackers. You can do this by validating a hash signature that ensures that requests originate from {instance}. 
+After you've configured your server to receive payloads, you want to be sure that the payloads you receive are initiated by {instance} and not by attackers. You can do this by validating a hash signature that ensures that requests originate from {instance}. 
 
 ### Setting your secret
 

@@ -90,7 +90,7 @@ The {instance} Quality Model divides rules into four categories: Bugs, Vulnerabi
 If the answer is "yes", then it's a Bug rule.  
 If not...
 
-**Is the rule about code that could be exploited by a hacker?**  
+**Is the rule about code that could be exploited by an attacker?**  
 If so, then it's a Vulnerability rule.  
 If not...
 
@@ -128,7 +128,7 @@ Likelihood: **What's the probability that the Worst Thing will happen?**
 ### Vulnerabilities
 Impact: **Could the exploitation of the Worst Thing result in significant damage to your assets or your users?**
 
-Likelihood: **What is the probability that a hacker will be able to exploit the Worst Thing?**
+Likelihood: **What is the probability that an attacker will be able to exploit the Worst Thing?**
 
 ### Security Hotspots
 Security Hotspots are not assigned severities as it is unknown whether there is truly an underlying vulnerability until they are reviewed.
