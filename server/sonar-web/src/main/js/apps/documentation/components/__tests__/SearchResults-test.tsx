@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import lunr, { LunrToken } from 'lunr';
+import lunr, { LunrBuilder, LunrToken } from 'lunr';
 import * as React from 'react';
 import { mockDocumentationEntry } from '../../../../helpers/testMocks';
 import { getUrlsList } from '../../navTreeUtils';
@@ -30,8 +30,8 @@ jest.mock('../../navTreeUtils', () => ({
   getUrlsList: jest.fn().mockReturnValue([])
 }));
 
-jest.mock('lunr', () =>
-  jest.fn(() => ({
+jest.mock('lunr', () => {
+  const lunr = jest.fn(() => ({
     search: jest.fn(() => [
       {
         ref: 'lorem/origin',
@@ -68,8 +68,14 @@ jest.mock('lunr', () =>
         }
       }
     ])
-  }))
-);
+  }));
+
+  (lunr as any).Pipeline = {
+    registerFunction: jest.fn()
+  };
+
+  return lunr;
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
@@ -164,8 +170,26 @@ describe('tokenContextPluginCallback', () => {
     }
   }
 
+  class LunrBuilderMock {
+    pipeline: { before: (stemmer: any, cb: Function) => void };
+    metadataWhitelist: string[];
+
+    constructor() {
+      this.pipeline = {
+        before: () => {
+          /* noop */
+        }
+      };
+      this.metadataWhitelist = [];
+    }
+  }
+
   function mockLunrToken(str: string): LunrToken {
     return new LunrTokenMock(str);
+  }
+
+  function mockLunrBuilder(): LunrBuilder {
+    return new LunrBuilderMock();
   }
 
   it('should correctly provide token context for text', () => {
@@ -188,6 +212,12 @@ describe('tokenContextPluginCallback', () => {
     expect(tokenContextPluginCallback(mockLunrToken('text'), 3, tokens).metadata).toEqual(
       expect.objectContaining({ tokenContext: 'some text' })
     );
+  });
+
+  it('should only register the plugin once', () => {
+    tokenContextPlugin(mockLunrBuilder());
+    tokenContextPlugin(mockLunrBuilder());
+    expect((lunr as any).Pipeline.registerFunction).toBeCalledTimes(1);
   });
 });
 

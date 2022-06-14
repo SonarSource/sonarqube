@@ -157,8 +157,14 @@ export function tokenContextPluginCallback(token: LunrToken, index: number, toke
   return token;
 }
 
+let tokenContextPluginRegistered = false;
+
 export function tokenContextPlugin(builder: LunrBuilder) {
-  (lunr as any).Pipeline.registerFunction(tokenContextPluginCallback, 'tokenContext');
+  if (!tokenContextPluginRegistered) {
+    (lunr as any).Pipeline.registerFunction(tokenContextPluginCallback, 'tokenContext');
+    tokenContextPluginRegistered = true;
+  }
+
   builder.pipeline.before((lunr as any).stemmer, tokenContextPluginCallback);
   builder.metadataWhitelist.push('tokenContext');
 }
