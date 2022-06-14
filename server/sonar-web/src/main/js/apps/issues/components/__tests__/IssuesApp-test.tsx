@@ -33,14 +33,13 @@ import {
 } from '../../../../helpers/pages';
 import {
   mockCurrentUser,
-  mockEvent,
   mockIssue,
   mockLocation,
   mockLoggedInUser,
   mockRawIssue,
   mockRouter
 } from '../../../../helpers/testMocks';
-import { keydown, waitAndUpdate } from '../../../../helpers/testUtils';
+import { keydown, mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { ReferencedComponent } from '../../../../types/issues';
 import { Issue, Paging } from '../../../../types/types';

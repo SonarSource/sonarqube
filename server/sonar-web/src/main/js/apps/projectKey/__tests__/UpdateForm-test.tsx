@@ -22,8 +22,7 @@ import * as React from 'react';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
 import { Button, SubmitButton } from '../../../components/controls/buttons';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockEvent } from '../../../helpers/testMocks';
-import { click } from '../../../helpers/testUtils';
+import { click, mockEvent } from '../../../helpers/testUtils';
 import UpdateForm, { UpdateFormProps } from '../UpdateForm';
 
 it('should render', () => {

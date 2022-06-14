@@ -22,7 +22,8 @@ import * as React from 'react';
 import BoxedTabs, { BoxedTabsProps } from '../../../../components/controls/BoxedTabs';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
-import { mockEvent, mockUser } from '../../../../helpers/testMocks';
+import { mockUser } from '../../../../helpers/testMocks';
+import { mockEvent } from '../../../../helpers/testUtils';
 import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
 
 const originalAddEventListener = window.addEventListener;

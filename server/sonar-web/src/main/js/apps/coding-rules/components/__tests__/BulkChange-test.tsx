@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockEvent, mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockEvent } from '../../../../helpers/testUtils';
 import BulkChange from '../BulkChange';
 
 const profile = mockQualityProfile({

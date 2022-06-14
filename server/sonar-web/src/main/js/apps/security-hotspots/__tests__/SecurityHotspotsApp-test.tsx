@@ -30,13 +30,12 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import { getStandards } from '../../../helpers/security-standard';
 import {
   mockCurrentUser,
-  mockEvent,
   mockFlowLocation,
   mockLocation,
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,

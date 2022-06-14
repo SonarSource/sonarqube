@@ -21,8 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { mockSetting } from '../../../../../helpers/mocks/settings';
-import { mockEvent } from '../../../../../helpers/testMocks';
-import { change } from '../../../../../helpers/testUtils';
+import { change, mockEvent } from '../../../../../helpers/testUtils';
 import SimpleInput, { SimpleInputProps } from '../SimpleInput';
 
 it('should render input', () => {

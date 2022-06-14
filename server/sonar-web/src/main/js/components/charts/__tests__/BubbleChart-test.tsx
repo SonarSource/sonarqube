@@ -25,8 +25,7 @@ import { Link } from 'react-router';
 import { AutoSizer, AutoSizerProps } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { mockComponentMeasureEnhanced } from '../../../helpers/mocks/component';
 import { mockHtmlElement } from '../../../helpers/mocks/dom';
-import { mockEvent } from '../../../helpers/testMocks';
-import { click } from '../../../helpers/testUtils';
+import { click, mockEvent } from '../../../helpers/testUtils';
 import { ComponentMeasureEnhanced } from '../../../types/types';
 import BubbleChart from '../BubbleChart';
 

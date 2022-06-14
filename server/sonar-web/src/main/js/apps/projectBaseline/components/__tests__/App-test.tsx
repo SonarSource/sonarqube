@@ -26,8 +26,8 @@ import {
 } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAppState, mockEvent } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
 jest.mock('../../../../api/newCodePeriod', () => ({

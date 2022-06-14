@@ -21,8 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { createApplication } from '../../../../api/application';
 import SimpleModal from '../../../../components/controls/SimpleModal';
-import { mockEvent } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier, Visibility } from '../../../../types/component';
 import CreateApplicationForm from '../CreateApplicationForm';
 

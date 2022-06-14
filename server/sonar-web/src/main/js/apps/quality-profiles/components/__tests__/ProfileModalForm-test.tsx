@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockEvent, mockQualityProfile } from '../../../../helpers/testMocks';
-import { change } from '../../../../helpers/testUtils';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { change, mockEvent } from '../../../../helpers/testUtils';
 import ProfileModalForm, { ProfileModalFormProps } from '../ProfileModalForm';
 
 it('should render correctly', () => {

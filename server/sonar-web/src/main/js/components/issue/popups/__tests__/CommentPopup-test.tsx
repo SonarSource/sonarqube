@@ -20,8 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
-import { mockEvent } from '../../../../helpers/testMocks';
-import { click } from '../../../../helpers/testUtils';
+import { click, mockEvent } from '../../../../helpers/testUtils';
 import CommentPopup, { CommentPopupProps } from '../CommentPopup';
 
 it('should render the comment popup correctly without existing comment', () => {

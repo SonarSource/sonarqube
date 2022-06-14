@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import Modal from '../../../components/controls/Modal';
-import { mockEvent } from '../../../helpers/testMocks';
+import { mockEvent } from '../../../helpers/testUtils';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';
 
 jest.mock('react', () => {

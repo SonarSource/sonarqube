@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { mockEvent } from '../../../helpers/testMocks';
+import { mockEvent } from '../../../helpers/testUtils';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
 const CONTENT = `

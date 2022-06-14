@@ -21,8 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ResetButtonLink } from '../../../../../components/controls/buttons';
 import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import { mockEvent } from '../../../../../helpers/testMocks';
-import { click } from '../../../../../helpers/testUtils';
+import { click, mockEvent } from '../../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionFormRenderer, {
   AlmBindingDefinitionFormProps

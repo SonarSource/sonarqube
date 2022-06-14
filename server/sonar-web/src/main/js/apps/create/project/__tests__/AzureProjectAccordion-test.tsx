@@ -22,7 +22,7 @@ import * as React from 'react';
 import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
 import Radio from '../../../../components/controls/Radio';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
-import { mockEvent } from '../../../../helpers/testMocks';
+import { mockEvent } from '../../../../helpers/testUtils';
 import AzureProjectAccordion, { AzureProjectAccordionProps } from '../AzureProjectAccordion';
 
 it('should render correctly', () => {

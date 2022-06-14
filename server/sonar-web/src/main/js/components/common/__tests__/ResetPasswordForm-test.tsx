@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { mockEvent, mockLoggedInUser } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import ResetPasswordForm from '../ResetPasswordForm';
 
 jest.mock('../../../api/users', () => ({

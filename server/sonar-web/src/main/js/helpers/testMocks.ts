@@ -324,16 +324,6 @@ export function mockGroup(overrides: Partial<Group> = {}): Group {
   };
 }
 
-export function mockEvent(overrides = {}) {
-  return {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {},
-    ...overrides
-  } as any;
-}
-
 export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue> = {}): RawIssue {
   const rawIssue: RawIssue = {
     actions: [],

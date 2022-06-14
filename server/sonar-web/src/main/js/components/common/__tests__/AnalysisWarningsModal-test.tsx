@@ -21,8 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
-import { mockCurrentUser, mockEvent } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { mockCurrentUser } from '../../../helpers/testMocks';
+import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({
