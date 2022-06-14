@@ -111,10 +111,12 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
         break;
       case KeyboardKeys.UpArrow:
         event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
         this.highlightPrevious();
         break;
       case KeyboardKeys.DownArrow:
         event.preventDefault();
+        event.nativeEvent.stopImmediatePropagation();
         this.highlightNext();
         break;
     }

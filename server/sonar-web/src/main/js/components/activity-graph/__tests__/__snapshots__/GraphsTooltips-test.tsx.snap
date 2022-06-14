@@ -129,6 +129,7 @@ exports[`should render correctly for issues graphs: with events 1`] = `
                 "blur": [Function],
               },
               "preventDefault": [Function],
+              "stopImmediatePropagation": [Function],
               "stopPropagation": [Function],
               "target": Object {
                 "blur": [Function],

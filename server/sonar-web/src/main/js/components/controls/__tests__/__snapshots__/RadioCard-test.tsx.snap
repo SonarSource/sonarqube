@@ -42,6 +42,7 @@ exports[`should be actionable 2`] = `
               "blur": [Function],
             },
             "preventDefault": [Function],
+            "stopImmediatePropagation": [Function],
             "stopPropagation": [Function],
             "target": Object {
               "blur": [Function],

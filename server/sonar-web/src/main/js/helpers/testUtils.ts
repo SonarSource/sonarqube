@@ -23,10 +23,25 @@ import { KeyboardKeys } from './keycodes';
 
 export function mockEvent(overrides = {}) {
   return {
-    target: { blur() {} },
-    currentTarget: { blur() {} },
-    preventDefault() {},
-    stopPropagation() {},
+    target: {
+      blur() {
+        /* noop */
+      }
+    },
+    currentTarget: {
+      blur() {
+        /* noop */
+      }
+    },
+    preventDefault() {
+      /* noop */
+    },
+    stopPropagation() {
+      /* noop */
+    },
+    stopImmediatePropagation() {
+      /* noop */
+    },
     ...overrides
   } as any;
 }
