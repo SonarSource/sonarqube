@@ -352,11 +352,16 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_languages() {
     userSession.logIn();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
-    ComponentDto project1 = insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
-    ComponentDto project2 = insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("java=3;xoo=9")));
-    ComponentDto project3 = insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
-    ComponentDto project4 = insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=1;java=5;xoo=13")));
+    MetricDto nclocMetric = db.measures().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
+    MetricDto languagesDistributionMetric = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
+    ComponentDto project1 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
+    db.measures().insertLiveMeasure(project1, nclocMetric, m -> m.setValue(26d));
+    ComponentDto project2 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("java=3;xoo=9")));
+    db.measures().insertLiveMeasure(project2, nclocMetric, m -> m.setValue(12d));
+    ComponentDto project3 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("xoo=1")));
+    db.measures().insertLiveMeasure(project3, nclocMetric, m -> m.setValue(1d));
+    ComponentDto project4 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("<null>=1;java=5;xoo=13")));
+    db.measures().insertLiveMeasure(project4, nclocMetric, m -> m.setValue(19d));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("languages IN (java, js, <null>)"));
@@ -773,11 +778,16 @@ public class SearchProjectsActionTest {
   @Test
   public void return_languages_facet() {
     userSession.logIn();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5;xoo=19")));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=1;java=3;xoo=8")));
+    MetricDto nclocMetric = db.measures().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
+    MetricDto languagesDistributionMetric = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
+    ComponentDto project1 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
+    db.measures().insertLiveMeasure(project1, nclocMetric, m -> m.setValue(26d));
+    ComponentDto project2 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("java=5;xoo=19")));
+    db.measures().insertLiveMeasure(project2, nclocMetric, m -> m.setValue(24d));
+    ComponentDto project3 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("xoo=1")));
+    db.measures().insertLiveMeasure(project3, nclocMetric, m -> m.setValue(1d));
+    ComponentDto project4 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("<null>=1;java=3;xoo=8")));
+    db.measures().insertLiveMeasure(project4, nclocMetric, m -> m.setValue(12d));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_LANGUAGES)));
@@ -796,9 +806,12 @@ public class SearchProjectsActionTest {
   @Test
   public void return_languages_facet_with_language_having_no_project_if_language_is_in_filter() {
     userSession.logIn();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6")));
-    insertProject(new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5")));
+    MetricDto languagesDistributionMetric = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
+    MetricDto nclocMetric = db.measures().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("<null>=2;java=6")));
+    db.measures().insertLiveMeasure(project1, nclocMetric, m -> m.setValue(8d));
+    ComponentDto project2 = insertProject(new Measure(languagesDistributionMetric, c -> c.setValue(null).setData("java=5")));
+    db.measures().insertLiveMeasure(project2, nclocMetric, m -> m.setValue(5d));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("languages = xoo").setFacets(singletonList(FILTER_LANGUAGES)));
@@ -1349,7 +1362,7 @@ public class SearchProjectsActionTest {
   private void addFavourite(@Nullable String componentUuid, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
-      .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
+        .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
       componentName, qualifier);
     dbSession.commit();
   }

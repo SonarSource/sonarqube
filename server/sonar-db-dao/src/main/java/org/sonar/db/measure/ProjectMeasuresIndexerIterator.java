@@ -61,8 +61,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.SECURITY_RATING_KEY,
     CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY,
     CoreMetrics.SECURITY_REVIEW_RATING_KEY,
-    CoreMetrics.ALERT_STATUS_KEY,
     CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY,
+    CoreMetrics.ALERT_STATUS_KEY,
     CoreMetrics.NEW_SECURITY_RATING_KEY,
     CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY,
     CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY,
@@ -85,16 +85,39 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     "AND m.name IN ({metricNames}) " +
     "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND m.enabled = ? ";
+
+  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = "SELECT m.name, pm.value, pm.variation, pm.text_value FROM live_measures pm " +
+    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
+    "WHERE pm.component_uuid = ? " +
+    "AND m.name = ? " +
+    "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +
+    "AND m.enabled = ? ";
+
+  private static final String SQL_PROJECT_BRANCHES = "SELECT uuid FROM project_branches pb " +
+    "WHERE pb.project_uuid = ? ";
+
+  private static final String SQL_BIGGEST_NCLOC_VALUE = "SELECT max(lm.value) FROM metrics m " +
+    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
+    "WHERE lm.component_uuid IN ({projectBranches}) " +
+    "AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? ";
+
+  private static final String SQL_BIGGEST_BRANCH = "SELECT lm.component_uuid FROM metrics m " +
+    "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
+    "WHERE lm.component_uuid IN ({projectBranches}) " +
+    "AND m.name = ? AND lm.value = ? AND m.enabled = ? ";
+
   private static final boolean ENABLED = true;
   private static final int FIELD_METRIC_NAME = 1;
   private static final int FIELD_MEASURE_VALUE = 2;
   private static final int FIELD_MEASURE_VARIATION = 3;
   private static final int FIELD_MEASURE_TEXT_VALUE = 4;
 
+  private final DbSession dbSession;
   private final PreparedStatement measuresStatement;
   private final Iterator<Project> projects;
 
-  private ProjectMeasuresIndexerIterator(PreparedStatement measuresStatement, List<Project> projects) {
+  private ProjectMeasuresIndexerIterator(DbSession dbSession, PreparedStatement measuresStatement, List<Project> projects) {
+    this.dbSession = dbSession;
     this.measuresStatement = measuresStatement;
     this.projects = projects.iterator();
   }
@@ -102,13 +125,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   public static ProjectMeasuresIndexerIterator create(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = selectProjects(session, projectUuid);
     PreparedStatement projectsStatement = createMeasuresStatement(session);
-    return new ProjectMeasuresIndexerIterator(projectsStatement, projects);
+    return new ProjectMeasuresIndexerIterator(session, projectsStatement, projects);
   }
 
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
-      ResultSet rs = stmt.executeQuery()) {
+         ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String uuid = rs.getString(1);
         String key = rs.getString(2);
@@ -146,7 +169,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static PreparedStatement createMeasuresStatement(DbSession session) {
     try {
-      String metricNameQuestionMarks = METRIC_KEYS.stream().map(x -> "?").collect(Collectors.joining(","));
+      String metricNameQuestionMarks = METRIC_KEYS.stream()
+        .filter(m -> !m.equals(NCLOC_LANGUAGE_DISTRIBUTION_KEY))
+        .map(x -> "?").collect(Collectors.joining(","));
       String sql = StringUtils.replace(SQL_MEASURES, "{metricNames}", metricNameQuestionMarks);
       return session.getConnection().prepareStatement(sql);
     } catch (SQLException e) {
@@ -169,20 +194,124 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     Measures measures = new Measures();
     ResultSet rs = null;
     try {
-      AtomicInteger index = new AtomicInteger(1);
-      measuresStatement.setString(index.getAndIncrement(), projectUuid);
-      METRIC_KEYS.forEach(DatabaseUtils.setStrings(measuresStatement, index::getAndIncrement));
-      measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
+      prepareMeasuresStatement(projectUuid);
       rs = measuresStatement.executeQuery();
+
       while (rs.next()) {
         readMeasure(rs, measures);
       }
+
+      List<String> projectBranches = selectProjectBranches(dbSession, projectUuid);
+      long biggestNcloc = selectProjectBiggestNcloc(dbSession, projectBranches);
+      String biggestBranch = selectProjectBiggestBranch(dbSession, projectBranches, biggestNcloc);
+      PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch);
+      rs = prepareNclocByLanguageStatement.executeQuery();
+
+      if (rs.next()) {
+        readMeasure(rs, measures);
+      }
+
       return measures;
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s", projectUuid), e);
     } finally {
       DatabaseUtils.closeQuietly(rs);
     }
+  }
+
+  private void prepareMeasuresStatement(String projectUuid) throws SQLException {
+    AtomicInteger index = new AtomicInteger(1);
+    measuresStatement.setString(index.getAndIncrement(), projectUuid);
+    METRIC_KEYS
+      .stream()
+      .filter(m -> !m.equals(NCLOC_LANGUAGE_DISTRIBUTION_KEY))
+      .forEach(DatabaseUtils.setStrings(measuresStatement, index::getAndIncrement));
+    measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
+  }
+
+  private static PreparedStatement prepareNclocByLanguageStatement(DbSession session, String projectUuid) {
+    try {
+      PreparedStatement stmt = session.getConnection().prepareStatement(SQL_NCLOC_LANGUAGE_DISTRIBUTION);
+      AtomicInteger index = new AtomicInteger(1);
+      stmt.setString(index.getAndIncrement(), projectUuid);
+      stmt.setString(index.getAndIncrement(), NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      stmt.setBoolean(index.getAndIncrement(), ENABLED);
+      return stmt;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute request to select ncloc_language_distribution measure", e);
+    }
+  }
+
+  private static List<String> selectProjectBranches(DbSession session, @Nullable String projectUuid) {
+    ResultSet rs = null;
+    List<String> projectBranches = new ArrayList<>();
+    try (PreparedStatement stmt = session.getConnection().prepareStatement(SQL_PROJECT_BRANCHES)){
+      AtomicInteger index = new AtomicInteger(1);
+      stmt.setString(index.getAndIncrement(), projectUuid);
+
+      rs = stmt.executeQuery();
+
+      while (rs.next()) {
+        String uuid = rs.getString(1);
+        projectBranches.add(uuid);
+      }
+      return projectBranches;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute request to select all project branches", e);
+    } finally {
+      DatabaseUtils.closeQuietly(rs);
+    }
+  }
+
+  private static long selectProjectBiggestNcloc(DbSession session, List<String> projectBranches) {
+    try {
+      long ncloc = 0;
+
+      AtomicInteger index = new AtomicInteger(1);
+      PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_NCLOC_VALUE, session);
+      projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
+
+      nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
+      nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
+
+      ResultSet rs = nclocStatement.executeQuery();
+
+      if (rs.next()) {
+        ncloc = rs.getLong(1);
+      }
+      return ncloc;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute request to select the project biggest ncloc", e);
+    }
+  }
+
+  private static String selectProjectBiggestBranch(DbSession session, List<String> projectBranches, long ncloc) {
+    try {
+      String biggestBranchUuid = "";
+
+      AtomicInteger index = new AtomicInteger(1);
+      PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_BRANCH, session);
+      projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
+
+      nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
+      nclocStatement.setLong(index.getAndIncrement(), ncloc);
+      nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
+
+      ResultSet rs = nclocStatement.executeQuery();
+
+      if (rs.next()) {
+        biggestBranchUuid = rs.getString(1);
+      }
+      return biggestBranchUuid;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute request to select the project biggest branch", e);
+    }
+  }
+
+  private static PreparedStatement getPreparedStatement(List<String> projectBranches, String replacement, DbSession session) throws SQLException {
+    String projectBranchesQuestionMarks = projectBranches.stream().map(x -> "?").collect(Collectors.joining(","));
+    String sql = StringUtils.replace(replacement, "{projectBranches}", projectBranchesQuestionMarks);
+    return session.getConnection().prepareStatement(sql);
   }
 
   private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {

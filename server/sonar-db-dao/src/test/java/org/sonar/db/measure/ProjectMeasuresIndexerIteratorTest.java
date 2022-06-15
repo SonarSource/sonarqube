@@ -141,15 +141,22 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_language_distribution_measure() {
+  public void return_language_distribution_measure_from_biggest_branch() {
     ComponentDto project = dbTester.components().insertPrivateProject();
-    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("ncloc_language_distribution"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData("<null>=2;java=6;xoo=18"));
+    MetricDto languagesDistributionMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("ncloc_language_distribution"));
+    MetricDto nclocMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+
+    dbTester.measures().insertLiveMeasure(project, languagesDistributionMetric, m -> m.setValue(null).setData("<null>=2;java=6;xoo=18"));
+    dbTester.measures().insertLiveMeasure(project, nclocMetric, m -> m.setValue(26d));
+
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    dbTester.measures().insertLiveMeasure(branch, languagesDistributionMetric, m -> m.setValue(null).setData("<null>=4;java=12;xoo=36"));
+    dbTester.measures().insertLiveMeasure(branch, nclocMetric, m -> m.setValue(52d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
     assertThat(docsById.get(project.uuid()).getMeasures().getNclocByLanguages())
-      .containsOnly(entry("<null>", 2), entry("java", 6), entry("xoo", 18));
+      .containsOnly(entry("<null>", 4), entry("java", 12), entry("xoo", 36));
   }
 
   @Test
