@@ -46,6 +46,8 @@ public class SamlSettings {
   public static final String USER_EMAIL_ATTRIBUTE = "sonar.auth.saml.user.email";
   public static final String GROUP_NAME_ATTRIBUTE = "sonar.auth.saml.group.name";
 
+  public static final String SERVICE_PROVIDER_PRIVATE_KEY = "sonar.auth.saml.sp.privateKey.secured";
+
   public static final String CATEGORY = "security";
   public static final String SUBCATEGORY = "saml";
 
@@ -81,6 +83,10 @@ public class SamlSettings {
 
   String getUserName() {
     return configuration.get(USER_NAME_ATTRIBUTE).orElseThrow(() -> new IllegalArgumentException("User name attribute is missing"));
+  }
+
+  String getServiceProviderPrivateKey(){
+    return configuration.get(SERVICE_PROVIDER_PRIVATE_KEY).orElseThrow(() -> new IllegalArgumentException("Service provider private key is missing"));
   }
 
   Optional<String> getUserEmail() {
@@ -178,6 +184,14 @@ public class SamlSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(10)
+        .build(),
+      PropertyDefinition.builder(SERVICE_PROVIDER_PRIVATE_KEY)
+        .name("Service provider private key")
+        .description("The private key used for signing the requests and decrypting responses from the IdP.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
+        .index(11)
         .build());
   }
 }

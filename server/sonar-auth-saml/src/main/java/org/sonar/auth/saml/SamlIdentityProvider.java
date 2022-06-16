@@ -192,7 +192,10 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     samlData.put("onelogin.saml2.idp.single_sign_on_service.url", samlSettings.getLoginUrl());
     samlData.put("onelogin.saml2.idp.x509cert", samlSettings.getCertificate());
 
+    // Service Provider configuration
+    samlData.put("onelogin.saml2.sp.privatekey", samlSettings.getServiceProviderPrivateKey());
     samlData.put("onelogin.saml2.sp.entityid", samlSettings.getApplicationId());
+
     // During callback, the callback URL is by definition not needed, but the Saml2Settings does never allow this setting to be empty...
     samlData.put("onelogin.saml2.sp.assertion_consumer_service.url", callbackUrl != null ? callbackUrl : ANY_URL);
     SettingsBuilder builder = new SettingsBuilder();

@@ -87,6 +87,13 @@ public class SamlSettingsTest {
   }
 
   @Test
+  public void return_service_provider_private_key() {
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "my_private_secret_private_key");
+
+    assertThat(underTest.getServiceProviderPrivateKey()).isEqualTo("my_private_secret_private_key");
+  }
+
+  @Test
   public void return_user_login_attribute() {
     settings.setProperty("sonar.auth.saml.user.login", "userLogin");
 
