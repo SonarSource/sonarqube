@@ -87,10 +87,26 @@ public class SamlSettingsTest {
   }
 
   @Test
+  public void is_sign_requests_enabled() {
+    settings.setProperty("sonar.auth.saml.signature.enabled", true);
+    assertThat(underTest.isSignRequestsEnabled()).isTrue();
+
+    settings.setProperty("sonar.auth.saml.signature.enabled", false);
+    assertThat(underTest.isSignRequestsEnabled()).isFalse();
+  }
+
+  @Test
+  public void return_service_provider_certificate() {
+    settings.setProperty("sonar.auth.saml.sp.certificate.secured", "my_certificate");
+
+    assertThat(underTest.getServiceProviderCertificate()).isEqualTo("my_certificate");
+  }
+
+  @Test
   public void return_service_provider_private_key() {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", "my_private_secret_private_key");
 
-    assertThat(underTest.getServiceProviderPrivateKey()).isEqualTo("my_private_secret_private_key");
+    assertThat(underTest.getServiceProviderPrivateKey()).hasValue("my_private_secret_private_key");
   }
 
   @Test

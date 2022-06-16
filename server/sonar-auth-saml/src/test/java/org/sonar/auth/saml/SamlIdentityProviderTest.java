@@ -22,6 +22,7 @@ package org.sonar.auth.saml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +43,7 @@ import org.sonar.db.DbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,10 +57,7 @@ public class SamlIdentityProviderTest {
 
   private static final String IDP_CERTIFICATE = "-----BEGIN CERTIFICATE-----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-----END CERTIFICATE-----";
 
-  /* SP certificate
-  MIICoTCCAYkCBgGBXPscaDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAlzb25hcnF1YmUwHhcNMjIwNjEzMTIxMTA5WhcNMzIwNjEzMTIxMjQ5WjAUMRIwEAYDVQQDDAlzb25hcnF1YmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDSFoT371C0/klZuPgvKbGItkmTaf5CweNXL8u389d98aOXRpDQ7maTXdV/W+VcL8vUWg8yG6nn8CRwweYnGTNdn9UAdhgknvxQe3pq3EwOJyls4Fpiq6YTh+DQfiZUQizjFjDOr/GG5O2lNvTRkI4XZj/XnWjRqVZwttiA5tm1sKkvGdyOQljwn4Jja/VbITdV8GASumx66Bil/wamSsqIzm2RjsOOGSsf5VjYUPwDobpuSf+j4DLtWjem/9vIzI2wcE30uC8LBAgO3JAlIS9NQrchjS9xhMJRohOoitaSPmqsOy7D2BH0h7XX6TNgv/WYTkBY4eZPao3PsL2A6AmhAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAMBmTHUK4w+DX21tmhqdwq0WqLH5ZAkwtiocDxFXiJ4GRrUWUh3BaXsgOHB8YYnNTDfScjaU0sZMEyfC0su1zsN8B7NFckg7RcZCHuBYdgIEAmvK4YM6s6zNsiKKwt66p2MNeL+o0acrT2rYjQ1L5QDj0gpfJQAT4N7xTZfuSc2iwjotaQfvcgsO8EZlcDVrL4UuyWLbuRUlSQjxHWGYaxCW+I3enK1+8fGpF3O+k9ZQ8xt5nJsalpsZvHcPLA4IBOmjsSHqSkhg4EIAWL/sJZ1KNct4hHh5kToUTu+Q6e949VeBkWgj4O+rcGDgiN2frGiEEc0EMv8KCSENRRRrO2k=
-   */
-
+  private static final String SP_CERTIFICATE = "MIICoTCCAYkCBgGBXPscaDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAlzb25hcnF1YmUwHhcNMjIwNjEzMTIxMTA5WhcNMzIwNjEzMTIxMjQ5WjAUMRIwEAYDVQQDDAlzb25hcnF1YmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDSFoT371C0/klZuPgvKbGItkmTaf5CweNXL8u389d98aOXRpDQ7maTXdV/W+VcL8vUWg8yG6nn8CRwweYnGTNdn9UAdhgknvxQe3pq3EwOJyls4Fpiq6YTh+DQfiZUQizjFjDOr/GG5O2lNvTRkI4XZj/XnWjRqVZwttiA5tm1sKkvGdyOQljwn4Jja/VbITdV8GASumx66Bil/wamSsqIzm2RjsOOGSsf5VjYUPwDobpuSf+j4DLtWjem/9vIzI2wcE30uC8LBAgO3JAlIS9NQrchjS9xhMJRohOoitaSPmqsOy7D2BH0h7XX6TNgv/WYTkBY4eZPao3PsL2A6AmhAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAMBmTHUK4w+DX21tmhqdwq0WqLH5ZAkwtiocDxFXiJ4GRrUWUh3BaXsgOHB8YYnNTDfScjaU0sZMEyfC0su1zsN8B7NFckg7RcZCHuBYdgIEAmvK4YM6s6zNsiKKwt66p2MNeL+o0acrT2rYjQ1L5QDj0gpfJQAT4N7xTZfuSc2iwjotaQfvcgsO8EZlcDVrL4UuyWLbuRUlSQjxHWGYaxCW+I3enK1+8fGpF3O+k9ZQ8xt5nJsalpsZvHcPLA4IBOmjsSHqSkhg4EIAWL/sJZ1KNct4hHh5kToUTu+Q6e949VeBkWgj4O+rcGDgiN2frGiEEc0EMv8KCSENRRRrO2k=";
   private static final String SP_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDSFoT371C0/klZuPgvKbGItkmTaf5CweNXL8u389d98aOXRpDQ7maTXdV/W+VcL8vUWg8yG6nn8CRwweYnGTNdn9UAdhgknvxQe3pq3EwOJyls4Fpiq6YTh+DQfiZUQizjFjDOr/GG5O2lNvTRkI4XZj/XnWjRqVZwttiA5tm1sKkvGdyOQljwn4Jja/VbITdV8GASumx66Bil/wamSsqIzm2RjsOOGSsf5VjYUPwDobpuSf+j4DLtWjem/9vIzI2wcE30uC8LBAgO3JAlIS9NQrchjS9xhMJRohOoitaSPmqsOy7D2BH0h7XX6TNgv/WYTkBY4eZPao3PsL2A6AmhAgMBAAECggEBAJj11HJAR96/leBBkFGmZaBIOGGgNoOcb023evfADhGgsZ8evamhKgX5t8w2uFPaaOl/eLje82Hvslh2lH+7FW8BRDBFy2Y+ay6d+I99PdLAKKUg5C4bE5v8vm6OqpGGbPAZ5AdYit3QKEa2MKG0QgA/bhQqg3rDdDA0sIWJjtF9MLv7LI7Tm0qgiHOKsI0MEBFk+ZoibgKWYh/dnfGDRWyC3Puqe13rdSheNJYUDR/0QMkd/EJNpLWv06uk+w8w2lU4RgN6TiV76ZZUIGZAAHFgMELJysgtBTCkOQY5roPu17OmMZjKfxngeIfNyd42q3/T6DmUbbwNYfP2HRMoiMECgYEA6SVc1mZ4ykytC9M61rZwT+2zXtJKudQVa0qpTtkf0aznRmnDOuc1bL7ewKIIIp9r5HKVteO6SKgpHmrP+qmvbwZ0Pz51Zg0MetoSmT9m0599/tOU2k6OI09dvQ4Xa3ccN5Czl61Q/HkMeAIDny8MrhGVBwhallE4J4fm/OjuVK0CgYEA5q6IVgqZtfcV1azIF6uOFt6blfn142zrwq0fF39jog2f+4jXaBKw6L4aP0HvIL83UArGppYY31894bLb6YL4EjS2JNbABM2VnJpJd4oGopOE42GCZlZRpf751zOptYAN23NFSujLlfaUfMbyrqIbRFC2DCdzNTU50GT5SAXX80UCgYEAlyvQvHwJCjMZaTd3SU1WGZ1o1qzIIyHvGXh5u1Rxm0TfWPquyfys2WwRhxoI6FoyXRgnFp8oZIAU2VIstL1dsUGgEnnvKVKAqw/HS3Keu80IpziNpdeVtjN59mGysc2zkBvVNx38Cxh6Cz5TFt4s/JkN5ld2VU0oeglWrtph3qkCgYALszZ/BrKdJBcba1QKv0zJpCjIBpGOI2whx54YFwH6qi4/F8W1JZ2LcHjsVG/IfWpUyPciY+KHEdGVrPiyc04Zvkquu6WpmLPJ6ZloUrvbaxgGYF+4yRADF1ecrqYg6onJY6NUFVKeHI+TdJPCf75aTK2vGCEjxbtU8ooiOQmm8QKBgEGe9ZdrwTP9rMQ35jYtzU+dT06k1r9BE9Q8CmrXl0HwK717ZWboX4J0YoFjxZC8PDsMl3p46MJ83rKbLU728uKig1AkZo7/OedxTWvezjZ1+lDyjC2EguXbgY1ecSC2HbJh9g+v8RUuhWxuA7RYoW92xVtKj+6l4vMadVP4Myp8-----END PRIVATE KEY-----";
 
   @Rule
@@ -194,6 +193,19 @@ public class SamlIdentityProviderTest {
   }
 
   @Test
+  public void callback_on_signed_request() throws IOException {
+    setSettings(true);
+    settings.setProperty("sonar.auth.saml.signature.enabled", true);
+    DumbInitContext context = new DumbInitContext();
+
+    underTest.init(context);
+
+    String[] samlRequestParams = {"http://localhost:8080/auth/realms/sonarqube/protocol/saml",
+      "?SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256", "&SAMLRequest=", "&Signature="};
+    verify(context.response).sendRedirect(argThat(x -> Arrays.stream(samlRequestParams).allMatch(x::contains)));
+  }
+
+  @Test
   public void callback_on_minimal_response() {
     setSettings(true);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
@@ -303,7 +315,8 @@ public class SamlIdentityProviderTest {
       settings.setProperty("sonar.auth.saml.providerId", "http://localhost:8080/auth/realms/sonarqube");
       settings.setProperty("sonar.auth.saml.loginUrl", "http://localhost:8080/auth/realms/sonarqube/protocol/saml");
       settings.setProperty("sonar.auth.saml.certificate.secured", IDP_CERTIFICATE);
-      settings.setProperty("sonar.auth.saml.sp.privateKey.secured",        SP_PRIVATE_KEY);
+      settings.setProperty("sonar.auth.saml.sp.privateKey.secured", SP_PRIVATE_KEY);
+      settings.setProperty("sonar.auth.saml.sp.certificate.secured", SP_CERTIFICATE);
       settings.setProperty("sonar.auth.saml.user.login", "login");
       settings.setProperty("sonar.auth.saml.user.name", "name");
       settings.setProperty("sonar.auth.saml.user.email", "email");

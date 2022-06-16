@@ -46,6 +46,8 @@ public class SamlSettings {
   public static final String USER_EMAIL_ATTRIBUTE = "sonar.auth.saml.user.email";
   public static final String GROUP_NAME_ATTRIBUTE = "sonar.auth.saml.group.name";
 
+  private static final String SIGN_REQUESTS_ENABLED = "sonar.auth.saml.signature.enabled";
+  public static final String SERVICE_PROVIDER_CERTIFICATE = "sonar.auth.saml.sp.certificate.secured";
   public static final String SERVICE_PROVIDER_PRIVATE_KEY = "sonar.auth.saml.sp.privateKey.secured";
 
   public static final String CATEGORY = "security";
@@ -85,8 +87,16 @@ public class SamlSettings {
     return configuration.get(USER_NAME_ATTRIBUTE).orElseThrow(() -> new IllegalArgumentException("User name attribute is missing"));
   }
 
-  String getServiceProviderPrivateKey(){
-    return configuration.get(SERVICE_PROVIDER_PRIVATE_KEY).orElseThrow(() -> new IllegalArgumentException("Service provider private key is missing"));
+  boolean isSignRequestsEnabled() {
+    return configuration.getBoolean(SIGN_REQUESTS_ENABLED).orElse(false);
+  }
+
+  Optional<String> getServiceProviderPrivateKey() {
+    return configuration.get(SERVICE_PROVIDER_PRIVATE_KEY);
+  }
+
+  String getServiceProviderCertificate() {
+    return configuration.get(SERVICE_PROVIDER_CERTIFICATE).orElseThrow(() -> new IllegalArgumentException("Service provider certificate is missing"));
   }
 
   Optional<String> getUserEmail() {
@@ -185,13 +195,30 @@ public class SamlSettings {
         .subCategory(SUBCATEGORY)
         .index(10)
         .build(),
+      PropertyDefinition.builder(SIGN_REQUESTS_ENABLED)
+        .name("Sign requests")
+        .description("Enables signature of SAML requests. It requires both service provider private key and certificate to be set.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(BOOLEAN)
+        .defaultValue(valueOf(false))
+        .index(11)
+        .build(),
       PropertyDefinition.builder(SERVICE_PROVIDER_PRIVATE_KEY)
         .name("Service provider private key")
-        .description("The private key used for signing the requests and decrypting responses from the IdP.")
+        .description("PKCS8 stored private key used for signing the requests and decrypting responses from the identity provider. ")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PASSWORD)
-        .index(11)
+        .index(12)
+        .build(),
+      PropertyDefinition.builder(SERVICE_PROVIDER_CERTIFICATE)
+        .name("Service provider certificate")
+        .description("X.509 certificate for the service provider.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
+        .index(13)
         .build());
   }
 }

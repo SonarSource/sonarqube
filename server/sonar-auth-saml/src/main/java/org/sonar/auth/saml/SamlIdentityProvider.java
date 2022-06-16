@@ -57,6 +57,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   private static final String ANY_URL = "http://anyurl";
   private static final String STATE_REQUEST_PARAMETER = "RelayState";
+  public static final String RSA_SHA_256_URL = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
   private final SamlSettings samlSettings;
   private final SamlMessageIdChecker samlMessageIdChecker;
@@ -193,8 +194,18 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     samlData.put("onelogin.saml2.idp.x509cert", samlSettings.getCertificate());
 
     // Service Provider configuration
-    samlData.put("onelogin.saml2.sp.privatekey", samlSettings.getServiceProviderPrivateKey());
     samlData.put("onelogin.saml2.sp.entityid", samlSettings.getApplicationId());
+    if (samlSettings.isSignRequestsEnabled()) {
+      samlData.put("onelogin.saml2.security.authnrequest_signed", true);
+      samlData.put("onelogin.saml2.security.logoutrequest_signed", true);
+      samlData.put("onelogin.saml2.security.logoutresponse_signed", true);
+      samlData.put("onelogin.saml2.sp.x509cert", samlSettings.getServiceProviderCertificate());
+      samlData.put("onelogin.saml2.sp.privatekey",
+        samlSettings.getServiceProviderPrivateKey().orElseThrow(() -> new IllegalArgumentException("Service provider private key is missing")));
+    } else {
+      samlSettings.getServiceProviderPrivateKey().ifPresent(privateKey -> samlData.put("onelogin.saml2.sp.privatekey", privateKey));
+    }
+    samlData.put("onelogin.saml2.security.signature_algorithm", RSA_SHA_256_URL);
 
     // During callback, the callback URL is by definition not needed, but the Saml2Settings does never allow this setting to be empty...
     samlData.put("onelogin.saml2.sp.assertion_consumer_service.url", callbackUrl != null ? callbackUrl : ANY_URL);
