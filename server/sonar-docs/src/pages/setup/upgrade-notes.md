@@ -3,6 +3,14 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.6 Upgrade notes
+**Microsoft SQL Server changes in configuration and Integrated Authentication**  
+* If your Microsoft SQL Server doesn't support encryption, you will need to add `encrypt=false` to the JDBC URL connection string. ([SONAR-16249](https://jira.sonarsource.com/browse/SONAR-16249)).
+* If your Microsoft SQL Server requires encryption but you don't want SonarQube to validate the certificate, you will need to add `trustServerCertificate=true` to the JDBC URL connection string.
+* If you are using Microsoft SQL Server with Integrated Authentication, you will need to replace the `mssql-jdbc_auth` dll file on your `PATH` with `mssql-jdbc_auth-10.2.1.x64.dll` from the  [Microsoft SQL JDBC Auth 10.2.1 package](https://github.com/microsoft/mssql-jdbc/releases/tag/v10.2.1). See [Install the Server](/setup/install-server/) for more information.
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17429)
+
 ## Release 9.5 Upgrade notes
 **Project analysis token**  
 You can now generate tokens of different types and can create a different analysis token for every specific project. The new tokens will include a prefix to help you quickly identify SonarQube tokens and their type. The usage of project analysis tokens is encouraged to limit the access this token has. See [Generating and Using Tokens](/user-guide/user-token/) documentation for more information.
