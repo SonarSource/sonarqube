@@ -46,7 +46,7 @@ public class SamlSettings {
   public static final String USER_EMAIL_ATTRIBUTE = "sonar.auth.saml.user.email";
   public static final String GROUP_NAME_ATTRIBUTE = "sonar.auth.saml.group.name";
 
-  private static final String SIGN_REQUESTS_ENABLED = "sonar.auth.saml.signature.enabled";
+  public static final String SIGN_REQUESTS_ENABLED = "sonar.auth.saml.signature.enabled";
   public static final String SERVICE_PROVIDER_CERTIFICATE = "sonar.auth.saml.sp.certificate.secured";
   public static final String SERVICE_PROVIDER_PRIVATE_KEY = "sonar.auth.saml.sp.privateKey.secured";
 
