@@ -92,7 +92,7 @@ If you don't see a drop-down list with all available SonarScanner versions but i
 ## Using a Jenkins pipeline
 We provide a `withSonarQubeEnv` block that allows you to select the SonarQube server you want to interact with. Connection details you have configured in Jenkins global configuration will be automatically passed to the scanner.
 
-If needed you can override the `credentialId` if you don't want to use the one defined in global configuration (for example if you define credentials at folder level).
+If needed you can override the `credentialsId` if you don't want to use the one defined in global configuration (for example if you define credentials at folder level).
 
 If you only need the SonarQube environment variables to be expanded in the build context then you can override the `envOnly` flag.
 ```
