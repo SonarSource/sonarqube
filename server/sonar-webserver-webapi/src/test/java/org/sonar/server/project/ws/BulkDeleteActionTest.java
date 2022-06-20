@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -120,7 +122,7 @@ public class BulkDeleteActionTest {
       TestRequest request = ws.newRequest();
       assertThatThrownBy(request::execute)
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("At lease one parameter among analyzedBefore, projects and q must be provided");
+        .hasMessage("At least one parameter among analyzedBefore, projects and q must be provided");
     } finally {
       verifyNoDeletions();
       verifyNoMoreInteractions(projectLifeCycleListeners);
@@ -269,6 +271,25 @@ public class BulkDeleteActionTest {
 
     verifyComponentDeleted(toDelete1, toDelete2);
     verifyListenersOnProjectsDeleted(toDelete1, toDelete2);
+  }
+
+  @Test
+  public void should_throw_IAE_when_providing_future_date_as_analyzed_before_date() {
+    userSession.logIn().addPermission(ADMINISTER);
+
+    Date now = new Date();
+    Date futureDate = new DateTime(now).plusDays(RandomUtils.nextInt() + 1).toDate();
+    ComponentDto project1 = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project1).setCreatedAt(now.getTime()));
+    ComponentDto project2 = db.components().insertPublicProject();
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project2).setCreatedAt(now.getTime()));
+    db.commit();
+
+    TestRequest request = ws.newRequest().setParam(PARAM_ANALYZED_BEFORE, formatDate(futureDate));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provided value for parameter analyzedBefore must not be a future date");
   }
 
   @Test

@@ -20,16 +20,20 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -138,6 +142,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(GlobalPermission.ADMINISTER);
       checkAtLeastOneParameterIsPresent(searchRequest);
+      checkIfAnalyzedBeforeIsFutureDate(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
       Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
@@ -159,8 +164,20 @@ public class BulkDeleteAction implements ProjectsWsAction {
     boolean queryPresent = !Strings.isNullOrEmpty(searchRequest.getQuery());
     boolean atLeastOneParameterIsPresent = analyzedBeforePresent || projectsPresent || queryPresent;
 
-    checkArgument(atLeastOneParameterIsPresent, format("At lease one parameter among %s, %s and %s must be provided",
+    checkArgument(atLeastOneParameterIsPresent, format("At least one parameter among %s, %s and %s must be provided",
       PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, Param.TEXT_QUERY));
+  }
+
+  private static void checkIfAnalyzedBeforeIsFutureDate(SearchRequest searchRequest) {
+    String analyzedBeforeParam = searchRequest.getAnalyzedBefore();
+
+    Optional.ofNullable(analyzedBeforeParam)
+      .filter(StringUtils::isNotEmpty)
+      .map(DateUtils::parseDateOrDateTime)
+      .ifPresent(analyzedBeforeDate -> {
+        boolean isFutureDate = new Date().compareTo(analyzedBeforeDate) < 0;
+        checkArgument(!isFutureDate, format("Provided value for parameter %s must not be a future date", PARAM_ANALYZED_BEFORE));
+      });
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {
