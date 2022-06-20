@@ -213,7 +213,7 @@ subprojects {
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831' // bundled_plugin:flex:sonar-flex
       dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082' // bundled_plugin:web:sonar-html
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.1.0.898' // bundled_plugin:jacoco:sonar-jacoco
-      dependency 'org.sonarsource.java:sonar-java-plugin:6.8.0.23379' // bundled_plugin:java:sonar-java
+      dependency 'org.sonarsource.java:sonar-java-plugin:7.6.0.28201' // bundled_plugin:java:sonar-java
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:6.5.0.13383' // bundled_plugin:javascript:SonarJS
       dependency 'org.sonarsource.php:sonar-php-plugin:3.9.0.6331' // bundled_plugin:php:sonar-php
       dependency 'org.sonarsource.python:sonar-python-plugin:3.1.0.7619' // bundled_plugin:python:sonar-python
