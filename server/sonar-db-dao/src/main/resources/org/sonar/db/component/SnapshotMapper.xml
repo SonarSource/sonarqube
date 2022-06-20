@@ -54,15 +54,47 @@
   </select>
 
   <select id="selectLastAnalysisDateByProjects" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
-    select coalesce(p.main_branch_project_uuid, p.project_uuid) as project_uuid, max(s.created_at) as last_analysis_date
-    from snapshots s
-    inner join components p on s.component_uuid = p.project_uuid
-    where s.islast=${_true}
-    and coalesce(p.main_branch_project_uuid, p.project_uuid) in
+    select
+      result_with_duplicates.project_uuid as project_uuid ,
+      max(result_with_duplicates.last_analysis_date) as last_analysis_date
+    from
+      (
+      select
+        c.main_branch_project_uuid as project_uuid,
+        max(s.created_at) as last_analysis_date
+      from
+        snapshots s
+      inner join components c on
+        s.component_uuid = c.project_uuid
+      where
+        s.islast = ${_true}
+        and c.main_branch_project_uuid in
       <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
         #{projectUuid,jdbcType=VARCHAR}
       </foreach>
-    group by coalesce(p.main_branch_project_uuid, p.project_uuid)
+      group by
+        c.main_branch_project_uuid
+    union
+      select
+        c.project_uuid as project_uuid,
+        max(s.created_at) as last_analysis_date
+      from
+        snapshots s
+      inner join components c on
+        s.component_uuid = c.project_uuid
+      where
+        s.islast = ${_true}
+        and c.main_branch_project_uuid is null
+        and c.project_uuid in
+      <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+        #{projectUuid,jdbcType=VARCHAR}
+      </foreach>
+      group by
+        c.project_uuid
+    ) result_with_duplicates
+    group by
+      result_with_duplicates.project_uuid
+
   </select>
 
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
