@@ -134,7 +134,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   @Override
   public void doSave() {
     validateFile();
-    if (!isExcluded()) {
+    if (!isExcluded() && inputFile.type() != InputFile.Type.TEST) {
       storage.store(this);
     }
   }

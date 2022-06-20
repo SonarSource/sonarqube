@@ -249,7 +249,7 @@ public class GenericCoverageReportParserTest {
   private DefaultInputFile setupFile(String path) {
     return new TestInputFileBuilder(context.module().key(), path)
       .setLanguage("bla")
-      .setType(InputFile.Type.TEST)
+      .setType(InputFile.Type.MAIN)
       .initMetadata("1\n2\n3\n4\n5\n6")
       .build();
   }

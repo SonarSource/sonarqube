@@ -112,6 +112,9 @@ public class CoverageMeasuresStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
+      if (file.getFileAttributes().isUnitTest()) {
+        return;
+      }
       try (CloseableIterator<ScannerReport.LineCoverage> lineCoverage = reportReader.readComponentCoverage(file.getReportAttributes().getRef())) {
         int linesToCover = 0;
         int coveredLines = 0;
