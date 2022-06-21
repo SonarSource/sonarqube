@@ -184,7 +184,10 @@ public class AnalysisPropertiesDaoTest {
       final int index = i;
       ProjectDto project = dbTester.components().insertPrivateProjectDto();
       dbTester.components().insertSnapshot(project, s -> s.setLast(true).setUuid("uuid" + index));
+      // branches shouldn't be taken into account
+      dbTester.components().insertProjectBranch(project);
     }
+
     underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid0").setUuid("0"));
     underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("svn").setAnalysisUuid("uuid1").setUuid("1"));
     underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid2").setUuid("2"));

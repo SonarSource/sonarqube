@@ -39,7 +39,7 @@
     inner join snapshots s on s.component_uuid = cp.uuid
     inner join analysis_properties ap on ap.analysis_uuid = s.uuid
     where
-      s.islast = ${_true} and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
+      cp.main_branch_project_uuid is null and s.islast = ${_true} and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
     group by ap.text_value
   </select>
 
