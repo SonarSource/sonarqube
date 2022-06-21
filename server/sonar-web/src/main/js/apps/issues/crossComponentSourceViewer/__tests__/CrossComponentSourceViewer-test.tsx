@@ -28,7 +28,7 @@ import {
 } from '../../../../helpers/mocks/sources';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
+import CrossComponentSourceViewer from '../CrossComponentSourceViewer';
 
 jest.mock('../../../../api/issues', () => {
   const { mockSnippetsByComponent } = jest.requireActual('../../../../helpers/mocks/sources');
@@ -122,9 +122,9 @@ it('should handle duplication popup', async () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<CrossComponentSourceViewerWrapper['props']> = {}) {
-  return shallow<CrossComponentSourceViewerWrapper>(
-    <CrossComponentSourceViewerWrapper
+function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {}) {
+  return shallow<CrossComponentSourceViewer>(
+    <CrossComponentSourceViewer
       branchLike={undefined}
       highlightedLocationMessage={undefined}
       issue={mockIssue(true, { key: '1' })}

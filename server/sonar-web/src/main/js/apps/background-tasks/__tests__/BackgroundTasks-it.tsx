@@ -22,7 +22,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
-import { renderAdminApp } from '../../../helpers/testReactTestingUtils';
+import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
 
@@ -167,5 +167,5 @@ async function changeTaskFilter(user: UserEvent, fieldLabel: string, value: stri
 }
 
 function renderGlobalBackgroundTasksApp() {
-  renderAdminApp('admin/background_tasks', routes, {});
+  renderAppWithAdminContext('admin/background_tasks', routes, {});
 }

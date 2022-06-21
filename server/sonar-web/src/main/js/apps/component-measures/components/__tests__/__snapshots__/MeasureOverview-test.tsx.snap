@@ -320,6 +320,10 @@ exports[`should render correctly: is file 1`] = `
     >
       <SourceViewer
         component="foo:src/index.tsx"
+        displayAllIssues={false}
+        displayIssueLocationsCount={true}
+        displayIssueLocationsLink={true}
+        displayLocationMarkers={true}
       />
     </div>
   </div>

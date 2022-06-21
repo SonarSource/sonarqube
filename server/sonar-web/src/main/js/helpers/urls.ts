@@ -28,7 +28,6 @@ import { SecurityStandard } from '../types/security';
 import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
-import { IS_SSR } from './browser';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 
@@ -408,9 +407,6 @@ export function stripTrailingSlash(url: string) {
 }
 
 export function getHostUrl(): string {
-  if (IS_SSR) {
-    throw new Error('No host url available on server side.');
-  }
   return window.location.origin + getBaseUrl();
 }
 

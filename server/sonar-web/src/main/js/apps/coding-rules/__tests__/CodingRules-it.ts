@@ -21,7 +21,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { renderApp } from '../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
@@ -479,7 +479,7 @@ it('should show notification for rule advanced section and removes it when user 
 });
 
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
-  renderApp('coding_rules', routes, {
+  renderAppRoutes('coding_rules', routes, {
     navigateTo,
     currentUser,
     languages: {

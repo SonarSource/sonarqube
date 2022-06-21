@@ -25,6 +25,7 @@ import { IntlProvider } from 'react-intl';
 import { MemoryRouter, Outlet, parsePath, Route, Routes } from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
+import { ComponentContext } from '../app/components/componentContext/ComponentContext';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
 import IndexationContextProvider from '../app/components/indexation/IndexationContextProvider';
@@ -32,6 +33,7 @@ import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
+import { ComponentContextShape } from '../types/component';
 import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
@@ -45,7 +47,7 @@ interface RenderContext {
   navigateTo?: string;
 }
 
-export function renderAdminApp(
+export function renderAppWithAdminContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
@@ -98,7 +100,34 @@ export function renderComponent(component: React.ReactElement, pathname = '/') {
   return render(component, { wrapper: Wrapper });
 }
 
-export function renderComponentApp(
+export function renderAppWithComponentContext(
+  indexPath: string,
+  routes: () => JSX.Element,
+  context: RenderContext = {},
+  componentContext?: Partial<ComponentContextShape>
+) {
+  function MockComponentContainer() {
+    return (
+      <ComponentContext.Provider
+        value={{
+          branchLikes: [],
+          onBranchesChange: jest.fn(),
+          onComponentChange: jest.fn(),
+          ...componentContext
+        }}>
+        <Outlet />
+      </ComponentContext.Provider>
+    );
+  }
+
+  return renderRoutedApp(
+    <Route element={<MockComponentContainer />}>{routes()}</Route>,
+    indexPath,
+    context
+  );
+}
+
+export function renderApp(
   indexPath: string,
   component: JSX.Element,
   context: RenderContext = {}
@@ -106,7 +135,7 @@ export function renderComponentApp(
   return renderRoutedApp(<Route path={indexPath} element={component} />, indexPath, context);
 }
 
-export function renderApp(
+export function renderAppRoutes(
   indexPath: string,
   routes: () => JSX.Element,
   context?: RenderContext

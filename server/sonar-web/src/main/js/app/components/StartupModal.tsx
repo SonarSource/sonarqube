@@ -20,8 +20,8 @@
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import { showLicense } from '../../api/editions';
+import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import { parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
@@ -30,11 +30,6 @@ import { EditionKey } from '../../types/editions';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
-
-const LicensePromptModal = lazyLoadComponent(
-  () => import('../../apps/marketplace/components/LicensePromptModal'),
-  'LicensePromptModal'
-);
 
 interface StateProps {
   currentUser: CurrentUser;

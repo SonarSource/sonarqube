@@ -25,7 +25,7 @@ import { mockSourceLine, mockSourceViewerFile } from '../../../helpers/mocks/sou
 import { mockIssue } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import defaultLoadIssues from '../helpers/loadIssues';
-import SourceViewerBase from '../SourceViewerBase';
+import SourceViewer from '../SourceViewer';
 
 jest.mock('../helpers/loadIssues', () => jest.fn().mockRejectedValue({}));
 
@@ -148,8 +148,8 @@ it('should handle no sources when checking ranges', () => {
   expect(wrapper.instance().isLineOutsideOfRange(12)).toBe(true);
 });
 
-function shallowRender(overrides: Partial<SourceViewerBase['props']> = {}) {
-  return shallow<SourceViewerBase>(
-    <SourceViewerBase branchLike={mockMainBranch()} component="my-component" {...overrides} />
+function shallowRender(overrides: Partial<SourceViewer['props']> = {}) {
+  return shallow<SourceViewer>(
+    <SourceViewer branchLike={mockMainBranch()} component="my-component" {...overrides} />
   );
 }

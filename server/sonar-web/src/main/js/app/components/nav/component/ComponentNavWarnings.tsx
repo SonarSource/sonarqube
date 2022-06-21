@@ -19,15 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { lazyLoadComponent } from '../../../../components/lazyLoadComponent';
+import AnalysisWarningsModal from '../../../../components/common/AnalysisWarningsModal';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { TaskWarning } from '../../../../types/tasks';
-
-const AnalysisWarningsModal = lazyLoadComponent(
-  () => import('../../../../components/common/AnalysisWarningsModal'),
-  'AnalysisWarningsModal'
-);
 
 interface Props {
   componentKey: string;

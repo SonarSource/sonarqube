@@ -30,6 +30,10 @@ exports[`should render 1`] = `
   >
     <SourceViewer
       component="foo"
+      displayAllIssues={false}
+      displayIssueLocationsCount={true}
+      displayIssueLocationsLink={true}
+      displayLocationMarkers={true}
       onIssueChange={[Function]}
       onLoaded={[Function]}
     />

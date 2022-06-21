@@ -29,10 +29,10 @@ import { CurrentUser } from '../../../../types/users';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
 jest.mock(
-  '../AllProjectsContainer',
+  '../AllProjects',
   () =>
     // eslint-disable-next-line
-    function AllProjectsContainer() {
+    function AllProjects() {
       return <div>All Projects</div>;
     }
 );

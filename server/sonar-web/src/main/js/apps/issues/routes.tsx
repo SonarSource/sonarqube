@@ -21,9 +21,9 @@ import React, { useEffect } from 'react';
 import { Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { omitNil } from '../../helpers/request';
 import { IssueType } from '../../types/issues';
-import AppContainer from './components/AppContainer';
+import IssuesApp from './components/IssuesApp';
 
-export const globalIssuesRoutes = () => <Route path="issues" element={<AppContainer />} />;
+export const globalIssuesRoutes = () => <Route path="issues" element={<IssuesApp />} />;
 
 export const projectIssuesRoutes = () => (
   <Route path="project/issues" element={<IssuesNavigate />} />
@@ -67,5 +67,5 @@ function IssuesNavigate() {
     }
   }, [navigate, searchParams, setSearchParams]);
 
-  return <AppContainer />;
+  return <IssuesApp />;
 }

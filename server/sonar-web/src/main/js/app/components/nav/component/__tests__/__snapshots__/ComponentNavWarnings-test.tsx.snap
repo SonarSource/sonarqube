@@ -31,7 +31,7 @@ exports[`should render 1`] = `
       }
     />
   </Alert>
-  <AnalysisWarningsModal
+  <withCurrentUserContext(AnalysisWarningsModal)
     componentKey="foo"
     onClose={[Function]}
     onWarningDismiss={[MockFunction]}

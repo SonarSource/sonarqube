@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { renderComponentApp } from '../../../../helpers/testReactTestingUtils';
+import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { Extension } from '../../../../types/types';
 import GlobalPageExtension, { GlobalPageExtensionProps } from '../GlobalPageExtension';
 
@@ -58,12 +58,8 @@ function renderGlobalPageExtension(
   globalPages: Extension[] = [],
   params?: GlobalPageExtensionProps['params']
 ) {
-  renderComponentApp(
-    `extension/:pluginKey/:extensionKey`,
-    <GlobalPageExtension params={params} />,
-    {
-      appState: mockAppState({ globalPages }),
-      navigateTo
-    }
-  );
+  renderApp(`extension/:pluginKey/:extensionKey`, <GlobalPageExtension params={params} />, {
+    appState: mockAppState({ globalPages }),
+    navigateTo
+  });
 }

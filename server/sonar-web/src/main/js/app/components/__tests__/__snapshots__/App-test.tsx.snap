@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <Fragment>
-  <LazyComponentWrapper />
+  <withRouter(withAppStateContext(PageTracker)) />
   <Outlet />
   <KeyboardShortcutsModal />
 </Fragment>
@@ -10,12 +10,12 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: with gravatar 1`] = `
 <Fragment>
-  <LazyComponentWrapper>
+  <withRouter(withAppStateContext(PageTracker))>
     <link
       href="http://example.com"
       rel="preconnect"
     />
-  </LazyComponentWrapper>
+  </withRouter(withAppStateContext(PageTracker))>
   <Outlet />
   <KeyboardShortcutsModal />
 </Fragment>

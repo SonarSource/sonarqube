@@ -19,12 +19,7 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
-import { lazyLoadComponent } from '../lazyLoadComponent';
-
-const DonutChart = lazyLoadComponent(
-  () => import('../../components/charts/DonutChart'),
-  'DonutChart'
-);
+import DonutChart from '../../components/charts/DonutChart';
 
 const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
 

@@ -26,7 +26,7 @@ import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { renderApp } from '../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
 import { TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
@@ -633,5 +633,5 @@ function getCheckboxByRowName(name: string) {
 }
 
 function renderAccountApp(currentUser: CurrentUser, navigateTo?: string) {
-  renderApp('account', routes, { currentUser, navigateTo });
+  renderAppRoutes('account', routes, { currentUser, navigateTo });
 }

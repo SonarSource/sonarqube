@@ -58,7 +58,7 @@ exports[`should render correctly: open component 1`] = `
       }
       rules={Array []}
     />
-    <WorkspaceComponentViewer
+    <withBranchStatusActions(WorkspaceComponentViewer)
       component={
         Object {
           "branchLike": Object {

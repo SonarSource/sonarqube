@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { addMonths, setMonth, setYear, subMonths } from 'date-fns';
 import { range } from 'lodash';
 import * as React from 'react';
-import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
+import DayPicker, { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { ButtonIcon, ClearButton } from '../../components/controls/buttons';
 import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
@@ -29,12 +29,9 @@ import CalendarIcon from '../../components/icons/CalendarIcon';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
 import { getShortMonthName, getShortWeekDayName, getWeekDayName } from '../../helpers/l10n';
-import { lazyLoadComponent } from '../lazyLoadComponent';
 import './DayPicker.css';
 import Select from './Select';
 import './styles.css';
-
-const DayPicker = lazyLoadComponent(() => import('react-day-picker'), 'DayPicker');
 
 interface Props {
   className?: string;

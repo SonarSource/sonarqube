@@ -21,7 +21,6 @@ import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
@@ -29,9 +28,8 @@ import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';
-
-const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));
-const PullRequestOverview = lazyLoadComponent(() => import('../pullRequests/PullRequestOverview'));
+import PullRequestOverview from '../pullRequests/PullRequestOverview';
+import EmptyOverview from './EmptyOverview';
 
 interface Props {
   appState: AppState;

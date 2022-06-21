@@ -53,10 +53,10 @@ it('shows scanner context', () => {
 it('shows warnings', () => {
   const wrapper = shallowRender({ warningCount: 2 });
   click(wrapper.find('.js-task-show-warnings'));
-  expect(wrapper.find('AnalysisWarningsModal')).toMatchSnapshot();
-  wrapper.find('AnalysisWarningsModal').prop<Function>('onClose')();
+  expect(wrapper.find('withCurrentUserContext(AnalysisWarningsModal)')).toMatchSnapshot();
+  wrapper.find('withCurrentUserContext(AnalysisWarningsModal)').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('AnalysisWarningsModal').exists()).toBe(false);
+  expect(wrapper.find('withCurrentUserContext(AnalysisWarningsModal)').exists()).toBe(false);
 });
 
 function shallowRender(fields?: Partial<Task>, props?: Partial<TaskActions['props']>) {

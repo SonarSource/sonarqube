@@ -26,7 +26,7 @@ import { get } from '../../../helpers/storage';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
-import AllProjectsContainer from './AllProjectsContainer';
+import AllProjects from './AllProjects';
 
 export interface DefaultPageSelectorProps {
   currentUser: CurrentUser;
@@ -95,7 +95,7 @@ export function DefaultPageSelector(props: DefaultPageSelectorProps) {
     return null;
   }
 
-  return <AllProjectsContainer isFavorite={false} />;
+  return <AllProjects isFavorite={false} />;
 }
 
 export default withCurrentUserContext(DefaultPageSelector);

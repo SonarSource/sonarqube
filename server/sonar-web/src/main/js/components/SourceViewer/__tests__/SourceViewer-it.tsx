@@ -21,12 +21,13 @@ import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { SourceViewerServiceMock } from '../../../api/mocks/SourceViewerServiceMock';
+import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import SourceViewer from '../SourceViewer';
-import SourceViewerBase from '../SourceViewerBase';
 
 jest.mock('../../../api/components');
+jest.mock('../../../api/issues');
 jest.mock('../helpers/lines', () => {
   const lines = jest.requireActual('../helpers/lines');
   return {
@@ -36,6 +37,10 @@ jest.mock('../helpers/lines', () => {
 });
 
 const handler = new SourceViewerServiceMock();
+
+beforeEach(() => {
+  handler.reset();
+});
 
 it('should show a permalink on line number', async () => {
   const user = userEvent.setup();
@@ -106,6 +111,53 @@ it('should show issue on empty file', async () => {
   });
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
+});
+
+it('should be able to interact with issue action', async () => {
+  const user = userEvent.setup();
+  renderSourceViewer({
+    loadIssues: jest.fn().mockResolvedValue([
+      mockIssue(false, {
+        actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+        key: 'first-issue',
+        message: 'First Issue',
+        line: 1,
+        textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
+      })
+    ])
+  });
+
+  //Open Issue type
+  await user.click(
+    await screen.findByRole('button', { name: 'issue.type.type_x_click_to_change.issue.type.BUG' })
+  );
+  expect(screen.getByRole('link', { name: 'issue.type.CODE_SMELL' })).toBeInTheDocument();
+
+  // Open severity
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
+    })
+  );
+  expect(screen.getByRole('link', { name: 'severity.MINOR' })).toBeInTheDocument();
+
+  // Close
+  await user.keyboard('{Escape}');
+  expect(screen.queryByRole('link', { name: 'severity.MINOR' })).not.toBeInTheDocument();
+
+  // Change the severity
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
+    })
+  );
+  expect(screen.getByRole('link', { name: 'severity.MINOR' })).toBeInTheDocument();
+  await user.click(screen.getByRole('link', { name: 'severity.MINOR' }));
+  expect(
+    screen.getByRole('button', {
+      name: 'issue.severity.severity_x_click_to_change.severity.MINOR'
+    })
+  ).toBeInTheDocument();
 });
 
 it('should load line when looking arround unloaded line', async () => {
@@ -299,11 +351,37 @@ it('should show duplication block', async () => {
   expect(duplicateLine.queryByRole('link', { name: 'test2.js' })).not.toBeInTheDocument();
 });
 
-function renderSourceViewer(override?: Partial<SourceViewerBase['props']>) {
+it('should highlight symbol', async () => {
+  const user = userEvent.setup();
+  renderSourceViewer({ component: 'project:testSymb.tsx' });
+  const symbols = await screen.findAllByText('symbole');
+  await user.click(symbols[0]);
+
+  // For now just check the class. Maybe found a better accessible way of showing higlighted symbole
+  symbols.forEach(element => {
+    expect(element).toHaveClass('highlighted');
+  });
+});
+
+it('should show correct message when component is not asscessible', async () => {
+  handler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
+  renderSourceViewer();
+  expect(
+    await screen.findByText('code_viewer.no_source_code_displayed_due_to_security')
+  ).toBeInTheDocument();
+});
+
+it('should show correct message when component does not exist', async () => {
+  handler.setFailLoadingComponentStatus(HttpStatus.NotFound);
+  renderSourceViewer();
+  expect(await screen.findByText('component_viewer.no_component')).toBeInTheDocument();
+});
+
+function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
   return renderComponent(getSourceViewerUi(override));
 }
 
-function getSourceViewerUi(override?: Partial<SourceViewerBase['props']>) {
+function getSourceViewerUi(override?: Partial<SourceViewer['props']>) {
   return (
     <SourceViewer
       aroundLine={1}

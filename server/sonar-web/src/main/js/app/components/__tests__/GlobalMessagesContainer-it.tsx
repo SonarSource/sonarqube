@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
-import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
 
 function NullComponent() {
   return null;
@@ -30,7 +30,7 @@ it('should display messages', () => {
   jest.useFakeTimers();
 
   // we render anything, the GlobalMessageContainer is rendered independently from routing
-  renderComponentApp('sonarqube', <NullComponent />);
+  renderApp('sonarqube', <NullComponent />);
 
   addGlobalErrorMessage('This is an error');
   addGlobalSuccessMessage('This was a triumph!');

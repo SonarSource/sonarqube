@@ -22,22 +22,14 @@ import * as React from 'react';
 import { getRulesApp } from '../../api/rules';
 import { get, save } from '../../helpers/storage';
 import { Dict } from '../../types/types';
-import { lazyLoadComponent } from '../lazyLoadComponent';
 import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
+import WorkspaceComponentViewer from './WorkspaceComponentViewer';
+import WorkspaceNav from './WorkspaceNav';
 import WorkspacePortal from './WorkspacePortal';
+import WorkspaceRuleViewer from './WorkspaceRuleViewer';
 
 const WORKSPACE = 'sonarqube-workspace';
-const WorkspaceNav = lazyLoadComponent(() => import('./WorkspaceNav'), 'WorkspaceNav');
-const WorkspaceRuleViewer = lazyLoadComponent(
-  () => import('./WorkspaceRuleViewer'),
-  'WorkspaceRuleViewer'
-);
-const WorkspaceComponentViewer = lazyLoadComponent(
-  () => import('./WorkspaceComponentViewer'),
-  'WorkspaceComponentViewer'
-);
-
 interface State {
   components: ComponentDescriptor[];
   externalRulesRepoNames: Dict<string>;

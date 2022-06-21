@@ -26,7 +26,6 @@ import OutsideClickHandler from '../../../components/controls/OutsideClickHandle
 import SearchBox from '../../../components/controls/SearchBox';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import ClockIcon from '../../../components/icons/ClockIcon';
-import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -37,15 +36,13 @@ import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
 import RecentHistory from '../RecentHistory';
 import './Search.css';
+import SearchResult from './SearchResult';
+import SearchResults from './SearchResults';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
-
-const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
-const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
 
 interface Props {
   router: Router;
 }
-
 interface State {
   loading: boolean;
   loadingMore?: string;

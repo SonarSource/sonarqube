@@ -22,7 +22,7 @@ import React from 'react';
 import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
 import { getActivityGraph } from '../../../../components/activity-graph/utils';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { renderComponentApp } from '../../../../helpers/testReactTestingUtils';
+import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ProjectActivityAppContainer from '../ProjectActivityAppContainer';
@@ -104,7 +104,7 @@ function renderProjectActivityAppContainer(
     })
   }
 ) {
-  return renderComponentApp(
+  return renderApp(
     'project/activity',
     <ComponentContext.Provider
       value={{

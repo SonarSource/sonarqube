@@ -27,13 +27,15 @@ import {
   getSources
 } from '../../api/components';
 import { mockSourceLine } from '../../helpers/mocks/sources';
+import { HttpStatus } from '../../helpers/request';
 import { BranchParameters } from '../../types/branch-like';
 import { Dict } from '../../types/types';
+import { setIssueSeverity } from '../issues';
 
-function mockSourceFileView(name: string) {
+function mockSourceFileView(name: string, project = 'project') {
   return {
     component: {
-      key: `project:${name}`,
+      key: `${project}:${name}`,
       name,
       qualifier: 'FIL',
       path: name,
@@ -44,13 +46,13 @@ function mockSourceFileView(name: string) {
       needIssueSync: false
     },
     sourceFileView: {
-      key: `project:${name}`,
-      uuid: 'AWMgNpveti8CNlpVyHAm',
+      key: `${project}:${name}`,
+      uuid: `AWMgNpveti8CNlpVyHAm${project}${name}`,
       path: name,
       name,
       longName: name,
       q: 'FIL',
-      project: 'project',
+      project,
       projectName: 'Test project',
       fav: false,
       canMarkAsFavorite: true,
@@ -85,6 +87,26 @@ const FILES: Dict<any> = {
       mockSourceLine({
         line: n,
         code: `\u003cspan class\u003d"cd"\u003eLine ${n}\u003c/span\u003e`
+      })
+    ),
+    ancestors: ANCESTORS
+  },
+  'foo:index.tsx': {
+    ...mockSourceFileView('index.tsx', 'foo'),
+    sources: times(200, n =>
+      mockSourceLine({
+        line: n,
+        code: 'function Test() {}'
+      })
+    ),
+    ancestors: ANCESTORS
+  },
+  'project:testSymb.tsx': {
+    ...mockSourceFileView('testSymb.tsx'),
+    sources: times(20, n =>
+      mockSourceLine({
+        line: n,
+        code: '  <span class="sym-35 sym">symbole</span>'
       })
     ),
     ancestors: ANCESTORS
@@ -202,6 +224,8 @@ const FILES: Dict<any> = {
 };
 
 export class SourceViewerServiceMock {
+  faileLoadingComponentStatus: HttpStatus | undefined = undefined;
+
   constructor() {
     (getComponentData as jest.Mock).mockImplementation(this.handleGetComponentData);
     (getComponentForSourceViewer as jest.Mock).mockImplementation(
@@ -209,6 +233,15 @@ export class SourceViewerServiceMock {
     );
     (getDuplications as jest.Mock).mockImplementation(this.handleGetDuplications);
     (getSources as jest.Mock).mockImplementation(this.handleGetSources);
+    (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
+  }
+
+  reset() {
+    this.faileLoadingComponentStatus = undefined;
+  }
+
+  setFailLoadingComponentStatus(status: HttpStatus.Forbidden | HttpStatus.NotFound) {
+    this.faileLoadingComponentStatus = status;
   }
 
   getHugeFile(): string {
@@ -239,7 +272,14 @@ export class SourceViewerServiceMock {
   };
 
   handleGetComponentData = (data: { component: string } & BranchParameters) => {
+    if (this.faileLoadingComponentStatus !== undefined) {
+      return Promise.reject({ status: this.faileLoadingComponentStatus });
+    }
     return this.reply(pick(FILES[data.component], ['component', 'ancestor']));
+  };
+
+  handleSetIssueSeverity = () => {
+    return this.reply({});
   };
 
   reply<T>(response: T): Promise<T> {

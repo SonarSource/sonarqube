@@ -22,9 +22,7 @@ import { translate } from '../../helpers/l10n';
 import { ButtonLink } from '../controls/buttons';
 import Toggler from '../controls/Toggler';
 import HelpIcon from '../icons/HelpIcon';
-import { lazyLoadComponent } from '../lazyLoadComponent';
-
-const EmbedDocsPopup = lazyLoadComponent(() => import('./EmbedDocsPopup'));
+import EmbedDocsPopup from './EmbedDocsPopup';
 
 interface State {
   helpOpen: boolean;

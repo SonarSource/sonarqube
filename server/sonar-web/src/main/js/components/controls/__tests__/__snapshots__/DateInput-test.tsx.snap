@@ -229,23 +229,88 @@ exports[`should render 3`] = `
         </ButtonIcon>
       </nav>
       <DayPicker
+        canChangeMonth={true}
         captionElement={<NullComponent />}
+        classNames={
+          Object {
+            "body": "DayPicker-Body",
+            "caption": "DayPicker-Caption",
+            "container": "DayPicker",
+            "day": "DayPicker-Day",
+            "disabled": "disabled",
+            "footer": "DayPicker-Footer",
+            "interactionDisabled": "DayPicker--interactionDisabled",
+            "month": "DayPicker-Month",
+            "months": "DayPicker-Months",
+            "navBar": "DayPicker-NavBar",
+            "navButtonInteractionDisabled": "DayPicker-NavButton--interactionDisabled",
+            "navButtonNext": "DayPicker-NavButton DayPicker-NavButton--next",
+            "navButtonPrev": "DayPicker-NavButton DayPicker-NavButton--prev",
+            "outside": "outside",
+            "selected": "selected",
+            "today": "today",
+            "todayButton": "DayPicker-TodayButton",
+            "week": "DayPicker-Week",
+            "weekNumber": "DayPicker-WeekNumber",
+            "weekday": "DayPicker-Weekday",
+            "weekdays": "DayPicker-Weekdays",
+            "weekdaysRow": "DayPicker-WeekdaysRow",
+            "wrapper": "DayPicker-wrapper",
+          }
+        }
         disabledDays={
           Object {
             "after": 2018-02-05T00:00:00.000Z,
             "before": 2018-01-17T00:00:00.000Z,
           }
         }
+        enableOutsideDaysClick={true}
         firstDayOfWeek={1}
+        fixedWeeks={false}
+        labels={
+          Object {
+            "nextMonth": "Next Month",
+            "previousMonth": "Previous Month",
+          }
+        }
+        locale="en"
+        localeUtils={
+          Object {
+            "default": Object {
+              "formatDay": [Function],
+              "formatMonthTitle": [Function],
+              "formatWeekdayLong": [Function],
+              "formatWeekdayShort": [Function],
+              "getFirstDayOfWeek": [Function],
+              "getMonths": [Function],
+            },
+            "formatDay": [Function],
+            "formatMonthTitle": [Function],
+            "formatWeekdayLong": [Function],
+            "formatWeekdayShort": [Function],
+            "getFirstDayOfWeek": [Function],
+            "getMonths": [Function],
+          }
+        }
         month={2018-01-17T00:00:00.000Z}
         navbarElement={<NullComponent />}
+        numberOfMonths={1}
         onDayClick={[Function]}
         onDayMouseEnter={[Function]}
+        pagedNavigation={false}
+        renderDay={[Function]}
+        renderWeek={[Function]}
+        reverseMonths={false}
         selectedDays={
           Array [
             2018-01-17T00:00:00.000Z,
           ]
         }
+        showOutsideDays={false}
+        showWeekDays={true}
+        showWeekNumbers={false}
+        tabIndex={0}
+        weekdayElement={<Weekday />}
         weekdaysLong={
           Array [
             "Sunday",

@@ -22,7 +22,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getComponents, SearchProjectsParameters } from '../../../api/components';
 import PermissionTemplateServiceMock from '../../../api/mocks/PermissionTemplateServiceMock';
-import { renderAdminApp } from '../../../helpers/testReactTestingUtils';
+import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import routes from '../routes';
 
@@ -154,5 +154,5 @@ function mockComponents(n: number) {
 }
 
 function renderGlobalBackgroundTasksApp() {
-  renderAdminApp('admin/projects_management', routes, {});
+  renderAppWithAdminContext('admin/projects_management', routes, {});
 }

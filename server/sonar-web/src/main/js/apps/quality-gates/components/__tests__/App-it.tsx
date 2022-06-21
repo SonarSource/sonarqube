@@ -23,7 +23,7 @@ import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../../types/appstate';
 import routes from '../../routes';
 
@@ -488,5 +488,5 @@ describe('The Permissions section', () => {
 });
 
 function renderQualityGateApp(appState?: AppState) {
-  renderApp('quality_gates', routes, { appState });
+  renderAppRoutes('quality_gates', routes, { appState });
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { renderApp } from '../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import routes from '../routes';
 
 it('should redirect old history route', () => {
@@ -30,5 +30,5 @@ it('should redirect old history route', () => {
 });
 
 function renderMeasuresApp(navigateTo?: string) {
-  renderApp('component_measures', routes, { navigateTo });
+  renderAppRoutes('component_measures', routes, { navigateTo });
 }

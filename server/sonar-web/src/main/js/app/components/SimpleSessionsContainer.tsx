@@ -19,10 +19,8 @@
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import GlobalFooter from './GlobalFooter';
-
-const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
+import PageTracker from './PageTracker';
 
 export default function SimpleSessionsContainer() {
   return (

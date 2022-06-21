@@ -19,13 +19,11 @@
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import { AppState } from '../../types/appstate';
 import { GlobalSettingKeys } from '../../types/settings';
 import withAppStateContext from './app-state/withAppStateContext';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
-
-const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
+import PageTracker from './PageTracker';
 
 interface Props {
   appState: AppState;

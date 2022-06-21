@@ -25,7 +25,10 @@ import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
+import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -36,7 +39,8 @@ import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router } from '../../../components/hoc/withRouter';
+import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -1162,4 +1166,7 @@ const AlertContent = styled.div`
   align-items: center;
 `;
 
-export default withComponentContext(App);
+export default withIndexationGuard(
+  withRouter(withCurrentUserContext(withBranchStatusActions(withComponentContext(App)))),
+  PageContext.Issues
+);

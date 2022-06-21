@@ -22,9 +22,9 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
-import { renderApp, renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { renderApp, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { IssueType } from '../../../types/issues';
-import AppContainer from '../components/AppContainer';
+import IssuesApp from '../components/IssuesApp';
 import { projectIssuesRoutes } from '../routes';
 
 jest.mock('../../../api/issues');
@@ -168,9 +168,9 @@ describe('redirects', () => {
 });
 
 function renderIssueApp() {
-  renderComponentApp('project/issues', <AppContainer />);
+  renderApp('project/issues', <IssuesApp />);
 }
 
 function renderProjectIssuesApp(navigateTo?: string) {
-  renderApp('project/issues', projectIssuesRoutes, { navigateTo });
+  renderAppRoutes('project/issues', projectIssuesRoutes, { navigateTo });
 }

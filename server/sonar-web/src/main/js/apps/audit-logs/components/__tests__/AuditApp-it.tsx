@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AuditLogsServiceMock from '../../../../api/mocks/AuditLogsServiceMock';
-import { renderAdminApp } from '../../../../helpers/testReactTestingUtils';
+import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
 import { AdminPageExtension } from '../../../../types/extension';
 import routes from '../../routes';
 
@@ -60,5 +60,5 @@ it('should handle download button click', async () => {
 });
 
 function renderAuditLogs() {
-  renderAdminApp('admin/audit', routes, {}, { adminPages: extensions });
+  renderAppWithAdminContext('admin/audit', routes, {}, { adminPages: extensions });
 }

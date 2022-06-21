@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { renderComponentApp } from '../../../helpers/testReactTestingUtils';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { ComponentContextShape } from '../../../types/component';
 import { Component } from '../../../types/types';
 import App from '../App';
@@ -39,7 +39,7 @@ it('should render with no component', () => {
 });
 
 function renderProjectDeletionApp(component?: Component) {
-  renderComponentApp(
+  renderApp(
     'project-delete',
     <ComponentContext.Provider value={{ component } as ComponentContextShape}>
       <App />
