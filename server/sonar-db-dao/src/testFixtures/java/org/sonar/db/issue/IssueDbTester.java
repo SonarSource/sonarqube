@@ -126,9 +126,19 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insertIssue(Consumer<IssueDto>... populators) {
     RuleDto rule = db.rules().insertIssueRule();
+    return insertIssue(rule, populators);
+  }
+
+  /**
+   * Inserts an issue.
+   *
+   * @throws AssertionError if rule is not Security Hotspot
+   */
+  @SafeVarargs
+  public final IssueDto insertIssue(RuleDto ruleDto, Consumer<IssueDto>... populators) {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issue = newIssue(rule, project, file)
+    IssueDto issue = newIssue(ruleDto, project, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
     stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);

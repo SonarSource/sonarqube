@@ -141,7 +141,9 @@ public class PullActionTest {
       .setChecksum("hash")
       .setTextRange(textRange);
 
-    IssueDto issueDto = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRepositoryKey("java").setRuleKey("S1000"));
+    IssueDto issueDto = issueDbTester.insertIssue(rule, p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("message")
       .setCreatedAt(NOW)
@@ -164,7 +166,7 @@ public class PullActionTest {
     assertThat(issueLite.getUserSeverity()).isEqualTo("MINOR");
     assertThat(issueLite.getCreationDate()).isEqualTo(NOW);
     assertThat(issueLite.getResolved()).isTrue();
-    assertThat(issueLite.getRuleKey()).isEqualTo(issueDto.getRuleKey().rule());
+    assertThat(issueLite.getRuleKey()).isEqualTo("java:S1000");
     assertThat(issueLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()).name());
 
     Issues.Location location = issueLite.getMainLocation();

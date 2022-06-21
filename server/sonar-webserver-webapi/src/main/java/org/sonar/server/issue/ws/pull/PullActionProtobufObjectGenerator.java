@@ -54,7 +54,7 @@ public class PullActionProtobufObjectGenerator {
     issueBuilder.setKey(issueDto.getKey());
     issueBuilder.setCreationDate(issueDto.getCreatedAt());
     issueBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
-    issueBuilder.setRuleKey(issueDto.getRuleKey().rule());
+    issueBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.isManualSeverity() && issueDto.getSeverity() != null) {
       issueBuilder.setUserSeverity(issueDto.getSeverity());
     }
