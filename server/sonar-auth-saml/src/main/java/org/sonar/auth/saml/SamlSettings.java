@@ -76,7 +76,7 @@ public class SamlSettings {
   }
 
   String getCertificate() {
-    return configuration.get(CERTIFICATE).orElseThrow(() -> new IllegalArgumentException("Certificate is missing"));
+    return configuration.get(CERTIFICATE).orElseThrow(() -> new IllegalArgumentException("Identity provider certificate is missing"));
   }
 
   String getUserLogin() {
@@ -159,7 +159,7 @@ public class SamlSettings {
         .index(5)
         .build(),
       PropertyDefinition.builder(CERTIFICATE)
-        .name("Provider certificate")
+        .name("Identity provider certificate")
         .description("X.509 certificate for the identity provider.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

@@ -40,10 +40,6 @@ You can delegate authentication to GitHub, GitLab, or Bitbucket Cloud. See the c
 ## SAML Authentication  
 You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authentication.
 
-### Limitations
-* SAML requests are not signed. Client signature validation should be disabled in the Identity Provider.
-* SAML encrypted responses are not supported. SAML encryption should be disabled in the Identity Provider.
-
 ### Example: Using Keycloak as a SAML Identity Provider
 The following example may be useful if you're using Keycloak as a SAML Identity Provider. If you're not using Keycloak, your settings are likely to be different.
 
@@ -58,8 +54,12 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 | Configure the new client
 |
 | 1. In Settings
-|    1. Set"Client Signature Required" to OFF
-|    1. Set "Valid Redirect URIs" to "<Your SonarQube URL>/oauth2/callback/*, E.G https://sonarqube.mycompany.com/oauth2/callback/saml
+|    1. Set "Client Signature Required" to ON only if the signature of the requests will be active on the SonarQube SAML configuration.
+|    1. Set "Encrypt Assertions" to ON if the responses from the IdP have to be encrypted.
+|    1. Set "Valid Redirect URIs" to "<Your SonarQube URL>/oauth2/callback/*, E.G https://sonarqube.mycompany.com/oauth2/callback/saml.
+| 1. In Keys
+|    1. Signing Key: Import the service provider private key and certificate if the signature of the requests is enabled on the SonarQube side.
+|    1. Encryption Key: Import the service provider certificate. It has to be the same as the signing key if both functionalities are active.
 | 1. In Client Scopes > Default Client Scopes , remove "role_list" from "Assigned Default Client Scopes" (to prevent the error `com.onelogin.saml2.exception.ValidationError: Found an Attribute element with duplicated Name` during authentication)
 | 1. In Mappers create a mapper for each user attribute (Note that values provided below for Name, SAML Attribute Name, Role Attribute Name are only example values): 
 |    1. Create a mapper for the login: 
@@ -98,12 +98,15 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 | * **Application ID** is the value of the "Client ID" you set in Keycloak (for example "sonarqube")
 | * **Provider ID** is the value of the "EntityDescriptor" > "entityID" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube" where sonarqube is the name of the realm)
 | * **SAML login url** is the value of "SingleSignOnService" > "Location" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
-| * **Provider certificate** is the value you get from *Reaml Settings* -> *Keys* -> click on the *Certificate* button
+| * **Identity provider certificate** is the value you get from *Reaml Settings* -> *Keys* -> click on the *Certificate* button
 | * **SAML user login attribute** is the value set in the login mapper in "SAML Attribute Name"
 | * **SAML user name attribute** is the value set in the name mapper in "SAML Attribute Name"
 | * (Optional) **SAML user email attribute** is the value set in the email mapper in "SAML Attribute Name"
 | * (Optional) **SAML group attribute** is the value set in the groups mapper in "Role/Group Attribute Name"
-|
+| * **Sign requests** when set to true activates the signature of the SAML requests. It needs both the service provider private key and certificate to be set.
+| * **Service provider private key** the service provider private key shared with the identity provider, used for both request signature and response encryption. It has to be in PKCS8 format. 
+| * **Service provider certificate** the service provider certificate shared with the identity provider in order to activate the requests signature. 
+| 
 | In the login form, the new button "Log in with SAML" allows users to connect with their SAML account.
 
 ### SAML and reverse proxy configuration

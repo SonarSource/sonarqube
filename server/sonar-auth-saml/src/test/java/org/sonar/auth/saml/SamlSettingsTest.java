@@ -213,7 +213,7 @@ public class SamlSettingsTest {
   public void fail_to_get_certificate_when_null() {
     assertThatThrownBy(() -> underTest.getCertificate())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Certificate is missing");
+      .hasMessage("Identity provider certificate is missing");
   }
 
   @Test
