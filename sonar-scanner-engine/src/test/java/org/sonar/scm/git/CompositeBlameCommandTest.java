@@ -132,6 +132,28 @@ public class CompositeBlameCommandTest {
   }
 
   @Test
+  public void skip_files_when_head_commit_is_missing() throws IOException {
+    // skip if git not installed
+    assumeTrue(gitBlameCommand.checkIfEnabled());
+
+    JGitBlameCommand jgit = mock(JGitBlameCommand.class);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    File projectDir = createNewTempFolder();
+    javaUnzip("no-head-git.zip", projectDir);
+
+    File baseDir = new File(projectDir, "no-head-git");
+    setUpBlameInputWithFile(baseDir.toPath());
+    TestBlameOutput output = new TestBlameOutput();
+    blameCmd.blame(input, output);
+
+    assertThat(output.blame).isEmpty();
+    verifyNoInteractions(jgit);
+
+    assertThat(logTester.logs())
+      .contains("Could not find HEAD commit");
+  }
+
+  @Test
   public void use_native_git_by_default() throws IOException {
     // skip test if git is not installed
     assumeTrue(gitBlameCommand.checkIfEnabled());

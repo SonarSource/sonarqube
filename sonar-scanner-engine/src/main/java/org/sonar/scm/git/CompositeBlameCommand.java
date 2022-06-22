@@ -24,12 +24,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -42,6 +44,8 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+
+import static java.util.Optional.ofNullable;
 
 public class CompositeBlameCommand extends BlameCommand {
   private static final Logger LOG = Loggers.get(CompositeBlameCommand.class);
@@ -96,9 +100,15 @@ public class CompositeBlameCommand extends BlameCommand {
   private static Set<String> collectAllCommittedFiles(Repository repo) {
     try {
       Set<String> files = new HashSet<>();
+      Optional<ObjectId> headCommit = ofNullable(repo.resolve(Constants.HEAD));
+
+      if (headCommit.isEmpty()) {
+        LOG.warn("Could not find HEAD commit");
+        return files;
+      }
 
       try (RevWalk revWalk = new RevWalk(repo)) {
-        RevCommit head = revWalk.parseCommit(repo.resolve(Constants.HEAD));
+        RevCommit head = revWalk.parseCommit(headCommit.get());
         try (TreeWalk treeWalk = new TreeWalk(repo)) {
           treeWalk.addTree(head.getTree());
           treeWalk.setRecursive(true);
