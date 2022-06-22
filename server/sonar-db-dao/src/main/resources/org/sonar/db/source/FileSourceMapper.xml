@@ -24,14 +24,15 @@
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
+  <select id="scrollHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileHashesDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       uuid,
       file_uuid as fileUuid,
       data_hash as dataHash,
       src_hash as srcHash,
       revision,
-      updated_at as updatedAt
+      updated_at as updatedAt,
+      line_hashes_version as lineHashesVersion
     from
       file_sources
     where

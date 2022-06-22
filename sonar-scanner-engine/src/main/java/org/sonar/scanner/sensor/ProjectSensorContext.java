@@ -40,7 +40,6 @@ import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
@@ -67,7 +66,7 @@ public class ProjectSensorContext implements SensorContext {
   private final Settings mutableSettings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
-  private final SensorStorage sensorStorage;
+  private final DefaultSensorStorage sensorStorage;
   private final DefaultInputProject project;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
@@ -77,7 +76,7 @@ public class ProjectSensorContext implements SensorContext {
   private final AnalysisCacheEnabled analysisCacheEnabled;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration, WriteCache writeCache, ReadCache readCache,
+    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration, WriteCache writeCache, ReadCache readCache,
     AnalysisCacheEnabled analysisCacheEnabled) {
     this.project = project;
     this.config = config;
@@ -191,6 +190,12 @@ public class ProjectSensorContext implements SensorContext {
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublished(true);
+  }
+
+  @Override
+  public void markAsUnchanged(InputFile inputFile) {
+    DefaultInputFile defaultInputFile = (DefaultInputFile) inputFile;
+    defaultInputFile.setMarkedAsUnchanged(true);
   }
 
   @Override

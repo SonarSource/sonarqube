@@ -553,6 +553,31 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
+  public void files_have_markedAsUnchanged_flag() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey("c1")
+      .setRef(1)
+      .addChildRef(2)
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(FILE)
+      .setMarkedAsUnchanged(true)
+      .setProjectRelativePath("src/js/Foo.js")
+      .setLines(1));
+
+    Component root = call(project);
+    assertThat(root.getUuid()).isEqualTo("generated_c1_uuid");
+
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getUuid()).isEqualTo("generated_c1:src/js_uuid");
+
+    Component file = directory.getChildren().iterator().next();
+    assertThat(file.getFileAttributes().isMarkedAsUnchanged()).isTrue();
+  }
+
+  @Test
   public void issues_are_relocated_from_directories_and_modules_to_root() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)

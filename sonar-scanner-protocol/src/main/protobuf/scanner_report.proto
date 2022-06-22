@@ -131,6 +131,7 @@ message Component {
 
   // Path relative to project base directory
   string project_relative_path = 14;
+  bool markedAsUnchanged = 15;
 
   enum ComponentType {
     UNSET = 0;

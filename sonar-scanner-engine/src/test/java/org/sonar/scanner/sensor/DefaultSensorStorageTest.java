@@ -205,6 +205,16 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
+  public void has_issues_delegates_to_report_publisher() {
+    DefaultInputFile file1 = new TestInputFileBuilder("foo", "src/Foo1.php").setStatus(InputFile.Status.SAME).build();
+    DefaultInputFile file2 = new TestInputFileBuilder("foo", "src/Foo2.php").setStatus(InputFile.Status.SAME).build();
+
+    reportWriter.writeComponentIssues(file1.scannerId(), List.of(ScannerReport.Issue.newBuilder().build()));
+    assertThat(underTest.hasIssues(file1)).isTrue();
+    assertThat(underTest.hasIssues(file2)).isFalse();
+  }
+
+  @Test
   public void should_save_highlighting() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment").build();

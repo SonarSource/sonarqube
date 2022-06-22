@@ -33,13 +33,23 @@ public class FileAttributes {
   private final boolean unitTest;
   @CheckForNull
   private final String languageKey;
+  private final boolean markedAsUnchanged;
   private final int lines;
 
   public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
+    this(unitTest, languageKey, lines, false);
+  }
+
+  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines, boolean markedAsUnchanged) {
     this.unitTest = unitTest;
     this.languageKey = languageKey;
+    this.markedAsUnchanged = markedAsUnchanged;
     checkArgument(lines > 0, "Number of lines must be greater than zero");
     this.lines = lines;
+  }
+
+  public boolean isMarkedAsUnchanged() {
+    return markedAsUnchanged;
   }
 
   public boolean isUnitTest() {
@@ -64,6 +74,7 @@ public class FileAttributes {
       "languageKey='" + languageKey + '\'' +
       ", unitTest=" + unitTest +
       ", lines=" + lines +
+      ", markedAsUnchanged=" + markedAsUnchanged +
       '}';
   }
 }

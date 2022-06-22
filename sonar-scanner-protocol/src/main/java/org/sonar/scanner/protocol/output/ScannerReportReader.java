@@ -108,6 +108,11 @@ public class ScannerReportReader {
     return emptyCloseableIterator();
   }
 
+  public boolean hasIssues(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
+    return fileExists(file);
+  }
+
   public CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
     if (fileExists(file)) {

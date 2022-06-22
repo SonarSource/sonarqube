@@ -28,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
@@ -38,7 +37,7 @@ import org.sonar.db.protobuf.DbFileSources;
 import static com.google.common.base.Splitter.on;
 import static java.lang.String.format;
 
-public class FileSourceDto {
+public class FileSourceDto extends FileHashesDto {
 
   private static final String SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE = "Protocol message was too large.  May be malicious.  " +
     "Use CodedInputStream.setSizeLimit() to increase the size limit.";
@@ -46,11 +45,8 @@ public class FileSourceDto {
   public static final Splitter LINES_HASHES_SPLITTER = on('\n');
   public static final int LINE_COUNT_NOT_POPULATED = -1;
 
-  private String uuid;
   private String projectUuid;
-  private String fileUuid;
   private long createdAt;
-  private long updatedAt;
   private String lineHashes;
   /**
    * When {@code line_count} column has been added, it's been populated with value {@link #LINE_COUNT_NOT_POPULATED -1},
@@ -64,24 +60,11 @@ public class FileSourceDto {
    * {@code line_hashes}.
    */
   private int lineCount = LINE_COUNT_NOT_POPULATED;
-  private String srcHash;
   private byte[] binaryData = new byte[0];
-  private String dataHash;
-  private String revision;
-  @Nullable
-  private Integer lineHashesVersion;
-
-  public int getLineHashesVersion() {
-    return lineHashesVersion != null ? lineHashesVersion : LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue();
-  }
 
   public FileSourceDto setLineHashesVersion(int lineHashesVersion) {
     this.lineHashesVersion = lineHashesVersion;
     return this;
-  }
-
-  public String getUuid() {
-    return uuid;
   }
 
   public FileSourceDto setUuid(String uuid) {
@@ -98,18 +81,9 @@ public class FileSourceDto {
     return this;
   }
 
-  public String getFileUuid() {
-    return fileUuid;
-  }
-
   public FileSourceDto setFileUuid(String fileUuid) {
     this.fileUuid = fileUuid;
     return this;
-  }
-
-  @CheckForNull
-  public String getDataHash() {
-    return dataHash;
   }
 
   /**
@@ -234,11 +208,6 @@ public class FileSourceDto {
     return this;
   }
 
-  @CheckForNull
-  public String getSrcHash() {
-    return srcHash;
-  }
-
   /**
    * Hash of file content. Value is computed by batch.
    */
@@ -256,17 +225,9 @@ public class FileSourceDto {
     return this;
   }
 
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
   public FileSourceDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public String getRevision() {
-    return revision;
   }
 
   public FileSourceDto setRevision(@Nullable String revision) {

@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
@@ -39,7 +38,7 @@ public class ModuleSensorContext extends ProjectSensorContext {
   private final InputModule module;
 
   public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableModuleSettings, FileSystem fs, ActiveRules activeRules,
-    SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
+    DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
     WriteCache writeCache, ReadCache readCache, AnalysisCacheEnabled analysisCacheEnabled) {
     super(project, config, mutableModuleSettings, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled);
     this.module = module;

@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -50,7 +51,6 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderI
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
@@ -113,8 +113,6 @@ public class IntegrateIssuesVisitorTest {
   public ActiveRulesHolderRule activeRulesHolderRule = new ActiveRulesHolderRule();
   @Rule
   public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
-  @Rule
-  public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
 
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private final IssueFilter issueFilter = mock(IssueFilter.class);
@@ -128,8 +126,9 @@ public class IntegrateIssuesVisitorTest {
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
-  private TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
+  private final TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
   private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
+  private final FileStatuses fileStatuses = mock(FileStatuses.class);
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   private final ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
@@ -166,8 +165,8 @@ public class IntegrateIssuesVisitorTest {
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date());
-    underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, referenceBranchComponentUuids,
-      mock(PullRequestSourceBranchMerger.class));
+    underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses);
   }
 
   @Test
@@ -181,7 +180,6 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -190,7 +188,6 @@ public class IntegrateIssuesVisitorTest {
 
   @Test
   public void process_existing_issue() {
-
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
     addBaseIssue(ruleKey);
@@ -203,19 +200,16 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
-
   }
 
   @Test
   public void dont_cache_existing_issue_if_unmodified() {
-
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
     addBaseIssue(ruleKey);
@@ -228,14 +222,12 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
-
   }
 
   @Test
@@ -248,7 +240,6 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -280,8 +271,34 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void copy_issues_when_creating_new_non_main_branch() {
+  public void reuse_issues_when_data_unchanged() {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    // Issue from db has severity major
+    addBaseIssue(ruleKey);
 
+    // Issue from report has severity blocker
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setMsg("new message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putIssues(FILE_REF, singletonList(reportIssue));
+    when(fileStatuses.isDataUnchanged(FILE)).thenReturn(true);
+
+    underTest.visitAny(FILE);
+
+    // visitors get called, so measures created from issues should be calculated taking these issues into account
+    verify(issueVisitor).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo(ruleKey.rule());
+
+    // most issues won't go to the cache since they aren't changed and don't need to be persisted
+    // In this test they are being closed but the workflows aren't working (we mock them) so nothing is changed on the issue is not cached.
+    assertThat(newArrayList(protoIssueCache.traverse())).isEmpty();
+  }
+
+  @Test
+  public void copy_issues_when_creating_new_non_main_branch() {
     when(mergeBranchComponentsUuids.getComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
     when(referenceBranchComponentUuids.getReferenceBranchName()).thenReturn("master");
 
@@ -304,7 +321,6 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, singletonList(reportIssue));
-    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 

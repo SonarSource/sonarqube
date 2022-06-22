@@ -22,15 +22,16 @@ package org.sonar.ce.task.projectanalysis.source;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
+import org.sonar.ce.task.projectanalysis.component.PreviousSourceHashRepository;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -43,10 +44,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileHashesDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.LineHashVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,28 +63,30 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private static final long NOW = 123456789L;
   private static final long PAST = 15000L;
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  private SourceLinesHashRepository sourceLinesHashRepository = mock(SourceLinesHashRepository.class);
-  private SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer = mock(SourceLinesHashRepositoryImpl.LineHashesComputer.class);
-  private FileSourceDataComputer fileSourceDataComputer = mock(FileSourceDataComputer.class);
-  private FileSourceDataWarnings fileSourceDataWarnings = mock(FileSourceDataWarnings.class);
+  private final SourceLinesHashRepository sourceLinesHashRepository = mock(SourceLinesHashRepository.class);
+  private final SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer = mock(SourceLinesHashRepositoryImpl.LineHashesComputer.class);
+  private final FileSourceDataComputer fileSourceDataComputer = mock(FileSourceDataComputer.class);
+  private final FileSourceDataWarnings fileSourceDataWarnings = mock(FileSourceDataWarnings.class);
+  private final PreviousSourceHashRepository previousSourceHashRepository = mock(PreviousSourceHashRepository.class);
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession session = dbTester.getSession();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession session = dbTester.getSession();
 
   private PersistFileSourcesStep underTest;
 
   @Before
   public void setup() {
     when(system2.now()).thenReturn(NOW);
-    when(sourceLinesHashRepository.getLineHashesComputerToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer, fileSourceDataWarnings, new SequenceUuidFactory());
+    when(sourceLinesHashRepository.getLineHashesComputerToPersist(any(Component.class))).thenReturn(lineHashesComputer);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer, fileSourceDataWarnings,
+      new SequenceUuidFactory(), previousSourceHashRepository);
     initBasicReport(1);
   }
 
@@ -305,6 +310,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void not_update_sources_when_nothing_has_changed() {
+    setPastAnalysisHashes();
     dbClient.fileSourceDao().insert(dbTester.getSession(), createDto());
     dbTester.getSession().commit();
 
@@ -326,7 +332,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void update_sources_when_source_updated() {
     // Existing sources
     long past = 150000L;
-    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+    FileSourceDto dbFileSources = new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE1_UUID)
@@ -341,8 +347,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .setCreatedAt(past)
       .setUpdatedAt(past)
-      .setRevision("rev-0"));
+      .setRevision("rev-0");
+    dbClient.fileSourceDao().insert(dbTester.getSession(), dbFileSources);
     dbTester.getSession().commit();
+    setPastAnalysisHashes(dbFileSources);
 
     DbFileSources.Data newSourceData = DbFileSources.Data.newBuilder()
       .addLines(DbFileSources.Line.newBuilder()
@@ -369,8 +377,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void update_sources_when_src_hash_is_missing() {
-    dbClient.fileSourceDao().insert(dbTester.getSession(), createDto(dto -> dto.setSrcHash(null)));
+    FileSourceDto dbFileSources = createDto(dto -> dto.setSrcHash(null));
+    dbClient.fileSourceDao().insert(dbTester.getSession(), dbFileSources);
     dbTester.getSession().commit();
+    setPastAnalysisHashes(dbFileSources);
 
     DbFileSources.Data sourceData = DbFileSources.Data.newBuilder().build();
     setComputedData(sourceData, Collections.singletonList("lineHash"), "newSourceHash", null);
@@ -394,8 +404,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .build();
 
-    dbClient.fileSourceDao().insert(dbTester.getSession(), createDto(dto -> dto.setRevision(null)));
+    FileSourceDto dbFileSources = createDto(dto -> dto.setRevision(null));
+    dbClient.fileSourceDao().insert(dbTester.getSession(), dbFileSources);
     dbTester.getSession().commit();
+    setPastAnalysisHashes(dbFileSources);
 
     Changeset changeset = Changeset.newChangesetBuilder().setDate(1L).setRevision("revision").build();
     setComputedData(sourceData, Collections.singletonList("137f72c3708c6bd0de00a0e5a69c699b"), "29f25900140c94db38035128cb6de6a2", changeset);
@@ -434,6 +446,21 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     modifier.accept(dto);
     return dto;
+  }
+
+  private void setPastAnalysisHashes() {
+    DbFileSources.Data sourceData = DbFileSources.Data.newBuilder().build();
+    byte[] data = FileSourceDto.encodeSourceData(sourceData);
+    String dataHash = DigestUtils.md5Hex(data);
+    FileHashesDto fileHashesDto = new FileHashesDto()
+      .setSrcHash("sourceHash")
+      .setDataHash(dataHash)
+      .setRevision("rev-1");
+    setPastAnalysisHashes(fileHashesDto);
+  }
+
+  private void setPastAnalysisHashes(FileHashesDto fileHashesDto) {
+    when(previousSourceHashRepository.getDbFile(any(Component.class))).thenReturn(Optional.of(fileHashesDto));
   }
 
   private void setComputedData(DbFileSources.Data data, List<String> lineHashes, String sourceHash, Changeset latestChangeWithRevision) {

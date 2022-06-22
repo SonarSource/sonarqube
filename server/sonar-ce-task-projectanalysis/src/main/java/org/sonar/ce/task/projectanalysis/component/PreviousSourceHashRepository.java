@@ -17,26 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.source;
+package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Collection;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
+import java.util.Optional;
+import org.sonar.db.source.FileHashesDto;
 
-public interface FileSourceMapper {
-
-  void scrollHashesForProject(@Param("projectUuid") String projectUuid, ResultHandler<FileHashesDto> rowHandler);
-
-  @CheckForNull
-  FileSourceDto selectByFileUuid(@Param("fileUuid") String fileUuid);
-
-  void scrollLineHashes(@Param("fileUuids") Collection<String> fileUuids, ResultHandler<LineHashesWithUuidDto> rowHandler);
-
-  @CheckForNull
-  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid);
-
-  void insert(FileSourceDto dto);
-
-  void update(FileSourceDto dto);
+public interface PreviousSourceHashRepository {
+  Optional<FileHashesDto> getDbFile(Component component);
 }

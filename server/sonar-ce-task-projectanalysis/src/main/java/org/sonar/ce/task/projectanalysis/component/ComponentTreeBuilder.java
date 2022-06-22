@@ -345,7 +345,8 @@ public class ComponentTreeBuilder {
     return new FileAttributes(
       component.getIsTest(),
       lang != null ? lang.intern() : null,
-      component.getLines());
+      component.getLines(),
+      component.getMarkedAsUnchanged());
   }
 
   private static class Node {

@@ -27,6 +27,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
@@ -44,6 +45,10 @@ import org.sonar.server.project.Project;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.BUGS;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -78,7 +83,9 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  private DbClient dbClient = db.getDbClient();
+  private final FileStatuses fileStatuses = mock(FileStatuses.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final TestComputationStepContext context = new TestComputationStepContext();
 
   @Before
   public void setUp() {
@@ -86,9 +93,11 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     MetricDto bestValueMMetricDto = db.measures()
       .insertMetric(m -> m.setKey(METRIC_WITH_BEST_VALUE.getKey()).setValueType(Metric.ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(0.0));
+    MetricDto bugs = db.measures().insertMetric(m -> m.setKey(BUGS.getKey()));
     metricRepository.add(stringMetricDto.getUuid(), STRING_METRIC);
     metricRepository.add(intMetricDto.getUuid(), INT_METRIC);
     metricRepository.add(bestValueMMetricDto.getUuid(), METRIC_WITH_BEST_VALUE);
+    metricRepository.add(bugs.getUuid(), BUGS);
   }
 
   @Test
@@ -100,7 +109,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     // all measures are persisted, from project to file
@@ -117,7 +125,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().createNoValue());
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().createNoValue());
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     assertThatMeasureIsNotPersisted("project-uuid", STRING_METRIC);
@@ -130,7 +137,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     prepareProject();
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().setVariation(42.0).createNoValue());
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     LiveMeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
@@ -152,7 +158,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     measureRepository.addRawMeasure(REF_4, INT_METRIC.getKey(), newMeasureBuilder().create(42));
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     assertThatMeasureHasValue(measureOnFileInProject, 42);
@@ -173,12 +178,35 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     // file measure with metric best value -> do not persist
     measureRepository.addRawMeasure(REF_4, METRIC_WITH_BEST_VALUE.getKey(), newMeasureBuilder().create(0));
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     assertThatMeasureDoesNotExist(oldMeasure);
     assertThatMeasureHasValue("project-uuid", METRIC_WITH_BEST_VALUE, 0);
     verifyStatistics(context, 1);
+  }
+
+  @Test
+  public void keep_measures_for_unchanged_files() {
+    prepareProject();
+    LiveMeasureDto oldMeasure = insertMeasure("file-uuid", "project-uuid", BUGS);
+    db.commit();
+    when(fileStatuses.isDataUnchanged(any(Component.class))).thenReturn(true);
+    // this new value won't be persisted
+    measureRepository.addRawMeasure(REF_4, BUGS.getKey(), newMeasureBuilder().create(oldMeasure.getValue() + 1, 0));
+    step().execute(context);
+    assertThat(selectMeasure("file-uuid", BUGS).get().getValue()).isEqualTo(oldMeasure.getValue());
+  }
+
+  @Test
+  public void dont_keep_measures_for_unchanged_files() {
+    prepareProject();
+    LiveMeasureDto oldMeasure = insertMeasure("file-uuid", "project-uuid", BUGS);
+    db.commit();
+    when(fileStatuses.isDataUnchanged(any(Component.class))).thenReturn(false);
+    // this new value will be persisted
+    measureRepository.addRawMeasure(REF_4, BUGS.getKey(), newMeasureBuilder().create(oldMeasure.getValue() + 1, 0));
+    step().execute(context);
+    assertThat(selectMeasure("file-uuid", BUGS).get().getValue()).isEqualTo(oldMeasure.getValue() + 1);
   }
 
   @Test
@@ -190,7 +218,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("subview-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
 
-    TestComputationStepContext context = new TestComputationStepContext();
     step().execute(context);
 
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(3);
@@ -288,7 +315,8 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return new PersistLiveMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
+    return new PersistLiveMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository,
+      Optional.of(fileStatuses));
   }
 
   private static void verifyStatistics(TestComputationStepContext context, int expectedInsertsOrUpdates) {

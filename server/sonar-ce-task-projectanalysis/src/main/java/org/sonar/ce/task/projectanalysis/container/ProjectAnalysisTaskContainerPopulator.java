@@ -34,6 +34,8 @@ import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
+import org.sonar.ce.task.projectanalysis.component.FileStatusesImpl;
+import org.sonar.ce.task.projectanalysis.component.PreviousSourceHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -193,6 +195,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       new ComputationTempFolderProvider(),
 
       ReportModulesPath.class,
+      FileStatusesImpl.class,
       new MetricModule(),
 
       // holders
@@ -213,6 +216,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SiblingComponentsWithOpenIssues.class,
 
       // repositories
+      PreviousSourceHashRepositoryImpl.class,
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,

@@ -414,6 +414,11 @@ public class SensorContextTester implements SensorContext {
   }
 
   @Override
+  public void markAsUnchanged(InputFile inputFile) {
+    ((DefaultInputFile) inputFile).setMarkedAsUnchanged(true);
+  }
+
+  @Override
   public WriteCache nextCache() {
     return writeCache;
   }
@@ -427,7 +432,6 @@ public class SensorContextTester implements SensorContext {
     return readCache;
   }
 
-
   public void setPreviousCache(ReadCache cache) {
     this.readCache = cache;
   }
@@ -436,7 +440,6 @@ public class SensorContextTester implements SensorContext {
   public boolean isCacheEnabled() {
     return cacheEnabled;
   }
-
 
   public void setCacheEnabled(boolean enabled) {
     this.cacheEnabled = enabled;

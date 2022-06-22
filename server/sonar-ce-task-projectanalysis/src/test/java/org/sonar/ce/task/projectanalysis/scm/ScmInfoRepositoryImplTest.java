@@ -40,9 +40,9 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
+import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
-import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
 import org.sonar.db.protobuf.DbFileSources.Line;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -74,12 +74,11 @@ public class ScmInfoRepositoryImplTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
 
-  private SourceHashRepository sourceHashRepository = mock(SourceHashRepository.class);
-  private SourceLinesDiff diff = mock(SourceLinesDiff.class);
-  private ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
-  private Date analysisDate = new Date();
-
-  private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, sourceHashRepository);
+  private final FileStatuses fileStatuses = mock(FileStatuses.class);
+  private final SourceLinesDiff diff = mock(SourceLinesDiff.class);
+  private final ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
+  private final Date analysisDate = new Date();
+  private final ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, fileStatuses);
 
   @Before
   public void setUp() {
@@ -106,7 +105,7 @@ public class ScmInfoRepositoryImplTest {
     assertThat(logTester.logs(TRACE)).isEmpty();
 
     verifyNoInteractions(dbLoader);
-    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
@@ -125,32 +124,32 @@ public class ScmInfoRepositoryImplTest {
     assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from report for file 'FILE_KEY'");
 
     verifyNoInteractions(dbLoader);
-    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
   @Test
   public void read_from_DB_if_no_report_and_file_unchanged() {
-    createDbScmInfoWithOneLine("hash");
-    when(sourceHashRepository.getRawSourceHash(FILE_SAME)).thenReturn("hash");
+    createDbScmInfoWithOneLine();
+    when(fileStatuses.isUnchanged(FILE_SAME)).thenReturn(true);
 
     // should clear revision and author
     ScmInfo scmInfo = underTest.getScmInfo(FILE_SAME).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
 
-    verify(sourceHashRepository).getRawSourceHash(FILE_SAME);
+    verify(fileStatuses).isUnchanged(FILE_SAME);
     verify(dbLoader).getScmInfo(FILE_SAME);
 
     verifyNoMoreInteractions(dbLoader);
-    verifyNoMoreInteractions(sourceHashRepository);
+    verifyNoMoreInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
   @Test
   public void read_from_DB_if_no_report_and_file_unchanged_and_copyFromPrevious_is_true() {
-    createDbScmInfoWithOneLine("hash");
-    when(sourceHashRepository.getRawSourceHash(FILE_SAME)).thenReturn("hash");
+    createDbScmInfoWithOneLine();
+    when(fileStatuses.isUnchanged(FILE_SAME)).thenReturn(true);
     addFileSourceInReport(1);
     addCopyFromPrevious();
 
@@ -158,11 +157,11 @@ public class ScmInfoRepositoryImplTest {
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertChangeset(scmInfo.getChangesetForLine(1), "rev1", "author1", 10L);
 
-    verify(sourceHashRepository).getRawSourceHash(FILE_SAME);
+    verify(fileStatuses).isUnchanged(FILE_SAME);
     verify(dbLoader).getScmInfo(FILE_SAME);
 
     verifyNoMoreInteractions(dbLoader);
-    verifyNoMoreInteractions(sourceHashRepository);
+    verifyNoMoreInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
@@ -178,7 +177,7 @@ public class ScmInfoRepositoryImplTest {
 
     verify(dbLoader).getScmInfo(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
@@ -195,13 +194,13 @@ public class ScmInfoRepositoryImplTest {
 
     verify(dbLoader).getScmInfo(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyNoInteractions(sourceHashRepository);
+    verifyNoInteractions(fileStatuses);
     verifyNoInteractions(diff);
   }
 
   @Test
   public void generate_scm_info_for_new_and_changed_lines_when_report_is_empty() {
-    createDbScmInfoWithOneLine("hash");
+    createDbScmInfoWithOneLine();
     when(diff.computeMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -214,7 +213,6 @@ public class ScmInfoRepositoryImplTest {
     verify(dbLoader).getScmInfo(FILE);
     verify(diff).computeMatchingLines(FILE);
     verifyNoMoreInteractions(dbLoader);
-    verifyNoInteractions(sourceHashRepository);
     verifyNoMoreInteractions(diff);
   }
 
@@ -229,7 +227,7 @@ public class ScmInfoRepositoryImplTest {
   @UseDataProvider("allTypeComponentButFile")
   public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
     BatchReportReader batchReportReader = mock(BatchReportReader.class);
-    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff, sourceHashRepository);
+    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff, fileStatuses);
 
     assertThat(underTest.getScmInfo(component)).isEmpty();
 
@@ -278,13 +276,13 @@ public class ScmInfoRepositoryImplTest {
     reportReader.putChangesets(Changesets.newBuilder().setComponentRef(FILE_REF).setCopyFromPrevious(true).build());
   }
 
-  private DbScmInfo createDbScmInfoWithOneLine(String hash) {
+  private DbScmInfo createDbScmInfoWithOneLine() {
     Line line1 = Line.newBuilder().setLine(1)
       .setScmRevision("rev1")
       .setScmAuthor("author1")
       .setScmDate(10L)
       .build();
-    DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, hash).get();
+    DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, "hash1").get();
     when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }

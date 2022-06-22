@@ -32,7 +32,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
@@ -55,7 +54,7 @@ public class ModuleSensorContextTest {
   private DefaultFileSystem fs;
   private ModuleSensorContext adaptor;
   private MapSettings settings;
-  private SensorStorage sensorStorage;
+  private DefaultSensorStorage sensorStorage;
   private SonarRuntime runtime;
   private BranchConfiguration branchConfiguration;
   private WriteCacheImpl writeCache;
@@ -70,7 +69,7 @@ public class ModuleSensorContextTest {
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new MapSettings();
-    sensorStorage = mock(SensorStorage.class);
+    sensorStorage = mock(DefaultSensorStorage.class);
     branchConfiguration = mock(BranchConfiguration.class);
     writeCache = mock(WriteCacheImpl.class);
     readCache = mock(ReadCacheImpl.class);

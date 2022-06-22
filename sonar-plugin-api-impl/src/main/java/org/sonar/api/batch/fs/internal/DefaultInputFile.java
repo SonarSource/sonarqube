@@ -70,6 +70,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Metadata metadata;
   private Collection<int[]> ignoreIssuesOnlineRanges;
   private BitSet executableLines;
+  private boolean markedAsUnchanged;
+
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);
@@ -81,6 +83,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;
+    this.markedAsUnchanged = false;
     this.published = false;
     this.excludedForCoverage = false;
     this.contents = contents;
@@ -97,6 +100,15 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
       : new BOMInputStream(Files.newInputStream(path()),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+  }
+
+  public boolean isMarkedAsUnchanged() {
+    return markedAsUnchanged;
+  }
+
+  public DefaultInputComponent setMarkedAsUnchanged(boolean markedAsUnchanged) {
+    this.markedAsUnchanged = markedAsUnchanged;
+    return this;
   }
 
   @Override

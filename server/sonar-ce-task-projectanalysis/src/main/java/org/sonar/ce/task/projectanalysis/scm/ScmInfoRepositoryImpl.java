@@ -28,8 +28,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component.Status;
-import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
+import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
@@ -44,15 +43,15 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private final ScmInfoDbLoader scmInfoDbLoader;
   private final AnalysisMetadataHolder analysisMetadata;
   private final SourceLinesDiff sourceLinesDiff;
-  private final SourceHashRepository sourceHashRepository;
+  private final FileStatuses fileStatuses;
 
   public ScmInfoRepositoryImpl(BatchReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
-    SourceLinesDiff sourceLinesDiff, SourceHashRepository sourceHashRepository) {
+    SourceLinesDiff sourceLinesDiff, FileStatuses fileStatuses) {
     this.scannerReportReader = scannerReportReader;
     this.analysisMetadata = analysisMetadata;
     this.scmInfoDbLoader = scmInfoDbLoader;
     this.sourceLinesDiff = sourceLinesDiff;
-    this.sourceHashRepository = sourceHashRepository;
+    this.fileStatuses = fileStatuses;
   }
 
   @Override
@@ -118,9 +117,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     }
 
     ScmInfo scmInfo = keepAuthorAndRevision ? dbInfoOpt.get() : removeAuthorAndRevision(dbInfoOpt.get());
-    boolean fileUnchanged = file.getStatus() == Status.SAME && sourceHashRepository.getRawSourceHash(file).equals(dbInfoOpt.get().fileHash());
-
-    if (fileUnchanged) {
+    if (fileStatuses.isUnchanged(file)) {
       return Optional.of(scmInfo);
     }
 

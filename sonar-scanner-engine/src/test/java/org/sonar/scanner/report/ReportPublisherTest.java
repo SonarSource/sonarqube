@@ -24,6 +24,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Ce;
@@ -90,6 +92,14 @@ public class ReportPublisherTest {
       .resolve("report-task.txt"));
     underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
       new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
+  }
+
+  @Test
+  public void checks_if_component_has_issues() {
+    underTest.getWriter().writeComponentIssues(1, List.of(ScannerReport.Issue.newBuilder().build()));
+
+    assertThat(underTest.getReader().hasIssues(1)).isTrue();
+    assertThat(underTest.getReader().hasIssues(2)).isFalse();
   }
 
   @Test

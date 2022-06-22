@@ -50,6 +50,13 @@ public class FileSourceDao implements Dao {
     return version == null ? null : LineHashVersion.valueOf(version);
   }
 
+  /**
+   * The returning object doesn't contain all fields filled. For example, binary data is not loaded.
+   */
+  public void scrollFileHashesByProjectUuid(DbSession dbSession, String projectUuid, ResultHandler<FileHashesDto> rowHandler) {
+    mapper(dbSession).scrollHashesForProject(projectUuid, rowHandler);
+  }
+
   @CheckForNull
   public List<String> selectLineHashes(DbSession dbSession, String fileUuid) {
     Connection connection = dbSession.getConnection();

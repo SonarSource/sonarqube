@@ -19,10 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -31,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.ce.task.projectanalysis.component.PreviousSourceHashRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -39,6 +37,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileHashesDto;
 import org.sonar.db.source.FileSourceDto;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -51,10 +50,11 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final FileSourceDataComputer fileSourceDataComputer;
   private final FileSourceDataWarnings fileSourceDataWarnings;
   private final UuidFactory uuidFactory;
+  private final PreviousSourceHashRepository previousSourceHashRepository;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder,
     SourceLinesHashRepository sourceLinesHash, FileSourceDataComputer fileSourceDataComputer,
-    FileSourceDataWarnings fileSourceDataWarnings, UuidFactory uuidFactory) {
+    FileSourceDataWarnings fileSourceDataWarnings, UuidFactory uuidFactory, PreviousSourceHashRepository previousSourceHashRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
@@ -62,6 +62,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     this.fileSourceDataComputer = fileSourceDataComputer;
     this.fileSourceDataWarnings = fileSourceDataWarnings;
     this.uuidFactory = uuidFactory;
+    this.previousSourceHashRepository = previousSourceHashRepository;
   }
 
   @Override
@@ -77,8 +78,6 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private class FileSourceVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
-
-    private Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
     private String projectUuid;
 
     private FileSourceVisitor(DbSession session) {
@@ -89,11 +88,6 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitProject(Component project) {
       this.projectUuid = project.getUuid();
-      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid),
-        context -> {
-          FileSourceDto dto = (FileSourceDto) context.getResultObject();
-          previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
-        });
     }
 
     @Override
@@ -115,7 +109,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       List<String> lineHashes = fileSourceData.getLineHashes();
       Changeset latestChangeWithRevision = fileSourceData.getLatestChangeWithRevision();
       int lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
-      FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
+      FileHashesDto previousDto = previousSourceHashRepository.getDbFile(file).orElse(null);
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
           .setUuid(uuidFactory.create())
@@ -139,7 +133,8 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
         boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
-          previousDto
+          FileSourceDto updatedDto = new FileSourceDto()
+            .setUuid(previousDto.getUuid())
             .setBinaryData(binaryData)
             .setDataHash(dataHash)
             .setSrcHash(srcHash)
@@ -147,7 +142,7 @@ public class PersistFileSourcesStep implements ComputationStep {
             .setLineHashesVersion(lineHashesVersion)
             .setRevision(revision)
             .setUpdatedAt(system2.now());
-          dbClient.fileSourceDao().update(session, previousDto);
+          dbClient.fileSourceDao().update(session, updatedDto);
           session.commit();
         }
       }

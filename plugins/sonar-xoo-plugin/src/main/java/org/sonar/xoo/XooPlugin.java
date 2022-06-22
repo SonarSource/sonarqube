@@ -46,6 +46,8 @@ import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
+import org.sonar.xoo.rule.HotspotSensor;
+import org.sonar.xoo.rule.MarkAsUnchangedSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
@@ -183,6 +185,7 @@ public class XooPlugin implements Plugin {
       AnalysisErrorSensor.class,
 
       // Other
+      MarkAsUnchangedSensor.class,
       XooProjectBuilder.class,
       XooPostJob.class,
       XooIssueFilter.class,

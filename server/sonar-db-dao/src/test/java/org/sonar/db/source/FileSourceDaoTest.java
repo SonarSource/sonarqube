@@ -22,7 +22,9 @@ package org.sonar.db.source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -229,6 +231,43 @@ public class FileSourceDaoTest {
     LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.uuid(), file1.uuid());
     assertThat(handler.dtos).hasSize(1);
     verifyLinesHashes(handler, file1, fileSource1);
+  }
+
+  @Test
+  public void scrollFileHashes_handles_scrolling_more_than_1000_files() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    List<ComponentDto> files = IntStream.range(0, 1001 + new Random().nextInt(5))
+      .mapToObj(i -> {
+        ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+        dbTester.fileSources().insertFileSource(file);
+        return file;
+      })
+      .collect(Collectors.toList());
+
+    Map<String, FileHashesDto> fileSourcesByUuid = new HashMap<>();
+    underTest.scrollFileHashesByProjectUuid(dbSession, project.projectUuid(), result -> fileSourcesByUuid.put(result.getResultObject().getFileUuid(), result.getResultObject()));
+
+    assertThat(fileSourcesByUuid).hasSize(files.size());
+    files.forEach(t -> assertThat(fileSourcesByUuid).containsKey(t.uuid()));
+  }
+
+  @Test
+  public void scrollFileHashes_returns_all_hashes() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto inserted = dbTester.fileSources().insertFileSource(file);
+
+    List<FileHashesDto> fileSources = new ArrayList<>(1);
+    underTest.scrollFileHashesByProjectUuid(dbSession, project.projectUuid(), result -> fileSources.add(result.getResultObject()));
+
+    assertThat(fileSources).hasSize(1);
+    FileHashesDto fileSource = fileSources.iterator().next();
+
+    assertThat(fileSource.getDataHash()).isEqualTo(inserted.getDataHash());
+    assertThat(fileSource.getFileUuid()).isEqualTo(inserted.getFileUuid());
+    assertThat(fileSource.getRevision()).isEqualTo(inserted.getRevision());
+    assertThat(fileSource.getSrcHash()).isEqualTo(inserted.getSrcHash());
+    assertThat(fileSource.getLineHashesVersion()).isEqualTo(inserted.getLineHashesVersion());
   }
 
   @Test

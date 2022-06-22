@@ -52,6 +52,7 @@ public abstract class DefaultInputComponent implements InputComponent {
     return id;
   }
 
+
   @Override
   public int hashCode() {
     return key().hashCode();
@@ -68,5 +69,6 @@ public abstract class DefaultInputComponent implements InputComponent {
 
   public boolean hasMeasureFor(Metric metric) {
     return storedMetricKeys.contains(metric.key());
+
   }
 }

@@ -186,6 +186,10 @@ public class DefaultSensorStorage implements SensorStorage {
     reportPublisher.getWriter().appendComponentMeasure(((DefaultInputComponent) component).scannerId(), toReportMeasure(measure));
   }
 
+  public boolean hasIssues(DefaultInputComponent inputComponent) {
+    return reportPublisher.getReader().hasIssues(inputComponent.scannerId());
+  }
+
   public static ScannerReport.Measure toReportMeasure(DefaultMeasure measureToSave) {
     ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
     builder.setMetricKey(measureToSave.metric().key());
