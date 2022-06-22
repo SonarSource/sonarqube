@@ -45,10 +45,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.scm.git.GitBlameCommand.BLAME_COMMAND;
+import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_ARGUMENT;
+import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_FLAG;
+import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_FORCE_FLAG;
 import static org.sonar.scm.git.GitUtils.createFile;
 import static org.sonar.scm.git.GitUtils.createRepository;
 import static org.sonar.scm.git.Utils.javaUnzip;
@@ -110,6 +116,30 @@ public class GitBlameCommandTest {
     }
 
     assertThat(blame).isEqualTo(expectedBlame);
+  }
+
+  @Test
+  public void git_blame_uses_safe_local_repository() throws Exception {
+    File projectDir = createNewTempFolder();
+    File baseDir = new File(projectDir, "dummy-git");
+
+    ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
+    ProcessWrapper mockProcess = mock(ProcessWrapper.class);
+    String gitCommand = "git";
+    when(mockFactory.create(any(), any(), anyString(), anyString(), anyString(), anyString(),
+      anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+      .then(invocation -> mockProcess);
+
+    GitBlameCommand blameCommand = new GitBlameCommand(gitCommand, System2.INSTANCE, mockFactory);
+    blameCommand.blame(baseDir.toPath(), DUMMY_JAVA);
+
+    verify(mockFactory).create(any(), any(), eq(gitCommand),
+      eq(GIT_DIR_FLAG),
+      eq(String.format(GIT_DIR_ARGUMENT, baseDir.toPath())),
+      eq(GIT_DIR_FORCE_FLAG),
+      eq(baseDir.toPath().toString()),
+      eq(BLAME_COMMAND),
+      anyString(), anyString(), anyString(), eq(DUMMY_JAVA));
   }
 
   @Test

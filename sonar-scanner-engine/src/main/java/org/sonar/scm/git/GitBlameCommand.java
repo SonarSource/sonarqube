@@ -40,6 +40,11 @@ import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GitBlameCommand {
+  protected static final String BLAME_COMMAND = "blame";
+  protected static final String GIT_DIR_FLAG = "--git-dir";
+  protected static final String GIT_DIR_ARGUMENT = "%s/.git";
+  protected static final String GIT_DIR_FORCE_FLAG = "-C";
+
   private static final Logger LOG = Loggers.get(GitBlameCommand.class);
   private static final Pattern EMAIL_PATTERN = Pattern.compile("<(\\S*?)>");
   private static final String COMMITTER_TIME = "committer-time ";
@@ -47,7 +52,6 @@ public class GitBlameCommand {
 
   private static final String MINIMUM_REQUIRED_GIT_VERSION = "2.24.0";
   private static final String DEFAULT_GIT_COMMAND = "git";
-  private static final String BLAME_COMMAND = "blame";
   private static final String BLAME_LINE_PORCELAIN_FLAG = "--line-porcelain";
   private static final String END_OF_OPTIONS_FLAG = "--end-of-options";
   private static final String IGNORE_WHITESPACES = "-w";
@@ -118,7 +122,13 @@ public class GitBlameCommand {
   public List<BlameLine> blame(Path baseDir, String fileName) throws Exception {
     BlameOutputProcessor outputProcessor = new BlameOutputProcessor();
     try {
-      this.processWrapperFactory.create(baseDir, outputProcessor::process, gitCommand, BLAME_COMMAND, BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, END_OF_OPTIONS_FLAG, fileName)
+      this.processWrapperFactory.create(
+          baseDir,
+          outputProcessor::process,
+          gitCommand,
+          GIT_DIR_FLAG, String.format(GIT_DIR_ARGUMENT, baseDir), GIT_DIR_FORCE_FLAG, baseDir.toString(),
+          BLAME_COMMAND,
+          BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, END_OF_OPTIONS_FLAG, fileName)
         .execute();
     } catch (UncommittedLineException e) {
       LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
