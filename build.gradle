@@ -64,7 +64,7 @@ allprojects {
 
   artifactory {
     clientConfig.setIncludeEnvVars(true)
-    clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*,*key*,*KEY*,*signing*')
+    clientConfig.setEnvVarsExcludePatterns('*pass*,*psw*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*login*,*key*,*signing*,*auth*,*pwd*')
     contextUrl = System.getenv('ARTIFACTORY_URL')
     publish {
       repository {
