@@ -45,7 +45,7 @@ interface Tab {
   isDefault: boolean;
 }
 
-export enum TabKeys {
+enum TabKeys {
   Code = 'code',
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how',

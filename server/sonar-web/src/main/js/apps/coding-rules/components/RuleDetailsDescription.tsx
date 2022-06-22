@@ -17,29 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import {
-  Dict,
-  RuleDescriptionSection,
-  RuleDescriptionSections,
-  RuleDetails
-} from '../../../types/types';
+import { RuleDescriptionSection, RuleDescriptionSections, RuleDetails } from '../../../types/types';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
-
-const SECTION_ORDER: Dict<number> = {
-  [RuleDescriptionSections.DEFAULT]: 0,
-  [RuleDescriptionSections.INTRODUCTION]: 1,
-  [RuleDescriptionSections.ROOT_CAUSE]: 2,
-  [RuleDescriptionSections.ASSESS_THE_PROBLEM]: 3,
-  [RuleDescriptionSections.HOW_TO_FIX]: 4,
-  [RuleDescriptionSections.RESOURCES]: 5
-};
+import RuleTabViewer from './RuleTabViewer';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -121,13 +107,6 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
       descriptionForm: true
     });
   };
-
-  sortedDescriptionSections(ruleDetails: RuleDetails) {
-    return sortBy(
-      ruleDetails.descriptionSections?.filter(section => SECTION_ORDER[section.key] !== undefined),
-      s => SECTION_ORDER[s.key]
-    );
-  }
 
   renderExtendedDescription = () => (
     <div id="coding-rules-detail-description-extra">
@@ -240,12 +219,34 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     const { ruleDetails } = this.props;
     const hasDescription = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
 
+    const hasDescriptionSection =
+      hasDescription &&
+      ruleDetails.descriptionSections &&
+      ruleDetails.descriptionSections.length > 0;
+
+    const defaultSection =
+      hasDescriptionSection &&
+      ruleDetails.descriptionSections?.length === 1 &&
+      ruleDetails.descriptionSections[0].key === RuleDescriptionSections.DEFAULT
+        ? ruleDetails.descriptionSections[0]
+        : undefined;
+
     return (
       <div className="js-rule-description">
-        {hasDescription &&
-        ruleDetails.descriptionSections &&
-        ruleDetails.descriptionSections.length > 0 ? (
-          this.sortedDescriptionSections(ruleDetails).map(this.renderDescription)
+        {defaultSection && (
+          <>
+            <h2>{translate('coding_rules.description_section.title.root_cause')}</h2>
+            <section
+              className="coding-rules-detail-description markdown"
+              key={defaultSection.key}
+              /* eslint-disable-next-line react/no-danger */
+              dangerouslySetInnerHTML={{ __html: sanitizeString(defaultSection.content) }}
+            />
+          </>
+        )}
+
+        {hasDescriptionSection && !defaultSection ? (
+          <RuleTabViewer ruleDetails={ruleDetails} />
         ) : (
           <div className="coding-rules-detail-description rule-desc markdown">
             {translateWithParameters('issue.external_issue_description', ruleDetails.name)}

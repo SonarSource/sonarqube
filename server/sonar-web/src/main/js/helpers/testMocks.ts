@@ -570,7 +570,7 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     createdAt: '2014-12-16T17:26:54+0100',
     descriptionSections: [
       {
-        key: RuleDescriptionSections.ROOT_CAUSE,
+        key: RuleDescriptionSections.DEFAULT,
         content: '<b>Why</b> Because'
       }
     ],

@@ -81,6 +81,7 @@ it('should show open rule with no description', async () => {
 });
 
 it('should show hotspot rule section', async () => {
+  const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
   expect(await screen.findByRole('heading', { level: 3, name: 'Hot hotspot' })).toBeInTheDocument();
   expect(
@@ -89,25 +90,31 @@ it('should show hotspot rule section', async () => {
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', {
+    screen.getByRole('button', {
       name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', {
+    screen.getByRole('button', {
       name: 'coding_rules.description_section.title.assess_the_problem'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', {
+    screen.getByRole('button', {
       name: 'coding_rules.description_section.title.resources'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.resources'
+    })
+  );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
 });
 
 it('should show rule advanced section', async () => {
+  const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Awsome Python rule' })
@@ -118,16 +125,21 @@ it('should show rule advanced section', async () => {
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', {
+    screen.getByRole('button', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', {
+    screen.getByRole('button', {
       name: 'coding_rules.description_section.title.resources'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.resources'
+    })
+  );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
 });
 
