@@ -92,7 +92,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void executeDdl(String ddl) {
     try (Connection connection = getConnection();
-      Statement stmt = connection.createStatement()) {
+         Statement stmt = connection.createStatement()) {
       stmt.execute(ddl);
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to execute DDL: " + ddl, e);
@@ -243,8 +243,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
     try (Connection connection = getConnection();
-      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-      ResultSet res = stmt.executeQuery()) {
+         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+         ResultSet res = stmt.executeQuery()) {
       Integer columnIndex = getColumnIndex(res, column);
       if (columnIndex == null) {
         fail("The column '" + column + "' does not exist");
@@ -264,8 +264,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void assertColumnDoesNotExist(String table, String column) throws SQLException {
     try (Connection connection = getConnection();
-      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-      ResultSet res = stmt.executeQuery()) {
+         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+         ResultSet res = stmt.executeQuery()) {
       assertThat(getColumnNames(res)).doesNotContain(column);
     }
   }
@@ -303,7 +303,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
     try (Connection connection = getConnection();
-      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> onColumns = new ArrayList<>();
       while (rs.next()) {
         if (indexName.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
@@ -312,7 +312,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
           onColumns.add(position - 1, rs.getString("COLUMN_NAME").toLowerCase(Locale.ENGLISH));
         }
       }
-      assertThat(asList(expectedColumn, expectedSecondaryColumns)).isEqualTo(onColumns);
+      assertThat(onColumns).containsExactlyInAnyOrderElementsOf(asList(expectedColumn, expectedSecondaryColumns));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to check index", e);
     }
@@ -323,7 +323,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
    */
   public void assertIndexDoesNotExist(String tableName, String indexName) {
     try (Connection connection = getConnection();
-      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> indices = new ArrayList<>();
       while (rs.next()) {
         indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));
@@ -398,7 +398,9 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
   private static final class PkColumn {
     private static final Ordering<PkColumn> ORDERING_BY_INDEX = Ordering.natural().onResultOf(PkColumn::getIndex);
 
-    /** 0-based */
+    /**
+     * 0-based
+     */
     private final int index;
     private final String name;
 
@@ -422,7 +424,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
       ResultSetMetaData meta = res.getMetaData();
       int numCol = meta.getColumnCount();
       for (int i = 1; i < numCol + 1; i++) {
-        if (meta.getColumnLabel(i).toLowerCase().equals(column.toLowerCase())) {
+        if (meta.getColumnLabel(i).equalsIgnoreCase(column)) {
           return i;
         }
       }

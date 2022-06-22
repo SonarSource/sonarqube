@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v95;
+package org.sonar.server.platform.db.migration.version.v96;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,10 +26,14 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static org.sonar.server.platform.db.migration.version.v00.CreateInitialSchema.RULE_UUID_COL_NAME;
 import static org.sonar.server.platform.db.migration.version.v95.CreateRuleDescSectionsTable.RULE_DESCRIPTION_SECTIONS_TABLE;
+import static org.sonar.server.platform.db.migration.version.v96.AddContextColumnsToRuleDescSectionsTable.COLUMN_CONTEXT_KEY;
 
 public class CreateIndexForRuleDescSections extends DdlChange {
-  public static final String INDEX_NAME = "uniq_rule_desc_sections_kee";
+
+  static final String INDEX_NAME = "uniq_rule_desc_sections";
+  static final String COLUMN_KEE = "kee";
 
   public CreateIndexForRuleDescSections(Database db) {
     super(db);
@@ -37,16 +41,22 @@ public class CreateIndexForRuleDescSections extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    try (Connection c = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.indexExistsIgnoreCase(RULE_DESCRIPTION_SECTIONS_TABLE, INDEX_NAME, c)) {
-        context.execute(new CreateIndexBuilder()
-          .setTable(RULE_DESCRIPTION_SECTIONS_TABLE)
-          .setName(INDEX_NAME)
-          .addColumn("rule_uuid")
-          .addColumn("kee")
-          .setUnique(true)
-          .build());
-      }
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      createRuleDescSectionUniqueIndex(context, connection);
     }
   }
+
+  private static void createRuleDescSectionUniqueIndex(Context context, Connection connection) {
+    if (!DatabaseUtils.indexExistsIgnoreCase(RULE_DESCRIPTION_SECTIONS_TABLE, INDEX_NAME, connection)) {
+      context.execute(new CreateIndexBuilder()
+        .setTable(RULE_DESCRIPTION_SECTIONS_TABLE)
+        .setName(INDEX_NAME)
+        .addColumn(RULE_UUID_COL_NAME)
+        .addColumn(COLUMN_KEE)
+        .addColumn(COLUMN_CONTEXT_KEY)
+        .setUnique(true)
+        .build());
+    }
+  }
+
 }

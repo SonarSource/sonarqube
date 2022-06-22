@@ -28,6 +28,9 @@ public class DbVersion96 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(6500, "remove root column from users table", DropRootColumnFromUsersTable.class)
+      .add(6501, "Add columns 'context_key' and 'context_display_name' into rule_desc_sections", AddContextColumnsToRuleDescSectionsTable.class)
+      .add(6502, "Drop unique index uniq_rule_desc_sections_kee", DropIndexForRuleDescSection.class)
+      .add(6503, "Create unique uniq_rule_desc_sections", CreateIndexForRuleDescSections.class)
     ;
   }
 }

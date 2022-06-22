@@ -31,7 +31,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 
 public class CreateRuleDescSectionsTable extends CreateTableChange {
 
-  static final String RULE_DESCRIPTION_SECTIONS_TABLE = "rule_desc_sections";
+  public static final String RULE_DESCRIPTION_SECTIONS_TABLE = "rule_desc_sections";
 
 
   public CreateRuleDescSectionsTable(Database db) {

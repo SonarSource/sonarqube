@@ -66,7 +66,7 @@ public class CreateInitialSchema extends DdlChange {
   private static final String LANGUAGE_COL_NAME = "language";
   private static final String METRIC_UUID_COL_NAME = "metric_uuid";
   private static final String PROJECT_UUID_COL_NAME = "project_uuid";
-  private static final String RULE_UUID_COL_NAME = "rule_uuid";
+  public static final String RULE_UUID_COL_NAME = "rule_uuid";
   private static final String STATUS_COL_NAME = "status";
   private static final String TASK_UUID_COL_NAME = "task_uuid";
   private static final String TEMPLATE_UUID_COL_NAME = "template_uuid";
@@ -1461,7 +1461,6 @@ public class CreateInitialSchema extends DdlChange {
     concat(of(firstColumn), stream(otherColumns)).forEach(builder::addColumn);
     context.execute(builder.build());
   }
-
 
 
   private CreateTableBuilder newTableBuilder(String tableName) {
