@@ -121,12 +121,9 @@ export interface HotspotUpdate extends HotspotUpdateFields {
 }
 
 export interface HotspotRule {
-  fixRecommendations?: string;
   key: string;
   name: string;
-  riskDescription?: string;
   securityCategory: string;
-  vulnerabilityDescription?: string;
   vulnerabilityProbability: RiskExposure;
 }
 

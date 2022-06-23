@@ -23,7 +23,8 @@ import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { RuleDescriptionSections, RuleDetails } from '../../../types/types';
+import { RuleDetails } from '../../../types/types';
+import { RuleDescriptionSections } from '../rule';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 import RuleTabViewer from './RuleTabViewer';
 

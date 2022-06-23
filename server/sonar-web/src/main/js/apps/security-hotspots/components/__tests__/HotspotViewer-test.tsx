@@ -27,7 +27,7 @@ import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockRuleDetails } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
-import { RuleDescriptionSections } from '../../../../types/types';
+import { RuleDescriptionSections } from '../../../coding-rules/rule';
 import HotspotViewer from '../HotspotViewer';
 import HotspotViewerRenderer from '../HotspotViewerRenderer';
 
@@ -85,11 +85,20 @@ it('should render fetch rule details', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().hotspot?.rule).toStrictEqual({
-    fixRecommendations: 'how',
-    riskDescription: 'cause',
-    vulnerabilityDescription: 'assess'
-  });
+  expect(wrapper.state().ruleDescriptionSections).toStrictEqual([
+    {
+      key: RuleDescriptionSections.ASSESS_THE_PROBLEM,
+      content: 'assess'
+    },
+    {
+      key: RuleDescriptionSections.ROOT_CAUSE,
+      content: 'cause'
+    },
+    {
+      key: RuleDescriptionSections.HOW_TO_FIX,
+      content: 'how'
+    }
+  ]);
 });
 
 it('should refresh hotspot list on status update', () => {

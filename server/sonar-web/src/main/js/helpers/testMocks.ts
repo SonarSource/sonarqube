@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { To } from 'react-router-dom';
+import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { Location, Router } from '../components/hoc/withRouter';
@@ -47,7 +48,6 @@ import {
   ProfileInheritanceDetails,
   Rule,
   RuleActivation,
-  RuleDescriptionSections,
   RuleDetails,
   RuleParameter,
   SysInfoBase,

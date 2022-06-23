@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, keyBy, range, times } from 'lodash';
+import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import {
   mockSnippetsByComponent,
   mockSourceLine,
@@ -32,7 +33,6 @@ import { Standards } from '../../types/security';
 import {
   Dict,
   RuleActivation,
-  RuleDescriptionSections,
   RuleDetails,
   SnippetsByComponent,
   SourceViewerFile
@@ -248,6 +248,27 @@ export default class IssuesServiceMock {
             { key: RuleDescriptionSections.INTRODUCTION, content: '<h1>Into</h1>' },
             { key: RuleDescriptionSections.ROOT_CAUSE, content: '<h1>Because</h1>' },
             { key: RuleDescriptionSections.HOW_TO_FIX, content: '<h1>Fix with</h1>' },
+            {
+              content: '<p> Context 1 content<p>',
+              key: RuleDescriptionSections.HOW_TO_FIX,
+              context: {
+                displayName: 'Spring'
+              }
+            },
+            {
+              content: '<p> Context 2 content<p>',
+              key: RuleDescriptionSections.HOW_TO_FIX,
+              context: {
+                displayName: 'Context 2'
+              }
+            },
+            {
+              content: '<p> Context 3 content<p>',
+              key: RuleDescriptionSections.HOW_TO_FIX,
+              context: {
+                displayName: 'Context 3'
+              }
+            },
             { key: RuleDescriptionSections.RESOURCES, content: '<h1>Link</h1>' }
           ]
         })

@@ -134,6 +134,39 @@ it('should show rule advanced section', async () => {
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
 });
 
+it('should show rule advanced section with context', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp(undefined, 'coding_rules?open=rule7');
+  expect(
+    await screen.findByRole('heading', { level: 3, name: 'Python rule with context' })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
+  );
+  expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Spring boot' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('radio', { name: 'coding_rules.description_context_other' })
+  ).toBeInTheDocument();
+  expect(screen.getByText('This how to fix for spring')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'Spring boot' }));
+  expect(screen.getByText('This how to fix for spring boot')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context_other' }));
+  expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
+  expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
+  expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
+});
+
 it('should be able to extend the rule description', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin();

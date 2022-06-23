@@ -8,22 +8,37 @@ exports[`should render correctly: fix 1`] = `
     tabs={
       Array [
         Object {
-          "content": "",
+          "descriptionSections": Array [],
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "cause",
+              "key": "root_cause",
+            },
+          ],
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "assess",
+              "key": "assess_the_problem",
+            },
+          ],
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "how",
+              "key": "how_to_fix",
+            },
+          ],
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -34,35 +49,10 @@ exports[`should render correctly: fix 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
-      className="padded hidden"
-    >
-      <div>
-        CodeTabContent
-      </div>
-    </div>
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-      key="risk"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-        }
-      }
-      key="vulnerability"
-    />
-    <div
       className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "__html": "how",
         }
       }
       key="fix"
@@ -79,22 +69,37 @@ exports[`should render correctly: risk 1`] = `
     tabs={
       Array [
         Object {
-          "content": "",
+          "descriptionSections": Array [],
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "cause",
+              "key": "root_cause",
+            },
+          ],
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "assess",
+              "key": "assess_the_problem",
+            },
+          ],
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "how",
+              "key": "how_to_fix",
+            },
+          ],
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -111,33 +116,6 @@ exports[`should render correctly: risk 1`] = `
         CodeTabContent
       </div>
     </div>
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-      key="risk"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-        }
-      }
-      key="vulnerability"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
-        }
-      }
-      key="fix"
-    />
   </div>
 </Fragment>
 `;
@@ -150,22 +128,37 @@ exports[`should render correctly: vulnerability 1`] = `
     tabs={
       Array [
         Object {
-          "content": "",
+          "descriptionSections": Array [],
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "cause",
+              "key": "root_cause",
+            },
+          ],
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "assess",
+              "key": "assess_the_problem",
+            },
+          ],
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "how",
+              "key": "how_to_fix",
+            },
+          ],
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -176,38 +169,13 @@ exports[`should render correctly: vulnerability 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
-      className="padded hidden"
-    >
-      <div>
-        CodeTabContent
-      </div>
-    </div>
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-      key="risk"
-    />
-    <div
       className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "__html": "assess",
         }
       }
       key="vulnerability"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
-        }
-      }
-      key="fix"
     />
   </div>
 </Fragment>
@@ -221,22 +189,37 @@ exports[`should render correctly: with comments or changelog element 1`] = `
     tabs={
       Array [
         Object {
-          "content": "",
+          "descriptionSections": Array [],
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "cause",
+              "key": "root_cause",
+            },
+          ],
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "assess",
+              "key": "assess_the_problem",
+            },
+          ],
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "content": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "descriptionSections": Array [
+            Object {
+              "content": "how",
+              "key": "how_to_fix",
+            },
+          ],
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -253,33 +236,6 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         CodeTabContent
       </div>
     </div>
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-      key="risk"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-        }
-      }
-      key="vulnerability"
-    />
-    <div
-      className="markdown big-padded hidden"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
-        }
-      }
-      key="fix"
-    />
   </div>
 </Fragment>
 `;

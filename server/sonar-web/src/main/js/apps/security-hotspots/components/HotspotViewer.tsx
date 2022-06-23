@@ -26,7 +26,8 @@ import {
   HotspotStatusFilter,
   HotspotStatusOption
 } from '../../../types/security-hotspots';
-import { Component, RuleDescriptionSections } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { RuleDescriptionSection } from '../../coding-rules/rule';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
@@ -42,6 +43,7 @@ interface Props {
 
 interface State {
   hotspot?: Hotspot;
+  ruleDescriptionSections?: RuleDescriptionSection[];
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
   showStatusUpdateSuccessModal: boolean;
@@ -82,24 +84,11 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then(r => r.rule);
 
       if (this.mounted) {
-        hotspot.rule.riskDescription =
-          ruleDetails.descriptionSections?.find(section =>
-            [RuleDescriptionSections.DEFAULT, RuleDescriptionSections.ROOT_CAUSE].includes(
-              section.key
-            )
-          )?.content || hotspot.rule.riskDescription;
-
-        hotspot.rule.fixRecommendations =
-          ruleDetails.descriptionSections?.find(
-            section => RuleDescriptionSections.HOW_TO_FIX === section.key
-          )?.content || hotspot.rule.fixRecommendations;
-
-        hotspot.rule.vulnerabilityDescription =
-          ruleDetails.descriptionSections?.find(
-            section => RuleDescriptionSections.ASSESS_THE_PROBLEM === section.key
-          )?.content || hotspot.rule.vulnerabilityDescription;
-
-        this.setState({ hotspot, loading: false });
+        this.setState({
+          hotspot,
+          loading: false,
+          ruleDescriptionSections: ruleDetails.descriptionSections
+        });
       }
     } catch (error) {
       if (this.mounted) {
@@ -141,13 +130,20 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   render() {
     const { component, hotspotsReviewedMeasure, selectedHotspotLocation } = this.props;
-    const { hotspot, lastStatusChangedTo, loading, showStatusUpdateSuccessModal } = this.state;
+    const {
+      hotspot,
+      ruleDescriptionSections,
+      lastStatusChangedTo,
+      loading,
+      showStatusUpdateSuccessModal
+    } = this.state;
 
     return (
       <HotspotViewerRenderer
         component={component}
         commentTextRef={this.commentTextRef}
         hotspot={hotspot}
+        ruleDescriptionSections={ruleDescriptionSections}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         lastStatusChangedTo={lastStatusChangedTo}
         loading={loading}

@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { groupBy } from 'lodash';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { RuleDescriptionSections, RuleDetails } from '../../../types/types';
+import { RuleDetails } from '../../../types/types';
+import { RuleDescriptionSection, RuleDescriptionSections } from '../rule';
+import RuleContextDescription from '../../../components/rules/RuleContextDescription';
 
 interface Props {
   ruleDetails: RuleDetails;
@@ -35,7 +38,7 @@ interface State {
 interface Tab {
   key: TabKeys;
   label: React.ReactNode;
-  content: string;
+  descriptionSections: RuleDescriptionSection[];
 }
 
 enum TabKeys {
@@ -65,6 +68,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
 
   computeState() {
     const { ruleDetails } = this.props;
+    const groupedDescriptions = groupBy(ruleDetails.descriptionSections, 'key');
 
     const tabs = [
       {
@@ -73,32 +77,24 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
           ruleDetails.type === 'SECURITY_HOTSPOT'
             ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
             : translate('coding_rules.description_section.title.root_cause'),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.ROOT_CAUSE
-        )?.content
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE]
       },
       {
         key: TabKeys.AssessTheIssue,
         label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.ASSESS_THE_PROBLEM
-        )?.content
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]
       },
       {
         key: TabKeys.HowToFixIt,
         label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.HOW_TO_FIX
-        )?.content
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]
       },
       {
         key: TabKeys.Resources,
         label: translate('coding_rules.description_section.title', TabKeys.Resources),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.RESOURCES
-        )?.content
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.RESOURCES]
       }
-    ].filter(tab => tab.content !== undefined) as Array<Tab>;
+    ].filter(tab => tab.descriptionSections) as Array<Tab>;
 
     return {
       currentTab: tabs[0],
@@ -112,7 +108,6 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
     const intro = ruleDetails.descriptionSections?.find(
       section => section.key === RuleDescriptionSections.INTRODUCTION
     )?.content;
-
     return (
       <>
         {intro && (
@@ -130,11 +125,20 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
         />
 
         <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-          <div
-            className="big-padded rule-desc"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
-          />
+          {currentTab.descriptionSections.length === 1 &&
+          !currentTab.descriptionSections[0].context ? (
+            <div
+              className="big-padded rule-desc"
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{
+                __html: sanitizeString(currentTab.descriptionSections[0].content)
+              }}
+            />
+          ) : (
+            <div className="big-padded rule-desc">
+              <RuleContextDescription description={currentTab.descriptionSections} />
+            </div>
+          )}
         </div>
       </>
     );

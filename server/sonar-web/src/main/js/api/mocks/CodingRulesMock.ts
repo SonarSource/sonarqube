@@ -18,17 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, countBy, pick, trim } from 'lodash';
+import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { mockQualityProfile, mockRuleDetails, mockRuleRepository } from '../../helpers/testMocks';
 import { RuleRepository } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
-import {
-  Rule,
-  RuleActivation,
-  RuleDescriptionSections,
-  RuleDetails,
-  RulesUpdateRequest
-} from '../../types/types';
+import { Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
 import { getFacet } from '../issues';
 import {
   bulkActivateRules,
@@ -67,6 +62,8 @@ export default class CodingRulesMock {
       mockQualityProfile({ key: 'p3', name: 'QP FooBar', language: 'java', languageName: 'Java' })
     ];
 
+    const resourceContent = 'Some link <a href="http://example.com">Awsome Reading</a>';
+
     this.defaultRules = [
       mockRuleDetails({
         key: 'rule1',
@@ -86,7 +83,7 @@ export default class CodingRulesMock {
           { key: RuleDescriptionSections.ASSESS_THE_PROBLEM, content: 'Assess' },
           {
             key: RuleDescriptionSections.RESOURCES,
-            content: 'Some link <a href="http://example.com">Awsome Reading</a>'
+            content: resourceContent
           }
         ],
         langName: 'JavaScript'
@@ -110,7 +107,7 @@ export default class CodingRulesMock {
           { key: RuleDescriptionSections.HOW_TO_FIX, content: 'This how to fix' },
           {
             key: RuleDescriptionSections.RESOURCES,
-            content: 'Some link <a href="http://example.com">Awsome Reading</a>'
+            content: resourceContent
           }
         ]
       }),
@@ -122,6 +119,33 @@ export default class CodingRulesMock {
         name: 'Bad Python rule',
         isExternal: true,
         descriptionSections: undefined
+      }),
+      mockRuleDetails({
+        key: 'rule7',
+        type: 'VULNERABILITY',
+        lang: 'py',
+        langName: 'Python',
+        name: 'Python rule with context',
+        descriptionSections: [
+          {
+            key: RuleDescriptionSections.INTRODUCTION,
+            content: 'Introduction to this rule with context'
+          },
+          {
+            key: RuleDescriptionSections.HOW_TO_FIX,
+            content: 'This how to fix for spring',
+            context: { displayName: 'Spring' }
+          },
+          {
+            key: RuleDescriptionSections.HOW_TO_FIX,
+            content: 'This how to fix for spring boot',
+            context: { displayName: 'Spring boot' }
+          },
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: resourceContent
+          }
+        ]
       })
     ];
 

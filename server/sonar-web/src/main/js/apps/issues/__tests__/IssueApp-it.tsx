@@ -52,7 +52,20 @@ it('should open issue and navigate', async () => {
 
   expect(screen.getByRole('button', { name: `issue.tabs.how` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.how` }));
-  expect(screen.getByRole('heading', { name: 'Fix with' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Context 3' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('radio', { name: 'coding_rules.description_context_other' })
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'Context 2' }));
+  expect(screen.getByText('Context 2 content')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context_other' }));
+  expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
+  expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
+  expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));

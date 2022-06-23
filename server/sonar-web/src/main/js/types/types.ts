@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import { ComponentQualifier } from './component';
 import { UserActive, UserBase } from './users';
 
@@ -560,19 +561,6 @@ export interface RuleActivation {
   params: { key: string; value: string }[];
   qProfile: string;
   severity: string;
-}
-
-export enum RuleDescriptionSections {
-  DEFAULT = 'default',
-  INTRODUCTION = 'introduction',
-  ROOT_CAUSE = 'root_cause',
-  ASSESS_THE_PROBLEM = 'assess_the_problem',
-  HOW_TO_FIX = 'how_to_fix',
-  RESOURCES = 'resources'
-}
-export interface RuleDescriptionSection {
-  key: RuleDescriptionSections;
-  content: string;
 }
 
 export interface RulesUpdateRequest {

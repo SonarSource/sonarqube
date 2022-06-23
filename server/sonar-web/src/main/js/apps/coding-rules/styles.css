@@ -274,3 +274,11 @@
 .coding-rule-activation-actions {
   padding-left: 20px;
 }
+
+.rules-context-description ul {
+  padding: 0px;
+}
+
+.rules-context-description h2.rule-contexts-title {
+  border: 0px;
+}

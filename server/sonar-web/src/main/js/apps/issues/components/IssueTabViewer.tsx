@@ -18,13 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { groupBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { getRuleUrl } from '../../../helpers/urls';
-import { Component, Issue, RuleDescriptionSections, RuleDetails } from '../../../types/types';
+import { Component, Issue, RuleDetails } from '../../../types/types';
+import RuleContextDescription from '../../../components/rules/RuleContextDescription';
+import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 
 interface Props {
   component?: Component;
@@ -41,7 +44,7 @@ interface State {
 interface Tab {
   key: TabKeys;
   label: React.ReactNode;
-  content: string;
+  descriptionSections: RuleDescriptionSection[];
   isDefault: boolean;
 }
 
@@ -78,49 +81,54 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
 
   computeTabs() {
     const { ruleDetails } = this.props;
+    const groupedDescriptions = groupBy(ruleDetails.descriptionSections, 'key');
 
-    const tabs = [
+    if (ruleDetails.htmlNote) {
+      if (groupedDescriptions[RuleDescriptionSections.RESOURCES] !== undefined) {
+        // We add the extended description (htmlNote) in the first context, in case there are contexts
+        // Extended description will get reworked in future
+        groupedDescriptions[RuleDescriptionSections.RESOURCES][0].content +=
+          '<br/>' + ruleDetails.htmlNote;
+      } else {
+        groupedDescriptions[RuleDescriptionSections.RESOURCES] = [
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: ruleDetails.htmlNote
+          }
+        ];
+      }
+    }
+
+    return [
       {
         key: TabKeys.Code,
         label: translate('issue.tabs', TabKeys.Code),
-        content: ''
+        descriptionSections: []
       },
       {
         key: TabKeys.WhyIsThisAnIssue,
         label: translate('issue.tabs', TabKeys.WhyIsThisAnIssue),
-        content: ruleDetails.descriptionSections?.find(section =>
-          [RuleDescriptionSections.DEFAULT, RuleDescriptionSections.ROOT_CAUSE].includes(
-            section.key
-          )
-        )?.content,
+        descriptionSections:
+          groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
+          groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE],
         isDefault:
-          ruleDetails.descriptionSections?.find(
+          ruleDetails.descriptionSections?.filter(
             section => section.key === RuleDescriptionSections.DEFAULT
           ) !== undefined
       },
       {
         key: TabKeys.HowToFixIt,
         label: translate('issue.tabs', TabKeys.HowToFixIt),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.HOW_TO_FIX
-        )?.content,
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX],
         isDefault: false
       },
       {
         key: TabKeys.Resources,
         label: translate('issue.tabs', TabKeys.Resources),
-        content: ruleDetails.descriptionSections?.find(
-          section => section.key === RuleDescriptionSections.RESOURCES
-        )?.content,
+        descriptionSections: groupedDescriptions[RuleDescriptionSections.RESOURCES],
         isDefault: false
       }
-    ].filter(tab => tab.content !== undefined) as Array<Tab>;
-
-    if (ruleDetails.htmlNote) {
-      tabs[tabs.length - 1].content += '<br/>' + ruleDetails.htmlNote;
-    }
-
-    return tabs;
+    ].filter(tab => tab.descriptionSections) as Array<Tab>;
   }
 
   render() {
@@ -131,7 +139,7 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       issue: { message }
     } = this.props;
     const { tabs, currentTabKey } = this.state;
-
+    const selectedTab = tabs.find(tab => tab.key === currentTabKey);
     return (
       <>
         <div
@@ -152,26 +160,35 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
             tabs={tabs}
           />
         </div>
-        <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-          <div
-            className={classNames('padded', {
-              hidden: currentTabKey !== TabKeys.Code
-            })}>
-            {codeTabContent}
+        {selectedTab && (
+          <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
+            {selectedTab.key === TabKeys.Code && <div className="padded">{codeTabContent}</div>}
+            {selectedTab.key !== TabKeys.Code &&
+              (selectedTab.descriptionSections.length === 1 &&
+              !selectedTab.descriptionSections[0].context ? (
+                <div
+                  key={selectedTab.key}
+                  className={classNames('big-padded', {
+                    markdown: selectedTab.isDefault,
+                    'rule-desc': !selectedTab.isDefault
+                  })}
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeString(selectedTab.descriptionSections[0].content)
+                  }}
+                />
+              ) : (
+                <div
+                  key={selectedTab.key}
+                  className={classNames('big-padded', {
+                    markdown: selectedTab.isDefault,
+                    'rule-desc': !selectedTab.isDefault
+                  })}>
+                  <RuleContextDescription description={selectedTab.descriptionSections} />
+                </div>
+              ))}
           </div>
-          {tabs.slice(1).map(tab => (
-            <div
-              key={tab.key}
-              className={classNames('big-padded', {
-                hidden: currentTabKey !== tab.key,
-                markdown: tab.isDefault,
-                'rule-desc': !tab.isDefault
-              })}
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(tab.content) }}
-            />
-          ))}
-        </div>
+        )}
       </>
     );
   }

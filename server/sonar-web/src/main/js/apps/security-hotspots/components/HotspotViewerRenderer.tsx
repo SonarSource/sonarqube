@@ -24,6 +24,7 @@ import { fillBranchLike } from '../../../helpers/branch-like';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
+import { RuleDescriptionSection } from '../../coding-rules/rule';
 import { HotspotHeader } from './HotspotHeader';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
@@ -35,6 +36,7 @@ export interface HotspotViewerRendererProps {
   component: Component;
   currentUser: CurrentUser;
   hotspot?: Hotspot;
+  ruleDescriptionSections?: RuleDescriptionSection[];
   hotspotsReviewedMeasure?: string;
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
@@ -58,7 +60,8 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     lastStatusChangedTo,
     showStatusUpdateSuccessModal,
     commentTextRef,
-    selectedHotspotLocation
+    selectedHotspotLocation,
+    ruleDescriptionSections
   } = props;
 
   return (
@@ -87,6 +90,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               />
             }
             hotspot={hotspot}
+            ruleDescriptionSections={ruleDescriptionSections}
             selectedHotspotLocation={selectedHotspotLocation}
           />
           <HotspotReviewHistoryAndComments

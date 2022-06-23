@@ -87,12 +87,9 @@ exports[`should render correctly 1`] = `
       },
       "resolution": "FIXED",
       "rule": Object {
-        "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
         "key": "squid:S2077",
         "name": "That rule",
-        "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
         "securityCategory": "sql-injection",
-        "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
         "vulnerabilityProbability": "HIGH",
       },
       "status": "REVIEWED",

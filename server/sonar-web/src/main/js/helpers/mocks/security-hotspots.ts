@@ -113,9 +113,6 @@ export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
   return {
     key: 'squid:S2077',
     name: 'That rule',
-    fixRecommendations: '<p>This a <strong>strong</strong> message about fixing !</p>',
-    riskDescription: '<p>This a <strong>strong</strong> message about risk !</p>',
-    vulnerabilityDescription: '<p>This a <strong>strong</strong> message about vulnerability !</p>',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'sql-injection',
     ...overrides
