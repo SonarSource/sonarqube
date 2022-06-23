@@ -1973,21 +1973,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:*":
-  version: 17.0.11
-  resolution: "@types/react-dom@npm:17.0.11"
+"@types/react-dom@npm:16.9.16":
+  version: 16.9.16
+  resolution: "@types/react-dom@npm:16.9.16"
   dependencies:
-    "@types/react": "*"
-  checksum: 4d5730dffbef86c887cecad7e3cecda424ce6a64d0b5441c63b5b015d48219868660a2bb1aa15e897e565ad8867fa6b885d4358b04e1c4e589ba4c07c3fda55c
-  languageName: node
-  linkType: hard
-
-"@types/react-dom@npm:16.8.4":
-  version: 16.8.4
-  resolution: "@types/react-dom@npm:16.8.4"
-  dependencies:
-    "@types/react": "*"
-  checksum: 8fb1a321312fa806f78f195b68fb13deb9d6fc54fda4f557cfc6532353044eadd99d99d25cc935d7fdb6e041b75a3d0a85693d8aeb0e9fea06177ff01b48efe3
+    "@types/react": ^16
+  checksum: ff65a2a36d493ed6a9032f8a96f06074d940ca63c82d400e21e6ba16d25762b4f5c8cd352b93eb3b7aa820e158b7a6b16e5daffec2a512fa6327b00036cde0a8
   languageName: node
   linkType: hard
 
@@ -2040,13 +2031,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:16.8.23":
-  version: 16.8.23
-  resolution: "@types/react@npm:16.8.23"
+"@types/react@npm:16.14.28":
+  version: 16.14.28
+  resolution: "@types/react@npm:16.14.28"
   dependencies:
     "@types/prop-types": "*"
-    csstype: ^2.2.0
-  checksum: 633ae2604eb5dc03d1bc858d664d608db2e0073b8eebdc9eb3a8f9de424a61068240724435a9255cbc78e49c7b25f79bdde99a3d422cef19d1e04f1e4965fe8f
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: c3ef0c479e0c53f62057cae6dfe89785c855e697ea106e7c71da18210307a8d90a7f6bd285ca1370ee1ce859b1c241e173f4c6d0fab73c35e1d321d30b4dc4cc
+  languageName: node
+  linkType: hard
+
+"@types/scheduler@npm:*":
+  version: 0.16.2
+  resolution: "@types/scheduler@npm:0.16.2"
+  checksum: b6b4dcfeae6deba2e06a70941860fb1435730576d3689225a421280b7742318d1548b3d22c1f66ab68e414f346a9542f29240bc955b6332c5b11e561077583bc
   languageName: node
   linkType: hard
 
@@ -2289,8 +2288,8 @@ __metadata:
     "@types/jest": 27.4.1
     "@types/lodash": 4.14.149
     "@types/prop-types": 15.7.4
-    "@types/react": 16.8.23
-    "@types/react-dom": 16.8.4
+    "@types/react": 16.14.28
+    "@types/react-dom": 16.9.16
     "@types/react-helmet": 5.0.15
     "@types/react-modal": 3.13.1
     "@types/react-select": 4.0.16
@@ -3577,13 +3576,6 @@ __metadata:
   dependencies:
     cssom: ~0.3.6
   checksum: 5f05e6fd2e3df0b44695c2f08b9ef38b011862b274e320665176467c0725e44a53e341bc4959a41176e83b66064ab786262e7380fd1cabeae6efee0d255bb4e3
-  languageName: node
-  linkType: hard
-
-"csstype@npm:^2.2.0":
-  version: 2.6.5
-  resolution: "csstype@npm:2.6.5"
-  checksum: 2f7420a6c069dfb02985834dc3ed40219247f59c8c23e8a1ac3413b529c79cea8afadb2d4e431add1dd9c37e222025f0126d1850b7ce623d11b7a3dd45a02799
   languageName: node
   linkType: hard
 

@@ -64,8 +64,8 @@
     "@types/jest": "27.4.1",
     "@types/lodash": "4.14.149",
     "@types/prop-types": "15.7.4",
-    "@types/react": "16.8.23",
-    "@types/react-dom": "16.8.4",
+    "@types/react": "16.14.28",
+    "@types/react-dom": "16.9.16",
     "@types/react-helmet": "5.0.15",
     "@types/react-modal": "3.13.1",
     "@types/react-select": "4.0.16",
@@ -104,6 +104,10 @@
     "react-select-event": "5.4.0",
     "typescript": "4.6.3",
     "whatwg-fetch": "3.6.2"
+  },
+  "resolutions": {
+    "@types/react": "16.14.28",
+    "@types/react-dom": "16.9.16"
   },
   "scripts": {
     "start": "node scripts/start.js",
