@@ -67,9 +67,8 @@ it('should show open rule with default description section', async () => {
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Awsome java rule' })
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', { name: 'coding_rules.description_section.title.root_cause' })
-  ).toBeInTheDocument();
+  expect(screen.getByText('Why')).toBeInTheDocument();
+  expect(screen.getByText('Because')).toBeInTheDocument();
 });
 
 it('should show open rule with no description', async () => {
@@ -84,11 +83,7 @@ it('should show hotspot rule section', async () => {
   const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
   expect(await screen.findByRole('heading', { level: 3, name: 'Hot hotspot' })).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', {
-      name: 'coding_rules.description_section.title.introduction'
-    })
-  ).toBeInTheDocument();
+  expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
       name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT'
@@ -119,11 +114,7 @@ it('should show rule advanced section', async () => {
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Awsome Python rule' })
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', {
-      name: 'coding_rules.description_section.title.introduction'
-    })
-  ).toBeInTheDocument();
+  expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
       name: 'coding_rules.description_section.title.how_to_fix'

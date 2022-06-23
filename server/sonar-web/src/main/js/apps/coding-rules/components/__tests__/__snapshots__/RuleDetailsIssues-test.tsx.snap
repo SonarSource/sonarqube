@@ -4,13 +4,10 @@ exports[`should fetch issues and render 1`] = `
 <div
   className="js-rule-issues coding-rule-section"
 >
-  <div
-    className="coding-rule-section-separator"
-  />
   <DeferredSpinner
     loading={false}
   >
-    <h3
+    <h2
       className="coding-rules-detail-title"
     >
       coding_rules.issues
@@ -35,7 +32,7 @@ exports[`should fetch issues and render 1`] = `
         </Link>
         )
       </span>
-    </h3>
+    </h2>
     <table
       className="coding-rules-detail-list coding-rules-most-violated-projects"
     >

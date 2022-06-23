@@ -116,14 +116,11 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
     return (
       <>
         {intro && (
-          <>
-            <h2>{translate('coding_rules.description_section.title.introduction')}</h2>
-            <div
-              className="big-padded rule-desc"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(intro) }}
-            />
-          </>
+          <div
+            className="rule-desc"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeString(intro) }}
+          />
         )}
         <BoxedTabs
           className="bordered-bottom"

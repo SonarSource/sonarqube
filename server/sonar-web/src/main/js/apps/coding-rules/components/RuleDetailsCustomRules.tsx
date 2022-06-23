@@ -147,9 +147,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     return (
       <div className="js-rule-custom-rules coding-rule-section">
         <div className="coding-rules-detail-custom-rules-section">
-          <div className="coding-rule-section-separator" />
-
-          <h3 className="coding-rules-detail-title">{translate('coding_rules.custom_rules')}</h3>
+          <h2 className="coding-rules-detail-title">{translate('coding_rules.custom_rules')}</h2>
 
           {this.props.canChange && (
             <CustomRuleButton onDone={this.handleRuleCreate} templateRule={this.props.ruleDetails}>

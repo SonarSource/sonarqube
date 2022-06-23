@@ -148,15 +148,13 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
     return (
       <div className="js-rule-issues coding-rule-section">
-        <div className="coding-rule-section-separator" />
-
         <DeferredSpinner loading={loading}>
-          <h3 className="coding-rules-detail-title">
+          <h2 className="coding-rules-detail-title">
             {translate('coding_rules.issues')}
             {this.renderTotal()}
-          </h3>
+          </h2>
 
-          {projects.length > 0 && (
+          {projects.length > 0 ? (
             <table className="coding-rules-detail-list coding-rules-most-violated-projects">
               <tbody>
                 <tr>
@@ -167,6 +165,10 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
                 {projects.map(this.renderProject)}
               </tbody>
             </table>
+          ) : (
+            <div className="big-padded-bottom">
+              {translate('coding_rules.no_issue_detected_for_projects')}
+            </div>
           )}
         </DeferredSpinner>
       </div>

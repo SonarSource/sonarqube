@@ -23,7 +23,7 @@ import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { RuleDescriptionSection, RuleDescriptionSections, RuleDetails } from '../../../types/types';
+import { RuleDescriptionSections, RuleDetails } from '../../../types/types';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 import RuleTabViewer from './RuleTabViewer';
 
@@ -186,35 +186,6 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     </div>
   );
 
-  renderDescription = (section: RuleDescriptionSection) => {
-    if (section.key === RuleDescriptionSections.DEFAULT) {
-      return (
-        <section
-          className="coding-rules-detail-description markdown"
-          key={section.key}
-          /* eslint-disable-next-line react/no-danger */
-          dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
-        />
-      );
-    }
-
-    const { ruleDetails } = this.props;
-    const title =
-      section.key === RuleDescriptionSections.ROOT_CAUSE && ruleDetails.type === 'SECURITY_HOTSPOT'
-        ? translate('coding_rules.description_section.title', section.key, ruleDetails.type)
-        : translate('coding_rules.description_section.title', section.key);
-
-    return (
-      <section className="coding-rules-detail-description rule-desc" key={section.key}>
-        <h2>{title}</h2>
-        <div
-          /* eslint-disable-next-line react/no-danger */
-          dangerouslySetInnerHTML={{ __html: sanitizeString(section.content) }}
-        />
-      </section>
-    );
-  };
-
   render() {
     const { ruleDetails } = this.props;
     const hasDescription = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
@@ -234,15 +205,12 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     return (
       <div className="js-rule-description">
         {defaultSection && (
-          <>
-            <h2>{translate('coding_rules.description_section.title.root_cause')}</h2>
-            <section
-              className="coding-rules-detail-description markdown"
-              key={defaultSection.key}
-              /* eslint-disable-next-line react/no-danger */
-              dangerouslySetInnerHTML={{ __html: sanitizeString(defaultSection.content) }}
-            />
-          </>
+          <section
+            className="coding-rules-detail-description markdown"
+            key={defaultSection.key}
+            /* eslint-disable-next-line react/no-danger */
+            dangerouslySetInnerHTML={{ __html: sanitizeString(defaultSection.content) }}
+          />
         )}
 
         {hasDescriptionSection && !defaultSection ? (
