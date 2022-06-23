@@ -28,7 +28,7 @@ Symbol | Meaning
 
 ### sonar.coverageReportPaths
 
-Path to coverage report in the [Generic Test Data](/analysis/test-coverage/generic-test/) format.
+Path to coverage report in the [Generic Test Data](/analysis/generic-test/) format.
 
 
 ## Apex

@@ -20,7 +20,7 @@ SonarQube supports the following .NET test coverage tools:
 Additionally, a generic coverage format is also supported if you wish to use an unsupported tool
 (though you will have to convert its output to the generic format yourself).
 In this section, we discuss the directly supported tools.
-For information on the generic format, see [Generic Test Data](/analysis/test-coverage/generic-test/).
+For information on the generic format, see [Generic Test Data](/analysis/generic-test/).
 
 
 ## Adding coverage to your build process

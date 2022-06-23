@@ -1,13 +1,13 @@
 ---
 title: Generic Test Data
-url: /analysis/test-coverage/generic-test/
+url: /analysis/generic-test/
 ---
 
 SonarQube supports generic formats for test coverage and test execution import.
-If your coverage engines' native output formats aren't supported by SonarQube, simply covert them to these formats:
+If the native output of your coverage tool is not supported by SonarQube, you will have to convert it to the following format:
 
 
-## Generic Coverage
+## Generic Test Coverage Report Format
 
 Report paths should be passed in a comma-delimited list to:
 
@@ -71,7 +71,7 @@ It can have the following attributes:
 * `coveredBranches` (optional): number of branches which are actually covered by tests
 
 
-## Generic Execution
+## Generic Test Execution Report Format
 
 Report paths should be passed in a comma-delimited list to:
 

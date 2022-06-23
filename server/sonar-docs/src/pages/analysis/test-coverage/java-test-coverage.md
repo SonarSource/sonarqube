@@ -10,7 +10,7 @@ Instead, you must set up a third-party tool to produce the report as part of you
 You then need to configure your analysis to tell the SonarScanner where the report is located so that it can pick it up and send it to SonarQube, where it will be displayed on your project dashboard along with the other analysis metrics.
 
 For Java projects, SonarQube directly supports the JaCoCo coverage tool
-(see [Generic Test Data](/analysis/test-coverage/generic-test/) for information on integrating other coverage tools).
+(see [Generic Test Data](/analysis/generic-test/) for information on integrating other coverage tools).
 
 
 ## Adjust your setup
