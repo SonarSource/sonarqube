@@ -19,11 +19,13 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -38,9 +40,12 @@ import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleDto {
+
+  static final String ERROR_MESSAGE_SECTION_ALREADY_EXISTS = "A section with key '%s' and context key '%s' already exists";
 
   public enum Format {
     HTML, MARKDOWN
@@ -56,7 +61,7 @@ public class RuleDto {
   private String repositoryKey = null;
   private String ruleKey = null;
 
-  private Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
+  private final Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
@@ -198,7 +203,10 @@ public class RuleDto {
 
   @CheckForNull
   public RuleDescriptionSectionDto getDefaultRuleDescriptionSection() {
-    return findExistingSectionWithSameKey(DEFAULT_KEY).orElse(null);
+    return ruleDescriptionSectionDtos.stream()
+      .filter(ruleDesc -> ruleDesc.getKey().equals(DEFAULT_KEY))
+      .findAny()
+      .orElse(null);
   }
 
   public RuleDto replaceRuleDescriptionSectionDtos(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos) {
@@ -207,26 +215,33 @@ public class RuleDto {
     return this;
   }
 
+  @VisibleForTesting
+  public RuleDto replaceRuleDescriptionSectionDtos(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    replaceRuleDescriptionSectionDtos(List.of(ruleDescriptionSectionDto));
+    return this;
+  }
+
   public RuleDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    checkArgument(sectionWithSameKeyShouldNotExist(ruleDescriptionSectionDto),
-      "A section with key %s already exists", ruleDescriptionSectionDto.getKey());
+    checkArgument(!hasDescriptionSectionWithSameKeyAndContext(ruleDescriptionSectionDto),
+      ERROR_MESSAGE_SECTION_ALREADY_EXISTS, ruleDescriptionSectionDto.getKey(),
+      Optional.ofNullable(ruleDescriptionSectionDto.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null));
     ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
     return this;
   }
 
-  private boolean sectionWithSameKeyShouldNotExist(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    return findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey()).isEmpty();
+  private boolean hasDescriptionSectionWithSameKeyAndContext(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+    return ruleDescriptionSectionDtos.stream()
+      .anyMatch(ruleDesc -> hasSameKeyAndContextKey(ruleDescriptionSectionDto, ruleDesc));
   }
 
-  public RuleDto addOrReplaceRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    Optional<RuleDescriptionSectionDto> existingSectionWithSameKey = findExistingSectionWithSameKey(ruleDescriptionSectionDto.getKey());
-    existingSectionWithSameKey.ifPresent(ruleDescriptionSectionDtos::remove);
-    ruleDescriptionSectionDtos.add(ruleDescriptionSectionDto);
-    return this;
-  }
+  private static boolean hasSameKeyAndContextKey(RuleDescriptionSectionDto ruleDescriptionSectionDto, RuleDescriptionSectionDto other) {
+    if (!ruleDescriptionSectionDto.getKey().equals(other.getKey())){
+      return false;
+    }
 
-  private Optional<RuleDescriptionSectionDto> findExistingSectionWithSameKey(String ruleDescriptionSectionKey) {
-    return ruleDescriptionSectionDtos.stream().filter(section -> section.getKey().equals(ruleDescriptionSectionKey)).findAny();
+    String contextKey = ofNullable(ruleDescriptionSectionDto.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
+    String otherContextKey =  ofNullable(other.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
+    return Objects.equals(contextKey, otherContextKey);
   }
 
   @CheckForNull

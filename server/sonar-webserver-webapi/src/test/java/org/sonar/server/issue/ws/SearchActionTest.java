@@ -1489,7 +1489,7 @@ public class SearchActionTest {
   private RuleDto newIssueRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY);
     db.rules().insert(rule);
     return rule;
@@ -1498,7 +1498,7 @@ public class SearchActionTest {
   private RuleDto newHotspotRule() {
     RuleDto rule = RuleTesting.newXooX2()
       .setName("Rule name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY)
       .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule);

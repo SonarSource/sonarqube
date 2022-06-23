@@ -83,7 +83,6 @@ public class RuleDaoTest {
   }
 
 
-
   @Test
   public void selectByUuid() {
     RuleDto ruleDto = db.rules().insert();
@@ -202,6 +201,7 @@ public class RuleDaoTest {
   }
 
   private void assertEquals(RuleDto actual, RuleDto expected) {
+
     assertThat(actual.getUuid()).isEqualTo(expected.getUuid());
     assertThat(actual.getRepositoryKey()).isEqualTo(expected.getRepositoryKey());
     assertThat(actual.getRuleKey()).isEqualTo(expected.getRuleKey());
@@ -236,7 +236,7 @@ public class RuleDaoTest {
     assertThat(actual.getAdHocSeverity()).isEqualTo(expected.getAdHocSeverity());
     assertThat(actual.getAdHocType()).isEqualTo(expected.getAdHocType());
     assertThat(actual.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
-      .isEqualTo(expected.getRuleDescriptionSectionDtos());
+      .containsExactlyInAnyOrderElementsOf(expected.getRuleDescriptionSectionDtos());
   }
 
   @Test
@@ -402,6 +402,35 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void insert_rule_with_description_section_context() {
+    RuleDto rule = db.rules().insert(r -> r
+      .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "spring", "Spring")));
+
+    Optional<RuleDto> ruleDto = underTest.selectByUuid(rule.getUuid(), db.getSession());
+    assertEquals(ruleDto.get(), rule);
+  }
+
+  @NotNull
+  private static RuleDescriptionSectionDto createDescriptionSectionWithContext(String key, String contextKey, String contextDisplayName) {
+    return RuleDescriptionSectionDto.builder()
+      .uuid(UuidFactoryFast.getInstance().create())
+      .content("content")
+      .key(key)
+      .context(RuleDescriptionSectionContextDto.of(contextKey, contextDisplayName))
+      .build();
+  }
+
+  @Test
+  public void insert_rule_with_different_section_context() {
+    RuleDto rule = db.rules().insert(r -> r
+      .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "spring", "Spring"))
+      .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "myBatis", "My Batis")));
+
+    Optional<RuleDto> ruleDto = underTest.selectByUuid(rule.getUuid(), db.getSession());
+    assertEquals(ruleDto.get(), rule);
+  }
+
+  @Test
   public void insert() {
     RuleDescriptionSectionDto sectionDto = createDefaultRuleDescriptionSection();
     RuleDto newRule = new RuleDto()
@@ -552,7 +581,29 @@ public class RuleDaoTest {
       .content(randomAlphanumeric(1000))
       .build();
 
-    rule.addOrReplaceRuleDescriptionSectionDto(replacingSection);
+    rule.replaceRuleDescriptionSectionDtos(replacingSection);
+
+    underTest.update(db.getSession(), rule);
+    db.getSession().commit();
+
+    RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
+
+    assertThat(ruleDto.getRuleDescriptionSectionDtos())
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsOnly(replacingSection);
+  }
+
+  @Test
+  public void update_rule_sections_replaces_section_with_context() {
+    RuleDto rule = db.rules().insert();
+    RuleDescriptionSectionDto existingSection = rule.getRuleDescriptionSectionDtos().iterator().next();
+    RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
+      .uuid(randomAlphanumeric(20))
+      .key(existingSection.getKey())
+      .content(randomAlphanumeric(1000))
+      .build();
+
+    rule.replaceRuleDescriptionSectionDtos(replacingSection);
 
     underTest.update(db.getSession(), rule);
     db.getSession().commit();
@@ -816,6 +867,7 @@ public class RuleDaoTest {
       .key("DESC")
       .uuid("uuid")
       .content("my description")
+      .context(RuleDescriptionSectionContextDto.of("context key", "context display name"))
       .build();
     RuleDto r1 = db.rules().insert(r -> {
       r.addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
@@ -838,8 +890,8 @@ public class RuleDaoTest {
     assertThat(firstRule.getRuleDescriptionSectionsDtos().stream()
       .filter(s -> s.getKey().equals(ruleDescriptionSectionDto.getKey()))
       .collect(MoreCollectors.onlyElement()))
-        .usingRecursiveComparison()
-        .isEqualTo(ruleDescriptionSectionDto);
+      .usingRecursiveComparison()
+      .isEqualTo(ruleDescriptionSectionDto);
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());

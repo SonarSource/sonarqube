@@ -517,15 +517,17 @@ public class RegisterRules implements Startable {
   }
 
   private static boolean ruleDescriptionSectionsUnchanged(RuleDto ruleDto, Set<RuleDescriptionSectionDto> newRuleDescriptionSectionDtos) {
-    Map<String, String> oldKeysToSections = toMap(ruleDto.getRuleDescriptionSectionDtos());
-    Map<String, String> newKeysToSections = toMap(newRuleDescriptionSectionDtos);
-    return oldKeysToSections.equals(newKeysToSections);
+    if (ruleDto.getRuleDescriptionSectionDtos().size() != newRuleDescriptionSectionDtos.size()) {
+      return false;
+    }
+    return ruleDto.getRuleDescriptionSectionDtos().stream()
+      .allMatch(sectionDto -> contains(newRuleDescriptionSectionDtos, sectionDto));
   }
 
-  private static Map<String, String> toMap(Set<RuleDescriptionSectionDto> ruleDto) {
-    return ruleDto
-      .stream()
-      .collect(Collectors.toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
+  private static boolean contains(Set<RuleDescriptionSectionDto> sectionDtos, RuleDescriptionSectionDto sectionDto) {
+    return sectionDtos.stream()
+      .filter(s -> s.getKey().equals(sectionDto.getKey()) && s.getContent().equals(sectionDto.getContent()))
+      .anyMatch(s -> Objects.equals(s.getContext(), sectionDto.getContext()));
   }
 
   private static boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto) {

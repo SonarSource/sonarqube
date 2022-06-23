@@ -84,6 +84,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
@@ -239,7 +240,7 @@ public class SearchActionTest {
     RuleDto rule1 = db.rules()
       .insert(
         r1 -> r1
-          .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
+          .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
           .setNoteUserUuid(null));
     db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
@@ -251,10 +252,10 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_name_or_descriptions_requires_all_words_to_match_anywhere() {
-    RuleDto rule1 = db.rules().insert(r1 -> r1.setName("Best rule ever").setNoteUserUuid(null)
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is a good rule")));
-    db.rules().insert(r1 -> r1.setName("Another thing").setNoteUserUuid(null)
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another thing")));
+    RuleDto rule1 = db.rules().insert(newRuleWithoutDescriptionSection().setName("Best rule ever").setNoteUserUuid(null)
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is a good rule")));
+    db.rules().insert(newRuleWithoutDescriptionSection().setName("Another thing").setNoteUserUuid(null)
+      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another thing")));
     indexRules();
 
     verify(r -> r.setParam("q", "Best good"), rule1);

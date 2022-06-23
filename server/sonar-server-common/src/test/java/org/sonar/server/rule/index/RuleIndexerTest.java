@@ -139,7 +139,8 @@ public class RuleIndexerTest {
   public void index_long_rule_description() {
     String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(joining(" "));
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), description);
-    RuleDto rule = dbTester.rules().insert(r -> r.addOrReplaceRuleDescriptionSectionDto(ruleDescriptionSectionDto));
+
+    RuleDto rule = dbTester.rules().insert(r -> r.replaceRuleDescriptionSectionDtos(ruleDescriptionSectionDto));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isOne();
@@ -148,7 +149,7 @@ public class RuleIndexerTest {
   @Test
   public void index_long_rule_with_several_sections() {
     RuleDto rule = dbTester.rules().insert(r -> {
-      r.addOrReplaceRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO);
+      r.replaceRuleDescriptionSectionDtos(RULE_DESCRIPTION_SECTION_DTO);
       r.addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO2);
     });
 
@@ -166,7 +167,7 @@ public class RuleIndexerTest {
   public void index_long_rule_with_section_in_markdown() {
     RuleDto rule = dbTester.rules().insert(r -> {
       r.setDescriptionFormat(RuleDto.Format.MARKDOWN);
-      r.addOrReplaceRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO);
+      r.replaceRuleDescriptionSectionDtos(RULE_DESCRIPTION_SECTION_DTO);
     });
 
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());

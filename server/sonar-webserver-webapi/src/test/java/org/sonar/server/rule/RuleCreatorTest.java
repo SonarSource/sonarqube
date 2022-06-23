@@ -323,7 +323,7 @@ public class RuleCreatorTest {
                 .setRuleKey(key)
                 .setStatus(RuleStatus.REMOVED)
                 .setName("Old name")
-                .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
+                .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
                 .setDescriptionFormat(Format.MARKDOWN)
                 .setSeverity(Severity.INFO);
         dbTester.rules().insert(rule);
@@ -363,7 +363,7 @@ public class RuleCreatorTest {
                 .setRuleKey(key)
                 .setStatus(RuleStatus.REMOVED)
                 .setName("Old name")
-                .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
+                .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
                 .setSeverity(Severity.INFO);
         dbTester.rules().insert(rule);
         dbTester.rules().insertRuleParam(rule, param -> param.setDefaultValue("a.*"));

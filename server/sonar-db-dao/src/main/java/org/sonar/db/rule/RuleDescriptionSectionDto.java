@@ -20,20 +20,27 @@
 package org.sonar.db.rule;
 
 import java.util.StringJoiner;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class RuleDescriptionSectionDto {
   public static final String DEFAULT_KEY = "default";
 
-  private final String uuid;
-  private final String key;
-  private final String content;
+  private String uuid;
+  private String key;
+  private String content;
+  private RuleDescriptionSectionContextDto context;
 
-  private RuleDescriptionSectionDto(String uuid, String key, String content) {
+  private RuleDescriptionSectionDto() {
+  }
+
+  private RuleDescriptionSectionDto(String uuid, String key, String content, @Nullable RuleDescriptionSectionContextDto context) {
     this.uuid = uuid;
     this.key = key;
     this.content = content;
+    this.context = context;
   }
 
   public String getUuid() {
@@ -46,6 +53,11 @@ public class RuleDescriptionSectionDto {
 
   public String getContent() {
     return content;
+  }
+
+  @CheckForNull
+  public RuleDescriptionSectionContextDto getContext() {
+    return context;
   }
 
   public static RuleDescriptionSectionDto createDefaultRuleDescriptionSection(String uuid, String description) {
@@ -70,13 +82,17 @@ public class RuleDescriptionSectionDto {
       .add("uuid='" + uuid + "'")
       .add("key='" + key + "'")
       .add("content='" + content + "'")
+      .add("context='" + context + "'")
       .toString();
   }
+
+
 
   public static final class RuleDescriptionSectionDtoBuilder {
     private String uuid;
     private String key = null;
     private String content;
+    private RuleDescriptionSectionContextDto context;
 
     private RuleDescriptionSectionDtoBuilder() {
     }
@@ -103,8 +119,14 @@ public class RuleDescriptionSectionDto {
       return this;
     }
 
+    public RuleDescriptionSectionDtoBuilder context(@Nullable RuleDescriptionSectionContextDto context) {
+      this.context = context;
+      return this;
+    }
+
     public RuleDescriptionSectionDto build() {
-      return new RuleDescriptionSectionDto(uuid, key, content);
+      return new RuleDescriptionSectionDto(uuid, key, content, context);
     }
   }
+
 }

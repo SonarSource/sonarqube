@@ -297,7 +297,7 @@ public class ShowActionTest {
     db.rules().insert(templateRule);
     // Custom rule
     RuleDto customRule = newCustomRule(templateRule)
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>line1\nline2</div>"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>line1\nline2</div>"))
       .setDescriptionFormat(MARKDOWN)
       .setNoteUserUuid(userDto.getUuid());
     db.rules().insert(customRule);
@@ -435,7 +435,7 @@ public class ShowActionTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName("predefined name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>predefined desc</div>"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>predefined desc</div>"))
       .setSeverity(Severity.BLOCKER)
       .setType(RuleType.VULNERABILITY)
       .setAdHocName("adhoc name")

@@ -28,6 +28,7 @@ public class RuleDescriptionSectionDtoTest {
   private static final RuleDescriptionSectionDto SECTION = RuleDescriptionSectionDto.builder()
     .key("key")
     .uuid("uuid")
+    .context(RuleDescriptionSectionContextDto.of("key", "displayName"))
     .content("desc").build();
 
 
@@ -49,9 +50,9 @@ public class RuleDescriptionSectionDtoTest {
       .withMessage("Only one of setDefault and key methods can be called");
   }
 
-
   @Test
   public void testToString() {
-    Assertions.assertThat(SECTION).hasToString("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc']");
+    Assertions.assertThat(SECTION)
+      .hasToString("RuleDescriptionSectionDto[uuid='uuid', key='key', content='desc', context='RuleDescriptionSectionContextDto[key='key', displayName='displayName']']");
   }
 }

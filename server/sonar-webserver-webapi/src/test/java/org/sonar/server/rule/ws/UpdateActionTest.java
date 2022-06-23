@@ -113,7 +113,7 @@ public class UpdateActionTest {
     RuleDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
+      r -> r.replaceRuleDescriptionSectionDtos(createRuleDescriptionSectionDto()),
       r -> r.setSeverity(Severity.MINOR),
       r -> r.setStatus(RuleStatus.BETA),
       r -> r.setTemplateUuid(templateRule.getUuid()),
@@ -249,7 +249,7 @@ public class UpdateActionTest {
     RuleDto customRule = db.rules().insert(
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
-      r -> r.addOrReplaceRuleDescriptionSectionDto(createRuleDescriptionSectionDto()),
+      r -> r.replaceRuleDescriptionSectionDtos(createRuleDescriptionSectionDto()),
       r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));

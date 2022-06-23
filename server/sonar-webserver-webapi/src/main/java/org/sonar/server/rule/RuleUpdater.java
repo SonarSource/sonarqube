@@ -142,7 +142,7 @@ public class RuleUpdater {
     }
     RuleDescriptionSectionDto descriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), description);
     rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
-    rule.addOrReplaceRuleDescriptionSectionDto(descriptionSectionDto);
+    rule.replaceRuleDescriptionSectionDtos(List.of(descriptionSectionDto));
   }
 
   private static void updateSeverity(RuleUpdate update, RuleDto rule) {

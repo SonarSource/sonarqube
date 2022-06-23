@@ -145,7 +145,7 @@ public class QProfileBackuperImplTest {
     RuleDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
       .setName("custom rule name")
       .setStatus(RuleStatus.READY)
       .setTemplateUuid(templateRule.getUuid()));
@@ -404,7 +404,7 @@ public class QProfileBackuperImplTest {
     RuleDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), "custom rule description"))
       .setName("custom rule name")
       .setStatus(RuleStatus.READY)
       .setTemplateUuid(templateRule.getUuid()));

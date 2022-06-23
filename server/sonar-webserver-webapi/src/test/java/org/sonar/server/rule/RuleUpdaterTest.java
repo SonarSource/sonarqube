@@ -338,7 +338,7 @@ public class RuleUpdaterTest {
     // Create custom rule
     RuleDto customRule = newCustomRule(templateRule)
       .setName("Old name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       ;
@@ -386,7 +386,7 @@ public class RuleUpdaterTest {
     // Create custom rule
     RuleDto customRule = newCustomRule(templateRule)
       .setName("Old name")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     db.rules().insert(customRule);

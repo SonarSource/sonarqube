@@ -23,17 +23,21 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.sonar.core.util.Uuids;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDtoTest {
 
 
+  public static final String SECTION_KEY = "section key";
   @Test
   public void fail_if_key_is_too_long() {
     assertThatThrownBy(() -> new RuleDto().setRuleKey(repeat("x", 250)))
@@ -114,5 +118,64 @@ public class RuleDtoTest {
       .isNotEqualTo(new Object().hashCode())
       .isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()).hashCode())
       .isNotEqualTo(newRule().setUuid(Uuids.createFast()).hashCode());
+  }
+
+  @Test
+  public void add_rule_description_section_same_key_should_throw_error() {
+    RuleDto dto = new RuleDto();
+
+    RuleDescriptionSectionDto section1 = createSection(SECTION_KEY);
+    dto.addRuleDescriptionSectionDto(section1);
+
+    RuleDescriptionSectionDto section2 = createSection(SECTION_KEY);
+    assertThatThrownBy(() -> dto.addRuleDescriptionSectionDto(section2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format(ERROR_MESSAGE_SECTION_ALREADY_EXISTS, SECTION_KEY, "null"));
+  }
+
+  @Test
+  public void add_rule_description_section_with_different_context() {
+    RuleDto dto = new RuleDto();
+
+    RuleDescriptionSectionDto section1 = createSection(RuleDtoTest.SECTION_KEY, "context key 1", "context display Name 1");
+    dto.addRuleDescriptionSectionDto(section1);
+
+    RuleDescriptionSectionDto section2 = createSection(RuleDtoTest.SECTION_KEY, "context key 2", "context display Name 2");
+    dto.addRuleDescriptionSectionDto(section2);
+
+    assertThat(dto.getRuleDescriptionSectionDtos())
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactlyInAnyOrder(section1, section2);
+
+  }
+
+  @Test
+  public void add_rule_description_section_with_same_section_and_context_should_throw_error() {
+    RuleDto dto = new RuleDto();
+    String contextKey = randomAlphanumeric(50);
+    String displayName = randomAlphanumeric(50);
+    RuleDescriptionSectionDto section1 = createSection(SECTION_KEY, contextKey, displayName);
+    dto.addRuleDescriptionSectionDto(section1);
+    RuleDescriptionSectionDto section2 = createSection(SECTION_KEY, contextKey, displayName);
+
+    assertThatThrownBy(() -> dto.addRuleDescriptionSectionDto(section2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format(ERROR_MESSAGE_SECTION_ALREADY_EXISTS, SECTION_KEY, contextKey));
+
+  }
+
+  @NotNull
+  private static RuleDescriptionSectionDto createSection(String section_key, String contextKey, String contextDisplayName) {
+    return RuleDescriptionSectionDto.builder()
+      .key(section_key)
+      .context(RuleDescriptionSectionContextDto.of(contextKey, contextDisplayName))
+      .build();
+  }
+
+  @NotNull
+  private static RuleDescriptionSectionDto createSection(String section_key) {
+    return RuleDescriptionSectionDto.builder()
+      .key(section_key)
+      .build();
   }
 }

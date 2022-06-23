@@ -50,6 +50,8 @@
     rds.content as "rds_content",
     rds.uuid as "rds_uuid",
     rds.kee as "rds_kee",
+    rds.context_key as "rds_contextKey",
+    rds.context_display_name as "rds_contextDisplayName",
     r.uuid as "r_uuid",
 
     <include refid="ruleColumns"/>
@@ -68,7 +70,14 @@
 
     <collection property="ruleDescriptionSectionDtos" ofType="org.sonar.db.rule.RuleDescriptionSectionDto" autoMapping="true"
                 columnPrefix="rds_">
+      <id property="uuid" column="uuid"/>
       <result property="key" column="kee"/>
+      <association property="context" javaType="org.sonar.db.rule.RuleDescriptionSectionContextDto" autoMapping="false">
+         <constructor>
+           <arg column="contextKey" javaType="String"/>
+           <arg column="contextDisplayName" javaType="String"/>
+        </constructor>
+      </association>
     </collection>
   </resultMap>
 
@@ -195,7 +204,8 @@
     <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     select
       r.uuid as uuid,
       <include refid="ruleColumns"/>
@@ -212,13 +222,17 @@
       uuid,
       rule_uuid,
       kee,
-      content
+      content,
+      context_key,
+      context_display_name
     )
     values (
       #{dto.uuid,jdbcType=VARCHAR},
       #{ruleUuid,jdbcType=VARCHAR},
       #{dto.key,jdbcType=VARCHAR},
-      #{dto.content,jdbcType=VARCHAR}
+      #{dto.content,jdbcType=VARCHAR},
+      #{dto.context.key,jdbcType=VARCHAR},
+      #{dto.context.displayName,jdbcType=VARCHAR}
     )
   </insert>
 

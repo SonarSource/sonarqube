@@ -216,20 +216,20 @@ public class RuleIndexTest {
     // otherwise the generated random values may raise false-positives
     RuleDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
       .setName("rule 123")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "My great rule CWE-123 which makes your code 1000 times better!")));
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "My great rule CWE-123 which makes your code 1000 times better!")));
     RuleDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
       .setName("rule 124")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great and shiny rule CWE-124")));
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great and shiny rule CWE-124")));
     RuleDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
       .setName("rule 1000")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great rule CWE-1000")));
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great rule CWE-1000")));
     RuleDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
       .setName("rule 404")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(),
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(),
         "<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>")));
     RuleDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
       .setName("rule 405")
-      .addOrReplaceRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
+      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
     index();
 
     // partial match at word boundary
