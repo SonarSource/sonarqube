@@ -19,9 +19,14 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Optional;
 import java.util.Set;
+import org.jetbrains.annotations.Nullable;
+import org.sonar.api.server.rule.Context;
+import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 
 import static java.util.stream.Collectors.toSet;
@@ -41,13 +46,24 @@ public class AdvancedRuleDescriptionSectionsGenerator implements RuleDescription
   @Override
   public Set<RuleDescriptionSectionDto> generateSections(RulesDefinition.Rule rule) {
     return rule.ruleDescriptionSections().stream()
-      .map(section -> RuleDescriptionSectionDto.builder()
-        .uuid(uuidFactory.create())
-        .key(section.getKey())
-        .content(section.getHtmlContent())
-        .build()
-      )
+      .map(this::toRuleDescriptionSectionDto)
       .collect(toSet());
+  }
+
+  private RuleDescriptionSectionDto toRuleDescriptionSectionDto(RuleDescriptionSection section) {
+    return RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(section.getKey())
+      .content(section.getHtmlContent())
+      .context(toRuleDescriptionSectionContextDto(section.getContext()))
+      .build();
+  }
+
+  @Nullable
+  private static RuleDescriptionSectionContextDto toRuleDescriptionSectionContextDto(Optional<Context> context) {
+    return context
+      .map(c -> RuleDescriptionSectionContextDto.of(c.getKey(), c.getDisplayName()))
+      .orElse(null);
   }
 
 }

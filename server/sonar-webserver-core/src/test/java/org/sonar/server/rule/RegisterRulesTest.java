@@ -25,9 +25,14 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.elasticsearch.common.util.set.Sets;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +44,8 @@ import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.rule.Context;
+import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
@@ -52,6 +59,7 @@ import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -71,6 +79,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -89,7 +98,10 @@ import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
-import static org.sonar.api.server.rule.RulesDefinition.Context;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.api.server.rule.RulesDefinition.NewRepository;
 import static org.sonar.api.server.rule.RulesDefinition.NewRule;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
@@ -145,7 +157,17 @@ public class RegisterRulesTest {
     when(ruleDescriptionSectionsGenerator.generateSections(any())).thenAnswer(answer -> {
       RulesDefinition.Rule rule = answer.getArgument(0, RulesDefinition.Rule.class);
       String description = rule.htmlDescription() == null ? rule.markdownDescription() : rule.htmlDescription();
-      return Set.of(builder().uuid(UuidFactoryFast.getInstance().create()).key("default").content(description).build());
+
+      Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.ruleDescriptionSections().stream() //
+        .map(s -> builder()
+          .uuid(UuidFactoryFast.getInstance().create())
+          .key(s.getKey())
+          .content(s.getHtmlContent())
+          .context(s.getContext().map(c -> RuleDescriptionSectionContextDto.of(c.getKey(), c.getDisplayName())).orElse(null))
+          .build()
+        )
+        .collect(Collectors.toSet());
+      return Sets.union(ruleDescriptionSectionDtos, Set.of(builder().uuid(UuidFactoryFast.getInstance().create()).key("default").content(description).build()));
     });
 
     when(ruleDescriptionSectionsGenerator.isGeneratorForRule(any())).thenReturn(true);
@@ -718,6 +740,86 @@ public class RegisterRulesTest {
   }
 
   @Test
+  public void update_several_rule_descriptions() {
+    system.setNow(DATE1.getTime());
+
+    RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "CTX_1");
+    RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY,"section1 ctx2 content", "CTX_2");
+    RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 content", "CTX_1");
+    RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY,"section3 content", null);
+    RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY,"section4 content", null);
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name")
+        .addDescriptionSection(section1context1)
+        .addDescriptionSection(section1context2)
+        .addDescriptionSection(section2context1)
+        .addDescriptionSection(section3noContext)
+        .addDescriptionSection(section4noContext)
+        .setHtmlDescription("Desc1");
+      repo.done();
+    });
+
+    RuleDescriptionSection section1context2updated = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 updated content", "CTX_2");
+    RuleDescriptionSection section2updatedWithoutContext = createRuleDescriptionSection(RESOURCES_SECTION_KEY, section2context1.getHtmlContent(), null);
+    RuleDescriptionSection section4updatedWithContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_1");
+    system.setNow(DATE2.getTime());
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name")
+        .addDescriptionSection(section1context1)
+        .addDescriptionSection(section1context2updated)
+        .addDescriptionSection(section2updatedWithoutContext)
+        .addDescriptionSection(section3noContext)
+        .addDescriptionSection(section4updatedWithContext)
+        .setHtmlDescription("Desc2");
+      repo.done();
+
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("fake", "rule"));
+    assertThat(rule1.getName()).isEqualTo("Name");
+    assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Desc2");
+
+    Set<RuleDescriptionSection> expectedSections = Set.of(section1context1, section1context2updated,
+      section2updatedWithoutContext, section3noContext, section4updatedWithContext);
+    assertThat(rule1.getRuleDescriptionSectionDtos()).hasSize(expectedSections.size() + 1);
+    expectedSections.forEach(apiSection -> assertSectionExists(apiSection, rule1.getRuleDescriptionSectionDtos()));
+  }
+
+  private static RuleDescriptionSection createRuleDescriptionSection(String sectionKey, String description, @Nullable String contextKey) {
+    Context context = Optional.ofNullable(contextKey).map(key -> new Context(contextKey, contextKey + randomAlphanumeric(10))).orElse(null);
+    return RuleDescriptionSection.builder().sectionKey(sectionKey)
+      .htmlContent(description)
+      .context(context)
+      .build();
+  }
+
+  private static void assertSectionExists(RuleDescriptionSection apiSection, Set<RuleDescriptionSectionDto> sectionDtos) {
+    sectionDtos.stream()
+      .filter(sectionDto -> sectionDto.getKey().equals(apiSection.getKey()) && sectionDto.getContent().equals(apiSection.getHtmlContent()))
+      .filter(sectionDto -> isSameContext(apiSection.getContext(), sectionDto.getContext()))
+      .findAny()
+      .orElseThrow(() -> new AssertionError(format("Impossible to find a section dto matching the API section %s", apiSection.getKey())));
+  }
+
+  private static boolean isSameContext(Optional<Context> apiContext, @Nullable RuleDescriptionSectionContextDto contextDto) {
+    if (apiContext.isEmpty() && contextDto == null) {
+      return true;
+    }
+    return apiContext.filter(context -> isSameContext(context, contextDto)).isPresent();
+  }
+
+  private static boolean isSameContext(Context apiContext, @Nullable RuleDescriptionSectionContextDto contextDto) {
+    if (contextDto == null) {
+      return false;
+    }
+    return Objects.equals(apiContext.getKey(), contextDto.getKey()) && Objects.equals(apiContext.getDisplayName(), contextDto.getDisplayName());
+  }
+
+  @Test
   public void rule_previously_created_as_adhoc_becomes_none_adhoc() {
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("external_fake").setIsExternal(true).setIsAdHoc(true));
     system.setNow(DATE2.getTime());
@@ -1055,7 +1157,7 @@ public class RegisterRulesTest {
   }
 
   @SafeVarargs
-  private void createRule(Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
+  private void createRule(RulesDefinition.Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
     NewRepository repo = context.createRepository(repositoryKey, language);
     NewRule newRule = repo.createRule(ruleKey)
       .setName(ruleKey)
