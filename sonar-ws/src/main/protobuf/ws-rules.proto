@@ -131,6 +131,11 @@ message Rule {
   message DescriptionSection {
     required string key = 1;
     required string content = 2;
+    optional Context context = 3;
+
+    message Context {
+      required string displayName = 1;
+    }
   }
 
   message Params {

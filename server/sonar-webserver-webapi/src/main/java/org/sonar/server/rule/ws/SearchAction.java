@@ -137,11 +137,22 @@ public class SearchAction implements RulesWsAction {
     WebService.NewAction action = controller.createAction(ACTION)
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
-      .setChangelog(new Change("7.1", "The field 'scope' has been added to the response"),
+      .setChangelog(
+        new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
+        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated use 'remFnBaseEffort' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated use 'defaultRemFnBaseEffort' instead"),
+        new Change("7.1", "The field 'scope' has been added to the response"),
         new Change("7.1", "The field 'scope' has been added to the 'f' parameter"),
         new Change("7.2", "The field 'isExternal' has been added to the response"),
         new Change("7.2", "The field 'includeExternal' has been added to the 'f' parameter"),
-        new Change("7.5", "The field 'updatedAt' has been added to the 'f' parameter"));
+        new Change("7.5", "The field 'updatedAt' has been added to the 'f' parameter"),
+        new Change("9.5", "The field 'htmlDesc' has been deprecated use 'descriptionSections' instead"),
+        new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
+        new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
+        new Change("9.6", "'descriptionSections' can optionally embed a context field")
+      );
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -149,33 +160,12 @@ public class SearchAction implements RulesWsAction {
       .setExampleValue(format("%s,%s", POSSIBLE_FACETS[0], POSSIBLE_FACETS[1]));
 
     WebService.NewParam paramFields = action.createParam(FIELDS)
-      .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives." +
-        "Since 5.5, following fields have been deprecated :" +
-        "<ul>" +
-        "<li>\"defaultDebtRemFn\" becomes \"defaultRemFn\"</li>" +
-        "<li>\"debtRemFn\" becomes \"remFn\"</li>" +
-        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
-        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul>")
+      .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives.")
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
 
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
-    action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>" +
-        "Since 5.5, following fields in the response have been deprecated :" +
-        "<ul>" +
-        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
-        "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
-        "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
-        "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
-        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
-        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul><br/>" +
-        "Since 9.5 :" +
-        "<ul>" +
-        "<li>the field \"htmlDesc\" has been deprecated.</li>" +
-        "<li>the field \"descriptionSections\" has been added.</li>" +
-        "</ul>")
+    action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")
       .setHandler(this);

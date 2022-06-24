@@ -21,10 +21,12 @@ package org.sonar.server.rule.ws;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.assertj.core.api.iterable.Extractor;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -41,6 +43,8 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
@@ -83,6 +87,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
@@ -248,6 +253,23 @@ public class SearchActionTest {
     verify(r -> r.setParam("q", "Best "), rule1);
     verify(r -> r.setParam("q", "bold"));
     verify(r -> r.setParam("q", "now&forever"), rule1);
+  }
+
+  @Test
+  public void filter_with_context_specific_rule_description() {
+    RuleDescriptionSectionDto section1context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
+    RuleDescriptionSectionDto section1context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>Another context</div>", "ctx2");
+
+    RuleDto ruleDto = newRuleWithoutDescriptionSection()
+      .setNoteUserUuid(null)
+      .addRuleDescriptionSectionDto(section1context1)
+      .addRuleDescriptionSectionDto(section1context2);
+    db.rules().insert(ruleDto);
+    indexRules();
+
+    verify(r -> r.setParam("q", "Spring "), ruleDto);
+    verify(r -> r.setParam("q", "bold"));
+    verify(r -> r.setParam("q", "context"), ruleDto);
   }
 
   @Test
@@ -440,7 +462,13 @@ public class SearchActionTest {
 
   @Test
   public void should_return_specified_fields() {
-    RuleDto rule = db.rules().insert(r1 -> r1.setLanguage("java"));
+    RuleDescriptionSectionDto section1context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
+    RuleDescriptionSectionDto section1context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>Another context</div>", "ctx2");
+    RuleDto rule = newRuleWithoutDescriptionSection()
+      .setLanguage("java")
+      .addRuleDescriptionSectionDto(section1context1)
+      .addRuleDescriptionSectionDto(section1context2);
+    db.rules().insert(rule);
     indexRules();
 
     checkField(rule, "repo", Rule::getRepo, rule.getRepositoryKey());
@@ -455,7 +483,30 @@ public class SearchActionTest {
     checkField(rule, "lang", Rule::getLang, rule.getLanguage());
     checkField(rule, "langName", Rule::getLangName, languages.get(rule.getLanguage()).getName());
     checkField(rule, "gapDescription", Rule::getGapDescription, rule.getGapDescription());
-    // to be continued...
+    checkDescriptionSections(rule, rule.getRuleDescriptionSectionDtos().stream()
+      .map(SearchActionTest::toProtobufDto)
+      .collect(Collectors.toSet())
+    );
+  }
+
+  private RuleDescriptionSectionDto createRuleDescriptionSectionWithContext(String key, String content, @Nullable String contextKey) {
+    RuleDescriptionSectionContextDto contextDto = Optional.ofNullable(contextKey)
+      .map(c -> RuleDescriptionSectionContextDto.of(contextKey, contextKey + " display name"))
+      .orElse(null);
+    return RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(key)
+      .content(content)
+      .context(contextDto)
+      .build();
+  }
+
+  private static Rule.DescriptionSection toProtobufDto(RuleDescriptionSectionDto s) {
+    Rule.DescriptionSection.Builder builder = Rule.DescriptionSection.newBuilder().setKey(s.getKey()).setContent(s.getContent());
+    if (s.getContext() != null) {
+      builder.setContext(Rule.DescriptionSection.Context.newBuilder().setDisplayName(s.getContext().getDisplayName()).build());
+    }
+    return builder.build();
   }
 
   @Test
@@ -909,13 +960,23 @@ public class SearchActionTest {
   }
 
   @SafeVarargs
-  private final <T> void checkField(RuleDto rule, String fieldName, Extractor<Rule, T> responseExtractor, T... expected) {
+  private <T> void checkField(RuleDto rule, String fieldName, Function<Rule, T> responseExtractor, T... expected) {
     SearchResponse result = ws.newRequest()
       .setParam("f", fieldName)
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList()).extracting(responseExtractor).containsExactly(expected);
   }
+
+  private void checkDescriptionSections(RuleDto rule, Set<Rule.DescriptionSection> expected) {
+    SearchResponse result = ws.newRequest()
+      .setParam("f", "descriptionSections")
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
+    List<Rule.DescriptionSection> actualSections = result.getRules(0).getDescriptionSections().getDescriptionSectionsList();
+    assertThat(actualSections).hasSameElementsAs(expected);
+  }
+
 
   private void verifyNoResults(Consumer<TestRequest> requestPopulator) {
     verify(requestPopulator);

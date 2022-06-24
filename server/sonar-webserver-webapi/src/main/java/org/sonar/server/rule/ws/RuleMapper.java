@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -79,6 +80,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_STATUS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
+import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
 /**
  * Conversion of {@link RuleDto} to {@link Rules.Rule}
@@ -339,10 +341,11 @@ public class RuleMapper {
 
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS)) {
       for (var section : ruleDto.getRuleDescriptionSectionDtos()) {
-        ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
+        Rules.Rule.DescriptionSection.Builder sectionBuilder = ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
           .setKey(section.getKey())
-          .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section))
-          .build();
+          .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section));
+        toProtobufContext(section.getContext()).ifPresent(sectionBuilder::setContext);
+        sectionBuilder.build();
       }
     }
 
@@ -428,6 +431,11 @@ public class RuleMapper {
 
   public static boolean shouldReturnField(Set<String> fieldsToReturn, String fieldName) {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
+  }
+
+  private static Optional<Rules.Rule.DescriptionSection.Context> toProtobufContext(@Nullable RuleDescriptionSectionContextDto context) {
+    return Optional.ofNullable(context)
+      .map(c -> newBuilder().setDisplayName(c.getDisplayName()).build());
   }
 
   private static boolean isRemediationFunctionOverloaded(RuleDto rule) {

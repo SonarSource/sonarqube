@@ -26,10 +26,12 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.markdown.Markdown;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -76,7 +78,9 @@ public class RuleDescriptionFormatter {
       return null;
     }
     Map<String, String> sectionKeyToHtml = ruleDescriptionSectionDtos.stream()
-      .collect(toMap(RuleDescriptionSectionDto::getKey, section -> toHtml(descriptionFormat, section)));
+      //TODO MMF-2765, merge operation on toMap should not be needed anymore
+      .sorted(comparing(RuleDescriptionSectionDto::getKey).thenComparing(s -> Optional.ofNullable(s.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null)))
+      .collect(toMap(RuleDescriptionSectionDto::getKey, section -> toHtml(descriptionFormat, section), (k1, k2) -> k1));
     if (sectionKeyToHtml.containsKey(DEFAULT_KEY)) {
       return sectionKeyToHtml.get(DEFAULT_KEY);
     } else {

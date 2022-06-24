@@ -23,6 +23,7 @@ import com.google.common.io.Resources;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -63,25 +64,23 @@ public class ShowAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("show")
-      .setDescription("Get detailed information about a rule<br>" +
-        "Since 5.5, following fields in the response have been deprecated :" +
-        "<ul>" +
-        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
-        "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
-        "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
-        "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
-        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
-        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul>" +
-        "In 7.1, the field 'scope' has been added.<br/>" +
-        "Since 9.5 :" +
-        "<ul>" +
-        "<li>the field \"htmlDesc\" has been deprecated.</li>" +
-        "<li>the field \"descriptionSections\" has been added.</li>" +
-        "</ul>")
+      .setDescription("Get detailed information about a rule<br>")
       .setSince("4.2")
       .setResponseExample(Resources.getResource(getClass(), "show-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
+        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated use 'remFnBaseEffort' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated use 'defaultRemFnBaseEffort' instead"),
+        new Change("5.5", "The field 'debtOverloaded' has been deprecated use 'remFnOverloaded' instead"),
+        new Change("7.5", "The field 'scope' has been added"),
+        new Change("9.5", "The field 'htmlDesc' has been deprecated use 'descriptionSections' instead"),
+        new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
+        new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
+        new Change("9.6", "'descriptionSections' can optionally embed a context field")
+      );
 
     action
       .createParam(PARAM_KEY)

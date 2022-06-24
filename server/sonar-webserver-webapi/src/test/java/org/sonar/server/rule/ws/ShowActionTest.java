@@ -20,6 +20,8 @@
 package org.sonar.server.rule.ws;
 
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
@@ -33,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -55,6 +58,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -363,11 +367,14 @@ public class ShowActionTest {
   public void show_rule_desc_sections() {
     when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    var section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
-    var section2 = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
-    var section3 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>");
+    RuleDescriptionSectionDto section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    RuleDescriptionSectionDto section2 = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
+    RuleDescriptionSectionDto section3 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>");
+    RuleDescriptionSectionDto section4context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
+    RuleDescriptionSectionDto section4context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", "ctx2");
 
-    RuleDto rule = createRuleWithDescriptionSections(section1, section2, section3);
+
+    RuleDto rule = createRuleWithDescriptionSections(section1, section2, section3, section4context1, section4context2);
     rule.setType(RuleType.SECURITY_HOTSPOT);
     rule.setNoteUserUuid(userDto.getUuid());
     db.rules().insert(rule);
@@ -385,23 +392,20 @@ public class ShowActionTest {
           + "<div>This is not a problem</div><br/>"
           + "<h2>How can you fix it?</h2>"
           + "<div>I don't want to fix</div><br/>"
+          + "<div>I want to fix with Spring</div>"
       );
 
-    assertThat(resultRule.getMdDesc())
-      .contains(
-        "<h2>What is the risk?</h2>"
-          + "<div>Root is Root</div><br/>"
-          + "<h2>Assess the risk</h2>"
-          + "<div>This is not a problem</div><br/>"
-          + "<h2>How can you fix it?</h2>"
-          + "<div>I don't want to fix</div><br/>");
+    assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
-      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent, section -> section.getContext().getDisplayName())
       .containsExactlyInAnyOrder(
-        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
-        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>"),
-        tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>"));
+        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>", ""),
+        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>", ""),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>", ""),
+        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", section4context1.getContext().getDisplayName()),
+        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getDisplayName())
+      );
   }
 
   @Test
@@ -538,7 +542,19 @@ public class ShowActionTest {
   }
 
   private RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {
-    return RuleDescriptionSectionDto.builder().uuid(uuidFactory.create()).key(key).content(content).build();
+    return createRuleDescriptionSectionWithContext(key, content, null);
+  }
+
+  private RuleDescriptionSectionDto createRuleDescriptionSectionWithContext(String key, String content, @Nullable String contextKey) {
+    RuleDescriptionSectionContextDto contextDto = Optional.ofNullable(contextKey)
+      .map(c -> RuleDescriptionSectionContextDto.of(contextKey, contextKey + " display name"))
+      .orElse(null);
+    return RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(key)
+      .content(content)
+      .context(contextDto)
+      .build();
   }
 
   private RuleDto createRuleWithDescriptionSections(RuleDescriptionSectionDto... sections) {

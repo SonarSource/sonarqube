@@ -19,8 +19,12 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Optional;
+import org.apache.commons.lang.RandomStringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -28,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.INTRODUCTION_SECTION_KEY;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
@@ -57,15 +62,19 @@ public class RuleDescriptionFormatterTest {
     var section2 = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
     var section3 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>");
     var section4 = createRuleDescriptionSection(INTRODUCTION_SECTION_KEY, "<div>Introduction with no title</div>");
+    var section5ctx1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "<div>CTX_1</div>", "CTX_1");
+    var section5ctx2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "<div>CTX_2</div>", "CTX_2");
     RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.HTML)
       .setType(RuleType.SECURITY_HOTSPOT)
       .addRuleDescriptionSectionDto(section1)
       .addRuleDescriptionSectionDto(section2)
       .addRuleDescriptionSectionDto(section3)
-      .addRuleDescriptionSectionDto(section4);
+      .addRuleDescriptionSectionDto(section4)
+      .addRuleDescriptionSectionDto(section5ctx2)
+      .addRuleDescriptionSectionDto(section5ctx1);
     String html = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html)
-      .contains(
+      .isEqualTo(
         "<div>Introduction with no title</div><br/>"
           + "<h2>What is the risk?</h2>"
           + "<div>Root is Root</div><br/>"
@@ -73,6 +82,7 @@ public class RuleDescriptionFormatterTest {
           + "<div>This is not a problem</div><br/>"
           + "<h2>How can you fix it?</h2>"
           + "<div>I don't want to fix</div><br/>"
+          + "<div>CTX_1</div><br/>"
       );
   }
 
@@ -92,6 +102,13 @@ public class RuleDescriptionFormatterTest {
   }
 
   private static RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {
-    return RuleDescriptionSectionDto.builder().key(key).content(content).build();
+    return createRuleDescriptionSection(key, content, null);
+  }
+
+  private static RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content, @Nullable String contextKey) {
+    RuleDescriptionSectionContextDto context = Optional.ofNullable(contextKey)
+      .map(c -> RuleDescriptionSectionContextDto.of(contextKey, contextKey + RandomStringUtils.randomAlphanumeric(20)))
+      .orElse(null);
+    return RuleDescriptionSectionDto.builder().key(key).content(content).context(context).build();
   }
 }

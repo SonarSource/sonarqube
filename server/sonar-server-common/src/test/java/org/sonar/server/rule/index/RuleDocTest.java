@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import org.junit.Test;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
@@ -89,8 +90,12 @@ public class RuleDocTest {
     ruleDto.getRuleDescriptionSectionDtos().clear();
     RuleDescriptionSectionDto section1 = buildRuleDescriptionSectionDto("section1", "<p>html content 1</p>");
     RuleDescriptionSectionDto section2 = buildRuleDescriptionSectionDto("section2", "<p>html content 2</p>");
+    RuleDescriptionSectionDto section3ctx1 = buildRuleDescriptionSectionDtoWithContext("section3", "<p>html content 3.1</p>", "ctx1");
+    RuleDescriptionSectionDto section3ctx2 = buildRuleDescriptionSectionDtoWithContext("section3", "<p>html content 3.2</p>", "ctx2");
     ruleDto.addRuleDescriptionSectionDto(section1);
     ruleDto.addRuleDescriptionSectionDto(section2);
+    ruleDto.addRuleDescriptionSectionDto(section3ctx1);
+    ruleDto.addRuleDescriptionSectionDto(section3ctx2);
 
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
@@ -99,7 +104,9 @@ public class RuleDocTest {
     assertThat(ruleDoc.htmlDescription())
       .contains(section1.getContent())
       .contains(section2.getContent())
-      .hasSameSizeAs(section1.getContent() + " " + section2.getContent());
+      .contains(section3ctx1.getContent())
+      .contains(section3ctx2.getContent())
+      .hasSameSizeAs(section1.getContent() + " " + section2.getContent() + " " + section3ctx1.getContent() + " " + section3ctx2.getContent());
   }
 
   @Test
@@ -124,5 +131,9 @@ public class RuleDocTest {
 
   private static RuleDescriptionSectionDto buildRuleDescriptionSectionDto(String key, String content) {
     return RuleDescriptionSectionDto.builder().key(key).content(content).build();
+  }
+
+  private static RuleDescriptionSectionDto buildRuleDescriptionSectionDtoWithContext(String key, String content, String contextKey) {
+    return RuleDescriptionSectionDto.builder().key(key).content(content).context(RuleDescriptionSectionContextDto.of(contextKey, contextKey)).build();
   }
 }
