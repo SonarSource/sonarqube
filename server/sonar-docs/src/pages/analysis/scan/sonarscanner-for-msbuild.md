@@ -39,22 +39,19 @@ It supports .Net Core on every platform (Windows, macOS, Linux).
 * Java 11 or greater
 <!-- /sonarcloud -->
 * The SDK corresponding to your build system:
-   * [.NET Framework v4.6](https://www.microsoft.com/en-us/download/details.aspx?id=53344) - either [Build Tools for Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=615458) or the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/)
-   * [.NET Core SDK 2.0 and above](https://dotnet.microsoft.com/download) (for .NET Core version of the scanner or if you plan to use [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
+<!-- sonarqube -->
+   * If you are using the .NET Framework version of the scanner you will need [.NET Framework v4.6 or above](https://dotnet.microsoft.com/en-us/download/dotnet-framework). For commercial versions of SonarQube to benefit from security analysis you will need [.NET Framework v4.7.2 or above](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+<!-- /sonarqube -->
+<!-- sonarcloud -->
+   * If you are using the .NET Framework version of the scanner you will need [.NET Framework v4.6 or above](https://dotnet.microsoft.com/en-us/download/dotnet-framework), however to benefit from security analysis you will need [.NET Framework v4.7.2 or above](https://dotnet.microsoft.com/en-us/download/dotnet-framework) 
+<!-- /sonarcloud -->
+   * If you are using the .NET version of the scanner or the [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner) you will need [.NET Core SDK 2.0 or above](https://dotnet.microsoft.com/en-us/download/dotnet)
 
 [[info]]
 | The flavor used to compile the Scanner for .NET (either .NET Framework, .NET Core or .NET) is independent of the .NET version the 
 | project you want to analyze has been built with. Concretely, you can analyze .NET Core code with the .NET Framework version of 
 | the Scanner. It's only relevant depending on your OS, and on the versions of .NET SDKs that are installed on your build machine.
 
-<!-- sonarqube -->
-### Compatibility
-
-Scanner Version|SonarQube
----|---
-5.x| LTS 6.7+
-4.x| LTS 6.7+
-<!-- /sonarqube -->
 ## Installation
 
 ### Standalone executable
@@ -164,7 +161,7 @@ Parameter|Description
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
 `/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
 `/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
-
+`/s:<custom.analysis.xml>`|[optional] Overrides the `$install_directory/SonarQube.Analysis.xml`. You need to give the absolute path to the file.
 <!-- /sonarcloud -->
 
 <!-- sonarqube -->
@@ -181,7 +178,7 @@ Parameter|Description
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
 `/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
 `/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
-
+`/s:<custom.analysis.xml>`|[optional] Overrides the `$install_directory/SonarQube.Analysis.xml`. You need to give the absolute path to the file.
 <!-- /sonarqube -->
 
 For detailed information about all available parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
