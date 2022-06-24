@@ -123,7 +123,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
           />
         )}
         <BoxedTabs
-          className="bordered-bottom"
+          className="bordered-bottom big-spacer-top"
           onSelect={this.handleSelectTabs}
           selected={currentTab.key}
           tabs={tabs}
