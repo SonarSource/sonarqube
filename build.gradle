@@ -348,6 +348,7 @@ subprojects {
         exclude 'commons-logging:commons-logging'
         exclude 'org.elasticsearch.plugin:reindex-client'
         exclude 'org.elasticsearch.plugin:rank-eval-client'
+        exclude 'org.elasticsearch:jna'
       }
       dependency 'org.elasticsearch:mocksocket:1.0'
       dependency 'org.codelibs.elasticsearch.module:analysis-common:6.8.4'
