@@ -89,6 +89,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
@@ -242,11 +243,9 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_description() {
-    RuleDto rule1 = db.rules()
-      .insert(
-        r1 -> r1
-          .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
-          .setNoteUserUuid(null));
+    RuleDto rule1 = db.rules().insert(
+      newRule(createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the <bold>best</bold> rule now&amp;for<b>ever</b>"))
+        .setNoteUserUuid(null));
     db.rules().insert(r1 -> r1.setName("Some other stuff").setNoteUserUuid(null));
     indexRules();
 

@@ -65,6 +65,7 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.setCreatedAt;
 import static org.sonar.db.rule.RuleTesting.setIsExternal;
 import static org.sonar.db.rule.RuleTesting.setIsTemplate;
@@ -93,18 +94,18 @@ import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESO
 
 public class RuleIndexTest {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
 
-  private RuleIndex underTest = new RuleIndex(es.client(), system2);
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final RuleIndex underTest = new RuleIndex(es.client(), system2);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Test
   public void search_all_rules() {
@@ -214,22 +215,11 @@ public class RuleIndexTest {
   public void search_content_by_query() {
     // it's important to set all the fields being used by the search (name, desc, key, lang, ...),
     // otherwise the generated random values may raise false-positives
-    RuleDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
-      .setName("rule 123")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "My great rule CWE-123 which makes your code 1000 times better!")));
-    RuleDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
-      .setName("rule 124")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great and shiny rule CWE-124")));
-    RuleDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
-      .setName("rule 1000")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Another great rule CWE-1000")));
-    RuleDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
-      .setName("rule 404")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(),
-        "<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>")));
-    RuleDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
-      .setName("rule 405")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn")));
+    RuleDto rule1 = insertJavaRule("My great rule CWE-123 which makes your code 1000 times better!", "123", "rule 123");
+    RuleDto rule2 = insertJavaRule("Another great and shiny rule CWE-124", "124", "rule 124");
+    RuleDto rule3 = insertJavaRule("Another great rule CWE-1000", "1000", "rule 1000");
+    RuleDto rule4 = insertJavaRule("<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>", "404", "rule 404");
+    RuleDto rule5 = insertJavaRule("internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn", "405", "rule 405");
     index();
 
     // partial match at word boundary
@@ -267,6 +257,14 @@ public class RuleIndexTest {
     assertThat(underTest.search(new RuleQuery().setQueryText("alsdkjfnadklsjfnadkdfnsksdjfn"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
     assertThat(underTest.search(new RuleQuery().setQueryText("internationalization"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
     assertThat(underTest.search(new RuleQuery().setQueryText("internationalizationBlaBla"), new SearchOptions()).getUuids()).isEmpty();
+  }
+
+  private RuleDto insertJavaRule(String description, String ruleKey, String name) {
+    RuleDto javaRule = newRule(createDefaultRuleDescriptionSection(uuidFactory.create(), description))
+      .setLanguage("java")
+      .setRuleKey(ruleKey)
+      .setName(name);
+    return db.rules().insert(javaRule);
   }
 
   @Test
@@ -555,16 +553,12 @@ public class RuleIndexTest {
   }
 
   @SafeVarargs
-  private final RuleDto createRule(Consumer<RuleDto>... consumers) {
+  private RuleDto createRule(Consumer<RuleDto>... consumers) {
     return db.rules().insert(consumers);
   }
 
   private RuleDto createJavaRule() {
     return createRule(r -> r.setLanguage("java"));
-  }
-
-  private RuleDto createJavaRule(Consumer<RuleDto> consumer) {
-    return createRule(r -> r.setLanguage("java"), consumer);
   }
 
   @Test
@@ -592,7 +586,7 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_any_of_statuses() {
-    RuleDto beta = createRule(setStatus(RuleStatus.BETA));
+    createRule(setStatus(RuleStatus.BETA));
     RuleDto ready = createRule(setStatus(RuleStatus.READY));
     index();
 
@@ -710,7 +704,7 @@ public class RuleIndexTest {
   public void search_by_activation_and_severity() {
     RuleDto major = createRule(setSeverity(MAJOR));
     RuleDto minor = createRule(setSeverity(MINOR));
-    RuleDto info = createRule(setSeverity(INFO));
+    createRule(setSeverity(INFO));
     QProfileDto profile1 = createJavaProfile();
     QProfileDto profile2 = createJavaProfile();
     db.qualityProfiles().activateRule(profile1, major, ar -> ar.setSeverity(BLOCKER));

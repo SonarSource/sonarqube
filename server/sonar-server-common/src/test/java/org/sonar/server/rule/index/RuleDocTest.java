@@ -24,10 +24,11 @@ import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.security.SecurityStandards;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.rule.RuleTesting.newRule;
+import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.markdown.Markdown.convertToHtml;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
@@ -35,7 +36,7 @@ public class RuleDocTest {
 
   @Test
   public void ruleDocOf_mapsFieldCorrectly() {
-    RuleDto ruleDto = RuleTesting.newRule();
+    RuleDto ruleDto = newRule();
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     ruleForIndexingDto.setTemplateRuleKey("templateKey");
     ruleForIndexingDto.setTemplateRepository("repoKey");
@@ -72,9 +73,8 @@ public class RuleDocTest {
 
   @Test
   public void ruleDocOf_whenGivenNoHtmlSections_hasEmptyStringInHtmlDescription() {
-    RuleDto ruleDto = RuleTesting.newRule();
+    RuleDto ruleDto = newRuleWithoutDescriptionSection();
     ruleDto.setDescriptionFormat(RuleDto.Format.HTML);
-    ruleDto.getRuleDescriptionSectionDtos().clear();
 
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
@@ -85,17 +85,12 @@ public class RuleDocTest {
 
   @Test
   public void ruleDocOf_whenGivenMultipleHtmlSections_hasConcatenationInHtmlDescription() {
-    RuleDto ruleDto = RuleTesting.newRule();
-    ruleDto.setDescriptionFormat(RuleDto.Format.HTML);
-    ruleDto.getRuleDescriptionSectionDtos().clear();
     RuleDescriptionSectionDto section1 = buildRuleDescriptionSectionDto("section1", "<p>html content 1</p>");
     RuleDescriptionSectionDto section2 = buildRuleDescriptionSectionDto("section2", "<p>html content 2</p>");
     RuleDescriptionSectionDto section3ctx1 = buildRuleDescriptionSectionDtoWithContext("section3", "<p>html content 3.1</p>", "ctx1");
     RuleDescriptionSectionDto section3ctx2 = buildRuleDescriptionSectionDtoWithContext("section3", "<p>html content 3.2</p>", "ctx2");
-    ruleDto.addRuleDescriptionSectionDto(section1);
-    ruleDto.addRuleDescriptionSectionDto(section2);
-    ruleDto.addRuleDescriptionSectionDto(section3ctx1);
-    ruleDto.addRuleDescriptionSectionDto(section3ctx2);
+    RuleDto ruleDto = newRule(section1, section2, section3ctx1, section3ctx2);
+    ruleDto.setDescriptionFormat(RuleDto.Format.HTML);
 
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());
@@ -111,13 +106,11 @@ public class RuleDocTest {
 
   @Test
   public void ruleDocOf_whenGivenMultipleMarkdownSections_transformToHtmlAndConcatenatesInHtmlDescription() {
-    RuleDto ruleDto = RuleTesting.newRule();
-    ruleDto.setDescriptionFormat(RuleDto.Format.MARKDOWN);
-    ruleDto.getRuleDescriptionSectionDtos().clear();
     RuleDescriptionSectionDto section1 = buildRuleDescriptionSectionDto("section1", "*html content 1*");
     RuleDescriptionSectionDto section2 = buildRuleDescriptionSectionDto("section2", "*html content 2*");
-    ruleDto.addRuleDescriptionSectionDto(section1);
-    ruleDto.addRuleDescriptionSectionDto(section2);
+
+    RuleDto ruleDto = newRule(section1, section2);
+    ruleDto.setDescriptionFormat(RuleDto.Format.MARKDOWN);
 
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     SecurityStandards securityStandards = fromSecurityStandards(ruleDto.getSecurityStandards());

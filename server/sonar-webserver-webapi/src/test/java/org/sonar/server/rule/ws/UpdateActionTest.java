@@ -56,6 +56,7 @@ import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFSET;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
@@ -79,18 +80,18 @@ public class UpdateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private EsClient esClient = es.client();
-  private RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
+  private final DbClient dbClient = db.getDbClient();
+  private final EsClient esClient = es.client();
+  private final RuleDescriptionFormatter ruleDescriptionFormatter = new RuleDescriptionFormatter();
 
-  private Languages languages = new Languages();
-  private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter(), ruleDescriptionFormatter);
-  private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
-  private UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
+  private final Languages languages = new Languages();
+  private final RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter(), ruleDescriptionFormatter);
+  private final RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
+  private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
 
-  private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, uuidFactory, System2.INSTANCE);
-  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession));
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, uuidFactory, System2.INSTANCE);
+  private final WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession));
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void check_definition() {
@@ -110,17 +111,17 @@ public class UpdateActionTest {
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    RuleDto customRule = db.rules().insert(
-      r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
-      r -> r.setName("Old custom"),
-      r -> r.replaceRuleDescriptionSectionDtos(createRuleDescriptionSectionDto()),
-      r -> r.setSeverity(Severity.MINOR),
-      r -> r.setStatus(RuleStatus.BETA),
-      r -> r.setTemplateUuid(templateRule.getUuid()),
-      r -> r.setLanguage("js"),
-      r -> r.setNoteUserUuid(null),
-      r -> r.setCreatedAt(PAST),
-      r -> r.setUpdatedAt(PAST));
+
+    RuleDto customRule = newRule(RuleKey.of("java", "MY_CUSTOM"), createRuleDescriptionSectionDto())
+      .setName("Old custom")
+      .setSeverity(Severity.MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setTemplateUuid(templateRule.getUuid())
+      .setLanguage("js")
+      .setNoteUserUuid(null)
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
+    customRule = db.rules().insert(customRule);
     db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("a").setDescription("Reg ex"));
 
     TestResponse request = ws.newRequest().setMethod("POST")
@@ -246,13 +247,14 @@ public class UpdateActionTest {
       r -> r.setIsTemplate(true),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
+
     RuleDto customRule = db.rules().insert(
-      r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
-      r -> r.setName("Old custom"),
-      r -> r.replaceRuleDescriptionSectionDtos(createRuleDescriptionSectionDto()),
-      r -> r.setTemplateUuid(templateRule.getUuid()),
-      r -> r.setCreatedAt(PAST),
-      r -> r.setUpdatedAt(PAST));
+      newRule(RuleKey.of("java", "MY_CUSTOM"), createRuleDescriptionSectionDto())
+        .setRuleKey(RuleKey.of("java", "MY_CUSTOM"))
+        .setName("Old custom")
+        .setTemplateUuid(templateRule.getUuid())
+        .setCreatedAt(PAST)
+        .setUpdatedAt(PAST));
 
     assertThatThrownBy(() -> {
       ws.newRequest().setMethod("POST")

@@ -37,10 +37,12 @@ import org.sonar.db.rule.RuleDto.Scope;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 /**
@@ -59,13 +61,17 @@ public class RuleTesting {
     // only static helpers
   }
 
-  public static RuleDto newRule() {
-    return newRule(randomRuleKey());
+  public static RuleDto newRule(RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
+    return newRule(randomRuleKey(), ruleDescriptionSectionDtos);
   }
 
-  public static RuleDto newRule(RuleKey key) {
+  public static RuleDto newRule(RuleKey key, RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
     RuleDto ruleDto = newRuleWithoutDescriptionSection(key);
-    ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
+    if (ruleDescriptionSectionDtos.length == 0) {
+      ruleDto.addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "description_" + randomAlphabetic(5)));
+    } else {
+      stream(ruleDescriptionSectionDtos).forEach(ruleDto::addRuleDescriptionSectionDto);
+    }
     return ruleDto;
   }
 
@@ -81,7 +87,7 @@ public class RuleTesting {
       .setUuid("rule_uuid_" + randomAlphanumeric(5))
       .setName("name_" + randomAlphanumeric(5))
       .setDescriptionFormat(RuleDto.Format.HTML)
-      .setType(RuleType.values()[nextInt(RuleType.values().length)])
+      .setType(CODE_SMELL)
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + randomAlphanumeric(5))
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
@@ -177,7 +183,7 @@ public class RuleTesting {
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
       .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setType(RuleType.CODE_SMELL)
+      .setType(CODE_SMELL)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime())
       .setScope(Scope.MAIN)
@@ -199,10 +205,14 @@ public class RuleTesting {
       .setIsTemplate(true);
   }
 
-
   public static RuleDto newCustomRule(RuleDto templateRule) {
+    return newCustomRule(templateRule, "description_" + randomAlphabetic(5));
+  }
+
+  public static RuleDto newCustomRule(RuleDto templateRule, String description) {
     checkNotNull(templateRule.getUuid(), "The template rule need to be persisted before creating this custom rule.");
-    return newRule(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
+    RuleDescriptionSectionDto defaultRuleDescriptionSection = createDefaultRuleDescriptionSection(uuidFactory.create(), description);
+    return newRule(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()), defaultRuleDescriptionSection)
       .setLanguage(templateRule.getLanguage())
       .setTemplateUuid(templateRule.getUuid())
       .setType(templateRule.getType());

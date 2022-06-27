@@ -19,13 +19,11 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -215,12 +213,6 @@ public class RuleDto {
     return this;
   }
 
-  @VisibleForTesting
-  public RuleDto replaceRuleDescriptionSectionDtos(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
-    replaceRuleDescriptionSectionDtos(List.of(ruleDescriptionSectionDto));
-    return this;
-  }
-
   public RuleDto addRuleDescriptionSectionDto(RuleDescriptionSectionDto ruleDescriptionSectionDto) {
     checkArgument(!hasDescriptionSectionWithSameKeyAndContext(ruleDescriptionSectionDto),
       ERROR_MESSAGE_SECTION_ALREADY_EXISTS, ruleDescriptionSectionDto.getKey(),
@@ -235,12 +227,12 @@ public class RuleDto {
   }
 
   private static boolean hasSameKeyAndContextKey(RuleDescriptionSectionDto ruleDescriptionSectionDto, RuleDescriptionSectionDto other) {
-    if (!ruleDescriptionSectionDto.getKey().equals(other.getKey())){
+    if (!ruleDescriptionSectionDto.getKey().equals(other.getKey())) {
       return false;
     }
 
     String contextKey = ofNullable(ruleDescriptionSectionDto.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
-    String otherContextKey =  ofNullable(other.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
+    String otherContextKey = ofNullable(other.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
     return Objects.equals(contextKey, otherContextKey);
   }
 

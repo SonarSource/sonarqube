@@ -59,7 +59,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -70,9 +70,9 @@ public class CreateActionTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
+  private final WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory),
     new RuleMapper(new Languages(), createMacroInterpreter(), new RuleDescriptionFormatter()),
     new RuleWsSupport(db.getDbClient(), userSession)));
@@ -136,11 +136,10 @@ public class CreateActionTest {
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     // insert a removed rule
-    RuleDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule, "Description")
       .setRuleKey("MY_CUSTOM")
       .setStatus(RuleStatus.REMOVED)
       .setName("My custom rule")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Description"))
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .setSeverity(Severity.MAJOR);
     db.rules().insert(customRule);

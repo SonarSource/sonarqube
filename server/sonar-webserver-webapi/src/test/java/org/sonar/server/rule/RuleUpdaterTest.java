@@ -60,6 +60,7 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
+import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
 import static org.sonar.server.rule.RuleUpdate.createForPluginRule;
 
@@ -329,19 +330,15 @@ public class RuleUpdaterTest {
 
   @Test
   public void update_custom_rule() {
-    // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
     db.rules().insertRuleParam(templateRule, param -> param.setName("format").setType("STRING").setDescription("Format"));
 
-    // Create custom rule
-    RuleDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule, "Old description")
       .setName("Old name")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
-      .setStatus(RuleStatus.BETA)
-      ;
+      .setStatus(RuleStatus.BETA);
     db.rules().insert(customRule);
     db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
     db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("Format").setDefaultValue(null));
@@ -378,15 +375,12 @@ public class RuleUpdaterTest {
 
   @Test
   public void update_custom_rule_with_empty_parameter() {
-    // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
-    // Create custom rule
-    RuleDto customRule = newCustomRule(templateRule)
+    RuleDto customRule = newCustomRule(templateRule, "Old description")
       .setName("Old name")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Old description"))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     db.rules().insert(customRule);
@@ -412,7 +406,7 @@ public class RuleUpdaterTest {
   @Test
   public void update_active_rule_parameters_when_updating_custom_rule() {
     // Create template rule with 3 parameters
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     RuleDto templateRuleDefinition = templateRule;
     db.rules().insert(templateRuleDefinition);
     db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
@@ -422,8 +416,7 @@ public class RuleUpdaterTest {
     // Create custom rule
     RuleDto customRule = newCustomRule(templateRule)
       .setSeverity(Severity.MAJOR)
-      .setLanguage("xoo")
-      ;
+      .setLanguage("xoo");
     db.rules().insert(customRule);
     RuleParamDto ruleParam1 = db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
     db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("format").setDefaultValue("txt"));
@@ -481,7 +474,7 @@ public class RuleUpdaterTest {
   @Test
   public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
 
     // Create custom rule
@@ -505,7 +498,7 @@ public class RuleUpdaterTest {
   @Test
   public void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
 
     // Create custom rule

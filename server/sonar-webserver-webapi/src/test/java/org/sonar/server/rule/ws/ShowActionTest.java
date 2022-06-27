@@ -64,6 +64,7 @@ import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.db.rule.RuleTesting.setTags;
@@ -296,12 +297,10 @@ public class ShowActionTest {
 
   @Test
   public void encode_html_description_of_custom_rule() {
-    // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
-    // Custom rule
-    RuleDto customRule = newCustomRule(templateRule)
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>line1\nline2</div>"))
+
+    RuleDto customRule = newCustomRule(templateRule, "<div>line1\nline2</div>")
       .setDescriptionFormat(MARKDOWN)
       .setNoteUserUuid(userDto.getUuid());
     db.rules().insert(customRule);
@@ -333,19 +332,16 @@ public class ShowActionTest {
 
   @Test
   public void show_adhoc_rule() {
-    RuleDto externalRule = db.rules().insert(r -> {
-        r.setIsExternal(true)
-          .setIsAdHoc(true)
-          .setAdHocName("adhoc name")
-          .setAdHocDescription("<div>desc</div>")
-          .setAdHocSeverity(Severity.BLOCKER)
-          .setAdHocType(RuleType.VULNERABILITY)
-          .setNoteData(null)
-          .setNoteUserUuid(null);
-        //Ad-hoc description has no description sections defined
-        r.getRuleDescriptionSectionDtos().clear();
-      }
-    );
+    //Ad-hoc description has no description sections defined
+    RuleDto externalRule = db.rules().insert(newRuleWithoutDescriptionSection()
+      .setIsExternal(true)
+      .setIsAdHoc(true)
+      .setAdHocName("adhoc name")
+      .setAdHocDescription("<div>desc</div>")
+      .setAdHocSeverity(Severity.BLOCKER)
+      .setAdHocType(RuleType.VULNERABILITY)
+      .setNoteData(null)
+      .setNoteUserUuid(null));
 
     doReturn("&lt;div&gt;desc2&lt;/div&gt;").when(macroInterpreter).interpret(externalRule.getAdHocDescription());
 
@@ -435,11 +431,10 @@ public class ShowActionTest {
 
   @Test
   public void ignore_predefined_info_on_adhoc_rule() {
-    RuleDto externalRule = db.rules().insert(r -> r
+    RuleDto externalRule = newRule(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>predefined desc</div>"))
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setName("predefined name")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "<div>predefined desc</div>"))
       .setSeverity(Severity.BLOCKER)
       .setType(RuleType.VULNERABILITY)
       .setAdHocName("adhoc name")
@@ -447,7 +442,8 @@ public class ShowActionTest {
       .setAdHocSeverity(Severity.MAJOR)
       .setAdHocType(RuleType.CODE_SMELL)
       .setNoteData(null)
-      .setNoteUserUuid(null));
+      .setNoteUserUuid(null);
+    externalRule = db.rules().insert(externalRule);
     doReturn("&lt;div&gt;adhoc desc&lt;/div&gt;").when(macroInterpreter).interpret(externalRule.getAdHocDescription());
 
     ShowResponse result = ws.newRequest()

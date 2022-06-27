@@ -574,20 +574,19 @@ public class RuleDaoTest {
   @Test
   public void update_rule_sections_replaces_section() {
     RuleDto rule = db.rules().insert();
-    RuleDescriptionSectionDto existingSection = rule.getRuleDescriptionSectionDtos().iterator().next();
+    Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
+    RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
     RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
       .uuid(randomAlphanumeric(20))
       .key(existingSection.getKey())
       .content(randomAlphanumeric(1000))
       .build();
 
-    rule.replaceRuleDescriptionSectionDtos(replacingSection);
-
+    rule.replaceRuleDescriptionSectionDtos(List.of(replacingSection));
     underTest.update(db.getSession(), rule);
     db.getSession().commit();
 
     RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
-
     assertThat(ruleDto.getRuleDescriptionSectionDtos())
       .usingRecursiveFieldByFieldElementComparator()
       .containsOnly(replacingSection);
@@ -596,20 +595,21 @@ public class RuleDaoTest {
   @Test
   public void update_rule_sections_replaces_section_with_context() {
     RuleDto rule = db.rules().insert();
-    RuleDescriptionSectionDto existingSection = rule.getRuleDescriptionSectionDtos().iterator().next();
+    Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
+    RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
+    RuleDescriptionSectionContextDto contextDto = RuleDescriptionSectionContextDto.of(randomAlphanumeric(10), randomAlphanumeric(10));
     RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
       .uuid(randomAlphanumeric(20))
       .key(existingSection.getKey())
       .content(randomAlphanumeric(1000))
+      .context(contextDto)
       .build();
 
-    rule.replaceRuleDescriptionSectionDtos(replacingSection);
-
+    rule.replaceRuleDescriptionSectionDtos(List.of(replacingSection));
     underTest.update(db.getSession(), rule);
     db.getSession().commit();
 
     RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
-
     assertThat(ruleDto.getRuleDescriptionSectionDtos())
       .usingRecursiveFieldByFieldElementComparator()
       .containsOnly(replacingSection);
@@ -742,7 +742,7 @@ public class RuleDaoTest {
 
     List<RuleParamDto> ruleDtos = underTest.selectAllRuleParams(db.getSession());
 
-    assertThat(ruleDtos.size()).isEqualTo(4);
+    assertThat(ruleDtos).hasSize(4);
     assertThat(ruleDtos).extracting(RuleParamDto::getUuid)
       .containsExactlyInAnyOrder(ruleParam1.getUuid(), ruleParam12.getUuid(),
         ruleParam2.getUuid(), ruleParam3.getUuid());

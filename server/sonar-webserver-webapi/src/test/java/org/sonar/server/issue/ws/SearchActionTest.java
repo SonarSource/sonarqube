@@ -101,6 +101,9 @@ import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.XOO_X1;
+import static org.sonar.db.rule.RuleTesting.XOO_X2;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.Common.RuleType.BUG;
@@ -1487,18 +1490,18 @@ public class SearchActionTest {
   }
 
   private RuleDto newIssueRule() {
-    RuleDto rule = RuleTesting.newXooX1()
+    RuleDto rule = newRule(XOO_X1, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+      .setLanguage("xoo")
       .setName("Rule name")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY);
     db.rules().insert(rule);
     return rule;
   }
 
   private RuleDto newHotspotRule() {
-    RuleDto rule = RuleTesting.newXooX2()
+    RuleDto rule = newRule(XOO_X2, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+      .setLanguage("xoo")
       .setName("Rule name")
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setStatus(RuleStatus.READY)
       .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule);

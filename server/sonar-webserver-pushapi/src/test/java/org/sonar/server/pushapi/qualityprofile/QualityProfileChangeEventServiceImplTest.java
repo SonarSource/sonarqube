@@ -62,16 +62,14 @@ public class QualityProfileChangeEventServiceImplTest {
   public void distributeRuleChangeEvent() {
     QProfileDto qualityProfileDto = QualityProfileTesting.newQualityProfileDto();
 
-    // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("xoo", "template-key"));
     db.rules().insert(templateRule);
-    // Custom rule
-    RuleDto rule1 = newCustomRule(templateRule)
+
+    RuleDto rule1 = newCustomRule(templateRule, "<div>line1\nline2</div>")
       .setLanguage("xoo")
       .setRepositoryKey("repo")
       .setRuleKey("ruleKey")
-      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-      .replaceRuleDescriptionSectionDtos(createDefaultRuleDescriptionSection("uuid", "<div>line1\nline2</div>"));
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN);
     db.rules().insert(rule1);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(qualityProfileDto, rule1);

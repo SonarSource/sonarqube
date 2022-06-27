@@ -23,6 +23,11 @@ import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,25 +43,19 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
-
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
@@ -85,10 +84,10 @@ public class RuleIndexerTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private final DbClient dbClient = dbTester.getDbClient();
   private final RuleIndexer underTest = new RuleIndexer(es.client(), dbClient);
-  private DbSession dbSession = dbTester.getSession();
-  private RuleDto rule = new RuleDto()
+  private final DbSession dbSession = dbTester.getSession();
+  private final RuleDto rule = new RuleDto()
     .setUuid("rule-uuid")
     .setRuleKey("S001")
     .setRepositoryKey("xoo")
@@ -137,10 +136,9 @@ public class RuleIndexerTest {
 
   @Test
   public void index_long_rule_description() {
-    String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(joining(" "));
-    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), description);
+    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), randomAlphanumeric(100000));
+    RuleDto rule = dbTester.rules().insert(newRule(ruleDescriptionSectionDto));
 
-    RuleDto rule = dbTester.rules().insert(r -> r.replaceRuleDescriptionSectionDtos(ruleDescriptionSectionDto));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isOne();
@@ -148,10 +146,7 @@ public class RuleIndexerTest {
 
   @Test
   public void index_long_rule_with_several_sections() {
-    RuleDto rule = dbTester.rules().insert(r -> {
-      r.replaceRuleDescriptionSectionDtos(RULE_DESCRIPTION_SECTION_DTO);
-      r.addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO2);
-    });
+    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO, RULE_DESCRIPTION_SECTION_DTO2));
 
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
@@ -165,10 +160,7 @@ public class RuleIndexerTest {
 
   @Test
   public void index_long_rule_with_section_in_markdown() {
-    RuleDto rule = dbTester.rules().insert(r -> {
-      r.setDescriptionFormat(RuleDto.Format.MARKDOWN);
-      r.replaceRuleDescriptionSectionDtos(RULE_DESCRIPTION_SECTION_DTO);
-    });
+    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO).setDescriptionFormat(RuleDto.Format.MARKDOWN));
 
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
@@ -186,10 +178,9 @@ public class RuleIndexerTest {
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(standards);
-    RuleDto rule = dbTester.rules().insert(RuleTesting.newRuleWithoutDescriptionSection()
+    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO)
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setSecurityStandards(standards)
-      .addRuleDescriptionSectionDto(RULE_DESCRIPTION_SECTION_DTO));
+      .setSecurityStandards(standards));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -214,7 +205,7 @@ public class RuleIndexerTest {
     SQCategory sqCategory1 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
     sqCategories.remove(sqCategory1);
     SQCategory sqCategory2 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
-    return new Object[][] {
+    return new Object[][]{
       {sqCategory1, sqCategory2}
     };
   }
