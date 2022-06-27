@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws.pull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -63,7 +64,7 @@ public class PullActionIssuesRetrieverTest {
     List<IssueDto> returnedDtos = new ArrayList<>();
     Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
 
-    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), listConsumer);
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), Set.of(), listConsumer);
 
     assertThat(returnedDtos).isEmpty();
   }
@@ -71,15 +72,52 @@ public class PullActionIssuesRetrieverTest {
   @Test
   public void processIssuesByBatch_givenThousandOneIssuesReturnedByDatabase_thousandOneIssuesConsumed() {
     var pullActionIssuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
-    List<IssueDto> thousandIssues = IntStream.rangeClosed(1, 1000).mapToObj(i -> new IssueDto()).collect(Collectors.toList());
+    List<IssueDto> thousandIssues = IntStream.rangeClosed(1, 1000).mapToObj(i -> new IssueDto().setKee(Integer.toString(i))).collect(Collectors.toList());
+    IssueDto singleIssue = new IssueDto().setKee("kee");
     when(issueDao.selectByBranch(any(), any(), anyInt()))
       .thenReturn(thousandIssues)
-      .thenReturn(List.of(new IssueDto()));
+      .thenReturn(List.of(singleIssue));
     List<IssueDto> returnedDtos = new ArrayList<>();
     Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
 
-    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), listConsumer);
+    Set<String> thousandIssueUuidsSnapshot = thousandIssues.stream().map(IssueDto::getKee).collect(Collectors.toSet());
+    thousandIssueUuidsSnapshot.add(singleIssue.getKee());
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), thousandIssueUuidsSnapshot, listConsumer);
 
     assertThat(returnedDtos).hasSize(1001);
+  }
+
+  @Test
+  public void processIssuesByBatch_filter_out_duplicate_issue_entries() {
+    var pullActionIssuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
+    IssueDto issue1 = new IssueDto().setKee("kee1");
+    IssueDto issue2 = new IssueDto().setKee("kee2");
+    List<IssueDto> issues = List.of(issue1, issue1, issue1, issue2);
+    when(issueDao.selectByBranch(any(), any(), anyInt()))
+      .thenReturn(issues);
+    List<IssueDto> returnedDtos = new ArrayList<>();
+    Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
+
+    Set<String> thousandIssueKeysSnapshot = issues.stream().map(IssueDto::getKee).collect(Collectors.toSet());
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), thousandIssueKeysSnapshot, listConsumer);
+
+    assertThat(returnedDtos)
+      .hasSize(2)
+      .containsExactlyInAnyOrder(issue1, issue2);
+  }
+
+  @Test
+  public void processIssuesByBatch_correctly_processes_all_issues_regardless_of_creation_timestamp() {
+    var pullActionIssuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
+    List<IssueDto> issuesWithSameCreationTimestamp = IntStream.rangeClosed(1, 100).mapToObj(i -> new IssueDto().setKee(Integer.toString(i)).setCreatedAt(100L)).collect(Collectors.toList());
+    when(issueDao.selectByBranch(any(), any(), anyInt()))
+      .thenReturn(issuesWithSameCreationTimestamp);
+    List<IssueDto> returnedDtos = new ArrayList<>();
+    Consumer<List<IssueDto>> listConsumer = returnedDtos::addAll;
+
+    Set<String> issueKeysSnapshot = issuesWithSameCreationTimestamp.stream().map(IssueDto::getKee).collect(Collectors.toSet());
+    pullActionIssuesRetriever.processIssuesByBatch(dbClient.openSession(true), issueKeysSnapshot, listConsumer);
+
+    assertThat(returnedDtos).hasSize(100);
   }
 }

@@ -62,6 +62,10 @@ public class IssueDao implements Dao {
     return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
   }
 
+  public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince) {
+    return mapper(session).selectIssueKeysByComponentUuidAndChangedSinceDate(componentUuid, changedSince);
+  }
+
   public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
     return mapper(session).selectByComponentUuidPaginated(componentUuid, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
   }

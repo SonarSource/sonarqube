@@ -254,7 +254,7 @@
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
       and i.issue_close_date is not null
-      and i.issue_close_date >= #{closeDateAfter,jdbcType=BIGINT}
+      and i.issue_close_date &gt;= #{closeDateAfter,jdbcType=BIGINT}
     order by
       i.kee, ic.issue_change_creation_date desc
   </select>
@@ -471,6 +471,15 @@
       i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string">
+    select
+      i.kee
+    from issues i
+    where
+      i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+      AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
+  </select>
+
   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>,
@@ -611,7 +620,7 @@
             #{language}
         </foreach>
     </if>
-    order by i.issue_creation_date ASC
+    order by i.kee ASC
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
@@ -623,7 +632,7 @@
       <include refid="selectByBranchColumnsOuterQuery"/>
     from (
       select
-        row_number() over(order by i.issue_creation_date ASC) as row_number,
+        row_number() over(order by i.kee ASC) as row_number,
           <include refid="selectByBranchColumns"/>
       from issues i
           inner join project_branches b on i.project_uuid = b.project_uuid
@@ -690,7 +699,7 @@
                     #{language}
                 </foreach>
             </if>
-            order by i.issue_creation_date ASC
+            order by i.kee ASC
             ) a
         ) t
       where

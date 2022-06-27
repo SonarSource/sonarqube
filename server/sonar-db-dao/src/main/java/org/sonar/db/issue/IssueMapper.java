@@ -39,6 +39,8 @@ public interface IssueMapper {
 
   Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);
 
+  Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(@Param("componentUuid") String componentUuid, @Param("changedSince") long changedSince);
+
   List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
                                                 @Param("pagination") Pagination pagination);
 

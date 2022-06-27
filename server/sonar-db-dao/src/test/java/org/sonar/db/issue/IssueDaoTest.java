@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,6 +134,21 @@ public class IssueDaoTest {
     prepareTables();
 
     Set<String> issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID);
+
+    // results are not ordered, so do not use "containsExactly"
+    assertThat(issues).containsOnly("I1", "I2");
+  }
+
+  @Test
+  public void selectIssueKeysByComponentUuidAndChangedSince() {
+    long t1 = 1_340_000_000_000L;
+    long t2 = 1_400_000_000_000L;
+    // contains I1 and I2
+    prepareTables();
+    // Insert I3, I4, where t1 < t2
+    IntStream.range(3, 5).forEach(i -> underTest.insert(db.getSession(), newIssueDto("I" + i).setUpdatedAt(t1)));
+
+    Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2);
 
     // results are not ordered, so do not use "containsExactly"
     assertThat(issues).containsOnly("I1", "I2");

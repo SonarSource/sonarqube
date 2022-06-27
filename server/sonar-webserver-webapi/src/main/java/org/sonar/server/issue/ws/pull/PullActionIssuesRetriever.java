@@ -20,7 +20,9 @@
 package org.sonar.server.issue.ws.pull;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -38,18 +40,35 @@ public class PullActionIssuesRetriever {
     this.issueQueryParams = queryParams;
   }
 
-  public void processIssuesByBatch(DbSession dbSession, Consumer<List<IssueDto>> listConsumer) {
+  public void processIssuesByBatch(DbSession dbSession, Set<String> issueKeysSnapshot, Consumer<List<IssueDto>> listConsumer) {
     int nextPage = 1;
     boolean hasMoreIssues = true;
 
     while (hasMoreIssues) {
       List<IssueDto> issueDtos = nextOpenIssues(dbSession, nextPage);
-      listConsumer.accept(issueDtos);
+      listConsumer.accept(filterDuplicateIssues(issueDtos, issueKeysSnapshot));
       nextPage++;
       if (issueDtos.isEmpty() || issueDtos.size() < DEFAULT_PAGE_SIZE) {
         hasMoreIssues = false;
       }
     }
+  }
+
+  private static List<IssueDto> filterDuplicateIssues(List<IssueDto> issues, Set<String> issueKeysSnapshot) {
+    return issues
+      .stream()
+      .filter(issue -> isUniqueIssue(issue.getKee(), issueKeysSnapshot))
+      .collect(Collectors.toList());
+  }
+
+  private static boolean isUniqueIssue(String issueKey, Set<String> issueKeysSnapshot) {
+    boolean isUniqueIssue = issueKeysSnapshot.contains(issueKey);
+
+    if (isUniqueIssue) {
+      issueKeysSnapshot.remove(issueKey);
+    }
+
+    return isUniqueIssue;
   }
 
   public List<String> retrieveClosedIssues(DbSession dbSession) {

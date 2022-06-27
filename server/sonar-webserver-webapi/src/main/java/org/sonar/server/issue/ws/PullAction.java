@@ -21,8 +21,10 @@ package org.sonar.server.issue.ws;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -37,6 +39,7 @@ import org.sonar.server.issue.ws.pull.PullActionIssuesRetriever;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Optional.*;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL;
 
@@ -122,7 +125,7 @@ public class PullAction implements IssuesWsAction {
       pullActionResponseWriter.appendTimestampToResponse(outputStream);
       var pullActionQueryParams = new IssueQueryParams(projectDto.get().getUuid(), branchName,
         languages, ruleRepositories, resolvedOnly, changedSince);
-      retrieveAndSendIssues(dbSession, pullActionQueryParams, outputStream);
+      retrieveAndSendIssues(dbSession, projectDto.get().getUuid(), pullActionQueryParams, outputStream);
     }
   }
 
@@ -133,18 +136,31 @@ public class PullAction implements IssuesWsAction {
     userSession.checkProjectPermission(USER, projectDto.get());
   }
 
-  private void retrieveAndSendIssues(DbSession dbSession, IssueQueryParams queryParams, OutputStream outputStream)
+  private void retrieveAndSendIssues(DbSession dbSession, String componentUuid, IssueQueryParams queryParams, OutputStream outputStream)
     throws IOException {
 
     var issuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
 
+    Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(componentUuid, queryParams.getChangedSince()));
     Consumer<List<IssueDto>> listConsumer = issueDtos -> pullActionResponseWriter.appendIssuesToResponse(issueDtos, outputStream);
-    issuesRetriever.processIssuesByBatch(dbSession, listConsumer);
+    issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer);
 
     if (queryParams.getChangedSince() != null) {
       // in the "incremental mode" we need to send SonarLint also recently closed issues keys
       List<String> closedIssues = issuesRetriever.retrieveClosedIssues(dbSession);
       pullActionResponseWriter.appendClosedIssuesUuidsToResponse(closedIssues, outputStream);
+    }
+  }
+
+  private Set<String> getIssueKeysSnapshot(String componentUuid, @Nullable Long changedSince) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<Long> changedSinceDate = ofNullable(changedSince);
+
+      if (changedSinceDate.isPresent()) {
+        return dbClient.issueDao().selectIssueKeysByComponentUuidAndChangedSinceDate(dbSession, componentUuid, changedSinceDate.get());
+      }
+
+      return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, componentUuid);
     }
   }
 }
