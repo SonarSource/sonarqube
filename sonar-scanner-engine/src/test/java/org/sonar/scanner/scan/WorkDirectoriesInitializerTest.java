@@ -21,7 +21,9 @@ package org.sonar.scanner.scan;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -112,6 +114,38 @@ public class WorkDirectoriesInitializerTest {
     assertThat(moduleBWorkdir).exists();
     assertThat(moduleAWorkdir.list()).containsOnly("moduleB");
     assertThat(moduleBWorkdir).isEmptyDirectory();
+  }
+
+  @Test
+  public void execute_on_hierarchy_should_clean_submodules_expect_submodule_with_same_work_directory_as_root() throws IOException {
+    DefaultInputModule moduleA = mock(DefaultInputModule.class);
+    DefaultInputModule moduleB = mock(DefaultInputModule.class);
+
+    when(hierarchy.children(root)).thenReturn(List.of(moduleA, moduleB));
+
+    File rootAndModuleAWorkdir = new File(rootWorkDir, "moduleA");
+    File moduleBWorkdir = new File(rootAndModuleAWorkdir, "../moduleB");
+
+    when(root.getWorkDir()).thenReturn(rootAndModuleAWorkdir.toPath());
+    when(moduleA.getWorkDir()).thenReturn(rootAndModuleAWorkdir.toPath());
+    when(moduleB.getWorkDir()).thenReturn(moduleBWorkdir.toPath());
+
+    rootAndModuleAWorkdir.mkdir();
+    createFilesToClean(rootAndModuleAWorkdir);
+    moduleBWorkdir.mkdir();
+
+    new File(rootAndModuleAWorkdir, "fooA.txt").createNewFile();
+    new File(moduleBWorkdir, "fooB.txt").createNewFile();
+
+    initializer.execute(hierarchy);
+
+    assertThat(rootWorkDir).exists();
+    assertThat(lock).exists();
+    assertThat(rootAndModuleAWorkdir).exists();
+    assertThat(rootAndModuleAWorkdir.list()).containsOnly(DirectoryLock.LOCK_FILE_NAME, "fooA.txt", "foo", "foo.txt");
+    assertThat(moduleBWorkdir)
+      .exists()
+      .isEmptyDirectory();
   }
 
 }

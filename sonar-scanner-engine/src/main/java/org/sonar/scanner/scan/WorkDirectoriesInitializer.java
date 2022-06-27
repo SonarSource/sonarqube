@@ -24,6 +24,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -36,12 +37,13 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
  */
 public class WorkDirectoriesInitializer {
   public void execute(InputModuleHierarchy moduleHierarchy) {
+    DefaultInputModule root = moduleHierarchy.root();
     // dont apply to root. Root is done by InputProjectProvider
-    for (DefaultInputModule sub : moduleHierarchy.children(moduleHierarchy.root())) {
-      cleanAllWorkingDirs(moduleHierarchy, sub);
-    }
-    for (DefaultInputModule sub : moduleHierarchy.children(moduleHierarchy.root())) {
-      mkdirsAllWorkingDirs(moduleHierarchy, sub);
+    for (DefaultInputModule sub : moduleHierarchy.children(root)) {
+      if (!Objects.equals(root.getWorkDir(), sub.getWorkDir())) {
+        cleanAllWorkingDirs(moduleHierarchy, sub);
+        mkdirsAllWorkingDirs(moduleHierarchy, sub);
+      }
     }
   }
 
