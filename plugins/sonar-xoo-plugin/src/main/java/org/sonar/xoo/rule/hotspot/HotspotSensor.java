@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo.rule;
+package org.sonar.xoo.rule.hotspot;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,39 +28,34 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.xoo.rule.AbstractXooRuleSensor;
 
 /**
- * Generate issues on all the occurrences of tag Hotspot in xoo sources.
+ * Raise security hotspots all the occurrences of tag defined by getTag() in xoo sources.
  */
-public class HotspotSensor extends AbstractXooRuleSensor {
+public abstract class HotspotSensor extends AbstractXooRuleSensor {
 
-  public static final String RULE_KEY = "Hotspot";
-  public static final String TAG = "HOTSPOT";
-
-  public HotspotSensor(FileSystem fs, ActiveRules activeRules) {
+  protected HotspotSensor(FileSystem fs, ActiveRules activeRules) {
     super(fs, activeRules);
   }
 
-  @Override
-  protected String getRuleKey() {
-    return RULE_KEY;
-  }
+  protected abstract String getTag();
 
   @Override
   protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     try {
       int[] lineCounter = {1};
       try (InputStreamReader isr = new InputStreamReader(inputFile.inputStream(), inputFile.charset());
-        BufferedReader reader = new BufferedReader(isr)) {
+           BufferedReader reader = new BufferedReader(isr)) {
         reader.lines().forEachOrdered(lineStr -> {
           int startIndex = -1;
-          while ((startIndex = lineStr.indexOf(TAG, startIndex + 1)) != -1) {
+          while ((startIndex = lineStr.indexOf(getTag(), startIndex + 1)) != -1) {
             NewIssue newIssue = context.newIssue();
             newIssue
               .forRule(ruleKey)
               .at(newIssue.newLocation()
                 .on(inputFile)
-                .at(inputFile.newRange(lineCounter[0], startIndex, lineCounter[0], startIndex + TAG.length())))
+                .at(inputFile.newRange(lineCounter[0], startIndex, lineCounter[0], startIndex + getTag().length())))
               .save();
           }
           lineCounter[0]++;

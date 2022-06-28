@@ -28,8 +28,11 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
+import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 
 public class XooRulesDefinitionTest {
 
@@ -52,18 +55,33 @@ public class XooRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().gapMultiplier()).isEqualTo("1min");
     assertThat(rule.debtRemediationFunction().baseEffort()).isNull();
     assertThat(rule.gapDescription()).isNotEmpty();
+    assertThat(rule.ruleDescriptionSections()).isNotEmpty();
+    assertThat(rule.ruleDescriptionSections().stream().anyMatch(rds -> rds.getContext().isPresent())).isTrue();
   }
 
   @Test
   public void define_xoo_hotspot_rule() {
     RulesDefinition.Repository repo = getRepository();
 
-    RulesDefinition.Rule rule = repo.rule(HotspotSensor.RULE_KEY);
+    RulesDefinition.Rule rule = repo.rule(HotspotWithoutContextSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
     assertThat(rule.securityStandards())
       .isNotEmpty()
       .containsExactlyInAnyOrder("cwe:1", "cwe:89", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3",
         "owaspTop10-2021:a3", "owaspTop10-2021:a2");
+  }
+
+  @Test
+  public void define_xoo_hotspot_rule_with_contexts() {
+    RulesDefinition.Repository repo = getRepository();
+
+    RulesDefinition.Rule rule = repo.rule(HotspotWithContextsSensor.RULE_KEY);
+    assertThat(rule.name()).isNotEmpty();
+    assertThat(rule.securityStandards()).isEmpty();
+    assertThat(rule.ruleDescriptionSections()).isNotEmpty();
+    assertThat(rule.ruleDescriptionSections().stream()
+      .filter(rds -> rds.getKey().equals(HOW_TO_FIX_SECTION_KEY)))
+      .allMatch(rds -> rds.getContext().isPresent());
   }
 
   @Test
@@ -101,7 +119,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(23);
+    assertThat(repo.rules()).hasSize(25);
     return repo;
   }
 }

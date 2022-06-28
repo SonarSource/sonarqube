@@ -43,7 +43,9 @@ import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
 import org.sonar.xoo.rule.HasTagSensor;
-import org.sonar.xoo.rule.HotspotSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
@@ -168,7 +170,9 @@ public class XooPlugin implements Plugin {
       DeprecatedGlobalSensor.class,
       GlobalProjectSensor.class,
 
-      HotspotSensor.class,
+      HotspotWithoutContextSensor.class,
+      HotspotWithContextsSensor.class,
+      HotspotWithSingleContextSensor.class,
 
       // Coverage
       UtCoverageSensor.class,

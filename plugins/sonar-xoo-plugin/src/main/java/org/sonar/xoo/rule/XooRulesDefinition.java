@@ -31,6 +31,9 @@ import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 import org.sonar.xoo.checks.Check;
+import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -49,6 +52,7 @@ public class XooRulesDefinition implements RulesDefinition {
   public static final String XOO2_REPOSITORY = "xoo2";
 
   private static final String TEN_MIN = "10min";
+  private static final String[] AVAILABLE_CONTEXTS = { "JavaScript", "JQuery", "Express.js", "React", "Axios" };
 
   @Nullable
   private final Version version;
@@ -89,8 +93,10 @@ public class XooRulesDefinition implements RulesDefinition {
     new RulesDefinitionAnnotationLoader().load(repo, Check.ALL);
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
-      .setActivatedByDefault(true);
-    addAllDescriptionSections(hasTag, "Search for a given tag in Xoo files");
+      .setActivatedByDefault(true)
+      .addDescriptionSection(howToFixSectionWithContext("singleContext"));
+    addDescriptionSectionsWithoutContexts(hasTag, "Search for a given tag in Xoo files");
+
     hasTag
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().constantPerIssue("2min"));
     hasTag.createParam("tag")
@@ -108,7 +114,8 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setTags("line");
-    addAllDescriptionSections(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
+    addDescriptionSectionsWithoutContexts(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
+    addHowToFixSectionsWithContexts(oneIssuePerLine);
     oneIssuePerLine
       .setDebtRemediationFunction(oneIssuePerLine.debtRemediationFunctions().linear("1min"))
       .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
@@ -207,7 +214,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setName("Template of rule");
     addAllDescriptionSections(templateofRule, "Template to be overridden by custom rules");
 
-    NewRule hotspot = repo.createRule(HotspotSensor.RULE_KEY)
+    NewRule hotspot = repo.createRule(HotspotWithoutContextSensor.RULE_KEY)
       .setName("Find security hotspots")
       .setType(RuleType.SECURITY_HOTSPOT)
       .setActivatedByDefault(false);
@@ -228,6 +235,20 @@ public class XooRulesDefinition implements RulesDefinition {
         .addCwe(250, 564, 546, 943);
     }
 
+    NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
+      .setName("Find security hotspots with contexts")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setActivatedByDefault(false);
+    addDescriptionSectionsWithoutContexts(hotspotWithContexts, "Search for Security Hotspots with contexts in Xoo files");
+    addHowToFixSectionsWithContexts(hotspotWithContexts);
+
+    NewRule hotspotWithSingleContext = repo.createRule(HotspotWithSingleContextSensor.RULE_KEY)
+      .setName("Find security hotspots, how_to_fix with single context")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setActivatedByDefault(false)
+      .addDescriptionSection(howToFixSectionWithContext("singleContext"));
+    addDescriptionSectionsWithoutContexts(hotspotWithSingleContext, "Search for Security Hotspots with single context in Xoo files");
+
     repo.done();
   }
 
@@ -247,22 +268,41 @@ public class XooRulesDefinition implements RulesDefinition {
   }
 
   private static void addAllDescriptionSections(NewRule rule, String description) {
+    addDescriptionSectionsWithoutContexts(rule, description);
+    rule.addDescriptionSection(descriptionSection(HOW_TO_FIX_SECTION_KEY, "How to fix: " + description));
+  }
+
+  private static void addDescriptionSectionsWithoutContexts(NewRule rule, String description) {
     rule
       .setHtmlDescription(description)
       .addDescriptionSection(descriptionSection(INTRODUCTION_SECTION_KEY, "Introduction: " + description))
       .addDescriptionSection(descriptionSection(ROOT_CAUSE_SECTION_KEY, "Root cause: " + description))
       .addDescriptionSection(descriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "Assess the problem: " + description))
-      .addDescriptionSection(descriptionSection(HOW_TO_FIX_SECTION_KEY, "How to fix: " + description))
       .addDescriptionSection(descriptionSection(RESOURCES_SECTION_KEY,
         "<a href=\"www.google.fr\"> Google </a><br><a href=\"https://stackoverflow.com/\"> StackOverflow</a>"))
       .addDescriptionSection(descriptionSection("fake_section_to_be_ignored",
         "fake_section_to_be_ignored"));
   }
 
+  private static void addHowToFixSectionsWithContexts(NewRule rule) {
+    for (String contextName : AVAILABLE_CONTEXTS) {
+      rule.addDescriptionSection(howToFixSectionWithContext(contextName));
+    }
+  }
+
   private static RuleDescriptionSection descriptionSection(String sectionKey, String htmlDescription) {
     return RuleDescriptionSection.builder()
       .sectionKey(sectionKey)
       .htmlContent(htmlDescription)
+      .build();
+  }
+
+  private static RuleDescriptionSection howToFixSectionWithContext(String contextName) {
+    return RuleDescriptionSection.builder()
+      .sectionKey(HOW_TO_FIX_SECTION_KEY)
+      .htmlContent(String.format("This is 'How to fix?' description section for the <a href=\"https://stackoverflow.com/\"> %s</a>. " +
+        "This text can be very long.", contextName))
+      .context(new org.sonar.api.server.rule.Context(contextName, contextName))
       .build();
   }
 }

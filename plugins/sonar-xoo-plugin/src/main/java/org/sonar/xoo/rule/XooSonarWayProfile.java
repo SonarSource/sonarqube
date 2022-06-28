@@ -22,6 +22,9 @@ package org.sonar.xoo.rule;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
+import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 
 public class XooSonarWayProfile implements BuiltInQualityProfilesDefinition {
   @Override
@@ -30,7 +33,9 @@ public class XooSonarWayProfile implements BuiltInQualityProfilesDefinition {
     qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HasTagSensor.RULE_KEY).overrideSeverity(Severity.MAJOR);
     qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerLineSensor.RULE_KEY).overrideSeverity(Severity.INFO);
     qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerFileSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
-    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HotspotSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HotspotWithoutContextSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HotspotWithContextsSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HotspotWithSingleContextSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
     qProfile.done();
   }
 }
