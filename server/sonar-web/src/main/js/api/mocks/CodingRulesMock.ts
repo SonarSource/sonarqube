@@ -120,6 +120,7 @@ export default class CodingRulesMock {
         lang: 'py',
         langName: 'Python',
         name: 'Bad Python rule',
+        isExternal: true,
         descriptionSections: undefined
       })
     ];

@@ -213,9 +213,9 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
           />
         )}
 
-        {hasDescriptionSection && !defaultSection ? (
-          <RuleTabViewer ruleDetails={ruleDetails} />
-        ) : (
+        {hasDescriptionSection && !defaultSection && <RuleTabViewer ruleDetails={ruleDetails} />}
+
+        {ruleDetails.isExternal && (
           <div className="coding-rules-detail-description rule-desc markdown">
             {translateWithParameters('issue.external_issue_description', ruleDetails.name)}
           </div>
