@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -64,6 +65,7 @@ import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.difference;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
+import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
@@ -103,7 +105,7 @@ public class ShowAction implements HotspotsWsAction {
       .setDescription("Provides the details of a Security Hotspot.")
       .setSince("8.1")
       .setChangelog(new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
-      + " /api/rules/show endpoint should be used to fetch rule descriptions."));
+        + " /api/rules/show endpoint should be used to fetch rule descriptions."));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
@@ -191,8 +193,12 @@ public class ShowAction implements HotspotsWsAction {
 
   private static Map<String, String> getSectionKeyToContent(RuleDto ruleDefinitionDto) {
     return ruleDefinitionDto.getRuleDescriptionSectionDtos().stream()
-      .collect(toMap(RuleDescriptionSectionDto::getKey,
-        section -> getContentAndConvertToHtmlIfNecessary(ruleDefinitionDto.getDescriptionFormat(), section)));
+      .sorted(comparing(r -> Optional.ofNullable(r.getContext())
+        .map(RuleDescriptionSectionContextDto::getKey).orElse("")))
+      .collect(toMap(
+        RuleDescriptionSectionDto::getKey,
+        section -> getContentAndConvertToHtmlIfNecessary(ruleDefinitionDto.getDescriptionFormat(), section),
+        (a, b) -> a));
   }
 
   private static String getContentAndConvertToHtmlIfNecessary(@Nullable RuleDto.Format descriptionFormat, RuleDescriptionSectionDto section) {

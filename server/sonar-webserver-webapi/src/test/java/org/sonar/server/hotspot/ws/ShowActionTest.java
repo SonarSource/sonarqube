@@ -55,6 +55,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -575,6 +576,42 @@ public class ShowActionTest {
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getRule().getRiskDescription()).isNullOrEmpty();
+  }
+
+  @Test
+  public void handle_given_description_section_with_3_contexts_return_one_alphabetically() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    RuleDescriptionSectionDto vaadinSection = newContextSpecificDescriptionSection("vaadin");
+    RuleDescriptionSectionDto gsonSection = newContextSpecificDescriptionSection("gson");
+    RuleDescriptionSectionDto springSection = newContextSpecificDescriptionSection("spring");
+
+    RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
+      r -> r.setTemplateUuid("123")
+        .addRuleDescriptionSectionDto(vaadinSection)
+        .addRuleDescriptionSectionDto(springSection)
+        .addRuleDescriptionSectionDto(gsonSection)
+        .setDescriptionFormat(HTML));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getFixRecommendations()).isEqualTo("gson description");
+  }
+
+  private RuleDescriptionSectionDto newContextSpecificDescriptionSection(String context) {
+    return RuleDescriptionSectionDto.builder()
+      .uuid(uuidFactory.create())
+      .key(HOW_TO_FIX_SECTION_KEY)
+      .content(context + " description")
+      .context(RuleDescriptionSectionContextDto.of(context.toLowerCase(), context.toUpperCase()))
+      .build();
   }
 
   @Test
