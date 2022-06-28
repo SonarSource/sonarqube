@@ -30,7 +30,7 @@ Then, the SonarScanner, as part of its analysis process, will import those files
 
 ## Coverage support
 
-SonarQube directly supports the import of coverage data in formats native to a variety of tools for a variety of languages. It also supports the import of a [generic format](/analysis/test-coverage/generic-test/) that can be used as a target for custom conversion of reports from tools that are not directly supported.
+SonarQube directly supports the import of coverage data in formats native to a variety of tools for a variety of languages. It also supports the import of a [generic format](/analysis/generic-test/) that can be used as a target for custom conversion of reports from tools that are not directly supported.
 
 
 ### Detailed guides
@@ -47,7 +47,7 @@ Detailed guides for the following languages are provided in this section:
 
 ### Generic format
 
-See [Generic Test Data](/analysis/test-coverage/generic-test/) for information on how the generic format works.
+See [Generic Test Data](/analysis/generic-test/) for information on how the generic format works.
 
 
 ### Test coverage parameters

@@ -85,7 +85,7 @@
           "/analysis/test-coverage/python-test-coverage/",
           "/analysis/test-coverage/php-test-coverage/",
           "/analysis/test-coverage/c-family-test-coverage/",
-          "/analysis/test-coverage/generic-test/",
+          "/analysis/generic-test/",
           "/analysis/test-coverage/test-coverage-parameters/",
           "/analysis/test-coverage/test-execution-parameters/"
         ] 

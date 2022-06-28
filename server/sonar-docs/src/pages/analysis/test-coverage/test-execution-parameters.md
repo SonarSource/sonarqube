@@ -35,7 +35,7 @@ This differs from the case with test coverage reports, where pull requests are s
 
 ### sonar.testExecutionReportPaths
 
-Comma-delimited list of paths to execution reports in the [Generic Test Data](/analysis/test-coverage/generic-test/) format.
+Comma-delimited list of paths to execution reports in the [Generic Test Data](/analysis/generic-test/) format.
 
 
 ## C/C++/Objective-C
