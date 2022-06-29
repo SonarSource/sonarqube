@@ -12,6 +12,7 @@
     t.created_at as "createdAt",
     t.project_key as "projectKey",
     t.type as "type",
+    t.expiration_date as "expirationDate",
     p.name as "projectName",
     p.uuid as "projectUuid"
   </sql>
@@ -24,7 +25,8 @@
     token_hash,
     created_at,
     project_key,
-    type
+    type,
+    expiration_date
     ) values (
     #{uuid, jdbcType=VARCHAR},
     #{userUuid, jdbcType=VARCHAR},
@@ -32,7 +34,8 @@
     #{tokenHash, jdbcType=VARCHAR},
     #{createdAt, jdbcType=BIGINT},
     #{projectKey, jdbcType=VARCHAR},
-    #{type, jdbcType=VARCHAR}
+    #{type, jdbcType=VARCHAR},
+    #{expirationDate, jdbcType=BIGINT}
     )
   </insert>
 

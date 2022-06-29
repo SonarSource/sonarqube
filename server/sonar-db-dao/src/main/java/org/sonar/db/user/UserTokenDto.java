@@ -43,6 +43,8 @@ public class UserTokenDto {
 
   private String type;
 
+  private Long expirationDate;
+
   private String projectName;
 
   private String projectUuid;
@@ -116,6 +118,15 @@ public class UserTokenDto {
 
   public UserTokenDto setType(String type) {
     this.type = type;
+    return this;
+  }
+
+  public Long getExpirationDate() {
+    return expirationDate;
+  }
+
+  public UserTokenDto setExpirationDate(@Nullable Long expirationDate) {
+    this.expirationDate = expirationDate;
     return this;
   }
 

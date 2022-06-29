@@ -53,6 +53,7 @@ public class UserTokenDaoWithPersisterTest {
   @Test
   public void insert_token_is_persisted() {
     UserTokenDto userToken = newUserToken()
+      .setExpirationDate(nextLong())
       .setLastConnectionDate(nextLong());
     underTest.insert(db.getSession(), userToken, "login");
 
@@ -64,6 +65,8 @@ public class UserTokenDaoWithPersisterTest {
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
     assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
+    assertThat(userTokenFromDb.getType()).isEqualTo(userToken.getType());
+    assertThat(userTokenFromDb.getExpirationDate()).isEqualTo(userToken.getExpirationDate());
     UserTokenNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate,

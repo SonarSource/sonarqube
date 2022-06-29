@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import java.util.Map;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -28,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newProjectAnalysisToken;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
@@ -47,13 +49,19 @@ public class UserTokenDaoTest {
     underTest.insert(db.getSession(), userToken, "login");
 
     UserTokenDto userTokenFromDb = underTest.selectByTokenHash(db.getSession(), userToken.getTokenHash());
-    assertThat(userTokenFromDb).isNotNull();
-    assertThat(userTokenFromDb.getUuid()).isEqualTo(userToken.getUuid());
-    assertThat(userTokenFromDb.getName()).isEqualTo(userToken.getName());
-    assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
-    assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
-    assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
-    assertThat(userTokenFromDb.getType()).isEqualTo(userToken.getType());
+    assertTokenStandardFields(userToken, userTokenFromDb);
+    assertThat(userTokenFromDb.getExpirationDate()).isNull();
+  }
+
+  @Test
+  public void insert_user_token_with_expiration_date() {
+    UserTokenDto userToken = newUserToken().setExpirationDate(nextLong());
+
+    underTest.insert(db.getSession(), userToken, "login");
+
+    UserTokenDto userTokenFromDb = underTest.selectByTokenHash(db.getSession(), userToken.getTokenHash());
+    assertTokenStandardFields(userToken, userTokenFromDb);
+    assertThat(userTokenFromDb.getExpirationDate()).isEqualTo(userToken.getExpirationDate());
   }
 
   @Test
@@ -63,16 +71,11 @@ public class UserTokenDaoTest {
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
 
     UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());
-    assertThat(projectAnalysisTokenFromDb).isNotNull();
-    assertThat(projectAnalysisTokenFromDb.getUuid()).isEqualTo(projectAnalysisToken.getUuid());
-    assertThat(projectAnalysisTokenFromDb.getName()).isEqualTo(projectAnalysisToken.getName());
-    assertThat(projectAnalysisTokenFromDb.getCreatedAt()).isEqualTo(projectAnalysisToken.getCreatedAt());
-    assertThat(projectAnalysisTokenFromDb.getTokenHash()).isEqualTo(projectAnalysisToken.getTokenHash());
-    assertThat(projectAnalysisTokenFromDb.getUserUuid()).isEqualTo(projectAnalysisToken.getUserUuid());
+    assertTokenStandardFields(projectAnalysisToken, projectAnalysisTokenFromDb);
     assertThat(projectAnalysisTokenFromDb.getProjectUuid()).isEqualTo(project.uuid());
     assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
-    assertThat(projectAnalysisTokenFromDb.getType()).isEqualTo(projectAnalysisToken.getType());
     assertThat(projectAnalysisTokenFromDb.getProjectName()).isEqualTo(project.name());
+    assertThat(projectAnalysisTokenFromDb.getExpirationDate()).isNull();
   }
 
   @Test
@@ -170,5 +173,15 @@ public class UserTokenDaoTest {
 
     assertThat(result).containsEntry(user.getUuid(), 2);
     assertThat(result.get("unknown-user_uuid")).isNull();
+  }
+
+  private void assertTokenStandardFields(UserTokenDto userToken, UserTokenDto userTokenFromDb) {
+    assertThat(userTokenFromDb).isNotNull();
+    assertThat(userTokenFromDb.getUuid()).isEqualTo(userToken.getUuid());
+    assertThat(userTokenFromDb.getName()).isEqualTo(userToken.getName());
+    assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
+    assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
+    assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
+    assertThat(userTokenFromDb.getType()).isEqualTo(userToken.getType());
   }
 }
