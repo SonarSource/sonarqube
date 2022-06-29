@@ -19,30 +19,36 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.db.user.TokenType;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_GENERATE;
+import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_EXPIRATION_DATE;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_PROJECT_KEY;
@@ -73,6 +79,8 @@ public class GenerateAction implements UserTokensWsAction {
       .setDescription("Generate a user access token. <br />" +
         "Please keep your tokens secret. They enable to authenticate and analyze projects.<br />" +
         "It requires administration permissions to specify a 'login' and generate a token for another user. Otherwise, a token is generated for the current user.")
+      .setChangelog(
+        new Change("9.6", "Response field 'expirationDate' added"))
       .setResponseExample(getClass().getResource("generate-example.json"))
       .setHandler(this);
 
@@ -95,6 +103,10 @@ public class GenerateAction implements UserTokensWsAction {
     action.createParam(PARAM_PROJECT_KEY)
       .setSince("9.5")
       .setDescription("The key of the only project that can be analyzed by the " + PROJECT_ANALYSIS_TOKEN.name() + " being generated.");
+
+    action.createParam(PARAM_EXPIRATION_DATE)
+      .setSince("9.6")
+      .setDescription("The expiration date of the token being generated, in ISO 8601 format (YYYY-MM-DD).");
   }
 
   @Override
@@ -105,15 +117,60 @@ public class GenerateAction implements UserTokensWsAction {
 
   private UserTokens.GenerateWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String name = request.mandatoryParam(PARAM_NAME).trim();
-      UserDto user = userTokenSupport.getUser(dbSession, request);
-      checkTokenDoesNotAlreadyExists(dbSession, user, name);
-
       String token = generateToken(request, dbSession);
       String tokenHash = hashToken(dbSession, token);
-      String projectKey = getProjecKeyFromRequest(request).orElse(null);
-      UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, name, tokenHash, getTokenTypeFromRequest(request), projectKey);
+
+      UserTokenDto userTokenDtoFromRequest = getUserTokenDtoFromRequest(request);
+      userTokenDtoFromRequest.setTokenHash(tokenHash);
+
+      UserDto user = userTokenSupport.getUser(dbSession, request);
+      userTokenDtoFromRequest.setUserUuid(user.getUuid());
+
+      UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, userTokenDtoFromRequest);
+
       return buildResponse(userTokenDto, token, user);
+    }
+  }
+
+  private UserTokenDto getUserTokenDtoFromRequest(Request request) {
+    UserTokenDto userTokenDtoFromRequest = new UserTokenDto()
+      .setName(request.mandatoryParam(PARAM_NAME).trim())
+      .setCreatedAt(system.now())
+      .setType(getTokenTypeFromRequest(request).name())
+      .setExpirationDate(getExpirationDateFromRequest(request));
+
+    getProjectKeyFromRequest(request).ifPresent(userTokenDtoFromRequest::setProjectKey);
+
+    return userTokenDtoFromRequest;
+  }
+
+  private static Long getExpirationDateFromRequest(Request request) {
+    String expirationDateString = request.param(PARAM_EXPIRATION_DATE);
+    Long expirationDateOpt = null;
+
+    if (expirationDateString != null) {
+      try {
+        expirationDateOpt = getExpirationDateFromString(expirationDateString);
+      } catch (DateTimeParseException e) {
+        throw new IllegalArgumentException(String.format("Supplied date format for parameter %s is wrong. Please supply date in the ISO 8601 " +
+          "date format (YYYY-MM-DD)", PARAM_EXPIRATION_DATE));
+      }
+    }
+
+    return expirationDateOpt;
+  }
+
+  @NotNull
+  private static Long getExpirationDateFromString(String expirationDateString) {
+    LocalDate expirationDate = LocalDate.parse(expirationDateString, DateTimeFormatter.ISO_DATE);
+    validateExpirationDateValue(expirationDate);
+    return expirationDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
+
+  private static void validateExpirationDateValue(LocalDate localDate) {
+    if (localDate.isBefore(LocalDate.now().plusDays(1))) {
+      throw new IllegalArgumentException(
+        String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
     }
   }
 
@@ -134,7 +191,7 @@ public class GenerateAction implements UserTokensWsAction {
   private void validateProjectAnalysisParameters(DbSession dbSession, Request request) {
     checkArgument(userTokenSupport.sameLoginAsConnectedUser(request), "A Project Analysis Token cannot be generated for another user.");
     checkArgument(request.param(PARAM_PROJECT_KEY) != null, "A projectKey is needed when creating Project Analysis Token");
-    userTokenSupport.validateProjectScanPermission(dbSession, getProjecKeyFromRequest(request).orElse(""));
+    userTokenSupport.validateProjectScanPermission(dbSession, getProjectKeyFromRequest(request).orElse(""));
   }
 
   private void validateGlobalAnalysisParameters(Request request) {
@@ -142,7 +199,7 @@ public class GenerateAction implements UserTokensWsAction {
     userTokenSupport.validateGlobalScanPermission();
   }
 
-  private static Optional<String> getProjecKeyFromRequest(Request request) {
+  private static Optional<String> getProjectKeyFromRequest(Request request) {
     String projectKey = null;
     if (PROJECT_ANALYSIS_TOKEN.equals(getTokenTypeFromRequest(request))) {
       projectKey = request.mandatoryParam(PARAM_PROJECT_KEY).trim();
@@ -164,26 +221,16 @@ public class GenerateAction implements UserTokensWsAction {
     throw new ServerException(HTTP_INTERNAL_ERROR, "Error while generating token. Please try again.");
   }
 
-  private void checkTokenDoesNotAlreadyExists(DbSession dbSession, UserDto user, String name) {
-    UserTokenDto userTokenDto = dbClient.userTokenDao().selectByUserAndName(dbSession, user, name);
-    checkRequest(userTokenDto == null, "A user token for login '%s' and name '%s' already exists", user.getLogin(), name);
-  }
-
-  private UserTokenDto insertTokenInDb(DbSession dbSession, UserDto user, String name, String tokenHash, TokenType tokenType, @Nullable String projectKey) {
-    UserTokenDto userTokenDto = new UserTokenDto()
-      .setUserUuid(user.getUuid())
-      .setName(name)
-      .setTokenHash(tokenHash)
-      .setCreatedAt(system.now())
-      .setType(tokenType.name());
-
-    if (projectKey != null) {
-      userTokenDto.setProjectKey(projectKey);
-    }
-
+  private UserTokenDto insertTokenInDb(DbSession dbSession, UserDto user,UserTokenDto userTokenDto) {
+    checkTokenDoesNotAlreadyExists(dbSession, user, userTokenDto.getName());
     dbClient.userTokenDao().insert(dbSession, userTokenDto, user.getLogin());
     dbSession.commit();
     return userTokenDto;
+  }
+
+  private void checkTokenDoesNotAlreadyExists(DbSession dbSession, UserDto user, String name) {
+    UserTokenDto userTokenDto = dbClient.userTokenDao().selectByUserAndName(dbSession, user, name);
+    checkRequest(userTokenDto == null, "A user token for login '%s' and name '%s' already exists", user.getLogin(), name);
   }
 
   private static GenerateWsResponse buildResponse(UserTokenDto userTokenDto, String token, UserDto user) {
@@ -196,6 +243,10 @@ public class GenerateAction implements UserTokensWsAction {
 
     if (userTokenDto.getProjectKey() != null) {
       responseBuilder.setProjectKey(userTokenDto.getProjectKey());
+    }
+
+    if (userTokenDto.getExpirationDate() != null) {
+      responseBuilder.setExpirationDate(formatDateTime(userTokenDto.getExpirationDate()));
     }
 
     return responseBuilder.build();

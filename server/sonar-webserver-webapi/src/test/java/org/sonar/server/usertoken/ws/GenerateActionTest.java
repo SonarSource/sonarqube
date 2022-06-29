@@ -19,6 +19,10 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -35,7 +40,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.db.user.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -46,10 +50,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
+import static org.sonar.api.utils.DateUtils.DATE_FORMAT;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
+import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_EXPIRATION_DATE;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_PROJECT_KEY;
@@ -86,13 +93,14 @@ public class GenerateActionTest {
     assertThat(action.since()).isEqualTo("5.3");
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.param("login").isRequired()).isFalse();
-    assertThat(action.param("name").isRequired()).isTrue();
-    assertThat(action.param("type").isRequired()).isFalse();
-    assertThat(action.param("type").since()).isEqualTo("9.5");
-    assertThat(action.param("projectKey").isRequired()).isFalse();
-    assertThat(action.param("projectKey").since()).isEqualTo("9.5");
-
+    assertThat(action.param(PARAM_LOGIN).isRequired()).isFalse();
+    assertThat(action.param(PARAM_NAME).isRequired()).isTrue();
+    assertThat(action.param(PARAM_TYPE).isRequired()).isFalse();
+    assertThat(action.param(PARAM_TYPE).since()).isEqualTo("9.5");
+    assertThat(action.param(PARAM_PROJECT_KEY).isRequired()).isFalse();
+    assertThat(action.param(PARAM_PROJECT_KEY).since()).isEqualTo("9.5");
+    assertThat(action.param(PARAM_EXPIRATION_DATE).isRequired()).isFalse();
+    assertThat(action.param(PARAM_EXPIRATION_DATE).since()).isEqualTo("9.6");
   }
 
   @Test
@@ -106,7 +114,7 @@ public class GenerateActionTest {
       .setParam(PARAM_NAME, TOKEN_NAME)
       .execute().getInput();
 
-    assertJson(response).ignoreFields("createdAt").isSimilarTo(getClass().getResource("generate-example.json"));
+    assertJson(response).ignoreFields("createdAt").ignoreFields("expirationDate").isSimilarTo(getClass().getResource("generate-example.json"));
   }
 
   @Test
@@ -179,6 +187,36 @@ public class GenerateActionTest {
   }
 
   @Test
+  public void a_user_can_generate_token_for_himself_with_expiration_date() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    // A date 10 days in the future with format yyyy-MM-dd
+    String expirationDateValue = LocalDate.now().plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    GenerateWsResponse response = newRequest(null, TOKEN_NAME, expirationDateValue);
+
+    assertThat(response.getLogin()).isEqualTo(user.getLogin());
+    assertThat(response.getCreatedAt()).isNotEmpty();
+    assertThat(response.getExpirationDate()).isEqualTo(getFormattedDate(expirationDateValue));
+  }
+
+  @Test
+  public void an_administrator_can_generate_token_for_users_with_expiration_date() {
+    UserDto user = db.users().insertUser();
+    logInAsSystemAdministrator();
+
+    // A date 10 days in the future with format yyyy-MM-dd
+    String expirationDateValue = LocalDate.now().plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    GenerateWsResponse response = newRequest(user.getLogin(), TOKEN_NAME, expirationDateValue);
+
+    assertThat(response.getLogin()).isEqualTo(user.getLogin());
+    assertThat(response.getCreatedAt()).isNotEmpty();
+    assertThat(response.getExpirationDate()).isEqualTo(getFormattedDate(expirationDateValue));
+  }
+
+  @Test
   public void fail_if_login_does_not_exist() {
     logInAsSystemAdministrator();
 
@@ -216,7 +254,7 @@ public class GenerateActionTest {
     String login = user.getLogin();
     logInAsSystemAdministrator();
 
-    assertThatThrownBy(() -> newRequest(login, "token 1", PROJECT_ANALYSIS_TOKEN, null))
+    assertThatThrownBy(() -> newRequest(login, "token 1", PROJECT_ANALYSIS_TOKEN, "project 1"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A Project Analysis Token cannot be generated for another user.");
   }
@@ -284,6 +322,32 @@ public class GenerateActionTest {
   }
 
   @Test
+  public void fail_if_expirationDate_format_is_wrong() {
+    UserDto user = db.users().insertUser();
+    String login = user.getLogin();
+    logInAsSystemAdministrator();
+
+    assertThatThrownBy(() -> {
+      newRequest(login, TOKEN_NAME, "21/06/2022");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Supplied date format for parameter expirationDate is wrong. Please supply date in the ISO 8601 date format (YYYY-MM-DD)");
+  }
+
+  @Test
+  public void fail_if_expirationDate_is_not_in_future() {
+    UserDto user = db.users().insertUser();
+    String login = user.getLogin();
+    logInAsSystemAdministrator();
+
+    assertThatThrownBy(() -> {
+      newRequest(login, TOKEN_NAME, "2022-06-29");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
+  }
+
+  @Test
   public void fail_if_token_hash_already_exists_in_db() {
     UserDto user = db.users().insertUser();
     String login = user.getLogin();
@@ -330,6 +394,17 @@ public class GenerateActionTest {
     return testRequest.executeProtobuf(GenerateWsResponse.class);
   }
 
+  private GenerateWsResponse newRequest(@Nullable String login, String name, String expirationDate) {
+    TestRequest testRequest = ws.newRequest()
+      .setParam(PARAM_NAME, name)
+      .setParam(PARAM_EXPIRATION_DATE, expirationDate);
+    if (login != null) {
+      testRequest.setParam(PARAM_LOGIN, login);
+    }
+
+    return testRequest.executeProtobuf(GenerateWsResponse.class);
+  }
+
   private GenerateWsResponse newRequest(@Nullable String login, String name, TokenType tokenType, @Nullable String projectKey) {
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_NAME, name)
@@ -346,5 +421,11 @@ public class GenerateActionTest {
 
   private void logInAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
+  }
+
+  private String getFormattedDate(String expirationDateValue) {
+    return DateTimeFormatter
+      .ofPattern(DATETIME_FORMAT)
+      .format(ZonedDateTime.of(LocalDate.parse(expirationDateValue, DateTimeFormatter.ofPattern(DATE_FORMAT)).atStartOfDay(), ZoneId.systemDefault()));
   }
 }

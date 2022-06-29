@@ -144,7 +144,8 @@ public class UserTokenDto {
     return projectUuid;
   }
 
-  public void setProjectUuid(String projectUuid) {
+  public UserTokenDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
+    return this;
   }
 }

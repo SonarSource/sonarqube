@@ -46,6 +46,7 @@ public class UserTokenSupport {
   static final String PARAM_NAME = "name";
   static final String PARAM_TYPE = "type";
   static final String PARAM_PROJECT_KEY = "projectKey";
+  static final String PARAM_EXPIRATION_DATE = "expirationDate";
 
   private final DbClient dbClient;
   private final UserSession userSession;

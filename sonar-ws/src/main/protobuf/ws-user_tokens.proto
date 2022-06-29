@@ -32,6 +32,7 @@ message GenerateWsResponse {
   optional string createdAt = 4;
   optional string type = 5;
   optional string projectKey = 6;
+  optional string expirationDate = 7;
 }
 
 // WS api/user_tokens/search
