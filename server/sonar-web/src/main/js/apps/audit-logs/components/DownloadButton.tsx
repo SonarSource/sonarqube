@@ -20,10 +20,11 @@
 import classNames from 'classnames';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import * as React from 'react';
+import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import '../style.css';
-import { now, RangeOption } from '../utils';
+import { RangeOption } from '../utils';
 
 export interface DownloadButtonProps {
   dateRange?: { from?: Date; to?: Date };

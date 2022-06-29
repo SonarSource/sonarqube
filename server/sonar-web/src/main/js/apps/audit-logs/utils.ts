@@ -31,7 +31,3 @@ export enum RangeOption {
   Trimester = '90days',
   Custom = 'custom'
 }
-
-export function now() {
-  return new Date();
-}

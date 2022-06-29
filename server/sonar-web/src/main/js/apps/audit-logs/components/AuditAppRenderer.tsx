@@ -25,10 +25,11 @@ import { Link } from 'react-router-dom';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import Radio from '../../../components/controls/Radio';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
 import '../style.css';
-import { HousekeepingPolicy, now, RangeOption } from '../utils';
+import { HousekeepingPolicy, RangeOption } from '../utils';
 import DownloadButton from './DownloadButton';
 
 export interface AuditAppRendererProps {

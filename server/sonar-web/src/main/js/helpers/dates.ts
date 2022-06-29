@@ -44,3 +44,7 @@ export function toNotSoISOString(rawDate: ParsableDate): string {
 export function isValidDate(date: Date): boolean {
   return !isNaN(date.getTime());
 }
+
+export function now() {
+  return new Date();
+}

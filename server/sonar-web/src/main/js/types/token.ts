@@ -24,6 +24,13 @@ export enum TokenType {
   User = 'USER_TOKEN'
 }
 
+export enum TokenExpiration {
+  OneMonth = 30,
+  ThreeMonths = 90,
+  OneYear = 365,
+  NoExpiration = 0
+}
+
 export interface UserToken {
   name: string;
   createdAt: string;

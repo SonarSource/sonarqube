@@ -25,10 +25,11 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import { SubmitButton } from '../../../components/controls/buttons';
 import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { now, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
-import { TokenType, UserToken } from '../../../types/token';
+import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
@@ -50,7 +51,20 @@ interface State {
   tokens: UserToken[];
   projects: BasicSelectOption[];
   selectedProject: { key: string; name: string };
+  newTokenExpiration: TokenExpiration;
 }
+
+const EXPIRATION_OPTIONS = [
+  TokenExpiration.OneMonth,
+  TokenExpiration.ThreeMonths,
+  TokenExpiration.OneYear,
+  TokenExpiration.NoExpiration
+].map(value => {
+  return {
+    value,
+    label: translate('users.tokens.expiration', value.toString())
+  };
+});
 
 export class TokensForm extends React.PureComponent<Props, State> {
   mounted = false;
@@ -61,7 +75,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
     newTokenType: this.props.displayTokenTypeInput ? undefined : TokenType.User,
     selectedProject: { key: '', name: '' },
     tokens: [],
-    projects: []
+    projects: [],
+    newTokenExpiration: TokenExpiration.OneMonth
   };
 
   componentDidMount() {
@@ -106,10 +121,21 @@ export class TokensForm extends React.PureComponent<Props, State> {
     }
   };
 
+  getExpirationDate = (days: number): string => {
+    const expirationDate = now();
+    expirationDate.setDate(expirationDate.getDate() + days);
+    return toShortNotSoISOString(expirationDate);
+  };
+
   handleGenerateToken = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { login } = this.props;
-    const { newTokenName, newTokenType = TokenType.User, selectedProject } = this.state;
+    const {
+      newTokenName,
+      newTokenType = TokenType.User,
+      selectedProject,
+      newTokenExpiration
+    } = this.state;
     this.setState({ generating: true });
 
     try {
@@ -117,7 +143,10 @@ export class TokensForm extends React.PureComponent<Props, State> {
         name: newTokenName,
         login,
         type: newTokenType,
-        ...(newTokenType === TokenType.Project && { projectKey: selectedProject.key })
+        ...(newTokenType === TokenType.Project && { projectKey: selectedProject.key }),
+        ...(newTokenExpiration !== TokenExpiration.NoExpiration && {
+          expirationDate: this.getExpirationDate(newTokenExpiration)
+        })
       });
 
       if (this.mounted) {
@@ -190,8 +219,18 @@ export class TokensForm extends React.PureComponent<Props, State> {
     this.setState({ selectedProject: { key: value, name: label } });
   };
 
+  handleNewTokenExpirationChange = ({ value }: { value: TokenExpiration }) => {
+    this.setState({ newTokenExpiration: value });
+  };
+
   renderForm() {
-    const { newTokenName, newTokenType, projects, selectedProject } = this.state;
+    const {
+      newTokenName,
+      newTokenType,
+      projects,
+      selectedProject,
+      newTokenExpiration
+    } = this.state;
     const { displayTokenTypeInput, currentUser } = this.props;
 
     const tokenTypeOptions = [
@@ -212,38 +251,71 @@ export class TokensForm extends React.PureComponent<Props, State> {
 
     return (
       <form autoComplete="off" className="display-flex-center" onSubmit={this.handleGenerateToken}>
-        <input
-          className="input-large spacer-right it__token-name"
-          maxLength={100}
-          onChange={this.handleNewTokenChange}
-          placeholder={translate('users.enter_token_name')}
-          required={true}
-          type="text"
-          value={newTokenName}
-        />
+        <div className="display-flex-column input-large spacer-right ">
+          <label htmlFor="token-name" className="text-bold">
+            {translate('users.tokens.name')}
+          </label>
+          <input
+            id="token-name"
+            className="spacer-top it__token-name"
+            maxLength={100}
+            onChange={this.handleNewTokenChange}
+            placeholder={translate('users.tokens.enter_name')}
+            required={true}
+            type="text"
+            value={newTokenName}
+          />
+        </div>
         {displayTokenTypeInput && (
           <>
-            <Select
-              className="input-large spacer-right it__token-type"
-              isSearchable={false}
-              onChange={this.handleNewTokenTypeChange}
-              options={tokenTypeOptions}
-              placeholder={translate('users.select_token_type')}
-              value={tokenTypeOptions.find(option => option.value === newTokenType) || null}
-            />
-            {newTokenType === TokenType.Project && (
+            <div className="display-flex-column input-large spacer-right">
+              <label htmlFor="token-select-type" className="text-bold">
+                {translate('users.tokens.type')}
+              </label>
               <Select
-                className="input-large spacer-right it__project"
-                onChange={this.handleProjectChange}
-                options={projects}
-                placeholder={translate('users.select_token_project')}
-                value={projects.find(project => project.value === selectedProject.key)}
+                id="token-select-type"
+                className="spacer-top it__token-type"
+                isSearchable={false}
+                onChange={this.handleNewTokenTypeChange}
+                options={tokenTypeOptions}
+                placeholder={translate('users.tokens.select_type')}
+                value={tokenTypeOptions.find(option => option.value === newTokenType) || null}
               />
+            </div>
+            {newTokenType === TokenType.Project && (
+              <div className="input-large spacer-right display-flex-column">
+                <label htmlFor="token-select-project" className="text-bold">
+                  {translate('users.tokens.project')}
+                </label>
+                <Select
+                  id="token-select-project"
+                  className="spacer-top it__project"
+                  onChange={this.handleProjectChange}
+                  options={projects}
+                  placeholder={translate('users.tokens.select_project')}
+                  value={projects.find(project => project.value === selectedProject.key)}
+                />
+              </div>
             )}
           </>
         )}
-
-        <SubmitButton className="it__generate-token" disabled={this.isSubmitButtonDisabled()}>
+        <div className="display-flex-column input-medium spacer-right ">
+          <label htmlFor="token-select-expiration" className="text-bold">
+            {translate('users.tokens.expires_in')}
+          </label>
+          <Select
+            id="token-select-expiration"
+            className="spacer-top"
+            isSearchable={false}
+            onChange={this.handleNewTokenExpirationChange}
+            options={EXPIRATION_OPTIONS}
+            value={EXPIRATION_OPTIONS.find(option => option.value === newTokenExpiration)}
+          />
+        </div>
+        <SubmitButton
+          className="it__generate-token"
+          style={{ marginTop: 'auto' }}
+          disabled={this.isSubmitButtonDisabled()}>
           {translate('users.generate')}
         </SubmitButton>
       </form>
@@ -284,7 +356,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>
+        <h3 className="spacer-bottom">{translate('users.tokens.generate')}</h3>
         {this.renderForm()}
         {newToken && <TokensFormNewToken token={newToken} />}
 

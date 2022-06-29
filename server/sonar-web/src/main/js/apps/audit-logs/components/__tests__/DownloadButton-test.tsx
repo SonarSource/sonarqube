@@ -32,14 +32,10 @@ jest.mock('date-fns', () => {
   };
 });
 
-jest.mock('../../utils', () => {
-  const { HousekeepingPolicy, RangeOption } = jest.requireActual('../../utils');
-  const now = new Date('2020-07-21T12:00:00Z');
-
+jest.mock('../../../../helpers/dates', () => {
   return {
-    HousekeepingPolicy,
-    now: jest.fn().mockReturnValue(now),
-    RangeOption
+    ...jest.requireActual('../../../../helpers/dates'),
+    now: jest.fn(() => new Date('2020-07-21T12:00:00Z'))
   };
 });
 

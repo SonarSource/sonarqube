@@ -24,16 +24,24 @@ import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
+import { generateToken } from '../../../api/user-tokens';
 import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
-import { TokenType } from '../../../types/token';
+import { TokenExpiration, TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
 jest.mock('../../../api/user-tokens');
 jest.mock('../../../api/notifications');
+
+jest.mock('../../../helpers/dates', () => {
+  return {
+    ...jest.requireActual('../../../helpers/dates'),
+    now: jest.fn(() => new Date('2022-06-01T12:00:00Z'))
+  };
+});
 
 jest.mock('../../../api/components', () => ({
   getMyProjects: jest.fn().mockResolvedValue({
@@ -207,6 +215,7 @@ describe('profile page', () => {
 
 describe('security page', () => {
   let tokenMock: UserTokensMock;
+
   beforeAll(() => {
     tokenMock = new UserTokensMock();
   });
@@ -216,6 +225,48 @@ describe('security page', () => {
   });
 
   const securityPagePath = 'account/security';
+
+  it.each([
+    [TokenExpiration.OneMonth, '2022-07-01'],
+    [TokenExpiration.ThreeMonths, '2022-08-30'],
+    [TokenExpiration.OneYear, '2023-06-01'],
+    [TokenExpiration.NoExpiration, undefined]
+  ])(
+    'should allow token creation with proper expiration date for %s days',
+    async (tokenExpirationTime, expectedTime) => {
+      const user = userEvent.setup();
+
+      renderAccountApp(
+        mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+        securityPagePath
+      );
+
+      // Add the token
+      const newTokenName = 'importantToken' + tokenExpirationTime;
+      const input = screen.getByPlaceholderText('users.tokens.enter_name');
+      const generateButton = screen.getByRole('button', { name: 'users.generate' });
+      expect(input).toBeInTheDocument();
+      await user.click(input);
+      await user.keyboard(newTokenName);
+
+      expect(generateButton).toBeDisabled();
+
+      const tokenTypeLabel = `users.tokens.${TokenType.User}`;
+      await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+
+      const tokenExpirationLabel = `users.tokens.expiration.${tokenExpirationTime}`;
+      await selectEvent.select(screen.getAllByRole('textbox')[2], [tokenExpirationLabel]);
+
+      await user.click(generateButton);
+
+      expect(generateToken).toHaveBeenLastCalledWith({
+        name: newTokenName,
+        login: 'luke',
+        type: TokenType.User,
+        expirationDate: expectedTime
+      });
+    }
+  );
 
   it.each([
     ['user', TokenType.User],
@@ -236,7 +287,7 @@ describe('security page', () => {
 
       // Add the token
       const newTokenName = 'importantToken';
-      const input = screen.getByPlaceholderText('users.enter_token_name');
+      const input = screen.getByPlaceholderText('users.tokens.enter_name');
       const generateButton = screen.getByRole('button', { name: 'users.generate' });
       expect(input).toBeInTheDocument();
       await user.click(input);
@@ -250,7 +301,7 @@ describe('security page', () => {
       if (tokenTypeOption === TokenType.Project) {
         await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
         expect(generateButton).toBeDisabled();
-        expect(screen.getAllByRole('textbox')).toHaveLength(3);
+        expect(screen.getAllByRole('textbox')).toHaveLength(4);
         await selectEvent.select(screen.getAllByRole('textbox')[2], ['Project Name 1']);
         expect(generateButton).not.toBeDisabled();
       } else {

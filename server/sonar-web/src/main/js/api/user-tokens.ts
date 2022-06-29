@@ -31,6 +31,7 @@ export function generateToken(data: {
   projectKey?: string;
   type?: string;
   login?: string;
+  expirationDate?: string;
 }): Promise<NewUserToken> {
   return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
 }

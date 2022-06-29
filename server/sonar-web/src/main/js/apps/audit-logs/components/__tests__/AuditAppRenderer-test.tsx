@@ -19,17 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { now } from '../../../../helpers/dates';
 import { HousekeepingPolicy, RangeOption } from '../../utils';
 import AuditAppRenderer, { AuditAppRendererProps } from '../AuditAppRenderer';
 
-jest.mock('../../utils', () => {
-  const { HousekeepingPolicy, RangeOption } = jest.requireActual('../../utils');
-  const now = new Date('2020-07-21T12:00:00Z');
-
+jest.mock('../../../../helpers/dates', () => {
   return {
-    HousekeepingPolicy,
-    now: jest.fn().mockReturnValue(now),
-    RangeOption
+    ...jest.requireActual('../../../../helpers/dates'),
+    now: jest.fn(() => new Date('2020-07-21T12:00:00Z'))
   };
 });
 
@@ -40,6 +37,7 @@ it.each([
   [HousekeepingPolicy.Yearly]
 ])('should render correctly for %s housekeeping policy', housekeepingPolicy => {
   expect(shallowRender({ housekeepingPolicy })).toMatchSnapshot();
+  now();
 });
 
 function shallowRender(props: Partial<AuditAppRendererProps> = {}) {
