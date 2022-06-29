@@ -24,6 +24,7 @@ import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
+import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
@@ -294,6 +295,33 @@ describe('security page', () => {
       expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
     }
   );
+
+  it('should flag expired tokens as such', async () => {
+    tokenMock.tokens.push(
+      mockUserToken({
+        name: 'expired token',
+        isExpired: true,
+        expirationDate: '2021-01-23T19:25:19+0000'
+      })
+    );
+
+    renderAccountApp(
+      mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+      securityPagePath
+    );
+
+    expect(await screen.findByText('users.tokens')).toBeInTheDocument();
+
+    // expired token is flagged as such
+    const expiredTokenRow = screen.getByRole('row', { name: /expired token/ });
+    expect(within(expiredTokenRow).getByText('my_account.tokens.expired')).toBeInTheDocument();
+
+    // unexpired token is not flagged
+    const unexpiredTokenRow = screen.getAllByRole('row')[0];
+    expect(
+      within(unexpiredTokenRow).queryByText('my_account.tokens.expired')
+    ).not.toBeInTheDocument();
+  });
 
   it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", async () => {
     (getScannableProjects as jest.Mock).mockResolvedValueOnce({

@@ -127,6 +127,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
             {
               name: newToken.name,
               createdAt: newToken.createdAt,
+              isExpired: false,
               type: newTokenType,
               ...(newTokenType === TokenType.Project && {
                 project: { key: selectedProject.key, name: selectedProject.name }
@@ -254,7 +255,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
     if (tokens.length <= 0) {
       return (
         <tr>
-          <td className="note" colSpan={3}>
+          <td className="note" colSpan={7}>
             {translate('users.no_tokens')}
           </td>
         </tr>
@@ -295,7 +296,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
               <th>{translate('my_account.project_name')}</th>
               <th>{translate('my_account.tokens_last_usage')}</th>
               <th className="text-right">{translate('created')}</th>
-              <th />
+              <th className="text-right">{translate('my_account.tokens.expiration')}</th>
+              <th aria-label={translate('actions')} />
             </tr>
           </thead>
           <tbody>

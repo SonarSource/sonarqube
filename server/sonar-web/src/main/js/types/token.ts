@@ -28,6 +28,8 @@ export interface UserToken {
   name: string;
   createdAt: string;
   lastConnectionDate?: string;
+  expirationDate?: string;
+  isExpired: boolean;
   type: TokenType;
   project?: { name: string; key: string };
 }

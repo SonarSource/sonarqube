@@ -69,6 +69,7 @@ export default class UserTokensMock {
       login,
       type,
       projectKey,
+      isExpired: false,
       token: Math.random()
         .toString(RANDOM_RADIX)
         .slice(RANDOM_PREFIX),

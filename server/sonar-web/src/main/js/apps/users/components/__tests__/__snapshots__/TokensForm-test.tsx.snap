@@ -50,7 +50,14 @@ exports[`should render correctly 1`] = `
         >
           created
         </th>
-        <th />
+        <th
+          className="text-right"
+        >
+          my_account.tokens.expiration
+        </th>
+        <th
+          aria-label="actions"
+        />
       </tr>
     </thead>
     <tbody>
@@ -69,7 +76,7 @@ exports[`should render correctly 1`] = `
         <tr>
           <td
             className="note"
-            colSpan={3}
+            colSpan={7}
           >
             users.no_tokens
           </td>
@@ -130,7 +137,14 @@ exports[`should render correctly 2`] = `
         >
           created
         </th>
-        <th />
+        <th
+          className="text-right"
+        >
+          my_account.tokens.expiration
+        </th>
+        <th
+          aria-label="actions"
+        />
       </tr>
     </thead>
     <tbody>

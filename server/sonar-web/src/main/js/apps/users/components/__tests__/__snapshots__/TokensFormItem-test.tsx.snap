@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<tr>
+<tr
+  className=""
+>
   <td
     className="hide-overflow nowrap"
     title="foo"
@@ -32,6 +34,11 @@ exports[`should render correctly 1`] = `
       date="2019-01-15T15:06:33+0100"
       long={true}
     />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    –
   </td>
   <td
     className="thin nowrap text-right"
@@ -52,7 +59,9 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `
-<tr>
+<tr
+  className=""
+>
   <td
     className="hide-overflow nowrap"
     title="foo"
@@ -83,6 +92,11 @@ exports[`should render correctly 2`] = `
       date="2019-01-15T15:06:33+0100"
       long={true}
     />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    –
   </td>
   <td
     className="thin nowrap text-right"

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { revokeToken } from '../../../api/user-tokens';
 import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import WarningIcon from '../../../components/icons/WarningIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -82,9 +84,15 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
     const { deleteConfirmation, token } = this.props;
     const { loading, showConfirmation } = this.state;
     return (
-      <tr>
+      <tr className={classNames({ 'text-muted-2': token.isExpired })}>
         <td title={token.name} className="hide-overflow nowrap">
           {token.name}
+          {token.isExpired && (
+            <div className="spacer-top text-warning">
+              <WarningIcon className="little-spacer-right" />
+              {translate('my_account.tokens.expired')}
+            </div>
+          )}
         </td>
         <td title={translate('users.tokens', token.type)} className="hide-overflow thin">
           {translate('users.tokens', token.type, 'short')}
@@ -97,6 +105,9 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
         </td>
         <td className="thin nowrap text-right">
           <DateFormatter date={token.createdAt} long={true} />
+        </td>
+        <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
+          {token.expirationDate ? <DateFormatter date={token.expirationDate} long={true} /> : '–'}
         </td>
         <td className="thin nowrap text-right">
           {deleteConfirmation === 'modal' ? (
