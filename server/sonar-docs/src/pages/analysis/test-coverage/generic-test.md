@@ -4,7 +4,7 @@ url: /analysis/generic-test/
 ---
 
 SonarQube supports generic formats for test coverage and test execution import.
-If the native output of your coverage tool is not supported by SonarQube, you will have to convert it to the following format:
+If the native output of your coverage tool is not supported by SonarQube, you must convert it to this format:
 
 
 ## Generic Test Coverage Report Format
