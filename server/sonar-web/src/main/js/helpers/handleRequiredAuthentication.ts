@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getBaseUrl } from './system';
+
 export default function handleRequiredAuthentication() {
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
   const searchParams = new URLSearchParams({ return_to: returnTo });
-  window.location.replace(`/sessions/new?${searchParams.toString()}`);
+  window.location.replace(`${getBaseUrl()}/sessions/new?${searchParams.toString()}`);
 }

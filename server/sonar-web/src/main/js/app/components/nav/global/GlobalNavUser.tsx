@@ -36,8 +36,9 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href =
-      getBaseUrl() + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
+    window.location.href = `${getBaseUrl()}/sessions/new?return_to=${returnTo}${
+      window.location.hash
+    }`;
   };
 
   handleLogout = (event: React.SyntheticEvent<HTMLAnchorElement>) => {

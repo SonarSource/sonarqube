@@ -23,6 +23,7 @@ import { Button } from '../../components/controls/buttons';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/system';
 import { hasGlobalPermission } from '../../helpers/users';
 import { Permissions } from '../../types/permissions';
 import { RiskConsent } from '../../types/plugins';
@@ -57,7 +58,8 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
         value: RiskConsent.Accepted
       });
 
-      window.location.href = `/`; // force a refresh for the backend
+      // force a refresh for the backend
+      window.location.href = `${getBaseUrl()}/`;
     } catch (_) {
       /* Do nothing */
     }

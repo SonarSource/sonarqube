@@ -424,7 +424,7 @@ export function getReturnUrl(location: { hash?: string; query?: { return_to?: st
   if (isRelativeUrl(returnTo)) {
     return returnTo + (location.hash ? location.hash : '');
   }
-  return getBaseUrl() + '/';
+  return `${getBaseUrl()}/`;
 }
 
 export function isRelativeUrl(url?: string): boolean {

@@ -59,6 +59,7 @@ import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
 import { omitNil } from '../../helpers/request';
+import { getBaseUrl } from '../../helpers/system';
 import { AppState } from '../../types/appstate';
 import { CurrentUser } from '../../types/users';
 import AdminContainer from '../components/AdminContainer';
@@ -233,7 +234,7 @@ export default function startReactApp(lang: string, appState: AppState, currentU
         <CurrentUserContextProvider currentUser={currentUser}>
           <IntlProvider defaultLocale={lang} locale={lang}>
             <GlobalMessagesContainer />
-            <BrowserRouter>
+            <BrowserRouter basename={getBaseUrl()}>
               <Routes>
                 {renderRedirects()}
 

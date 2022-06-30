@@ -44,7 +44,7 @@ export function ResetPassword({ currentUser }: ResetPasswordProps) {
             user={currentUser}
             onPasswordChange={() => {
               // Force a refresh for the backend to handle additional redirects.
-              window.location.href = getBaseUrl() + '/';
+              window.location.href = `${getBaseUrl()}/`;
             }}
           />
         </div>
