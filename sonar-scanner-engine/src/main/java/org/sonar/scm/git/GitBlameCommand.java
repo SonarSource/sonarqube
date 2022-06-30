@@ -46,7 +46,7 @@ public class GitBlameCommand {
   protected static final String GIT_DIR_FORCE_FLAG = "-C";
 
   private static final Logger LOG = Loggers.get(GitBlameCommand.class);
-  private static final Pattern EMAIL_PATTERN = Pattern.compile("<(\\S*?)>");
+  private static final Pattern EMAIL_PATTERN = Pattern.compile("<(.*?)>");
   private static final String COMMITTER_TIME = "committer-time ";
   private static final String COMMITTER_MAIL = "committer-mail ";
 

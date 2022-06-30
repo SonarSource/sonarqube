@@ -244,6 +244,21 @@ public class GitBlameCommandTest {
   }
 
   @Test
+  public void blame_mail_with_spaces_doesnt_fail() throws Exception {
+    Path baseDir = temp.newFolder().toPath();
+    Git git = createRepository(baseDir);
+    String filePath = "file.txt";
+    createFile(filePath, "line", baseDir);
+    commit(git, filePath, "my DOT name AT server DOT com");
+
+    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    assertThat(blameCommand.checkIfEnabled()).isTrue();
+    List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
+    assertThat(blame).hasSize(1);
+    assertThat(blame.get(0).author()).isEqualTo("my DOT name AT server DOT com");
+  }
+
+  @Test
   public void do_not_execute() throws Exception {
     Path baseDir = temp.newFolder().toPath();
     Git git = createRepository(baseDir);
@@ -300,13 +315,16 @@ public class GitBlameCommandTest {
   }
 
   private void commitWithNoEmail(Git git, String path) throws GitAPIException {
-    git.add().addFilepattern(path).call();
-    git.commit().setCommitter("joe", "").setMessage("msg").call();
+    commit(git, path, "");
   }
 
   private void commit(Git git, String path) throws GitAPIException {
+    commit(git, path, "email@email.com");
+  }
+
+  private void commit(Git git, String path, String email) throws GitAPIException {
     git.add().addFilepattern(path).call();
-    git.commit().setCommitter("joe", "email@email.com").setMessage("msg").call();
+    git.commit().setCommitter("joe", email).setMessage("msg").call();
   }
 
   private File createNewTempFolder() throws IOException {
