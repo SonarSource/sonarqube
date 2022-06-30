@@ -18,5 +18,4 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile 'pmd:pmd:4.3'
 }
