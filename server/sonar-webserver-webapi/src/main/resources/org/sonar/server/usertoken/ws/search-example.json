@@ -9,6 +9,7 @@
     {
       "name": "Project scan on Jenkins",
       "createdAt": "2015-04-08T21:57:47+0200",
+      "expirationDate": "2022-07-14T00:00:00+0200",
       "type": "PROJECT_ANALYSIS_TOKEN",
       "project": {
         "key": "project-1",

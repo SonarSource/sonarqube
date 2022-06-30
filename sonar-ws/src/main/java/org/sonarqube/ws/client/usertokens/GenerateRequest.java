@@ -35,6 +35,7 @@ public class GenerateRequest {
   private String name;
   private String type;
   private String projectKey;
+  private String expirationDate;
 
   /**
    * Example value: "g.hopper"
@@ -76,6 +77,15 @@ public class GenerateRequest {
 
   public GenerateRequest setProjectKey(@Nullable String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  public String getExpirationDate() {
+    return expirationDate;
+  }
+
+  public GenerateRequest setExpirationDate(String expirationDate) {
+    this.expirationDate = expirationDate;
     return this;
   }
 }

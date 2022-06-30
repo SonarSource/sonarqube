@@ -58,6 +58,7 @@ public class SearchAction implements UserTokensWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user is using a token many times in less than one hour.<br> " +
         "It requires administration permissions to specify a 'login' and list the tokens of another user. Otherwise, tokens for the current user are listed. <br> " +
         "Authentication is required for this API endpoint")
+      .setChangelog(new Change("9.6", "New field 'expirationDate' is added to response"))
       .setChangelog(new Change("7.7", "New field 'lastConnectionDate' is added to response"))
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.3")
@@ -93,6 +94,7 @@ public class SearchAction implements UserTokensWsAction {
         .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()))
         .setType(userTokenDto.getType());
       ofNullable(userTokenDto.getLastConnectionDate()).ifPresent(date -> userTokenBuilder.setLastConnectionDate(formatDateTime(date)));
+      ofNullable(userTokenDto.getExpirationDate()).ifPresent(expirationDate -> userTokenBuilder.setExpirationDate(formatDateTime(expirationDate)));
 
       if (!isNullOrEmpty(userTokenDto.getProjectKey()) && !isNullOrEmpty(userTokenDto.getProjectName())) {
         Project.Builder projectBuilder = newBuilder().getProjectBuilder()

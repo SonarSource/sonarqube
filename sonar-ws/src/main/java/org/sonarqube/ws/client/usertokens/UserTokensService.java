@@ -51,7 +51,8 @@ public class UserTokensService extends BaseService {
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
         .setParam("type", request.getType())
-        .setParam("projectKey", request.getProjectKey()),
+        .setParam("projectKey", request.getProjectKey())
+        .setParam("expirationDate", request.getExpirationDate()),
       GenerateWsResponse.parser());
   }
 
