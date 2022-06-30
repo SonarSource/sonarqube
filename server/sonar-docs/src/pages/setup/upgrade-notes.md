@@ -9,6 +9,9 @@ url: /setup/upgrade-notes/
 * If your Microsoft SQL Server requires encryption but you don't want SonarQube to validate the certificate, you will need to add `trustServerCertificate=true` to the JDBC URL connection string.
 * If you are using Microsoft SQL Server with Integrated Authentication, you will need to replace the `mssql-jdbc_auth` dll file on your `PATH` with `mssql-jdbc_auth-10.2.1.x64.dll` from the  [Microsoft SQL JDBC Auth 10.2.1 package](https://github.com/microsoft/mssql-jdbc/releases/tag/v10.2.1). See [Install the Server](/setup/install-server/) for more information.
 
+**Token expiration dates**  
+Tokens can now have an optional expiration date. Expired tokens can no longer be used to interact with the WebAPI or to run an analysis on a project. System administrators using Enterprise Edition and above can now set a maximum lifetime for all newly generated tokens. See [Generating and Using Tokens](/user-guide/user-token/) and [Security](/instance-administration/security/) documentation for more information.
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17429)
 
 ## Release 9.5 Upgrade notes
