@@ -19,6 +19,8 @@
  */
 package org.sonar.server.usertoken;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +45,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
@@ -105,6 +108,30 @@ public class UserTokenAuthenticationTest {
   }
 
   @Test
+  public void return_login_when_token_hash_found_in_db_and_future_expiration_date() {
+    String token = "known-token";
+    String tokenHash = "123456789";
+
+    long expirationTimestamp = ZonedDateTime.now(ZoneId.systemDefault()).plusDays(10).toInstant().toEpochMilli();
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
+    when(tokenGenerator.hash(token)).thenReturn(tokenHash);
+    UserDto user1 = db.users().insertUser();
+    UserTokenDto userTokenDto = db.users().insertToken(user1, t -> t.setTokenHash(tokenHash).setExpirationDate(expirationTimestamp));
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user2, t -> t.setTokenHash("another-token-hash"));
+
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getTokenDto().getUuid()).isEqualTo(userTokenDto.getUuid());
+    assertThat(result.get().getTokenDto().getExpirationDate()).isEqualTo(expirationTimestamp);
+    assertThat(result.get().getUserDto().getUuid())
+      .isNotNull()
+      .contains(user1.getUuid());
+    verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+  }
+
+  @Test
   public void return_absent_if_username_password_used() {
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("login:password"));
 
@@ -116,11 +143,28 @@ public class UserTokenAuthenticationTest {
   }
 
   @Test
-  public void return_absent_if_token_hash_is_not_found() {
+  public void throw_authentication_exception_if_token_hash_is_not_found() {
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_OLD_USER_TOKEN + ":"));
 
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessageContaining("Token doesn't exist")
+      .isInstanceOf(AuthenticationException.class);
+    verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+    verifyNoInteractions(authenticationEvent);
+  }
+
+  @Test
+  public void throw_authentication_exception_if_token_is_expired() {
+    String token = "known-token";
+    String tokenHash = "123456789";
+    long expirationTimestamp = System.currentTimeMillis();
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
+    when(tokenGenerator.hash(token)).thenReturn(tokenHash);
+    UserDto user1 = db.users().insertUser();
+    db.users().insertToken(user1, t -> t.setTokenHash(tokenHash).setExpirationDate(expirationTimestamp));
+
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessageContaining("The token expired on " + formatDateTime(expirationTimestamp))
       .isInstanceOf(AuthenticationException.class);
     verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
     verifyNoInteractions(authenticationEvent);

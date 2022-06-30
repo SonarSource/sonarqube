@@ -148,4 +148,8 @@ public class UserTokenDto {
     this.projectUuid = projectUuid;
     return this;
   }
+
+  public boolean isExpired() {
+    return (this.expirationDate != null && this.getExpirationDate() < System.currentTimeMillis());
+  }
 }

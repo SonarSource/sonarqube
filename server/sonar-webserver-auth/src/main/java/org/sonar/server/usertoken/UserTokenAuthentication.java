@@ -33,6 +33,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.authentication.BasicAuthentication.extractCredentialsFromHeader;
 
 public class UserTokenAuthentication {
@@ -80,7 +81,7 @@ public class UserTokenAuthentication {
       }
       request.setAttribute(ACCESS_LOG_TOKEN_NAME, userToken.getName());
       return new UserAuthResult(userDto, userToken, UserAuthResult.AuthType.TOKEN);
-    } catch (NotFoundException exception) {
+    } catch (NotFoundException | IllegalStateException exception ) {
       throw AuthenticationException.newBuilder()
         .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
         .setMessage(exception.getMessage())
@@ -92,6 +93,9 @@ public class UserTokenAuthentication {
     UserTokenDto userToken = getUserToken(token);
     if (userToken == null) {
       throw new NotFoundException("Token doesn't exist");
+    }
+    if (userToken.isExpired()) {
+      throw new IllegalStateException("The token expired on " + formatDateTime(userToken.getExpirationDate()));
     }
     userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(userToken);
     return userToken;
