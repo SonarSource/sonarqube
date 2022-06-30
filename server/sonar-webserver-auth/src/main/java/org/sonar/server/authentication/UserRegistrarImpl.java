@@ -113,7 +113,7 @@ public class UserRegistrarImpl implements UserRegistrar {
 
     String externalEmail = userIdentity.getEmail();
 
-    if (!dbEmail.equals(externalEmail)) {
+    if (!dbEmail.equalsIgnoreCase(externalEmail)) {
       LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'", userIdentity.getProviderLogin(), externalEmail, dbEmail);
       throw failAuthenticationException(userIdentity, source);
     }
