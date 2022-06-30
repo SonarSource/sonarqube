@@ -66,7 +66,7 @@ task yarn_run(type: Exec) {
   outputs.dir('public')
   outputs.cacheIf { true }
 
-  environment += [ GATSBY_DOCS_VERSION: docsVersion ]
+  environment += [ GATSBY_DOCS_VERSION: docsVersion, GATSBY_TELEMETRY_DISABLED: 1 ]
   commandLine osAdaptiveCommand(['npm', 'run', 'build'])
 }
 yarn_run.dependsOn(extractAnalyzerDocFiles)
