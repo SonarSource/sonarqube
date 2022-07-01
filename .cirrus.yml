@@ -2,7 +2,7 @@
 gcp_credentials: ENCRYPTED[!e5f7207bd8d02d383733bef47e18296ac32e3b7d22eb480354e8dd8fdc0004be45a8a4e72c797bd66ee94eb3340fa363!]
 
 env:
-  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
+  GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
   # to be replaced by other credentials
   ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-sq-ef42e7
   ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!78f301d53d89b4f7d7fc29b4ebce24b0aa989c7f742084fae80366b3fe2434a70a549a12e4856d4ca5ab95228f3f37be!]
