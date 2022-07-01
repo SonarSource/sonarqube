@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -54,6 +55,8 @@ public class RuleTesting {
   public static final RuleKey XOO_X1 = RuleKey.of("xoo", "x1");
   public static final RuleKey XOO_X2 = RuleKey.of("xoo", "x2");
   public static final RuleKey XOO_X3 = RuleKey.of("xoo", "x3");
+
+  private static final AtomicLong nextRuleId = new AtomicLong(0);
 
   private static final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
@@ -219,11 +222,11 @@ public class RuleTesting {
   }
 
   public static RuleKey randomRuleKey() {
-    return RuleKey.of("repo_" + randomAlphanumeric(3), "rule_" + randomAlphanumeric(3));
+    return RuleKey.of("repo_" + getNextUniqueId(), "rule_" + getNextUniqueId());
   }
 
-  public static RuleKey randomRuleKeyOfMaximumLength() {
-    return RuleKey.of(randomAlphabetic(255), randomAlphabetic(200));
+  private static String getNextUniqueId() {
+    return String.format("%010d", nextRuleId.getAndIncrement());
   }
 
   public static Consumer<RuleDto> setRepositoryKey(String repositoryKey) {
