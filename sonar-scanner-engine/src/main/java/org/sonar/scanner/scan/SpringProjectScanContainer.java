@@ -44,9 +44,9 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
-import org.sonar.scanner.cache.DefaultAnalysisCacheLoader;
 import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
 import org.sonar.scanner.cache.AnalysisCacheProvider;
+import org.sonar.scanner.cache.DefaultAnalysisCacheLoader;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
 import org.sonar.scanner.ci.vendors.AwsCodeBuild;
@@ -81,6 +81,7 @@ import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobsExecutor;
 import org.sonar.scanner.qualitygate.QualityGateCheck;
 import org.sonar.scanner.report.ActiveRulesPublisher;
+import org.sonar.scanner.report.AnalysisCachePublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.AnalysisWarningsPublisher;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
@@ -88,7 +89,6 @@ import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.MetadataPublisher;
-import org.sonar.scanner.report.AnalysisCachePublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.report.TestExecutionPublisher;
@@ -241,12 +241,12 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
       ActiveRulesPublisher.class,
-      AnalysisWarningsPublisher.class,
       ComponentsPublisher.class,
       AnalysisCachePublisher.class,
       TestExecutionPublisher.class,
       SourcePublisher.class,
       ChangedLinesPublisher.class,
+      AnalysisWarningsPublisher.class,
 
       CeTaskReportDataHolder.class,
 

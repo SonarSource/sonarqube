@@ -162,6 +162,25 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
+  public void read_from_db_if_not_exist_in_reference_branch() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
+
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
+    analysisMetadataHolder.setBaseAnalysis(null);
+    analysisMetadataHolder.setBranch(branch);
+
+    String hash = computeSourceHash(1);
+
+    addFileSourceInDb("henry", DATE_1, "rev-1", hash, FILE.getUuid());
+
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertThat(scmInfo.fileHash()).isEqualTo(hash);
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
+  }
+
+  @Test
   public void return_empty_if_no_dto_available() {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);

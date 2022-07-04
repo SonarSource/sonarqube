@@ -83,7 +83,12 @@ public class ScmInfoDbLoader {
     }
 
     if (isReferenceBranch()) {
-      return Optional.ofNullable(newCodeReferenceBranchComponentUuids.getComponentUuid(file.getDbKey()));
+      var referencedBranchComponentUuid = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getDbKey());
+      if (referencedBranchComponentUuid != null) {
+        return Optional.of(referencedBranchComponentUuid);
+      }
+      // no file to diff was found or missing reference branch changeset - use existing file
+      return Optional.of(file.getUuid());
     }
 
     // at this point, it's the first analysis of a branch with copyFromPrevious flag true or any analysis of a PR
