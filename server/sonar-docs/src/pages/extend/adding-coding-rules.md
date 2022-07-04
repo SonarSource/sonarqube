@@ -78,9 +78,9 @@ Each language's SSLR Toolkit is a standalone application that displays the AST f
 
 The latest version of SSLR Toolkit can be downloaded from following locations:
 
-* [Flex](https://binaries.sonarsource.com/Distribution/sonar-flex-plugin/)
-* [PL/SQL](https://binaries.sonarsource.com/CommercialDistribution/sslr-plsql-toolkit/)
-* [PL/I](https://binaries.sonarsource.com/CommercialDistribution/sslr-pli-toolkit/)
+* [Flex](https://binaries.sonarsource.com/?prefix=Distribution/sslr-flex-toolkit/)
+* [PL/SQL](https://binaries.sonarsource.com/?prefix=CommercialDistribution/sslr-plsql-toolkit/)
+* [PL/I](https://binaries.sonarsource.com/?prefix=CommercialDistribution/sslr-pli-toolkit/)
 
 For an SSLR preview, consider the following source code sample:
 ```
