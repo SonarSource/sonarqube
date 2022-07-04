@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.logging.LogManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
@@ -229,6 +230,9 @@ public class LogbackHelper extends AbstractLogHelper {
   }
 
   public Encoder<ILoggingEvent> createEncoder(Props props, RootLoggerConfig config, LoggerContext context) {
+    if (System.getenv().containsKey("DD_HOST")) {
+      MDC.put("host", System.getenv("DD_HOST"));
+    }
     if (props.valueAsBoolean("sonar.log.useJsonOutput", false)) {
       LayoutWrappingEncoder encoder = new LayoutWrappingEncoder<>();
       encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey()));
