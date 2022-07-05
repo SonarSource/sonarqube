@@ -20,6 +20,7 @@
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
+import { getValues } from '../../../api/settings';
 import { generateToken, getTokens } from '../../../api/user-tokens';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { SubmitButton } from '../../../components/controls/buttons';
@@ -52,6 +53,7 @@ interface State {
   projects: BasicSelectOption[];
   selectedProject: { key: string; name: string };
   newTokenExpiration: TokenExpiration;
+  tokenExpirationOptions: { value: TokenExpiration; label: string }[];
 }
 
 const EXPIRATION_OPTIONS = [
@@ -66,6 +68,13 @@ const EXPIRATION_OPTIONS = [
   };
 });
 
+const SETTINGS_EXPIRATION_MAP: { [key: string]: TokenExpiration } = {
+  '30 days': TokenExpiration.OneMonth,
+  '90 days': TokenExpiration.ThreeMonths,
+  '1 year': TokenExpiration.OneYear,
+  'No expiration': TokenExpiration.NoExpiration
+};
+
 export class TokensForm extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
@@ -76,12 +85,14 @@ export class TokensForm extends React.PureComponent<Props, State> {
     selectedProject: { key: '', name: '' },
     tokens: [],
     projects: [],
-    newTokenExpiration: TokenExpiration.OneMonth
+    newTokenExpiration: TokenExpiration.OneMonth,
+    tokenExpirationOptions: EXPIRATION_OPTIONS
   };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchTokens();
+    this.fetchTokenSettings();
     if (this.props.displayTokenTypeInput) {
       this.fetchProjects();
     }
@@ -105,6 +116,24 @@ export class TokensForm extends React.PureComponent<Props, State> {
         }
       }
     );
+  };
+
+  fetchTokenSettings = async () => {
+    const setting = await getValues({ keys: 'sonar.auth.token.max.allowed.lifetime' });
+    if (setting === undefined || setting[0].value === undefined) {
+      return;
+    }
+    const maxTokenLifetime = setting[0].value;
+    if (SETTINGS_EXPIRATION_MAP[maxTokenLifetime] !== TokenExpiration.NoExpiration) {
+      const tokenExpirationOptions = EXPIRATION_OPTIONS.filter(
+        option =>
+          option.value <= SETTINGS_EXPIRATION_MAP[maxTokenLifetime] &&
+          option.value !== TokenExpiration.NoExpiration
+      );
+      if (this.mounted) {
+        this.setState({ tokenExpirationOptions });
+      }
+    }
   };
 
   fetchProjects = async () => {
@@ -230,7 +259,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
       newTokenType,
       projects,
       selectedProject,
-      newTokenExpiration
+      newTokenExpiration,
+      tokenExpirationOptions
     } = this.state;
     const { displayTokenTypeInput, currentUser } = this.props;
 
@@ -309,8 +339,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
             className="spacer-top"
             isSearchable={false}
             onChange={this.handleNewTokenExpirationChange}
-            options={EXPIRATION_OPTIONS}
-            value={EXPIRATION_OPTIONS.find(option => option.value === newTokenExpiration)}
+            options={tokenExpirationOptions}
+            value={tokenExpirationOptions.find(option => option.value === newTokenExpiration)}
           />
         </div>
         <SubmitButton

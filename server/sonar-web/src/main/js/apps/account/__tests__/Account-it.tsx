@@ -25,6 +25,7 @@ import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
+import { getValues } from '../../../api/settings';
 import { generateToken } from '../../../api/user-tokens';
 import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
@@ -41,6 +42,17 @@ jest.mock('../../../helpers/dates', () => {
   return {
     ...jest.requireActual('../../../helpers/dates'),
     now: jest.fn(() => new Date('2022-06-01T12:00:00Z'))
+  };
+});
+
+jest.mock('../../../api/settings', () => {
+  return {
+    ...jest.requireActual('../../../api/settings'),
+    getValues: jest.fn().mockResolvedValue([
+      {
+        value: 'No expiration'
+      }
+    ])
   };
 });
 
@@ -219,6 +231,7 @@ describe('security page', () => {
 
   beforeAll(() => {
     tokenMock = new UserTokensMock();
+    (getValues as jest.Mock).mockClear();
   });
 
   afterEach(() => {
@@ -226,6 +239,59 @@ describe('security page', () => {
   });
 
   const securityPagePath = 'account/security';
+
+  it.each([
+    [
+      '30 days',
+      [TokenExpiration.OneMonth],
+      [TokenExpiration.ThreeMonths, TokenExpiration.OneYear, TokenExpiration.NoExpiration]
+    ],
+    [
+      '90 days',
+      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths],
+      [TokenExpiration.OneYear, TokenExpiration.NoExpiration]
+    ],
+    [
+      '1 year',
+      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths, TokenExpiration.OneYear],
+      [TokenExpiration.NoExpiration]
+    ],
+    [
+      'No expiration',
+      [
+        TokenExpiration.OneMonth,
+        TokenExpiration.ThreeMonths,
+        TokenExpiration.OneYear,
+        TokenExpiration.NoExpiration
+      ],
+      []
+    ]
+  ])(
+    'should display expiration date inferior or equal to the settings limit %s',
+    async (settingMaxLifetime, expectedTime, notExpectedTime) => {
+      (getValues as jest.Mock).mockImplementation(() =>
+        Promise.resolve([{ value: settingMaxLifetime }])
+      );
+
+      renderAccountApp(
+        mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+        securityPagePath
+      );
+
+      await selectEvent.openMenu(screen.getAllByRole('textbox')[2]);
+
+      expectedTime.forEach(time => {
+        // TokenExpiration.OneMonth is expected twice has it is the default value.
+        expect(screen.getAllByText(`users.tokens.expiration.${time}`).length).toBe(
+          time === TokenExpiration.OneMonth ? 2 : 1
+        );
+      });
+
+      notExpectedTime.forEach(time => {
+        expect(screen.queryByText(`users.tokens.expiration.${time}`)).not.toBeInTheDocument();
+      });
+    }
+  );
 
   it.each([
     [TokenExpiration.OneMonth, '2022-07-01'],
