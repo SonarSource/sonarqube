@@ -88,10 +88,10 @@ public class UserTokenSupport {
     throw insufficientPrivilegesException();
   }
 
-  public void validateProjectScanPermission(DbSession dbSession, String projecKeyFromRequest) {
-    Optional<ProjectDto> projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projecKeyFromRequest);
+  public void validateProjectScanPermission(DbSession dbSession, String projectKeyFromRequest) {
+    Optional<ProjectDto> projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKeyFromRequest);
     if (projectDto.isEmpty()) {
-      throw new NotFoundException(format("Project key '%s' not found", projecKeyFromRequest));
+      throw new NotFoundException(format("Project key '%s' not found", projectKeyFromRequest));
     }
     validateProjectScanPermission(projectDto.get());
   }

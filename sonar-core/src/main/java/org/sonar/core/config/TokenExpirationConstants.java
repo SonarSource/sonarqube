@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usertoken.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonar.core.config;
 
-public class UserTokenWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      UserTokensWs.class,
-      UserTokenSupport.class,
-      GenerateAction.class,
-      RevokeAction.class,
-      SearchAction.class,
-      GenerateActionValidation.class
-    );
+public final class TokenExpirationConstants {
+  public static final String MAX_ALLOWED_TOKEN_LIFETIME = "sonar.auth.token.max.allowed.lifetime";
+
+  private TokenExpirationConstants() {
   }
+
 }

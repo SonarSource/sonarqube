@@ -75,7 +75,7 @@ public class SearchActionTest {
     db.users().insertToken(user1, t -> t.setName("Project scan on AppVeyor").setCreatedAt(1438523067221L));
     db.users().insertProjectAnalysisToken(user1, t -> t.setName("Project scan on Jenkins")
       .setCreatedAt(1428523067221L)
-      .setExpirationDate(1657749600000L)
+      .setExpirationDate(1563055200000L)
       .setProjectKey(project1.getKey()));
     db.users().insertProjectAnalysisToken(user2, t -> t.setName("Project scan on Travis")
       .setCreatedAt(141456787123L)

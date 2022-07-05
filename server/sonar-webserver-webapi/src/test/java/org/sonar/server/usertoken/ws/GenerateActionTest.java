@@ -22,12 +22,15 @@ package org.sonar.server.usertoken.ws;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -51,8 +54,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.SonarEdition.COMMUNITY;
+import static org.sonar.api.SonarEdition.DATACENTER;
+import static org.sonar.api.SonarEdition.DEVELOPER;
+import static org.sonar.api.SonarEdition.ENTERPRISE;
 import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 import static org.sonar.api.utils.DateUtils.DATE_FORMAT;
+import static org.sonar.core.config.MaxTokenLifetimeOption.NO_EXPIRATION;
+import static org.sonar.core.config.MaxTokenLifetimeOption.THIRTY_DAYS;
+import static org.sonar.core.config.TokenExpirationConstants.MAX_ALLOWED_TOKEN_LIFETIME;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
@@ -73,10 +83,14 @@ public class GenerateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private final SonarRuntime runtime = mock(SonarRuntime.class);
   private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+  private final MapSettings mapSettings = new MapSettings();
+  private final Configuration configuration = mapSettings.asConfig();
+  private final GenerateActionValidation validation = new GenerateActionValidation(configuration, runtime);
 
   private final WsActionTester ws = new WsActionTester(
-    new GenerateAction(db.getDbClient(), System2.INSTANCE, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession)));
+    new GenerateAction(db.getDbClient(), System2.INSTANCE, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation));
 
   @Before
   public void setUp() {
@@ -84,6 +98,7 @@ public class GenerateActionTest {
     when(tokenGenerator.generate(GLOBAL_ANALYSIS_TOKEN)).thenReturn("sqa_123456789");
     when(tokenGenerator.generate(PROJECT_ANALYSIS_TOKEN)).thenReturn("sqp_123456789");
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
+    when(runtime.getEdition()).thenReturn(ENTERPRISE); // by default, a Sonar version that supports the max allowed lifetime token property
   }
 
   @Test
@@ -120,8 +135,7 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_token_for_himself() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    UserDto user = userLogin();
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME);
 
@@ -131,8 +145,7 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_globalAnalysisToken_with_the_global_scan_permission() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    UserDto user = userLogin();
     userSession.addPermission(SCAN);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, GLOBAL_ANALYSIS_TOKEN, null);
@@ -144,9 +157,8 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_global_scan_permission() {
-    UserDto user = db.users().insertUser();
+    UserDto user = userLogin();
     ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn(user);
     userSession.addPermission(SCAN);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -159,9 +171,8 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission() {
-    UserDto user = db.users().insertUser();
+    UserDto user = userLogin();
     ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn(user);
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -174,9 +185,8 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_projectAnalysisToken_with_the_project_scan_permission_passing_login() {
-    UserDto user = db.users().insertUser();
+    UserDto user = userLogin();
     ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn(user);
     userSession.addProjectPermission(SCAN.toString(), project);
 
     GenerateWsResponse responseWithLogin = newRequest(user.getLogin(), TOKEN_NAME, PROJECT_ANALYSIS_TOKEN, project.getKey());
@@ -189,8 +199,7 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_token_for_himself_with_expiration_date() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    UserDto user = userLogin();
 
     // A date 10 days in the future with format yyyy-MM-dd
     String expirationDateValue = LocalDate.now().plusDays(10).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
@@ -204,7 +213,7 @@ public class GenerateActionTest {
 
   @Test
   public void an_administrator_can_generate_token_for_users_with_expiration_date() {
-    UserDto user = db.users().insertUser();
+    UserDto user = userLogin();
     logInAsSystemAdministrator();
 
     // A date 10 days in the future with format yyyy-MM-dd
@@ -228,7 +237,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_name_is_blank() {
-    UserDto user = db.users().insertUser();
+    UserDto user = userLogin();
     logInAsSystemAdministrator();
 
     String login = user.getLogin();
@@ -240,8 +249,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_globalAnalysisToken_created_for_other_user() {
-    UserDto user = db.users().insertUser();
-    String login = user.getLogin();
+    String login = userLogin().getLogin();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> newRequest(login, "token 1", GLOBAL_ANALYSIS_TOKEN, null))
@@ -251,8 +259,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_projectAnalysisToken_created_for_other_user() {
-    UserDto user = db.users().insertUser();
-    String login = user.getLogin();
+    String login = userLogin().getLogin();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> newRequest(login, "token 1", PROJECT_ANALYSIS_TOKEN, "project 1"))
@@ -262,8 +269,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_globalAnalysisToken_created_without_global_permission() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    userLogin();
 
     assertThatThrownBy(() -> {
       newRequest(null, "token 1", GLOBAL_ANALYSIS_TOKEN, null);
@@ -274,8 +280,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_projectAnalysisToken_created_without_project_permission() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    userLogin();
     String projectKey = db.components().insertPublicProject().getKey();
 
     assertThatThrownBy(() -> newRequest(null, "token 1", PROJECT_ANALYSIS_TOKEN, projectKey))
@@ -285,8 +290,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_projectAnalysisToken_created_for_blank_projectKey() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    userLogin();
 
     assertThatThrownBy(() -> {
       newRequest(null, "token 1", PROJECT_ANALYSIS_TOKEN, null);
@@ -297,8 +301,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_projectAnalysisToken_created_for_non_existing_project() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+    userLogin();
     userSession.addPermission(SCAN);
 
     assertThatThrownBy(() -> {
@@ -346,6 +349,117 @@ public class GenerateActionTest {
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
+  }
+
+  @Test
+  public void success_if_expirationDate_is_equal_to_the_max_allowed_token_lifetime() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
+    String expirationDateString = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
+    assertThat(response.getLogin()).isEqualTo(login);
+    assertThat(response.getCreatedAt()).isNotEmpty();
+    assertThat(response.getExpirationDate()).isEqualTo(getFormattedDate(expirationDateString));
+  }
+
+  @Test
+  public void success_if_expirationDate_is_before_the_max_allowed_token_lifetime() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
+    String expirationDateString = LocalDate.now().plusDays(29).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
+    assertThat(response.getLogin()).isEqualTo(login);
+    assertThat(response.getCreatedAt()).isNotEmpty();
+    assertThat(response.getExpirationDate()).isEqualTo(getFormattedDate(expirationDateString));
+  }
+
+  @Test
+  public void success_if_no_expiration_date_is_allowed_with_expiration_date() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, NO_EXPIRATION.getName());
+    String expirationDateString = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    GenerateWsResponse response = newRequest(login, TOKEN_NAME, expirationDateString);
+    assertThat(response.getLogin()).isEqualTo(login);
+    assertThat(response.getCreatedAt()).isNotEmpty();
+    assertThat(response.getExpirationDate()).isEqualTo(getFormattedDate(expirationDateString));
+  }
+
+  @Test
+  public void success_if_no_expiration_date_is_allowed_without_expiration_date() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, NO_EXPIRATION.getName());
+
+    GenerateWsResponse response = newRequest(login, TOKEN_NAME);
+    assertThat(response.getLogin()).isEqualTo(login);
+    assertThat(response.getCreatedAt()).isNotEmpty();
+  }
+
+  @Test
+  public void fail_if_expirationDate_is_after_the_max_allowed_token_lifetime() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
+
+    String expirationDateString = LocalDate.now().plusDays(31).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+
+    // with expiration date
+    assertThatThrownBy(() -> {
+      newRequest(login, TOKEN_NAME, expirationDateString);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Tokens expiring after %s are not allowed. Please use a valid expiration date.",
+        LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+
+    // without expiration date
+    when(tokenGenerator.hash(anyString())).thenReturn("random");
+    assertThatThrownBy(() -> {
+      newRequest(login, TOKEN_NAME);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Tokens expiring after %s are not allowed. Please use an expiration date.",
+        LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+  }
+
+  @Test
+  public void max_allowed_token_lifetime_not_enforced_for_unsupported_versions() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
+
+    List.of(DEVELOPER, COMMUNITY).forEach(edition -> {
+      when(runtime.getEdition()).thenReturn(edition);
+      when(tokenGenerator.hash(anyString())).thenReturn("987654321" + edition);
+
+      GenerateWsResponse response = newRequest(login, TOKEN_NAME + edition);
+      assertThat(response.getLogin()).isEqualTo(login);
+      assertThat(response.getCreatedAt()).isNotEmpty();
+    });
+  }
+
+  @Test
+  public void max_allowed_token_lifetime_enforced_for_supported_versions() {
+    String login = userLogin().getLogin();
+
+    mapSettings.setProperty(MAX_ALLOWED_TOKEN_LIFETIME, THIRTY_DAYS.getName());
+
+    List.of(ENTERPRISE, DATACENTER).forEach(edition -> {
+      when(runtime.getEdition()).thenReturn(edition);
+      when(tokenGenerator.hash(anyString())).thenReturn("987654321" + edition);
+
+      assertThatThrownBy(() -> {
+        newRequest(login, TOKEN_NAME);
+      })
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Tokens expiring after %s are not allowed. Please use an expiration date.",
+          LocalDate.now().plusDays(THIRTY_DAYS.getDays().get()).format(DateTimeFormatter.ISO_DATE));
+    });
   }
 
   @Test
@@ -418,6 +532,12 @@ public class GenerateActionTest {
     }
 
     return testRequest.executeProtobuf(GenerateWsResponse.class);
+  }
+
+  private UserDto userLogin() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    return user;
   }
 
   private void logInAsSystemAdministrator() {
