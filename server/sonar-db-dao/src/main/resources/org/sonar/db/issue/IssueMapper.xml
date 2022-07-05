@@ -20,6 +20,7 @@
     i.assignee as assigneeUuid,
     i.author_login as authorLogin,
     i.tags as tagsString,
+    i.rule_description_context_key as ruleDescriptionContextKey,
     i.issue_creation_date as issueCreationTime,
     i.issue_update_date as issueUpdateTime,
     i.issue_close_date as issueCloseTime,
@@ -57,6 +58,7 @@
     i.assignee,
     i.author_login,
     i.tags,
+    i.rule_description_context_key,
     i.issue_creation_date,
     i.issue_update_date,
     i.issue_close_date,
@@ -105,7 +107,7 @@
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false">
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
-    message, line, locations, gap, effort, status, tags,
+    message, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available)
     VALUES (
@@ -115,7 +117,9 @@
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
     #{locations,jdbcType=BINARY},
     #{gap,jdbcType=DOUBLE}, #{effort,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR},
-    #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR},
+    #{tagsString,jdbcType=VARCHAR},
+    #{ruleDescriptionContextKey,jdbcType=VARCHAR},
+    #{resolution,jdbcType=VARCHAR},
     #{checksum,jdbcType=VARCHAR},
     #{assigneeUuid,jdbcType=VARCHAR},
     #{authorLogin,jdbcType=VARCHAR},
@@ -156,6 +160,7 @@
     assignee=#{assigneeUuid,jdbcType=VARCHAR},
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
+    rule_description_context_key=#{ruleDescriptionContextKey,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
@@ -183,6 +188,7 @@
     assignee=#{assigneeUuid,jdbcType=VARCHAR},
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
+    rule_description_context_key=#{ruleDescriptionContextKey,jdbcType=VARCHAR},
     component_uuid=#{componentUuid,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},

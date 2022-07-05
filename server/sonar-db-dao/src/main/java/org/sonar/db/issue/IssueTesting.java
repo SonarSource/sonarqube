@@ -75,6 +75,7 @@ public class IssueTesting {
       .setMessage("message_" + randomAlphabetic(5))
       .setChecksum("checksum_" + randomAlphabetic(5))
       .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
+      .setRuleDescriptionContextKey("context_" + randomAlphabetic(5))
       .setIssueCreationDate(new Date(System.currentTimeMillis() - 2_000))
       .setIssueUpdateDate(new Date(System.currentTimeMillis() - 1_500))
       .setCreatedAt(System.currentTimeMillis() - 1_000)

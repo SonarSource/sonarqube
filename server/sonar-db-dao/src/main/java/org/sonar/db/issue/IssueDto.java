@@ -75,6 +75,7 @@ public final class IssueDto implements Serializable {
   private long updatedAt;
   private boolean quickFixAvailable;
   private boolean isNewCodeReferenceIssue;
+  private String ruleDescriptionContextKey;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -696,6 +697,15 @@ public final class IssueDto implements Serializable {
 
   public Optional<String> getClosedChangeData() {
     return Optional.ofNullable(closedChangeData);
+  }
+
+  public Optional<String> getOptionalRuleDescriptionContextKey() {
+    return Optional.ofNullable(ruleDescriptionContextKey);
+  }
+
+  public IssueDto setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
+    this.ruleDescriptionContextKey = ruleDescriptionContextKey;
+    return this;
   }
 
   @Override

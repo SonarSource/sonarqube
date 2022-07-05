@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -51,40 +52,40 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
 
-  private String key;
-  private RuleType type;
-  private String componentUuid;
-  private String componentKey;
+  private String key = null;
+  private RuleType type = null;
+  private String componentUuid = null;
+  private String componentKey = null;
 
-  private String moduleUuidPath;
+  private String moduleUuidPath = null;
 
-  private String projectUuid;
-  private String projectKey;
+  private String projectUuid = null;
+  private String projectKey = null;
 
-  private RuleKey ruleKey;
-  private String language;
-  private String severity;
+  private RuleKey ruleKey = null;
+  private String language = null;
+  private String severity = null;
   private boolean manualSeverity = false;
-  private String message;
-  private Integer line;
-  private Double gap;
-  private Duration effort;
-  private String status;
-  private String resolution;
-  private String assigneeUuid;
-  private String checksum;
+  private String message = null;
+  private Integer line = null;
+  private Double gap = null;
+  private Duration effort = null;
+  private String status = null;
+  private String resolution = null;
+  private String assigneeUuid = null;
+  private String checksum = null;
   private String authorLogin = null;
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
-  private boolean isFromExternalRuleEngine;
+  private boolean isFromExternalRuleEngine = false;
 
   // FUNCTIONAL DATES
-  private Date creationDate;
-  private Date updateDate;
-  private Date closeDate;
+  private Date creationDate = null;
+  private Date updateDate = null;
+  private Date closeDate = null;
 
   // Current changes
   private FieldDiffs currentChange = null;
@@ -116,13 +117,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private boolean sendNotifications = false;
 
   // Date when issue was loaded from db (only when isNew=false)
-  private Long selectedAt;
+  private Long selectedAt = null;
 
-  private boolean quickFixAvailable;
-  private boolean isNewCodeReferenceIssue;
+  private boolean quickFixAvailable = false;
+  private boolean isNewCodeReferenceIssue = false;
 
   // true if the issue is no longer new in its branch
   private boolean isNoLongerNewCodeReferenceIssue = false;
+
+  private String ruleDescriptionContextKey = null;
 
   @Override
   public String key() {
@@ -637,6 +640,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setTags(Collection<String> tags) {
     this.tags = new LinkedHashSet<>(tags);
+    return this;
+  }
+
+  public Optional<String> getRuleDescriptionContextKey() {
+    return Optional.ofNullable(ruleDescriptionContextKey);
+  }
+
+  public DefaultIssue setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
+    this.ruleDescriptionContextKey = ruleDescriptionContextKey;
     return this;
   }
 

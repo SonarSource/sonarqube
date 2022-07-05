@@ -71,6 +71,7 @@ public class IssueDaoTest {
   private static final RuleDto RULE = RuleTesting.newXooX1();
   private static final String ISSUE_KEY1 = "I1";
   private static final String ISSUE_KEY2 = "I2";
+  private static final String TEST_CONTEXT_KEY = "test_context_key";
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
@@ -95,6 +96,7 @@ public class IssueDaoTest {
     assertThat(issue.getType()).isEqualTo(2);
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isEqualTo("the message");
+    assertThat(issue.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issue.getLine()).isEqualTo(500);
     assertThat(issue.getEffort()).isEqualTo(10L);
     assertThat(issue.getGap()).isEqualTo(3.14);
@@ -376,12 +378,8 @@ public class IssueDaoTest {
   @Test
   public void selectByKey_givenOneIssueWithoutQuickFix_selectOneIssueWithoutQuickFix() {
     prepareIssuesComponent();
-    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
-      .setMessage("the message")
-      .setRuleUuid(RULE.getUuid())
-      .setComponentUuid(FILE_UUID)
-      .setProjectUuid(PROJECT_UUID)
-      .setQuickFixAvailable(false));
+    String issueKey = ISSUE_KEY1;
+    underTest.insert(db.getSession(), createIssueWithKey(issueKey));
 
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
@@ -670,6 +668,83 @@ public class IssueDaoTest {
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).isNewCodeReferenceIssue()).isFalse();
   }
 
+  @Test
+  public void selectByKey_givenOneIssueWithoutRuleDescriptionContextKey_returnsEmptyOptional() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
+      .setRuleDescriptionContextKey(null)
+    );
+    IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+
+    assertThat(issue1.getOptionalRuleDescriptionContextKey()).isEmpty();
+  }
+
+  @Test
+  public void selectByKey_givenOneIssueWithRuleDescriptionContextKey_returnsContextKey() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+    );
+
+    IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+
+    assertThat(issue1.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+  }
+
+  @Test
+  public void update_whenUpdatingRuleDescriptionContextKeyToNull_returnsEmptyContextKey() {
+    prepareIssuesComponent();
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+    underTest.insert(db.getSession(), issue);
+
+    issue.setRuleDescriptionContextKey(null);
+    underTest.update(db.getSession(), issue);
+
+    issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issue.getOptionalRuleDescriptionContextKey()).isEmpty();
+  }
+
+  @Test
+  public void update_whenUpdatingRuleDescriptionContextKeyToNotNull_returnsContextKey() {
+    prepareIssuesComponent();
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(null);
+    underTest.insert(db.getSession(), issue);
+
+    issue.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+    underTest.update(db.getSession(), issue);
+
+    issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issue.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+  }
+
+  @Test
+  public void update_givenOneIssueWithoutRuleDescriptionContextKey_returnsContextKey() {
+    prepareIssuesComponent();
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+    underTest.insert(db.getSession(), issue);
+
+    issue.setRuleDescriptionContextKey(null);
+    underTest.update(db.getSession(), issue);
+
+    issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issue.getOptionalRuleDescriptionContextKey()).isEmpty();
+
+    issue.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+    underTest.update(db.getSession(), issue);
+
+    issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issue.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+  }
+
+  private static IssueDto createIssueWithKey(String issueKey) {
+    return newIssueDto(issueKey)
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID)
+      .setQuickFixAvailable(false);
+  }
+
   private static IssueDto newIssueDto(String key) {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setDbKey("struts:Action").setUuid("component-uuid"));
@@ -687,6 +762,7 @@ public class IssueDaoTest {
     dto.setAssigneeUuid("karadoc");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
+    dto.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     dto.setCreatedAt(1_440_000_000_000L);
     dto.setUpdatedAt(1_440_000_000_000L);
     dto.setIssueCreationTime(1_450_000_000_000L);
