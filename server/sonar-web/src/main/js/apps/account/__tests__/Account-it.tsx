@@ -20,6 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
+import { format } from 'date-fns';
 import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
@@ -265,6 +266,15 @@ describe('security page', () => {
         type: TokenType.User,
         expirationDate: expectedTime
       });
+
+      // ensure the list of tokens is updated
+      const rows = await screen.findAllByRole('row');
+      expect(rows).toHaveLength(4);
+      expect(rows.pop()).toHaveTextContent(
+        `${newTokenName}users.tokens.USER_TOKEN.shortneverApril 4, 2022${
+          expectedTime ? format(expectedTime, 'MMMM D, YYYY') : '–'
+        }users.tokens.revoke`
+      );
     }
   );
 

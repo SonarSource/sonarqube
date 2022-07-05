@@ -57,12 +57,14 @@ export default class UserTokensMock {
     name,
     login,
     type,
-    projectKey
+    projectKey,
+    expirationDate
   }: {
     name: string;
     login?: string;
     type: TokenType;
     projectKey: string;
+    expirationDate?: string;
   }) => {
     const token = {
       name,
@@ -73,7 +75,8 @@ export default class UserTokensMock {
       token: Math.random()
         .toString(RANDOM_RADIX)
         .slice(RANDOM_PREFIX),
-      createdAt: '2022-04-04T04:04:04+0000'
+      createdAt: '2022-04-04T04:04:04+0000',
+      expirationDate
     };
 
     this.tokens.push(token);

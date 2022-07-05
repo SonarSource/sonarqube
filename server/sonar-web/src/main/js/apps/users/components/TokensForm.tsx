@@ -151,12 +151,13 @@ export class TokensForm extends React.PureComponent<Props, State> {
 
       if (this.mounted) {
         this.setState(state => {
-          const tokens = [
+          const tokens: UserToken[] = [
             ...state.tokens,
             {
               name: newToken.name,
               createdAt: newToken.createdAt,
               isExpired: false,
+              expirationDate: newToken.expirationDate,
               type: newTokenType,
               ...(newTokenType === TokenType.Project && {
                 project: { key: selectedProject.key, name: selectedProject.name }
