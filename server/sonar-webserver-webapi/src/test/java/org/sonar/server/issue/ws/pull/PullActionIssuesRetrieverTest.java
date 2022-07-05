@@ -41,14 +41,12 @@ import static org.mockito.Mockito.when;
 public class PullActionIssuesRetrieverTest {
 
   private final DbClient dbClient = mock(DbClient.class);
-  private final String projectUuid = "default-project-uuid";
-  private final String branchName = "master";
+  private final String branchUuid = "master-branch-uuid";
   private final List<String> languages = List.of("java");
   private final List<String> ruleRepositories = List.of("js-security", "java");
   private final Long defaultChangedSince = 1_000_000L;
 
-  private final IssueQueryParams queryParams = new IssueQueryParams(projectUuid, branchName, languages, ruleRepositories, false,
-    defaultChangedSince);
+  private final IssueQueryParams queryParams = new IssueQueryParams(branchUuid, languages, ruleRepositories, false, defaultChangedSince);
   private final IssueDao issueDao = mock(IssueDao.class);
 
   @Before

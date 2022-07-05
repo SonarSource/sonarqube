@@ -28,7 +28,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -46,7 +45,18 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.Assert.assertFalse;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
+import static org.sonar.api.issue.Issue.STATUSES;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REOPENED;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -69,7 +79,7 @@ public class IssueDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private IssueDao underTest = db.getDbClient().issueDao();
+  private final IssueDao underTest = db.getDbClient().issueDao();
 
   @Test
   public void selectByKeyOrFail() {
@@ -155,6 +165,58 @@ public class IssueDaoTest {
   }
 
   @Test
+  public void selectByBranch() {
+    long updatedAt = 1_340_000_000_000L;
+    long changedSince = 1_000_000_000_000L;
+
+    ComponentDto project = db.components().insertPrivateProject();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java"));
+
+    ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+
+    List<String> statusesA = List.of(STATUS_OPEN, STATUS_REVIEWED, STATUS_CLOSED, STATUS_RESOLVED);
+    IntStream.range(0, statusesA.size()).forEach(i -> insertBranchIssue(branchA, fileA, rule, "A" + i, statusesA.get(i), updatedAt));
+
+    ComponentDto branchB = db.components().insertProjectBranch(project, b -> b.setKey("branchB"));
+    ComponentDto fileB = db.components().insertComponent(newFileDto(branchB));
+
+    List<String> statusesB = List.of(STATUS_OPEN, STATUS_RESOLVED);
+    IntStream.range(0, statusesB.size()).forEach(i -> insertBranchIssue(branchB, fileB, rule, "B" + i, statusesB.get(i), updatedAt));
+
+    List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchA, "java", false, changedSince), 1);
+
+    assertThat(branchAIssuesA1)
+      .extracting(IssueDto::getKey, IssueDto::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("issueA0", STATUS_OPEN),
+        tuple("issueA1", STATUS_REVIEWED),
+        tuple("issueA3", STATUS_RESOLVED)
+      );
+
+    List<IssueDto> branchAIssuesA2 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchA, "java", true, changedSince), 1);
+
+    assertThat(branchAIssuesA2)
+      .extracting(IssueDto::getKey, IssueDto::getStatus)
+      .containsExactly(tuple("issueA3", STATUS_RESOLVED));
+
+    List<IssueDto> branchBIssuesB1 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchB, "java", false, changedSince), 1);
+
+    assertThat(branchBIssuesB1)
+      .extracting(IssueDto::getKey, IssueDto::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("issueB0", STATUS_OPEN),
+        tuple("issueB1", STATUS_RESOLVED)
+      );
+
+    List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchB, "java", true, changedSince), 1);
+
+    assertThat(branchBIssuesB2)
+      .extracting(IssueDto::getKey, IssueDto::getStatus)
+      .containsExactly(tuple("issueB1", STATUS_RESOLVED));
+  }
+
+  @Test
   public void selectByComponentUuidPaginated() {
     // contains I1 and I2
     prepareTables();
@@ -234,12 +296,12 @@ public class IssueDaoTest {
 
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
 
-    IssueDto openIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_OPEN).setResolution(null));
-    IssueDto closedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
-    IssueDto reopenedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_REOPENED).setResolution(null));
-    IssueDto confirmedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_CONFIRMED).setResolution(null));
-    IssueDto wontfixIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX));
-    IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
+    IssueDto openIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto closedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED));
+    IssueDto reopenedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_REOPENED).setResolution(null));
+    IssueDto confirmedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_CONFIRMED).setResolution(null));
+    IssueDto wontfixIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
 
     assertThat(underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
@@ -520,13 +582,13 @@ public class IssueDaoTest {
       .forEach(moduleOrDir -> {
         String projectUuid = moduleOrDir.projectUuid();
         // CLOSED issue => not returned
-        db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(Issue.STATUS_CLOSED));
+        db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(STATUS_CLOSED));
         assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
           .isEmpty();
 
         // status != CLOSED => returned
-        Issue.STATUSES.stream()
-          .filter(t -> !Issue.STATUS_CLOSED.equals(t))
+        STATUSES.stream()
+          .filter(t -> !STATUS_CLOSED.equals(t))
           .forEach(status -> {
             IssueDto issue = db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(status));
             assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
@@ -543,7 +605,7 @@ public class IssueDaoTest {
     Stream.of(project1, file11, application, view, subview, project2, file21)
       .forEach(neitherModuleNorDir -> {
         String projectUuid = neitherModuleNorDir.projectUuid();
-        Issue.STATUSES
+        STATUSES
           .forEach(status -> {
             db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(neitherModuleNorDir).setStatus(status));
             assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
@@ -557,7 +619,7 @@ public class IssueDaoTest {
         String projectUuid = component.projectUuid();
 
         // issues for each status => returned if component is dir or module
-        Issue.STATUSES
+        STATUSES
           .forEach(status -> db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(component).setStatus(status)));
         if (allModuleOrDirs.contains(component)) {
           assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
@@ -655,5 +717,13 @@ public class IssueDaoTest {
 
   private static RuleType randomRuleTypeExceptHotspot() {
     return RULE_TYPES_EXCEPT_HOTSPOT[nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
+  }
+
+  private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status, Long updateAt) {
+    db.issues().insert(rule, branch, file, i -> i.setKee("issue" + id).setStatus(status).setUpdatedAt(updateAt).setType(randomRuleTypeExceptHotspot()));
+  }
+
+  private static IssueQueryParams buildSelectByBranchQuery(ComponentDto branch, String language, boolean resolvedOnly, Long changedSince) {
+    return new IssueQueryParams(branch.uuid(), List.of(language), List.of(language), resolvedOnly, changedSince);
   }
 }

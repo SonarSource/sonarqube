@@ -25,29 +25,23 @@ import javax.annotation.Nullable;
 
 public class IssueQueryParams {
 
-  private final String projectUuid;
-  private final String branchName;
+  private final String branchUuid;
   private final List<String> languages;
   private final List<String> ruleRepositories;
   private final boolean resolvedOnly;
   private final Long changedSince;
 
-  public IssueQueryParams(String projectUuid, String branchName, @Nullable List<String> languages,
+  public IssueQueryParams(String branchUuid, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
-    this.projectUuid = projectUuid;
-    this.branchName = branchName;
+    this.branchUuid = branchUuid;
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.resolvedOnly = resolvedOnly;
     this.changedSince = changedSince;
   }
 
-  public String getProjectUuid() {
-    return projectUuid;
-  }
-
-  public String getBranchName() {
-    return branchName;
+  public String getBranchUuid() {
+    return branchUuid;
   }
 
   @CheckForNull

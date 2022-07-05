@@ -27,17 +27,21 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,6 +51,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -74,11 +79,13 @@ public class PullActionTest {
   private final PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator = new PullActionProtobufObjectGenerator();
 
   private final PullActionResponseWriter pullActionResponseWriter = new PullActionResponseWriter(system2, pullActionProtobufObjectGenerator);
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
 
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
   private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
-  private final PullAction underTest = new PullAction(db.getDbClient(), userSession, pullActionResponseWriter);
+  private final PullAction underTest = new PullAction(db.getDbClient(), userSession, pullActionResponseWriter, componentFinder);
   private final WsActionTester tester = new WsActionTester(underTest);
 
   private RuleDto correctRule, incorrectRule;
@@ -112,8 +119,8 @@ public class PullActionTest {
       .setParam("branchName", DEFAULT_BRANCH);
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Invalid projectKey parameter");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'projectKey' not found");
   }
 
   @Test
@@ -127,6 +134,37 @@ public class PullActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void givenNotExistingBranchKey_throwException() {
+    DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
+      .setStartLine(1)
+      .setEndLine(2)
+      .setStartOffset(3)
+      .setEndOffset(4)
+      .build();
+    DbIssues.Locations.Builder mainLocation = DbIssues.Locations.newBuilder()
+      .setChecksum("hash")
+      .setTextRange(textRange);
+
+    RuleDto rule = db.rules().insertIssueRule(r -> r.setRepositoryKey("java").setRuleKey("S1000"));
+    IssueDto issueDto = issueDbTester.insertIssue(rule, p -> p.setSeverity("MINOR")
+      .setManualSeverity(true)
+      .setMessage("message")
+      .setCreatedAt(NOW)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setLocations(mainLocation.build())
+      .setType(Common.RuleType.BUG.getNumber()));
+    loginWithBrowsePermission(issueDto);
+
+    TestRequest request = tester.newRequest()
+      .setParam("projectKey",  issueDto.getProjectKey())
+      .setParam("branchName", "non-existent-branch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Branch 'non-existent-branch' in project '%s' not found", issueDto.getProjectKey()));
   }
 
   @Test

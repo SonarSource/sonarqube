@@ -32,14 +32,16 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.ws.pull.PullActionIssuesRetriever;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL;
 
@@ -55,11 +57,13 @@ public class PullAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PullActionResponseWriter pullActionResponseWriter;
+  private final ComponentFinder componentFinder;
 
-  public PullAction(DbClient dbClient, UserSession userSession, PullActionResponseWriter pullActionResponseWriter) {
+  public PullAction(DbClient dbClient, UserSession userSession, PullActionResponseWriter pullActionResponseWriter, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.pullActionResponseWriter = pullActionResponseWriter;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -120,28 +124,21 @@ public class PullAction implements IssuesWsAction {
     throws IOException {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ProjectDto> projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
-      validateProjectPermissions(projectDto);
+      ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(USER, projectDto);
+      BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchName, null);
       pullActionResponseWriter.appendTimestampToResponse(outputStream);
-      var pullActionQueryParams = new IssueQueryParams(projectDto.get().getUuid(), branchName,
-        languages, ruleRepositories, resolvedOnly, changedSince);
-      retrieveAndSendIssues(dbSession, projectDto.get().getUuid(), pullActionQueryParams, outputStream);
+      IssueQueryParams pullActionQueryParams = new IssueQueryParams(branchDto.getUuid(), languages, ruleRepositories, resolvedOnly, changedSince);
+      retrieveAndSendIssues(dbSession, pullActionQueryParams, outputStream);
     }
   }
 
-  private void validateProjectPermissions(Optional<ProjectDto> projectDto) {
-    if (projectDto.isEmpty()) {
-      throw new IllegalArgumentException("Invalid " + PROJECT_KEY_PARAM + " parameter");
-    }
-    userSession.checkProjectPermission(USER, projectDto.get());
-  }
-
-  private void retrieveAndSendIssues(DbSession dbSession, String componentUuid, IssueQueryParams queryParams, OutputStream outputStream)
+  private void retrieveAndSendIssues(DbSession dbSession, IssueQueryParams queryParams, OutputStream outputStream)
     throws IOException {
 
     var issuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
 
-    Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(componentUuid, queryParams.getChangedSince()));
+    Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(queryParams.getBranchUuid(), queryParams.getChangedSince()));
     Consumer<List<IssueDto>> listConsumer = issueDtos -> pullActionResponseWriter.appendIssuesToResponse(issueDtos, outputStream);
     issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer);
 
