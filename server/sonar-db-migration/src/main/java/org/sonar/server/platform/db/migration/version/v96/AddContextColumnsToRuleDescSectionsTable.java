@@ -30,6 +30,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.version.v95.CreateRuleDescSectionsTable.RULE_DESCRIPTION_SECTIONS_TABLE;
+import static org.sonar.server.platform.db.migration.version.v96.DbConstants.CONTEXT_KEY_COLUMNS_SIZE;
 
 public class AddContextColumnsToRuleDescSectionsTable extends DdlChange {
 
@@ -49,7 +50,7 @@ public class AddContextColumnsToRuleDescSectionsTable extends DdlChange {
   }
 
   private void createContextKeyColumn(Context context, Connection connection) {
-    VarcharColumnDef contextKeyColumn = newVarcharColumnDefBuilder().setColumnName(COLUMN_CONTEXT_KEY).setIsNullable(true).setLimit(50).build();
+    VarcharColumnDef contextKeyColumn = newVarcharColumnDefBuilder().setColumnName(COLUMN_CONTEXT_KEY).setIsNullable(true).setLimit(CONTEXT_KEY_COLUMNS_SIZE).build();
     createColumnIfNotExists(context, connection, contextKeyColumn);
   }
 
