@@ -55,6 +55,7 @@ import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -173,7 +174,7 @@ public class LogbackHelperTest {
     julLogger.severe("Message1");
 
     // JUL bridge has not been initialized, nothing in logs
-    assertThat(memoryAppender.getLogs()).isEmpty();
+    assertThat(memoryAppender.getLogs().stream().filter(l -> l.getMessage().equals("Message1")).collect(toList())).isEmpty();
 
     // Enabling JUL bridge
     LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);
@@ -193,7 +194,7 @@ public class LogbackHelperTest {
     assertThat(julLogger.isLoggable(java.util.logging.Level.WARNING)).isTrue();
 
     // We are expecting messages from info to severe
-    assertThat(memoryAppender.getLogs()).hasSize(6);
+    assertThat(memoryAppender.getLogs().stream().filter(l -> l.getMessage().equals("Message2")).collect(toList())).hasSize(6);
     memoryAppender.clear();
 
     ctx.getLogger(logbackRootLoggerName).setLevel(Level.INFO);
@@ -206,7 +207,7 @@ public class LogbackHelperTest {
     julLogger.severe("Message3");
 
     // We are expecting messages from finest to severe in TRACE mode
-    assertThat(memoryAppender.getLogs()).hasSize(3);
+    assertThat(memoryAppender.getLogs().stream().filter(l -> l.getMessage().equals("Message3")).collect(toList())).hasSize(3);
     memoryAppender.clear();
     memoryAppender.stop();
 
