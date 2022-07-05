@@ -118,7 +118,8 @@ public class RuleTesting {
       .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
       .setCreatedAt(currentTimeMillis)
       .setUpdatedAt(currentTimeMillis + 5)
-      .setScope(Scope.MAIN);
+      .setScope(Scope.MAIN)
+      .setGenericConcepts(Set.of(randomAlphanumeric(5), randomAlphanumeric(5)));
   }
 
   public static RuleParamDto newRuleParam(RuleDto rule) {

@@ -308,7 +308,7 @@ public class SearchActionTest {
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest()
-      .setParam(WebService.Param.FIELDS, "createdAt,langName")
+      .setParam(WebService.Param.FIELDS, "createdAt,langName,genericConcepts")
       .executeProtobuf(Rules.SearchResponse.class);
     Rules.Rule result = response.getRules(0);
 
@@ -319,6 +319,7 @@ public class SearchActionTest {
     // selected fields
     assertThat(result.getCreatedAt()).isNotEmpty();
     assertThat(result.getLangName()).isNotEmpty();
+    assertThat(result.getGenericConcepts().getGenericConceptsList()).containsExactlyElementsOf(rule.getGenericConcepts());
 
     // not returned fields
     assertThat(result.hasEffortToFixDescription()).isFalse();
