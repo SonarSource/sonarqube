@@ -40,7 +40,8 @@ public class ScannerWsClientProviderTest {
     ScannerProperties settings = new ScannerProperties(new HashMap<>());
 
     DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())),
-      mock(System2.class));
+      mock(System2.class),warning -> {
+      });
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
@@ -61,7 +62,8 @@ public class ScannerWsClientProviderTest {
     ScannerProperties settings = new ScannerProperties(props);
 
     DefaultScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())),
-      mock(System2.class));
+      mock(System2.class),warning -> {
+      });
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();

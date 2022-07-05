@@ -48,6 +48,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
@@ -56,6 +57,7 @@ import static org.apache.commons.io.FileUtils.moveFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import static org.mockito.Mockito.mock;
 
 public class PluginFilesTest {
 
@@ -63,6 +65,8 @@ public class PluginFilesTest {
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public MockWebServer server = new MockWebServer();
+
+  private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
 
   private File userHome;
   private PluginFiles underTest;
@@ -72,7 +76,7 @@ public class PluginFilesTest {
     HttpConnector connector = HttpConnector.newBuilder().url(server.url("/").toString()).build();
     GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()));
     DefaultScannerWsClient wsClient = new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connector), false,
-      analysisMode);
+      analysisMode, analysisWarnings);
 
     userHome = temp.newFolder();
     MapSettings settings = new MapSettings();

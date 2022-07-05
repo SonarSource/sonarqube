@@ -42,6 +42,22 @@ public class TokenUserSessionTest {
   private final DbClient dbClient = db.getDbClient();
 
   @Test
+  public void token_can_be_retrieved_from_the_session() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+
+    UserDto user = db.users().insertUser();
+
+    db.users().insertProjectPermissionOnUser(user, SCAN, project1);
+
+    TokenUserSession userSession = mockTokenUserSession(user);
+
+    assertThat(userSession.getUserToken()).isNotNull();
+    assertThat(userSession.getUserToken().getName()).isEqualTo("User Token");
+    assertThat(userSession.getUserToken().getUserUuid()).isEqualTo("userUid");
+    assertThat(userSession.getUserToken().getType()).isEqualTo("USER_TOKEN");
+  }
+
+  @Test
   public void test_hasProjectsPermission_for_UserToken() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();

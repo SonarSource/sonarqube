@@ -19,12 +19,16 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -39,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class DefaultScannerWsClientTest {
 
@@ -47,6 +52,8 @@ public class DefaultScannerWsClientTest {
 
   private final WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
 
+  private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+
   @Test
   public void log_and_profile_request_if_debug_level() {
     WsRequest request = newRequest();
@@ -54,7 +61,7 @@ public class DefaultScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     logTester.setLevel(LoggerLevel.DEBUG);
-    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())));
+    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
 
     WsResponse result = underTest.call(request);
 
@@ -92,10 +99,10 @@ public class DefaultScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, false,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other " +
-        "credentials in sonar.login and sonar.password.");
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
+        .isInstanceOf(MessageException.class)
+        .hasMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other " +
+          "credentials in sonar.login and sonar.password.");
   }
 
   @Test
@@ -105,9 +112,9 @@ public class DefaultScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
+        .isInstanceOf(MessageException.class)
+        .hasMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
   }
 
   @Test
@@ -118,9 +125,33 @@ public class DefaultScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("You're not authorized to run analysis. Please contact the project administrator.");
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
+        .isInstanceOf(MessageException.class)
+        .hasMessage("You're not authorized to run analysis. Please contact the project administrator.");
+  }
+
+  @Test
+  public void warnings_are_added_when_expiration_approaches() {
+    WsRequest request = newRequest();
+    String expirationDate = DateTimeFormatter
+      .ofPattern(DATETIME_FORMAT)
+      .format(LocalDateTime.now().atOffset(ZoneOffset.UTC).plusDays(5));
+    WsResponse response = newResponse()
+      .setCode(200)
+      .setExpirationDate(expirationDate);
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    logTester.setLevel(LoggerLevel.DEBUG);
+    DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
+    underTest.call(request);
+    //the second call should not add the same warning twice
+    underTest.call(request);
+
+    // check logs
+    List<String> warningLogs = logTester.logs(LoggerLevel.WARN);
+    assertThat(warningLogs).hasSize(2);
+    assertThat(warningLogs.get(0)).contains("The token used for this analysis will expire on: " + expirationDate);
+    assertThat(warningLogs.get(1)).contains("Analysis executed with this token after the expiration date will fail.");
   }
 
   @Test
@@ -132,9 +163,9 @@ public class DefaultScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
-      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Boo! bad request! bad!");
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
+        .isInstanceOf(MessageException.class)
+        .hasMessage("Boo! bad request! bad!");
   }
 
   private MockWsResponse newResponse() {

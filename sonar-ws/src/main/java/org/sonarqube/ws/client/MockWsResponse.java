@@ -35,6 +35,7 @@ import static java.util.Objects.requireNonNull;
 public class MockWsResponse extends BaseResponse {
 
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
+  private static final String SQ_TOKEN_EXPIRATION_HEADER = "sq-authentication-token-expiration";
 
   private int code = HttpURLConnection.HTTP_OK;
   private String requestUrl;
@@ -63,6 +64,11 @@ public class MockWsResponse extends BaseResponse {
 
   public MockWsResponse setContentType(String contentType) {
     headers.put(CONTENT_TYPE_HEADER, contentType);
+    return this;
+  }
+
+  public MockWsResponse setExpirationDate(String expirationDate) {
+    headers.put(SQ_TOKEN_EXPIRATION_HEADER, expirationDate);
     return this;
   }
 

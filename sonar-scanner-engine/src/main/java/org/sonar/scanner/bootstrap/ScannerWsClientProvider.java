@@ -20,6 +20,7 @@
 package org.sonar.scanner.bootstrap;
 
 import org.sonar.api.CoreProperties;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
@@ -37,7 +38,7 @@ public class ScannerWsClientProvider {
 
   @Bean("DefaultScannerWsClient")
   public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode,
-    System2 system) {
+    System2 system, AnalysisWarnings analysisWarnings) {
     String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
     HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
@@ -58,6 +59,6 @@ public class ScannerWsClientProvider {
     }
 
     return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null,
-      globalMode);
+      globalMode, analysisWarnings);
   }
 }

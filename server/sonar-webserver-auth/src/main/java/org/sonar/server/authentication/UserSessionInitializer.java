@@ -19,22 +19,26 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.ServletFilter.UrlPattern;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 
@@ -47,6 +51,8 @@ public class UserSessionInitializer {
    * in property sonar.web.accessLogs.pattern is "%reqAttribute{LOGIN}"
    */
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
+
+  private static final String SQ_AUTHENTICATION_TOKEN_EXPIRATION = "sq-authentication-token-expiration";
 
   // SONAR-6546 these urls should be get from WebService
   private static final Set<String> SKIPPED_URLS = Set.of(
@@ -75,6 +81,7 @@ public class UserSessionInitializer {
   private static final UrlPattern PASSCODE_URLS = UrlPattern.builder()
     .includes(URL_USING_PASSCODE)
     .build();
+
 
   private final Configuration config;
   private final ThreadLocalUserSession threadLocalSession;
@@ -128,7 +135,15 @@ public class UserSessionInitializer {
         .build();
     }
     threadLocalSession.set(session);
+    checkTokenUserSession(response, session);
     request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+  }
+
+  private static void checkTokenUserSession(HttpServletResponse response, UserSession session) {
+    if (session instanceof TokenUserSession) {
+      UserTokenDto userTokenDto = ((TokenUserSession) session).getUserToken();
+      Optional.ofNullable(userTokenDto.getExpirationDate()).ifPresent(expirationDate -> response.addHeader(SQ_AUTHENTICATION_TOKEN_EXPIRATION, formatDateTime(expirationDate)));
+    }
   }
 
   public void removeUserSession() {

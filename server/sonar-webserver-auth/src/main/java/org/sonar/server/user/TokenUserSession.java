@@ -73,4 +73,7 @@ public class TokenUserSession extends ServerUserSession {
     }
   }
 
+  public UserTokenDto getUserToken() {
+    return userToken;
+  }
 }

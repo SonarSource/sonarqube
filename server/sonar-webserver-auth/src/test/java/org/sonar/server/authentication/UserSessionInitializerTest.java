@@ -19,6 +19,8 @@
  */
 package org.sonar.server.authentication;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +32,8 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -37,6 +41,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +52,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class UserSessionInitializerTest {
 
@@ -193,6 +199,20 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
+  }
+
+  @Test
+  public void expiration_header_added_when_authenticating_with_an_expiring_token() {
+    long expirationTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+    UserDto userDto = new UserDto();
+    UserTokenDto userTokenDto = new UserTokenDto().setExpirationDate(expirationTimestamp);
+    UserSession session = new TokenUserSession(DbTester.create().getDbClient(), userDto, userTokenDto);
+
+    when(authenticator.authenticate(request, response)).thenReturn(session);
+    when(threadLocalSession.isLoggedIn()).thenReturn(true);
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+    verify(response).addHeader("sq-authentication-token-expiration", formatDateTime(expirationTimestamp));
   }
 
   private void assertPathIsIgnored(String path) {
