@@ -123,6 +123,7 @@ message Rule {
   optional bool isExternal = 47;
   optional DeprecatedKeys deprecatedKeys = 48;
   optional DescriptionSections descriptionSections = 49;
+  optional GenericConcepts genericConcepts = 50;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;
@@ -161,6 +162,10 @@ message SysTags {
 
 message Tags {
   repeated string tags = 1;
+}
+
+message GenericConcepts {
+  repeated string genericConcepts = 1;
 }
 
 message Actives {

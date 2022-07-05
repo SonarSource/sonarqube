@@ -62,6 +62,7 @@ public class RulesWsParameters {
   public static final String FIELD_MARKDOWN_DESCRIPTION = "mdDesc";
 
   public static final String FIELD_DESCRIPTION_SECTIONS = "descriptionSections";
+  public static final String FIELD_GENERIC_CONCEPTS = "genericConcepts";
   public static final String FIELD_NOTE_LOGIN = "noteLogin";
   public static final String FIELD_MARKDOWN_NOTE = "mdNote";
   public static final String FIELD_HTML_NOTE = "htmlNote";
@@ -109,7 +110,7 @@ public class RulesWsParameters {
     FIELD_MARKDOWN_DESCRIPTION, FIELD_DESCRIPTION_SECTIONS, FIELD_NOTE_LOGIN, FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
     FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,
     FIELD_DEFAULT_REM_FUNCTION, FIELD_GAP_DESCRIPTION, FIELD_REM_FUNCTION_OVERLOADED, FIELD_REM_FUNCTION,
-    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS);
+    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_GENERIC_CONCEPTS);
 
   private RulesWsParameters() {
     // prevent instantiation

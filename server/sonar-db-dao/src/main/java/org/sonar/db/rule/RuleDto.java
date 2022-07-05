@@ -21,7 +21,6 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -37,6 +36,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
@@ -60,6 +60,7 @@ public class RuleDto {
   private String ruleKey = null;
 
   private final Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
+  private String genericConceptsField = null;
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
@@ -234,6 +235,15 @@ public class RuleDto {
     String contextKey = ofNullable(ruleDescriptionSectionDto.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
     String otherContextKey = ofNullable(other.getContext()).map(RuleDescriptionSectionContextDto::getKey).orElse(null);
     return Objects.equals(contextKey, otherContextKey);
+  }
+
+  public Set<String> getGenericConcepts() {
+    return deserializeStringSet(genericConceptsField);
+  }
+
+  public RuleDto setGenericConcepts(Set<String> genericConcepts){
+    this.genericConceptsField = serializeStringSet(genericConcepts);
+    return this;
   }
 
   @CheckForNull
@@ -531,7 +541,7 @@ public class RuleDto {
   }
 
   public Set<String> getTags() {
-    return tags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
+    return tags == null ? new HashSet<>() : new TreeSet<>(asList(StringUtils.split(tags, ',')));
   }
 
   String getTagsAsString() {
