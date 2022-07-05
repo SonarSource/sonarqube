@@ -17,31 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.usertoken.notification;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import java.util.Set;
+import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.email.BasicEmail;
 
-public interface UserTokenMapper {
+public class TokenExpirationEmail extends BasicEmail {
+  private final UserTokenDto userToken;
 
-  void insert(UserTokenDto userToken);
+  public TokenExpirationEmail(String recipient, UserTokenDto userToken) {
+    super(Set.of(recipient));
+    this.userToken = userToken;
+  }
 
-  void update(UserTokenDto userToken);
-
-  UserTokenDto selectByTokenHash(String tokenHash);
-
-  UserTokenDto selectByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  List<UserTokenDto> selectByUserUuid(String userUuid);
-
-  int deleteByUserUuid(String userUuid);
-
-  int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  int deleteByProjectKey(@Param("projectKey") String projectKey);
-
-  List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
-
-  List<UserTokenDto> selectTokensExpiredOnDate(@Param("timestamp") long timestamp);
-
+  public UserTokenDto getUserToken() {
+    return userToken;
+  }
 }

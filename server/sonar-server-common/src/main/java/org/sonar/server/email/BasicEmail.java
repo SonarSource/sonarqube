@@ -17,31 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.email;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import java.util.Set;
 
-public interface UserTokenMapper {
+import static com.google.common.base.Preconditions.checkArgument;
 
-  void insert(UserTokenDto userToken);
+public class BasicEmail {
+  private final Set<String> recipients;
 
-  void update(UserTokenDto userToken);
+  protected BasicEmail(Set<String> recipients) {
+    checkArgument(!recipients.isEmpty(), "At least one recipient must be provided.");
+    this.recipients = recipients;
+  }
 
-  UserTokenDto selectByTokenHash(String tokenHash);
-
-  UserTokenDto selectByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  List<UserTokenDto> selectByUserUuid(String userUuid);
-
-  int deleteByUserUuid(String userUuid);
-
-  int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  int deleteByProjectKey(@Param("projectKey") String projectKey);
-
-  List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
-
-  List<UserTokenDto> selectTokensExpiredOnDate(@Param("timestamp") long timestamp);
-
+  public Set<String> getRecipients() {
+    return recipients;
+  }
 }

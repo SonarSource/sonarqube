@@ -21,6 +21,7 @@ package org.sonar.server.usertoken.ws;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.annotation.Nullable;
@@ -426,6 +427,6 @@ public class GenerateActionTest {
   private String getFormattedDate(String expirationDateValue) {
     return DateTimeFormatter
       .ofPattern(DATETIME_FORMAT)
-      .format(ZonedDateTime.of(LocalDate.parse(expirationDateValue, DateTimeFormatter.ofPattern(DATE_FORMAT)).atStartOfDay(), ZoneId.systemDefault()));
+      .format(LocalDate.parse(expirationDateValue, DateTimeFormatter.ofPattern(DATE_FORMAT)).atStartOfDay(ZoneOffset.UTC).withZoneSameInstant(ZoneId.systemDefault()));
   }
 }

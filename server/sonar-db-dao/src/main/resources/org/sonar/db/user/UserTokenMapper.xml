@@ -55,6 +55,14 @@
     WHERE t.token_hash=#{tokenHash, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectTokensExpiredOnDate" parameterType="Long" resultType="UserToken">
+    SELECT
+    <include refid="userTokensColumns"/>
+    FROM user_tokens t
+    LEFT JOIN projects p on t.project_key = p.kee
+    WHERE t.expiration_date = #{timestamp, jdbcType=BIGINT}
+  </select>
+
   <select id="selectByUserUuidAndName" parameterType="map" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>

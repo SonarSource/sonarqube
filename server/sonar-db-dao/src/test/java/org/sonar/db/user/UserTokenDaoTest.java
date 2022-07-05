@@ -19,8 +19,10 @@
  */
 package org.sonar.db.user;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -76,6 +78,35 @@ public class UserTokenDaoTest {
     assertThat(projectAnalysisTokenFromDb.getProjectKey()).isEqualTo(projectAnalysisToken.getProjectKey());
     assertThat(projectAnalysisTokenFromDb.getProjectName()).isEqualTo(project.name());
     assertThat(projectAnalysisTokenFromDb.getExpirationDate()).isNull();
+  }
+
+  @Test
+  public void select_tokens_expired_in_7_days() {
+    String token1 = insertTokenExpiredInDays(0);
+    String token2 = insertTokenExpiredInDays(7);
+    String token3 = insertTokenExpiredInDays(14);
+    List<UserTokenDto> tokenList = underTest.selectTokensExpiredInDays(dbSession, 7);
+    assertThat(tokenList).hasSize(1)
+      .extracting(UserTokenDto::getTokenHash)
+      .containsOnly(token2);
+  }
+
+  @Test
+  public void select_expired_tokens() {
+    String token1 = insertTokenExpiredInDays(0);
+    String token2 = insertTokenExpiredInDays(7);
+    String token3 = insertTokenExpiredInDays(14);
+    List<UserTokenDto> tokenList = underTest.selectExpiredTokens(dbSession);
+    assertThat(tokenList).hasSize(1)
+      .extracting(UserTokenDto::getTokenHash)
+      .containsOnly(token1);
+  }
+
+  private String insertTokenExpiredInDays(long days){
+    long expirationDate = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    UserTokenDto userToken = newUserToken().setExpirationDate(expirationDate);
+    underTest.insert(dbSession, userToken, "login");
+    return userToken.getTokenHash();
   }
 
   @Test

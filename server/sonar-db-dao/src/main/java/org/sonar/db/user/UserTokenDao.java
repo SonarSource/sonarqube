@@ -19,6 +19,8 @@
  */
 package org.sonar.db.user;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,16 @@ public class UserTokenDao implements Dao {
   public void update(DbSession dbSession, UserTokenDto userTokenDto, @Nullable String userLogin) {
     mapper(dbSession).update(userTokenDto);
     auditPersister.updateUserToken(dbSession, new UserTokenNewValue(userTokenDto, userLogin));
+  }
+
+  public List<UserTokenDto> selectTokensExpiredInDays(DbSession dbSession, long days){
+    long timestamp = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    return mapper(dbSession).selectTokensExpiredOnDate(timestamp);
+  }
+
+  public List<UserTokenDto> selectExpiredTokens(DbSession dbSession){
+    long timestamp = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    return mapper(dbSession).selectTokensExpiredOnDate(timestamp);
   }
 
   public void updateWithoutAudit(DbSession dbSession, UserTokenDto userTokenDto) {

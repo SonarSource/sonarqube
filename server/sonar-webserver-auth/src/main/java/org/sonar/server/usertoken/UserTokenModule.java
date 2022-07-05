@@ -20,11 +20,21 @@
 package org.sonar.server.usertoken;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.usertoken.notification.TokenExpirationEmailComposer;
+import org.sonar.server.usertoken.notification.TokenExpirationNotificationExecutorServiceImpl;
+import org.sonar.server.usertoken.notification.TokenExpirationNotificationInitializer;
+import org.sonar.server.usertoken.notification.TokenExpirationNotificationSchedulerImpl;
+import org.sonar.server.usertoken.notification.TokenExpirationNotificationSender;
 
 public class UserTokenModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      TokenExpirationEmailComposer.class,
+      TokenExpirationNotificationSchedulerImpl.class,
+      TokenExpirationNotificationExecutorServiceImpl.class,
+      TokenExpirationNotificationInitializer.class,
+      TokenExpirationNotificationSender.class,
       UserTokenAuthentication.class,
       TokenGeneratorImpl.class);
   }

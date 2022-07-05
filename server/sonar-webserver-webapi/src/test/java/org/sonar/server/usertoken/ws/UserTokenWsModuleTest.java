@@ -30,6 +30,6 @@ public class UserTokenWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new UserTokenModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(2);
+    assertThat(container.getAddedObjects()).hasSize(7);
   }
 }

@@ -20,7 +20,7 @@
 package org.sonar.server.usertoken.ws;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -164,7 +164,7 @@ public class GenerateAction implements UserTokensWsAction {
   private static Long getExpirationDateFromString(String expirationDateString) {
     LocalDate expirationDate = LocalDate.parse(expirationDateString, DateTimeFormatter.ISO_DATE);
     validateExpirationDateValue(expirationDate);
-    return expirationDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    return expirationDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
   }
 
   private static void validateExpirationDateValue(LocalDate localDate) {

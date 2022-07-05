@@ -19,7 +19,7 @@
  */
 package org.sonar.server.usertoken;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -112,7 +112,7 @@ public class UserTokenAuthenticationTest {
     String token = "known-token";
     String tokenHash = "123456789";
 
-    long expirationTimestamp = ZonedDateTime.now(ZoneId.systemDefault()).plusDays(10).toInstant().toEpochMilli();
+    long expirationTimestamp = ZonedDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant().toEpochMilli();
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
     UserDto user1 = db.users().insertUser();

@@ -17,31 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.usertoken.notification;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.server.ServerSide;
 
-public interface UserTokenMapper {
-
-  void insert(UserTokenDto userToken);
-
-  void update(UserTokenDto userToken);
-
-  UserTokenDto selectByTokenHash(String tokenHash);
-
-  UserTokenDto selectByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  List<UserTokenDto> selectByUserUuid(String userUuid);
-
-  int deleteByUserUuid(String userUuid);
-
-  int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  int deleteByProjectKey(@Param("projectKey") String projectKey);
-
-  List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
-
-  List<UserTokenDto> selectTokensExpiredOnDate(@Param("timestamp") long timestamp);
-
+@ServerSide
+public interface TokenExpirationNotificationScheduler {
+  void startScheduling();
 }

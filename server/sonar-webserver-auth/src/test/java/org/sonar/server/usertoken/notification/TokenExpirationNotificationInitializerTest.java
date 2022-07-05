@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usertoken;
+package org.sonar.server.usertoken.notification;
 
 import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.sonar.api.platform.Server;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-public class UserTokenModuleTest {
+public class TokenExpirationNotificationInitializerTest {
   @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new UserTokenModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(7);
+  public void when_scheduler_should_start_on_server_start() {
+    var scheduler = mock(TokenExpirationNotificationScheduler.class);
+    var underTest = new TokenExpirationNotificationInitializer(scheduler);
+    underTest.onServerStart(mock(Server.class));
+    verify(scheduler, times(1)).startScheduling();
   }
+
+  @Test
+  public void server_start_with_no_scheduler_still_work() {
+    var underTest = new TokenExpirationNotificationInitializer(null);
+    underTest.onServerStart(mock(Server.class));
+    assertThatNoException();
+  }
+
 }

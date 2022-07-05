@@ -17,31 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.usertoken.notification;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import javax.annotation.Nullable;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 
-public interface UserTokenMapper {
+public class TokenExpirationNotificationInitializer implements ServerStartHandler {
+  private final TokenExpirationNotificationScheduler scheduler;
 
-  void insert(UserTokenDto userToken);
+  public TokenExpirationNotificationInitializer(@Nullable TokenExpirationNotificationScheduler scheduler) {
+    this.scheduler = scheduler;
+  }
 
-  void update(UserTokenDto userToken);
-
-  UserTokenDto selectByTokenHash(String tokenHash);
-
-  UserTokenDto selectByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  List<UserTokenDto> selectByUserUuid(String userUuid);
-
-  int deleteByUserUuid(String userUuid);
-
-  int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
-
-  int deleteByProjectKey(@Param("projectKey") String projectKey);
-
-  List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
-
-  List<UserTokenDto> selectTokensExpiredOnDate(@Param("timestamp") long timestamp);
-
+  @Override public void onServerStart(Server server) {
+    if (scheduler != null) {
+      scheduler.startScheduling();
+    }
+  }
 }
