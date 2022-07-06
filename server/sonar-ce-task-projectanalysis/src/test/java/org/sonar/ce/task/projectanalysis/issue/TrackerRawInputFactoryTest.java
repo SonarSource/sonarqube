@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
@@ -79,6 +80,7 @@ public class TrackerRawInputFactoryTest {
   private static final int FILE_REF = 2;
   private static final int NOT_IN_REPORT_FILE_REF = 3;
   private static final int ANOTHER_FILE_REF = 4;
+  private static final String TEST_CONTEXT_KEY = "test_context_key";
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
@@ -165,8 +167,33 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.tags()).isEmpty();
     assertInitializedIssue(issue);
     assertThat(issue.effort()).isNull();
+    assertThat(issue.getRuleDescriptionContextKey()).isEmpty();
 
     assertLocationHashIsMadeOf(input, "intexample=line+of+code+2;");
+  }
+
+  @Test
+  public void load_issues_from_report_with_rule_description_context_key() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(newTextRange(2))
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues)
+      .hasSize(1)
+      .extracting(DefaultIssue::getRuleDescriptionContextKey)
+      .containsOnly(Optional.of(TEST_CONTEXT_KEY));
   }
 
   @Test

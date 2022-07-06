@@ -38,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueDtoTest {
 
+  private static final String TEST_CONTEXT_KEY = "test_context_key";
+
   @Test
   public void set_issue_fields() {
     Date createdAt = DateUtils.addDays(new Date(), -5);
@@ -67,7 +69,8 @@ public class IssueDtoTest {
       .setAuthorLogin("pierre")
       .setIssueCreationDate(createdAt)
       .setIssueUpdateDate(updatedAt)
-      .setIssueCloseDate(closedAt);
+      .setIssueCloseDate(closedAt)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
 
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
@@ -94,6 +97,7 @@ public class IssueDtoTest {
     assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
     assertThat(issue.isNew()).isFalse();
     assertThat(issue.isNewCodeReferenceIssue()).isFalse();
+    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
   }
 
   @Test
@@ -165,6 +169,7 @@ public class IssueDtoTest {
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
+    assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
   }
 
   @Test
@@ -197,6 +202,7 @@ public class IssueDtoTest {
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
+    assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
@@ -227,7 +233,8 @@ public class IssueDtoTest {
       .setUpdateDate(dateNow)
       .setSelectedAt(dateNow.getTime())
       .setQuickFixAvailable(true)
-      .setIsNewCodeReferenceIssue(true);
+      .setIsNewCodeReferenceIssue(true)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     return defaultIssue;
   }
 }

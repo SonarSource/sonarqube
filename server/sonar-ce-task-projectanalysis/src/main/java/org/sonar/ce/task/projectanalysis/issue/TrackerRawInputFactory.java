@@ -209,6 +209,7 @@ public class TrackerRawInputFactory {
       issue.setIsFromExternalRuleEngine(false);
       issue.setLocations(dbLocationsBuilder.build());
       issue.setQuickFixAvailable(reportIssue.getQuickFixAvailable());
+      issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       return issue;
     }
 

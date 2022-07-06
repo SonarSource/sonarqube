@@ -43,6 +43,7 @@ import static org.sonar.server.issue.IssueFieldsSetter.UNUSED;
 
 public class IssueFieldsSetterTest {
 
+  private final String DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY = "spring";
 
   private DefaultIssue issue = new DefaultIssue();
   private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
@@ -510,5 +511,41 @@ public class IssueFieldsSetterTest {
     assertThat(issue.componentUuid()).isEqualTo(newComponentUuid);
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(context.date(), Calendar.SECOND));
+  }
+
+  @Test
+  public void setRuleDescriptionContextKey_setContextKeyIfPreviousValueIsNull() {
+    issue.setRuleDescriptionContextKey(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+    boolean updated = underTest.setRuleDescriptionContextKey(issue, null);
+
+    assertThat(updated).isTrue();
+    assertThat(issue.getRuleDescriptionContextKey()).contains(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+  }
+
+  @Test
+  public void setRuleDescriptionContextKey_dontSetContextKeyIfPreviousValueIsTheSame() {
+    issue.setRuleDescriptionContextKey(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+    boolean updated = underTest.setRuleDescriptionContextKey(issue, DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+
+    assertThat(updated).isFalse();
+    assertThat(issue.getRuleDescriptionContextKey()).contains(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+  }
+
+  @Test
+  public void setRuleDescriptionContextKey_dontSetContextKeyIfBothValuesAreNull() {
+    issue.setRuleDescriptionContextKey(null);
+    boolean updated = underTest.setRuleDescriptionContextKey(issue, null);
+
+    assertThat(updated).isFalse();
+    assertThat(issue.getRuleDescriptionContextKey()).isEmpty();
+  }
+
+  @Test
+  public void setRuleDescriptionContextKey_setContextKeyIfValuesAreDifferent() {
+    issue.setRuleDescriptionContextKey(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+    boolean updated = underTest.setRuleDescriptionContextKey(issue, "hibernate");
+
+    assertThat(updated).isTrue();
+    assertThat(issue.getRuleDescriptionContextKey()).contains(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
   }
 }

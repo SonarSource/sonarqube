@@ -126,6 +126,7 @@ public final class IssueDto implements Serializable {
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
+      .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
       .setModuleUuidPath(issue.moduleUuidPath())
@@ -174,6 +175,7 @@ public final class IssueDto implements Serializable {
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
+      .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
       .setModuleUuidPath(issue.moduleUuidPath())
@@ -734,6 +736,7 @@ public final class IssueDto implements Serializable {
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(getRuleKey());
     issue.setTags(getTags());
+    issue.setRuleDescriptionContextKey(ruleDescriptionContextKey);
     issue.setLanguage(language);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);

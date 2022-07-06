@@ -79,6 +79,7 @@ message Issue {
   optional bool isOnChangedLine = 41;
   optional bool isNewCodeReferenceIssue = 42;
   optional bool isNoLongerNewCodeReferenceIssue = 43;
+  optional string ruleDescriptionContextKey = 44;
 }
 
 message Comment {

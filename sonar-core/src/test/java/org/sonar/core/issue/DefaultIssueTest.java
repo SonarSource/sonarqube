@@ -33,6 +33,7 @@ import static org.mockito.Mockito.mock;
 
 public class DefaultIssueTest {
 
+  private static final String TEST_CONTEXT_KEY = "test_context_key";
   private DefaultIssue issue = new DefaultIssue();
 
   @Test
@@ -65,7 +66,8 @@ public class DefaultIssueTest {
       .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
       .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
       .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
-      .setSelectedAt(1400000000000L);
+      .setSelectedAt(1400000000000L)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
 
     assertThat(issue.key()).isEqualTo("ABCD");
     assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
@@ -97,6 +99,7 @@ public class DefaultIssueTest {
     assertThat(issue.updateDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"));
     assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
     assertThat(issue.selectedAt()).isEqualTo(1400000000000L);
+    assertThat(issue.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
   }
 
   @Test

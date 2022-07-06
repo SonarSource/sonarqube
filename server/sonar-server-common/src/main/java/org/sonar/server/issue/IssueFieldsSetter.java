@@ -160,6 +160,17 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  public boolean setRuleDescriptionContextKey(DefaultIssue issue, @Nullable String previousContextKey) {
+    String currentContextKey = issue.getRuleDescriptionContextKey().orElse(null);
+    issue.setRuleDescriptionContextKey(previousContextKey);
+    if (!Objects.equals(currentContextKey, previousContextKey)) {
+      issue.setRuleDescriptionContextKey(currentContextKey);
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
+
   public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {
     if (!Objects.equals(locations, issue.getLocations())) {
       issue.setLocations(locations);
@@ -173,7 +184,6 @@ public class IssueFieldsSetter {
     Object currentLocations = issue.getLocations();
     issue.setLocations(previousLocations);
     return setLocations(issue, currentLocations);
-
   }
 
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {

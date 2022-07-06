@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.util.cache;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.io.BufferedOutputStream;
@@ -73,7 +74,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
   @Override
   public CloseableIterator<DefaultIssue> traverse() {
     CloseableIterator<IssueCache.Issue> protoIterator = Protobuf.readStream(file, IssueCache.Issue.parser());
-    return new CloseableIterator<DefaultIssue>() {
+    return new CloseableIterator<>() {
       @CheckForNull
       @Override
       protected DefaultIssue doNext() {
@@ -90,7 +91,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     };
   }
 
-  private static DefaultIssue toDefaultIssue(IssueCache.Issue next) {
+  @VisibleForTesting
+  static DefaultIssue toDefaultIssue(IssueCache.Issue next) {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setKey(next.getKey());
     defaultIssue.setType(RuleType.valueOf(next.getRuleType()));
@@ -114,6 +116,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
     defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.getTags())));
+    defaultIssue.setRuleDescriptionContextKey(next.hasRuleDescriptionContextKey() ? next.getRuleDescriptionContextKey() : null);
     defaultIssue.setLocations(next.hasLocations() ? next.getLocations() : null);
     defaultIssue.setIsFromExternalRuleEngine(next.getIsFromExternalRuleEngine());
     defaultIssue.setCreationDate(new Date(next.getCreationDate()));
@@ -139,7 +142,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     return defaultIssue;
   }
 
-  private static IssueCache.Issue toProto(IssueCache.Issue.Builder builder, DefaultIssue defaultIssue) {
+  @VisibleForTesting
+  static IssueCache.Issue toProto(IssueCache.Issue.Builder builder, DefaultIssue defaultIssue) {
     builder.clear();
     builder.setKey(defaultIssue.key());
     builder.setRuleType(defaultIssue.type().getDbConstant());
@@ -164,6 +168,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));
     ofNullable(defaultIssue.tags()).ifPresent(t -> builder.setTags(String.join(TAGS_SEPARATOR, t)));
     ofNullable(defaultIssue.getLocations()).ifPresent(l -> builder.setLocations((DbIssues.Locations) l));
+    defaultIssue.getRuleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);
     builder.setIsFromExternalRuleEngine(defaultIssue.isFromExternalRuleEngine());
     builder.setCreationDate(defaultIssue.creationDate().getTime());
     ofNullable(defaultIssue.updateDate()).map(Date::getTime).ifPresent(builder::setUpdateDate);

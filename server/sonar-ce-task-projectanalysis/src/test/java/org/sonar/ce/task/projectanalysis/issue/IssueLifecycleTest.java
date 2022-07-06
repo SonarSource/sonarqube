@@ -59,6 +59,7 @@ import static org.sonar.db.rule.RuleTesting.XOO_X1;
 public class IssueLifecycleTest {
   private static final Date DEFAULT_DATE = new Date();
   private static final Duration DEFAULT_DURATION = Duration.create(10);
+  private static final String TEST_CONTEXT_KEY = "test_context_key";
 
   private final DumbRule rule = new DumbRule(XOO_X1);
 
@@ -244,7 +245,8 @@ public class IssueLifecycleTest {
       .setKey("RAW_KEY")
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
-      .setCloseDate(parseDate("2015-10-03"));
+      .setCloseDate(parseDate("2015-10-03"))
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
 
     DbIssues.Locations issueLocations = DbIssues.Locations.newBuilder()
       .setTextRange(DbCommons.TextRange.newBuilder()
@@ -297,6 +299,7 @@ public class IssueLifecycleTest {
     assertThat(raw.selectedAt()).isEqualTo(1000L);
     assertThat(raw.changes().get(0).get(IssueFieldsSetter.FROM_BRANCH).oldValue()).isEqualTo("master");
     assertThat(raw.changes().get(0).get(IssueFieldsSetter.FROM_BRANCH).newValue()).isEqualTo("release-2.x");
+    assertThat(raw.getRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
 
     verifyNoInteractions(updater);
   }
@@ -316,6 +319,7 @@ public class IssueLifecycleTest {
       .setNew(true)
       .setKey("RAW_KEY")
       .setRuleKey(XOO_X1)
+      .setRuleDescriptionContextKey("spring")
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
@@ -341,6 +345,7 @@ public class IssueLifecycleTest {
       .setLine(10)
       .setMessage("message")
       .setGap(15d)
+      .setRuleDescriptionContextKey("hibernate")
       .setEffort(Duration.create(15L))
       .setManualSeverity(false)
       .setLocations(issueLocations)
@@ -372,6 +377,7 @@ public class IssueLifecycleTest {
 
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
+    verify(updater).setRuleDescriptionContextKey(raw, "hibernate");
     verify(updater).setPastMessage(raw, "message", issueChangeContext);
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
@@ -413,5 +419,45 @@ public class IssueLifecycleTest {
     underTest.mergeExistingOpenIssue(raw, base);
 
     assertThat(raw.isChanged()).isTrue();
+  }
+
+  @Test
+  public void mergeExistingOpenIssue_with_rule_description_context_key_added() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+    DefaultIssue base = new DefaultIssue()
+      .setChanged(true)
+      .setKey("RAW_KEY")
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setStatus(STATUS_RESOLVED)
+      .setRuleDescriptionContextKey(null);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isChanged()).isTrue();
+    assertThat(raw.getRuleDescriptionContextKey()).isEqualTo(raw.getRuleDescriptionContextKey());
+  }
+
+  @Test
+  public void mergeExistingOpenIssue_with_rule_description_context_key_removed() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1)
+      .setRuleDescriptionContextKey(null);
+    DefaultIssue base = new DefaultIssue()
+      .setChanged(true)
+      .setKey("RAW_KEY")
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setStatus(STATUS_RESOLVED)
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isChanged()).isTrue();
+    assertThat(raw.getRuleDescriptionContextKey()).isEmpty();
   }
 }

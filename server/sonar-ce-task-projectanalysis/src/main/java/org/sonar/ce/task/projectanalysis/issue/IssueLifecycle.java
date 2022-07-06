@@ -194,6 +194,7 @@ public class IssueLifecycle {
     // fields coming from raw
     updater.setPastLine(raw, base.getLine());
     updater.setPastLocations(raw, base.getLocations());
+    updater.setRuleDescriptionContextKey(raw, base.getRuleDescriptionContextKey().orElse(null));
     updater.setPastMessage(raw, base.getMessage(), changeContext);
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
