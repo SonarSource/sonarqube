@@ -292,7 +292,7 @@ task: #bitbucket
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
-    memory: 7Gb
+    memory: 10Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   maven_cache:
