@@ -396,7 +396,8 @@ public class RegisterRules implements Startable {
       .setIsExternal(ruleDef.repository().isExternal())
       .setIsAdHoc(false)
       .setCreatedAt(system2.now())
-      .setUpdatedAt(system2.now());
+      .setUpdatedAt(system2.now())
+      .setGenericConcepts(ruleDef.genericConceptKeys());
 
     if (isNotEmpty(ruleDef.htmlDescription())) {
       ruleDto.setDescriptionFormat(Format.HTML);
@@ -442,7 +443,8 @@ public class RegisterRules implements Startable {
     boolean debtDefinitionsMerged = mergeDebtDefinitions(ruleDef, ruleDto);
     boolean tagsMerged = mergeTags(ruleDef, ruleDto);
     boolean securityStandardsMerged = mergeSecurityStandards(ruleDef, ruleDto);
-    return ruleMerged || debtDefinitionsMerged || tagsMerged || securityStandardsMerged;
+    boolean genericConceptsMerged = mergeGenericConcepts(ruleDef, ruleDto);
+    return ruleMerged || debtDefinitionsMerged || tagsMerged || securityStandardsMerged || genericConceptsMerged;
   }
 
   private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto) {
@@ -676,6 +678,16 @@ public class RegisterRules implements Startable {
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
       dto.setSecurityStandards(ruleDef.securityStandards());
+      changed = true;
+    }
+    return changed;
+  }
+
+  private static boolean mergeGenericConcepts(RulesDefinition.Rule ruleDef, RuleDto dto) {
+    boolean changed = false;
+    if (dto.getGenericConcepts().size() != ruleDef.genericConceptKeys().size() ||
+      !dto.getGenericConcepts().containsAll(ruleDef.genericConceptKeys())) {
+      dto.setGenericConcepts(ruleDef.genericConceptKeys());
       changed = true;
     }
     return changed;

@@ -67,6 +67,6 @@ public class RemoveTagsActionTest {
       action.execute(properties, context);
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+      .hasMessage("Entry 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
   }
 }
