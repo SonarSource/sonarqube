@@ -38,6 +38,13 @@ beforeEach(() => {
   handler = new IssuesServiceMock();
 });
 
+it('should show generic concpet', async () => {
+  const user = userEvent.setup();
+  renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
+  await user.click(await screen.findByRole('button', { name: `issue.tabs.more_info` }));
+  expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
+});
+
 it('should open issue and navigate', async () => {
   const user = userEvent.setup();
   renderIssueApp();
@@ -46,8 +53,8 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
 
-  expect(screen.getByRole('button', { name: `issue.tabs.resources` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.resources` }));
+  expect(screen.getByRole('button', { name: `issue.tabs.more_info` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.more_info` }));
   expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: `issue.tabs.how` })).toBeInTheDocument();

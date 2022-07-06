@@ -22,12 +22,12 @@ import { groupBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
+import MoreInfoRuleDescription from '../../../components/rules/MoreInfoRuleDescription';
+import RuleDescription from '../../../components/rules/RuleDescription';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Component, Issue, RuleDetails } from '../../../types/types';
-import RuleContextDescription from '../../../components/rules/RuleContextDescription';
-import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
+import { RuleDescriptionSections } from '../../coding-rules/rule';
 
 interface Props {
   component?: Component;
@@ -37,22 +37,21 @@ interface Props {
 }
 
 interface State {
-  currentTabKey: TabKeys;
+  currentTabKey: IssueTabKeys;
   tabs: Tab[];
 }
 
 interface Tab {
-  key: TabKeys;
+  key: IssueTabKeys;
   label: React.ReactNode;
-  descriptionSections: RuleDescriptionSection[];
-  isDefault: boolean;
+  content: React.ReactNode;
 }
 
-enum TabKeys {
+enum IssueTabKeys {
   Code = 'code',
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how',
-  Resources = 'resources'
+  MoreInfo = 'more_info'
 }
 
 export default class IssueViewerTabs extends React.PureComponent<Props, State> {
@@ -66,7 +65,10 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleDetails !== this.props.ruleDetails) {
+    if (
+      prevProps.ruleDetails !== this.props.ruleDetails ||
+      prevProps.codeTabContent !== this.props.codeTabContent
+    ) {
       const tabs = this.computeTabs();
       this.setState({
         currentTabKey: tabs[0].key,
@@ -75,12 +77,12 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
     }
   }
 
-  handleSelectTabs = (currentTabKey: TabKeys) => {
+  handleSelectTabs = (currentTabKey: IssueTabKeys) => {
     this.setState({ currentTabKey });
   };
 
   computeTabs() {
-    const { ruleDetails } = this.props;
+    const { ruleDetails, codeTabContent } = this.props;
     const groupedDescriptions = groupBy(ruleDetails.descriptionSections, 'key');
 
     if (ruleDetails.htmlNote) {
@@ -99,42 +101,50 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       }
     }
 
+    const rootCause =
+      groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
+      groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE];
+
     return [
       {
-        key: TabKeys.Code,
-        label: translate('issue.tabs', TabKeys.Code),
-        descriptionSections: []
+        key: IssueTabKeys.Code,
+        label: translate('issue.tabs', IssueTabKeys.Code),
+        content: <div className="padded">{codeTabContent}</div>
       },
       {
-        key: TabKeys.WhyIsThisAnIssue,
-        label: translate('issue.tabs', TabKeys.WhyIsThisAnIssue),
-        descriptionSections:
-          groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
-          groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE],
-        isDefault:
-          ruleDetails.descriptionSections?.filter(
-            section => section.key === RuleDescriptionSections.DEFAULT
-          ) !== undefined
+        key: IssueTabKeys.WhyIsThisAnIssue,
+        label: translate('issue.tabs', IssueTabKeys.WhyIsThisAnIssue),
+        content: rootCause && (
+          <RuleDescription
+            description={rootCause}
+            isDefault={groupedDescriptions[RuleDescriptionSections.DEFAULT] !== undefined}
+          />
+        )
       },
       {
-        key: TabKeys.HowToFixIt,
-        label: translate('issue.tabs', TabKeys.HowToFixIt),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX],
-        isDefault: false
+        key: IssueTabKeys.HowToFixIt,
+        label: translate('issue.tabs', IssueTabKeys.HowToFixIt),
+        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]} />
+        )
       },
       {
-        key: TabKeys.Resources,
-        label: translate('issue.tabs', TabKeys.Resources),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.RESOURCES],
-        isDefault: false
+        key: IssueTabKeys.MoreInfo,
+        label: translate('issue.tabs', IssueTabKeys.MoreInfo),
+        content: (ruleDetails.genericConcepts ||
+          groupedDescriptions[RuleDescriptionSections.RESOURCES]) && (
+          <MoreInfoRuleDescription
+            genericConcepts={ruleDetails.genericConcepts}
+            description={groupedDescriptions[RuleDescriptionSections.RESOURCES]}
+          />
+        )
       }
-    ].filter(tab => tab.descriptionSections) as Array<Tab>;
+    ].filter(tab => tab.content) as Array<Tab>;
   }
 
   render() {
     const {
       component,
-      codeTabContent,
       ruleDetails: { name, key },
       issue: { message }
     } = this.props;
@@ -162,31 +172,7 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
         </div>
         {selectedTab && (
           <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-            {selectedTab.key === TabKeys.Code && <div className="padded">{codeTabContent}</div>}
-            {selectedTab.key !== TabKeys.Code &&
-              (selectedTab.descriptionSections.length === 1 &&
-              !selectedTab.descriptionSections[0].context ? (
-                <div
-                  key={selectedTab.key}
-                  className={classNames('big-padded', {
-                    markdown: selectedTab.isDefault,
-                    'rule-desc': !selectedTab.isDefault
-                  })}
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizeString(selectedTab.descriptionSections[0].content)
-                  }}
-                />
-              ) : (
-                <div
-                  key={selectedTab.key}
-                  className={classNames('big-padded', {
-                    markdown: selectedTab.isDefault,
-                    'rule-desc': !selectedTab.isDefault
-                  })}>
-                  <RuleContextDescription description={selectedTab.descriptionSections} />
-                </div>
-              ))}
+            {selectedTab.content}
           </div>
         )}
       </>

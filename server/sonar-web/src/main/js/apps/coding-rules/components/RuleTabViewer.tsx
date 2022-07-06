@@ -20,11 +20,12 @@
 import { groupBy } from 'lodash';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
+import MoreInfoRuleDescription from '../../../components/rules/MoreInfoRuleDescription';
+import RuleDescription from '../../../components/rules/RuleDescription';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { RuleDetails } from '../../../types/types';
-import { RuleDescriptionSection, RuleDescriptionSections } from '../rule';
-import RuleContextDescription from '../../../components/rules/RuleContextDescription';
+import { RuleDescriptionSections } from '../rule';
 
 interface Props {
   ruleDetails: RuleDetails;
@@ -36,16 +37,16 @@ interface State {
 }
 
 interface Tab {
-  key: TabKeys;
+  key: RuleTabKeys;
   label: React.ReactNode;
-  descriptionSections: RuleDescriptionSection[];
+  content: React.ReactNode;
 }
 
-enum TabKeys {
+enum RuleTabKeys {
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
-  Resources = 'resources'
+  MoreInfo = 'more_info'
 }
 
 export default class RuleViewerTabs extends React.PureComponent<Props, State> {
@@ -60,7 +61,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
     }
   }
 
-  handleSelectTabs = (currentTabKey: TabKeys) => {
+  handleSelectTabs = (currentTabKey: RuleTabKeys) => {
     this.setState(({ tabs }) => ({
       currentTab: tabs.find(tab => tab.key === currentTabKey) || tabs[0]
     }));
@@ -72,29 +73,43 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
 
     const tabs = [
       {
-        key: TabKeys.WhyIsThisAnIssue,
+        key: RuleTabKeys.WhyIsThisAnIssue,
         label:
           ruleDetails.type === 'SECURITY_HOTSPOT'
             ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
             : translate('coding_rules.description_section.title.root_cause'),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE]
+        content: groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE] && (
+          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE]} />
+        )
       },
       {
-        key: TabKeys.AssessTheIssue,
-        label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]
+        key: RuleTabKeys.AssessTheIssue,
+        label: translate('coding_rules.description_section.title', RuleTabKeys.AssessTheIssue),
+        content: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+          <RuleDescription
+            description={groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+          />
+        )
       },
       {
-        key: TabKeys.HowToFixIt,
-        label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]
+        key: RuleTabKeys.HowToFixIt,
+        label: translate('coding_rules.description_section.title', RuleTabKeys.HowToFixIt),
+        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]} />
+        )
       },
       {
-        key: TabKeys.Resources,
-        label: translate('coding_rules.description_section.title', TabKeys.Resources),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.RESOURCES]
+        key: RuleTabKeys.MoreInfo,
+        label: translate('coding_rules.description_section.title', RuleTabKeys.MoreInfo),
+        content: (ruleDetails.genericConcepts ||
+          groupedDescriptions[RuleDescriptionSections.RESOURCES]) && (
+          <MoreInfoRuleDescription
+            genericConcepts={ruleDetails.genericConcepts}
+            description={groupedDescriptions[RuleDescriptionSections.RESOURCES]}
+          />
+        )
       }
-    ].filter(tab => tab.descriptionSections) as Array<Tab>;
+    ].filter(tab => tab.content) as Array<Tab>;
 
     return {
       currentTab: tabs[0],
@@ -125,20 +140,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
         />
 
         <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-          {currentTab.descriptionSections.length === 1 &&
-          !currentTab.descriptionSections[0].context ? (
-            <div
-              className="big-padded rule-desc"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{
-                __html: sanitizeString(currentTab.descriptionSections[0].content)
-              }}
-            />
-          ) : (
-            <div className="big-padded rule-desc">
-              <RuleContextDescription description={currentTab.descriptionSections} />
-            </div>
-          )}
+          {currentTab.content}
         </div>
       </>
     );

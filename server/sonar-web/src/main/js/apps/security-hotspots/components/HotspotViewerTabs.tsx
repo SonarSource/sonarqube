@@ -20,12 +20,11 @@
 import { groupBy } from 'lodash';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
+import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
 import { Hotspot } from '../../../types/security-hotspots';
-import RuleContextDescription from '../../../components/rules/RuleContextDescription';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 
 interface Props {
@@ -43,7 +42,7 @@ interface State {
 interface Tab {
   key: TabKeys;
   label: React.ReactNode;
-  descriptionSections: RuleDescriptionSection[];
+  content: React.ReactNode;
 }
 
 export enum TabKeys {
@@ -68,7 +67,10 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.hotspot.key !== prevProps.hotspot.key) {
+    if (
+      this.props.hotspot.key !== prevProps.hotspot.key ||
+      prevProps.codeTabContent !== this.props.codeTabContent
+    ) {
       const tabs = this.computeTabs();
       this.setState({
         currentTab: tabs[0],
@@ -117,37 +119,44 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   };
 
   computeTabs() {
-    const { ruleDescriptionSections } = this.props;
+    const { ruleDescriptionSections, codeTabContent } = this.props;
     const groupedDescriptions = groupBy(ruleDescriptionSections, description => description.key);
-
-    const descriptionTabs = [
-      {
-        key: TabKeys.RiskDescription,
-        label: translate('hotspots.tabs.risk_description'),
-        descriptionSections:
-          groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
-          groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE]
-      },
-      {
-        key: TabKeys.VulnerabilityDescription,
-        label: translate('hotspots.tabs.vulnerability_description'),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]
-      },
-      {
-        key: TabKeys.FixRecommendation,
-        label: translate('hotspots.tabs.fix_recommendations'),
-        descriptionSections: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]
-      }
-    ].filter(tab => tab.descriptionSections);
+    const rootCause =
+      groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
+      groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE];
 
     return [
       {
         key: TabKeys.Code,
         label: translate('hotspots.tabs.code'),
-        descriptionSections: []
+        content: <div className="padded">{codeTabContent}</div>
       },
-      ...descriptionTabs
-    ];
+      {
+        key: TabKeys.RiskDescription,
+        label: translate('hotspots.tabs.risk_description'),
+        content: rootCause && <RuleDescription description={rootCause} isDefault={true} />
+      },
+      {
+        key: TabKeys.VulnerabilityDescription,
+        label: translate('hotspots.tabs.vulnerability_description'),
+        content: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+          <RuleDescription
+            description={groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+            isDefault={true}
+          />
+        )
+      },
+      {
+        key: TabKeys.FixRecommendation,
+        label: translate('hotspots.tabs.fix_recommendations'),
+        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription
+            description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]}
+            isDefault={true}
+          />
+        )
+      }
+    ].filter(tab => tab.content);
   }
 
   selectNeighboringTab(shift: number) {
@@ -166,30 +175,11 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
   }
 
   render() {
-    const { codeTabContent } = this.props;
     const { tabs, currentTab } = this.state;
     return (
       <>
         <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
-        <div className="bordered huge-spacer-bottom">
-          {currentTab.key === TabKeys.Code && <div className="padded">{codeTabContent}</div>}
-          {currentTab.key !== TabKeys.Code &&
-            (currentTab.descriptionSections.length === 1 &&
-            !currentTab.descriptionSections[0].context ? (
-              <div
-                key={currentTab.key}
-                className="markdown big-padded"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeString(currentTab.descriptionSections[0].content)
-                }}
-              />
-            ) : (
-              <div className="markdown big-padded">
-                <RuleContextDescription description={currentTab.descriptionSections} />
-              </div>
-            ))}
-        </div>
+        <div className="bordered huge-spacer-bottom">{currentTab.content}</div>
       </>
     );
   }

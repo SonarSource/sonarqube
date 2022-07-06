@@ -96,13 +96,13 @@ it('should show hotspot rule section', async () => {
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: 'coding_rules.description_section.title.resources'
+      name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
     screen.getByRole('button', {
-      name: 'coding_rules.description_section.title.resources'
+      name: 'coding_rules.description_section.title.more_info'
     })
   );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
@@ -122,13 +122,13 @@ it('should show rule advanced section', async () => {
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: 'coding_rules.description_section.title.resources'
+      name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
     screen.getByRole('button', {
-      name: 'coding_rules.description_section.title.resources'
+      name: 'coding_rules.description_section.title.more_info'
     })
   );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();

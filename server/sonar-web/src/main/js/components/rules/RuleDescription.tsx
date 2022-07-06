@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
-import { translate } from '../../helpers/l10n';
-import RadioToggle from '../controls/RadioToggle';
-import { sanitizeString } from '../../helpers/sanitize';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
+import { translate } from '../../helpers/l10n';
+import { sanitizeString } from '../../helpers/sanitize';
+import RadioToggle from '../controls/RadioToggle';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
 
 interface Props {
+  isDefault?: boolean;
   description: RuleDescriptionSection[];
 }
 
 interface State {
   contexts: RuleDescriptionContextDisplay[];
-  selectedContext: RuleDescriptionContextDisplay;
+  selectedContext?: RuleDescriptionContextDisplay;
 }
 
 interface RuleDescriptionContextDisplay {
@@ -41,7 +43,7 @@ interface RuleDescriptionContextDisplay {
   key: string;
 }
 
-export default class RuleContextDescription extends React.PureComponent<Props, State> {
+export default class RuleDescription extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = this.computeState(props.description);
@@ -87,6 +89,7 @@ export default class RuleContextDescription extends React.PureComponent<Props, S
   };
 
   render() {
+    const { description, isDefault } = this.props;
     const { contexts } = this.state;
     const { selectedContext } = this.state;
 
@@ -95,26 +98,49 @@ export default class RuleContextDescription extends React.PureComponent<Props, S
       value: ctxt.displayName
     }));
 
-    return (
-      <div className="rules-context-description">
-        <h2 className="rule-contexts-title">
-          {translate('coding_rules.description_context_title')}
-        </h2>
-        <RadioToggle
-          className="big-spacer-bottom"
-          name="filter"
-          onCheck={this.handleToggleContext}
-          options={options}
-          value={selectedContext.displayName}
+    if (!description[0].context && description.length === 1) {
+      return (
+        <div
+          className={classNames('big-padded', {
+            markdown: isDefault,
+            'rule-desc': !isDefault
+          })}
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: sanitizeString(description[0].content)
+          }}
         />
-        {selectedContext.key === OTHERS_KEY ? (
-          <OtherContextOption />
-        ) : (
-          <div
-            /* eslint-disable-next-line react/no-danger */
-            dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
+      );
+    }
+    if (!selectedContext) {
+      return null;
+    }
+    return (
+      <div
+        className={classNames('big-padded', {
+          markdown: isDefault,
+          'rule-desc': !isDefault
+        })}>
+        <div className="rules-context-description">
+          <h2 className="rule-contexts-title">
+            {translate('coding_rules.description_context_title')}
+          </h2>
+          <RadioToggle
+            className="big-spacer-bottom"
+            name="filter"
+            onCheck={this.handleToggleContext}
+            options={options}
+            value={selectedContext.displayName}
           />
-        )}
+          {selectedContext.key === OTHERS_KEY ? (
+            <OtherContextOption />
+          ) : (
+            <div
+              /* eslint-disable-next-line react/no-danger */
+              dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
+            />
+          )}
+        </div>
       </div>
     );
   }

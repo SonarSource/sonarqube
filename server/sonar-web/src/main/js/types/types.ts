@@ -588,6 +588,7 @@ export interface RuleDetails extends Rule {
   defaultRemFnBaseEffort?: string;
   defaultRemFnType?: string;
   descriptionSections?: RuleDescriptionSection[];
+  genericConcepts?: string[];
   effortToFixDescription?: string;
   htmlDesc?: string;
   htmlNote?: string;

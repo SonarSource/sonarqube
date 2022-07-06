@@ -8,37 +8,58 @@ exports[`should render correctly: fix 1`] = `
     tabs={
       Array [
         Object {
-          "descriptionSections": Array [],
+          "content": <div
+            className="padded"
+          >
+            <div>
+              CodeTabContent
+            </div>
+          </div>,
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "cause",
-              "key": "root_cause",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "cause",
+                  "key": "root_cause",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "assess",
-              "key": "assess_the_problem",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "assess",
+                  "key": "assess_the_problem",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "how",
-              "key": "how_to_fix",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "how",
+                  "key": "how_to_fix",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -48,14 +69,16 @@ exports[`should render correctly: fix 1`] = `
   <div
     className="bordered huge-spacer-bottom"
   >
-    <div
-      className="markdown big-padded"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "how",
-        }
+    <RuleDescription
+      description={
+        Array [
+          Object {
+            "content": "how",
+            "key": "how_to_fix",
+          },
+        ]
       }
-      key="fix"
+      isDefault={true}
     />
   </div>
 </Fragment>
@@ -69,37 +92,58 @@ exports[`should render correctly: risk 1`] = `
     tabs={
       Array [
         Object {
-          "descriptionSections": Array [],
+          "content": <div
+            className="padded"
+          >
+            <div>
+              CodeTabContent
+            </div>
+          </div>,
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "cause",
-              "key": "root_cause",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "cause",
+                  "key": "root_cause",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "assess",
-              "key": "assess_the_problem",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "assess",
+                  "key": "assess_the_problem",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "how",
-              "key": "how_to_fix",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "how",
+                  "key": "how_to_fix",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -128,37 +172,58 @@ exports[`should render correctly: vulnerability 1`] = `
     tabs={
       Array [
         Object {
-          "descriptionSections": Array [],
+          "content": <div
+            className="padded"
+          >
+            <div>
+              CodeTabContent
+            </div>
+          </div>,
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "cause",
-              "key": "root_cause",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "cause",
+                  "key": "root_cause",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "assess",
-              "key": "assess_the_problem",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "assess",
+                  "key": "assess_the_problem",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "how",
-              "key": "how_to_fix",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "how",
+                  "key": "how_to_fix",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
@@ -168,14 +233,16 @@ exports[`should render correctly: vulnerability 1`] = `
   <div
     className="bordered huge-spacer-bottom"
   >
-    <div
-      className="markdown big-padded"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "assess",
-        }
+    <RuleDescription
+      description={
+        Array [
+          Object {
+            "content": "assess",
+            "key": "assess_the_problem",
+          },
+        ]
       }
-      key="vulnerability"
+      isDefault={true}
     />
   </div>
 </Fragment>
@@ -189,37 +256,58 @@ exports[`should render correctly: with comments or changelog element 1`] = `
     tabs={
       Array [
         Object {
-          "descriptionSections": Array [],
+          "content": <div
+            className="padded"
+          >
+            <div>
+              CodeTabContent
+            </div>
+          </div>,
           "key": "code",
           "label": "hotspots.tabs.code",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "cause",
-              "key": "root_cause",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "cause",
+                  "key": "root_cause",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "assess",
-              "key": "assess_the_problem",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "assess",
+                  "key": "assess_the_problem",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
-          "descriptionSections": Array [
-            Object {
-              "content": "how",
-              "key": "how_to_fix",
-            },
-          ],
+          "content": <RuleDescription
+            description={
+              Array [
+                Object {
+                  "content": "how",
+                  "key": "how_to_fix",
+                },
+              ]
+            }
+            isDefault={true}
+          />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
         },
