@@ -17,7 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildPortRange, openHotspot, probeSonarLintServers } from '../sonarlint';
+import { TokenType } from '../../types/token';
+import { HttpStatus } from '../request';
+import {
+  buildPortRange,
+  openHotspot,
+  portIsValid,
+  probeSonarLintServers,
+  sendUserToken
+} from '../sonarlint';
 
 describe('buildPortRange', () => {
   it('should build a port range of size <size> starting at port <port>', () => {
@@ -62,5 +70,65 @@ describe('openHotspot', () => {
 
     const result = await openHotspot(42000, 'my-project:key', 'my-hotspot-key');
     expect(result).toBe(resp);
+  });
+});
+
+describe('portIsValid', () => {
+  it.each([
+    [64119, false],
+    [64120, true],
+    [64125, true],
+    [64130, true],
+    [64131, false]
+  ])('should validate port %s is within the expected range', (port, expectation) => {
+    expect(portIsValid(port)).toBe(expectation);
+  });
+});
+
+describe('sendUserToken', () => {
+  it('should send the token the right port', async () => {
+    const token = {
+      login: 'Takeshi',
+      name: 'sonarlint-vscode-1',
+      createdAt: '12-12-2018',
+      expirationDate: '17-02-2019',
+      token: '78gfh78d6gf8h',
+      type: TokenType.User
+    };
+
+    const resp = new Response();
+    window.fetch = jest.fn((_url, { body }: RequestInit) => {
+      try {
+        const data = JSON.parse(body?.toString() ?? '{}');
+
+        expect(data).toEqual(token);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+      return Promise.resolve(resp);
+    });
+
+    const result = await sendUserToken(64122, { ...token, isExpired: false });
+    expect(result).toBeUndefined();
+  });
+
+  it('should handle errors', async () => {
+    const token = {
+      login: 'Takeshi',
+      name: 'sonarlint-vscode-1',
+      createdAt: '12-12-2018',
+      expirationDate: '17-02-2019',
+      token: '78gfh78d6gf8h',
+      type: TokenType.User
+    };
+
+    const resp = new Response('Meh', { status: HttpStatus.BadRequest, statusText: 'I no likez' });
+    window.fetch = jest.fn(() => {
+      return Promise.resolve(resp);
+    });
+
+    await expect(async () => {
+      await sendUserToken(64122, { ...token, isExpired: false });
+    }).rejects.toThrowError('400 I no likez. Meh');
   });
 });

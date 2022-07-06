@@ -22,10 +22,12 @@ import { getAllValues } from '../../api/settings';
 import { SettingsKey } from '../../types/settings';
 import { TokenExpiration } from '../../types/token';
 import { mockSettingValue } from '../mocks/settings';
+import { mockUserToken } from '../mocks/token';
 import {
   computeTokenExpirationDate,
   EXPIRATION_OPTIONS,
-  getAvailableExpirationOptions
+  getAvailableExpirationOptions,
+  getNextTokenName
 } from '../tokens';
 
 jest.mock('../../api/settings', () => {
@@ -103,5 +105,26 @@ describe('computeTokenExpirationDate', () => {
     [TokenExpiration.OneYear, '2023-06-01']
   ])('should correctly compute the proper expiration date for %s days', (days, expected) => {
     expect(computeTokenExpirationDate(days)).toBe(expected);
+  });
+});
+
+describe('getNextTokenName', () => {
+  it('should preserve the base name for the firts token', () => {
+    const tokens = [mockUserToken({ name: 'whatever' })];
+    const tokenName = 'sl-vscode';
+
+    expect(getNextTokenName(tokenName, tokens)).toBe(tokenName);
+  });
+
+  it('should increment until the first available value', () => {
+    const tokenName = 'sl-vscode';
+    const tokens = [
+      mockUserToken({ name: `${tokenName}` }),
+      mockUserToken({ name: `${tokenName}-1` }),
+      mockUserToken({ name: `${tokenName}-2` }),
+      mockUserToken({ name: `${tokenName}-4` })
+    ];
+
+    expect(getNextTokenName(tokenName, tokens)).toBe(`${tokenName}-3`);
   });
 });

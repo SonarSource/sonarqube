@@ -20,7 +20,7 @@
 
 import { getAllValues } from '../api/settings';
 import { SettingsKey } from '../types/settings';
-import { TokenExpiration } from '../types/token';
+import { TokenExpiration, UserToken } from '../types/token';
 import { now, toShortNotSoISOString } from './dates';
 import { translate } from './l10n';
 
@@ -69,4 +69,18 @@ export function computeTokenExpirationDate(days: number) {
   const expirationDate = now();
   expirationDate.setDate(expirationDate.getDate() + days);
   return toShortNotSoISOString(expirationDate);
+}
+
+export function getNextTokenName(tokenNameBase: string, tokens: UserToken[]) {
+  let tokenName = tokenNameBase;
+  let counter = 1;
+  let existingToken = tokens.find(({ name }) => name === tokenName);
+  while (existingToken !== undefined) {
+    tokenName = `${tokenNameBase}-${counter}`;
+    counter += 1;
+    // eslint-disable-next-line no-loop-func
+    existingToken = tokens.find(({ name }) => name === tokenName);
+  }
+
+  return tokenName;
 }

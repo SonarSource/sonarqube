@@ -90,6 +90,7 @@ import PluginRiskConsent from '../components/PluginRiskConsent';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ResetPassword from '../components/ResetPassword';
 import SimpleContainer from '../components/SimpleContainer';
+import SonarLintConnection from '../components/SonarLintConnection';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 import NavigateWithParams from './NavigateWithParams';
 import NavigateWithSearchAndHash from './NavigateWithSearchAndHash';
@@ -279,6 +280,9 @@ export default function startReactApp(
                         {qualityProfilesRoutes()}
 
                         <Route path="portfolios" element={<PortfoliosPage />} />
+
+                        <Route path="sonarlint/auth" element={<SonarLintConnection />} />
+
                         {webAPIRoutes()}
 
                         {renderComponentRoutes()}

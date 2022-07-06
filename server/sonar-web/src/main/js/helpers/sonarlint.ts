@@ -19,7 +19,8 @@
  */
 import { getHostUrl } from '../helpers/urls';
 import { Ide } from '../types/sonarlint';
-import { checkStatus } from './request';
+import { NewUserToken } from '../types/token';
+import { checkStatus, isSuccessStatus } from './request';
 
 const SONARLINT_PORT_START = 64120;
 const SONARLINT_PORT_RANGE = 11;
@@ -45,6 +46,31 @@ export function openHotspot(calledPort: number, projectKey: string, hotspotKey: 
   showUrl.searchParams.set('project', projectKey);
   showUrl.searchParams.set('hotspot', hotspotKey);
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
+}
+
+export function portIsValid(port: number) {
+  return port >= SONARLINT_PORT_START && port < SONARLINT_PORT_START + SONARLINT_PORT_RANGE;
+}
+
+export async function sendUserToken(port: number, token: NewUserToken) {
+  const tokenUrl = buildSonarLintEndpoint(port, '/token');
+
+  const data = {
+    login: token.login,
+    name: token.name,
+    createdAt: token.createdAt,
+    expirationDate: token.expirationDate,
+    token: token.token,
+    type: token.type
+  };
+
+  const response = await fetch(tokenUrl, { method: 'POST', body: JSON.stringify(data) });
+
+  if (!isSuccessStatus(response.status)) {
+    const content = await response.text();
+
+    throw new Error(`${response.status} ${response.statusText}. ${content}`);
+  }
 }
 
 /**
