@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -38,6 +39,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   private Double gap;
   private Severity overriddenSeverity;
   private boolean quickFixAvailable = false;
+  private String ruleDescriptionContextKey;
 
   public DefaultIssue(DefaultInputProject project) {
     this(project, null);
@@ -76,8 +78,19 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public DefaultIssue setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
+    this.ruleDescriptionContextKey = ruleDescriptionContextKey;
+    return this;
+  }
+
+  @Override
   public boolean isQuickFixAvailable() {
     return quickFixAvailable;
+  }
+
+  @Override
+  public Optional<String> ruleDescriptionContextKey() {
+    return Optional.ofNullable(ruleDescriptionContextKey);
   }
 
   @Override

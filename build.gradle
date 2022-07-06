@@ -178,7 +178,7 @@ subprojects {
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.9.0.1147'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.9.0.3429'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.9.0.3429'
-      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.7.0.160'
+      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.8.0.196'
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.5.0.3376'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.7.0.2012'
       dependency 'org.sonarsource.text:sonar-text-plugin:1.1.0.282'

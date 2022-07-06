@@ -125,11 +125,13 @@ public class IssuePublisherTest {
       .build());
     initModuleIssues();
 
+    final String ruleDescriptionContextKey = "spring";
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(JAVA_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL)
-      .setQuickFixAvailable(true);
+      .setQuickFixAvailable(true)
+      .setRuleDescriptionContextKey(ruleDescriptionContextKey);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
@@ -140,6 +142,7 @@ public class IssuePublisherTest {
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
+    assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
   }
 
   @Test

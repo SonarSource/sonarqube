@@ -123,6 +123,7 @@ public class IssuePublisher {
     }
     applyFlows(builder::addFlow, locationBuilder, textRangeBuilder, issue.flows());
     builder.setQuickFixAvailable(issue.isQuickFixAvailable());
+    issue.ruleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);
     return builder.build();
   }
 

@@ -67,13 +67,15 @@ public class DefaultIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .gap(10.0);
+      .gap(10.0)
+      .setRuleDescriptionContextKey("spring");
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange().start().line()).isOne();
     assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
+    assertThat(issue.ruleDescriptionContextKey()).contains("spring");
 
     issue.save();
 

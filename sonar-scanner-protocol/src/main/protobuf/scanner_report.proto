@@ -195,6 +195,7 @@ message Issue {
   TextRange text_range = 6;
   repeated Flow flow = 7;
   bool quickFixAvailable = 8;
+  optional string ruleDescriptionContextKey = 9;
 }
 
 message ExternalIssue {
