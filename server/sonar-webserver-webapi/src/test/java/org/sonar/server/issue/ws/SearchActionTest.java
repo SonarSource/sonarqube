@@ -84,6 +84,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -1487,6 +1488,57 @@ public class SearchActionTest {
     assertThatThrownBy(requestLeakFalseNewCodeTrue::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("If both provided, the following parameters sinceLeakPeriod and inNewCodePeriod must match.");
+  }
+
+  @Test
+  public void search_when_additional_field_set_return_context_key() {
+    insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("additionalFields", "ruleDescriptionContextKey")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList()).isNotEmpty()
+      .extracting(Issue::getRuleDescriptionContextKey).containsExactly("spring");
+  }
+
+  @Test
+  public void search_when_no_additional_field_return_empty_context_key() {
+    insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList()).isNotEmpty()
+      .extracting(Issue::getRuleDescriptionContextKey).containsExactly(EMPTY);
+  }
+
+  @Test
+  public void search_when_additional_field_but_no_context_key_return_empty_context_key() {
+    insertIssues(issue -> issue.setRuleDescriptionContextKey(null));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("additionalFields", "ruleDescriptionContextKey")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList()).isNotEmpty()
+      .extracting(Issue::getRuleDescriptionContextKey).containsExactly(EMPTY);
+  }
+
+  @Test
+  public void search_when_additional_field_set_to_all_return_context_key() {
+    insertIssues(issue -> issue.setRuleDescriptionContextKey("spring"));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("additionalFields", "_all")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList()).isNotEmpty()
+      .extracting(Issue::getRuleDescriptionContextKey).containsExactly("spring");
   }
 
   private RuleDto newIssueRule() {

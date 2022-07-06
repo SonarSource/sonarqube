@@ -158,6 +158,7 @@ message Issue {
   optional string scope = 35;
 
   optional bool quickFixAvailable = 36;
+  optional string ruleDescriptionContextKey = 37;
 }
 
 message Transitions {

@@ -73,6 +73,7 @@ public class SetTagsAction implements IssuesWsAction {
       .setDescription("Set tags on an issue. <br/>" +
         "Requires authentication and Browse permission on project")
       .setChangelog(
+        new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."),
         new Change("6.4", "response contains issue information instead of list of tags"))

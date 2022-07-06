@@ -40,7 +40,8 @@ public enum SearchAdditionalField {
   LANGUAGES("languages"),
   RULES("rules"),
   TRANSITIONS("transitions"),
-  USERS("users");
+  USERS("users"),
+  RULE_DESCRIPTION_CONTEXT_KEY("ruleDescriptionContextKey");
 
   public static final String ALL_ALIAS = "_all";
   static final EnumSet<SearchAdditionalField> ALL_ADDITIONAL_FIELDS = EnumSet.allOf(SearchAdditionalField.class);

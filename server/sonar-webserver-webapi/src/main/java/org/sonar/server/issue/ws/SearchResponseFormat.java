@@ -25,10 +25,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
@@ -67,10 +67,17 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
+import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
+import static org.sonar.server.issue.ws.SearchAdditionalField.ALL_ADDITIONAL_FIELDS;
+import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
+import static org.sonar.server.issue.ws.SearchAdditionalField.RULE_DESCRIPTION_CONTEXT_KEY;
+import static org.sonar.server.issue.ws.SearchAdditionalField.TRANSITIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 
@@ -93,7 +100,7 @@ public class SearchResponseFormat {
 
     formatPaging(paging, response);
     ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
-    response.addAllIssues(formatIssues(fields, data));
+    response.addAllIssues(createIssues(fields, data));
     response.addAllComponents(formatComponents(data));
     formatFacets(data, facets, response);
     if (fields.contains(SearchAdditionalField.RULES)) {
@@ -112,13 +119,8 @@ public class SearchResponseFormat {
     Operation.Builder response = Operation.newBuilder();
 
     if (data.getIssues().size() == 1) {
-      Issue.Builder issueBuilder = Issue.newBuilder();
       IssueDto dto = data.getIssues().get(0);
-      formatIssue(issueBuilder, dto, data);
-      formatIssueActions(data, issueBuilder, dto);
-      formatIssueTransitions(data, issueBuilder, dto);
-      formatIssueComments(data, issueBuilder, dto);
-      response.setIssue(issueBuilder.build());
+      response.setIssue(createIssue(ALL_ADDITIONAL_FIELDS, data, dto));
     }
     response.addAllComponents(formatComponents(data));
     response.addAllRules(formatRules(data).getRulesList());
@@ -140,27 +142,20 @@ public class SearchResponseFormat {
       .setTotal(paging.total());
   }
 
-  private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
-    List<Issues.Issue> result = new ArrayList<>();
-    Issue.Builder issueBuilder = Issue.newBuilder();
-    data.getIssues().forEach(dto -> {
-      issueBuilder.clear();
-      formatIssue(issueBuilder, dto, data);
-      if (fields.contains(SearchAdditionalField.ACTIONS)) {
-        formatIssueActions(data, issueBuilder, dto);
-      }
-      if (fields.contains(SearchAdditionalField.TRANSITIONS)) {
-        formatIssueTransitions(data, issueBuilder, dto);
-      }
-      if (fields.contains(SearchAdditionalField.COMMENTS)) {
-        formatIssueComments(data, issueBuilder, dto);
-      }
-      result.add(issueBuilder.build());
-    });
-    return result;
+  private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data) {
+    return data.getIssues().stream()
+      .map(dto -> createIssue(fields, data, dto))
+      .collect(toList());
   }
 
-  private void formatIssue(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
+  private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto) {
+    Issue.Builder issueBuilder = Issue.newBuilder();
+    addMandatoryFieldsToIssueBuilder(issueBuilder, dto, data);
+    addAdditionalFieldsToIssueBuilder(fields, data, dto, issueBuilder);
+    return issueBuilder.build();
+  }
+
+  private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
@@ -199,10 +194,25 @@ public class SearchResponseFormat {
     ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
     ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
 
-    ofNullable(dto.isQuickFixAvailable())
+    Optional.of(dto.isQuickFixAvailable())
       .ifPresentOrElse(issueBuilder::setQuickFixAvailable, () -> issueBuilder.setQuickFixAvailable(false));
 
-    issueBuilder.setScope(Qualifiers.UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
+    issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
+  }
+
+  private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, Issue.Builder issueBuilder) {
+    if (fields.contains(ACTIONS)) {
+      issueBuilder.setActions(createIssueActions(data, dto));
+    }
+    if (fields.contains(TRANSITIONS)) {
+      issueBuilder.setTransitions(createIssueTransition(data, dto));
+    }
+    if (fields.contains(COMMENTS)) {
+      issueBuilder.setComments(createIssueComments(data, dto));
+    }
+    if (fields.contains(RULE_DESCRIPTION_CONTEXT_KEY)) {
+      dto.getOptionalRuleDescriptionContextKey().ifPresent(issueBuilder::setRuleDescriptionContextKey);
+    }
   }
 
   private static String engineNameFrom(RuleKey ruleKey) {
@@ -225,7 +235,7 @@ public class SearchResponseFormat {
     }
   }
 
-  private static void formatIssueTransitions(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+  private static Transitions createIssueTransition(SearchResponseData data, IssueDto dto) {
     Transitions.Builder wsTransitions = Transitions.newBuilder();
     List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
     if (transitions != null) {
@@ -233,19 +243,19 @@ public class SearchResponseFormat {
         wsTransitions.addTransitions(transition.key());
       }
     }
-    wsIssue.setTransitions(wsTransitions);
+    return wsTransitions.build();
   }
 
-  private static void formatIssueActions(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+  private static Actions createIssueActions(SearchResponseData data, IssueDto dto) {
     Actions.Builder wsActions = Actions.newBuilder();
     List<String> actions = data.getActionsForIssueKey(dto.getKey());
     if (actions != null) {
       wsActions.addAllActions(actions);
     }
-    wsIssue.setActions(wsActions);
+    return wsActions.build();
   }
 
-  private static void formatIssueComments(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {
+  private static Comments createIssueComments(SearchResponseData data, IssueDto dto) {
     Comments.Builder wsComments = Comments.newBuilder();
     List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
     if (comments != null) {
@@ -266,7 +276,7 @@ public class SearchResponseFormat {
         wsComments.addComments(wsComment);
       }
     }
-    wsIssue.setComments(wsComments);
+    return wsComments.build();
   }
 
   private Common.Rules.Builder formatRules(SearchResponseData data) {

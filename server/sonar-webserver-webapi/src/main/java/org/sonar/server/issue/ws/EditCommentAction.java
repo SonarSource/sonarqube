@@ -66,6 +66,7 @@ public class EditCommentAction implements IssuesWsAction {
         "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("6.3", "the response returns the issue with all its details"),
         new Change("6.3", format("the 'key' parameter has been renamed %s", PARAM_COMMENT)),
         new Change("6.5", "the database ids of the components are removed from the response"),

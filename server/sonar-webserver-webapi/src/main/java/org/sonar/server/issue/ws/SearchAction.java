@@ -189,7 +189,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
-
+        new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
+        new Change("9.6", "New possible value for 'additionalFields' parameter: 'ruleDescriptionContextKey'"),
         new Change("9.6", "Facet 'moduleUuids' is dropped."),
         new Change("9.4", format("Parameter '%s' is deprecated, please use '%s' instead", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.2", "Response field 'quickFixAvailable' added"),
@@ -394,7 +395,7 @@ public class SearchAction implements IssuesWsAction {
       .filter(FACETS_REQUIRING_PROJECT::contains)
       .collect(toSet());
     checkArgument(facetsRequiringProjectParameter.isEmpty() ||
-      (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
+        (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
       String.join(",", facetsRequiringProjectParameter));
 
     // execute request

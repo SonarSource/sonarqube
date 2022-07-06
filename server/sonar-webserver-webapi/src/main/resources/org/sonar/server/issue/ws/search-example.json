@@ -77,7 +77,8 @@
           ]
         }
       ],
-      "quickFixAvailable": false
+      "quickFixAvailable": false,
+      "ruleDescriptionContextKey": "spring"
     }
   ],
   "components": [
