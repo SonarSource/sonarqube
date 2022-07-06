@@ -219,6 +219,7 @@ public class ExportIssuesStepTest {
       .setAssigneeUuid("assignee-uuid")
       .setAuthorLogin("author")
       .setTagsString("tags")
+      .setRuleDescriptionContextKey("test_rule_description_context_key")
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
       .setIssueCloseTime(741L);
@@ -251,6 +252,7 @@ public class ExportIssuesStepTest {
     assertThat(issue.getAssignee()).isEqualTo(issueDto.getAssigneeUuid());
     assertThat(issue.getAuthor()).isEqualTo(issueDto.getAuthorLogin());
     assertThat(issue.getTags()).isEqualTo(issueDto.getTagsString());
+    assertThat(issue.getRuleDescriptionContextKey()).isEqualTo(issue.getRuleDescriptionContextKey());
     assertThat(issue.getIssueCreatedAt()).isEqualTo(issueDto.getIssueCreationTime());
     assertThat(issue.getIssueUpdatedAt()).isEqualTo(issueDto.getIssueUpdateTime());
     assertThat(issue.getIssueClosedAt()).isEqualTo(issueDto.getIssueCloseTime());
@@ -271,6 +273,7 @@ public class ExportIssuesStepTest {
     assertThat(issue.getIssueCreatedAt()).isEqualTo(DumpElement.NO_DATETIME);
     assertThat(issue.getIssueUpdatedAt()).isEqualTo(DumpElement.NO_DATETIME);
     assertThat(issue.getIssueClosedAt()).isEqualTo(DumpElement.NO_DATETIME);
+    assertThat(issue.hasRuleDescriptionContextKey()).isFalse();
   }
 
   @Test
