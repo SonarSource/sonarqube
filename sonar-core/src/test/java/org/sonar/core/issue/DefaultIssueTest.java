@@ -40,7 +40,7 @@ public class DefaultIssueTest {
     issue.setKey("ABCD")
       .setComponentKey("org.sample.Sample")
       .setProjectKey("Sample")
-      .setRuleKey(RuleKey.of("squid", "S100"))
+      .setRuleKey(RuleKey.of("java", "S100"))
       .setLanguage("xoo")
       .setSeverity("MINOR")
       .setManualSeverity(true)
@@ -70,7 +70,7 @@ public class DefaultIssueTest {
     assertThat(issue.key()).isEqualTo("ABCD");
     assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
     assertThat(issue.projectKey()).isEqualTo("Sample");
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "S100"));
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("java", "S100"));
     assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.severity()).isEqualTo("MINOR");
     assertThat(issue.manualSeverity()).isTrue();

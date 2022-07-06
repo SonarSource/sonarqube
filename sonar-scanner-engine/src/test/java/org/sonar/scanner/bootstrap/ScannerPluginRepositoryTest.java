@@ -46,18 +46,18 @@ public class ScannerPluginRepositoryTest {
 
   @Test
   public void install_and_load_plugins() {
-    PluginInfo info = new PluginInfo("squid");
-    ImmutableMap<String, ScannerPlugin> plugins = ImmutableMap.of("squid", new ScannerPlugin("squid", 1L, info));
+    PluginInfo info = new PluginInfo("java");
+    ImmutableMap<String, ScannerPlugin> plugins = ImmutableMap.of("java", new ScannerPlugin("java", 1L, info));
     Plugin instance = mock(Plugin.class);
-    when(loader.load(anyMap())).thenReturn(ImmutableMap.of("squid", instance));
+    when(loader.load(anyMap())).thenReturn(ImmutableMap.of("java", instance));
     when(installer.installRemotes()).thenReturn(plugins);
 
     underTest.start();
 
     assertThat(underTest.getPluginInfos()).containsOnly(info);
     assertThat(underTest.getPluginsByKey()).isEqualTo(plugins);
-    assertThat(underTest.getPluginInfo("squid")).isSameAs(info);
-    assertThat(underTest.getPluginInstance("squid")).isSameAs(instance);
+    assertThat(underTest.getPluginInfo("java")).isSameAs(info);
+    assertThat(underTest.getPluginInstance("java")).isSameAs(instance);
     assertThat(underTest.getPluginInstances()).containsOnly(instance);
 
     underTest.stop();

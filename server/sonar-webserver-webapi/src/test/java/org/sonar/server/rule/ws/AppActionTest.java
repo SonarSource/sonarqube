@@ -72,7 +72,7 @@ public class AppActionTest {
       "      \"language\": \"xoo\"" +
       "    }," +
       "    {" +
-      "      \"key\": \"squid\"," +
+      "      \"key\": \"java\"," +
       "      \"name\": \"SonarQube\"," +
       "      \"language\": \"ws\"" +
       "    }" +
@@ -111,7 +111,7 @@ public class AppActionTest {
 
   private void insertRules() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
-    RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("java", "ws", "SonarQube");
     db.getDbClient().ruleRepositoryDao().insert(db.getSession(), asList(repo1, repo2));
     db.getSession().commit();
   }

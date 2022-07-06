@@ -451,7 +451,7 @@ public class RuleDaoTest {
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
-      .setGapDescription("squid.S115.effortToFix")
+      .setGapDescription("java.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
@@ -477,7 +477,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
-    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("java.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
@@ -511,7 +511,7 @@ public class RuleDaoTest {
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
-      .setGapDescription("squid.S115.effortToFix")
+      .setGapDescription("java.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setScope(Scope.ALL)
@@ -536,7 +536,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
-    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("java.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);

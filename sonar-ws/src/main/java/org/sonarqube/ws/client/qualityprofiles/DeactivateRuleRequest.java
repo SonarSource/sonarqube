@@ -48,7 +48,7 @@ public class DeactivateRuleRequest {
 
   /**
    * This is a mandatory parameter.
-   * Example value: "squid:AvoidCycles"
+   * Example value: "java:AvoidCycles"
    */
   public DeactivateRuleRequest setRule(String rule) {
     this.rule = rule;

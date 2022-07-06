@@ -79,7 +79,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     activate.createParam(PARAM_RULE)
       .setDescription("Rule key")
       .setRequired(true)
-      .setExampleValue("squid:AvoidCycles");
+      .setExampleValue("java:AvoidCycles");
 
     activate.createParam(PARAM_SEVERITY)
       .setDescription(format("Severity. Ignored if parameter %s is true.", PARAM_RESET))

@@ -82,7 +82,7 @@ public class ActivateRuleRequest {
 
   /**
    * This is a mandatory parameter.
-   * Example value: "squid:AvoidCycles"
+   * Example value: "java:AvoidCycles"
    */
   public ActivateRuleRequest setRule(String rule) {
     this.rule = rule;

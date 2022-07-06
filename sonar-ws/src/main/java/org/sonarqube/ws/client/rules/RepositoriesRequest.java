@@ -46,7 +46,7 @@ public class RepositoriesRequest {
   }
 
   /**
-   * Example value: "squid"
+   * Example value: "java"
    */
   public RepositoriesRequest setQ(String q) {
     this.q = q;

@@ -99,7 +99,7 @@ public class ModuleSensorOptimizerTest {
   @Test
   public void should_optimize_on_repository() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
-      .createIssuesForRuleRepositories("squid");
+      .createIssuesForRuleRepositories("java");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     ActiveRules activeRules = new ActiveRulesBuilder()
@@ -111,7 +111,7 @@ public class ModuleSensorOptimizerTest {
 
     activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("repo1", "foo")).build())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("squid", "rule")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("java", "rule")).build())
       .build();
     optimizer = new ModuleSensorOptimizer(fs, activeRules, settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();

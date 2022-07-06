@@ -612,7 +612,7 @@ public class IssueDaoTest {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setDbKey("struts:Action").setUuid("component-uuid"));
     dto.setProject(new ComponentDto().setDbKey("struts").setUuid("project-uuid"));
-    dto.setRule(RuleTesting.newRule(RuleKey.of("squid", "S001")).setUuid("uuid-200"));
+    dto.setRule(RuleTesting.newRule(RuleKey.of("java", "S001")).setUuid("uuid-200"));
     dto.setKee(key);
     dto.setType(2);
     dto.setLine(500);

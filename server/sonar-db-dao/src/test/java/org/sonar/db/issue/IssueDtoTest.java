@@ -48,7 +48,7 @@ public class IssueDtoTest {
       .setKee("100")
       .setType(RuleType.VULNERABILITY)
       .setRuleUuid("rule-uuid-1")
-      .setRuleKey("squid", "AvoidCycle")
+      .setRuleKey("java", "AvoidCycle")
       .setLanguage("xoo")
       .setComponentKey("org.sonar.sample:Sample")
       .setComponentUuid("CDEF")
@@ -72,7 +72,7 @@ public class IssueDtoTest {
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.ruleKey()).hasToString("squid:AvoidCycle");
+    assertThat(issue.ruleKey()).hasToString("java:AvoidCycle");
     assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.componentUuid()).isEqualTo("CDEF");
     assertThat(issue.projectUuid()).isEqualTo("GHIJ");
@@ -100,13 +100,13 @@ public class IssueDtoTest {
   public void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("squid").setIsExternal(true))
+      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("java").setIsExternal(true))
       .setLanguage("xoo");
 
     assertThat(dto.getRuleUuid()).isEqualTo("uuid-1");
-    assertThat(dto.getRuleRepo()).isEqualTo("squid");
+    assertThat(dto.getRuleRepo()).isEqualTo("java");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
-    assertThat(dto.getRuleKey()).hasToString("squid:AvoidCycle");
+    assertThat(dto.getRuleKey()).hasToString("java:AvoidCycle");
     assertThat(dto.getLanguage()).isEqualTo("xoo");
     assertThat(dto.isExternal()).isTrue();
   }

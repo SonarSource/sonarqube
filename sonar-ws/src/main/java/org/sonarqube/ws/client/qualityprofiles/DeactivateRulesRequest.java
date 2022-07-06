@@ -257,7 +257,7 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Example value: "squid:S001"
+   * Example value: "java:S001"
    */
   public DeactivateRulesRequest setRuleKey(String ruleKey) {
     this.ruleKey = ruleKey;

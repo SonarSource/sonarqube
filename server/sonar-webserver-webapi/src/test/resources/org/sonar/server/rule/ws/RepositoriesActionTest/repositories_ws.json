@@ -6,7 +6,7 @@
       "language": "ws"
     },
     {
-      "key": "squid",
+      "key": "java",
       "name": "SonarQube",
       "language": "ws"
     }

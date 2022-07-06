@@ -29,7 +29,7 @@ class RuleMacro implements Macro {
   }
 
   /**
-   * First parameter is the repository, second one is the rule key. Exemple : {rule:squid:ArchitecturalConstraint}
+   * First parameter is the repository, second one is the rule key. Exemple : {rule:java:ArchitecturalConstraint}
    */
   @Override
   public String getRegex() {

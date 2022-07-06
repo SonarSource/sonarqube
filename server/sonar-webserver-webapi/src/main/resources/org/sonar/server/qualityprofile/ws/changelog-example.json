@@ -8,7 +8,7 @@
       "action" : "ACTIVATED",
       "authorLogin" : "anakin.skywalker",
       "authorName" : "Anakin Skywalker",
-      "ruleKey" : "squid:S2438",
+      "ruleKey" : "java:S2438",
       "ruleName" : "\"Threads\" should not be used where \"Runnables\" are expected",
       "params" : {
         "severity" : "CRITICAL"
@@ -19,14 +19,14 @@
       "action" : "DEACTIVATED",
       "authorLogin" : "padme.amidala",
       "authorName" : "Padme Amidala",
-      "ruleKey" : "squid:S2162",
+      "ruleKey" : "java:S2162",
       "ruleName" : "\"equals\" methods should be symmetric and work for subclasses"
     },
     {
       "action" : "ACTIVATED",
       "authorLogin" : "obiwan.kenobi",
       "authorName" : "Obiwan Kenobi",
-      "ruleKey" : "squid:S00101",
+      "ruleKey" : "java:S00101",
       "ruleName" : "Class names should comply with a naming convention",
       "date" : "2014-09-12T15:20:46+0200",
       "params" : {

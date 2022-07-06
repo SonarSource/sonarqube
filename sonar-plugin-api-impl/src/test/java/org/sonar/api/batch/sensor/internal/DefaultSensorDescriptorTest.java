@@ -53,7 +53,7 @@ public class DefaultSensorDescriptorTest {
       .onlyOnLanguage("java")
       .onlyOnFileType(InputFile.Type.MAIN)
       .onlyWhenConfiguration(c -> c.hasKey("sonar.foo.reportPath2") && c.hasKey("sonar.foo.reportPath"))
-      .createIssuesForRuleRepository("squid-java")
+      .createIssuesForRuleRepository("java-java")
       .processesFilesIndependently();
 
     assertThat(descriptor.name()).isEqualTo("Foo");
@@ -64,7 +64,7 @@ public class DefaultSensorDescriptorTest {
     assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isFalse();
     settings.setProperty("sonar.foo.reportPath2", "foo");
     assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isTrue();
-    assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
+    assertThat(descriptor.ruleRepositories()).containsOnly("java-java");
     assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
 

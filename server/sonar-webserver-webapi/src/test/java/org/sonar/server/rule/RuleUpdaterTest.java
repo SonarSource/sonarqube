@@ -57,7 +57,6 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.CRITICAL;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
@@ -66,7 +65,7 @@ import static org.sonar.server.rule.RuleUpdate.createForPluginRule;
 
 public class RuleUpdaterTest {
 
-  static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
+  static final RuleKey RULE_KEY = RuleKey.of("java", "S001");
 
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
@@ -98,7 +97,7 @@ public class RuleUpdaterTest {
       underTest.update(dbSession, update, userSessionRule);
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
+      .hasMessage("Rule with REMOVED status cannot be updated: java:S001");
   }
 
   @Test
@@ -518,7 +517,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_name_is_set() {
-    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {
@@ -530,7 +529,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_description_is_set() {
-    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {
@@ -542,7 +541,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void fail_to_update_plugin_rule_if_severity_is_set() {
-    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
+    RuleDto ruleDto = db.rules().insert(newRule(RuleKey.of("java", "S01")));
     dbSession.commit();
 
     assertThatThrownBy(() -> {

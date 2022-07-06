@@ -59,9 +59,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
 
-  static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
-  static final String SQUID_RULE_NAME = "Avoid Cycle";
-  private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("squid", "NoSonarCheck");
+  static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
+  static final String JAVA_RULE_NAME = "Avoid Cycle";
+  private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("java", "NoSonarCheck");
 
   private DefaultInputProject project;
 
@@ -89,11 +89,11 @@ public class IssuePublisherTest {
 
   @Test
   public void ignore_null_active_rule() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(SQUID_RULE_KEY);
+      .forRule(JAVA_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
@@ -102,13 +102,13 @@ public class IssuePublisherTest {
 
   @Test
   public void ignore_null_rule_of_active_rule() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).setQProfileKey("qp-1").build());
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
+    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(JAVA_RULE_KEY).setQProfileKey("qp-1").build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(SQUID_RULE_KEY);
+      .forRule(JAVA_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
@@ -117,9 +117,9 @@ public class IssuePublisherTest {
 
   @Test
   public void add_issue_to_cache() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(SQUID_RULE_KEY)
+      .setRuleKey(JAVA_RULE_KEY)
       .setSeverity(Severity.INFO)
       .setQProfileKey("qp-1")
       .build());
@@ -127,7 +127,7 @@ public class IssuePublisherTest {
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(SQUID_RULE_KEY)
+      .forRule(JAVA_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL)
       .setQuickFixAvailable(true);
 
@@ -144,13 +144,13 @@ public class IssuePublisherTest {
 
   @Test
   public void add_external_issue_to_cache() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     initModuleIssues();
 
     DefaultExternalIssue issue = new DefaultExternalIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .type(RuleType.BUG)
-      .forRule(SQUID_RULE_KEY)
+      .forRule(JAVA_RULE_KEY)
       .severity(org.sonar.api.batch.rule.Severity.CRITICAL);
 
     moduleIssues.initAndAddExternalIssue(issue);
@@ -162,9 +162,9 @@ public class IssuePublisherTest {
 
   @Test
   public void use_severity_from_active_rule_if_no_severity_on_issue() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(SQUID_RULE_KEY)
+      .setRuleKey(JAVA_RULE_KEY)
       .setSeverity(Severity.INFO)
       .setQProfileKey("qp-1")
       .build());
@@ -172,7 +172,7 @@ public class IssuePublisherTest {
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(SQUID_RULE_KEY);
+      .forRule(JAVA_RULE_KEY);
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
@@ -183,9 +183,9 @@ public class IssuePublisherTest {
 
   @Test
   public void filter_issue() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(SQUID_RULE_KEY)
+      .setRuleKey(JAVA_RULE_KEY)
       .setSeverity(Severity.INFO)
       .setQProfileKey("qp-1")
       .build());
@@ -193,7 +193,7 @@ public class IssuePublisherTest {
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
-      .forRule(SQUID_RULE_KEY);
+      .forRule(JAVA_RULE_KEY);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(false);
 
@@ -205,9 +205,9 @@ public class IssuePublisherTest {
 
   @Test
   public void should_ignore_lines_commented_with_nosonar() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(SQUID_RULE_KEY)
+      .setRuleKey(JAVA_RULE_KEY)
       .setSeverity(Severity.INFO)
       .setQProfileKey("qp-1")
       .build());
@@ -215,7 +215,7 @@ public class IssuePublisherTest {
 
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
-      .forRule(SQUID_RULE_KEY);
+      .forRule(JAVA_RULE_KEY);
 
     file.noSonarAt(new HashSet<>(Collections.singletonList(3)));
 

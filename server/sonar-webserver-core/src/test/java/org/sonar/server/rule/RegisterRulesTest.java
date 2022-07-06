@@ -1202,7 +1202,7 @@ public class RegisterRulesTest {
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
-        .setGapDescription("squid.S115.effortToFix");
+        .setGapDescription("java.S115.effortToFix");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default1");
@@ -1240,7 +1240,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag4")
         .setType(RuleType.BUG)
         .setStatus(READY)
-        .setGapDescription("squid.S115.effortToFix.v2");
+        .setGapDescription("java.S115.effortToFix.v2");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));
       rule1.createParam("param1").setDescription("parameter one v2").setDefaultValue("default1 v2");
       rule1.createParam("param2").setDescription("parameter two v2").setDefaultValue("default2 v2");

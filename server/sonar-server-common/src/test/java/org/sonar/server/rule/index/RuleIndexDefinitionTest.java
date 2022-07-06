@@ -96,8 +96,8 @@ public class RuleIndexDefinitionTest {
     tester.putDocuments(TYPE_RULE, new RuleDoc(ImmutableMap.of(
       FIELD_RULE_UUID, "123",
       FIELD_RULE_HTML_DESCRIPTION, longText,
-      FIELD_RULE_REPOSITORY, "squid",
-      FIELD_RULE_KEY, "squid:S001")));
+      FIELD_RULE_REPOSITORY, "java",
+      FIELD_RULE_KEY, "java:S001")));
     assertThat(tester.countDocuments(TYPE_RULE)).isOne();
     assertThat(tester.client().search(EsClient.prepareSearch(TYPE_RULE)
       .source(new SearchSourceBuilder()

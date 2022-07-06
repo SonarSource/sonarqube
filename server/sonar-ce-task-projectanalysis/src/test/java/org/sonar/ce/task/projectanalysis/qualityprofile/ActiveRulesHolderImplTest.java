@@ -35,7 +35,7 @@ public class ActiveRulesHolderImplTest {
 
   private static final long SOME_DATE = 1_000L;
 
-  static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
+  static final RuleKey RULE_KEY = RuleKey.of("java", "S001");
   private static final String QP_KEY = "qp1";
 
 
@@ -83,6 +83,6 @@ public class ActiveRulesHolderImplTest {
         new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY)));
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Active rule must not be declared multiple times: squid:S001");
+      .hasMessage("Active rule must not be declared multiple times: java:S001");
   }
 }

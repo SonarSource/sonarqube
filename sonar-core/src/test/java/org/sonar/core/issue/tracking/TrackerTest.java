@@ -282,8 +282,8 @@ public class TrackerTest {
         +
         "    }",
       "}");
-    Issue base1 = baseInput.createIssueOnLine(11, RuleKey.of("squid", "S109"), "Assign this magic number 42 to a well-named constant, and use the constant instead.");
-    Issue base2 = baseInput.createIssueOnLine(13, RuleKey.of("squid", "S00103"), "Split this 163 characters long line (which is greater than 120 authorized).");
+    Issue base1 = baseInput.createIssueOnLine(11, RuleKey.of("java", "S109"), "Assign this magic number 42 to a well-named constant, and use the constant instead.");
+    Issue base2 = baseInput.createIssueOnLine(13, RuleKey.of("java", "S00103"), "Split this 163 characters long line (which is greater than 120 authorized).");
 
     FakeInput rawInput = FakeInput.createForSourceLines(
       "package aa;",
@@ -303,8 +303,8 @@ public class TrackerTest {
       "        int x = a + 123;",
       "    }",
       "}");
-    Issue raw1 = rawInput.createIssueOnLine(11, RuleKey.of("squid", "S00103"), "Split this 139 characters long line (which is greater than 120 authorized).");
-    Issue raw2 = rawInput.createIssueOnLine(15, RuleKey.of("squid", "S109"), "Assign this magic number 123 to a well-named constant, and use the constant instead.");
+    Issue raw1 = rawInput.createIssueOnLine(11, RuleKey.of("java", "S00103"), "Split this 139 characters long line (which is greater than 120 authorized).");
+    Issue raw2 = rawInput.createIssueOnLine(15, RuleKey.of("java", "S109"), "Assign this magic number 123 to a well-named constant, and use the constant instead.");
 
     Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
     assertThat(tracking.baseFor(raw1)).isNull();

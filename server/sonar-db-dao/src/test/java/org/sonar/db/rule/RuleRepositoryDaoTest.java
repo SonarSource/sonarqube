@@ -126,24 +126,24 @@ public class RuleRepositoryDaoTest {
   public void selectByLanguage() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    RuleRepositoryDto dto2 = new RuleRepositoryDto("squid", "java", "Java");
+    RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
     underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
     assertThat(underTest.selectByLanguage(dbSession, "java")).extracting(RuleRepositoryDto::getKey)
       // ordered by key
-      .containsExactly("findbugs", "squid");
+      .containsExactly("findbugs", "java");
   }
 
   @Test
   public void selectAllKeys() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    RuleRepositoryDto dto2 = new RuleRepositoryDto("squid", "java", "Java");
+    RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
     underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
-    assertThat(underTest.selectAllKeys(dbSession)).containsOnly("findbugs", "squid", "cobol-lint");
+    assertThat(underTest.selectAllKeys(dbSession)).containsOnly("findbugs", "java", "cobol-lint");
   }
 
   @Test

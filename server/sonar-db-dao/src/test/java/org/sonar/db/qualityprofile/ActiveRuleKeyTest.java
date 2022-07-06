@@ -40,12 +40,12 @@ public class ActiveRuleKeyTest {
 
   @Test
   public void rule_key_can_contain_colons() {
-    RuleKey ruleKey = RuleKey.of("squid", "Key:With:Some::Colons");
+    RuleKey ruleKey = RuleKey.of("java", "Key:With:Some::Colons");
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
     assertThat(key.getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(key.getRuleKey()).isSameAs(ruleKey);
-    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":squid:Key:With:Some::Colons");
+    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":java:Key:With:Some::Colons");
   }
 
   @Test

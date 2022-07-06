@@ -466,7 +466,7 @@ public class SearchRequest {
   }
 
   /**
-   * Example value: "squid:AvoidCycles"
+   * Example value: "java:AvoidCycles"
    */
   public SearchRequest setRules(List<String> rules) {
     this.rules = rules;

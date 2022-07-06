@@ -320,7 +320,7 @@ public class ChangelogActionTest {
     String profileUuid = profile.getRulesProfileUuid();
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
-    RuleDto rule1 = db.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
+    RuleDto rule1 = db.rules().insert(RuleKey.of("java", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())
@@ -328,7 +328,7 @@ public class ChangelogActionTest {
       .setData(ImmutableMap.of("severity", "CRITICAL", "ruleUuid", rule1.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
-    RuleDto rule2 = db.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
+    RuleDto rule2 = db.rules().insert(RuleKey.of("java", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user2.getUuid())
@@ -336,7 +336,7 @@ public class ChangelogActionTest {
       .setData(ImmutableMap.of("ruleUuid", rule2.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
-    RuleDto rule3 = db.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
+    RuleDto rule3 = db.rules().insert(RuleKey.of("java", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user3.getUuid())

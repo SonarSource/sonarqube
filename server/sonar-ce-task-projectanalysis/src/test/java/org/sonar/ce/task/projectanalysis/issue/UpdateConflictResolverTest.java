@@ -42,7 +42,7 @@ public class UpdateConflictResolverTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(CODE_SMELL)
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setRuleKey(RuleKey.of("java", "AvoidCycles"))
       .setProjectUuid("U1")
       .setComponentUuid("U2")
       .setNew(false)
@@ -54,7 +54,7 @@ public class UpdateConflictResolverTest {
       .setKee("ABCDE")
       .setType(CODE_SMELL)
       .setRuleUuid("uuid-10")
-      .setRuleKey("squid", "AvoidCycles")
+      .setRuleKey("java", "AvoidCycles")
       .setProjectUuid("U1")
       .setComponentUuid("U2")
       .setLine(10)
@@ -76,7 +76,7 @@ public class UpdateConflictResolverTest {
   public void should_keep_changes_made_by_user() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setRuleKey(RuleKey.of("java", "AvoidCycles"))
       .setComponentKey("struts:org.apache.struts.Action")
       .setNew(false);
 
@@ -98,7 +98,7 @@ public class UpdateConflictResolverTest {
     IssueDto dbIssue = new IssueDto()
       .setKee("ABCDE")
       .setRuleUuid("uuid-10")
-      .setRuleKey("squid", "AvoidCycles")
+      .setRuleKey("java", "AvoidCycles")
       .setComponentUuid("100")
       .setComponentKey("struts:org.apache.struts.Action")
       .setLine(10)
@@ -128,7 +128,7 @@ public class UpdateConflictResolverTest {
   public void severity_changed_by_user_should_be_kept() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setRuleKey(RuleKey.of("java", "AvoidCycles"))
       .setComponentKey("struts:org.apache.struts.Action")
       .setNew(false)
       .setStatus(STATUS_OPEN);

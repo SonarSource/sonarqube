@@ -49,7 +49,7 @@ public class DefaultActiveRulesLoaderTest {
 
   private static final int PAGE_SIZE_1 = 150;
   private static final int PAGE_SIZE_2 = 76;
-  private static final RuleKey EXAMPLE_KEY = RuleKey.of("squid", "S108");
+  private static final RuleKey EXAMPLE_KEY = RuleKey.of("java", "S108");
   private static final String FORMAT_KEY = "format";
   private static final String FORMAT_VALUE = "^[a-z][a-zA-Z0-9]*$";
   private static final String SEVERITY_VALUE = Severity.MINOR;
@@ -107,7 +107,7 @@ public class DefaultActiveRulesLoaderTest {
     Actives.Builder actives = Actives.newBuilder();
 
     IntStream.rangeClosed(1, numberOfRules)
-      .mapToObj(i -> RuleKey.of("squid", "S" + i))
+      .mapToObj(i -> RuleKey.of("java", "S" + i))
       .forEach(key -> {
 
         Rule.Builder ruleBuilder = Rule.newBuilder();

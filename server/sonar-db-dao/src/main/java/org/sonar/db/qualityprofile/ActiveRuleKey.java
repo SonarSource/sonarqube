@@ -97,7 +97,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
   }
 
   /**
-   * Format is "qprofile:rule", for example "12345:squid:AvoidCycle"
+   * Format is "qprofile:rule", for example "12345:java:AvoidCycle"
    */
   @Override
   public String toString() {

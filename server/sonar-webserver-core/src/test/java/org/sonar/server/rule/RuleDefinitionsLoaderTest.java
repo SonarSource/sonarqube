@@ -41,12 +41,12 @@ public class RuleDefinitionsLoaderTest {
     CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
     RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
-        new FindbugsDefinitions(), new SquidDefinitions()
+        new FindbugsDefinitions(), new JavaDefinitions()
       }).load();
 
     assertThat(context.repositories()).hasSize(2);
     assertThat(context.repository("findbugs")).isNotNull();
-    assertThat(context.repository("squid")).isNotNull();
+    assertThat(context.repository("java")).isNotNull();
   }
 
   @Test
@@ -54,10 +54,10 @@ public class RuleDefinitionsLoaderTest {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
     RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
-        new SquidDefinitions()
+        new JavaDefinitions()
       }).load();
 
-    assertThat(context.repositories()).extracting("key").containsOnly("squid", "common-java");
+    assertThat(context.repositories()).extracting("key").containsOnly("java", "common-java");
     assertThat(context.repository("common-java").rules()).extracting("key").containsOnly("InsufficientBranchCoverage");
   }
 
@@ -90,11 +90,11 @@ public class RuleDefinitionsLoaderTest {
     }
   }
 
-  static class SquidDefinitions implements RulesDefinition {
+  static class JavaDefinitions implements RulesDefinition {
     @Override
     public void define(Context context) {
-      NewRepository repo = context.createRepository("squid", "java");
-      repo.setName("Squid");
+      NewRepository repo = context.createRepository("java", "java");
+      repo.setName("Sava");
       repo.createRule("DEF")
         .setName("DEF")
         .setHtmlDescription("Description of DEF");

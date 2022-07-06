@@ -45,7 +45,7 @@ public class RepositoriesActionTest {
   public void setUp() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
-    RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("java", "ws", "SonarQube");
     RuleRepositoryDto repo3 = new RuleRepositoryDto("common-ws", "ws", "SonarQube Common");
     dbTester.getDbClient().ruleRepositoryDao().insert(dbSession, asList(repo1, repo2, repo3));
     dbSession.commit();
@@ -61,7 +61,7 @@ public class RepositoriesActionTest {
   @Test
   public void filter_repositories_by_name() {
     newRequest().setParam("q", "common").execute().assertJson(this.getClass(), "repositories_common.json");
-    newRequest().setParam("q", "squid").execute().assertJson(this.getClass(), "repositories_squid.json");
+    newRequest().setParam("q", "java").execute().assertJson(this.getClass(), "repositories_java.json");
     newRequest().setParam("q", "sonar").execute().assertJson(this.getClass(), "repositories_sonar.json");
   }
 

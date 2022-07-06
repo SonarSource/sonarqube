@@ -376,7 +376,7 @@ public class SearchRequest {
   }
 
   /**
-   * Example value: "squid:S001"
+   * Example value: "java:S001"
    */
   public SearchRequest setRuleKey(String ruleKey) {
     this.ruleKey = ruleKey;

@@ -43,7 +43,7 @@ public final class IssueExclusionProperties {
   private static final String PROPERTY_RULE_KEY_PATTERN = "Rule Key Pattern";
   private static final String PROPERTY_RULE_KEY_PATTERN_HELP = "<br/>A rule key pattern consists of the rule repository name, followed by a colon, followed by a rule key "
     + "or rule name fragment. For example:"
-    + "<ul><li>squid:S1195</li><li>squid:*Naming*</li></ul>";
+    + "<ul><li>java:S1195</li><li>java:*Naming*</li></ul>";
 
   public static final String BLOCK_SUFFIX = ".block";
   public static final String PATTERNS_BLOCK_KEY = EXCLUSION_KEY_PREFIX + BLOCK_SUFFIX;

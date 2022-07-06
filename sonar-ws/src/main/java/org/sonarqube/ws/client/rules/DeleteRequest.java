@@ -34,7 +34,7 @@ public class DeleteRequest {
 
   /**
    * This is a mandatory parameter.
-   * Example value: "squid:XPath_1402065390816"
+   * Example value: "java:XPath_1402065390816"
    */
   public DeleteRequest setKey(String key) {
     this.key = key;

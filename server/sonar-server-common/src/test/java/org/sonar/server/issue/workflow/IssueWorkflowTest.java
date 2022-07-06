@@ -397,7 +397,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
     underTest.start();
@@ -415,7 +415,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setAssigneeUuid("morgan");
 
     underTest.start();

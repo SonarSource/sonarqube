@@ -41,68 +41,68 @@ public class RulesBuilderTest {
   @Test
   public void build_rules() {
     RulesBuilder builder = new RulesBuilder();
-    NewRule newSquid1 = builder.add(RuleKey.of("squid", "S0001"));
-    newSquid1.setName("Detect bug");
-    newSquid1.setDescription("Detect potential bug");
-    newSquid1.setInternalKey("foo=bar");
-    newSquid1.setSeverity(org.sonar.api.rule.Severity.CRITICAL);
-    newSquid1.setStatus(RuleStatus.BETA);
-    newSquid1.addParam("min");
-    newSquid1.addParam("max").setDescription("Maximum");
+    NewRule newJava1 = builder.add(RuleKey.of("java", "S0001"));
+    newJava1.setName("Detect bug");
+    newJava1.setDescription("Detect potential bug");
+    newJava1.setInternalKey("foo=bar");
+    newJava1.setSeverity(org.sonar.api.rule.Severity.CRITICAL);
+    newJava1.setStatus(RuleStatus.BETA);
+    newJava1.addParam("min");
+    newJava1.addParam("max").setDescription("Maximum");
     // most simple rule
-    builder.add(RuleKey.of("squid", "S0002"));
+    builder.add(RuleKey.of("java", "S0002"));
     builder.add(RuleKey.of("findbugs", "NPE"));
 
     Rules rules = builder.build();
 
     assertThat(rules.findAll()).hasSize(3);
-    assertThat(rules.findByRepository("squid")).hasSize(2);
+    assertThat(rules.findByRepository("java")).hasSize(2);
     assertThat(rules.findByRepository("findbugs")).hasSize(1);
     assertThat(rules.findByRepository("unknown")).isEmpty();
 
-    Rule squid1 = rules.find(RuleKey.of("squid", "S0001"));
-    assertThat(squid1.key().repository()).isEqualTo("squid");
-    assertThat(squid1.key().rule()).isEqualTo("S0001");
-    assertThat(squid1.name()).isEqualTo("Detect bug");
-    assertThat(squid1.description()).isEqualTo("Detect potential bug");
-    assertThat(squid1.internalKey()).isEqualTo("foo=bar");
-    assertThat(squid1.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(squid1.severity()).isEqualTo(org.sonar.api.rule.Severity.CRITICAL);
-    assertThat(squid1.params()).hasSize(2);
-    assertThat(squid1.param("min").key()).isEqualTo("min");
-    assertThat(squid1.param("min").description()).isNull();
-    assertThat(squid1.param("max").key()).isEqualTo("max");
-    assertThat(squid1.param("max").description()).isEqualTo("Maximum");
+    Rule java1 = rules.find(RuleKey.of("java", "S0001"));
+    assertThat(java1.key().repository()).isEqualTo("java");
+    assertThat(java1.key().rule()).isEqualTo("S0001");
+    assertThat(java1.name()).isEqualTo("Detect bug");
+    assertThat(java1.description()).isEqualTo("Detect potential bug");
+    assertThat(java1.internalKey()).isEqualTo("foo=bar");
+    assertThat(java1.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(java1.severity()).isEqualTo(org.sonar.api.rule.Severity.CRITICAL);
+    assertThat(java1.params()).hasSize(2);
+    assertThat(java1.param("min").key()).isEqualTo("min");
+    assertThat(java1.param("min").description()).isNull();
+    assertThat(java1.param("max").key()).isEqualTo("max");
+    assertThat(java1.param("max").description()).isEqualTo("Maximum");
 
-    Rule squid2 = rules.find(RuleKey.of("squid", "S0002"));
-    assertThat(squid2.key().repository()).isEqualTo("squid");
-    assertThat(squid2.key().rule()).isEqualTo("S0002");
-    assertThat(squid2.description()).isNull();
-    assertThat(squid2.internalKey()).isNull();
-    assertThat(squid2.status()).isEqualTo(RuleStatus.defaultStatus());
-    assertThat(squid2.severity()).isEqualTo(Severity.defaultSeverity());
-    assertThat(squid2.params()).isEmpty();
+    Rule java2 = rules.find(RuleKey.of("java", "S0002"));
+    assertThat(java2.key().repository()).isEqualTo("java");
+    assertThat(java2.key().rule()).isEqualTo("S0002");
+    assertThat(java2.description()).isNull();
+    assertThat(java2.internalKey()).isNull();
+    assertThat(java2.status()).isEqualTo(RuleStatus.defaultStatus());
+    assertThat(java2.severity()).isEqualTo(Severity.defaultSeverity());
+    assertThat(java2.params()).isEmpty();
   }
 
   @Test
   public void fail_to_add_twice_the_same_rule() {
     RulesBuilder builder = new RulesBuilder();
-    builder.add(RuleKey.of("squid", "S0001"));
+    builder.add(RuleKey.of("java", "S0001"));
 
-    assertThatThrownBy(() -> builder.add(RuleKey.of("squid", "S0001")))
+    assertThatThrownBy(() -> builder.add(RuleKey.of("java", "S0001")))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Rule 'squid:S0001' already exists");
+      .hasMessage("Rule 'java:S0001' already exists");
   }
 
   @Test
   public void fail_to_add_twice_the_same_param() {
     RulesBuilder builder = new RulesBuilder();
-    NewRule newRule = builder.add(RuleKey.of("squid", "S0001"));
+    NewRule newRule = builder.add(RuleKey.of("java", "S0001"));
     newRule.addParam("min");
     newRule.addParam("max");
 
     assertThatThrownBy(() -> newRule.addParam("min"))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Parameter 'min' already exists on rule 'squid:S0001'");
+      .hasMessage("Parameter 'min' already exists on rule 'java:S0001'");
   }
 }
