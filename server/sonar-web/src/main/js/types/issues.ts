@@ -60,6 +60,7 @@ export interface RawIssue {
   status: string;
   textRange?: TextRange;
   type: IssueType;
+  ruleDescriptionContextKey?: string;
 }
 
 export interface IssueResponse {

@@ -82,17 +82,24 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
   };
 
   computeTabs() {
-    const { ruleDetails, codeTabContent } = this.props;
-    const groupedDescriptions = groupBy(ruleDetails.descriptionSections, 'key');
+    const {
+      ruleDetails,
+      codeTabContent,
+      issue: { ruleDescriptionContextKey }
+    } = this.props;
+    const descriptionSectionsByKey = groupBy(
+      ruleDetails.descriptionSections,
+      section => section.key
+    );
 
     if (ruleDetails.htmlNote) {
-      if (groupedDescriptions[RuleDescriptionSections.RESOURCES] !== undefined) {
+      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] !== undefined) {
         // We add the extended description (htmlNote) in the first context, in case there are contexts
         // Extended description will get reworked in future
-        groupedDescriptions[RuleDescriptionSections.RESOURCES][0].content +=
+        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
           '<br/>' + ruleDetails.htmlNote;
       } else {
-        groupedDescriptions[RuleDescriptionSections.RESOURCES] = [
+        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
           {
             key: RuleDescriptionSections.RESOURCES,
             content: ruleDetails.htmlNote
@@ -101,9 +108,9 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       }
     }
 
-    const rootCause =
-      groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
-      groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE];
+    const rootCauseDescriptionSections =
+      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
 
     return [
       {
@@ -114,28 +121,32 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       {
         key: IssueTabKeys.WhyIsThisAnIssue,
         label: translate('issue.tabs', IssueTabKeys.WhyIsThisAnIssue),
-        content: rootCause && (
+        content: rootCauseDescriptionSections && (
           <RuleDescription
-            description={rootCause}
-            isDefault={groupedDescriptions[RuleDescriptionSections.DEFAULT] !== undefined}
+            sections={rootCauseDescriptionSections}
+            isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
+            defaultContextKey={ruleDescriptionContextKey}
           />
         )
       },
       {
         key: IssueTabKeys.HowToFixIt,
         label: translate('issue.tabs', IssueTabKeys.HowToFixIt),
-        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
-          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]} />
+        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription
+            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
+            defaultContextKey={ruleDescriptionContextKey}
+          />
         )
       },
       {
         key: IssueTabKeys.MoreInfo,
         label: translate('issue.tabs', IssueTabKeys.MoreInfo),
         content: (ruleDetails.genericConcepts ||
-          groupedDescriptions[RuleDescriptionSections.RESOURCES]) && (
+          descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
             genericConcepts={ruleDetails.genericConcepts}
-            description={groupedDescriptions[RuleDescriptionSections.RESOURCES]}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         )
       }

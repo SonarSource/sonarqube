@@ -146,7 +146,8 @@ export default class IssuesServiceMock {
             endLine: 25,
             startOffset: 0,
             endOffset: 1
-          }
+          },
+          ruleDescriptionContextKey: 'spring'
         }),
         snippets: keyBy(
           [
@@ -253,6 +254,7 @@ export default class IssuesServiceMock {
               content: '<p> Context 1 content<p>',
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
+                key: 'spring',
                 displayName: 'Spring'
               }
             },
@@ -260,6 +262,7 @@ export default class IssuesServiceMock {
               content: '<p> Context 2 content<p>',
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
+                key: 'context_2',
                 displayName: 'Context 2'
               }
             },
@@ -267,6 +270,7 @@ export default class IssuesServiceMock {
               content: '<p> Context 3 content<p>',
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
+                key: 'context_3',
                 displayName: 'Context 3'
               }
             },

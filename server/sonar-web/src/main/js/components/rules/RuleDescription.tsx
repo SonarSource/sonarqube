@@ -20,20 +20,23 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
 import RadioToggle from '../controls/RadioToggle';
+import { Alert } from '../ui/Alert';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
 
 interface Props {
   isDefault?: boolean;
-  description: RuleDescriptionSection[];
+  sections: RuleDescriptionSection[];
+  defaultContextKey?: string;
 }
 
 interface State {
   contexts: RuleDescriptionContextDisplay[];
+  defaultContext?: RuleDescriptionContextDisplay;
   selectedContext?: RuleDescriptionContextDisplay;
 }
 
@@ -46,23 +49,32 @@ interface RuleDescriptionContextDisplay {
 export default class RuleDescription extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = this.computeState(props.description);
+    this.state = this.computeState();
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.description !== this.props.description) {
-      this.setState(this.computeState(this.props.description));
+    const { sections, defaultContextKey } = this.props;
+
+    if (prevProps.sections !== sections || prevProps.defaultContextKey !== defaultContextKey) {
+      this.setState(this.computeState());
     }
   }
 
-  computeState = (descriptions: RuleDescriptionSection[]) => {
-    const contexts = descriptions
-      .map(sec => ({
-        displayName: sec.context?.displayName || '',
-        content: sec.content,
-        key: sec.key.toString()
+  computeState = () => {
+    const { sections, defaultContextKey } = this.props;
+
+    const contexts = sections
+      .filter(
+        (
+          section
+        ): section is RuleDescriptionSection & Required<Pick<RuleDescriptionSection, 'context'>> =>
+          section.context != null
+      )
+      .map(section => ({
+        displayName: section.context.displayName || section.context.key,
+        content: section.content,
+        key: section.context.key
       }))
-      .filter(sec => sec.displayName !== '')
       .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
     if (contexts.length > 0) {
@@ -73,9 +85,16 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
       });
     }
 
+    let defaultContext: RuleDescriptionContextDisplay | undefined;
+
+    if (defaultContextKey) {
+      defaultContext = contexts.find(context => context.key === defaultContextKey);
+    }
+
     return {
       contexts,
-      selectedContext: contexts[0]
+      defaultContext,
+      selectedContext: defaultContext ?? contexts[0]
     };
   };
 
@@ -89,59 +108,66 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { description, isDefault } = this.props;
-    const { contexts } = this.state;
-    const { selectedContext } = this.state;
+    const { sections, isDefault } = this.props;
+    const { contexts, defaultContext, selectedContext } = this.state;
 
     const options = contexts.map(ctxt => ({
       label: ctxt.displayName,
       value: ctxt.displayName
     }));
 
-    if (!description[0].context && description.length === 1) {
+    if (contexts.length > 0 && selectedContext) {
       return (
         <div
           className={classNames('big-padded', {
             markdown: isDefault,
             'rule-desc': !isDefault
-          })}
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: sanitizeString(description[0].content)
-          }}
-        />
+          })}>
+          <div className="rules-context-description">
+            <h2 className="rule-contexts-title">
+              {translate('coding_rules.description_context_title')}
+            </h2>
+            {defaultContext && (
+              <Alert variant="info" display="inline" className="big-spacer-bottom">
+                {translateWithParameters(
+                  'coding_rules.description_context_default_information',
+                  defaultContext.displayName
+                )}
+              </Alert>
+            )}
+            <div>
+              <RadioToggle
+                className="big-spacer-bottom"
+                name="filter"
+                onCheck={this.handleToggleContext}
+                options={options}
+                value={selectedContext.displayName}
+              />
+            </div>
+            {selectedContext.key === OTHERS_KEY ? (
+              <OtherContextOption />
+            ) : (
+              <div
+                /* eslint-disable-next-line react/no-danger */
+                dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
+              />
+            )}
+          </div>
+        </div>
       );
     }
-    if (!selectedContext) {
-      return null;
-    }
+
     return (
       <div
         className={classNames('big-padded', {
           markdown: isDefault,
           'rule-desc': !isDefault
-        })}>
-        <div className="rules-context-description">
-          <h2 className="rule-contexts-title">
-            {translate('coding_rules.description_context_title')}
-          </h2>
-          <RadioToggle
-            className="big-spacer-bottom"
-            name="filter"
-            onCheck={this.handleToggleContext}
-            options={options}
-            value={selectedContext.displayName}
-          />
-          {selectedContext.key === OTHERS_KEY ? (
-            <OtherContextOption />
-          ) : (
-            <div
-              /* eslint-disable-next-line react/no-danger */
-              dangerouslySetInnerHTML={{ __html: sanitizeString(selectedContext.content) }}
-            />
-          )}
-        </div>
-      </div>
+        })}
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: sanitizeString(sections[0].content)
+        }}
+      />
     );
   }
 }

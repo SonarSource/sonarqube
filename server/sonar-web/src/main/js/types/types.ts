@@ -285,6 +285,7 @@ export interface Issue {
   pullRequest?: string;
   resolution?: string;
   rule: string;
+  ruleDescriptionContextKey?: string;
   ruleName: string;
   ruleStatus?: string;
   secondaryLocations: FlowLocation[];

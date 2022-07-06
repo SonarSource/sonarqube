@@ -27,7 +27,7 @@ import RuleDescription from './RuleDescription';
 import './style.css';
 
 interface Props {
-  description?: RuleDescriptionSection[];
+  sections?: RuleDescriptionSection[];
   genericConcepts?: string[];
 }
 
@@ -36,17 +36,17 @@ const GENERIC_CONCPET_MAP: Dict<React.ComponentType> = {
   least_trust_principle: LeastTrustPrinciple
 };
 
-export default function MoreInfoRuleDescription({ description = [], genericConcepts = [] }: Props) {
+export default function MoreInfoRuleDescription({ sections = [], genericConcepts = [] }: Props) {
   return (
     <>
-      {description.length > 0 && (
+      {sections.length > 0 && (
         <>
           <div className="big-padded-left big-padded-right big-padded-top rule-desc">
             <h2 className="null-spacer-bottom">
               {translate('coding_rules.more_info.resources.title')}
             </h2>
           </div>
-          <RuleDescription key="more-info" description={description} />
+          <RuleDescription key="more-info" sections={sections} />
         </>
       )}
 

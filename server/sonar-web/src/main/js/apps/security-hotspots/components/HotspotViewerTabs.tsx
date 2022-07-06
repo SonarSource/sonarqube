@@ -120,10 +120,10 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   computeTabs() {
     const { ruleDescriptionSections, codeTabContent } = this.props;
-    const groupedDescriptions = groupBy(ruleDescriptionSections, description => description.key);
-    const rootCause =
-      groupedDescriptions[RuleDescriptionSections.DEFAULT] ||
-      groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE];
+    const descriptionSectionsByKey = groupBy(ruleDescriptionSections, section => section.key);
+    const rootCauseDescriptionSections =
+      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
 
     return [
       {
@@ -134,14 +134,16 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       {
         key: TabKeys.RiskDescription,
         label: translate('hotspots.tabs.risk_description'),
-        content: rootCause && <RuleDescription description={rootCause} isDefault={true} />
+        content: rootCauseDescriptionSections && (
+          <RuleDescription sections={rootCauseDescriptionSections} isDefault={true} />
+        )
       },
       {
         key: TabKeys.VulnerabilityDescription,
         label: translate('hotspots.tabs.vulnerability_description'),
-        content: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+        content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
-            description={groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
             isDefault={true}
           />
         )
@@ -149,9 +151,9 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       {
         key: TabKeys.FixRecommendation,
         label: translate('hotspots.tabs.fix_recommendations'),
-        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
+        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
-            description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             isDefault={true}
           />
         )

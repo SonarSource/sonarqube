@@ -27,6 +27,7 @@ export enum RuleDescriptionSections {
 }
 
 export interface RuleDescriptionContext {
+  key: string;
   displayName: string;
 }
 

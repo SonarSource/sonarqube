@@ -134,12 +134,12 @@ export default class CodingRulesMock {
           {
             key: RuleDescriptionSections.HOW_TO_FIX,
             content: 'This how to fix for spring',
-            context: { displayName: 'Spring' }
+            context: { key: 'spring', displayName: 'Spring' }
           },
           {
             key: RuleDescriptionSections.HOW_TO_FIX,
             content: 'This how to fix for spring boot',
-            context: { displayName: 'Spring boot' }
+            context: { key: 'spring_boot', displayName: 'Spring boot' }
           },
           {
             key: RuleDescriptionSections.RESOURCES,

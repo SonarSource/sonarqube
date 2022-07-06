@@ -47,51 +47,70 @@ it('should show generic concpet', async () => {
 
 it('should open issue and navigate', async () => {
   const user = userEvent.setup();
+
   renderIssueApp();
+
+  // Select an issue with an advanced rule
   expect(await screen.findByRole('region', { name: 'Fix that' })).toBeInTheDocument();
   await user.click(screen.getByRole('region', { name: 'Fix that' }));
+
+  // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
 
-  expect(screen.getByRole('button', { name: `issue.tabs.more_info` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.more_info` }));
-  expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
+  // Select the "why is this an issue" tab and check its content
+  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
+  expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
+  // Select the "how to fix it" tab
   expect(screen.getByRole('button', { name: `issue.tabs.how` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.how` }));
+
+  // Is the context selector present with the expected values and default selection?
   expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();
   expect(screen.getByRole('radio', { name: 'Context 3' })).toBeInTheDocument();
   expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
   expect(
     screen.getByRole('radio', { name: 'coding_rules.description_context_other' })
   ).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Spring' })).toBeChecked();
 
+  // Select context 2 and check tab content
   await user.click(screen.getByRole('radio', { name: 'Context 2' }));
   expect(screen.getByText('Context 2 content')).toBeInTheDocument();
 
+  // Select the "other" context and check tab content
   await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context_other' }));
   expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
 
-  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
-  expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
+  // Select the resources tab and check its content
+  expect(screen.getByRole('button', { name: `issue.tabs.more_info` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.more_info` }));
+  expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
+  // Select the previous issue (with a simple rule) through keyboard shortcut
   await user.keyboard('{ArrowUp}');
 
+  // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
+  // Select the "why is this an issue tab" and check its content
   expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
   expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
+  // Select the previous issue (with a simple rule) through keyboard shortcut
   await user.keyboard('{ArrowUp}');
 
+  // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
+  // Select the "Where is the issue" tab and check its content
   expect(screen.getByRole('button', { name: `issue.tabs.code` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.code` }));
   expect(screen.getByRole('region', { name: 'Issue on file' })).toBeInTheDocument();

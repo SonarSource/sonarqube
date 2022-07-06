@@ -20,7 +20,8 @@ exports[`should render correctly: fix 1`] = `
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "cause",
@@ -28,14 +29,14 @@ exports[`should render correctly: fix 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "assess",
@@ -43,14 +44,14 @@ exports[`should render correctly: fix 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "how",
@@ -58,7 +59,6 @@ exports[`should render correctly: fix 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
@@ -70,7 +70,8 @@ exports[`should render correctly: fix 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <RuleDescription
-      description={
+      isDefault={true}
+      sections={
         Array [
           Object {
             "content": "how",
@@ -78,7 +79,6 @@ exports[`should render correctly: fix 1`] = `
           },
         ]
       }
-      isDefault={true}
     />
   </div>
 </Fragment>
@@ -104,7 +104,8 @@ exports[`should render correctly: risk 1`] = `
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "cause",
@@ -112,14 +113,14 @@ exports[`should render correctly: risk 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "assess",
@@ -127,14 +128,14 @@ exports[`should render correctly: risk 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "how",
@@ -142,7 +143,6 @@ exports[`should render correctly: risk 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
@@ -184,7 +184,8 @@ exports[`should render correctly: vulnerability 1`] = `
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "cause",
@@ -192,14 +193,14 @@ exports[`should render correctly: vulnerability 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "assess",
@@ -207,14 +208,14 @@ exports[`should render correctly: vulnerability 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "how",
@@ -222,7 +223,6 @@ exports[`should render correctly: vulnerability 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",
@@ -234,7 +234,8 @@ exports[`should render correctly: vulnerability 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <RuleDescription
-      description={
+      isDefault={true}
+      sections={
         Array [
           Object {
             "content": "assess",
@@ -242,7 +243,6 @@ exports[`should render correctly: vulnerability 1`] = `
           },
         ]
       }
-      isDefault={true}
     />
   </div>
 </Fragment>
@@ -268,7 +268,8 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "cause",
@@ -276,14 +277,14 @@ exports[`should render correctly: with comments or changelog element 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "assess",
@@ -291,14 +292,14 @@ exports[`should render correctly: with comments or changelog element 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
         Object {
           "content": <RuleDescription
-            description={
+            isDefault={true}
+            sections={
               Array [
                 Object {
                   "content": "how",
@@ -306,7 +307,6 @@ exports[`should render correctly: with comments or changelog element 1`] = `
                 },
               ]
             }
-            isDefault={true}
           />,
           "key": "fix",
           "label": "hotspots.tabs.fix_recommendations",

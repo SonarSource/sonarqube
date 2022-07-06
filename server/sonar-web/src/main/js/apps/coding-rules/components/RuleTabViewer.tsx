@@ -69,7 +69,10 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
 
   computeState() {
     const { ruleDetails } = this.props;
-    const groupedDescriptions = groupBy(ruleDetails.descriptionSections, 'key');
+    const descriptionSectionsByKey = groupBy(
+      ruleDetails.descriptionSections,
+      section => section.key
+    );
 
     const tabs = [
       {
@@ -78,34 +81,38 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
           ruleDetails.type === 'SECURITY_HOTSPOT'
             ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
             : translate('coding_rules.description_section.title.root_cause'),
-        content: groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE] && (
-          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.ROOT_CAUSE]} />
+        content: descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE] && (
+          <RuleDescription
+            sections={descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]}
+          />
         )
       },
       {
         key: RuleTabKeys.AssessTheIssue,
         label: translate('coding_rules.description_section.title', RuleTabKeys.AssessTheIssue),
-        content: groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+        content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
-            description={groupedDescriptions[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         )
       },
       {
         key: RuleTabKeys.HowToFixIt,
         label: translate('coding_rules.description_section.title', RuleTabKeys.HowToFixIt),
-        content: groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX] && (
-          <RuleDescription description={groupedDescriptions[RuleDescriptionSections.HOW_TO_FIX]} />
+        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription
+            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
+          />
         )
       },
       {
         key: RuleTabKeys.MoreInfo,
         label: translate('coding_rules.description_section.title', RuleTabKeys.MoreInfo),
         content: (ruleDetails.genericConcepts ||
-          groupedDescriptions[RuleDescriptionSections.RESOURCES]) && (
+          descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
             genericConcepts={ruleDetails.genericConcepts}
-            description={groupedDescriptions[RuleDescriptionSections.RESOURCES]}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         )
       }
