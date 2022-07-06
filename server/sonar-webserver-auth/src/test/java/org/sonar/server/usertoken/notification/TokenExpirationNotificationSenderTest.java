@@ -34,7 +34,7 @@ import org.sonar.db.user.UserTokenDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -66,8 +66,8 @@ public class TokenExpirationNotificationSenderTest {
     var userTokenDao = mock(UserTokenDao.class);
     var userDao = mock(UserDao.class);
     when(userDao.selectByUuids(any(), any())).thenReturn(List.of(user));
-    when(userTokenDao.selectTokensExpiredInDays(any(), anyLong())).thenReturn(List.of(expiringToken));
-    when(userTokenDao.selectExpiredTokens(any())).thenReturn(List.of(expiredToken));
+    when(userTokenDao.selectTokensExpiredInDays(any(), eq(7L))).thenReturn(List.of(expiringToken));
+    when(userTokenDao.selectTokensExpiredInDays(any(), eq(0L))).thenReturn(List.of(expiredToken));
     when(dbClient.userTokenDao()).thenReturn(userTokenDao);
     when(dbClient.userDao()).thenReturn(userDao);
     when(emailComposer.areEmailSettingsSet()).thenReturn(true);

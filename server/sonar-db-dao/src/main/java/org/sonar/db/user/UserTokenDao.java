@@ -61,11 +61,6 @@ public class UserTokenDao implements Dao {
     return mapper(dbSession).selectTokensExpiredOnDate(timestamp);
   }
 
-  public List<UserTokenDto> selectExpiredTokens(DbSession dbSession){
-    long timestamp = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
-    return mapper(dbSession).selectTokensExpiredOnDate(timestamp);
-  }
-
   public void updateWithoutAudit(DbSession dbSession, UserTokenDto userTokenDto) {
     mapper(dbSession).update(userTokenDto);
   }

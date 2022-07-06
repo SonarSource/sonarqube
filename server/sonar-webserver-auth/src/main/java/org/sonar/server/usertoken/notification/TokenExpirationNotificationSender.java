@@ -45,7 +45,7 @@ public class TokenExpirationNotificationSender {
     }
     try (var dbSession = dbClient.openSession(false)) {
       var expiringTokens = dbClient.userTokenDao().selectTokensExpiredInDays(dbSession, 7);
-      var expiredTokens = dbClient.userTokenDao().selectExpiredTokens(dbSession);
+      var expiredTokens = dbClient.userTokenDao().selectTokensExpiredInDays(dbSession, 0);
       var tokensToNotify = Stream.concat(expiringTokens.stream(), expiredTokens.stream()).collect(Collectors.toList());
       var usersToNotify = tokensToNotify.stream().map(UserTokenDto::getUserUuid).collect(Collectors.toSet());
       Map<String, String> userUuidToEmail = dbClient.userDao().selectByUuids(dbSession, usersToNotify).stream()

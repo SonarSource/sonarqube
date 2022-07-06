@@ -91,17 +91,6 @@ public class UserTokenDaoTest {
       .containsOnly(token2);
   }
 
-  @Test
-  public void select_expired_tokens() {
-    String token1 = insertTokenExpiredInDays(0);
-    String token2 = insertTokenExpiredInDays(7);
-    String token3 = insertTokenExpiredInDays(14);
-    List<UserTokenDto> tokenList = underTest.selectExpiredTokens(dbSession);
-    assertThat(tokenList).hasSize(1)
-      .extracting(UserTokenDto::getTokenHash)
-      .containsOnly(token1);
-  }
-
   private String insertTokenExpiredInDays(long days){
     long expirationDate = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     UserTokenDto userToken = newUserToken().setExpirationDate(expirationDate);
