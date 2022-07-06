@@ -85,6 +85,7 @@ public class OneIssuePerLineSensorTest {
     assertThat(context.allIssues()).hasSize(10); // One issue per line
     for (Issue issue : context.allIssues()) {
       assertThat(issue.overriddenSeverity()).isEqualTo(Severity.MINOR);
+      assertThat(issue.ruleDescriptionContextKey()).contains(XooRulesDefinition.AVAILABLE_CONTEXTS[0]);
     }
   }
 

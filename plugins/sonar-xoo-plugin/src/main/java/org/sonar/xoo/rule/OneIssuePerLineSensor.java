@@ -29,9 +29,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
+
+import static org.sonar.xoo.rule.XooRulesDefinition.AVAILABLE_CONTEXTS;
 
 public class OneIssuePerLineSensor implements Sensor {
 
@@ -73,12 +74,9 @@ public class OneIssuePerLineSensor implements Sensor {
           .on(file)
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
-        .overrideSeverity(severity != null ? Severity.valueOf(severity) : null);
-      if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
-        newIssue.gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null));
-      } else {
-        newIssue.gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null));
-      }
+        .overrideSeverity(severity != null ? Severity.valueOf(severity) : null)
+        .setRuleDescriptionContextKey(AVAILABLE_CONTEXTS[0])
+        .gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null));
       newIssue.save();
     }
   }

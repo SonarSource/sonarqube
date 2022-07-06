@@ -48,11 +48,12 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
  */
 public class XooRulesDefinition implements RulesDefinition {
 
+  public static final String[] AVAILABLE_CONTEXTS = { "JavaScript", "JQuery", "Express.js", "React", "Axios" };
+
   public static final String XOO_REPOSITORY = "xoo";
   public static final String XOO2_REPOSITORY = "xoo2";
 
   private static final String TEN_MIN = "10min";
-  private static final String[] AVAILABLE_CONTEXTS = { "JavaScript", "JQuery", "Express.js", "React", "Axios" };
 
   @Nullable
   private final Version version;
