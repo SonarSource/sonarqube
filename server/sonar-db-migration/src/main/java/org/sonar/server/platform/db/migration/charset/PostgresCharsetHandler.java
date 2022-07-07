@@ -72,6 +72,7 @@ class PostgresCharsetHandler extends CharsetHandler {
       "from information_schema.columns " +
       "where table_schema='public' " +
       "and udt_name='varchar' " +
+      "and table_name NOT LIKE '%_columns' " + // exclude PostGIS tables
       "order by table_name, column_name", new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
     Set<String> errors = new LinkedHashSet<>();
     for (String[] row : rows) {
