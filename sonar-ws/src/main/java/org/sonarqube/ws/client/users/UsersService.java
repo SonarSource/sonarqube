@@ -230,4 +230,20 @@ public class UsersService extends BaseService {
         .setMediaType(MediaTypes.JSON)
     ).content();
   }
+
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/dismiss_notice">Further information about this action online (including a response example)</a>
+   * @since 9.6
+   */
+  public void dismissNotice(String notice) {
+    call(
+      new PostRequest(path("dismiss_notice"))
+        .setParam("notice", notice)
+    ).content();
+  }
+
 }

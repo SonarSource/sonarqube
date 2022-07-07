@@ -40,7 +40,8 @@ public class UsersWsModule extends Module {
       UserJsonWriter.class,
       SetHomepageAction.class,
       HomepageTypesImpl.class,
-      UpdateIdentityProviderAction.class);
+      UpdateIdentityProviderAction.class,
+      DismissNoticeAction.class);
 
   }
 }

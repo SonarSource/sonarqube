@@ -34,6 +34,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.permission.PermissionService;
@@ -49,6 +50,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.user.ws.DismissNoticeAction.GENERIC_CONCEPTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
@@ -98,9 +100,9 @@ public class CurrentAction implements UsersWsAction {
       }
     } else {
       writeProtobuf(newBuilder()
-        .setIsLoggedIn(false)
-        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-        .build(),
+          .setIsLoggedIn(false)
+          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+          .build(),
         request, response);
     }
   }
@@ -120,7 +122,8 @@ public class CurrentAction implements UsersWsAction {
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
-      .setSonarLintAdSeen(user.isSonarlintAdSeen());
+      .setSonarLintAdSeen(user.isSonarlintAdSeen())
+      .putDismissedNotices(GENERIC_CONCEPTS, isNoticeDismissed(user, GENERIC_CONCEPTS));
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
@@ -133,6 +136,18 @@ public class CurrentAction implements UsersWsAction {
       .filter(userSession::hasPermission)
       .map(GlobalPermission::getKey)
       .collect(toList());
+  }
+
+  private boolean isNoticeDismissed(UserDto user, String noticeName) {
+    String paramKey = DismissNoticeAction.USER_DISMISS_CONSTANT + noticeName;
+    PropertyQuery query = new PropertyQuery.Builder()
+      .setUserUuid(user.getUuid())
+      .setKey(paramKey)
+      .build();
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return !dbClient.propertiesDao().selectByQuery(query, dbSession).isEmpty();
+    }
   }
 
   private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {

@@ -112,4 +112,12 @@ public class PropertyDbTester {
     return this;
   }
 
+  public Optional<PropertyDto> findFirstUserProperty(String userUuid, String key) {
+    PropertyQuery query = new PropertyQuery.Builder()
+      .setUserUuid(userUuid)
+      .setKey(key)
+      .build();
+
+    return dbClient.propertiesDao().selectByQuery(query, dbSession).stream().findFirst();
+  }
 }

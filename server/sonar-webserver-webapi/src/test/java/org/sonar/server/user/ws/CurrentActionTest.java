@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Map;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -30,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.permission.PermissionService;
@@ -82,6 +85,33 @@ public class CurrentActionTest {
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"));
+  }
+
+  @Test
+  public void return_generic_concepts_seen() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.genericConcepts");
+    db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getDismissedNoticesMap().entrySet())
+      .extracting(Map.Entry::getKey, Map.Entry::getValue)
+      .contains(Tuple.tuple("genericConcepts", true));
+  }
+
+  @Test
+  public void return_generic_concepts_not_seen() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getDismissedNoticesMap().entrySet())
+      .extracting(Map.Entry::getKey, Map.Entry::getValue)
+      .contains(Tuple.tuple("genericConcepts", false));
   }
 
   @Test
