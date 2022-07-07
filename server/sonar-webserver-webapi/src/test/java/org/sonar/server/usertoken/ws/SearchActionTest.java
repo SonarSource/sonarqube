@@ -136,6 +136,24 @@ public class SearchActionTest {
   }
 
   @Test
+  public void isExpired_is_returned_only_when_expiration_date_is_set() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto token1 = db.users().insertToken(user, t -> t.setExpirationDate(10_000_000_000_000L));
+    UserTokenDto token2 = db.users().insertToken(user, t -> t.setExpirationDate(1_000_000_000_000L));
+    UserTokenDto token3 = db.users().insertToken(user);
+    logInAsSystemAdministrator();
+
+    SearchWsResponse response = newRequest(user.getLogin());
+
+    assertThat(response.getUserTokensList())
+      .extracting(UserToken::getName, UserToken::hasIsExpired, UserToken::getIsExpired)
+      .containsExactlyInAnyOrder(
+        tuple(token1.getName(), true, false),
+        tuple(token2.getName(), true, true),
+        tuple(token3.getName(), false, false));
+  }
+
+  @Test
   public void fail_when_login_does_not_exist() {
     logInAsSystemAdministrator();
 

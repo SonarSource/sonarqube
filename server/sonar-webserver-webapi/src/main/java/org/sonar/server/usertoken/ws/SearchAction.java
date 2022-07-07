@@ -94,7 +94,10 @@ public class SearchAction implements UserTokensWsAction {
         .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()))
         .setType(userTokenDto.getType());
       ofNullable(userTokenDto.getLastConnectionDate()).ifPresent(date -> userTokenBuilder.setLastConnectionDate(formatDateTime(date)));
-      ofNullable(userTokenDto.getExpirationDate()).ifPresent(expirationDate -> userTokenBuilder.setExpirationDate(formatDateTime(expirationDate)));
+      ofNullable(userTokenDto.getExpirationDate()).ifPresent(expirationDate -> {
+        userTokenBuilder.setExpirationDate(formatDateTime(expirationDate));
+        userTokenBuilder.setIsExpired(userTokenDto.isExpired());
+      });
 
       if (!isNullOrEmpty(userTokenDto.getProjectKey()) && !isNullOrEmpty(userTokenDto.getProjectName())) {
         Project.Builder projectBuilder = newBuilder().getProjectBuilder()

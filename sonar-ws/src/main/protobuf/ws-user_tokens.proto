@@ -47,6 +47,7 @@ message SearchWsResponse {
     optional string type = 4;
     optional Project project = 5;
     optional string expirationDate = 6;
+    optional bool isExpired = 7;
 
     message Project {
       optional string key = 1;
