@@ -26,7 +26,12 @@ import {
 } from '../../helpers/mocks/sources';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
-import { mockPaging, mockRawIssue, mockRuleDetails } from '../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockPaging,
+  mockRawIssue,
+  mockRuleDetails
+} from '../../helpers/testMocks';
 import { BranchParameters } from '../../types/branch-like';
 import { RawFacet, RawIssue, RawIssuesResponse, ReferencedComponent } from '../../types/issues';
 import { Standards } from '../../types/security';
@@ -37,9 +42,11 @@ import {
   SnippetsByComponent,
   SourceViewerFile
 } from '../../types/types';
+import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
 import { getIssueFlowSnippets, searchIssues } from '../issues';
 import { getRuleDetails } from '../rules';
+import { dismissNotification, getCurrentUser } from '../users';
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -192,6 +199,8 @@ export default class IssuesServiceMock {
     (getComponentForSourceViewer as jest.Mock).mockImplementation(
       this.handleGetComponentForSourceViewer
     );
+    (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
+    (dismissNotification as jest.Mock).mockImplementation(this.handleDismissNotification);
   }
 
   async getStandards(): Promise<Standards> {
@@ -312,6 +321,18 @@ export default class IssuesServiceMock {
       languages: [],
       paging: mockPaging()
     });
+  };
+
+  handleGetCurrentUser = () => {
+    return this.reply(mockCurrentUser());
+  };
+
+  handleDismissNotification = (noticeType: NoticeType) => {
+    if (noticeType === NoticeType.EDUCATION_PRINCIPLES) {
+      return this.reply(true);
+    }
+
+    return Promise.reject();
   };
 
   reply<T>(response: T): Promise<T> {

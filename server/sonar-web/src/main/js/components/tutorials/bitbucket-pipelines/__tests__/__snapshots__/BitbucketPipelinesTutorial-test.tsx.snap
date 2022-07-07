@@ -87,6 +87,9 @@ exports[`should render correctly: repo variable step content 1`] = `
   }
   currentUser={
     Object {
+      "dismissedNotices": Object {
+        "educationPrinciples": false,
+      },
       "groups": Array [],
       "isLoggedIn": true,
       "login": "luke",

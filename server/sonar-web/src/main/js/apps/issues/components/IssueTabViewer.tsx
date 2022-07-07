@@ -21,9 +21,13 @@ import classNames from 'classnames';
 import { groupBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import BoxedTabs from '../../../components/controls/BoxedTabs';
-import MoreInfoRuleDescription from '../../../components/rules/MoreInfoRuleDescription';
-import RuleDescription from '../../../components/rules/RuleDescription';
+import TabViewer, {
+  getHowToFixTab,
+  getMoreInfoTab,
+  getWhyIsThisAnIssueTab,
+  Tab,
+  TabKeys
+} from '../../../components/rules/TabViewer';
 import { translate } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Component, Issue, RuleDetails } from '../../../types/types';
@@ -36,52 +40,8 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-interface State {
-  currentTabKey: IssueTabKeys;
-  tabs: Tab[];
-}
-
-interface Tab {
-  key: IssueTabKeys;
-  label: React.ReactNode;
-  content: React.ReactNode;
-}
-
-enum IssueTabKeys {
-  Code = 'code',
-  WhyIsThisAnIssue = 'why',
-  HowToFixIt = 'how',
-  MoreInfo = 'more_info'
-}
-
-export default class IssueViewerTabs extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const tabs = this.computeTabs();
-    this.state = {
-      currentTabKey: tabs[0].key,
-      tabs
-    };
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.ruleDetails !== this.props.ruleDetails ||
-      prevProps.codeTabContent !== this.props.codeTabContent
-    ) {
-      const tabs = this.computeTabs();
-      this.setState({
-        currentTabKey: tabs[0].key,
-        tabs
-      });
-    }
-  }
-
-  handleSelectTabs = (currentTabKey: IssueTabKeys) => {
-    this.setState({ currentTabKey });
-  };
-
-  computeTabs() {
+export default class IssueViewerTabs extends React.PureComponent<Props> {
+  computeTabs = (showNotice: boolean, educationPrinciplesRef: React.RefObject<HTMLDivElement>) => {
     const {
       ruleDetails,
       codeTabContent,
@@ -91,6 +51,9 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       ruleDetails.descriptionSections,
       section => section.key
     );
+    const hasEducationPrinciples =
+      !!ruleDetails.educationPrinciples && ruleDetails.educationPrinciples.length > 0;
+    const showNotification = showNotice && hasEducationPrinciples;
 
     if (ruleDetails.htmlNote) {
       if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] !== undefined) {
@@ -114,53 +77,38 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
 
     return [
       {
-        key: IssueTabKeys.Code,
-        label: translate('issue.tabs', IssueTabKeys.Code),
+        key: TabKeys.Code,
+        label: translate('issue.tabs', TabKeys.Code),
         content: <div className="padded">{codeTabContent}</div>
       },
-      {
-        key: IssueTabKeys.WhyIsThisAnIssue,
-        label: translate('issue.tabs', IssueTabKeys.WhyIsThisAnIssue),
-        content: rootCauseDescriptionSections && (
-          <RuleDescription
-            sections={rootCauseDescriptionSections}
-            isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
-            defaultContextKey={ruleDescriptionContextKey}
-          />
-        )
-      },
-      {
-        key: IssueTabKeys.HowToFixIt,
-        label: translate('issue.tabs', IssueTabKeys.HowToFixIt),
-        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
-          <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-            defaultContextKey={ruleDescriptionContextKey}
-          />
-        )
-      },
-      {
-        key: IssueTabKeys.MoreInfo,
-        label: translate('issue.tabs', IssueTabKeys.MoreInfo),
-        content: (ruleDetails.educationPrinciples ||
-          descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
-          <MoreInfoRuleDescription
-            educationPrinciples={ruleDetails.educationPrinciples}
-            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
-          />
-        )
-      }
+      getWhyIsThisAnIssueTab(
+        rootCauseDescriptionSections,
+        descriptionSectionsByKey,
+        translate('issue.tabs', TabKeys.WhyIsThisAnIssue),
+        ruleDescriptionContextKey
+      ),
+      getHowToFixTab(
+        descriptionSectionsByKey,
+        translate('issue.tabs', TabKeys.HowToFixIt),
+        ruleDescriptionContextKey
+      ),
+      getMoreInfoTab(
+        showNotification,
+        descriptionSectionsByKey,
+        educationPrinciplesRef,
+        translate('issue.tabs', TabKeys.MoreInfo),
+        ruleDetails.educationPrinciples
+      )
     ].filter(tab => tab.content) as Array<Tab>;
-  }
+  };
 
   render() {
+    const { ruleDetails, codeTabContent } = this.props;
     const {
       component,
       ruleDetails: { name, key },
       issue: { message }
     } = this.props;
-    const { tabs, currentTabKey } = this.state;
-    const selectedTab = tabs.find(tab => tab.key === currentTabKey);
     return (
       <>
         <div
@@ -174,18 +122,13 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
               {key}
             </Link>
           </div>
-          <BoxedTabs
-            className="bordered-bottom"
-            onSelect={this.handleSelectTabs}
-            selected={currentTabKey}
-            tabs={tabs}
-          />
         </div>
-        {selectedTab && (
-          <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-            {selectedTab.content}
-          </div>
-        )}
+        <TabViewer
+          ruleDetails={ruleDetails}
+          computeTabs={this.computeTabs}
+          codeTabContent={codeTabContent}
+          pageType="issues"
+        />
       </>
     );
   }

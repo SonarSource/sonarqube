@@ -19,11 +19,17 @@
  */
 import { cloneDeep, countBy, pick, trim } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
-import { mockQualityProfile, mockRuleDetails, mockRuleRepository } from '../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockQualityProfile,
+  mockRuleDetails,
+  mockRuleRepository
+} from '../../helpers/testMocks';
 import { RuleRepository } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
+import { NoticeType } from '../../types/users';
 import { getFacet } from '../issues';
 import {
   bulkActivateRules,
@@ -34,6 +40,7 @@ import {
   SearchQualityProfilesResponse
 } from '../quality-profiles';
 import { getRuleDetails, getRulesApp, searchRules, updateRule } from '../rules';
+import { dismissNotification, getCurrentUser } from '../users';
 
 interface FacetFilter {
   languages?: string;
@@ -50,6 +57,7 @@ export default class CodingRulesMock {
   repositories: RuleRepository[] = [];
   isAdmin = false;
   applyWithWarning = false;
+  dismissedNoticesEP = false;
 
   constructor() {
     this.repositories = [
@@ -63,6 +71,8 @@ export default class CodingRulesMock {
     ];
 
     const resourceContent = 'Some link <a href="http://example.com">Awsome Reading</a>';
+    const introTitle = 'Introduction to this rule';
+    const rootCauseContent = 'This how to fix';
 
     this.defaultRules = [
       mockRuleDetails({
@@ -78,8 +88,8 @@ export default class CodingRulesMock {
         type: 'SECURITY_HOTSPOT',
         lang: 'js',
         descriptionSections: [
-          { key: RuleDescriptionSections.INTRODUCTION, content: 'Introduction to this rule' },
-          { key: RuleDescriptionSections.ROOT_CAUSE, content: 'This how to fix' },
+          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
+          { key: RuleDescriptionSections.ROOT_CAUSE, content: rootCauseContent },
           { key: RuleDescriptionSections.ASSESS_THE_PROBLEM, content: 'Assess' },
           {
             key: RuleDescriptionSections.RESOURCES,
@@ -103,8 +113,8 @@ export default class CodingRulesMock {
         langName: 'Python',
         name: 'Awsome Python rule',
         descriptionSections: [
-          { key: RuleDescriptionSections.INTRODUCTION, content: 'Introduction to this rule' },
-          { key: RuleDescriptionSections.HOW_TO_FIX, content: 'This how to fix' },
+          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
+          { key: RuleDescriptionSections.HOW_TO_FIX, content: rootCauseContent },
           {
             key: RuleDescriptionSections.RESOURCES,
             content: resourceContent
@@ -146,6 +156,22 @@ export default class CodingRulesMock {
             content: resourceContent
           }
         ]
+      }),
+      mockRuleDetails({
+        key: 'rule8',
+        type: 'VULNERABILITY',
+        lang: 'py',
+        langName: 'Python',
+        name: 'Awesome Python rule with education principles',
+        descriptionSections: [
+          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
+          { key: RuleDescriptionSections.HOW_TO_FIX, content: rootCauseContent },
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: resourceContent
+          }
+        ],
+        educationPrinciples: ['defense_in_depth', 'least_trust_principle']
       })
     ];
 
@@ -157,7 +183,8 @@ export default class CodingRulesMock {
     (bulkActivateRules as jest.Mock).mockImplementation(this.handleBulkActivateRules);
     (bulkDeactivateRules as jest.Mock).mockImplementation(this.handleBulkDeactivateRules);
     (getFacet as jest.Mock).mockImplementation(this.handleGetGacet);
-
+    (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
+    (dismissNotification as jest.Mock).mockImplementation(this.handleDismissNotification);
     this.rules = cloneDeep(this.defaultRules);
   }
 
@@ -198,6 +225,7 @@ export default class CodingRulesMock {
   reset() {
     this.isAdmin = false;
     this.applyWithWarning = false;
+    this.dismissedNoticesEP = false;
     this.rules = cloneDeep(this.defaultRules);
   }
 
@@ -348,6 +376,25 @@ export default class CodingRulesMock {
 
   handleGetRulesApp = () => {
     return this.reply({ canWrite: this.isAdmin, repositories: this.repositories });
+  };
+
+  handleGetCurrentUser = () => {
+    return this.reply(
+      mockCurrentUser({
+        dismissedNotices: {
+          educationPrinciples: this.dismissedNoticesEP
+        }
+      })
+    );
+  };
+
+  handleDismissNotification = (noticeType: NoticeType) => {
+    if (noticeType === NoticeType.EDUCATION_PRINCIPLES) {
+      this.dismissedNoticesEP = true;
+      return this.reply(true);
+    }
+
+    return Promise.reject();
   };
 
   reply<T>(response: T): Promise<T> {

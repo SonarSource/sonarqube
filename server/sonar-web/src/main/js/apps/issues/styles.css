@@ -245,6 +245,7 @@
   top: 48px;
   background-color: white;
   padding-top: 20px;
+  height: 50px;
 }
 
 .issue-project-level.issue-header {

@@ -20,10 +20,14 @@
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
-import { CurrentUser, HomePage, User } from '../types/users';
+import { CurrentUser, HomePage, NoticeType, User } from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current');
+}
+
+export function dismissNotification(notice: NoticeType) {
+  return post('/api/users/dismiss_notice', { notice }).catch(throwGlobalError);
 }
 
 export function changePassword(data: {

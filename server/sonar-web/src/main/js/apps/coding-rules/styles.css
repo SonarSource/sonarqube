@@ -282,3 +282,12 @@
 .rules-context-description h2.rule-contexts-title {
   border: 0px;
 }
+
+.notice-dot {
+  height: var(--gridSize);
+  width: var(--gridSize);
+  background-color: var(--blue);
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: var(--gridSize);
+}

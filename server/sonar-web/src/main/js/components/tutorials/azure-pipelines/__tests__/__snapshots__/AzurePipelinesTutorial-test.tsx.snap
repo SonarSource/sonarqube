@@ -135,6 +135,9 @@ exports[`should render correctly 3`] = `
           }
           currentUser={
             Object {
+              "dismissedNotices": Object {
+                "educationPrinciples": false,
+              },
               "groups": Array [],
               "isLoggedIn": true,
               "login": "luke",

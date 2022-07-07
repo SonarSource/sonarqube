@@ -32,7 +32,7 @@ interface State {
 export default class CurrentUserContextProvider extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { currentUser: props.currentUser ?? { isLoggedIn: false } };
+    this.state = { currentUser: props.currentUser ?? { isLoggedIn: false, dismissedNotices: {} } };
   }
 
   updateCurrentUserHomepage = (homepage: HomePage) => {

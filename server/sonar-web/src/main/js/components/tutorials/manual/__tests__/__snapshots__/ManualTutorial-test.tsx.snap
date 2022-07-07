@@ -21,6 +21,9 @@ exports[`renders correctly: default 1`] = `
   <TokenStep
     currentUser={
       Object {
+        "dismissedNotices": Object {
+          "educationPrinciples": false,
+        },
         "groups": Array [],
         "isLoggedIn": true,
         "login": "luke",

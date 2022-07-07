@@ -152,7 +152,7 @@ function shallowRender(
 ) {
   const wrapper = shallow<AllProjects>(
     <AllProjects
-      currentUser={{ isLoggedIn: true }}
+      currentUser={{ isLoggedIn: true, dismissedNotices: {} }}
       isFavorite={false}
       location={mockLocation({ pathname: '/projects', query: {} })}
       appState={mockAppState({

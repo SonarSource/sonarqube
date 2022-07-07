@@ -28,3 +28,11 @@
   padding-left: 16px;
   padding-right: 16px;
 }
+
+.tab-view-header {
+  z-index: 100;
+  position: sticky;
+  top: 118px;
+  background-color: white;
+  padding-top: 20px;
+}

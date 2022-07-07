@@ -60,7 +60,7 @@ jest.mock('../../../api/users', () => ({
 const getIdentityProviders = require('../../../api/users').getIdentityProviders as jest.Mock<any>;
 const searchUsers = require('../../../api/users').searchUsers as jest.Mock<any>;
 
-const currentUser = { isLoggedIn: true, login: 'luke' };
+const currentUser = { isLoggedIn: true, login: 'luke', dismissedNotices: {} };
 const location = { pathname: '', query: {} } as Location;
 
 beforeEach(() => {

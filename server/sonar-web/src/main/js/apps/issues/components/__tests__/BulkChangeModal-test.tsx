@@ -111,7 +111,7 @@ const getWrapper = (issues: Issue[]) => {
   return shallow<BulkChangeModal>(
     <BulkChangeModal
       component={undefined}
-      currentUser={{ isLoggedIn: true }}
+      currentUser={{ isLoggedIn: true, dismissedNotices: {} }}
       fetchIssues={() =>
         Promise.resolve({
           issues,

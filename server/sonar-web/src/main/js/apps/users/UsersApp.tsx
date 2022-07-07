@@ -26,14 +26,14 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider, Paging } from '../../types/types';
-import { User } from '../../types/users';
+import { CurrentUser, User } from '../../types/users';
 import Header from './Header';
 import Search from './Search';
 import UsersList from './UsersList';
 import { parseQuery, Query, serializeQuery } from './utils';
 
 interface Props {
-  currentUser: { isLoggedIn: boolean; login?: string };
+  currentUser: CurrentUser;
   location: Location;
   router: Router;
 }

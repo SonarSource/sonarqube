@@ -15,6 +15,9 @@ exports[`should render React extensions correctly 1`] = `
   }
   currentUser={
     Object {
+      "dismissedNotices": Object {
+        "educationPrinciples": false,
+      },
       "isLoggedIn": false,
     }
   }
@@ -74,6 +77,9 @@ exports[`should render React extensions correctly 2`] = `
   }
   currentUser={
     Object {
+      "dismissedNotices": Object {
+        "educationPrinciples": false,
+      },
       "isLoggedIn": false,
     }
   }

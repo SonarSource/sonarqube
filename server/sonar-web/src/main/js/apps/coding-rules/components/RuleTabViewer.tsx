@@ -19,9 +19,14 @@
  */
 import { groupBy } from 'lodash';
 import * as React from 'react';
-import BoxedTabs from '../../../components/controls/BoxedTabs';
-import MoreInfoRuleDescription from '../../../components/rules/MoreInfoRuleDescription';
 import RuleDescription from '../../../components/rules/RuleDescription';
+import TabViewer, {
+  getHowToFixTab,
+  getMoreInfoTab,
+  getWhyIsThisAnIssueTab,
+  Tab,
+  TabKeys
+} from '../../../components/rules/TabViewer';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { RuleDetails } from '../../../types/types';
@@ -31,102 +36,53 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-interface State {
-  currentTab: Tab;
-  tabs: Tab[];
-}
-
-interface Tab {
-  key: RuleTabKeys;
-  label: React.ReactNode;
-  content: React.ReactNode;
-}
-
-enum RuleTabKeys {
-  WhyIsThisAnIssue = 'why',
-  HowToFixIt = 'how_to_fix',
-  AssessTheIssue = 'assess_the_problem',
-  MoreInfo = 'more_info'
-}
-
-export default class RuleViewerTabs extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = this.computeState();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleDetails !== this.props.ruleDetails) {
-      this.setState(this.computeState());
-    }
-  }
-
-  handleSelectTabs = (currentTabKey: RuleTabKeys) => {
-    this.setState(({ tabs }) => ({
-      currentTab: tabs.find(tab => tab.key === currentTabKey) || tabs[0]
-    }));
-  };
-
-  computeState() {
+export default class RuleViewerTabs extends React.PureComponent<Props> {
+  computeTabs = (showNotice: boolean, educationPrinciplesRef: React.RefObject<HTMLDivElement>) => {
     const { ruleDetails } = this.props;
     const descriptionSectionsByKey = groupBy(
       ruleDetails.descriptionSections,
       section => section.key
     );
+    const hasEducationPrinciples =
+      !!ruleDetails.educationPrinciples && ruleDetails.educationPrinciples.length > 0;
+    const showNotification = showNotice && hasEducationPrinciples;
 
-    const tabs = [
+    const rootCauseTitle =
+      ruleDetails.type === 'SECURITY_HOTSPOT'
+        ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
+        : translate('coding_rules.description_section.title.root_cause');
+
+    return [
+      getWhyIsThisAnIssueTab(
+        descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE],
+        descriptionSectionsByKey,
+        rootCauseTitle
+      ),
       {
-        key: RuleTabKeys.WhyIsThisAnIssue,
-        label:
-          ruleDetails.type === 'SECURITY_HOTSPOT'
-            ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
-            : translate('coding_rules.description_section.title.root_cause'),
-        content: descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE] && (
-          <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]}
-          />
-        )
-      },
-      {
-        key: RuleTabKeys.AssessTheIssue,
-        label: translate('coding_rules.description_section.title', RuleTabKeys.AssessTheIssue),
+        key: TabKeys.AssessTheIssue,
+        label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         )
       },
-      {
-        key: RuleTabKeys.HowToFixIt,
-        label: translate('coding_rules.description_section.title', RuleTabKeys.HowToFixIt),
-        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
-          <RuleDescription
-            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-          />
-        )
-      },
-      {
-        key: RuleTabKeys.MoreInfo,
-        label: translate('coding_rules.description_section.title', RuleTabKeys.MoreInfo),
-        content: (ruleDetails.educationPrinciples ||
-          descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
-          <MoreInfoRuleDescription
-            educationPrinciples={ruleDetails.educationPrinciples}
-            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
-          />
-        )
-      }
+      getHowToFixTab(
+        descriptionSectionsByKey,
+        translate('coding_rules.description_section.title', TabKeys.HowToFixIt)
+      ),
+      getMoreInfoTab(
+        showNotification,
+        descriptionSectionsByKey,
+        educationPrinciplesRef,
+        translate('coding_rules.description_section.title', TabKeys.MoreInfo),
+        ruleDetails.educationPrinciples
+      )
     ].filter(tab => tab.content) as Array<Tab>;
-
-    return {
-      currentTab: tabs[0],
-      tabs
-    };
-  }
+  };
 
   render() {
     const { ruleDetails } = this.props;
-    const { tabs, currentTab } = this.state;
     const intro = ruleDetails.descriptionSections?.find(
       section => section.key === RuleDescriptionSections.INTRODUCTION
     )?.content;
@@ -139,16 +95,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
             dangerouslySetInnerHTML={{ __html: sanitizeString(intro) }}
           />
         )}
-        <BoxedTabs
-          className="bordered-bottom big-spacer-top"
-          onSelect={this.handleSelectTabs}
-          selected={currentTab.key}
-          tabs={tabs}
-        />
-
-        <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-          {currentTab.content}
-        </div>
+        <TabViewer ruleDetails={this.props.ruleDetails} computeTabs={this.computeTabs} />
       </>
     );
   }

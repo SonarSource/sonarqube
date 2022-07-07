@@ -55,7 +55,7 @@ function shallowRender(isLoggedIn = true) {
   return shallow(
     <CurrentUserContext.Provider
       value={{
-        currentUser: { isLoggedIn },
+        currentUser: { isLoggedIn, dismissedNotices: {} },
         updateCurrentUserHomepage: () => {},
         updateCurrentUserSonarLintAdSeen: () => {}
       }}>

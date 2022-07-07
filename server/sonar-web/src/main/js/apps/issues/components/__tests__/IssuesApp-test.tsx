@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchIssues } from '../../../../api/issues';
 import { getRuleDetails } from '../../../../api/rules';
+import TabViewer from '../../../../components/rules/TabViewer';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
@@ -71,6 +72,15 @@ jest.mock('../../../../api/issues', () => ({
 
 jest.mock('../../../../api/rules', () => ({
   getRuleDetails: jest.fn()
+}));
+
+jest.mock('../../../../api/users', () => ({
+  getCurrentUser: jest.fn().mockResolvedValue({
+    dismissedNotices: {
+      something: false
+    }
+  }),
+  dismissNotification: jest.fn()
 }));
 
 const RAW_ISSUES = [
@@ -209,6 +219,8 @@ it('should switch to source view if an issue is selected', async () => {
   expect(
     wrapper
       .find(IssueViewerTabs)
+      .dive()
+      .find(TabViewer)
       .dive()
       .find(IssuesSourceViewer)
       .exists()

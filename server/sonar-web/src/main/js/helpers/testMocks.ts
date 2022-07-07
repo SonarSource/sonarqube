@@ -300,6 +300,9 @@ export function mockCondition(overrides: Partial<Condition> = {}): Condition {
 export function mockCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
   return {
     isLoggedIn: false,
+    dismissedNotices: {
+      educationPrinciples: false
+    },
     ...overrides
   };
 }
@@ -311,6 +314,9 @@ export function mockLoggedInUser(overrides: Partial<LoggedInUser> = {}): LoggedI
     login: 'luke',
     name: 'Skywalker',
     scmAccounts: [],
+    dismissedNotices: {
+      educationPrinciples: false
+    },
     ...overrides
   };
 }

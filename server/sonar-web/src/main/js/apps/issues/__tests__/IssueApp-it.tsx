@@ -30,6 +30,7 @@ import { projectIssuesRoutes } from '../routes';
 jest.mock('../../../api/issues');
 jest.mock('../../../api/rules');
 jest.mock('../../../api/components');
+jest.mock('../../../api/users');
 
 let handler: IssuesServiceMock;
 
@@ -64,8 +65,8 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
   // Select the "how to fix it" tab
-  expect(screen.getByRole('button', { name: `issue.tabs.how` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.how` }));
+  expect(screen.getByRole('button', { name: `issue.tabs.how_to_fix` })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: `issue.tabs.how_to_fix` }));
 
   // Is the context selector present with the expected values and default selection?
   expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();

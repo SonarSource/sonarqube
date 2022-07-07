@@ -77,6 +77,7 @@ exports[`renders 1`] = `
             <PageHeader
               currentUser={
                 Object {
+                  "dismissedNotices": Object {},
                   "isLoggedIn": true,
                 }
               }
@@ -123,6 +124,7 @@ exports[`renders 1`] = `
           cardType="overall"
           currentUser={
             Object {
+              "dismissedNotices": Object {},
               "isLoggedIn": true,
             }
           }

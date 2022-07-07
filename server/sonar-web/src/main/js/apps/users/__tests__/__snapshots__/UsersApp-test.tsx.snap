@@ -29,6 +29,7 @@ exports[`should render correctly 1`] = `
   <UsersList
     currentUser={
       Object {
+        "dismissedNotices": Object {},
         "isLoggedIn": true,
         "login": "luke",
       }
@@ -70,6 +71,7 @@ exports[`should render correctly 2`] = `
   <UsersList
     currentUser={
       Object {
+        "dismissedNotices": Object {},
         "isLoggedIn": true,
         "login": "luke",
       }

@@ -24,12 +24,21 @@ import { EmptyInstance } from '../EmptyInstance';
 
 it('renders correctly for SQ', () => {
   expect(
-    shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} router={mockRouter()} />)
+    shallow(
+      <EmptyInstance
+        currentUser={{ isLoggedIn: false, dismissedNotices: {} }}
+        router={mockRouter()}
+      />
+    )
   ).toMatchSnapshot();
   expect(
     shallow(
       <EmptyInstance
-        currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
+        currentUser={{
+          isLoggedIn: true,
+          permissions: { global: ['provisioning'] },
+          dismissedNotices: {}
+        }}
         router={mockRouter()}
       />
     )

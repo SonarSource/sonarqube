@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -27,6 +27,7 @@ import routes from '../routes';
 
 jest.mock('../../../api/rules');
 jest.mock('../../../api/issues');
+jest.mock('../../../api/users');
 jest.mock('../../../api/quality-profiles');
 
 let handler: CodingRulesMock;
@@ -372,6 +373,108 @@ it('should handle hash parameters', async () => {
   expect(screen.getAllByTitle('issue.type.BUG')).toHaveLength(2);
   // Only 3 rules shown
   expect(screen.getByText('x_of_y_shown.3.3')).toBeInTheDocument();
+});
+
+it('should show notification for rule advanced section and remove it after user visits', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp(undefined, 'coding_rules?open=rule8');
+  await screen.findByRole('heading', {
+    level: 3,
+    name: 'Awesome Python rule with education principles'
+  });
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+
+  expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.more_info.scroll_message'
+    })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.more_info.scroll_message'
+    })
+  );
+  // navigate away and come back
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
+  );
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
+});
+
+it('should show notification for rule advanced section and removes it when user scroll to the principles', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp(undefined, 'coding_rules?open=rule8');
+  await screen.findByRole('heading', {
+    level: 3,
+    name: 'Awesome Python rule with education principles'
+  });
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  ).toBeInTheDocument();
+
+  // navigate away and come back
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
+  );
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+
+  expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', {
+      name: 'coding_rules.more_info.scroll_message'
+    })
+  ).toBeInTheDocument();
+  fireEvent.scroll(screen.getByText('coding_rules.more_info.education_principles.title'));
+  // navigate away and come back
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.how_to_fix'
+    })
+  );
+  await user.click(
+    screen.getByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
 });
 
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {

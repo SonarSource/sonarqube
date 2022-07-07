@@ -30,6 +30,9 @@ exports[`renders correctly 1`] = `
     }
     currentUser={
       Object {
+        "dismissedNotices": Object {
+          "educationPrinciples": false,
+        },
         "groups": Array [],
         "isLoggedIn": true,
         "login": "luke",
@@ -98,6 +101,9 @@ exports[`renders correctly 4`] = `
     }
     currentUser={
       Object {
+        "dismissedNotices": Object {
+          "educationPrinciples": false,
+        },
         "groups": Array [],
         "isLoggedIn": true,
         "login": "luke",

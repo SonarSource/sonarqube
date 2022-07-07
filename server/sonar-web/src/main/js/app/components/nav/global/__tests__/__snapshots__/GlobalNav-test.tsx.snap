@@ -10,6 +10,7 @@ exports[`should render correctly: anonymous users 1`] = `
   <withAppStateContext(GlobalNavMenu)
     currentUser={
       Object {
+        "dismissedNotices": Object {},
         "isLoggedIn": false,
       }
     }
@@ -27,6 +28,7 @@ exports[`should render correctly: anonymous users 1`] = `
     <withRouter(GlobalNavUser)
       currentUser={
         Object {
+          "dismissedNotices": Object {},
           "isLoggedIn": false,
         }
       }

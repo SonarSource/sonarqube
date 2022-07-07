@@ -55,7 +55,8 @@ const LOGGED_IN_USER: LoggedInUser = {
   isLoggedIn: true,
   login: 'luke',
   name: 'Skywalker',
-  scmAccounts: []
+  scmAccounts: [],
+  dismissedNotices: {}
 };
 
 beforeEach(() => {

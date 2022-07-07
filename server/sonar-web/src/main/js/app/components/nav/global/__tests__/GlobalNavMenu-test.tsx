@@ -30,7 +30,8 @@ it('should work with extensions', () => {
   });
 
   const currentUser = {
-    isLoggedIn: false
+    isLoggedIn: false,
+    dismissedNotices: {}
   };
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('more')).toBeInTheDocument();
@@ -43,7 +44,8 @@ it('should show administration menu if the user has the rights', () => {
     qualifiers: ['TRK']
   });
   const currentUser = {
-    isLoggedIn: false
+    isLoggedIn: false,
+    dismissedNotices: {}
   };
 
   renderGlobalNavMenu({ appState, currentUser });

@@ -27,6 +27,9 @@ exports[`should render correctly 1`] = `
   }
   currentUser={
     Object {
+      "dismissedNotices": Object {
+        "educationPrinciples": false,
+      },
       "groups": Array [],
       "isLoggedIn": true,
       "login": "luke",

@@ -34,6 +34,9 @@ exports[`restore access shows the restore access modal 1`] = `
 <RestoreAccessModal
   currentUser={
     Object {
+      "dismissedNotices": Object {
+        "educationPrinciples": false,
+      },
       "groups": Array [],
       "isLoggedIn": true,
       "login": "luke",

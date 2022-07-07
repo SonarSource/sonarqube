@@ -62,7 +62,7 @@ it('should render correctly for a pull request', () => {
 });
 
 it('should render correctly when the user is not logged in', () => {
-  const wrapper = shallowRender({ currentUser: { isLoggedIn: false } });
+  const wrapper = shallowRender({ currentUser: { isLoggedIn: false, dismissedNotices: {} } });
   expect(wrapper.find(HomePageSelect).exists()).toBe(false);
 });
 

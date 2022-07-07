@@ -22,6 +22,17 @@ export interface CurrentUser {
   isLoggedIn: boolean;
   permissions?: { global: string[] };
   usingSonarLintConnectedMode?: boolean;
+  dismissedNotices: { [key: string]: boolean };
+}
+
+export interface Notice {
+  key: NoticeType;
+  value: boolean;
+}
+
+export enum NoticeType {
+  EDUCATION_PRINCIPLES = 'educationPrinciples',
+  SONARLINT_AD_SEEN = 'sonarlint_ad_seen'
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

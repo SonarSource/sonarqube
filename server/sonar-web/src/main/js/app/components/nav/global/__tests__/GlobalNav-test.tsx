@@ -35,5 +35,11 @@ it('should render correctly', async () => {
 });
 
 function shallowRender(props: Partial<GlobalNavProps> = {}) {
-  return shallow(<GlobalNav currentUser={{ isLoggedIn: false }} location={location} {...props} />);
+  return shallow(
+    <GlobalNav
+      currentUser={{ isLoggedIn: false, dismissedNotices: {} }}
+      location={location}
+      {...props}
+    />
+  );
 }
