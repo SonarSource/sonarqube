@@ -394,13 +394,13 @@ public class ShowActionTest {
     assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
-      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent, section -> section.getContext().getDisplayName())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent, section -> section.getContext().getKey(), section -> section.getContext().getDisplayName())
       .containsExactlyInAnyOrder(
-        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>", ""),
-        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>", ""),
-        tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>", ""),
-        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", section4context1.getContext().getDisplayName()),
-        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getDisplayName())
+        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>", "", ""),
+        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>", "", ""),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>", "", ""),
+        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", section4context1.getContext().getKey(), section4context1.getContext().getDisplayName()),
+        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getKey(), section4context2.getContext().getDisplayName())
       );
   }
 

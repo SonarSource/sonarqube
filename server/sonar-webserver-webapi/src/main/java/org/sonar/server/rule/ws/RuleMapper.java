@@ -435,7 +435,10 @@ public class RuleMapper {
 
   private static Optional<Rules.Rule.DescriptionSection.Context> toProtobufContext(@Nullable RuleDescriptionSectionContextDto context) {
     return Optional.ofNullable(context)
-      .map(c -> newBuilder().setDisplayName(c.getDisplayName()).build());
+      .map(c -> newBuilder()
+        .setKey(c.getKey())
+        .setDisplayName(c.getDisplayName())
+        .build());
   }
 
   private static boolean isRemediationFunctionOverloaded(RuleDto rule) {

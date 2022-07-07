@@ -97,6 +97,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
 public class SearchActionTest {
 
@@ -500,10 +501,11 @@ public class SearchActionTest {
       .build();
   }
 
-  private static Rule.DescriptionSection toProtobufDto(RuleDescriptionSectionDto s) {
-    Rule.DescriptionSection.Builder builder = Rule.DescriptionSection.newBuilder().setKey(s.getKey()).setContent(s.getContent());
-    if (s.getContext() != null) {
-      builder.setContext(Rule.DescriptionSection.Context.newBuilder().setDisplayName(s.getContext().getDisplayName()).build());
+  private static Rule.DescriptionSection toProtobufDto(RuleDescriptionSectionDto section) {
+    Rule.DescriptionSection.Builder builder = Rule.DescriptionSection.newBuilder().setKey(section.getKey()).setContent(section.getContent());
+    if (section.getContext() != null) {
+      RuleDescriptionSectionContextDto context = section.getContext();
+      builder.setContext(newBuilder().setKey(context.getKey()).setDisplayName(context.getDisplayName()).build());
     }
     return builder.build();
   }

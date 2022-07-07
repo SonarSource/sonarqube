@@ -135,6 +135,7 @@ message Rule {
 
     message Context {
       required string displayName = 1;
+      required string key = 2;
     }
   }
 
