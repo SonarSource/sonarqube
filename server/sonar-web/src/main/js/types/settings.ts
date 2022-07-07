@@ -25,7 +25,8 @@ export const enum SettingsKey {
   DefaultProjectVisibility = 'projects.default.visibility',
   ServerBaseUrl = 'sonar.core.serverBaseURL',
   PluginRiskConsent = 'sonar.plugins.risk.consent',
-  LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold'
+  LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold',
+  TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime'
 }
 
 export enum GlobalSettingKeys {

@@ -31,6 +31,7 @@ import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
+import { SettingsKey } from '../../../types/settings';
 import { TokenExpiration, TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
@@ -46,10 +47,12 @@ jest.mock('../../../helpers/dates', () => {
 });
 
 jest.mock('../../../api/settings', () => {
+  const { SettingsKey } = jest.requireActual('../../../types/settings');
   return {
     ...jest.requireActual('../../../api/settings'),
     getValues: jest.fn().mockResolvedValue([
       {
+        key: SettingsKey.TokenMaxAllowedLifetime,
         value: 'No expiration'
       }
     ])
@@ -269,8 +272,8 @@ describe('security page', () => {
   ])(
     'should display expiration date inferior or equal to the settings limit %s',
     async (settingMaxLifetime, expectedTime, notExpectedTime) => {
-      (getValues as jest.Mock).mockImplementation(() =>
-        Promise.resolve([{ value: settingMaxLifetime }])
+      (getValues as jest.Mock).mockImplementationOnce(() =>
+        Promise.resolve([{ key: SettingsKey.TokenMaxAllowedLifetime, value: settingMaxLifetime }])
       );
 
       renderAccountApp(
@@ -292,6 +295,29 @@ describe('security page', () => {
       });
     }
   );
+
+  it('should handle absent setting', async () => {
+    (getValues as jest.Mock).mockImplementationOnce(() => Promise.resolve([]));
+
+    renderAccountApp(
+      mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+      securityPagePath
+    );
+
+    await selectEvent.openMenu(screen.getAllByRole('textbox')[2]);
+
+    [
+      TokenExpiration.OneMonth,
+      TokenExpiration.ThreeMonths,
+      TokenExpiration.OneYear,
+      TokenExpiration.NoExpiration
+    ].forEach(time => {
+      // TokenExpiration.OneMonth is expected twice has it is the default value.
+      expect(screen.getAllByText(`users.tokens.expiration.${time}`).length).toBe(
+        time === TokenExpiration.OneMonth ? 2 : 1
+      );
+    });
+  });
 
   it.each([
     [TokenExpiration.OneMonth, '2022-07-01'],

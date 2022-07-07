@@ -30,6 +30,7 @@ import { now, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
+import { SettingsKey } from '../../../types/settings';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
@@ -119,16 +120,25 @@ export class TokensForm extends React.PureComponent<Props, State> {
   };
 
   fetchTokenSettings = async () => {
-    const setting = await getValues({ keys: 'sonar.auth.token.max.allowed.lifetime' });
-    if (setting === undefined || setting[0].value === undefined) {
+    /*
+     * We intentionally fetch all settings, because fetching a specific setting will
+     * return it from the DB as a fallback, even if the setting is not defined at startup.
+     */
+    const settings = await getValues({ keys: '' });
+    const maxTokenLifetime = settings.find(
+      ({ key }) => key === SettingsKey.TokenMaxAllowedLifetime
+    );
+
+    if (maxTokenLifetime === undefined || maxTokenLifetime.value === undefined) {
       return;
     }
-    const maxTokenLifetime = setting[0].value;
-    if (SETTINGS_EXPIRATION_MAP[maxTokenLifetime] !== TokenExpiration.NoExpiration) {
+
+    const maxTokenExpirationOption = SETTINGS_EXPIRATION_MAP[maxTokenLifetime.value];
+
+    if (maxTokenExpirationOption !== TokenExpiration.NoExpiration) {
       const tokenExpirationOptions = EXPIRATION_OPTIONS.filter(
         option =>
-          option.value <= SETTINGS_EXPIRATION_MAP[maxTokenLifetime] &&
-          option.value !== TokenExpiration.NoExpiration
+          option.value <= maxTokenExpirationOption && option.value !== TokenExpiration.NoExpiration
       );
       if (this.mounted) {
         this.setState({ tokenExpirationOptions });
