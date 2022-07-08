@@ -199,6 +199,9 @@ server {
 }
 ```
 
+### Forward SonarQube custom headers
+SonarQube adds custom HTTP headers in order for some features to function properly. The reverse proxy should be configured to forward the following header: `sq-authentication-token-expiration`.
+
 ## Secure your Network
 
 To further lock down the communication in between the reverse proxy and SonarQube, you can define the following network rules: 
