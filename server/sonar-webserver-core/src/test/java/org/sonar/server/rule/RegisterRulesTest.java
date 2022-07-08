@@ -746,6 +746,7 @@ public class RegisterRulesTest {
     RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "CTX_1");
     RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY,"section1 ctx2 content", "CTX_2");
     RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 content", "CTX_1");
+    RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 ctx2 content", "CTX_2");
     RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY,"section3 content", null);
     RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY,"section4 content", null);
     execute(context -> {
@@ -755,6 +756,7 @@ public class RegisterRulesTest {
         .addDescriptionSection(section1context1)
         .addDescriptionSection(section1context2)
         .addDescriptionSection(section2context1)
+        .addDescriptionSection(section2context2)
         .addDescriptionSection(section3noContext)
         .addDescriptionSection(section4noContext)
         .setHtmlDescription("Desc1");
@@ -763,7 +765,8 @@ public class RegisterRulesTest {
 
     RuleDescriptionSection section1context2updated = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 updated content", "CTX_2");
     RuleDescriptionSection section2updatedWithoutContext = createRuleDescriptionSection(RESOURCES_SECTION_KEY, section2context1.getHtmlContent(), null);
-    RuleDescriptionSection section4updatedWithContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_1");
+    RuleDescriptionSection section4updatedWithContext1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_1");
+    RuleDescriptionSection section4updatedWithContext2 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_2");
     system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
@@ -773,7 +776,8 @@ public class RegisterRulesTest {
         .addDescriptionSection(section1context2updated)
         .addDescriptionSection(section2updatedWithoutContext)
         .addDescriptionSection(section3noContext)
-        .addDescriptionSection(section4updatedWithContext)
+        .addDescriptionSection(section4updatedWithContext1)
+        .addDescriptionSection(section4updatedWithContext2)
         .setHtmlDescription("Desc2");
       repo.done();
 
@@ -784,7 +788,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Desc2");
 
     Set<RuleDescriptionSection> expectedSections = Set.of(section1context1, section1context2updated,
-      section2updatedWithoutContext, section3noContext, section4updatedWithContext);
+      section2updatedWithoutContext, section3noContext, section4updatedWithContext1, section4updatedWithContext2);
     assertThat(rule1.getRuleDescriptionSectionDtos()).hasSize(expectedSections.size() + 1);
     expectedSections.forEach(apiSection -> assertSectionExists(apiSection, rule1.getRuleDescriptionSectionDtos()));
   }
