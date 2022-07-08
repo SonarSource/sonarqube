@@ -38,8 +38,7 @@
     r.ad_hoc_name as "adHocName",
     r.ad_hoc_description as "adHocDescription",
     r.ad_hoc_severity as "adHocSeverity",
-    r.ad_hoc_type as "adHocType",
-    r.generic_concepts as "genericConceptsField"
+    r.ad_hoc_type as "adHocType"
   </sql>
 
   <sql id="leftOuterJoinRulesDescriptionSections">
@@ -273,7 +272,6 @@
       ad_hoc_description,
       ad_hoc_severity,
       ad_hoc_type,
-      generic_concepts,
       created_at,
       updated_at
     )
@@ -312,7 +310,6 @@
       #{adHocDescription,jdbcType=CLOB},
       #{adHocSeverity,jdbcType=VARCHAR},
       #{adHocType,jdbcType=TINYINT},
-      #{genericConceptsField,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -353,7 +350,6 @@
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
       ad_hoc_type=#{adHocType,jdbcType=TINYINT},
-      generic_concepts=#{genericConceptsField,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}

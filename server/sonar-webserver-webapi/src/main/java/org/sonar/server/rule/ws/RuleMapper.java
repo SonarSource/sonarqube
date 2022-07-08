@@ -61,7 +61,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DESCRIPTION_SECTIONS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GENERIC_CONCEPTS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_INTERNAL_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_IS_EXTERNAL;
@@ -148,7 +147,6 @@ public class RuleMapper {
       setAdHocSeverity(ruleResponse, ruleDto, fieldsToReturn);
       setAdHocType(ruleResponse, ruleDto);
     }
-    setGenericConcepts(ruleResponse, ruleDto, fieldsToReturn);
     return ruleResponse;
   }
 
@@ -196,12 +194,6 @@ public class RuleMapper {
   private static void setScope(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_SCOPE)) {
       ruleResponse.setScope(toWsRuleScope(ruleDto.getScope()));
-    }
-  }
-
-  private static void setGenericConcepts(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_GENERIC_CONCEPTS)) {
-      ruleResponse.getGenericConceptsBuilder().addAllGenericConcepts((ruleDto.getGenericConcepts()));
     }
   }
 
