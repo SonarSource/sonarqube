@@ -244,7 +244,6 @@ public class RegisterRulesTest {
     assertThat(rule.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(rule.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
     assertThat(rule.isAdHoc()).isFalse();
-    assertThat(rule.getGenericConcepts()).containsOnly("concept1", "concept2", "concept3");
   }
 
   @Test
@@ -414,7 +413,6 @@ public class RegisterRulesTest {
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
-    assertThat(rule1.getGenericConcepts()).containsOnly("concept1","concept4");
   }
 
   @Test
@@ -665,7 +663,7 @@ public class RegisterRulesTest {
 
   @DataProvider
   public static Object[][] allRenamingCases() {
-    return new Object[][]{
+    return new Object[][] {
       {"repo1", "rule1", "repo1", "rule2"},
       {"repo1", "rule1", "repo2", "rule1"},
       {"repo1", "rule1", "repo2", "rule2"},
@@ -746,10 +744,10 @@ public class RegisterRulesTest {
     system.setNow(DATE1.getTime());
 
     RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "CTX_1");
-    RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 content", "CTX_2");
-    RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "section2 content", "CTX_1");
-    RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "section3 content", null);
-    RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "section4 content", null);
+    RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY,"section1 ctx2 content", "CTX_2");
+    RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 content", "CTX_1");
+    RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY,"section3 content", null);
+    RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY,"section4 content", null);
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
@@ -1204,8 +1202,7 @@ public class RegisterRulesTest {
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
-        .setGapDescription("java.S115.effortToFix")
-        .addGenericConceptKeys("concept1", "concept2", "concept3");
+        .setGapDescription("java.S115.effortToFix");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default1");
@@ -1243,8 +1240,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag4")
         .setType(RuleType.BUG)
         .setStatus(READY)
-        .setGapDescription("java.S115.effortToFix.v2")
-        .addGenericConceptKeys("concept1", "concept4");
+        .setGapDescription("java.S115.effortToFix.v2");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));
       rule1.createParam("param1").setDescription("parameter one v2").setDefaultValue("default1 v2");
       rule1.createParam("param2").setDescription("parameter two v2").setDefaultValue("default2 v2");
@@ -1283,8 +1279,7 @@ public class RegisterRulesTest {
         .setTags("tag1", "tag2", "tag3")
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA)
-        .addGenericConceptKeys("concept1", "concept2", "concept3");
+        .setStatus(RuleStatus.BETA);
 
       repo.createRule(EXTERNAL_HOTSPOT_RULE_KEY.rule())
         .setName("Hotspot")

@@ -65,7 +65,7 @@ public class RuleTagHelperTest {
       RuleTagHelper.applyTags(rule, Sets.newHashSet("Java Eight"));
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).startsWith("Entry 'Java Eight' is invalid");
+      assertThat(e.getMessage()).startsWith("Tag 'Java Eight' is invalid");
     }
   }
 
