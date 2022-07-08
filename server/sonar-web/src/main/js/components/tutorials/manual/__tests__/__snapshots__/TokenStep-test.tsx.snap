@@ -35,28 +35,30 @@ exports[`generates token 1`] = `
             className="big-spacer-top"
           >
             <form
-              className="display-flex-column"
+              className="display-flex-center"
               onSubmit={[Function]}
             >
-              <label
-                className="h3"
-                htmlFor="generate-token-input"
+              <div
+                className="display-flex-column"
               >
-                onboarding.token.generate_project_token.label
-                <DocumentationTooltip
-                  className="spacer-left"
-                  content="onboarding.token.generate_project_token.help"
-                  links={
-                    Array [
-                      Object {
-                        "href": "/documentation/user-guide/user-token/",
-                        "label": "learn_more",
-                      },
-                    ]
-                  }
-                />
-              </label>
-              <div>
+                <label
+                  className="h3"
+                  htmlFor="generate-token-input"
+                >
+                  onboarding.token.generate_project_token.label
+                  <DocumentationTooltip
+                    className="spacer-left"
+                    content="onboarding.token.generate_project_token.help"
+                    links={
+                      Array [
+                        Object {
+                          "href": "/documentation/user-guide/user-token/",
+                          "label": "learn_more",
+                        },
+                      ]
+                    }
+                  />
+                </label>
                 <input
                   autoFocus={true}
                   className="input-super-large spacer-right spacer-top text-middle"
@@ -66,12 +68,58 @@ exports[`generates token 1`] = `
                   type="text"
                   value=""
                 />
-                <SubmitButton
-                  className="text-middle spacer-top"
-                  disabled={true}
+              </div>
+              <div
+                className="display-flex-column spacer-left big-spacer-right"
+              >
+                <label
+                  className="h3"
+                  htmlFor="token-select-expiration"
                 >
-                  onboarding.token.generate
-                </SubmitButton>
+                  users.tokens.expires_in
+                </label>
+                <div
+                  className="display-flex-center"
+                >
+                  <Select
+                    className="spacer-top abs-width-100 spacer-right"
+                    id="token-select-expiration"
+                    isSearchable={false}
+                    onChange={[Function]}
+                    options={
+                      Array [
+                        Object {
+                          "label": "users.tokens.expiration.30",
+                          "value": 30,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.90",
+                          "value": 90,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.365",
+                          "value": 365,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.0",
+                          "value": 0,
+                        },
+                      ]
+                    }
+                    value={
+                      Object {
+                        "label": "users.tokens.expiration.30",
+                        "value": 30,
+                      }
+                    }
+                  />
+                  <SubmitButton
+                    className="text-middle spacer-top"
+                    disabled={true}
+                  >
+                    onboarding.token.generate
+                  </SubmitButton>
+                </div>
               </div>
             </form>
           </div>
@@ -146,28 +194,30 @@ exports[`generates token 2`] = `
             className="big-spacer-top"
           >
             <form
-              className="display-flex-column"
+              className="display-flex-center"
               onSubmit={[Function]}
             >
-              <label
-                className="h3"
-                htmlFor="generate-token-input"
+              <div
+                className="display-flex-column"
               >
-                onboarding.token.generate_project_token.label
-                <DocumentationTooltip
-                  className="spacer-left"
-                  content="onboarding.token.generate_project_token.help"
-                  links={
-                    Array [
-                      Object {
-                        "href": "/documentation/user-guide/user-token/",
-                        "label": "learn_more",
-                      },
-                    ]
-                  }
-                />
-              </label>
-              <div>
+                <label
+                  className="h3"
+                  htmlFor="generate-token-input"
+                >
+                  onboarding.token.generate_project_token.label
+                  <DocumentationTooltip
+                    className="spacer-left"
+                    content="onboarding.token.generate_project_token.help"
+                    links={
+                      Array [
+                        Object {
+                          "href": "/documentation/user-guide/user-token/",
+                          "label": "learn_more",
+                        },
+                      ]
+                    }
+                  />
+                </label>
                 <input
                   autoFocus={true}
                   className="input-super-large spacer-right spacer-top text-middle"
@@ -177,9 +227,55 @@ exports[`generates token 2`] = `
                   type="text"
                   value="my token"
                 />
-                <i
-                  className="spinner text-middle"
-                />
+              </div>
+              <div
+                className="display-flex-column spacer-left big-spacer-right"
+              >
+                <label
+                  className="h3"
+                  htmlFor="token-select-expiration"
+                >
+                  users.tokens.expires_in
+                </label>
+                <div
+                  className="display-flex-center"
+                >
+                  <Select
+                    className="spacer-top abs-width-100 spacer-right"
+                    id="token-select-expiration"
+                    isSearchable={false}
+                    onChange={[Function]}
+                    options={
+                      Array [
+                        Object {
+                          "label": "users.tokens.expiration.30",
+                          "value": 30,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.90",
+                          "value": 90,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.365",
+                          "value": 365,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.0",
+                          "value": 0,
+                        },
+                      ]
+                    }
+                    value={
+                      Object {
+                        "label": "users.tokens.expiration.30",
+                        "value": 30,
+                      }
+                    }
+                  />
+                  <i
+                    className="spinner text-middle"
+                  />
+                </div>
               </div>
             </form>
           </div>
@@ -475,28 +571,30 @@ exports[`revokes token 3`] = `
             className="big-spacer-top"
           >
             <form
-              className="display-flex-column"
+              className="display-flex-center"
               onSubmit={[Function]}
             >
-              <label
-                className="h3"
-                htmlFor="generate-token-input"
+              <div
+                className="display-flex-column"
               >
-                onboarding.token.generate_project_token.label
-                <DocumentationTooltip
-                  className="spacer-left"
-                  content="onboarding.token.generate_project_token.help"
-                  links={
-                    Array [
-                      Object {
-                        "href": "/documentation/user-guide/user-token/",
-                        "label": "learn_more",
-                      },
-                    ]
-                  }
-                />
-              </label>
-              <div>
+                <label
+                  className="h3"
+                  htmlFor="generate-token-input"
+                >
+                  onboarding.token.generate_project_token.label
+                  <DocumentationTooltip
+                    className="spacer-left"
+                    content="onboarding.token.generate_project_token.help"
+                    links={
+                      Array [
+                        Object {
+                          "href": "/documentation/user-guide/user-token/",
+                          "label": "learn_more",
+                        },
+                      ]
+                    }
+                  />
+                </label>
                 <input
                   autoFocus={true}
                   className="input-super-large spacer-right spacer-top text-middle"
@@ -506,12 +604,58 @@ exports[`revokes token 3`] = `
                   type="text"
                   value=""
                 />
-                <SubmitButton
-                  className="text-middle spacer-top"
-                  disabled={true}
+              </div>
+              <div
+                className="display-flex-column spacer-left big-spacer-right"
+              >
+                <label
+                  className="h3"
+                  htmlFor="token-select-expiration"
                 >
-                  onboarding.token.generate
-                </SubmitButton>
+                  users.tokens.expires_in
+                </label>
+                <div
+                  className="display-flex-center"
+                >
+                  <Select
+                    className="spacer-top abs-width-100 spacer-right"
+                    id="token-select-expiration"
+                    isSearchable={false}
+                    onChange={[Function]}
+                    options={
+                      Array [
+                        Object {
+                          "label": "users.tokens.expiration.30",
+                          "value": 30,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.90",
+                          "value": 90,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.365",
+                          "value": 365,
+                        },
+                        Object {
+                          "label": "users.tokens.expiration.0",
+                          "value": 0,
+                        },
+                      ]
+                    }
+                    value={
+                      Object {
+                        "label": "users.tokens.expiration.30",
+                        "value": 30,
+                      }
+                    }
+                  />
+                  <SubmitButton
+                    className="text-middle spacer-top"
+                    disabled={true}
+                  >
+                    onboarding.token.generate
+                  </SubmitButton>
+                </div>
               </div>
             </form>
           </div>

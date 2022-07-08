@@ -358,9 +358,14 @@ th.huge-spacer-right {
   width: 10% !important;
 }
 
+.abs-width-100 {
+  width: 100px !important;
+}
+
 .abs-width-150 {
   width: 150px !important;
 }
+
 .abs-width-240 {
   width: 240px !important;
 }

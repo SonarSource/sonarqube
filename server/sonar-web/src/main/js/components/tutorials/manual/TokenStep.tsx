@@ -25,9 +25,15 @@ import { Button, DeleteButton, SubmitButton } from '../../../components/controls
 import Radio from '../../../components/controls/Radio';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate } from '../../../helpers/l10n';
-import { TokenType, UserToken } from '../../../types/token';
+import {
+  computeTokenExpirationDate,
+  EXPIRATION_OPTIONS,
+  getAvailableExpirationOptions
+} from '../../../helpers/tokens';
+import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
+import Select from '../../controls/Select';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
@@ -50,6 +56,8 @@ interface State {
   tokenName?: string;
   token?: string;
   tokens?: UserToken[];
+  tokenExpiration: TokenExpiration;
+  tokenExpirationOptions: { value: TokenExpiration; label: string }[];
 }
 
 const TOKEN_FORMAT_REGEX = /^[_a-z0-9]+$/;
@@ -63,7 +71,9 @@ export default class TokenStep extends React.PureComponent<Props, State> {
       existingToken: '',
       loading: false,
       selection: 'generate',
-      tokenName: props.initialTokenName
+      tokenName: props.initialTokenName,
+      tokenExpiration: TokenExpiration.OneMonth,
+      tokenExpirationOptions: EXPIRATION_OPTIONS
     };
   }
 
@@ -71,6 +81,11 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     this.mounted = true;
     const { currentUser, initialTokenName } = this.props;
     const { tokenName } = this.state;
+
+    const tokenExpirationOptions = await getAvailableExpirationOptions();
+    if (tokenExpirationOptions && this.mounted) {
+      this.setState({ tokenExpirationOptions });
+    }
 
     const tokens = await getTokens(currentUser.login).catch(() => {
       /* noop */
@@ -104,9 +119,13 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     this.setState({ tokenName: event.target.value });
   };
 
+  handleTokenExpirationChange = ({ value }: { value: TokenExpiration }) => {
+    this.setState({ tokenExpiration: value });
+  };
+
   handleTokenGenerate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { tokenName } = this.state;
+    const { tokenName, tokenExpiration } = this.state;
     const { projectKey } = this.props;
 
     if (tokenName) {
@@ -115,7 +134,10 @@ export default class TokenStep extends React.PureComponent<Props, State> {
         const { token } = await generateToken({
           name: tokenName,
           type: TokenType.Project,
-          projectKey
+          projectKey,
+          ...(tokenExpiration !== TokenExpiration.NoExpiration && {
+            expirationDate: computeTokenExpirationDate(tokenExpiration)
+          })
         });
         if (this.mounted) {
           this.setState({ loading: false, token });
@@ -159,57 +181,83 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     }
   };
 
-  renderGenerateOption = () => (
-    <div>
-      {this.state.tokens !== undefined && this.state.tokens.length > 0 ? (
-        <Radio
-          checked={this.state.selection === 'generate'}
-          onCheck={this.handleModeChange}
-          value="generate">
-          {translate('onboarding.token.generate_project_token')}
-        </Radio>
-      ) : (
-        translate('onboarding.token.generate_project_token')
-      )}
-      {this.state.selection === 'generate' && (
-        <div className="big-spacer-top">
-          <form className="display-flex-column" onSubmit={this.handleTokenGenerate}>
-            <label className="h3" htmlFor="generate-token-input">
-              {translate('onboarding.token.generate_project_token.label')}
-              <DocumentationTooltip
-                className="spacer-left"
-                content={translate('onboarding.token.generate_project_token.help')}
-                links={[
-                  {
-                    href: '/documentation/user-guide/user-token/',
-                    label: translate('learn_more')
-                  }
-                ]}
-              />
-            </label>
-            <div>
-              <input
-                id="generate-token-input"
-                autoFocus={true}
-                className="input-super-large spacer-right spacer-top text-middle"
-                onChange={this.handleTokenNameChange}
-                required={true}
-                type="text"
-                value={this.state.tokenName || ''}
-              />
-              {this.state.loading ? (
-                <i className="spinner text-middle" />
-              ) : (
-                <SubmitButton className="text-middle spacer-top" disabled={!this.state.tokenName}>
-                  {translate('onboarding.token.generate')}
-                </SubmitButton>
-              )}
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+  renderGenerateOption = () => {
+    const {
+      loading,
+      selection,
+      tokens,
+      tokenName,
+      tokenExpiration,
+      tokenExpirationOptions
+    } = this.state;
+    return (
+      <div>
+        {tokens !== undefined && tokens.length > 0 ? (
+          <Radio
+            checked={selection === 'generate'}
+            onCheck={this.handleModeChange}
+            value="generate">
+            {translate('onboarding.token.generate_project_token')}
+          </Radio>
+        ) : (
+          translate('onboarding.token.generate_project_token')
+        )}
+        {selection === 'generate' && (
+          <div className="big-spacer-top">
+            <form className="display-flex-center" onSubmit={this.handleTokenGenerate}>
+              <div className="display-flex-column">
+                <label className="h3" htmlFor="generate-token-input">
+                  {translate('onboarding.token.generate_project_token.label')}
+                  <DocumentationTooltip
+                    className="spacer-left"
+                    content={translate('onboarding.token.generate_project_token.help')}
+                    links={[
+                      {
+                        href: '/documentation/user-guide/user-token/',
+                        label: translate('learn_more')
+                      }
+                    ]}
+                  />
+                </label>
+                <input
+                  id="generate-token-input"
+                  autoFocus={true}
+                  className="input-super-large spacer-right spacer-top text-middle"
+                  onChange={this.handleTokenNameChange}
+                  required={true}
+                  type="text"
+                  value={tokenName || ''}
+                />
+              </div>
+              <div className="display-flex-column spacer-left big-spacer-right">
+                <label htmlFor="token-select-expiration" className="h3">
+                  {translate('users.tokens.expires_in')}
+                </label>
+                <div className="display-flex-center">
+                  <Select
+                    id="token-select-expiration"
+                    className="spacer-top abs-width-100 spacer-right"
+                    isSearchable={false}
+                    onChange={this.handleTokenExpirationChange}
+                    options={tokenExpirationOptions}
+                    value={tokenExpirationOptions.find(option => option.value === tokenExpiration)}
+                  />
+
+                  {loading ? (
+                    <i className="spinner text-middle" />
+                  ) : (
+                    <SubmitButton className="text-middle spacer-top" disabled={!tokenName}>
+                      {translate('onboarding.token.generate')}
+                    </SubmitButton>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   renderUseExistingOption = () => {
     const { existingToken } = this.state;

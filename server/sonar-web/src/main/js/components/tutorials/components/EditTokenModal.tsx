@@ -27,15 +27,23 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { TokenType } from '../../../types/token';
+import {
+  computeTokenExpirationDate,
+  EXPIRATION_OPTIONS,
+  getAvailableExpirationOptions
+} from '../../../helpers/tokens';
+import { TokenExpiration, TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
+import Select from '../../controls/Select';
 import { getUniqueTokenName } from '../utils';
 
 interface State {
   loading: boolean;
   token?: string;
   tokenName: string;
+  tokenExpiration: TokenExpiration;
+  tokenExpirationOptions: { value: TokenExpiration; label: string }[];
 }
 
 interface Props {
@@ -48,12 +56,15 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     loading: true,
-    tokenName: ''
+    tokenName: '',
+    tokenExpiration: TokenExpiration.OneMonth,
+    tokenExpirationOptions: EXPIRATION_OPTIONS
   };
 
   componentDidMount() {
     this.mounted = true;
     this.getTokensAndName();
+    this.getTokenExpirationOptions();
   }
 
   componentWillUnmount() {
@@ -73,16 +84,26 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     }
   };
 
+  getTokenExpirationOptions = async () => {
+    const tokenExpirationOptions = await getAvailableExpirationOptions();
+    if (tokenExpirationOptions && this.mounted) {
+      this.setState({ tokenExpirationOptions });
+    }
+  };
+
   getNewToken = async () => {
     const {
       component: { key }
     } = this.props;
-    const { tokenName } = this.state;
+    const { tokenName, tokenExpiration } = this.state;
 
     const { token } = await generateToken({
       name: tokenName,
       type: TokenType.Project,
-      projectKey: key
+      projectKey: key,
+      ...(tokenExpiration !== TokenExpiration.NoExpiration && {
+        expirationDate: computeTokenExpirationDate(tokenExpiration)
+      })
     });
 
     if (this.mounted) {
@@ -93,10 +114,14 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     }
   };
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleTokenNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       tokenName: event.target.value
     });
+  };
+
+  handleTokenExpirationChange = ({ value }: { value: TokenExpiration }) => {
+    this.setState({ tokenExpiration: value });
   };
 
   handleTokenRevoke = async () => {
@@ -115,7 +140,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { loading, token, tokenName } = this.state;
+    const { loading, token, tokenName, tokenExpiration, tokenExpirationOptions } = this.state;
 
     const header = translate('onboarding.token.generate_project_token');
 
@@ -161,25 +186,49 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                   </Alert>
                 </>
               ) : (
-                <div className="big-spacer-top">
+                <div className="big-spacer-top display-flex-center">
                   {loading ? (
                     <DeferredSpinner />
                   ) : (
                     <>
-                      <input
-                        className="input-super-large spacer-right text-middle"
-                        onChange={this.handleChange}
-                        placeholder={translate('onboarding.token.generate_token.placeholder')}
-                        required={true}
-                        type="text"
-                        value={tokenName}
-                      />
-                      <Button
-                        className="text-middle"
-                        disabled={!tokenName}
-                        onClick={this.getNewToken}>
-                        {translate('onboarding.token.generate')}
-                      </Button>
+                      <div className="display-flex-column">
+                        <label className="text-bold little-spacer-bottom" htmlFor="token-name">
+                          {translate('onboarding.token.generate_token.placeholder')}
+                        </label>
+                        <input
+                          className="input-large spacer-right text-middle"
+                          onChange={this.handleTokenNameChange}
+                          required={true}
+                          id="token-name"
+                          type="text"
+                          value={tokenName}
+                        />
+                      </div>
+                      <div className="display-flex-column">
+                        <label
+                          className="text-bold little-spacer-bottom"
+                          htmlFor="token-expiration">
+                          {translate('users.tokens.expires_in')}
+                        </label>
+                        <div className="display-flex-center">
+                          <Select
+                            id="token-expiration"
+                            className="abs-width-100 spacer-right"
+                            isSearchable={false}
+                            onChange={this.handleTokenExpirationChange}
+                            options={tokenExpirationOptions}
+                            value={tokenExpirationOptions.find(
+                              option => option.value === tokenExpiration
+                            )}
+                          />
+                          <Button
+                            className="text-middle"
+                            disabled={!tokenName}
+                            onClick={this.getNewToken}>
+                            {translate('onboarding.token.generate')}
+                          </Button>
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>

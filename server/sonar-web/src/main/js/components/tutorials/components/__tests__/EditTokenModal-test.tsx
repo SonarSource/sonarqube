@@ -48,6 +48,18 @@ jest.mock('../../utils', () => ({
   getUniqueTokenName: jest.fn().mockReturnValue('lightsaber-9000')
 }));
 
+jest.mock('../../../../api/settings', () => {
+  return {
+    ...jest.requireActual('../../../../api/settings'),
+    getAllValues: jest.fn().mockResolvedValue([
+      {
+        key: 'sonar.auth.token.max.allowed.lifetime',
+        value: 'No expiration'
+      }
+    ])
+  };
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -97,7 +109,7 @@ it('should handle change on user input', () => {
   const wrapper = shallowRender();
   const instance = wrapper.instance();
 
-  instance.handleChange(mockEvent({ target: { value: 'my-token' } }));
+  instance.handleTokenNameChange(mockEvent({ target: { value: 'my-token' } }));
   expect(wrapper.state('tokenName')).toBe('my-token');
 });
 

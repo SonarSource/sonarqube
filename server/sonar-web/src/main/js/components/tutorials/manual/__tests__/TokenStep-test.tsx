@@ -30,6 +30,18 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: jest.fn().mockResolvedValue(null)
 }));
 
+jest.mock('../../../../api/settings', () => {
+  return {
+    ...jest.requireActual('../../../../api/settings'),
+    getAllValues: jest.fn().mockResolvedValue([
+      {
+        key: 'sonar.auth.token.max.allowed.lifetime',
+        value: 'No expiration'
+      }
+    ])
+  };
+});
+
 it('sets an initial token name', async () => {
   (getTokens as jest.Mock).mockResolvedValueOnce([{ name: 'fôo' }]);
   const wrapper = shallowRender({ initialTokenName: 'fôo' });
