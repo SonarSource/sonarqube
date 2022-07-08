@@ -26,31 +26,31 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
 import static org.sonar.db.CoreDbTester.createForSchema;
-import static org.sonar.server.platform.db.migration.version.v96.AddGenericConceptsColumnToRuleTable.COLUMN_GENERIC_CONCEPTS_KEY;
-import static org.sonar.server.platform.db.migration.version.v96.AddGenericConceptsColumnToRuleTable.RULE_TABLE;
+import static org.sonar.server.platform.db.migration.version.v96.AddEducationPrinciplesColumnToRuleTable.COLUMN_EDUCATION_PRINCIPLES_KEY;
+import static org.sonar.server.platform.db.migration.version.v96.AddEducationPrinciplesColumnToRuleTable.RULE_TABLE;
 
-public class AddGenericConceptsColumnToRuleTableTest {
+public class AddEducationPrinciplesColumnToRuleTableTest {
   @Rule
-  public final CoreDbTester db = createForSchema(AddGenericConceptsColumnToRuleTableTest.class, "schema.sql");
+  public final CoreDbTester db = createForSchema(AddEducationPrinciplesColumnToRuleTableTest.class, "schema.sql");
 
-  private final AddGenericConceptsColumnToRuleTable addGenericConceptsColumnToRuleTable = new AddGenericConceptsColumnToRuleTable(db.database());
+  private final AddEducationPrinciplesColumnToRuleTable addEducationPrinciplesColumnToRuleTable = new AddEducationPrinciplesColumnToRuleTable(db.database());
 
   @Test
-  public void column_generic_concepts_should_be_added() throws SQLException {
-    db.assertColumnDoesNotExist(RULE_TABLE, COLUMN_GENERIC_CONCEPTS_KEY);
+  public void column_education_principles_should_be_added() throws SQLException {
+    db.assertColumnDoesNotExist(RULE_TABLE, COLUMN_EDUCATION_PRINCIPLES_KEY);
 
-    addGenericConceptsColumnToRuleTable.execute();
+    addEducationPrinciplesColumnToRuleTable.execute();
 
-    db.assertColumnDefinition(RULE_TABLE, COLUMN_GENERIC_CONCEPTS_KEY, Types.VARCHAR, 255, true);
+    db.assertColumnDefinition(RULE_TABLE, COLUMN_EDUCATION_PRINCIPLES_KEY, Types.VARCHAR, 255, true);
   }
 
   @Test
   public void migration_should_be_reentrant() throws SQLException {
-    db.assertColumnDoesNotExist(RULE_TABLE, COLUMN_GENERIC_CONCEPTS_KEY);
+    db.assertColumnDoesNotExist(RULE_TABLE, COLUMN_EDUCATION_PRINCIPLES_KEY);
 
-    addGenericConceptsColumnToRuleTable.execute();
-    addGenericConceptsColumnToRuleTable.execute();
+    addEducationPrinciplesColumnToRuleTable.execute();
+    addEducationPrinciplesColumnToRuleTable.execute();
 
-    db.assertColumnDefinition(RULE_TABLE, COLUMN_GENERIC_CONCEPTS_KEY, Types.VARCHAR, 255, true);
+    db.assertColumnDefinition(RULE_TABLE, COLUMN_EDUCATION_PRINCIPLES_KEY, Types.VARCHAR, 255, true);
   }
 }

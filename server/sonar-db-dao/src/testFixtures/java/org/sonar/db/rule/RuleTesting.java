@@ -119,7 +119,7 @@ public class RuleTesting {
       .setCreatedAt(currentTimeMillis)
       .setUpdatedAt(currentTimeMillis + 5)
       .setScope(Scope.MAIN)
-      .setGenericConcepts(Set.of(randomAlphanumeric(5), randomAlphanumeric(5)));
+      .setEducationPrinciples(Set.of(randomAlphanumeric(5), randomAlphanumeric(5)));
   }
 
   public static RuleParamDto newRuleParam(RuleDto rule) {

@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class DismissNoticeAction implements UsersWsAction {
 
-  public static final String GENERIC_CONCEPTS = "genericConcepts";
+  public static final String EDUCATION_PRINCIPLES = "educationPrinciples";
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
 
   private final UserSession userSession;
@@ -54,8 +54,8 @@ public class DismissNoticeAction implements UsersWsAction {
 
     action.createParam("notice")
       .setDescription("notice key to dismiss")
-      .setExampleValue(GENERIC_CONCEPTS)
-      .setPossibleValues(GENERIC_CONCEPTS);
+      .setExampleValue(EDUCATION_PRINCIPLES)
+      .setPossibleValues(EDUCATION_PRINCIPLES);
   }
 
   @Override

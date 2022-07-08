@@ -130,7 +130,7 @@ public class ShowActionTest {
     assertThat(resultRule.getParams().getParamsList())
       .extracting(Rule.Param::getKey, Rule.Param::getHtmlDesc, Rule.Param::getDefaultValue)
       .containsExactlyInAnyOrder(tuple(ruleParam.getName(), ruleParam.getDescription(), ruleParam.getDefaultValue()));
-    assertThat(resultRule.getGenericConcepts().getGenericConceptsList()).containsExactlyElementsOf(rule.getGenericConcepts());
+    assertThat(resultRule.getEducationPrinciples().getEducationPrinciplesList()).containsExactlyElementsOf(rule.getEducationPrinciples());
   }
 
   @Test

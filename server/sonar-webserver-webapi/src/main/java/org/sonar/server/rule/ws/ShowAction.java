@@ -80,7 +80,7 @@ public class ShowAction implements RulesWsAction {
         new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
         new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
         new Change("9.6", "'descriptionSections' can optionally embed a context field"),
-        new Change("9.6", "'genericConcepts' has been added")
+        new Change("9.6", "'educationPrinciples' has been added")
       );
 
     action

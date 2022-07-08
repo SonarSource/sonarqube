@@ -120,7 +120,7 @@ public class XooRulesDefinition implements RulesDefinition {
     oneIssuePerLine
       .setDebtRemediationFunction(oneIssuePerLine.debtRemediationFunctions().linear("1min"))
       .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code")
-      .addGenericConceptKeys("defense_in_depth", "least_trust_principle");
+      .addEducationPrincipleKeys("defense_in_depth", "least_trust_principle");
 
     NewRule oneQuickFixPerLine = repo.createRule(OneQuickFixPerLineSensor.RULE_KEY).setName("One Quick Fix Per Line")
       .setTags("line");

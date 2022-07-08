@@ -244,7 +244,7 @@ public class RegisterRulesTest {
     assertThat(rule.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(rule.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
     assertThat(rule.isAdHoc()).isFalse();
-    assertThat(rule.getGenericConcepts()).containsOnly("concept1", "concept2", "concept3");
+    assertThat(rule.getEducationPrinciples()).containsOnly("concept1", "concept2", "concept3");
   }
 
   @Test
@@ -414,7 +414,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
-    assertThat(rule1.getGenericConcepts()).containsOnly("concept1","concept4");
+    assertThat(rule1.getEducationPrinciples()).containsOnly("concept1","concept4");
   }
 
   @Test
@@ -1209,7 +1209,7 @@ public class RegisterRulesTest {
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("java.S115.effortToFix")
-        .addGenericConceptKeys("concept1", "concept2", "concept3");
+        .addEducationPrincipleKeys("concept1", "concept2", "concept3");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default1");
@@ -1248,7 +1248,7 @@ public class RegisterRulesTest {
         .setType(RuleType.BUG)
         .setStatus(READY)
         .setGapDescription("java.S115.effortToFix.v2")
-        .addGenericConceptKeys("concept1", "concept4");
+        .addEducationPrincipleKeys("concept1", "concept4");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));
       rule1.createParam("param1").setDescription("parameter one v2").setDefaultValue("default1 v2");
       rule1.createParam("param2").setDescription("parameter two v2").setDefaultValue("default2 v2");
@@ -1288,7 +1288,7 @@ public class RegisterRulesTest {
         .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
-        .addGenericConceptKeys("concept1", "concept2", "concept3");
+        .addEducationPrincipleKeys("concept1", "concept2", "concept3");
 
       repo.createRule(EXTERNAL_HOTSPOT_RULE_KEY.rule())
         .setName("Hotspot")

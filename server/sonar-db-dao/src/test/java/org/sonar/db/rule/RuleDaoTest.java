@@ -237,7 +237,7 @@ public class RuleDaoTest {
     assertThat(actual.getAdHocType()).isEqualTo(expected.getAdHocType());
     assertThat(actual.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .containsExactlyInAnyOrderElementsOf(expected.getRuleDescriptionSectionDtos());
-    assertThat(actual.getGenericConcepts()).isEqualTo(expected.getGenericConcepts());
+    assertThat(actual.getEducationPrinciples()).isEqualTo(expected.getEducationPrinciples());
   }
 
   @Test

@@ -60,7 +60,7 @@ public class RuleDto {
   private String ruleKey = null;
 
   private final Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = new HashSet<>();
-  private String genericConceptsField = null;
+  private String educationPrinciplesField = null;
 
   /**
    * Description format can be null on external rule, otherwise it should never be null
@@ -237,12 +237,12 @@ public class RuleDto {
     return Objects.equals(contextKey, otherContextKey);
   }
 
-  public Set<String> getGenericConcepts() {
-    return deserializeStringSet(genericConceptsField);
+  public Set<String> getEducationPrinciples() {
+    return deserializeStringSet(educationPrinciplesField);
   }
 
-  public RuleDto setGenericConcepts(Set<String> genericConcepts){
-    this.genericConceptsField = serializeStringSet(genericConcepts);
+  public RuleDto setEducationPrinciples(Set<String> educationPrinciples){
+    this.educationPrinciplesField = serializeStringSet(educationPrinciples);
     return this;
   }
 

@@ -28,22 +28,22 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddGenericConceptsColumnToRuleTable extends DdlChange {
+public class AddEducationPrinciplesColumnToRuleTable extends DdlChange {
 
-  static final String COLUMN_GENERIC_CONCEPTS_KEY = "generic_concepts";
+  static final String COLUMN_EDUCATION_PRINCIPLES_KEY = "education_principles";
 
   static final String RULE_TABLE = "rules";
 
-  public AddGenericConceptsColumnToRuleTable(Database db) {
+  public AddEducationPrinciplesColumnToRuleTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(DdlChange.Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.tableColumnExists(connection, RULE_TABLE, COLUMN_GENERIC_CONCEPTS_KEY)) {
+      if (!DatabaseUtils.tableColumnExists(connection, RULE_TABLE, COLUMN_EDUCATION_PRINCIPLES_KEY)) {
         context.execute(new AddColumnsBuilder(getDialect(), RULE_TABLE)
-          .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_GENERIC_CONCEPTS_KEY).setIsNullable(true).setLimit(255).build())
+          .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_EDUCATION_PRINCIPLES_KEY).setIsNullable(true).setLimit(255).build())
           .build());
       }
     }

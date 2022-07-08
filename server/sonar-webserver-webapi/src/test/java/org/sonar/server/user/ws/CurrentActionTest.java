@@ -88,22 +88,22 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void return_generic_concepts_seen() {
+  public void return_educationPrinciples_dismiss_notice() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.genericConcepts");
+    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.educationPrinciples");
     db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
 
     CurrentWsResponse response = call();
 
     assertThat(response.getDismissedNoticesMap().entrySet())
       .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("genericConcepts", true));
+      .contains(Tuple.tuple("educationPrinciples", true));
   }
 
   @Test
-  public void return_generic_concepts_not_seen() {
+  public void return_educationPrinciples_not_dismissed() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -111,7 +111,7 @@ public class CurrentActionTest {
 
     assertThat(response.getDismissedNoticesMap().entrySet())
       .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("genericConcepts", false));
+      .contains(Tuple.tuple("educationPrinciples", false));
   }
 
   @Test

@@ -50,7 +50,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.user.ws.DismissNoticeAction.GENERIC_CONCEPTS;
+import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
@@ -123,7 +123,7 @@ public class CurrentAction implements UsersWsAction {
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .setSonarLintAdSeen(user.isSonarlintAdSeen())
-      .putDismissedNotices(GENERIC_CONCEPTS, isNoticeDismissed(user, GENERIC_CONCEPTS));
+      .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES));
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);

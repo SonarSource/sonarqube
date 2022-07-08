@@ -33,7 +33,7 @@ public class DbVersion96 implements DbVersion {
       .add(6503, "Create unique uniq_rule_desc_sections", CreateIndexForRuleDescSections.class)
       .add(6504, "Add column 'expiration_date' to 'user_tokens'", AddExpirationDateColumnToUserTokens.class)
       .add(6505, "Add column 'rule_description_context_key' to 'issues'", AddRuleDescriptionContextKeyInIssuesTable.class)
-      .add(6506, "Add column 'generic_concepts' to 'rules'", AddGenericConceptsColumnToRuleTable.class)
+      .add(6506, "Add column 'education_principles' to 'rules'", AddEducationPrinciplesColumnToRuleTable.class)
     ;
   }
 }

@@ -123,7 +123,7 @@ message Rule {
   optional bool isExternal = 47;
   optional DeprecatedKeys deprecatedKeys = 48;
   optional DescriptionSections descriptionSections = 49;
-  optional GenericConcepts genericConcepts = 50;
+  optional EducationPrinciples educationPrinciples = 50;
 
   message DescriptionSections {
     repeated DescriptionSection descriptionSections = 1;
@@ -164,8 +164,8 @@ message Tags {
   repeated string tags = 1;
 }
 
-message GenericConcepts {
-  repeated string genericConcepts = 1;
+message EducationPrinciples {
+  repeated string educationPrinciples = 1;
 }
 
 message Actives {

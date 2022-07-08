@@ -44,16 +44,16 @@ public class DismissNoticeActionTest {
   private final WsActionTester tester = new WsActionTester(new DismissNoticeAction(userSessionRule, db.getDbClient()));
 
   @Test
-  public void dismiss_genericConcepts() {
+  public void dismiss_educationPrinciples() {
     userSessionRule.logIn();
 
     TestResponse testResponse = tester.newRequest()
-      .setParam("notice", "genericConcepts")
+      .setParam("notice", "educationPrinciples")
       .execute();
 
     assertThat(testResponse.getStatus()).isEqualTo(204);
 
-    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.genericConcepts");
+    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples");
     assertThat(propertyDto).isPresent();
   }
 
@@ -88,22 +88,22 @@ public class DismissNoticeActionTest {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [genericConcepts]");
+      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples]");
   }
 
 
   @Test
   public void notice_already_exist() {
     userSessionRule.logIn();
-    PropertyDto property = new PropertyDto().setKey("user.dismissedNotices.genericConcepts").setUserUuid(userSessionRule.getUuid());
+    PropertyDto property = new PropertyDto().setKey("user.dismissedNotices.educationPrinciples").setUserUuid(userSessionRule.getUuid());
     db.properties().insertProperties(userSessionRule.getLogin(), null, null, null, property);
 
     TestRequest testRequest = tester.newRequest()
-      .setParam("notice", "genericConcepts");
+      .setParam("notice", "educationPrinciples");
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Notice genericConcepts is already dismissed");
+      .hasMessage("Notice educationPrinciples is already dismissed");
   }
 
 
