@@ -45,6 +45,15 @@ export function getValues(
   ]);
 }
 
+export function getAllValues(
+  data: { component?: string } & BranchParameters = {}
+): Promise<SettingValue[]> {
+  return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
+    ...r.settings,
+    ...r.setSecuredSettings.map(key => ({ key }))
+  ]);
+}
+
 export function setSettingValue(
   definition: SettingDefinition,
   value: any,

@@ -20,17 +20,19 @@
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
-import { getValues } from '../../../api/settings';
 import { generateToken, getTokens } from '../../../api/user-tokens';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { SubmitButton } from '../../../components/controls/buttons';
 import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { now, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import {
+  computeTokenExpirationDate,
+  EXPIRATION_OPTIONS,
+  getAvailableExpirationOptions
+} from '../../../helpers/tokens';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
-import { SettingsKey } from '../../../types/settings';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
@@ -56,25 +58,6 @@ interface State {
   newTokenExpiration: TokenExpiration;
   tokenExpirationOptions: { value: TokenExpiration; label: string }[];
 }
-
-const EXPIRATION_OPTIONS = [
-  TokenExpiration.OneMonth,
-  TokenExpiration.ThreeMonths,
-  TokenExpiration.OneYear,
-  TokenExpiration.NoExpiration
-].map(value => {
-  return {
-    value,
-    label: translate('users.tokens.expiration', value.toString())
-  };
-});
-
-const SETTINGS_EXPIRATION_MAP: { [key: string]: TokenExpiration } = {
-  '30 days': TokenExpiration.OneMonth,
-  '90 days': TokenExpiration.ThreeMonths,
-  '1 year': TokenExpiration.OneYear,
-  'No expiration': TokenExpiration.NoExpiration
-};
 
 export class TokensForm extends React.PureComponent<Props, State> {
   mounted = false;
@@ -120,29 +103,9 @@ export class TokensForm extends React.PureComponent<Props, State> {
   };
 
   fetchTokenSettings = async () => {
-    /*
-     * We intentionally fetch all settings, because fetching a specific setting will
-     * return it from the DB as a fallback, even if the setting is not defined at startup.
-     */
-    const settings = await getValues({ keys: '' });
-    const maxTokenLifetime = settings.find(
-      ({ key }) => key === SettingsKey.TokenMaxAllowedLifetime
-    );
-
-    if (maxTokenLifetime === undefined || maxTokenLifetime.value === undefined) {
-      return;
-    }
-
-    const maxTokenExpirationOption = SETTINGS_EXPIRATION_MAP[maxTokenLifetime.value];
-
-    if (maxTokenExpirationOption !== TokenExpiration.NoExpiration) {
-      const tokenExpirationOptions = EXPIRATION_OPTIONS.filter(
-        option =>
-          option.value <= maxTokenExpirationOption && option.value !== TokenExpiration.NoExpiration
-      );
-      if (this.mounted) {
-        this.setState({ tokenExpirationOptions });
-      }
+    const tokenExpirationOptions = await getAvailableExpirationOptions();
+    if (this.mounted) {
+      this.setState({ tokenExpirationOptions });
     }
   };
 
@@ -158,12 +121,6 @@ export class TokensForm extends React.PureComponent<Props, State> {
     if (this.props.updateTokensCount) {
       this.props.updateTokensCount(this.props.login, this.state.tokens.length);
     }
-  };
-
-  getExpirationDate = (days: number): string => {
-    const expirationDate = now();
-    expirationDate.setDate(expirationDate.getDate() + days);
-    return toShortNotSoISOString(expirationDate);
   };
 
   handleGenerateToken = async (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -184,7 +141,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
         type: newTokenType,
         ...(newTokenType === TokenType.Project && { projectKey: selectedProject.key }),
         ...(newTokenExpiration !== TokenExpiration.NoExpiration && {
-          expirationDate: this.getExpirationDate(newTokenExpiration)
+          expirationDate: computeTokenExpirationDate(newTokenExpiration)
         })
       });
 

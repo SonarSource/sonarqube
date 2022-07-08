@@ -20,19 +20,15 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
-import { format } from 'date-fns';
 import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
-import { getValues } from '../../../api/settings';
-import { generateToken } from '../../../api/user-tokens';
 import { mockUserToken } from '../../../helpers/mocks/token';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
-import { SettingsKey } from '../../../types/settings';
-import { TokenExpiration, TokenType } from '../../../types/token';
+import { TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
@@ -50,7 +46,7 @@ jest.mock('../../../api/settings', () => {
   const { SettingsKey } = jest.requireActual('../../../types/settings');
   return {
     ...jest.requireActual('../../../api/settings'),
-    getValues: jest.fn().mockResolvedValue([
+    getAllValues: jest.fn().mockResolvedValue([
       {
         key: SettingsKey.TokenMaxAllowedLifetime,
         value: 'No expiration'
@@ -234,7 +230,6 @@ describe('security page', () => {
 
   beforeAll(() => {
     tokenMock = new UserTokensMock();
-    (getValues as jest.Mock).mockClear();
   });
 
   afterEach(() => {
@@ -242,133 +237,6 @@ describe('security page', () => {
   });
 
   const securityPagePath = 'account/security';
-
-  it.each([
-    [
-      '30 days',
-      [TokenExpiration.OneMonth],
-      [TokenExpiration.ThreeMonths, TokenExpiration.OneYear, TokenExpiration.NoExpiration]
-    ],
-    [
-      '90 days',
-      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths],
-      [TokenExpiration.OneYear, TokenExpiration.NoExpiration]
-    ],
-    [
-      '1 year',
-      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths, TokenExpiration.OneYear],
-      [TokenExpiration.NoExpiration]
-    ],
-    [
-      'No expiration',
-      [
-        TokenExpiration.OneMonth,
-        TokenExpiration.ThreeMonths,
-        TokenExpiration.OneYear,
-        TokenExpiration.NoExpiration
-      ],
-      []
-    ]
-  ])(
-    'should display expiration date inferior or equal to the settings limit %s',
-    async (settingMaxLifetime, expectedTime, notExpectedTime) => {
-      (getValues as jest.Mock).mockImplementationOnce(() =>
-        Promise.resolve([{ key: SettingsKey.TokenMaxAllowedLifetime, value: settingMaxLifetime }])
-      );
-
-      renderAccountApp(
-        mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-        securityPagePath
-      );
-
-      await selectEvent.openMenu(screen.getAllByRole('textbox')[2]);
-
-      expectedTime.forEach(time => {
-        // TokenExpiration.OneMonth is expected twice has it is the default value.
-        expect(screen.getAllByText(`users.tokens.expiration.${time}`).length).toBe(
-          time === TokenExpiration.OneMonth ? 2 : 1
-        );
-      });
-
-      notExpectedTime.forEach(time => {
-        expect(screen.queryByText(`users.tokens.expiration.${time}`)).not.toBeInTheDocument();
-      });
-    }
-  );
-
-  it('should handle absent setting', async () => {
-    (getValues as jest.Mock).mockImplementationOnce(() => Promise.resolve([]));
-
-    renderAccountApp(
-      mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
-    );
-
-    await selectEvent.openMenu(screen.getAllByRole('textbox')[2]);
-
-    [
-      TokenExpiration.OneMonth,
-      TokenExpiration.ThreeMonths,
-      TokenExpiration.OneYear,
-      TokenExpiration.NoExpiration
-    ].forEach(time => {
-      // TokenExpiration.OneMonth is expected twice has it is the default value.
-      expect(screen.getAllByText(`users.tokens.expiration.${time}`).length).toBe(
-        time === TokenExpiration.OneMonth ? 2 : 1
-      );
-    });
-  });
-
-  it.each([
-    [TokenExpiration.OneMonth, '2022-07-01'],
-    [TokenExpiration.ThreeMonths, '2022-08-30'],
-    [TokenExpiration.OneYear, '2023-06-01'],
-    [TokenExpiration.NoExpiration, undefined]
-  ])(
-    'should allow token creation with proper expiration date for %s days',
-    async (tokenExpirationTime, expectedTime) => {
-      const user = userEvent.setup();
-
-      renderAccountApp(
-        mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-        securityPagePath
-      );
-
-      // Add the token
-      const newTokenName = 'importantToken' + tokenExpirationTime;
-      const input = screen.getByPlaceholderText('users.tokens.enter_name');
-      const generateButton = screen.getByRole('button', { name: 'users.generate' });
-      expect(input).toBeInTheDocument();
-      await user.click(input);
-      await user.keyboard(newTokenName);
-
-      expect(generateButton).toBeDisabled();
-
-      const tokenTypeLabel = `users.tokens.${TokenType.User}`;
-      await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
-
-      const tokenExpirationLabel = `users.tokens.expiration.${tokenExpirationTime}`;
-      await selectEvent.select(screen.getAllByRole('textbox')[2], [tokenExpirationLabel]);
-
-      await user.click(generateButton);
-
-      expect(generateToken).toHaveBeenLastCalledWith({
-        name: newTokenName,
-        login: 'luke',
-        type: TokenType.User,
-        expirationDate: expectedTime
-      });
-
-      // ensure the list of tokens is updated
-      const rows = await screen.findAllByRole('row');
-      expect(rows).toHaveLength(4);
-      expect(rows.pop()).toHaveTextContent(
-        `${newTokenName}users.tokens.USER_TOKEN.shortneverApril 4, 2022${
-          expectedTime ? format(expectedTime, 'MMMM D, YYYY') : '–'
-        }users.tokens.revoke`
-      );
-    }
-  );
 
   it.each([
     ['user', TokenType.User],
