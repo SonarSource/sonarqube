@@ -142,10 +142,10 @@ export default class IssueViewerTabs extends React.PureComponent<Props, State> {
       {
         key: IssueTabKeys.MoreInfo,
         label: translate('issue.tabs', IssueTabKeys.MoreInfo),
-        content: (ruleDetails.genericConcepts ||
+        content: (ruleDetails.educationPrinciples ||
           descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
-            genericConcepts={ruleDetails.genericConcepts}
+            educationPrinciples={ruleDetails.educationPrinciples}
             sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         )

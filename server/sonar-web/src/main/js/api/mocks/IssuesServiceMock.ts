@@ -245,7 +245,7 @@ export default class IssuesServiceMock {
         rule: mockRuleDetails({
           key: parameters.key,
           name: 'Advanced rule',
-          genericConcepts: ['defense_in_depth'],
+          educationPrinciples: ['defense_in_depth'],
           descriptionSections: [
             { key: RuleDescriptionSections.INTRODUCTION, content: '<h1>Into</h1>' },
             { key: RuleDescriptionSections.ROOT_CAUSE, content: '<h1>Because</h1>' },

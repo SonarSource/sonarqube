@@ -108,10 +108,10 @@ export default class RuleViewerTabs extends React.PureComponent<Props, State> {
       {
         key: RuleTabKeys.MoreInfo,
         label: translate('coding_rules.description_section.title', RuleTabKeys.MoreInfo),
-        content: (ruleDetails.genericConcepts ||
+        content: (ruleDetails.educationPrinciples ||
           descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
           <MoreInfoRuleDescription
-            genericConcepts={ruleDetails.genericConcepts}
+            educationPrinciples={ruleDetails.educationPrinciples}
             sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
           />
         )

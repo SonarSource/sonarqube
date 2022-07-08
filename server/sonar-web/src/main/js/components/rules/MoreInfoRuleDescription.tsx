@@ -21,22 +21,25 @@ import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
-import DefenseInDepth from './genericConcepts/DefenseInDepth';
-import LeastTrustPrinciple from './genericConcepts/LeastTrustPrinciple';
+import DefenseInDepth from './educationPrinciples/DefenseInDepth';
+import LeastTrustPrinciple from './educationPrinciples/LeastTrustPrinciple';
 import RuleDescription from './RuleDescription';
 import './style.css';
 
 interface Props {
   sections?: RuleDescriptionSection[];
-  genericConcepts?: string[];
+  educationPrinciples?: string[];
 }
 
-const GENERIC_CONCPET_MAP: Dict<React.ComponentType> = {
+const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
   defense_in_depth: DefenseInDepth,
   least_trust_principle: LeastTrustPrinciple
 };
 
-export default function MoreInfoRuleDescription({ sections = [], genericConcepts = [] }: Props) {
+export default function MoreInfoRuleDescription({
+  sections = [],
+  educationPrinciples = []
+}: Props) {
   return (
     <>
       {sections.length > 0 && (
@@ -50,20 +53,20 @@ export default function MoreInfoRuleDescription({ sections = [], genericConcepts
         </>
       )}
 
-      {genericConcepts.length > 0 && (
+      {educationPrinciples.length > 0 && (
         <>
           <div className="big-padded-left big-padded-right rule-desc">
             <h2 className="null-spacer-top">
-              {translate('coding_rules.more_info.generic_concept.title')}
+              {translate('coding_rules.more_info.education_principles.title')}
             </h2>
           </div>
-          {genericConcepts.map(key => {
-            const Concept = GENERIC_CONCPET_MAP[key];
+          {educationPrinciples.map(key => {
+            const Concept = EDUCATION_PRINCIPLES_MAP[key];
             if (Concept === undefined) {
               return null;
             }
             return (
-              <div key={key} className="generic-concept rule-desc">
+              <div key={key} className="education-principles rule-desc">
                 <Concept />
               </div>
             );

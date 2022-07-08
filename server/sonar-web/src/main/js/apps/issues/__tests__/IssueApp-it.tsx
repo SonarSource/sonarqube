@@ -38,7 +38,7 @@ beforeEach(() => {
   handler = new IssuesServiceMock();
 });
 
-it('should show generic concpet', async () => {
+it('should show education principles', async () => {
   const user = userEvent.setup();
   renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
   await user.click(await screen.findByRole('button', { name: `issue.tabs.more_info` }));
