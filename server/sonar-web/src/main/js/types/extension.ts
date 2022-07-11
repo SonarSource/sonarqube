@@ -55,7 +55,7 @@ export interface ExtensionStartMethodParameter {
   };
   baseUrl: string;
   l10nBundle: L10nBundle;
-  // See SONAR-16207 and core-extension-governance/src/main/js/portfolios/components/Header.tsx
+  // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
   // for more information on why we're passing this as a prop to an extension.
   updateCurrentUserHomepage: (homepage: HomePage) => void;
 }

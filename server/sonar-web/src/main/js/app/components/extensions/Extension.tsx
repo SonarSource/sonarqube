@@ -81,7 +81,7 @@ export class Extension extends React.PureComponent<Props, State> {
       theme,
       baseUrl: getBaseUrl(),
       l10nBundle: getCurrentL10nBundle(),
-      // See SONAR-16207 and core-extension-governance/src/main/js/portfolios/components/Header.tsx
+      // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
       // for more information on why we're passing this as a prop to an extension.
       updateCurrentUserHomepage: this.props.updateCurrentUserHomepage,
       ...this.props.options

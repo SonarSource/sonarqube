@@ -99,7 +99,7 @@ yarn_cache_template: &YARN_CACHE_TEMPLATE
       cat \
         server/sonar-web/yarn.lock \
         server/sonar-docs/yarn.lock \
-        private/core-extension-governance/yarn.lock \
+        private/core-extension-enterprise-server/yarn.lock \
         private/core-extension-license/yarn.lock \
         private/core-extension-securityreport/yarn.lock
 
@@ -114,7 +114,7 @@ eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
       - server/sonar-web/eslint-report/
       - private/core-extension-securityreport/eslint-report/
       - private/core-extension-license/eslint-report/
-      - private/core-extension-governance/eslint-report/
+      - private/core-extension-enterprise-server/eslint-report/
       - private/core-extension-developer-server/eslint-report/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
@@ -124,7 +124,7 @@ jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
       - server/sonar-web/coverage/
       - private/core-extension-securityreport/coverage/
       - private/core-extension-license/coverage/
-      - private/core-extension-governance/coverage/
+      - private/core-extension-enterprise-server/coverage/
       - private/core-extension-developer-server/coverage/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
