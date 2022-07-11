@@ -164,7 +164,12 @@ it('should show rule advanced section with context', async () => {
   await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context_other' }));
   expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
-  expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
+
+  const productBoardLink = screen.getByRole('link', {
+    name: 'coding_rules.context.others.feedback_description.link'
+  });
+  expect(productBoardLink).toBeInTheDocument();
+  expect(productBoardLink).toHaveAttribute('target', '_blank');
 });
 
 it('should be able to extend the rule description', async () => {

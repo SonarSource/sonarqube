@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
 import CheckIcon from '../icons/CheckIcon';
 import ClearIcon from '../icons/ClearIcon';
@@ -41,24 +40,15 @@ export default function OtherContextOption() {
         </span>
       </p>
       <h2>{translate('coding_rules.context.others.title_feedback')}</h2>
-      <p>
-        <FormattedMessage
-          defaultMessage={translate('coding_rules.context.others.feedback_description')}
-          id="coding_rules.context.others.feedback_description"
-          values={{
-            link: (
-              <span className="display-block big-spacer-top big-spacer-bottom">
-                <a
-                  href="https://portal.productboard.com/sonarsource/3-sonarqube/submit-idea"
-                  rel="noopener noreferrer">
-                  {translate('coding_rules.context.others.feedback_description.link')}
-                  <DetachIcon className="spacer-left" />
-                </a>
-              </span>
-            )
-          }}
-        />
-      </p>
+      <p>{translate('coding_rules.context.others.feedback_description_1')}</p>
+      <a
+        href="https://portal.productboard.com/sonarsource/3-sonarqube/submit-idea"
+        rel="noopener noreferrer"
+        target="_blank">
+        {translate('coding_rules.context.others.feedback_description.link')}
+        <DetachIcon className="spacer-left" />
+      </a>
+      <p>{translate('coding_rules.context.others.feedback_description_2')}</p>
     </>
   );
 }
