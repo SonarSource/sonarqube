@@ -89,10 +89,7 @@ public class ExportAdHocRulesStep implements ComputationStep {
   }
 
   private static ProjectDump.AdHocRule convertToAdHocRule(ResultSet rs, ProjectDump.AdHocRule.Builder builder) throws SQLException {
-    rs.getString(9);
-    boolean metadataExistsForCurrentRule = !rs.wasNull();
-
-    builder
+    return builder
       .clear()
       .setRef(rs.getString(1))
       .setPluginKey(emptyIfNull(rs, 2))
@@ -101,17 +98,18 @@ public class ExportAdHocRulesStep implements ComputationStep {
       .setName(emptyIfNull(rs, 5))
       .setStatus(emptyIfNull(rs, 6))
       .setType(rs.getInt(7))
-      .setScope(rs.getString(8));
-    if (metadataExistsForCurrentRule) {
-      builder.setMetadata(ProjectDump.AdHocRule.RuleMetadata.newBuilder()
-        .setAdHocName(emptyIfNull(rs, 10))
-        .setAdHocDescription(emptyIfNull(rs, 11))
-        .setAdHocSeverity(emptyIfNull(rs, 12))
-        .setAdHocType(defaultIfNull(rs, 13, 0))
-        .build());
-    }
+      .setScope(rs.getString(8))
+      .setMetadata(buildMetadata(rs))
+      .build();
+  }
 
-    return builder.build();
+  private static ProjectDump.AdHocRule.RuleMetadata buildMetadata(ResultSet rs) throws SQLException {
+    return ProjectDump.AdHocRule.RuleMetadata.newBuilder()
+      .setAdHocName(emptyIfNull(rs, 9))
+      .setAdHocDescription(emptyIfNull(rs, 10))
+      .setAdHocSeverity(emptyIfNull(rs, 11))
+      .setAdHocType(defaultIfNull(rs, 12, 0))
+      .build();
   }
 
   @Override

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -47,7 +50,6 @@ import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
@@ -76,7 +78,6 @@ public class ExportAdHocRulesStepTest {
       .setExcludeFromPurge(true),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-3").setUuid("branch-3-uuid").setMergeBranchUuid("master")
       .setExcludeFromPurge(false));
-
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -107,9 +108,9 @@ public class ExportAdHocRulesStepTest {
   @Test
   public void execute_only_exports_ad_hoc_rules_that_reference_project_issue() {
     String differentProject = "diff-proj-uuid";
-    RuleDto rule1 = insertRule(RuleKey.of("plugin-1", "rule-1"), true, true);
-    RuleDto rule2 = insertRule(RuleKey.of("plugin-1", "rule-2"), true, true);
-    insertRule(RuleKey.of("plugin-1", "rule-3"), true, true);
+    RuleDto rule1 = insertAddHocRule( "rule-1");
+    RuleDto rule2 = insertAddHocRule( "rule-2");
+    insertAddHocRule( "rule-3");
     insertIssue(rule1, differentProject, differentProject);
     insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
 
@@ -117,16 +118,15 @@ public class ExportAdHocRulesStepTest {
 
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
-    assertThat(exportedRules).extracting(ProjectDump.AdHocRule::getPluginName, ProjectDump.AdHocRule::getPluginRuleKey)
-      .containsOnly(tuple("plugin-1", "rule-2"));
+    assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test
   public void execute_only_exports_rules_that_are_ad_hoc() {
-    RuleDto rule1 = insertRule(RuleKey.of("plugin-1", "rule-1"), false, false);
-    RuleDto rule2 = insertRule(RuleKey.of("plugin-1", "rule-2"), true, false);
-    RuleDto rule3 = insertRule(RuleKey.of("plugin-1", "rule-3"), true, true);
+    RuleDto rule1 = insertStandardRule("rule-1");
+    RuleDto rule2 = insertExternalRule("rule-2");
+    RuleDto rule3 = insertAddHocRule("rule-3");
     insertIssue(rule1, PROJECT_UUID, PROJECT_UUID);
     insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
     insertIssue(rule3, PROJECT_UUID, PROJECT_UUID);
@@ -135,17 +135,16 @@ public class ExportAdHocRulesStepTest {
 
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
-    assertThat(exportedRules).extracting(ProjectDump.AdHocRule::getPluginName, ProjectDump.AdHocRule::getPluginRuleKey)
-      .containsOnly(tuple("plugin-1", "rule-3"));
+    assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule3);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test
   public void execute_exports_ad_hoc_rules_that_are_referenced_by_issues_on_branches_excluded_from_purge() {
     when(projectHolder.branches()).thenReturn(BRANCHES);
-    RuleDto rule1 = insertRule(RuleKey.of("plugin-1", "rule-1"), true, true);
-    RuleDto rule2 = insertRule(RuleKey.of("plugin-1", "rule-2"), true, true);
-    RuleDto rule3 = insertRule(RuleKey.of("plugin-1", "rule-3"), true, true);
+    RuleDto rule1 = insertAddHocRule("rule-1");
+    RuleDto rule2 = insertAddHocRule("rule-2");
+    RuleDto rule3 = insertAddHocRule("rule-3");
     insertIssue(rule1, "branch-1-uuid", "branch-1-uuid");
     insertIssue(rule2, "branch-2-uuid", "branch-2-uuid");
     insertIssue(rule3, "branch-3-uuid", "branch-3-uuid");
@@ -154,16 +153,15 @@ public class ExportAdHocRulesStepTest {
 
     List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
     assertThat(exportedRules).hasSize(1);
-    assertThat(exportedRules).extracting(ProjectDump.AdHocRule::getPluginName, ProjectDump.AdHocRule::getPluginRuleKey)
-      .containsOnly(tuple("plugin-1", "rule-2"));
+    assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 ad-hoc rules exported");
   }
 
   @Test
   public void execute_throws_ISE_with_number_of_successful_exports_before_failure() {
-    RuleDto rule1 = insertRule(RuleKey.of("plugin-1", "rule-1"), true, true);
-    RuleDto rule2 = insertRule(RuleKey.of("plugin-1", "rule-2"), true, true);
-    RuleDto rule3 = insertRule(RuleKey.of("plugin-1", "rule-3"), true, true);
+    RuleDto rule1 = insertAddHocRule("rule-1");
+    RuleDto rule2 = insertAddHocRule("rule-2");
+    RuleDto rule3 = insertAddHocRule("rule-3");
     insertIssue(rule1, PROJECT_UUID, PROJECT_UUID);
     insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
     insertIssue(rule3, PROJECT_UUID, PROJECT_UUID);
@@ -206,17 +204,64 @@ public class ExportAdHocRulesStepTest {
       .setStatus("OPEN");
   }
 
-  private RuleDto insertRule(RuleKey ruleKey, boolean isExternal, boolean isAdHoc) {
-    dbTester.rules().insert(
-      new RuleDto()
-        .setRuleKey(ruleKey)
-        .setIsExternal(isExternal)
-        .setIsAdHoc(isAdHoc)
-        .setStatus(RuleStatus.READY)
-        .setScope(RuleDto.Scope.ALL));
+  private RuleDto insertExternalRule(String ruleName) {
+    RuleDto ruleDto = new RuleDto()
+      .setIsExternal(true)
+      .setIsAdHoc(false);
+    return insertRule(ruleName, ruleDto);
+  }
+
+  private RuleDto insertAddHocRule(String ruleName) {
+    RuleDto ruleDto = new RuleDto()
+      .setIsExternal(false)
+      .setIsAdHoc(true)
+      .setAdHocName("ad_hoc_rule" + RandomStringUtils.randomAlphabetic(10))
+      .setAdHocType(RuleType.VULNERABILITY)
+      .setAdHocSeverity(Severity.CRITICAL)
+      .setAdHocDescription("ad hoc description: " + RandomStringUtils.randomAlphanumeric(100));
+    return insertRule(ruleName, ruleDto);
+  }
+
+  private RuleDto insertStandardRule(String ruleName) {
+    RuleDto ruleDto = new RuleDto()
+      .setIsExternal(false)
+      .setIsAdHoc(false);
+    return insertRule(ruleName, ruleDto);
+  }
+
+  private RuleDto insertRule(String ruleName, RuleDto partiallyInitRuleDto) {
+    RuleKey ruleKey = RuleKey.of("plugin1", ruleName);
+    partiallyInitRuleDto
+      .setName("ruleName" + RandomStringUtils.randomAlphanumeric(10))
+      .setRuleKey(ruleKey)
+      .setPluginKey("pluginKey" + RandomStringUtils.randomAlphanumeric(10))
+      .setStatus(RuleStatus.READY)
+      .setScope(RuleDto.Scope.ALL);
+
+    dbTester.rules().insert(partiallyInitRuleDto);
     dbTester.commit();
     return dbTester.getDbClient().ruleDao().selectByKey(dbTester.getSession(), ruleKey)
       .orElseThrow(() -> new RuntimeException("insertAdHocRule failed"));
+  }
+
+  private static void assertProtobufAdHocRuleIsCorrectlyBuilt(ProjectDump.AdHocRule protobufAdHocRule, RuleDto source) {
+    assertThat(protobufAdHocRule.getName()).isEqualTo(source.getName());
+    assertThat(protobufAdHocRule.getRef()).isEqualTo(source.getUuid());
+    assertThat(protobufAdHocRule.getPluginKey()).isEqualTo(source.getPluginKey());
+    assertThat(protobufAdHocRule.getPluginRuleKey()).isEqualTo(source.getRuleKey());
+    assertThat(protobufAdHocRule.getPluginName()).isEqualTo(source.getRepositoryKey());
+    assertThat(protobufAdHocRule.getName()).isEqualTo(source.getName());
+    assertThat(protobufAdHocRule.getStatus()).isEqualTo(source.getStatus().name());
+    assertThat(protobufAdHocRule.getType()).isEqualTo(source.getType());
+    assertThat(protobufAdHocRule.getScope()).isEqualTo(source.getScope().name());
+    assertProtobufAdHocRuleIsCorrectlyBuilt(protobufAdHocRule.getMetadata(), source);
+  }
+
+  private static void assertProtobufAdHocRuleIsCorrectlyBuilt(ProjectDump.AdHocRule.RuleMetadata metadata, RuleDto expected) {
+    assertThat(metadata.getAdHocName()).isEqualTo(expected.getAdHocName());
+    assertThat(metadata.getAdHocDescription()).isEqualTo(expected.getAdHocDescription());
+    assertThat(metadata.getAdHocSeverity()).isEqualTo(expected.getAdHocSeverity());
+    assertThat(metadata.getAdHocType()).isEqualTo(expected.getAdHocType());
   }
 
 }
