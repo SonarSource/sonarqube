@@ -72,7 +72,7 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('radio', { name: 'Context 3' })).toBeInTheDocument();
   expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
   expect(
-    screen.getByRole('radio', { name: 'coding_rules.description_context_other' })
+    screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
   ).toBeInTheDocument();
   expect(screen.getByRole('radio', { name: 'Spring' })).toBeChecked();
 
@@ -81,7 +81,7 @@ it('should open issue and navigate', async () => {
   expect(screen.getByText('Context 2 content')).toBeInTheDocument();
 
   // Select the "other" context and check tab content
-  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context_other' }));
+  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context.other' }));
   expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();

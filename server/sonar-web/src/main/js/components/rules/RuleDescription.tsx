@@ -79,7 +79,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
 
     if (contexts.length > 0) {
       contexts.push({
-        displayName: translate('coding_rules.description_context_other'),
+        displayName: translate('coding_rules.description_context.other'),
         content: '',
         key: OTHERS_KEY
       });
@@ -125,24 +125,31 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           })}>
           <div className="rules-context-description">
             <h2 className="rule-contexts-title">
-              {translate('coding_rules.description_context_title')}
+              {translate('coding_rules.description_context.title')}
             </h2>
             {defaultContext && (
               <Alert variant="info" display="inline" className="big-spacer-bottom">
                 {translateWithParameters(
-                  'coding_rules.description_context_default_information',
+                  'coding_rules.description_context.default_information',
                   defaultContext.displayName
                 )}
               </Alert>
             )}
             <div>
               <RadioToggle
-                className="big-spacer-bottom"
                 name="filter"
                 onCheck={this.handleToggleContext}
                 options={options}
                 value={selectedContext.displayName}
               />
+              {selectedContext.key !== OTHERS_KEY && (
+                <h2>
+                  {translateWithParameters(
+                    'coding_rules.description_context.sub_title',
+                    selectedContext.displayName
+                  )}
+                </h2>
+              )}
             </div>
             {selectedContext.key === OTHERS_KEY ? (
               <OtherContextOption />
