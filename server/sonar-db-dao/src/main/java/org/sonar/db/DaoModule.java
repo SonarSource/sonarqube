@@ -63,6 +63,7 @@ import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -144,6 +145,7 @@ public class DaoModule extends Module {
     ProjectQgateAssociationDao.class,
     PropertiesDao.class,
     PurgeDao.class,
+    PushEventDao.class,
     QProfileChangeDao.class,
     QProfileEditGroupsDao.class,
     QProfileEditUsersDao.class,

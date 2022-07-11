@@ -63,6 +63,7 @@ import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -135,6 +136,7 @@ public class DbClient {
   private final ProjectLinkDao projectLinkDao;
   private final EventDao eventDao;
   private final EventComponentChangeDao eventComponentChangeDao;
+  private final PushEventDao pushEventDao;
   private final PurgeDao purgeDao;
   private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao gateConditionDao;
@@ -214,6 +216,7 @@ public class DbClient {
     projectLinkDao = getDao(map, ProjectLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     eventComponentChangeDao = getDao(map, EventComponentChangeDao.class);
+    pushEventDao = getDao(map, PushEventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
     qualityGateDao = getDao(map, QualityGateDao.class);
     qualityGateUserPermissionsDao = getDao(map, QualityGateUserPermissionsDao.class);
@@ -415,6 +418,10 @@ public class DbClient {
 
   public EventComponentChangeDao eventComponentChangeDao() {
     return eventComponentChangeDao;
+  }
+
+  public PushEventDao pushEventDao() {
+    return pushEventDao;
   }
 
   public PurgeDao purgeDao() {

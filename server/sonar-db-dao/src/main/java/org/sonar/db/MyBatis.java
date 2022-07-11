@@ -115,6 +115,8 @@ import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.ScrapPropertyDto;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
+import org.sonar.db.pushevent.PushEventDto;
+import org.sonar.db.pushevent.PushEventMapper;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationMapper;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -219,6 +221,7 @@ public class MyBatis {
     confBuilder.loadAlias("ProjectCountPerAnalysisPropertyValue", ProjectCountPerAnalysisPropertyValue.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
+    confBuilder.loadAlias("PushEvent", PushEventDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
@@ -286,6 +289,7 @@ public class MyBatis {
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,
       PurgeMapper.class,
+      PushEventMapper.class,
       QProfileChangeMapper.class,
       QProfileEditGroupsMapper.class,
       QProfileEditUsersMapper.class,

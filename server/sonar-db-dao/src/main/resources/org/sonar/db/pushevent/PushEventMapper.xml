@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.pushevent.PushEventMapper">
+
+  <sql id="pushEventColumns">
+    pe.uuid as uuid,
+    pe.project_uuid as projectUuid,
+    pe.payload as payload,
+    pe.created_at as createdAt
+  </sql>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO push_events (
+    uuid,
+    project_uuid,
+    payload,
+    created_at
+    )
+    VALUES (
+    #{uuid,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{payload,jdbcType=BLOB},
+    #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="selectByUuid" parameterType="String" resultType="PushEvent">
+    SELECT
+    <include refid="pushEventColumns"/>
+    FROM push_events pe
+    where
+    pe.uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
+
+</mapper>
