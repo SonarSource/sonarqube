@@ -80,11 +80,11 @@ interface State extends FormFields {
 }
 
 enum InputField {
-  addTags = 'bulk-change-addTags',
-  assignee = 'bulk-change-assignee',
-  removeTags = 'bulk-change-removeTags',
-  severity = 'bulk-change-severity',
-  type = 'bulk-change-type'
+  addTags = 'addTags',
+  assignee = 'assignee',
+  removeTags = 'removeTags',
+  severity = 'severity',
+  type = 'type'
 }
 
 export const MAX_PAGE_SIZE = 500;
@@ -262,8 +262,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     affected: number | undefined,
     input: React.ReactNode
   ) => (
-    <div className="modal-field" id={`issues-bulk-change-${field}`}>
-      <label htmlFor={field}>{translate(label)}</label>
+    <div className="modal-field">
+      <label htmlFor={`issues-bulk-change-${field}`}>{translate(label)}</label>
       {input}
       {affected !== undefined && this.renderAffected(affected)}
     </div>
@@ -281,7 +281,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <AssigneeSelect
-        inputId={field}
+        inputId={`issues-bulk-change-${field}`}
         currentUser={currentUser}
         issues={issues}
         onAssigneeSelect={this.handleAssigneeSelect}
@@ -315,7 +315,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const input = (
       <Select
         className="input-super-large"
-        inputId={field}
+        inputId={`issues-bulk-change-${field}`}
         isClearable={true}
         isSearchable={false}
         components={{
@@ -351,7 +351,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const input = (
       <Select
         className="input-super-large"
-        inputId={field}
+        inputId={`issues-bulk-change-${field}`}
         isClearable={true}
         isSearchable={false}
         onChange={this.handleSelectFieldChange('severity')}
@@ -388,7 +388,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const props = {
       className: 'input-super-large',
-      inputId: field,
+      inputId: `issues-bulk-change-${field}`,
       isClearable: true,
       defaultOptions: this.state.initialTags,
       isMulti: true,
