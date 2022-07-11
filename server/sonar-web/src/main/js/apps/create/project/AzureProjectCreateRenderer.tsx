@@ -49,7 +49,7 @@ export interface AzureProjectCreateRendererProps {
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
   searching?: boolean;
-  searchResults?: Dict<AzureRepository[]>;
+  searchResults?: AzureRepository[];
   searchQuery?: string;
   selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;

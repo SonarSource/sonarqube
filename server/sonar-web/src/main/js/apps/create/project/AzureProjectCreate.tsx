@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { groupBy } from 'lodash';
 import * as React from 'react';
 import {
   checkPersonalAccessTokenIsValid,
@@ -50,7 +49,7 @@ interface State {
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
   searching?: boolean;
-  searchResults?: Dict<AzureRepository[]>;
+  searchResults?: AzureRepository[];
   searchQuery?: string;
   selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;
@@ -163,20 +162,20 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     router.replace(location);
   };
 
-  handleOpenProject = async (projectKey: string) => {
+  handleOpenProject = async (projectName: string) => {
     if (this.state.searchResults) {
       return;
     }
 
     this.setState(({ loadingRepositories }) => ({
-      loadingRepositories: { ...loadingRepositories, [projectKey]: true }
+      loadingRepositories: { ...loadingRepositories, [projectName]: true }
     }));
 
-    const projectRepos = await this.fetchAzureRepositories(projectKey);
+    const projectRepos = await this.fetchAzureRepositories(projectName);
 
     this.setState(({ loadingRepositories, repositories }) => ({
-      loadingRepositories: { ...loadingRepositories, [projectKey]: false },
-      repositories: { ...repositories, [projectKey]: projectRepos }
+      loadingRepositories: { ...loadingRepositories, [projectName]: false },
+      repositories: { ...repositories, [projectName]: projectRepos }
     }));
   };
 
@@ -194,14 +193,17 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
     this.setState({ searching: true });
 
-    const results: AzureRepository[] = await searchAzureRepositories(settings.key, searchQuery)
+    const searchResults: AzureRepository[] = await searchAzureRepositories(
+      settings.key,
+      searchQuery
+    )
       .then(({ repositories }) => repositories)
       .catch(() => []);
 
     if (this.mounted) {
       this.setState({
         searching: false,
-        searchResults: groupBy(results, 'projectName'),
+        searchResults,
         searchQuery
       });
     }

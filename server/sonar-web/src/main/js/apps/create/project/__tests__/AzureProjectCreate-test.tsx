@@ -155,7 +155,7 @@ it('should handle searching for repositories', async () => {
   expect(searchAzureRepositories).toBeCalledWith('foo', query);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().searching).toBe(false);
-  expect(wrapper.state().searchResults).toEqual({ [repositories[0].projectName]: repositories });
+  expect(wrapper.state().searchResults).toEqual(repositories);
   expect(wrapper.state().searchQuery).toBe(query);
 
   // Ignore opening a project when search results are displayed

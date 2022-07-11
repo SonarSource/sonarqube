@@ -91,3 +91,79 @@ exports[`should render search results correctly: empty 1`] = `
   onboarding.create_project.azure.no_results
 </Alert>
 `;
+
+exports[`should render search results correctly: search results belonging to unknown projects 1`] = `
+<div>
+  <AzureProjectAccordion
+    importing={false}
+    key="p2 - result"
+    loading={false}
+    onOpen={[MockFunction]}
+    onSelectRepository={[MockFunction]}
+    project={
+      Object {
+        "description": "p2",
+        "name": "p2",
+      }
+    }
+    repositories={
+      Array [
+        Object {
+          "name": "Azure repo 1",
+          "projectName": "p2",
+        },
+      ]
+    }
+    startsOpen={true}
+  />
+  <AzureProjectAccordion
+    importing={false}
+    key="u1 - result"
+    loading={false}
+    onOpen={[MockFunction]}
+    onSelectRepository={[MockFunction]}
+    project={
+      Object {
+        "description": "onboarding.create_project.azure.search_results_for_project_X.u1",
+        "name": "u1",
+      }
+    }
+    repositories={
+      Array [
+        Object {
+          "name": "Unknown repository 1",
+          "projectName": "u1",
+        },
+      ]
+    }
+    startsOpen={true}
+  />
+  <AzureProjectAccordion
+    importing={false}
+    key="u2 - result"
+    loading={false}
+    onOpen={[MockFunction]}
+    onSelectRepository={[MockFunction]}
+    project={
+      Object {
+        "description": "onboarding.create_project.azure.search_results_for_project_X.u2",
+        "name": "u2",
+      }
+    }
+    repositories={
+      Array [
+        Object {
+          "name": "Unknown repository 2",
+          "projectName": "u2",
+        },
+      ]
+    }
+    startsOpen={true}
+  />
+  <ListFooter
+    count={3}
+    loadMore={[Function]}
+    total={3}
+  />
+</div>
+`;

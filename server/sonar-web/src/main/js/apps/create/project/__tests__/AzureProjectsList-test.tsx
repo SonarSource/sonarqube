@@ -35,11 +35,19 @@ it('should render search results correctly', () => {
     mockAzureProject({ name: 'p2', description: 'p2' }),
     mockAzureProject({ name: 'p3', description: 'p3' })
   ];
-  const searchResults = {
-    p2: [mockAzureRepository({ projectName: 'p2' })]
-  };
+  const searchResults = [mockAzureRepository({ projectName: 'p2' })];
   expect(shallowRender({ searchResults, projects })).toMatchSnapshot('default');
-  expect(shallowRender({ searchResults: {}, projects })).toMatchSnapshot('empty');
+  expect(shallowRender({ searchResults: [], projects })).toMatchSnapshot('empty');
+  expect(
+    shallowRender({
+      searchResults: [
+        mockAzureRepository({ projectName: 'p2' }),
+        mockAzureRepository({ name: 'Unknown repository 1', projectName: 'u1' }),
+        mockAzureRepository({ name: 'Unknown repository 2', projectName: 'u2' })
+      ],
+      projects
+    })
+  ).toMatchSnapshot('search results belonging to unknown projects');
 });
 
 it('should handle pagination', () => {
