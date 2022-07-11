@@ -44,7 +44,7 @@ public class PushEventDao implements Dao {
     return event;
   }
 
-  PushEventDto selectByUuid(DbSession dbSession, String uuid) {
+  public PushEventDto selectByUuid(DbSession dbSession, String uuid) {
     return mapper(dbSession).selectByUuid(uuid);
   }
 

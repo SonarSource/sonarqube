@@ -20,12 +20,14 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
@@ -36,6 +38,8 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   private Map<Integer, Component> componentsByRef = null;
   @CheckForNull
   private Map<Integer, Component> extendedComponentsByRef = null;
+  @CheckForNull
+  private Map<String, Component> componentsByUuid = null;
   private int size = 0;
   private Component root = null;
   private Component extendedTreeRoot = null;
@@ -72,9 +76,16 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   }
 
   @Override
+  public Component getComponentByUuid(String uuid) {
+    checkInitialized();
+    ensureComponentByRefAndUuidArePopulated();
+    return componentsByUuid.get(uuid);
+  }
+
+  @Override
   public Optional<Component> getOptionalComponentByRef(int ref) {
     checkInitialized();
-    ensureComponentByRefIsPopulated();
+    ensureComponentByRefAndUuidArePopulated();
     return Optional.ofNullable(componentsByRef.get(ref));
   }
 
@@ -92,7 +103,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   @Override
   public int getSize() {
     checkInitialized();
-    ensureComponentByRefIsPopulated();
+    ensureComponentByRefAndUuidArePopulated();
     return size;
   }
 
@@ -114,23 +125,28 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
     this.extendedComponentsByRef = builder.build();
   }
 
-  private void ensureComponentByRefIsPopulated() {
-    if (componentsByRef != null) {
+  private void ensureComponentByRefAndUuidArePopulated() {
+    if (componentsByRef != null && componentsByUuid != null) {
       return;
     }
 
-    final ImmutableMap.Builder<Integer, Component> builder = ImmutableMap.builder();
+    final ImmutableMap.Builder<Integer, Component> builderByRef = ImmutableMap.builder();
+    final Map<String, Component> builderByUuid = new HashMap<>();
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
           size++;
           if (component.getReportAttributes().getRef() != null) {
-            builder.put(component.getReportAttributes().getRef(), component);
+            builderByRef.put(component.getReportAttributes().getRef(), component);
+          }
+          if (isNotBlank(component.getUuid())) {
+            builderByUuid.put(component.getUuid(), component);
           }
         }
       }).visit(this.root);
-    this.componentsByRef = builder.build();
+    this.componentsByRef = builderByRef.build();
+    this.componentsByUuid = ImmutableMap.copyOf(builderByUuid);
   }
 
   private void checkInitialized() {

@@ -99,6 +99,11 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   }
 
   @Override
+  public Component getComponentByUuid(String uuid) {
+    return delegate.getComponentByUuid(uuid);
+  }
+
+  @Override
   public Optional<Component> getOptionalComponentByRef(int ref) {
     return delegate.getOptionalComponentByRef(ref);
   }

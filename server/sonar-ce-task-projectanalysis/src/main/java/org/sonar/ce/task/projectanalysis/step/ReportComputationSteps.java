@@ -108,6 +108,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PurgeDatastoresStep.class,
     IndexAnalysisStep.class,
     UpdateNeedIssueSyncStep.class,
+    PersistPushEventsStep.class,
 
     // notifications are sent at the end, so that webapp displays up-to-date information
     SendIssueNotificationsStep.class,

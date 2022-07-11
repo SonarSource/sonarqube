@@ -24,14 +24,13 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.analysis.TestBranch;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
@@ -42,16 +41,12 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.project.Project;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -645,54 +640,4 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     };
   }
 
-  private static class TestBranch implements Branch {
-    private final String name;
-
-    public TestBranch(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public BranchType getType() {
-      return BranchType.BRANCH;
-    }
-
-    @Override
-    public boolean isMain() {
-      return false;
-    }
-
-    @Override
-    public String getReferenceBranchUuid() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public boolean supportsCrossProjectCpd() {
-      return false;
-    }
-
-    @Override
-    public String getPullRequestKey() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getTargetBranchName() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String generateKey(String projectKey, @Nullable String fileOrDirPath) {
-      if (isEmpty(fileOrDirPath)) {
-        return projectKey;
-      }
-      return ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
-    }
-  }
 }

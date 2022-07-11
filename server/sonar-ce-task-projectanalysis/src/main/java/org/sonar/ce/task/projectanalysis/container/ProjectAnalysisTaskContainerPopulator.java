@@ -113,6 +113,8 @@ import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.pushevent.TaintVulnerabilityVisitor;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateServiceImpl;
@@ -220,6 +222,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
+      PushEventRepositoryImpl.class,
       ConfigurationRepositoryImpl.class,
       DisabledComponentsHolderImpl.class,
       QualityGateServiceImpl.class,
@@ -275,6 +278,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,
       IssueOnReferenceBranchVisitor.class,
+      TaintVulnerabilityVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       AnalysisFromSonarQube94Visitor.class,

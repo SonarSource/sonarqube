@@ -61,6 +61,13 @@ public interface TreeRootHolder {
    */
   Component getComponentByRef(int ref);
 
+  /**
+   * Return a component by its uuid
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * @throws IllegalArgumentException if there's no {@link Component} with the specified reference
+   */
+  Component getComponentByUuid(String uuid);
 
   /**
    * Return a component by its batch reference. Returns {@link Optional#empty()} if there's
