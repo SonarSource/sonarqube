@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { toShortNotSoISOString } from '../../helpers/dates';
-import { Task, TaskStatuses } from '../../types/tasks';
+import { ActivityRequestParameters, Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 
 export interface Query {
@@ -35,7 +35,7 @@ export function updateTask(tasks: Task[], newTask: Task) {
 }
 
 export function mapFiltersToParameters(filters: Partial<Query> = {}) {
-  const parameters: any = {};
+  const parameters: ActivityRequestParameters = {};
 
   if (filters.status === STATUSES.ALL) {
     parameters.status = [

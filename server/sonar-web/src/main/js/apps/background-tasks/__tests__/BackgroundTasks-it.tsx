@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
@@ -133,6 +133,27 @@ describe('The Global background task page', () => {
     await changeTaskFilter(user, 'status', 'background_task.status.ALL');
     await user.click(screen.getByRole('button', { name: 'reload' }));
     expect(await screen.findAllByRole('row')).toHaveLength(2);
+  });
+
+  it('should handle task pagination', async () => {
+    const user = userEvent.setup();
+
+    computeEngineServiceMock.clearTasks();
+    computeEngineServiceMock.createTasks(101);
+
+    renderGlobalBackgroundTasksApp();
+
+    expect(
+      await screen.findByRole('heading', { name: 'background_tasks.page' })
+    ).toBeInTheDocument();
+
+    expect(screen.getAllByRole('row')).toHaveLength(101); // including header
+
+    user.click(screen.getByRole('button', { name: 'show_more' }));
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('row')).toHaveLength(102); // including header
+    });
   });
 
   /*

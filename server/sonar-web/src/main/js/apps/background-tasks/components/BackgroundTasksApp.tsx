@@ -28,17 +28,17 @@ import {
   getTypes
 } from '../../../api/ce';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
+import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
-import { Component, RawQuery } from '../../../types/types';
+import { Component, Paging, RawQuery } from '../../../types/types';
 import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { mapFiltersToParameters, Query, updateTask } from '../utils';
-import Footer from './Footer';
 import Header from './Header';
 import Search from './Search';
 import Stats from './Stats';
@@ -53,11 +53,14 @@ interface Props {
 interface State {
   failingCount: number;
   loading: boolean;
+  pagination: Paging;
   pendingCount: number;
   pendingTime?: number;
   tasks: Task[];
   types?: string[];
 }
+
+const PAGE_SIZE = 100;
 
 export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   loadTasksDebounced: () => void;
@@ -65,7 +68,13 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { failingCount: 0, loading: true, pendingCount: 0, tasks: [] };
+    this.state = {
+      pagination: { pageIndex: 1, pageSize: PAGE_SIZE, total: 0 },
+      failingCount: 0,
+      loading: true,
+      pendingCount: 0,
+      tasks: []
+    };
     this.loadTasksDebounced = debounce(this.loadTasks, DEBOUNCE_DELAY);
   }
 
@@ -100,7 +109,12 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     }
   };
 
-  loadTasks = () => {
+  loadMoreTasks = () => {
+    const { pagination } = this.state;
+    this.loadTasks(pagination.pageIndex + 1);
+  };
+
+  loadTasks = (page = 1) => {
     this.setState({ loading: true });
 
     const status = this.props.location.query.status || DEFAULT_FILTERS.status;
@@ -118,16 +132,20 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       parameters.component = this.props.component.key;
     }
 
+    parameters.p = page;
+    parameters.ps = PAGE_SIZE;
+
     Promise.all([getActivity(parameters), getStatus(parameters.component)]).then(
-      ([{ tasks }, status]) => {
+      ([{ tasks: newTasks, paging }, { failing, pending, pendingTime }]) => {
         if (this.mounted) {
-          this.setState({
-            failingCount: status.failing,
+          this.setState(({ tasks }) => ({
+            failingCount: failing,
             loading: false,
-            pendingCount: status.pending,
-            pendingTime: status.pendingTime,
-            tasks
-          });
+            pendingCount: pending,
+            pendingTime,
+            tasks: page === 1 ? newTasks : [...tasks, ...newTasks],
+            pagination: paging
+          }));
         }
       },
       this.stopLoading
@@ -195,7 +213,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
-    const { loading, types, tasks } = this.state;
+    const { loading, pagination, types, tasks } = this.state;
 
     if (!types) {
       return (
@@ -249,7 +267,13 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
           tasks={tasks}
         />
 
-        <Footer tasks={tasks} />
+        <ListFooter
+          count={tasks.length}
+          loadMore={this.loadMoreTasks}
+          loading={loading}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+        />
       </div>
     );
   }

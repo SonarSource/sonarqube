@@ -20,8 +20,7 @@
 import { differenceInMilliseconds, isAfter, isBefore } from 'date-fns';
 import { cloneDeep, groupBy, sortBy } from 'lodash';
 import { mockTask } from '../../helpers/mocks/tasks';
-import { RequestData } from '../../helpers/request';
-import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
+import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   cancelAllTasks,
   cancelTask,
@@ -34,6 +33,8 @@ import {
 
 const RANDOM_RADIX = 36;
 const RANDOM_PREFIX = 2;
+
+const PAGE_SIZE = 100;
 
 const TASK_TYPES = [
   TaskTypes.Report,
@@ -91,7 +92,7 @@ export default class ComputeEngineServiceMock {
     return Promise.reject();
   };
 
-  handleGetActivity = (data: RequestData) => {
+  handleGetActivity = (data: ActivityRequestParameters) => {
     let results = cloneDeep(this.tasks);
 
     results = results.filter(task => {
@@ -118,11 +119,14 @@ export default class ComputeEngineServiceMock {
       );
     }
 
+    const page = data.p ?? 1;
+    const paginationIndex = (page - 1) * PAGE_SIZE;
+
     return Promise.resolve({
-      tasks: results.slice(0, 100),
+      tasks: results.slice(paginationIndex, paginationIndex + PAGE_SIZE),
       paging: {
-        pageIndex: 1,
-        pageSize: 100,
+        pageIndex: page,
+        pageSize: PAGE_SIZE,
         total: results.length
       }
     });
@@ -190,6 +194,12 @@ export default class ComputeEngineServiceMock {
         ...overrides
       })
     );
+  };
+
+  createTasks = (count: number, status = TaskStatuses.Success) => {
+    for (let i = 0; i < count; i++) {
+      this.addTask({ status });
+    }
   };
 
   clearTasks = () => {

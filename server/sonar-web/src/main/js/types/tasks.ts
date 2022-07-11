@@ -67,3 +67,15 @@ export interface TaskWarning {
   message: string;
   dismissable: boolean;
 }
+
+export interface ActivityRequestParameters {
+  component?: string;
+  p?: number;
+  ps?: number;
+  status?: string;
+  type?: string;
+  onlyCurrents?: boolean;
+  minSubmittedAt?: string;
+  maxExecutedAt?: string;
+  q?: string;
+}

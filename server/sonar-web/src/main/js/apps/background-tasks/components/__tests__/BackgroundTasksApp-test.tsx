@@ -67,7 +67,8 @@ jest.mock('../../../../api/ce', () => ({
         warningCount: 0,
         warnings: []
       }
-    ]
+    ],
+    paging: { total: 2, pageIndex: 1 }
   }),
   getStatus: jest.fn().mockResolvedValue({ pending: 0, failing: 15, inProgress: 0 }),
   cancelAllTasks: jest.fn().mockResolvedValue({}),

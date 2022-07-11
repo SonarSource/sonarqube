@@ -183,47 +183,11 @@ exports[`should render correctly: loaded 1`] = `
       ]
     }
   />
-  <Footer
-    tasks={
-      Array [
-        Object {
-          "componentId": "AWBLZYhGOUrjxRA-u6ex",
-          "componentKey": "sonar-csharp",
-          "componentName": "SonarC#",
-          "componentQualifier": "APP",
-          "errorMessage": "Analyses suspended. Please set a valid license for the Edition you installed.",
-          "errorType": "LICENSING",
-          "executedAt": "2019-02-19T16:47:36+0100",
-          "executionTimeMs": 16,
-          "hasScannerContext": false,
-          "id": "AWkGcOThOiAPiP5AE-kM",
-          "logs": false,
-          "startedAt": "2019-02-19T16:47:36+0100",
-          "status": "FAILED",
-          "submittedAt": "2019-02-19T16:47:35+0100",
-          "type": "VIEW_REFRESH",
-          "warningCount": 0,
-          "warnings": Array [],
-        },
-        Object {
-          "componentId": "AV2ZaHs1Wa2znA6pDz1l",
-          "componentKey": "c-cpp-build-wrapper",
-          "componentName": "C/C++ Build Wrapper",
-          "componentQualifier": "APP",
-          "executedAt": "2019-02-19T16:47:36+0100",
-          "executionTimeMs": 19,
-          "hasScannerContext": false,
-          "id": "AWkGcOThOiAPiP5AE-kL",
-          "logs": false,
-          "startedAt": "2019-02-19T16:47:36+0100",
-          "status": "SUCCESS",
-          "submittedAt": "2019-02-19T16:47:35+0100",
-          "type": "VIEW_REFRESH",
-          "warningCount": 0,
-          "warnings": Array [],
-        },
-      ]
-    }
+  <ListFooter
+    count={2}
+    loadMore={[Function]}
+    loading={false}
+    total={2}
   />
 </div>
 `;

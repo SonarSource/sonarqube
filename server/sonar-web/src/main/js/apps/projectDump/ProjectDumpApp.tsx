@@ -26,7 +26,7 @@ import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
-import { TaskStatuses, TaskTypes } from '../../types/tasks';
+import { ActivityRequestParameters, TaskStatuses, TaskTypes } from '../../types/tasks';
 import { Component } from '../../types/types';
 import Export from './components/Export';
 import Import from './components/Import';
@@ -66,7 +66,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   }
 
   getLastTask(component: string, type: TaskTypes) {
-    const data = {
+    const data: ActivityRequestParameters = {
       type,
       component,
       onlyCurrents: true,

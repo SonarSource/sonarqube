@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, RequestData } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 import { IndexationStatus } from '../types/indexation';
-import { Task, TaskWarning } from '../types/tasks';
+import { ActivityRequestParameters, Task, TaskWarning } from '../types/tasks';
+import { Paging } from '../types/types';
 
 export function getAnalysisStatus(data: {
   component: string;
@@ -38,7 +39,9 @@ export function getAnalysisStatus(data: {
   return getJSON('/api/ce/analysis_status', data).catch(throwGlobalError);
 }
 
-export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
+export function getActivity(
+  data: ActivityRequestParameters
+): Promise<{ tasks: Task[]; paging: Paging }> {
   return getJSON('/api/ce/activity', data);
 }
 
