@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import RadioToggle from '../../../../../components/controls/RadioToggle';
+import ButtonToggle from '../../../../../components/controls/ButtonToggle';
 import {
   mockBitbucketCloudBindingDefinition,
   mockBitbucketServerBindingDefinition
@@ -60,7 +60,7 @@ it('should render propagete variant properly', () => {
   const wrapper = shallowRender({ onVariantChange });
 
   wrapper
-    .find(RadioToggle)
+    .find(ButtonToggle)
     .props()
     .onCheck(AlmKeys.BitbucketServer);
 

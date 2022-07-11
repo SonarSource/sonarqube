@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from '../../components/controls/RadioToggle';
+import ButtonToggle from '../../components/controls/ButtonToggle';
 import SearchBox from '../../components/controls/SearchBox';
 import { translate } from '../../helpers/l10n';
 import { Query } from './utils';
@@ -51,7 +51,7 @@ export default class Search extends React.PureComponent<Props> {
     return (
       <div className="big-spacer-bottom" id="marketplace-search">
         <div className="display-inline-block text-top nowrap abs-width-240 spacer-right">
-          <RadioToggle
+          <ButtonToggle
             name="marketplace-filter"
             onCheck={this.handleFilterChange}
             options={radioOptions}

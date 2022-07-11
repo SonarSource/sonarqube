@@ -4,7 +4,7 @@ exports[`should render correctly: default 1`] = `
 <div
   className="big-spacer-top"
 >
-  <RadioToggle
+  <ButtonToggle
     disabled={false}
     name="bar"
     onCheck={[MockFunction]}
@@ -29,7 +29,7 @@ exports[`should render correctly: option checked 1`] = `
 <div
   className="big-spacer-top"
 >
-  <RadioToggle
+  <ButtonToggle
     disabled={false}
     name="bar"
     onCheck={[MockFunction]}
@@ -59,7 +59,7 @@ exports[`should render correctly: with title 1`] = `
   >
     title.key
   </h4>
-  <RadioToggle
+  <ButtonToggle
     disabled={false}
     name="bar"
     onCheck={[MockFunction]}

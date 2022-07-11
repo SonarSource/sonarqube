@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from '../../../../components/controls/RadioToggle';
+import ButtonToggle from '../../../../components/controls/ButtonToggle';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmKeys,
@@ -47,7 +47,7 @@ export default function BitbucketForm(props: BitbucketFormProps) {
       {!isUpdate && (
         <div className="display-flex-column">
           <strong>{translate('settings.almintegration.form.choose_bitbucket_variant')}</strong>
-          <RadioToggle
+          <ButtonToggle
             className="little-spacer-top big-spacer-bottom"
             name="variant"
             onCheck={props.onVariantChange}

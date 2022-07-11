@@ -29,6 +29,7 @@ import {
   ResetButtonLink,
   SubmitButton
 } from '../../../components/controls/buttons';
+import ButtonToggle from '../../../components/controls/ButtonToggle';
 import Checkbox from '../../../components/controls/Checkbox';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
@@ -39,7 +40,6 @@ import HomePageSelect from '../../../components/controls/HomePageSelect';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import Radio from '../../../components/controls/Radio';
-import RadioToggle from '../../../components/controls/RadioToggle';
 import ReloadButton from '../../../components/controls/ReloadButton';
 import SearchBox from '../../../components/controls/SearchBox';
 import Select, { SearchSelect } from '../../../components/controls/Select';
@@ -237,7 +237,7 @@ const exposeLibraries = () => {
         PullRequestIcon,
         QualifierIcon,
         Radio,
-        RadioToggle,
+        ButtonToggle,
         Rating,
         RatingTooltipContent,
         ReloadButton,

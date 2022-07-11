@@ -19,32 +19,33 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import './RadioToggle.css';
+import './ButtonToggle.css';
 import Tooltip from './Tooltip';
 
-type ToggleValueType = string | number | boolean;
-interface Option {
+export type ButtonToggleValueType = string | number | boolean;
+
+export interface ButtonToggleOption {
   disabled?: boolean;
   label: string;
   tooltip?: string;
-  value: ToggleValueType;
+  value: ButtonToggleValueType;
 }
 
 interface Props {
   className?: string;
   name: string;
-  onCheck: (value: ToggleValueType) => void;
-  options: Option[];
-  value?: ToggleValueType;
+  onCheck: (value: ButtonToggleValueType) => void;
+  options: ButtonToggleOption[];
+  value?: ButtonToggleValueType;
 }
 
-export default class RadioToggle extends React.PureComponent<Props> {
+export default class ButtonToggle extends React.PureComponent<Props> {
   static defaultProps = {
     disabled: false,
     value: null
   };
 
-  renderOption = (option: Option) => {
+  renderOption = (option: ButtonToggleOption) => {
     const checked = option.value === this.props.value;
     const htmlId = `${this.props.name}__${option.value}`;
     return (

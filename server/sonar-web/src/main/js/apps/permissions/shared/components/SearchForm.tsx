@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from '../../../../components/controls/RadioToggle';
+import ButtonToggle from '../../../../components/controls/ButtonToggle';
 import SearchBox from '../../../../components/controls/SearchBox';
 import { translate } from '../../../../helpers/l10n';
 
@@ -38,7 +38,7 @@ export default function SearchForm(props: Props) {
 
   return (
     <div className="display-flex-row">
-      <RadioToggle
+      <ButtonToggle
         name="users-or-groups"
         onCheck={props.onFilter}
         options={filterOptions}

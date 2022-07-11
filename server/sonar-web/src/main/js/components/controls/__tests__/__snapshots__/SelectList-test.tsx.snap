@@ -7,7 +7,7 @@ exports[`should cancel filter selection when search is active 1`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -74,7 +74,7 @@ exports[`should cancel filter selection when search is active 2`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -141,7 +141,7 @@ exports[`should cancel filter selection when search is active 3`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -208,7 +208,7 @@ exports[`should display a loader when searching 1`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -275,7 +275,7 @@ exports[`should display pagination element properly and call search method with 
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -348,7 +348,7 @@ exports[`should display pagination element properly and call search method with 
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -422,7 +422,7 @@ exports[`should display properly with advanced features 1`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"
@@ -497,7 +497,7 @@ exports[`should display properly with basics features 1`] = `
   <div
     className="display-flex-center"
   >
-    <RadioToggle
+    <ButtonToggle
       className="select-list-filter spacer-right"
       disabled={false}
       name="filter"

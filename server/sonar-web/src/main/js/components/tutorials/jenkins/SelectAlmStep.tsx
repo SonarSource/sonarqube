@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from '../../../components/controls/RadioToggle';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { hasMessage, translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import ButtonToggle from '../../controls/ButtonToggle';
 import Step from '../components/Step';
 
 export interface SelectAlmStepProps {
@@ -44,7 +44,7 @@ export default function SelectAlmStep(props: SelectAlmStepProps) {
       onOpen={props.onOpen}
       renderForm={() => (
         <div className="boxed-group-inner">
-          <RadioToggle
+          <ButtonToggle
             name="alm"
             onCheck={props.onCheck}
             options={[

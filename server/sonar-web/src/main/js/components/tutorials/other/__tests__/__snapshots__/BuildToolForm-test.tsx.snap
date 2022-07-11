@@ -8,7 +8,7 @@ exports[`renders correctly: default 1`] = `
     >
       onboarding.build
     </h4>
-    <RadioToggle
+    <ButtonToggle
       disabled={false}
       name="language"
       onCheck={[Function]}
@@ -50,7 +50,7 @@ exports[`renders correctly: with "maven" selected 1`] = `
     >
       onboarding.build
     </h4>
-    <RadioToggle
+    <ButtonToggle
       disabled={false}
       name="language"
       onCheck={[Function]}
@@ -92,7 +92,7 @@ exports[`renders correctly: with "other" selected 1`] = `
     >
       onboarding.build
     </h4>
-    <RadioToggle
+    <ButtonToggle
       disabled={false}
       name="language"
       onCheck={[Function]}
@@ -147,7 +147,7 @@ exports[`renders correctly: without C 1`] = `
     >
       onboarding.build
     </h4>
-    <RadioToggle
+    <ButtonToggle
       disabled={false}
       name="language"
       onCheck={[Function]}

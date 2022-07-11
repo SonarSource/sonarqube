@@ -8,7 +8,7 @@ exports[`should render correctly: bbc 1`] = `
     <strong>
       settings.almintegration.form.choose_bitbucket_variant
     </strong>
-    <RadioToggle
+    <ButtonToggle
       className="little-spacer-top big-spacer-bottom"
       disabled={false}
       name="variant"
@@ -50,7 +50,7 @@ exports[`should render correctly: bbs 1`] = `
     <strong>
       settings.almintegration.form.choose_bitbucket_variant
     </strong>
-    <RadioToggle
+    <ButtonToggle
       className="little-spacer-top big-spacer-bottom"
       disabled={false}
       name="variant"

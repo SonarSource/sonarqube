@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
+import ButtonToggle from '../../controls/ButtonToggle';
 
 export interface RenderOptionsProps {
   checked: string | undefined;
@@ -42,7 +42,7 @@ export default function RenderOptions({
     <div className="big-spacer-top">
       {titleLabelKey && <h4 className="spacer-bottom">{translate(titleLabelKey)}</h4>}
 
-      <RadioToggle
+      <ButtonToggle
         name={name}
         onCheck={onCheck}
         options={options.map(build => ({

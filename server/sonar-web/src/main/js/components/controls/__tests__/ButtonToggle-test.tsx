@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { change } from '../../../helpers/testUtils';
-import RadioToggle from '../RadioToggle';
+import ButtonToggle from '../ButtonToggle';
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -85,10 +85,10 @@ it('accepts advanced options fields', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<RadioToggle['props']>) {
+function shallowRender(props?: Partial<ButtonToggle['props']>) {
   const options = [
     { value: 'one', label: 'first' },
     { value: 'two', label: 'second' }
   ];
-  return shallow(<RadioToggle name="sample" onCheck={() => true} options={options} {...props} />);
+  return shallow(<ButtonToggle name="sample" onCheck={() => true} options={options} {...props} />);
 }

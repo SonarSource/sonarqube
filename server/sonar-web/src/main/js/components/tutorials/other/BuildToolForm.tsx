@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import RadioToggle from '../../controls/RadioToggle';
+import ButtonToggle from '../../controls/ButtonToggle';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
@@ -71,7 +71,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
       <>
         <div>
           <h4 className="spacer-bottom">{translate('onboarding.build')}</h4>
-          <RadioToggle
+          <ButtonToggle
             name="language"
             onCheck={this.handleBuildToolChange}
             options={buildTools.map(tool => ({

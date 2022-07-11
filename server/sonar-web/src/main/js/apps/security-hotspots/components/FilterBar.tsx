@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import ButtonToggle from '../../../components/controls/ButtonToggle';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import RadioToggle from '../../../components/controls/RadioToggle';
 import Select from '../../../components/controls/Select';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
@@ -98,7 +98,7 @@ export function FilterBar(props: FilterBarProps) {
                 <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
 
                 {isLoggedIn(currentUser) && (
-                  <RadioToggle
+                  <ButtonToggle
                     className="huge-spacer-right"
                     name="assignee-filter"
                     onCheck={(value: AssigneeFilterOption) =>

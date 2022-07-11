@@ -22,7 +22,7 @@ import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
-import RadioToggle from '../controls/RadioToggle';
+import ButtonToggle from '../controls/ButtonToggle';
 import { Alert } from '../ui/Alert';
 import OtherContextOption from './OtherContextOption';
 
@@ -136,7 +136,8 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               </Alert>
             )}
             <div>
-              <RadioToggle
+              <ButtonToggle
+                className="big-spacer-bottom"
                 name="filter"
                 onCheck={this.handleToggleContext}
                 options={options}

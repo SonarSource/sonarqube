@@ -157,7 +157,7 @@ exports[`should render correctly: logged-in 1`] = `
           >
             hotspot.filters.title
           </h3>
-          <RadioToggle
+          <ButtonToggle
             className="huge-spacer-right"
             disabled={false}
             name="assignee-filter"
@@ -289,7 +289,7 @@ exports[`should render correctly: non-project 1`] = `
           >
             hotspot.filters.title
           </h3>
-          <RadioToggle
+          <ButtonToggle
             className="huge-spacer-right"
             disabled={false}
             name="assignee-filter"

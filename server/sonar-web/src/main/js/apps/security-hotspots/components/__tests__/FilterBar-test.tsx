@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import RadioToggle from '../../../../components/controls/RadioToggle';
+import ButtonToggle from '../../../../components/controls/ButtonToggle';
 import Select from '../../../../components/controls/Select';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -72,7 +72,7 @@ it('should trigger onChange for self-assigned toggle', () => {
   const onChangeFilters = jest.fn();
   const wrapper = shallowRender({ currentUser: mockLoggedInUser(), onChangeFilters });
 
-  const { onCheck } = wrapper.find(RadioToggle).props();
+  const { onCheck } = wrapper.find(ButtonToggle).props();
 
   onCheck(AssigneeFilterOption.ALL);
   expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });

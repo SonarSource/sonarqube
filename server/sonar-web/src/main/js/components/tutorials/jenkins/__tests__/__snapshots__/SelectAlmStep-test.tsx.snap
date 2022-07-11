@@ -15,7 +15,7 @@ exports[`should render correctly: form, default 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <RadioToggle
+  <ButtonToggle
     disabled={false}
     name="alm"
     onCheck={[MockFunction]}
@@ -48,7 +48,7 @@ exports[`should render correctly: form, with alm 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <RadioToggle
+  <ButtonToggle
     disabled={false}
     name="alm"
     onCheck={[MockFunction]}

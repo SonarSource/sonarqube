@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import ButtonToggle from './ButtonToggle';
 import ListFooter from './ListFooter';
-import RadioToggle from './RadioToggle';
 import SearchBox from './SearchBox';
 import './SelectList.css';
 import SelectListListContainer from './SelectListListContainer';
@@ -144,7 +144,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     return (
       <div className="select-list">
         <div className="display-flex-center">
-          <RadioToggle
+          <ButtonToggle
             className="select-list-filter spacer-right"
             name="filter"
             onCheck={this.changeFilter}
