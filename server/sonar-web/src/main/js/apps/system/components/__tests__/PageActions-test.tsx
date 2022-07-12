@@ -32,10 +32,8 @@ it('should render correctly', () => {
   expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
-it('should render without restart and log download', () => {
-  expect(
-    getWrapper({ canDownloadLogs: false, canRestart: false, cluster: true })
-  ).toMatchSnapshot();
+it('should render without log download', () => {
+  expect(getWrapper({ canDownloadLogs: false, cluster: true })).toMatchSnapshot();
 });
 
 it('should open change log level modal', () => {
@@ -48,7 +46,6 @@ function getWrapper(props = {}) {
   return shallow(
     <PageActions
       canDownloadLogs={true}
-      canRestart={true}
       cluster={false}
       logLevel="INFO"
       onLogLevelChange={() => {}}

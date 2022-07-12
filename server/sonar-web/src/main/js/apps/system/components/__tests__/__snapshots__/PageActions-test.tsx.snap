@@ -104,9 +104,6 @@ exports[`should render correctly 1`] = `
   >
     system.download_system_info
   </a>
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
 </div>
 `;
 
@@ -184,7 +181,7 @@ exports[`should render correctly 2`] = `
 </Dropdown>
 `;
 
-exports[`should render without restart and log download 1`] = `
+exports[`should render without log download 1`] = `
 <div
   className="page-actions"
 >

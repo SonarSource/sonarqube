@@ -31,10 +31,8 @@ To view/install plugin updates, your SonarQube server needs internet access. Ins
 When you perform an action in the Marketplace (install, update, or uninstall a plugin), a yellow banner appears at the top of the page showing pending operations that will be executed once SonarQube is restarted. Pending operations can be canceled until the server is restarted.
 
 ## Restart SonarQube
-Restarting SonarQube can be done manually from the command line by running `sonar.sh restart` or directly from the UI:
-
-* in the Update Center when you have Pending Changes, the restart button will be displayed in the yellow banner (see Pending Operations)
-* in the System Info page at any time
+Restarting SonarQube can be done manually from the command line by running `sonar.sh restart`.
+In SonarQube Community Edition, you can also restart from the UI, in the Update Center. When you have Pending Changes, the restart button will be displayed in the yellow banner (see Pending Operations). Please note that restarting the server won't reload the changes applied to the **sonar.properties**.
 
 ## Manual Updates
 If you're using a commercial edition or your server doesn't have internet access, you won't be able to rely on the Marketplace for plugins, and you will have to handle plugin installations and upgrades manually.

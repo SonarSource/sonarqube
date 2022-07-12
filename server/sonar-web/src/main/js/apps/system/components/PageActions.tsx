@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AdminContext from '../../../app/components/AdminContext';
-import RestartButton from '../../../components/common/RestartButton';
 import { Button, EditButton } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
@@ -30,7 +28,6 @@ import ChangeLogLevelForm from './ChangeLogLevelForm';
 
 interface Props {
   canDownloadLogs: boolean;
-  canRestart: boolean;
   cluster: boolean;
   logLevel: string;
   onLogLevelChange: () => void;
@@ -156,17 +153,6 @@ export default class PageActions extends React.PureComponent<Props, State> {
           target="_blank">
           {translate('system.download_system_info')}
         </a>
-        {this.props.canRestart && (
-          <AdminContext.Consumer>
-            {({ fetchSystemStatus, systemStatus }) => (
-              <RestartButton
-                className="spacer-left"
-                fetchSystemStatus={fetchSystemStatus}
-                systemStatus={systemStatus}
-              />
-            )}
-          </AdminContext.Consumer>
-        )}
         {this.state.openLogsLevelForm && (
           <ChangeLogLevelForm
             infoMsg={translate(

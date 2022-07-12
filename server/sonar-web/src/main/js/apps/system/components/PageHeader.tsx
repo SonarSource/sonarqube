@@ -45,7 +45,6 @@ export function PageHeader(props: Props) {
       {showActions && (
         <PageActions
           canDownloadLogs={!isCluster}
-          canRestart={!isCluster}
           cluster={isCluster}
           logLevel={logLevel}
           onLogLevelChange={props.onLogLevelChange}
