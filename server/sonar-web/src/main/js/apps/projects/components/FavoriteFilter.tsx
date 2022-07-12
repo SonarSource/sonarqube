@@ -64,7 +64,6 @@ export class FavoriteFilter extends React.PureComponent<Props> {
     return (
       <div className="page-header text-center">
         <ButtonToggle
-          name="favorite-filter"
           options={[
             { value: true, label: translate('my_favorites') },
             { value: false, label: translate('all') }

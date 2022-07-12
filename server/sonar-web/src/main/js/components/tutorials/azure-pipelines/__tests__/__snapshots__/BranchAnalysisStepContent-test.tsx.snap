@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
     onboarding.build
   </span>
   <RenderOptions
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={
@@ -33,7 +33,7 @@ exports[`should render correctly: dotnet 1`] = `
   </span>
   <RenderOptions
     checked="dotnet"
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={
@@ -61,7 +61,7 @@ exports[`should render correctly: gradle 1`] = `
   </span>
   <RenderOptions
     checked="gradle"
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={
@@ -89,7 +89,7 @@ exports[`should render correctly: maven 1`] = `
   </span>
   <RenderOptions
     checked="maven"
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={
@@ -117,7 +117,7 @@ exports[`should render correctly: other 1`] = `
   </span>
   <RenderOptions
     checked="other"
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={
@@ -144,7 +144,7 @@ exports[`should render correctly: without C 1`] = `
     onboarding.build
   </span>
   <RenderOptions
-    name="buildTechnology"
+    label="onboarding.build"
     onCheck={[Function]}
     optionLabelKey="onboarding.build"
     options={

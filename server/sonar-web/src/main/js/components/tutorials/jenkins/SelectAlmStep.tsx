@@ -45,7 +45,7 @@ export default function SelectAlmStep(props: SelectAlmStepProps) {
       renderForm={() => (
         <div className="boxed-group-inner">
           <ButtonToggle
-            name="alm"
+            label={translate('onboarding.tutorial.with.jenkins.alm_selection.title')}
             onCheck={props.onCheck}
             options={[
               AlmKeys.BitbucketCloud,

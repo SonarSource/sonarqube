@@ -17,78 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { change } from '../../../helpers/testUtils';
-import ButtonToggle from '../ButtonToggle';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import ButtonToggle, { ButtonToggleProps } from '../ButtonToggle';
 
-it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('calls onCheck', () => {
+it('should behave properly', async () => {
   const onCheck = jest.fn();
-  const wrapper = shallowRender({ onCheck });
-  change(wrapper.find('input[id="sample__two"]'), '');
-  expect(onCheck).toBeCalledWith('two');
+  const user = userEvent.setup();
+
+  render({ onCheck });
+  expect(screen.getAllByRole('button')).toHaveLength(3);
+
+  await user.click(screen.getByRole('button', { name: 'first' }));
+  expect(onCheck).toHaveBeenCalledWith('one');
+
+  await user.click(screen.getByRole('button', { name: 'second' }));
+  expect(onCheck).not.toHaveBeenLastCalledWith('two');
 });
 
-it('handles numeric values', () => {
+it('should behave properly when disabled', async () => {
   const onCheck = jest.fn();
-  const wrapper = shallowRender({
-    onCheck,
-    options: [
-      { value: 1, label: 'first', tooltip: 'foo' },
-      { value: 2, label: 'second', tooltip: 'bar' }
-    ],
-    value: 1
-  });
-  change(wrapper.find('input[id="sample__2"]'), '');
-  expect(onCheck).toBeCalledWith(2);
+  const user = userEvent.setup();
+
+  render({ disabled: true, onCheck });
+
+  await user.click(screen.getByRole('button', { name: 'first' }));
+  expect(onCheck).not.toHaveBeenCalled();
 });
 
-it('handles boolean values', () => {
-  const onCheck = jest.fn();
-  const wrapper = shallowRender({
-    onCheck,
-    options: [
-      { value: true, label: 'yes', tooltip: 'foo' },
-      { value: false, label: 'no', tooltip: 'bar' }
-    ],
-    value: true
-  });
-  change(wrapper.find('input[id="sample__false"]'), '');
-  expect(onCheck).toBeCalledWith(false);
-});
-
-it('initialize value', () => {
-  const onCheck = jest.fn();
-  const wrapper = shallowRender({
-    onCheck,
-    options: [
-      { value: 1, label: 'first', tooltip: 'foo' },
-      { value: 2, label: 'second', tooltip: 'bar', disabled: true }
-    ],
-    value: 2
-  });
-  expect(wrapper.find('input[checked=true]').prop('id')).toBe('sample__2');
-});
-
-it('accepts advanced options fields', () => {
-  expect(
-    shallowRender({
-      options: [
-        { value: 'one', label: 'first', tooltip: 'foo' },
-        { value: 'two', label: 'second', tooltip: 'bar', disabled: true }
-      ]
-    })
-  ).toMatchSnapshot();
-});
-
-function shallowRender(props?: Partial<ButtonToggle['props']>) {
-  const options = [
-    { value: 'one', label: 'first' },
-    { value: 'two', label: 'second' }
-  ];
-  return shallow(<ButtonToggle name="sample" onCheck={() => true} options={options} {...props} />);
+function render(props?: Partial<ButtonToggleProps>) {
+  renderComponent(
+    <ButtonToggle
+      label="test-label"
+      onCheck={jest.fn()}
+      disabled={false}
+      options={[
+        { value: 'one', label: 'first' },
+        { value: 'two', label: 'second' },
+        { value: 'tree', label: 'third' }
+      ]}
+      value="two"
+      {...props}
+    />
+  );
 }

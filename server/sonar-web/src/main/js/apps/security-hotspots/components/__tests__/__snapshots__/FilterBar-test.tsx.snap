@@ -157,25 +157,26 @@ exports[`should render correctly: logged-in 1`] = `
           >
             hotspot.filters.title
           </h3>
-          <ButtonToggle
+          <span
             className="huge-spacer-right"
-            disabled={false}
-            name="assignee-filter"
-            onCheck={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "hotspot.filters.assignee.assigned_to_me",
-                  "value": "me",
-                },
-                Object {
-                  "label": "hotspot.filters.assignee.all",
-                  "value": "all",
-                },
-              ]
-            }
-            value="all"
-          />
+          >
+            <ButtonToggle
+              onCheck={[Function]}
+              options={
+                Array [
+                  Object {
+                    "label": "hotspot.filters.assignee.assigned_to_me",
+                    "value": "me",
+                  },
+                  Object {
+                    "label": "hotspot.filters.assignee.all",
+                    "value": "all",
+                  },
+                ]
+              }
+              value="all"
+            />
+          </span>
           <span
             className="spacer-right"
           >
@@ -289,25 +290,26 @@ exports[`should render correctly: non-project 1`] = `
           >
             hotspot.filters.title
           </h3>
-          <ButtonToggle
+          <span
             className="huge-spacer-right"
-            disabled={false}
-            name="assignee-filter"
-            onCheck={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "hotspot.filters.assignee.assigned_to_me",
-                  "value": "me",
-                },
-                Object {
-                  "label": "hotspot.filters.assignee.all",
-                  "value": "all",
-                },
-              ]
-            }
-            value="all"
-          />
+          >
+            <ButtonToggle
+              onCheck={[Function]}
+              options={
+                Array [
+                  Object {
+                    "label": "hotspot.filters.assignee.assigned_to_me",
+                    "value": "me",
+                  },
+                  Object {
+                    "label": "hotspot.filters.assignee.all",
+                    "value": "all",
+                  },
+                ]
+              }
+              value="all"
+            />
+          </span>
           <span
             className="spacer-right"
           >

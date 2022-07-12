@@ -23,7 +23,7 @@ import ButtonToggle from '../../controls/ButtonToggle';
 
 export interface RenderOptionsProps {
   checked: string | undefined;
-  name: string;
+  label?: string;
   onCheck: (checked: string) => void;
   optionLabelKey: string;
   options: string[];
@@ -32,7 +32,7 @@ export interface RenderOptionsProps {
 
 export default function RenderOptions({
   checked,
-  name,
+  label,
   onCheck,
   optionLabelKey,
   options,
@@ -43,7 +43,7 @@ export default function RenderOptions({
       {titleLabelKey && <h4 className="spacer-bottom">{translate(titleLabelKey)}</h4>}
 
       <ButtonToggle
-        name={name}
+        label={label}
         onCheck={onCheck}
         options={options.map(build => ({
           label: translate(optionLabelKey, build),

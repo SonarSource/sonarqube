@@ -135,10 +135,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
                 )}
               </Alert>
             )}
-            <div>
+            <div className="big-spacer-bottom">
               <ButtonToggle
-                className="big-spacer-bottom"
-                name="filter"
+                label={translate('coding_rules.description_context.title')}
                 onCheck={this.handleToggleContext}
                 options={options}
                 value={selectedContext.displayName}

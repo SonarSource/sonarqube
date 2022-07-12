@@ -33,7 +33,7 @@ exports[`should render correctly 1`] = `
       onboarding.build.other.os
     </span>
     <RenderOptions
-      name="os"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -82,7 +82,7 @@ exports[`should render correctly for linux: branches disabled 1`] = `
     </span>
     <RenderOptions
       checked="linux"
-      name="os"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -185,7 +185,7 @@ exports[`should render correctly for mac: branches enabled 1`] = `
     </span>
     <RenderOptions
       checked="mac"
-      name="os"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -287,7 +287,7 @@ exports[`should render correctly for win: branches enabled 1`] = `
     </span>
     <RenderOptions
       checked="win"
-      name="os"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={

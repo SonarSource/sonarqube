@@ -30,8 +30,8 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<RenderOptionsProps> = {}) {
   return shallow<RenderOptionsProps>(
     <RenderOptions
+      label="test-label"
       checked={undefined}
-      name="bar"
       onCheck={jest.fn()}
       optionLabelKey="foo.bar"
       options={['foo', 'baz']}

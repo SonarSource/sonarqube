@@ -285,16 +285,22 @@ describe('The Project section', () => {
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
 
     await user.click(notDefaultQualityGate);
+
+    const projectSelectList = screen.getByRole('group');
     // by default it shows "selected" values
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(within(projectSelectList).getAllByRole('button')).toHaveLength(3);
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
 
     // change tabs to show deselected projects
-    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
+    await user.click(
+      within(projectSelectList).getByRole('button', { name: 'quality_gates.projects.without' })
+    );
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
 
     // change tabs to show all projects
-    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
+    await user.click(
+      within(projectSelectList).getByRole('button', { name: 'quality_gates.projects.all' })
+    );
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
   });
 
@@ -304,8 +310,10 @@ describe('The Project section', () => {
     renderQualityGateApp();
 
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+
     await user.click(notDefaultQualityGate);
 
+    const projectSelectList = screen.getByRole('group');
     const checkedProjects = screen.getAllByRole('checkbox')[0];
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
     await user.click(checkedProjects);
@@ -315,7 +323,7 @@ describe('The Project section', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
 
     // change tabs to show deselected projects
-    await user.click(screen.getAllByRole('radio')[1]);
+    await user.click(within(projectSelectList).getAllByRole('button')[1]);
 
     const uncheckedProjects = screen.getAllByRole('checkbox')[0];
     expect(screen.getAllByRole('checkbox')).toHaveLength(3);

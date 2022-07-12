@@ -9,8 +9,7 @@ exports[`renders correctly: default 1`] = `
       onboarding.build
     </h4>
     <ButtonToggle
-      disabled={false}
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       options={
         Array [
@@ -36,7 +35,6 @@ exports[`renders correctly: default 1`] = `
           },
         ]
       }
-      value={null}
     />
   </div>
 </Fragment>
@@ -51,8 +49,7 @@ exports[`renders correctly: with "maven" selected 1`] = `
       onboarding.build
     </h4>
     <ButtonToggle
-      disabled={false}
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       options={
         Array [
@@ -93,8 +90,7 @@ exports[`renders correctly: with "other" selected 1`] = `
       onboarding.build
     </h4>
     <ButtonToggle
-      disabled={false}
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       options={
         Array [
@@ -124,7 +120,7 @@ exports[`renders correctly: with "other" selected 1`] = `
     />
   </div>
   <RenderOptions
-    name="os"
+    label="onboarding.build.other.os"
     onCheck={[Function]}
     optionLabelKey="onboarding.build.other.os"
     options={
@@ -148,8 +144,7 @@ exports[`renders correctly: without C 1`] = `
       onboarding.build
     </h4>
     <ButtonToggle
-      disabled={false}
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       options={
         Array [
@@ -171,7 +166,6 @@ exports[`renders correctly: without C 1`] = `
           },
         ]
       }
-      value={null}
     />
   </div>
 </Fragment>

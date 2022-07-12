@@ -98,17 +98,17 @@ export function FilterBar(props: FilterBarProps) {
                 <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
 
                 {isLoggedIn(currentUser) && (
-                  <ButtonToggle
-                    className="huge-spacer-right"
-                    name="assignee-filter"
-                    onCheck={(value: AssigneeFilterOption) =>
-                      props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
-                    }
-                    options={assigneeFilterOptions}
-                    value={
-                      filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL
-                    }
-                  />
+                  <span className="huge-spacer-right">
+                    <ButtonToggle
+                      onCheck={(value: AssigneeFilterOption) =>
+                        props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
+                      }
+                      options={assigneeFilterOptions}
+                      value={
+                        filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL
+                      }
+                    />
+                  </span>
                 )}
 
                 <span className="spacer-right"> {translate('status')} </span>

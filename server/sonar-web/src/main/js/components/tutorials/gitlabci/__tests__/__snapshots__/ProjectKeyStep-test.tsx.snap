@@ -11,7 +11,7 @@ exports[`should render correctly for build tool cfamily 1`] = `
       onboarding.build
       <RenderOptions
         checked="cfamily"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -73,7 +73,7 @@ exports[`should render correctly for build tool dotnet 1`] = `
       onboarding.build
       <RenderOptions
         checked="dotnet"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -107,7 +107,7 @@ exports[`should render correctly for build tool gradle 1`] = `
       onboarding.build
       <RenderOptions
         checked="gradle"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -176,7 +176,7 @@ exports[`should render correctly for build tool maven 1`] = `
       onboarding.build
       <RenderOptions
         checked="maven"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -238,7 +238,7 @@ exports[`should render correctly for build tool other 1`] = `
       onboarding.build
       <RenderOptions
         checked="other"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -299,7 +299,7 @@ exports[`should render correctly if C is not available 1`] = `
     <li>
       onboarding.build
       <RenderOptions
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -337,7 +337,7 @@ exports[`should render correctly: initial content 1`] = `
     <li>
       onboarding.build
       <RenderOptions
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={

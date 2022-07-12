@@ -886,7 +886,6 @@ export class App extends React.PureComponent<Props, State> {
         {currentUser.isLoggedIn && (
           <div className="display-flex-justify-center big-spacer-bottom">
             <ButtonToggle
-              name="my-issue-filter"
               options={[
                 { value: true, label: translate('issues.my_issues') },
                 { value: false, label: translate('all') }

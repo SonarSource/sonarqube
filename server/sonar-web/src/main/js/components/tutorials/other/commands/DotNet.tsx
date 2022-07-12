@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import RenderOptions from '../../components/RenderOptions';
 import DotNetCore from './DotNetCore';
@@ -41,8 +42,8 @@ export default function DotNet(props: DotNetProps) {
   return (
     <>
       <RenderOptions
+        label={translate('onboarding.build.other.os')}
         checked={variant}
-        name="variant"
         onCheck={value => setVariant(value as Variant)}
         optionLabelKey="onboarding.build.dotnet.variant"
         options={['dotnet_core', 'dotnet_framework']}

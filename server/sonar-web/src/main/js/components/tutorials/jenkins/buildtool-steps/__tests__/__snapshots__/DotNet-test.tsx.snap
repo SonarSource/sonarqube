@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   <li>
     onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent
     <RenderOptions
-      name="flavorComponent"
+      label="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.dotnet"
       options={

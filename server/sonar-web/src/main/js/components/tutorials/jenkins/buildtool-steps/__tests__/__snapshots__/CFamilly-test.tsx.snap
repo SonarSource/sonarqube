@@ -31,7 +31,7 @@ exports[`should render correctly for 1`] = `
   >
     onboarding.build.other.os
     <RenderOptions
-      name="flavorComponent"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -78,7 +78,7 @@ exports[`should render correctly for linux: linux 1`] = `
     onboarding.build.other.os
     <RenderOptions
       checked="linux"
-      name="flavorComponent"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -157,7 +157,7 @@ exports[`should render correctly for mac: mac 1`] = `
     onboarding.build.other.os
     <RenderOptions
       checked="mac"
-      name="flavorComponent"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
@@ -240,7 +240,7 @@ exports[`should render correctly for win: win 1`] = `
     onboarding.build.other.os
     <RenderOptions
       checked="win"
-      name="flavorComponent"
+      label="onboarding.build.other.os"
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={

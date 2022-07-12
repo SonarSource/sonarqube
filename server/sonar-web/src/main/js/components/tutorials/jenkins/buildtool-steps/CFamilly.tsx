@@ -111,8 +111,8 @@ export default function CFamilly(props: LanguageProps) {
       <li className="abs-width-600">
         {translate('onboarding.build.other.os')}
         <RenderOptions
+          label={translate('onboarding.build.other.os')}
           checked={os}
-          name="flavorComponent"
           optionLabelKey="onboarding.build.other.os"
           onCheck={value => setOs(value as OSs)}
           options={Object.values(OSs)}

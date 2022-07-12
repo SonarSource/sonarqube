@@ -61,8 +61,6 @@ exports[`should show warnning when not all projects are accessible 1`] = `
           className="display-flex-justify-center big-spacer-bottom"
         >
           <ButtonToggle
-            disabled={false}
-            name="my-issue-filter"
             onCheck={[Function]}
             options={
               Array [

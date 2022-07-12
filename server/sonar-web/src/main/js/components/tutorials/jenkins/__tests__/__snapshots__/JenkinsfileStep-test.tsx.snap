@@ -11,7 +11,7 @@ exports[`should render correctly for .NET 1`] = `
       onboarding.build
       <RenderOptions
         checked="dotnet"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -65,7 +65,7 @@ exports[`should render correctly for Gradle 1`] = `
       onboarding.build
       <RenderOptions
         checked="gradle"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -119,7 +119,7 @@ exports[`should render correctly for Maven 1`] = `
       onboarding.build
       <RenderOptions
         checked="maven"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -173,7 +173,7 @@ exports[`should render correctly for Other 1`] = `
       onboarding.build
       <RenderOptions
         checked="other"
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
@@ -248,7 +248,7 @@ exports[`should render correctly: initial content 1`] = `
     <li>
       onboarding.build
       <RenderOptions
-        name="buildtool"
+        label="onboarding.build"
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={

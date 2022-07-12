@@ -95,8 +95,8 @@ export function ProjectKeyStep(props: ProjectKeyStepProps) {
         <li>
           {translate('onboarding.build')}
           <RenderOptions
+            label={translate('onboarding.build')}
             checked={buildTool}
-            name="buildtool"
             onCheck={buildToolSelect}
             optionLabelKey="onboarding.build"
             options={buildTools}

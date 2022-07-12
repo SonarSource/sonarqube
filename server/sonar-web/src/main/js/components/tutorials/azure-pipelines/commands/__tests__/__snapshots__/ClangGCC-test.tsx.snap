@@ -9,7 +9,7 @@ exports[`should render correctly for "linux" 1`] = `
   </span>
   <RenderOptions
     checked="linux"
-    name="os"
+    label="onboarding.tutorial.with.azure_pipelines.os"
     onCheck={[Function]}
     optionLabelKey="onboarding.build.other.os"
     options={
@@ -131,7 +131,7 @@ exports[`should render correctly for "mac" 1`] = `
   </span>
   <RenderOptions
     checked="mac"
-    name="os"
+    label="onboarding.tutorial.with.azure_pipelines.os"
     onCheck={[Function]}
     optionLabelKey="onboarding.build.other.os"
     options={
@@ -253,7 +253,7 @@ exports[`should render correctly for "win" 1`] = `
   </span>
   <RenderOptions
     checked="win"
-    name="os"
+    label="onboarding.tutorial.with.azure_pipelines.os"
     onCheck={[Function]}
     optionLabelKey="onboarding.build.other.os"
     options={

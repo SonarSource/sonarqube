@@ -72,7 +72,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
         <div>
           <h4 className="spacer-bottom">{translate('onboarding.build')}</h4>
           <ButtonToggle
-            name="language"
+            label={translate('onboarding.build')}
             onCheck={this.handleBuildToolChange}
             options={buildTools.map(tool => ({
               label: translate('onboarding.build', tool),
@@ -84,8 +84,8 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
 
         {(config.buildTool === BuildTools.Other || config.buildTool === BuildTools.CFamily) && (
           <RenderOptions
+            label={translate('onboarding.build.other.os')}
             checked={config.os}
-            name="os"
             onCheck={this.handleOSChange}
             optionLabelKey="onboarding.build.other.os"
             options={[OSs.Linux, OSs.Windows, OSs.MacOS]}

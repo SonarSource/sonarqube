@@ -9,7 +9,7 @@ exports[`should render child correctly: C unavailable 1`] = `
   >
     onboarding.build
     <RenderOptions
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={
@@ -34,7 +34,7 @@ exports[`should render correctly: C available 1`] = `
   >
     onboarding.build
     <RenderOptions
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={
@@ -60,7 +60,7 @@ exports[`should render correctly: C unavailable 1`] = `
   >
     onboarding.build
     <RenderOptions
-      name="language"
+      label="onboarding.build"
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={

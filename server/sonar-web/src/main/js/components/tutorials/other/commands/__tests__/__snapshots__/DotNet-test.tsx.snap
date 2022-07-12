@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <RenderOptions
     checked="dotnet_core"
-    name="variant"
+    label="onboarding.build.other.os"
     onCheck={[Function]}
     optionLabelKey="onboarding.build.dotnet.variant"
     options={

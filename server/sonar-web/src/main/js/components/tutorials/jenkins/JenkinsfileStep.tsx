@@ -75,8 +75,8 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
             <li>
               {translate('onboarding.build')}
               <RenderOptions
+                label={translate('onboarding.build')}
                 checked={buildTool}
-                name="buildtool"
                 onCheck={value => setBuildTool(value as BuildTools)}
                 optionLabelKey="onboarding.build"
                 options={buildToolOrder}

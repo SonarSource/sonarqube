@@ -38,7 +38,8 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.button:hover {
+.button:hover,
+.button.selected {
   background: var(--darkBlue);
   color: var(--white);
 }

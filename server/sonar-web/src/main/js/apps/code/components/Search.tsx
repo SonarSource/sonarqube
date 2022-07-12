@@ -140,24 +140,23 @@ export class Search extends React.PureComponent<Props, State> {
     return (
       <div className="code-search" id="code-search">
         {isPortfolio && (
-          <ButtonToggle
-            name="portfolio-scope"
-            className="big-spacer-right"
-            options={[
-              {
-                value: true,
-                label: translate('projects.view.new_code'),
-                disabled: !isEmpty(query)
-              },
-              {
-                value: false,
-                label: translate('projects.view.overall_code'),
-                disabled: !isEmpty(query)
-              }
-            ]}
-            value={newCodeSelected}
-            onCheck={this.props.onNewCodeToggle}
-          />
+          <span className="big-spacer-right">
+            <ButtonToggle
+              disabled={!isEmpty(query)}
+              options={[
+                {
+                  value: true,
+                  label: translate('projects.view.new_code')
+                },
+                {
+                  value: false,
+                  label: translate('projects.view.overall_code')
+                }
+              ]}
+              value={newCodeSelected}
+              onCheck={this.props.onNewCodeToggle}
+            />
+          </span>
         )}
         <SearchBox
           minLength={3}

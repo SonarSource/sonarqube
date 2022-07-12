@@ -52,7 +52,6 @@ export default class Search extends React.PureComponent<Props> {
       <div className="big-spacer-bottom" id="marketplace-search">
         <div className="display-inline-block text-top nowrap abs-width-240 spacer-right">
           <ButtonToggle
-            name="marketplace-filter"
             onCheck={this.handleFilterChange}
             options={radioOptions}
             value={query.filter}

@@ -17,59 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import * as React from 'react';
+import { Button } from './buttons';
 import './ButtonToggle.css';
-import Tooltip from './Tooltip';
 
 export type ButtonToggleValueType = string | number | boolean;
 
 export interface ButtonToggleOption {
-  disabled?: boolean;
   label: string;
-  tooltip?: string;
   value: ButtonToggleValueType;
 }
 
-interface Props {
-  className?: string;
-  name: string;
-  onCheck: (value: ButtonToggleValueType) => void;
+export interface ButtonToggleProps {
+  label?: string;
+  disabled?: boolean;
   options: ButtonToggleOption[];
   value?: ButtonToggleValueType;
+  onCheck: (value: ButtonToggleValueType) => void;
 }
 
-export default class ButtonToggle extends React.PureComponent<Props> {
-  static defaultProps = {
-    disabled: false,
-    value: null
-  };
+export default function ButtonToggle(props: ButtonToggleProps) {
+  const { disabled, label, options, value } = props;
 
-  renderOption = (option: ButtonToggleOption) => {
-    const checked = option.value === this.props.value;
-    const htmlId = `${this.props.name}__${option.value}`;
-    return (
-      <li key={option.value.toString()}>
-        <input
-          checked={checked}
-          disabled={option.disabled}
-          id={htmlId}
-          name={this.props.name}
-          onChange={() => this.props.onCheck(option.value)}
-          type="radio"
-        />
-        <Tooltip overlay={option.tooltip || undefined}>
-          <label htmlFor={htmlId}>{option.label}</label>
-        </Tooltip>
-      </li>
-    );
-  };
-
-  render() {
-    return (
-      <ul className={classNames('radio-toggle', this.props.className)}>
-        {this.props.options.map(this.renderOption)}
-      </ul>
-    );
-  }
+  return (
+    <span aria-label={label} role="group" className="button-toggle">
+      {options.map(option => (
+        <Button
+          key={option.value.toString()}
+          onClick={() => option.value !== value && props.onCheck(option.value)}
+          disabled={disabled}
+          data-value={option.value}
+          className={classNames({ selected: option.value === value })}>
+          {option.label}
+        </Button>
+      ))}
+    </span>
+  );
 }

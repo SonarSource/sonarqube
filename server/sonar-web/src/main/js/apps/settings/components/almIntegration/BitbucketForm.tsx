@@ -47,19 +47,20 @@ export default function BitbucketForm(props: BitbucketFormProps) {
       {!isUpdate && (
         <div className="display-flex-column">
           <strong>{translate('settings.almintegration.form.choose_bitbucket_variant')}</strong>
-          <ButtonToggle
-            className="little-spacer-top big-spacer-bottom"
-            name="variant"
-            onCheck={props.onVariantChange}
-            options={[
-              {
-                label: 'Bitbucket Server',
-                value: AlmKeys.BitbucketServer
-              },
-              { label: 'Bitbucket Cloud', value: AlmKeys.BitbucketCloud }
-            ]}
-            value={variant}
-          />
+          <div className="little-spacer-top big-spacer-bottom">
+            <ButtonToggle
+              label={translate('settings.almintegration.form.choose_bitbucket_variant')}
+              onCheck={props.onVariantChange}
+              options={[
+                {
+                  label: 'Bitbucket Server',
+                  value: AlmKeys.BitbucketServer
+                },
+                { label: 'Bitbucket Cloud', value: AlmKeys.BitbucketCloud }
+              ]}
+              value={variant}
+            />
+          </div>
         </div>
       )}
 

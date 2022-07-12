@@ -44,8 +44,8 @@ export function YamlFileStep(props: YamlFileStepProps) {
       <li className="abs-width-600">
         {translate('onboarding.build')}
         <RenderOptions
+          label={translate('onboarding.build')}
           checked={buildToolSelected}
-          name="language"
           onCheck={value => setBuildToolSelected(value as BuildTools)}
           options={buildTools}
           optionLabelKey="onboarding.build"

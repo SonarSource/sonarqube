@@ -38,12 +38,7 @@ export default function SearchForm(props: Props) {
 
   return (
     <div className="display-flex-row">
-      <ButtonToggle
-        name="users-or-groups"
-        onCheck={props.onFilter}
-        options={filterOptions}
-        value={props.filter}
-      />
+      <ButtonToggle onCheck={props.onFilter} options={filterOptions} value={props.filter} />
 
       <div className="flex-1 spacer-left">
         <SearchBox

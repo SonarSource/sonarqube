@@ -16,8 +16,7 @@ exports[`should render correctly: form, default 1`] = `
   className="boxed-group-inner"
 >
   <ButtonToggle
-    disabled={false}
-    name="alm"
+    label="onboarding.tutorial.with.jenkins.alm_selection.title"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -39,7 +38,6 @@ exports[`should render correctly: form, default 1`] = `
         },
       ]
     }
-    value={null}
   />
 </div>
 `;
@@ -49,8 +47,7 @@ exports[`should render correctly: form, with alm 1`] = `
   className="boxed-group-inner"
 >
   <ButtonToggle
-    disabled={false}
-    name="alm"
+    label="onboarding.tutorial.with.jenkins.alm_selection.title"
     onCheck={[MockFunction]}
     options={
       Array [

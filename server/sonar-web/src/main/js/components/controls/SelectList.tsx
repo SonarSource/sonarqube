@@ -144,17 +144,18 @@ export default class SelectList extends React.PureComponent<Props, State> {
     return (
       <div className="select-list">
         <div className="display-flex-center">
-          <ButtonToggle
-            className="select-list-filter spacer-right"
-            name="filter"
-            onCheck={this.changeFilter}
-            options={[
-              { disabled, label: labelSelected, value: SelectListFilter.Selected },
-              { disabled, label: labelUnselected, value: SelectListFilter.Unselected },
-              { disabled, label: labelAll, value: SelectListFilter.All }
-            ]}
-            value={filter}
-          />
+          <span className="select-list-filter spacer-right">
+            <ButtonToggle
+              onCheck={this.changeFilter}
+              disabled={disabled}
+              options={[
+                { label: labelSelected, value: SelectListFilter.Selected },
+                { label: labelUnselected, value: SelectListFilter.Unselected },
+                { label: labelAll, value: SelectListFilter.All }
+              ]}
+              value={filter}
+            />
+          </span>
           <SearchBox
             autoFocus={true}
             loading={this.state.loading}

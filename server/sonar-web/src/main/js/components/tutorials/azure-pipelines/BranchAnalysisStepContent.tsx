@@ -52,8 +52,8 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
     <>
       <span>{translate('onboarding.build')}</span>
       <RenderOptions
+        label={translate('onboarding.build')}
         checked={buildTechnology}
-        name="buildTechnology"
         onCheck={value => setBuildTechnology(value as BuildTools)}
         optionLabelKey="onboarding.build"
         options={buildToolsList}

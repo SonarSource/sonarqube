@@ -8,25 +8,27 @@ exports[`should render correctly: bbc 1`] = `
     <strong>
       settings.almintegration.form.choose_bitbucket_variant
     </strong>
-    <ButtonToggle
+    <div
       className="little-spacer-top big-spacer-bottom"
-      disabled={false}
-      name="variant"
-      onCheck={[MockFunction]}
-      options={
-        Array [
-          Object {
-            "label": "Bitbucket Server",
-            "value": "bitbucket",
-          },
-          Object {
-            "label": "Bitbucket Cloud",
-            "value": "bitbucketcloud",
-          },
-        ]
-      }
-      value="bitbucketcloud"
-    />
+    >
+      <ButtonToggle
+        label="settings.almintegration.form.choose_bitbucket_variant"
+        onCheck={[MockFunction]}
+        options={
+          Array [
+            Object {
+              "label": "Bitbucket Server",
+              "value": "bitbucket",
+            },
+            Object {
+              "label": "Bitbucket Cloud",
+              "value": "bitbucketcloud",
+            },
+          ]
+        }
+        value="bitbucketcloud"
+      />
+    </div>
   </div>
   <BitbucketCloudForm
     formData={
@@ -50,25 +52,27 @@ exports[`should render correctly: bbs 1`] = `
     <strong>
       settings.almintegration.form.choose_bitbucket_variant
     </strong>
-    <ButtonToggle
+    <div
       className="little-spacer-top big-spacer-bottom"
-      disabled={false}
-      name="variant"
-      onCheck={[MockFunction]}
-      options={
-        Array [
-          Object {
-            "label": "Bitbucket Server",
-            "value": "bitbucket",
-          },
-          Object {
-            "label": "Bitbucket Cloud",
-            "value": "bitbucketcloud",
-          },
-        ]
-      }
-      value="bitbucket"
-    />
+    >
+      <ButtonToggle
+        label="settings.almintegration.form.choose_bitbucket_variant"
+        onCheck={[MockFunction]}
+        options={
+          Array [
+            Object {
+              "label": "Bitbucket Server",
+              "value": "bitbucket",
+            },
+            Object {
+              "label": "Bitbucket Cloud",
+              "value": "bitbucketcloud",
+            },
+          ]
+        }
+        value="bitbucket"
+      />
+    </div>
   </div>
   <BitbucketServerForm
     formData={

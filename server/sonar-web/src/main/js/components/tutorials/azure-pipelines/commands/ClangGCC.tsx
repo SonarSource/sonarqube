@@ -93,8 +93,8 @@ unzip build-wrapper.zip`,
         {translate('onboarding.tutorial.with.azure_pipelines.os')}
       </span>
       <RenderOptions
+        label={translate('onboarding.tutorial.with.azure_pipelines.os')}
         checked={os}
-        name="os"
         onCheck={handlOsChange}
         optionLabelKey="onboarding.build.other.os"
         options={Object.values(OSs)}

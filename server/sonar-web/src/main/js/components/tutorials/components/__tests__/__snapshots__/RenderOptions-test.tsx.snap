@@ -5,8 +5,7 @@ exports[`should render correctly: default 1`] = `
   className="big-spacer-top"
 >
   <ButtonToggle
-    disabled={false}
-    name="bar"
+    label="test-label"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -20,7 +19,6 @@ exports[`should render correctly: default 1`] = `
         },
       ]
     }
-    value={null}
   />
 </div>
 `;
@@ -30,8 +28,7 @@ exports[`should render correctly: option checked 1`] = `
   className="big-spacer-top"
 >
   <ButtonToggle
-    disabled={false}
-    name="bar"
+    label="test-label"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -60,8 +57,7 @@ exports[`should render correctly: with title 1`] = `
     title.key
   </h4>
   <ButtonToggle
-    disabled={false}
-    name="bar"
+    label="test-label"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -75,7 +71,6 @@ exports[`should render correctly: with title 1`] = `
         },
       ]
     }
-    value={null}
   />
 </div>
 `;
