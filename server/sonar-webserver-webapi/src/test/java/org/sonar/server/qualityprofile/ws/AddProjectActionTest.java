@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -96,12 +97,12 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void as_qprofile_editor() {
+  public void as_qprofile_editor_and_global_admin() {
     UserDto user = db.users().insertUser();
     QProfileDto qualityProfile = db.qualityProfiles().insert(qp -> qp.setLanguage(LANGUAGE_1));
     db.qualityProfiles().addUserPermission(qualityProfile, user);
     ProjectDto project = db.components().insertPrivateProjectDto();
-    userSession.logIn(user);
+    userSession.logIn(user).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     call(project, qualityProfile);
 

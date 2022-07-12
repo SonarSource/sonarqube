@@ -30,6 +30,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -93,11 +94,11 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void as_qprofile_editor() {
+  public void as_qprofile_editor_and_global_admin() {
     QProfileDto profile = createProfile();
     UserDto user = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")

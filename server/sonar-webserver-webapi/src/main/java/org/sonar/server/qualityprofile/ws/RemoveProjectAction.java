@@ -85,7 +85,7 @@ public class RemoveProjectAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
-      checkPermissions(dbSession, profile, project);
+      checkPermissions(profile, project);
 
       dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
@@ -109,8 +109,8 @@ public class RemoveProjectAction implements QProfileWsAction {
     return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
-  private void checkPermissions(DbSession dbSession, QProfileDto profile, ProjectDto project) {
-    if (wsSupport.canEdit(dbSession, profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
+  private void checkPermissions(QProfileDto profile, ProjectDto project) {
+    if (wsSupport.canAdministrate(profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
       return;
     }
 

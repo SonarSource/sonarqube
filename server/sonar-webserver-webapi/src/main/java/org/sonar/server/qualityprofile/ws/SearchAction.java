@@ -265,8 +265,8 @@ public class SearchAction implements QProfileWsAction {
         .setEdit(!profile.isBuiltIn() && (isGlobalQProfileAdmin || data.isEditable(profile)))
         .setSetAsDefault(!isDefault && isGlobalQProfileAdmin)
         .setCopy(isGlobalQProfileAdmin)
-        .setDelete(!isDefault && !profile.isBuiltIn() && (isGlobalQProfileAdmin || data.isEditable(profile)))
-        .setAssociateProjects(!isDefault && (isGlobalQProfileAdmin || data.isEditable(profile))));
+        .setDelete(!isDefault && !profile.isBuiltIn() && isGlobalQProfileAdmin)
+        .setAssociateProjects(!isDefault && isGlobalQProfileAdmin));
     }
     return response.build();
   }

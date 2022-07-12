@@ -91,22 +91,32 @@ public class QProfileWsSupport {
   }
 
   boolean canEdit(DbSession dbSession, QProfileDto profile) {
-    if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
-      return false;
-    }
-    if (userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES)) {
+    if (canAdministrate(profile)) {
       return true;
     }
-
     UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
     checkState(user != null, "User from session does not exist");
     return dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)
       || dbClient.qProfileEditGroupsDao().exists(dbSession, profile, userSession.getGroups());
   }
 
+  boolean canAdministrate(QProfileDto profile) {
+    if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
+      return false;
+    }
+    return userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+  }
+
   public void checkCanEdit(DbSession dbSession, QProfileDto profile) {
     checkNotBuiltIn(profile);
     if (!canEdit(dbSession, profile)) {
+      throw insufficientPrivilegesException();
+    }
+  }
+
+  public void checkCanAdministrate(QProfileDto profile) {
+    checkNotBuiltIn(profile);
+    if (!canAdministrate(profile)) {
       throw insufficientPrivilegesException();
     }
   }

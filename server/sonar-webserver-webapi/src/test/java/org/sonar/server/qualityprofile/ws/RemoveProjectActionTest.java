@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -132,7 +133,22 @@ public class RemoveProjectActionTest {
   }
 
   @Test
-  public void as_qprofile_editor() {
+  public void as_qprofile_editor_and_global_admin() {
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
+    db.qualityProfiles().associateWithProject(project, profile);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    userSession.logIn(user).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+
+    call(project, profile);
+
+    assertProjectIsNotAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, null, profile);
+  }
+
+  @Test
+  public void as_qprofile_editor_fail_if_not_project_nor_global_admin() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     db.qualityProfiles().associateWithProject(project, profile);
@@ -140,10 +156,9 @@ public class RemoveProjectActionTest {
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn(user);
 
-    call(project, profile);
-
-    assertProjectIsNotAssociatedToProfile(project, profile);
-    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, null, profile);
+    assertThatThrownBy(() -> call(project, profile))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

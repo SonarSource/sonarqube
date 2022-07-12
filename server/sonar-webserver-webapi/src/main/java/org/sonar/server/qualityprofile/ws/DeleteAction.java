@@ -77,7 +77,7 @@ public class DeleteAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
-      wsSupport.checkCanEdit(dbSession, profile);
+      wsSupport.checkCanAdministrate(profile);
 
       Collection<QProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);

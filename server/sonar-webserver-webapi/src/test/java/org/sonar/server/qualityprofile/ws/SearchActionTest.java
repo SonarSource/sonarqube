@@ -287,9 +287,9 @@ public class SearchActionTest {
       .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
         qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
       .containsExactlyInAnyOrder(
-        tuple(profile1.getKee(), true, false, false, true, true),
+        tuple(profile1.getKee(), true, false, false, false, false),
         tuple(profile2.getKee(), false, false, false, false, false),
-        tuple(profile3.getKee(), true, false, false, true, true),
+        tuple(profile3.getKee(), true, false, false, false, false),
         tuple(builtInProfile.getKee(), false, false, false, false, false));
     assertThat(result.getActions().getCreate()).isFalse();
   }

@@ -40,8 +40,8 @@
         "edit": true,
         "setAsDefault": false,
         "copy": false,
-        "delete": true,
-        "associateProjects": true
+        "delete": false,
+        "associateProjects": false
       }
     },
     {
