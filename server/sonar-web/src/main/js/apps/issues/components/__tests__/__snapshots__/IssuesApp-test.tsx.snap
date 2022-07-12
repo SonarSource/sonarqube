@@ -57,10 +57,28 @@ exports[`should show warnning when not all projects are accessible 1`] = `
       <div
         className="layout-page-filters"
       >
-        <MyIssuesFilter
-          myIssues={false}
-          onMyIssuesChange={[Function]}
-        />
+        <div
+          className="display-flex-justify-center big-spacer-bottom"
+        >
+          <ButtonToggle
+            disabled={false}
+            name="my-issue-filter"
+            onCheck={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "issues.my_issues",
+                  "value": true,
+                },
+                Object {
+                  "label": "all",
+                  "value": false,
+                },
+              ]
+            }
+            value={false}
+          />
+        </div>
         <FiltersHeader
           displayReset={true}
           onReset={[Function]}

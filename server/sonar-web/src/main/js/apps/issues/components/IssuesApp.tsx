@@ -31,6 +31,7 @@ import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { Button } from '../../../components/controls/buttons';
+import ButtonToggle from '../../../components/controls/ButtonToggle';
 import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -94,7 +95,6 @@ import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import IssueTabViewer from './IssueTabViewer';
-import MyIssuesFilter from './MyIssuesFilter';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
@@ -884,10 +884,17 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page-filters">
         {currentUser.isLoggedIn && (
-          <MyIssuesFilter
-            myIssues={this.state.myIssues}
-            onMyIssuesChange={this.handleMyIssuesChange}
-          />
+          <div className="display-flex-justify-center big-spacer-bottom">
+            <ButtonToggle
+              name="my-issue-filter"
+              options={[
+                { value: true, label: translate('issues.my_issues') },
+                { value: false, label: translate('all') }
+              ]}
+              value={this.state.myIssues}
+              onCheck={this.handleMyIssuesChange}
+            />
+          </div>
         )}
         <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
         <Sidebar

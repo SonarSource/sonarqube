@@ -59,14 +59,9 @@ export default function PageSidebar(props: PageSidebarProps) {
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { onQueryChange, maxFacetValue };
 
-  let linkQuery: RawQuery | undefined = undefined;
-  if (view !== 'overall') {
-    linkQuery = { view };
-  }
-
   return (
     <div>
-      <FavoriteFilter query={linkQuery} />
+      <FavoriteFilter />
 
       <div className="projects-facets-header clearfix">
         {isFiltered && <ClearAll onClearAll={props.onClearAll} />}

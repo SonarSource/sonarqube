@@ -24,10 +24,26 @@ exports[`should render correcly: new code toggle for portfolio 1`] = `
   className="code-search"
   id="code-search"
 >
-  <PortfolioNewCodeToggle
-    enabled={true}
-    onNewCodeToggle={[MockFunction]}
-    showNewCode={false}
+  <ButtonToggle
+    className="big-spacer-right"
+    disabled={false}
+    name="portfolio-scope"
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "disabled": false,
+          "label": "projects.view.new_code",
+          "value": true,
+        },
+        Object {
+          "disabled": false,
+          "label": "projects.view.overall_code",
+          "value": false,
+        },
+      ]
+    }
+    value={false}
   />
   <SearchBox
     minLength={3}
@@ -48,10 +64,26 @@ exports[`should render correcly: new code toggle for portfolio disabled 1`] = `
   className="code-search"
   id="code-search"
 >
-  <PortfolioNewCodeToggle
-    enabled={false}
-    onNewCodeToggle={[MockFunction]}
-    showNewCode={false}
+  <ButtonToggle
+    className="big-spacer-right"
+    disabled={false}
+    name="portfolio-scope"
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "disabled": true,
+          "label": "projects.view.new_code",
+          "value": true,
+        },
+        Object {
+          "disabled": true,
+          "label": "projects.view.overall_code",
+          "value": false,
+        },
+      ]
+    }
+    value={false}
   />
   <SearchBox
     minLength={3}

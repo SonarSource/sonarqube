@@ -21,9 +21,14 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { save } from '../../../../helpers/storage';
-import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockLocation,
+  mockLoggedInUser,
+  mockRouter
+} from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { FavoriteFilter } from '../FavoriteFilter';
+import { ALL_PATHNAME, FavoriteFilter, FAVORITE_PATHNAME } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn()
@@ -39,16 +44,20 @@ it('renders for logged in user', () => {
   expect(screen.queryByText('all')).toBeInTheDocument();
 });
 
-it('saves last selection', async () => {
-  const user = userEvent.setup();
+it.each([
+  ['my_favorites', 'favorite', ALL_PATHNAME],
+  ['all', 'all', FAVORITE_PATHNAME]
+])(
+  'saves last selection',
+  async (optionTranslationId: string, localStorageValue: string, initialPathName: string) => {
+    const user = userEvent.setup();
 
-  renderFavoriteFilter();
+    renderFavoriteFilter({ location: mockLocation({ pathname: initialPathName }) });
 
-  await user.click(screen.getByText('my_favorites'));
-  expect(save).toBeCalledWith('sonarqube.projects.default', 'favorite');
-  await user.click(screen.getByText('all'));
-  expect(save).toBeCalledWith('sonarqube.projects.default', 'all');
-});
+    await user.click(screen.getByText(optionTranslationId));
+    expect(save).toHaveBeenLastCalledWith('sonarqube.projects.default', localStorageValue);
+  }
+);
 
 it('does not render for anonymous', () => {
   renderFavoriteFilter({ currentUser: mockCurrentUser() });
@@ -57,7 +66,14 @@ it('does not render for anonymous', () => {
 
 function renderFavoriteFilter({
   currentUser = mockLoggedInUser(),
-  query = { size: 1 }
+  location = mockLocation()
 }: Partial<FavoriteFilter['props']> = {}) {
-  renderComponent(<FavoriteFilter currentUser={currentUser} query={query} />);
+  renderComponent(
+    <FavoriteFilter
+      currentUser={currentUser}
+      location={location}
+      router={mockRouter()}
+      params={{}}
+    />
+  );
 }

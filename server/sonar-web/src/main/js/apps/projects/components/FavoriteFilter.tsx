@@ -18,22 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import ButtonToggle from '../../../components/controls/ButtonToggle';
+import { withRouter, WithRouterProps } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
-import { queryToSearch } from '../../../helpers/urls';
-import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 
-interface Props {
+interface Props extends WithRouterProps {
   currentUser: CurrentUser;
-  query?: RawQuery;
 }
 
-const linkClass = ({ isActive }: { isActive: boolean }) =>
-  isActive ? 'button button-active' : 'button';
+export const FAVORITE_PATHNAME = '/projects/favorite';
+export const ALL_PATHNAME = '/projects';
 
 export class FavoriteFilter extends React.PureComponent<Props> {
   handleSaveFavorite = () => {
@@ -44,38 +42,39 @@ export class FavoriteFilter extends React.PureComponent<Props> {
     save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
   };
 
+  onFavoriteChange = (favorite: boolean) => {
+    if (favorite) {
+      this.handleSaveFavorite();
+      this.props.router.push(FAVORITE_PATHNAME);
+    } else {
+      this.handleSaveAll();
+      this.props.router.push(ALL_PATHNAME);
+    }
+  };
+
   render() {
+    const {
+      location: { pathname }
+    } = this.props;
+
     if (!isLoggedIn(this.props.currentUser)) {
       return null;
     }
 
-    const pathnameForFavorite = '/projects/favorite';
-    const pathnameForAll = '/projects';
-
-    const search = queryToSearch(this.props.query);
-
     return (
       <div className="page-header text-center">
-        <div className="button-group little-spacer-top">
-          <NavLink
-            className={linkClass}
-            id="favorite-projects"
-            onClick={this.handleSaveFavorite}
-            to={{ pathname: pathnameForFavorite, search }}>
-            {translate('my_favorites')}
-          </NavLink>
-          <NavLink
-            end={true}
-            className={linkClass}
-            id="all-projects"
-            onClick={this.handleSaveAll}
-            to={{ pathname: pathnameForAll, search }}>
-            {translate('all')}
-          </NavLink>
-        </div>
+        <ButtonToggle
+          name="favorite-filter"
+          options={[
+            { value: true, label: translate('my_favorites') },
+            { value: false, label: translate('all') }
+          ]}
+          onCheck={this.onFavoriteChange}
+          value={pathname === FAVORITE_PATHNAME}
+        />
       </div>
     );
   }
 }
 
-export default withCurrentUserContext(FavoriteFilter);
+export default withRouter(withCurrentUserContext(FavoriteFilter));

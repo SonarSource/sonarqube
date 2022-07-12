@@ -20,6 +20,7 @@
 import { isEmpty, omit } from 'lodash';
 import * as React from 'react';
 import { getTree } from '../../../api/components';
+import ButtonToggle from '../../../components/controls/ButtonToggle';
 import SearchBox from '../../../components/controls/SearchBox';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -28,7 +29,6 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasure } from '../../../types/types';
-import PortfolioNewCodeToggle from './PortfolioNewCodeToggle';
 
 interface Props {
   branchLike?: BranchLike;
@@ -140,10 +140,23 @@ export class Search extends React.PureComponent<Props, State> {
     return (
       <div className="code-search" id="code-search">
         {isPortfolio && (
-          <PortfolioNewCodeToggle
-            enabled={isEmpty(query)}
-            onNewCodeToggle={this.props.onNewCodeToggle}
-            showNewCode={newCodeSelected}
+          <ButtonToggle
+            name="portfolio-scope"
+            className="big-spacer-right"
+            options={[
+              {
+                value: true,
+                label: translate('projects.view.new_code'),
+                disabled: !isEmpty(query)
+              },
+              {
+                value: false,
+                label: translate('projects.view.overall_code'),
+                disabled: !isEmpty(query)
+              }
+            ]}
+            value={newCodeSelected}
+            onCheck={this.props.onNewCodeToggle}
           />
         )}
         <SearchBox

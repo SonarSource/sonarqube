@@ -150,11 +150,6 @@
   padding: var(--gridSize);
 }
 
-.issues-my-issues-filter {
-  margin-bottom: 24px;
-  text-align: center;
-}
-
 .issues-page-actions {
   display: inline-block;
   min-width: 80px;
