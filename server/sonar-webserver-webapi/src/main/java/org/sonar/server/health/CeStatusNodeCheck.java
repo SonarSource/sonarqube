@@ -21,10 +21,8 @@ package org.sonar.server.health;
 
 import org.sonar.server.app.ProcessCommandWrapper;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
-
 public class CeStatusNodeCheck implements NodeHealthCheck {
-  private static final Health RED_HEALTH = newHealthCheckBuilder()
+  private static final Health RED_HEALTH = Health.builder()
     .setStatus(Health.Status.RED)
     .addCause("Compute Engine is not operational")
     .build();

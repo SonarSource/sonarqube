@@ -24,8 +24,6 @@ import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
-
 /**
  * Checks the running status of the WebServer when it is not anymore in safemode.
  */
@@ -51,7 +49,7 @@ public class WebServerStatusNodeCheck implements NodeHealthCheck {
       && !restartFlagHolder.isRestarting()) {
       return Health.GREEN;
     }
-    return newHealthCheckBuilder()
+    return Health.builder()
       .setStatus(Health.Status.RED)
       .addCause("SonarQube webserver is not up")
       .build();

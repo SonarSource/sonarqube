@@ -38,7 +38,7 @@ public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealth
     if (esClusterHealth != null) {
       Health minimumNodes = checkMinimumNodes(esClusterHealth);
       Health clusterStatus = extractStatusHealth(esClusterHealth);
-      return HealthReducer.INSTANCE.apply(minimumNodes, clusterStatus);
+      return HealthReducer.merge(minimumNodes, clusterStatus);
     }
     return RED_HEALTH_UNAVAILABLE;
   }
@@ -46,7 +46,7 @@ public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealth
   private static Health checkMinimumNodes(ClusterHealthResponse esClusterHealth) {
     int nodeCount = esClusterHealth.getNumberOfNodes();
     if (nodeCount < RECOMMENDED_MIN_NUMBER_OF_ES_NODES) {
-      return Health.newHealthCheckBuilder()
+      return Health.builder()
         .setStatus(Health.Status.YELLOW)
         .addCause(MINIMUM_NODE_MESSAGE)
         .build();

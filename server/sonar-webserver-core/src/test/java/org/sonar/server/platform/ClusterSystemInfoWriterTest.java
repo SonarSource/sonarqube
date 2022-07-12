@@ -56,7 +56,7 @@ public class ClusterSystemInfoWriterTest {
     when(globalInfoLoader.load()).thenReturn(Collections.singletonList(createSection("globalInfo")));
     when(appNodesInfoLoader.load()).thenReturn(Collections.singletonList(createNodeInfo("appNodes")));
     when(searchNodesInfoLoader.load()).thenReturn(Collections.singletonList(createNodeInfo("searchNodes")));
-    Health health = Health.newHealthCheckBuilder().setStatus(Health.Status.GREEN).build();
+    Health health = Health.builder().setStatus(Health.Status.GREEN).build();
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(health, Collections.emptySet()));
   }
 

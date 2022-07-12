@@ -88,7 +88,7 @@ public class NodeHealthProviderImplTest {
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(4));
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
     String[] expected = IntStream.range(0, random.nextInt(4)).mapToObj(s -> randomAlphabetic(55)).toArray(String[]::new);
-    Health.Builder healthBuilder = Health.newHealthCheckBuilder()
+    Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(expected).forEach(healthBuilder::addCause);
     when(healthChecker.checkNode()).thenReturn(healthBuilder.build());
@@ -105,7 +105,7 @@ public class NodeHealthProviderImplTest {
     setRequiredPropertiesForConstructor();
     setStartedAt();
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(23));
-    when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
+    when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
     NodeHealthProviderImpl underTest = new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
@@ -122,7 +122,7 @@ public class NodeHealthProviderImplTest {
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), name);
     mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), port);
     setStartedAt();
-    when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
+    when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(3));
@@ -149,7 +149,7 @@ public class NodeHealthProviderImplTest {
     mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), 1 + random.nextInt(4));
     mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     setStartedAt();
-    when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
+    when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
     NodeHealthProviderImpl underTest = new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
@@ -183,7 +183,7 @@ public class NodeHealthProviderImplTest {
       mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), hostPropertyValue);
     }
     setStartedAt();
-    when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
+    when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
     when(networkUtils.getHostname()).thenReturn(host);
@@ -207,7 +207,7 @@ public class NodeHealthProviderImplTest {
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(4));
     Date date = new Date();
     when(server.getStartedAt()).thenReturn(date);
-    when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
+    when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
     NodeHealthProviderImpl underTest = new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);

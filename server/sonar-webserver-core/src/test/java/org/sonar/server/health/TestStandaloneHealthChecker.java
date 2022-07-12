@@ -21,7 +21,7 @@ package org.sonar.server.health;
 
 public class TestStandaloneHealthChecker implements HealthChecker {
 
-  private Health health = Health.newHealthCheckBuilder().setStatus(Health.Status.GREEN).build();
+  private Health health = Health.builder().setStatus(Health.Status.GREEN).build();
 
   public void setHealth(Health h) {
     this.health = h;

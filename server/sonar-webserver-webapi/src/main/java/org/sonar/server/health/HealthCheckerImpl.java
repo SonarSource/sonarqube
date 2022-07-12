@@ -66,7 +66,7 @@ public class HealthCheckerImpl implements HealthChecker {
   public Health checkNode() {
     return nodeHealthChecks.stream()
       .map(NodeHealthCheck::check)
-      .reduce(Health.GREEN, HealthReducer.INSTANCE);
+      .reduce(Health.GREEN, HealthReducer::merge);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class HealthCheckerImpl implements HealthChecker {
     Set<NodeHealth> nodeHealths = sharedHealthState.readAll();
     Health health = clusterHealthChecks.stream()
       .map(clusterHealthCheck -> clusterHealthCheck.check(nodeHealths))
-      .reduce(Health.GREEN, HealthReducer.INSTANCE);
+      .reduce(Health.GREEN, HealthReducer::merge);
     return new ClusterHealth(health, nodeHealths);
   }
 

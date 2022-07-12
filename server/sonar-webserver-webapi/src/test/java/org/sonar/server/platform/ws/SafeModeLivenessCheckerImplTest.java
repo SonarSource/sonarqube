@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 public class SafeModeLivenessCheckerImplTest {
 
-  public static final Health RED = Health.newHealthCheckBuilder().setStatus(Health.Status.RED).build();
+  public static final Health RED = Health.builder().setStatus(Health.Status.RED).build();
   private final DbConnectionNodeCheck dbConnectionNodeCheck = mock(DbConnectionNodeCheck.class);
   private final SafeModeLivenessCheckerImpl underTest = new SafeModeLivenessCheckerImpl(dbConnectionNodeCheck);
 

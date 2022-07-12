@@ -19,27 +19,16 @@
  */
 package org.sonar.server.health;
 
-import java.util.function.BinaryOperator;
-import java.util.stream.Stream;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
+public class HealthReducer {
 
-public enum HealthReducer implements BinaryOperator<Health> {
-  INSTANCE;
+  private HealthReducer() {
+    // no public constructor
+  }
 
-  /**
-   * According to Javadoc, {@link BinaryOperator} used in method
-   * {@link java.util.stream.Stream#reduce(Object, BinaryOperator)} is supposed to be stateless.
-   *
-   * But as we are sure this {@link BinaryOperator} won't be used on a Stream with {@link Stream#parallel()}
-   * feature on, we allow ourselves this optimisation.
-   */
-  private final Health.Builder builder = newHealthCheckBuilder();
-
-  @Override
-  public Health apply(Health left, Health right) {
-    builder.clear();
-    builder.setStatus(worseOf(left.getStatus(), right.getStatus()));
+  public static Health merge(Health left, Health right) {
+    Health.Builder builder = Health.builder()
+      .setStatus(worseOf(left.getStatus(), right.getStatus()));
     left.getCauses().forEach(builder::addCause);
     right.getCauses().forEach(builder::addCause);
     return builder.build();

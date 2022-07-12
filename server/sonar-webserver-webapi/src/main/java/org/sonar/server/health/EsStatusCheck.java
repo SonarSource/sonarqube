@@ -26,20 +26,18 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.EsClient;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
-
 abstract class EsStatusCheck {
   private static final Logger LOG = Loggers.get(EsStatusCheck.class);
 
-  private static final Health YELLOW_HEALTH = newHealthCheckBuilder()
+  private static final Health YELLOW_HEALTH = Health.builder()
     .setStatus(Health.Status.YELLOW)
     .addCause("Elasticsearch status is YELLOW")
     .build();
-  private static final Health RED_HEALTH = newHealthCheckBuilder()
+  private static final Health RED_HEALTH = Health.builder()
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED")
     .build();
-  protected static final Health RED_HEALTH_UNAVAILABLE = newHealthCheckBuilder()
+  protected static final Health RED_HEALTH_UNAVAILABLE = Health.builder()
     .setStatus(Health.Status.RED)
     .addCause("Elasticsearch status is RED (unavailable)")
     .build();

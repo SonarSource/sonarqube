@@ -28,7 +28,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class AppNodeClusterCheck implements ClusterHealthCheck {
 
@@ -40,7 +39,7 @@ public class AppNodeClusterCheck implements ClusterHealthCheck {
 
     return Arrays.stream(AppNodeClusterHealthSubChecks.values())
       .map(s -> s.check(appNodes))
-      .reduce(Health.GREEN, HealthReducer.INSTANCE);
+      .reduce(Health.GREEN, HealthReducer::merge);
   }
 
   private enum AppNodeClusterHealthSubChecks implements ClusterHealthSubCheck {
@@ -49,7 +48,7 @@ public class AppNodeClusterCheck implements ClusterHealthCheck {
       public Health check(Set<NodeHealth> appNodes) {
         int appNodeCount = appNodes.size();
         if (appNodeCount == 0) {
-          return newHealthCheckBuilder()
+          return Health.builder()
             .setStatus(Health.Status.RED)
             .addCause("No application node")
             .build();
@@ -62,7 +61,7 @@ public class AppNodeClusterCheck implements ClusterHealthCheck {
       public Health check(Set<NodeHealth> appNodes) {
         int appNodeCount = appNodes.size();
         if (appNodeCount == 1) {
-          return newHealthCheckBuilder()
+          return Health.builder()
             .setStatus(Health.Status.YELLOW)
             .addCause("There should be at least two application nodes")
             .build();
@@ -85,7 +84,7 @@ public class AppNodeClusterCheck implements ClusterHealthCheck {
           return Health.GREEN;
         }
 
-        Health.Builder builder = newHealthCheckBuilder();
+        Health.Builder builder = Health.builder();
         if (redNodesCount == appNodeCount) {
           return builder
             .setStatus(Health.Status.RED)

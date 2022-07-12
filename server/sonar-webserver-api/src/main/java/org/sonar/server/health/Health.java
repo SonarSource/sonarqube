@@ -31,7 +31,7 @@ public class Health {
   /**
    * The GREEN status without any cause as a constant, for convenience and optimisation.
    */
-  public static final Health GREEN = newHealthCheckBuilder()
+  public static final Health GREEN = builder()
     .setStatus(Status.GREEN)
     .build();
 
@@ -51,7 +51,7 @@ public class Health {
     return causes;
   }
 
-  public static Builder newHealthCheckBuilder() {
+  public static Builder builder() {
     return new Builder();
   }
 
@@ -89,12 +89,6 @@ public class Health {
 
     private Builder() {
       // use static factory method
-    }
-
-    public Builder clear() {
-      this.status = null;
-      this.causes.clear();
-      return this;
     }
 
     public Builder setStatus(Status status) {

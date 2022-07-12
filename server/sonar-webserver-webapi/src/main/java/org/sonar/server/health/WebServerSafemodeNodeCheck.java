@@ -19,15 +19,13 @@
  */
 package org.sonar.server.health;
 
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
-
 /**
  * Checks the running status of the WebServer when the WebServer is in safemode.
  * Obviously, it statically returns a red health status.
  */
 public class WebServerSafemodeNodeCheck implements NodeHealthCheck {
 
-  private static final Health RED_HEALTH = newHealthCheckBuilder()
+  private static final Health RED_HEALTH = Health.builder()
     .setStatus(Health.Status.RED)
     .addCause("SonarQube webserver is not up")
     .build();

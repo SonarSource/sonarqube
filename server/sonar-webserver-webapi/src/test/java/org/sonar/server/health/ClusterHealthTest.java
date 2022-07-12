@@ -36,7 +36,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class ClusterHealthTest {
 
@@ -78,7 +77,7 @@ public class ClusterHealthTest {
       .isNotEqualTo(new Object())
       .isNotNull()
       .isNotEqualTo(new ClusterHealth(
-        newHealthCheckBuilder()
+        Health.builder()
           .setStatus(health.getStatus())
           .addCause("foo_bar")
           .build(),
@@ -119,7 +118,7 @@ public class ClusterHealthTest {
   }
 
   private Health randomHealth() {
-    Health.Builder healthBuilder = newHealthCheckBuilder();
+    Health.Builder healthBuilder = Health.builder();
     healthBuilder.setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)]);
     IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).forEach(healthBuilder::addCause);
     return healthBuilder.build();

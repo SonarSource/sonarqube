@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SafeModeHealthActionTest {
@@ -76,7 +75,7 @@ public class SafeModeHealthActionTest {
   public void request_succeeds_when_valid_passcode() {
     authenticateWithPasscode();
     when(healthChecker.checkNode())
-      .thenReturn(newHealthCheckBuilder()
+      .thenReturn(Health.builder()
         .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
         .build());
     TestRequest request = underTest.newRequest();
@@ -88,7 +87,7 @@ public class SafeModeHealthActionTest {
   public void verify_response_example() {
     authenticateWithPasscode();
     when(healthChecker.checkNode())
-      .thenReturn(newHealthCheckBuilder()
+      .thenReturn(Health.builder()
         .setStatus(Health.Status.RED)
         .addCause("Application node app-1 is RED")
         .build());
@@ -104,7 +103,7 @@ public class SafeModeHealthActionTest {
   public void request_returns_status_and_causes_from_HealthChecker_checkNode_method() {
     authenticateWithPasscode();
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
-    Health.Builder builder = newHealthCheckBuilder()
+    Health.Builder builder = Health.builder()
       .setStatus(randomStatus);
     IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
@@ -121,7 +120,7 @@ public class SafeModeHealthActionTest {
     authenticateWithPasscode();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
     String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
-    Health.Builder healthBuilder = newHealthCheckBuilder()
+    Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);
     when(healthChecker.checkNode()).thenReturn(healthBuilder.build());

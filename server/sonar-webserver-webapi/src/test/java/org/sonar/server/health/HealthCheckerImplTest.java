@@ -46,7 +46,6 @@ import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 import static org.sonar.server.health.Health.Status.GREEN;
 import static org.sonar.server.health.Health.Status.RED;
 import static org.sonar.server.health.Health.Status.YELLOW;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class HealthCheckerImplTest {
 
@@ -269,11 +268,11 @@ public class HealthCheckerImplTest {
     private final Health health;
 
     public HardcodedHealthNodeCheck(Health.Status status) {
-      this.health = newHealthCheckBuilder().setStatus(status).build();
+      this.health = Health.builder().setStatus(status).build();
     }
 
     public HardcodedHealthNodeCheck(String... causes) {
-      Health.Builder builder = newHealthCheckBuilder().setStatus(Health.Status.values()[random.nextInt(3)]);
+      Health.Builder builder = Health.builder().setStatus(Health.Status.values()[random.nextInt(3)]);
       Stream.of(causes).forEach(builder::addCause);
       this.health = builder.build();
     }
@@ -288,11 +287,11 @@ public class HealthCheckerImplTest {
     private final Health health;
 
     public HardcodedHealthClusterCheck(Health.Status status) {
-      this.health = newHealthCheckBuilder().setStatus(status).build();
+      this.health = Health.builder().setStatus(status).build();
     }
 
     public HardcodedHealthClusterCheck(String... causes) {
-      Health.Builder builder = newHealthCheckBuilder().setStatus(Health.Status.values()[random.nextInt(3)]);
+      Health.Builder builder = Health.builder().setStatus(Health.Status.values()[random.nextInt(3)]);
       Stream.of(causes).forEach(builder::addCause);
       this.health = builder.build();
     }

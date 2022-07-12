@@ -61,7 +61,6 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 import static org.sonar.server.health.Health.GREEN;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class HealthActionTest {
@@ -139,7 +138,7 @@ public class HealthActionTest {
     long time = parseDateTime("2015-08-13T23:34:59+0200").getTime();
     when(healthChecker.checkCluster())
       .thenReturn(
-        new ClusterHealth(newHealthCheckBuilder()
+        new ClusterHealth(Health.builder()
           .setStatus(Health.Status.RED)
           .addCause("Application node app-1 is RED")
           .build(),
@@ -212,7 +211,7 @@ public class HealthActionTest {
   public void request_returns_status_and_causes_from_HealthChecker_checkNode_method_when_standalone() {
     authenticateWithRandomMethod();
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
-    Health.Builder builder = newHealthCheckBuilder()
+    Health.Builder builder = Health.builder()
       .setStatus(randomStatus);
     IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
@@ -230,7 +229,7 @@ public class HealthActionTest {
     authenticateWithRandomMethod();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
     String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
-    Health.Builder healthBuilder = newHealthCheckBuilder()
+    Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);
     when(webServer.isStandalone()).thenReturn(false);
@@ -330,7 +329,7 @@ public class HealthActionTest {
   }
 
   private ClusterHealth randomStatusMinimalClusterHealth() {
-    return new ClusterHealth(newHealthCheckBuilder()
+    return new ClusterHealth(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build(), emptySet());
   }
