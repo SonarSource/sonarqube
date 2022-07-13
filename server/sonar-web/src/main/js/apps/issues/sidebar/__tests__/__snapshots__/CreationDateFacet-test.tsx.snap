@@ -48,10 +48,30 @@ exports[`should render correctly for createdInLast month 1`] = `
         disabled={false}
         halfWidth={false}
         loading={false}
-        name="issues.new_code"
+        name="issues.facet.createdAt.last_week"
         onClick={[Function]}
-        tooltip="issues.new_code_period"
-        value=""
+        tooltip="issues.facet.createdAt.last_week"
+        value="1w"
+      />
+      <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_month"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_month"
+        value="1m"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_year"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_year"
+        value="1y"
       />
     </div>
   </div>
@@ -102,14 +122,34 @@ exports[`should render correctly for createdInLast week 1`] = `
         value=""
       />
       <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_week"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_week"
+        value="1w"
+      />
+      <FacetItem
         active={false}
         disabled={false}
         halfWidth={false}
         loading={false}
-        name="issues.new_code"
+        name="issues.facet.createdAt.last_month"
         onClick={[Function]}
-        tooltip="issues.new_code_period"
-        value=""
+        tooltip="issues.facet.createdAt.last_month"
+        value="1m"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_year"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_year"
+        value="1y"
       />
     </div>
   </div>
@@ -164,10 +204,30 @@ exports[`should render correctly for createdInLast year 1`] = `
         disabled={false}
         halfWidth={false}
         loading={false}
-        name="issues.new_code"
+        name="issues.facet.createdAt.last_week"
         onClick={[Function]}
-        tooltip="issues.new_code_period"
-        value=""
+        tooltip="issues.facet.createdAt.last_week"
+        value="1w"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_month"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_month"
+        value="1m"
+      />
+      <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_year"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_year"
+        value="1y"
       />
     </div>
   </div>
@@ -475,10 +535,30 @@ exports[`should render correctly: project 1`] = `
         disabled={false}
         halfWidth={false}
         loading={false}
-        name="issues.new_code"
+        name="issues.facet.createdAt.last_week"
         onClick={[Function]}
-        tooltip="issues.new_code_period"
-        value=""
+        tooltip="issues.facet.createdAt.last_week"
+        value="1w"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_month"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_month"
+        value="1m"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_year"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_year"
+        value="1y"
       />
     </div>
   </div>

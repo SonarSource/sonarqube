@@ -22,7 +22,12 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import { isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
+import {
+  ComponentQualifier,
+  isApplication,
+  isPortfolioLike,
+  isView
+} from '../../../types/component';
 import {
   Facet,
   ReferencedComponent,
@@ -39,6 +44,7 @@ import CreationDateFacet from './CreationDateFacet';
 import DirectoryFacet from './DirectoryFacet';
 import FileFacet from './FileFacet';
 import LanguageFacet from './LanguageFacet';
+import PeriodFilter from './PeriodFilter';
 import ProjectFacet from './ProjectFacet';
 import ResolutionFacet from './ResolutionFacet';
 import RuleFacet from './RuleFacet';
@@ -127,12 +133,20 @@ export class Sidebar extends React.PureComponent<Props> {
       (isPullRequest(branchLike) && branchLike.branch) ||
       undefined;
 
-    const displayProjectsFacet =
-      !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
+    const displayPeriodFilter = component !== undefined && !isPortfolioLike(component.qualifier);
+    const displayProjectsFacet = !component || isView(component.qualifier);
     const displayAuthorFacet = !component || component.qualifier !== 'DEV';
 
     return (
       <>
+        {displayPeriodFilter && (
+          <PeriodFilter
+            fetching={this.props.loadingFacets.period === true}
+            onChange={this.props.onFilterChange}
+            stats={facets.period}
+            newCodeSelected={query.inNewCodePeriod}
+          />
+        )}
         <TypeFacet
           fetching={this.props.loadingFacets.types === true}
           onChange={this.props.onFilterChange}

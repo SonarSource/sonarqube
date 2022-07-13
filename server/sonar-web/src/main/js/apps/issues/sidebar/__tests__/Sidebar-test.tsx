@@ -38,9 +38,7 @@ it('should render facets for project', () => {
 it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Portfolio],
-  [ComponentQualifier.SubPortfolio],
-  [ComponentQualifier.Directory],
-  [ComponentQualifier.Developper]
+  [ComponentQualifier.SubPortfolio]
 ])('should render facets for %p', qualifier => {
   expect(renderSidebar({ component: mockComponent({ qualifier }) })).toMatchSnapshot();
 });

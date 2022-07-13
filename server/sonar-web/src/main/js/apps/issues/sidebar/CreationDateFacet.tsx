@@ -34,7 +34,6 @@ import DateTimeFormatter, {
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { isPortfolioLike } from '../../../types/component';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
 
@@ -102,16 +101,13 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
 
   handlePeriodClick = (period: string) => this.resetTo({ createdInLast: period });
 
-  handleLeakPeriodClick = () => this.resetTo({ inNewCodePeriod: true });
-
   getValues() {
     const {
       createdAfter,
       createdAfterIncludesTime,
       createdAt,
       createdBefore,
-      createdInLast,
-      inNewCodePeriod
+      createdInLast
     } = this.props;
     const { formatDate } = this.props.intl;
     const values = [];
@@ -137,9 +133,6 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
     }
     if (createdInLast === '1y') {
       values.push(translate('issues.facet.createdAt.last_year'));
-    }
-    if (inNewCodePeriod) {
-      values.push(translate('issues.new_code'));
     }
     return values;
   }
@@ -221,7 +214,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   }
 
   renderPredefinedPeriods() {
-    const { component, createdInLast, inNewCodePeriod } = this.props;
+    const { createdInLast } = this.props;
     return (
       <div className="spacer-top issues-predefined-periods">
         <FacetItem
@@ -231,39 +224,28 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
           tooltip={translate('issues.facet.createdAt.all')}
           value=""
         />
-        {component && !isPortfolioLike(component.qualifier) ? (
-          <FacetItem
-            active={inNewCodePeriod}
-            name={translate('issues.new_code')}
-            onClick={this.handleLeakPeriodClick}
-            tooltip={translate('issues.new_code_period')}
-            value=""
-          />
-        ) : (
-          <>
-            <FacetItem
-              active={createdInLast === '1w'}
-              name={translate('issues.facet.createdAt.last_week')}
-              onClick={this.handlePeriodClick}
-              tooltip={translate('issues.facet.createdAt.last_week')}
-              value="1w"
-            />
-            <FacetItem
-              active={createdInLast === '1m'}
-              name={translate('issues.facet.createdAt.last_month')}
-              onClick={this.handlePeriodClick}
-              tooltip={translate('issues.facet.createdAt.last_month')}
-              value="1m"
-            />
-            <FacetItem
-              active={createdInLast === '1y'}
-              name={translate('issues.facet.createdAt.last_year')}
-              onClick={this.handlePeriodClick}
-              tooltip={translate('issues.facet.createdAt.last_year')}
-              value="1y"
-            />
-          </>
-        )}
+
+        <FacetItem
+          active={createdInLast === '1w'}
+          name={translate('issues.facet.createdAt.last_week')}
+          onClick={this.handlePeriodClick}
+          tooltip={translate('issues.facet.createdAt.last_week')}
+          value="1w"
+        />
+        <FacetItem
+          active={createdInLast === '1m'}
+          name={translate('issues.facet.createdAt.last_month')}
+          onClick={this.handlePeriodClick}
+          tooltip={translate('issues.facet.createdAt.last_month')}
+          value="1m"
+        />
+        <FacetItem
+          active={createdInLast === '1y'}
+          name={translate('issues.facet.createdAt.last_year')}
+          onClick={this.handlePeriodClick}
+          tooltip={translate('issues.facet.createdAt.last_year')}
+          value="1y"
+        />
       </div>
     );
   }
