@@ -180,7 +180,7 @@ You need to add your custom configurations to SonarQube using a JSON file. You c
 See the following section for more information on formatting your JSON file.
 
 ### Configuration file format
-Your JSON file should include the rule you're adding a custom element to, the element you are customizing, and the `methodId` for each element. Each language needs a separate JSON file but can contain multiple rules. Click your language below to expand an example of a JSON file to help you understand the expected format.
+Your JSON file should include the rule you're adding a custom element to, the element you are customizing, and the `methodId` for each element. Each language needs a separate JSON file but can contain multiple rules. You may use the special rule key `common` to apply the given configuration to all the rules. Click your language below to expand an example of a JSON file to help you understand the expected format.
 
 [[collapse]]
 | ## Java JSON file example
