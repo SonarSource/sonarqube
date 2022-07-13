@@ -348,13 +348,12 @@ public class RuleMapper {
     }
 
     if (shouldReturnField(fieldsToReturn, FIELD_DESCRIPTION_SECTIONS)) {
-      for (var section : ruleDto.getRuleDescriptionSectionDtos()) {
-        Rules.Rule.DescriptionSection.Builder sectionBuilder = ruleResponse.getDescriptionSectionsBuilder().addDescriptionSectionsBuilder()
-          .setKey(section.getKey())
-          .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section));
-        toProtobufContext(section.getContext()).ifPresent(sectionBuilder::setContext);
-        sectionBuilder.build();
-      }
+      Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = ruleDto.getRuleDescriptionSectionDtos();
+      Set<Rules.Rule.DescriptionSection> sections = ruleDescriptionSectionDtos.stream()
+        .filter(sectionDto -> !isDefaultAndMoreThanOneSectionPresent(ruleDescriptionSectionDtos, sectionDto))
+        .map(sectionDto -> toDescriptionSection(ruleDto, sectionDto))
+        .collect(Collectors.toSet());
+      ruleResponse.setDescriptionSections(Rules.Rule.DescriptionSections.newBuilder().addAllDescriptionSections(sections).build());
     }
 
     if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION)) {
@@ -366,6 +365,23 @@ public class RuleMapper {
         ruleResponse.setMdDesc(ruleResponse.getHtmlDesc());
       }
     }
+  }
+
+  /**
+   * This was done to preserve backward compatibility with SonarLint until they stop using htmlDesc field in api/rules/[show|search] endpoints, see SONAR-16635
+   * @deprecated the method should be removed once SonarLint supports rules.descriptionSections fields, I.E in 10.x and DB is cleaned up of non-necessary default sections.
+   */
+  @Deprecated(since = "9.6", forRemoval = true)
+  private static boolean isDefaultAndMoreThanOneSectionPresent(Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, RuleDescriptionSectionDto s) {
+    return ruleDescriptionSectionDtos.size() > 1 && s.isDefault();
+  }
+
+  private static Rules.Rule.DescriptionSection toDescriptionSection(RuleDto ruleDto, RuleDescriptionSectionDto section) {
+    Rules.Rule.DescriptionSection.Builder sectionBuilder = Rules.Rule.DescriptionSection.newBuilder()
+      .setKey(section.getKey())
+      .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section));
+    toProtobufContext(section.getContext()).ifPresent(sectionBuilder::setContext);
+    return sectionBuilder.build();
   }
 
   private static String retrieveDescriptionContent(@Nullable RuleDto.Format format, RuleDescriptionSectionDto sectionDto) {

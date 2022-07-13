@@ -40,7 +40,8 @@ public class MigrateHotspotRuleDescriptions extends DataChange {
 
   private static final String SELECT_DEFAULT_HOTSPOTS_DESCRIPTIONS = "select r.uuid, rds.uuid, rds.content from rules r \n"
     + "left join " + RULE_DESCRIPTION_SECTIONS_TABLE + " rds on r.uuid = rds.rule_uuid \n"
-    + "where r.rule_type = 4 and r.template_uuid is null and rds.kee = '" + DEFAULT_DESCRIPTION_KEY + "'";
+    + "where r.rule_type = 4 and r.template_uuid is null and rds.kee = '" + DEFAULT_DESCRIPTION_KEY + "' and rds.rule_uuid not in"
+    + " (select rds2.rule_uuid from " + RULE_DESCRIPTION_SECTIONS_TABLE + " rds2 where rds2.kee != '" + DEFAULT_DESCRIPTION_KEY + "')";
 
   private static final String INSERT_INTO_RULE_DESC_SECTIONS = "insert into " + RULE_DESCRIPTION_SECTIONS_TABLE + " (uuid, rule_uuid, kee, content) values "
     + "(?,?,?,?)";

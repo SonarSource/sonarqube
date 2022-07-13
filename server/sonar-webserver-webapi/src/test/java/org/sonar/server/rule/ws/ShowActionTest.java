@@ -370,7 +370,6 @@ public class ShowActionTest {
     RuleDescriptionSectionDto section4context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
     RuleDescriptionSectionDto section4context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", "ctx2");
 
-
     RuleDto rule = createRuleWithDescriptionSections(section1, section2, section3, section4context1, section4context2);
     rule.setType(RuleType.SECURITY_HOTSPOT);
     rule.setNoteUserUuid(userDto.getUuid());
@@ -381,17 +380,7 @@ public class ShowActionTest {
       .executeProtobuf(ShowResponse.class);
 
     Rule resultRule = result.getRule();
-    assertThat(resultRule.getHtmlDesc())
-      .contains(
-        "<h2>What is the risk?</h2>"
-          + "<div>Root is Root</div><br/>"
-          + "<h2>Assess the risk</h2>"
-          + "<div>This is not a problem</div><br/>"
-          + "<h2>How can you fix it?</h2>"
-          + "<div>I don't want to fix</div><br/>"
-          + "<div>I want to fix with Spring</div>"
-      );
-
+    assertThat(resultRule.getHtmlDesc()).isEmpty();
     assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
 
     assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
@@ -403,6 +392,32 @@ public class ShowActionTest {
         tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", section4context1.getContext().getKey(), section4context1.getContext().getDisplayName()),
         tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getKey(), section4context2.getContext().getDisplayName())
       );
+  }
+
+  @Test
+  public void show_if_advanced_sections_and_default_filters_out_default() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    RuleDescriptionSectionDto section1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    RuleDescriptionSectionDto defaultSection = createDefaultRuleDescriptionSection(uuidFactory.create(), "This is the default section");
+
+    RuleDto rule = createRuleWithDescriptionSections(section1, defaultSection);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule.getHtmlDesc()).contains(defaultSection.getContent());
+
+    assertThat(resultRule.getMdDesc()).isEqualTo(resultRule.getHtmlDesc());
+
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactlyInAnyOrder(tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"));
   }
 
   @Test

@@ -35,6 +35,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 
 public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescriptionSectionsGenerator {
   private final UuidFactory uuidFactory;
@@ -45,7 +46,9 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
 
   @Override
   public boolean isGeneratorForRule(RulesDefinition.Rule rule) {
-    return SECURITY_HOTSPOT.equals(rule.type()) && rule.ruleDescriptionSections().isEmpty();
+    // To prevent compatibility issues with SonarLint, this Generator is used for all hotspots rules, regardless of if they expose advanced sections or not. See SONAR-16635.
+    // In the future, the generator should not be used for advanced rules (add condition && rule.ruleDescriptionSections().isEmpty())
+    return SECURITY_HOTSPOT.equals(rule.type());
   }
 
   @Override
@@ -65,6 +68,9 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
   }
 
   private Set<RuleDescriptionSectionDto> generateSections(String descriptionInHtml) {
+    if (descriptionInHtml.isEmpty()) {
+      return emptySet();
+    }
     String[] split = extractSection("", descriptionInHtml);
     String remainingText = split[0];
     String ruleDescriptionSection = split[1];
@@ -101,7 +107,10 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
     RuleDescriptionSectionDto assessSection = createSection(ASSESS_THE_PROBLEM_SECTION_KEY, askSection, sensitiveSection, noncompliantSection);
     RuleDescriptionSectionDto fixSection = createSection(HOW_TO_FIX_SECTION_KEY, recommendedSection, compliantSection, seeSection);
 
-    return Stream.of(rootSection, assessSection, fixSection)
+    // For backward compatibility with SonarLint, see SONAR-16635. Should be removed in 10.x
+    RuleDescriptionSectionDto defaultSection = createDefaultRuleDescriptionSection(uuidFactory.create(), descriptionInHtml);
+
+    return Stream.of(rootSection, assessSection, fixSection, defaultSection)
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }

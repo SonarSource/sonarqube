@@ -67,6 +67,8 @@ public class RuleDescriptionSectionsGeneratorsTest {
   private static final RuleDescriptionSectionDto DEFAULT_MD_SECTION_1 = RuleDescriptionSectionDto.builder().uuid(UUID_1).key("default").content(MD_CONTENT).build();
   private static final RuleDescriptionSectionDto HTML_SECTION_1 = RuleDescriptionSectionDto.builder().uuid(UUID_1).key(KEY_1).content(HTML_CONTENT).build();
   private static final RuleDescriptionSectionDto HTML_SECTION_2 = RuleDescriptionSectionDto.builder().uuid(UUID_2).key(KEY_2).content(HTML_CONTENT).build();
+  private static final RuleDescriptionSectionDto LEGACY_HTML_SECTION = RuleDescriptionSectionDto.builder().uuid(UUID_2).key("default").content(HTML_CONTENT).build();
+  private static final RuleDescriptionSectionDto LEGACY_MD_SECTION = RuleDescriptionSectionDto.builder().uuid(UUID_2).key("default").content(MD_CONTENT).build();
 
   @Parameterized.Parameters(name = "{index} = {0}")
   public static List<RuleDescriptionGeneratorTestData> testData() {
@@ -80,21 +82,20 @@ public class RuleDescriptionSectionsGeneratorsTest {
       aRuleOfType(VULNERABILITY).html(HTML_CONTENT).md(MD_CONTENT).expectedGenerator(LEGACY_ISSUE).addExpectedSection(DEFAULT_HTML_SECTION_1).build(),
       // HOTSPOT
       aRuleOfType(SECURITY_HOTSPOT).html(null).md(null).expectedGenerator(LEGACY_HOTSPOT).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(null).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(null).md(MD_CONTENT).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_MD_HOTSPOT_SECTION_1).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(MD_CONTENT).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(null).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(null).md(MD_CONTENT).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_MD_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_MD_SECTION).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(MD_CONTENT).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build(),
       // ADVANCED RULES
       aRuleOfType(BUG).html(null).md(null).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(BUG).html(HTML_CONTENT).md(null).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(BUG).html(null).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(BUG).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(BUG).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).addSection(SECTION_2).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1)
-        .addExpectedSection(
-          HTML_SECTION_2).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(null).md(null).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(null).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(null).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build(),
-      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).build()
+      aRuleOfType(BUG).html(HTML_CONTENT).md(null).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build(),
+      aRuleOfType(BUG).html(null).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).addExpectedSection(LEGACY_MD_SECTION).build(),
+      aRuleOfType(BUG).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(ADVANCED_RULE).addExpectedSection(HTML_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build(),
+      aRuleOfType(BUG).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).addSection(SECTION_2).expectedGenerator(ADVANCED_RULE)
+        .addExpectedSection(HTML_SECTION_1).addExpectedSection(HTML_SECTION_2).addExpectedSection(LEGACY_HTML_SECTION).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(null).md(null).addSection(SECTION_1).expectedGenerator(LEGACY_HOTSPOT).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(null).addSection(SECTION_1).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(null).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_MD_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_MD_SECTION).build(),
+      aRuleOfType(SECURITY_HOTSPOT).html(HTML_CONTENT).md(MD_CONTENT).addSection(SECTION_1).expectedGenerator(LEGACY_HOTSPOT).addExpectedSection(DEFAULT_HTML_HOTSPOT_SECTION_1).addExpectedSection(LEGACY_HTML_SECTION).build()
     );
   }
 
@@ -103,9 +104,9 @@ public class RuleDescriptionSectionsGeneratorsTest {
 
   private final RuleDescriptionGeneratorTestData testData;
 
-  private final RuleDescriptionSectionsGenerator advancedRuleDescriptionSectionsGenerator = new AdvancedRuleDescriptionSectionsGenerator(uuidFactory);
   private final RuleDescriptionSectionsGenerator legacyHotspotRuleDescriptionSectionsGenerator = new LegacyHotspotRuleDescriptionSectionsGenerator(uuidFactory);
-  private final RuleDescriptionSectionsGenerator legacyIssueRuleDescriptionSectionsGenerator = new LegacyIssueRuleDescriptionSectionsGenerator(uuidFactory);
+  private final LegacyIssueRuleDescriptionSectionsGenerator legacyIssueRuleDescriptionSectionsGenerator = new LegacyIssueRuleDescriptionSectionsGenerator(uuidFactory);
+  private final RuleDescriptionSectionsGenerator advancedRuleDescriptionSectionsGenerator = new AdvancedRuleDescriptionSectionsGenerator(uuidFactory, legacyIssueRuleDescriptionSectionsGenerator);
 
   Map<RuleDescriptionSectionGeneratorIdentifier, RuleDescriptionSectionsGenerator> idToGenerator = ImmutableMap.<RuleDescriptionSectionGeneratorIdentifier, RuleDescriptionSectionsGenerator>builder()
     .put(ADVANCED_RULE, advancedRuleDescriptionSectionsGenerator)

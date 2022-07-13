@@ -19,20 +19,16 @@
  */
 package org.sonar.server.rule;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
+import org.sonar.markdown.Markdown;
 
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +36,6 @@ import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSe
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 
-@RunWith(DataProviderRunner.class)
 public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
 
   /*
@@ -84,6 +79,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     + "    @CrossOrigin(origins = \"http://domain2.com\") // Questionable\n" + "    @RequestMapping(value = \"/test1\")\n" + "    public ResponseEntity&lt;String&gt; test1() {\n"
     + "        return ResponseEntity.ok().body(\"ok\");\n" + "    }\n" + "}\n" + "</pre>\n";
 
+  private static final String DEFAULT_SECTION_KEY = "default";
+
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
   private final RulesDefinition.Rule rule = mock(RulesDefinition.Rule.class);
 
@@ -114,21 +111,17 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
   }
 
   @Test
-  @UseDataProvider("descriptionsWithoutTitles")
-  public void parse_to_risk_description_fields_when_desc_contains_no_section(String description) {
-    when(rule.htmlDescription()).thenReturn(description);
+  public void parse_to_risk_description_fields_when_desc_contains_no_section() {
+    String descriptionWithoutTitles = "description without titles";
+    when(rule.htmlDescription()).thenReturn(descriptionWithoutTitles);
 
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
-    assertThat(results).hasSize(1);
-    RuleDescriptionSectionDto uniqueSection = results.iterator().next();
-    assertThat(uniqueSection.getKey()).isEqualTo(ROOT_CAUSE_SECTION_KEY);
-    assertThat(uniqueSection.getContent()).isEqualTo(description);
-  }
+    Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
+    assertThat(sectionKeyToContent).hasSize(2)
+      .containsEntry(ROOT_CAUSE_SECTION_KEY, descriptionWithoutTitles)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription());
 
-  @DataProvider
-  public static Object[][] descriptionsWithoutTitles() {
-    return new Object[][] {{randomAlphabetic(123)}, {"bar\n" + "acme\n" + "foo"}};
   }
 
   @Test
@@ -138,7 +131,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(2)
+    assertThat(sectionKeyToContent).hasSize(3)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ASSESS_THE_PROBLEM_SECTION_KEY, ASKATRISK)
       .containsEntry(HOW_TO_FIX_SECTION_KEY, RECOMMENTEDCODINGPRACTICE);
   }
@@ -151,7 +145,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(2)
+    assertThat(sectionKeyToContent).hasSize(3)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ROOT_CAUSE_SECTION_KEY, DESCRIPTION)
       .containsEntry(HOW_TO_FIX_SECTION_KEY, RECOMMENTEDCODINGPRACTICE);
   }
@@ -163,7 +158,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(2)
+    assertThat(sectionKeyToContent).hasSize(3)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ROOT_CAUSE_SECTION_KEY, DESCRIPTION)
       .containsEntry(ASSESS_THE_PROBLEM_SECTION_KEY, ASKATRISK);
   }
@@ -175,7 +171,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(3)
+    assertThat(sectionKeyToContent).hasSize(4)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ROOT_CAUSE_SECTION_KEY, DESCRIPTION)
       .containsEntry(ASSESS_THE_PROBLEM_SECTION_KEY, NONCOMPLIANTCODE)
       .containsEntry(HOW_TO_FIX_SECTION_KEY, COMPLIANTCODE);
@@ -188,7 +185,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(3)
+    assertThat(sectionKeyToContent).hasSize(4)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ROOT_CAUSE_SECTION_KEY, DESCRIPTION)
       .containsEntry(ASSESS_THE_PROBLEM_SECTION_KEY, NONCOMPLIANTCODE)
       .containsEntry(HOW_TO_FIX_SECTION_KEY, RECOMMENTEDCODINGPRACTICE + SEE);
@@ -201,7 +199,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(3)
+    assertThat(sectionKeyToContent).hasSize(4)
+      .containsEntry(DEFAULT_SECTION_KEY, rule.htmlDescription())
       .containsEntry(ROOT_CAUSE_SECTION_KEY, DESCRIPTION)
       .containsEntry(ASSESS_THE_PROBLEM_SECTION_KEY, ASKATRISK + SENSITIVECODE)
       .containsEntry(HOW_TO_FIX_SECTION_KEY, RECOMMENTEDCODINGPRACTICE + SEE);
@@ -225,7 +224,8 @@ public class LegacyHotspotRuleDescriptionSectionsGeneratorTest {
     Set<RuleDescriptionSectionDto> results = generator.generateSections(rule);
 
     Map<String, String> sectionKeyToContent = results.stream().collect(toMap(RuleDescriptionSectionDto::getKey, RuleDescriptionSectionDto::getContent));
-    assertThat(sectionKeyToContent).hasSize(3)
+    assertThat(sectionKeyToContent).hasSize(4)
+      .containsEntry(DEFAULT_SECTION_KEY, Markdown.convertToHtml(rule.markdownDescription()))
       .containsEntry(ROOT_CAUSE_SECTION_KEY, ruleDescription + "<br/>"
         + "<h2>Exceptions</h2>"
         + exceptionsContent + "<br/>")

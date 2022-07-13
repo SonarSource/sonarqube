@@ -228,6 +228,16 @@ public class MigrateHotspotRuleDescriptionsTest {
     assertThat(findRuleDescriptionSections(LEGACY_HOTSPOT_RULE)).hasSize(3);
   }
 
+  @Test
+  public void insertRuleDescriptions_skipRules_thatAlreadyHaveAdvancedDesc() throws SQLException {
+    insertSectionForLegacyHotspotRule(LEGACY_HOTSPOT_RULE_HTML_DESC);
+    insertRuleDescriptionSection(LEGACY_HOTSPOT_RULE, "root_cause", "content to check reentrant");
+
+    fixHotspotRuleDescriptions.execute();
+
+    assertThat(findRuleDescriptionSections(LEGACY_HOTSPOT_RULE)).hasSize(2);
+  }
+
   private List<Map<String, Object>> findAllRuleDescriptionSections() {
     return db.select("select uuid, kee, rule_uuid, content from "
       + RULE_DESCRIPTION_SECTIONS_TABLE + "'");
