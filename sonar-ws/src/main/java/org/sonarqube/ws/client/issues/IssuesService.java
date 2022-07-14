@@ -319,4 +319,21 @@ public class IssuesService extends BaseService {
         .setParam("changedSince", request.getChangedSince())
     ).contentStream();
   }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/api/issues/pull_taint">Further information about this action online (including a response example)</a>
+   * @since 9.5
+   */
+  public InputStream pullTaint(PullRequest request) {
+    return call(
+      new GetRequest(path("pull_taint"))
+        .setParam("projectKey", request.getProjectKey())
+        .setParam("branchName", request.getBranchName())
+        .setParam("languages", request.getLanguages())
+        .setParam("changedSince", request.getChangedSince())
+    ).contentStream();
+  }
 }
