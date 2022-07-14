@@ -256,6 +256,13 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |         }
 |       }
 |     ]
+|   },
+|   "common": {
+|     "sources": [
+|       {
+|         "methodId": "my.package.Input#getUserInput()Ljava/lang/String;"
+|       }
+|     ]
 |   }
 | }
 |```
@@ -337,6 +344,13 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |         "interval": {
 |           "fromIndex": 1
 |         }
+|       }
+|     ]
+|   },
+|   "common": {
+|     "sources": [
+|       {
+|         "methodId": "My\\Namespace\\ClassName\\Input::getUserInput"
 |       }
 |     ]
 |   }
@@ -423,6 +437,13 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |         }
 |       }
 |     ]
+|   },
+|   "common": {
+|     "sources": [
+|       {
+|         "methodId": "My.Namespace.Input.GetUserInput()"
+|       }
+|     ]
 |   }
 | }
 |```
@@ -504,6 +525,13 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |         "interval": {
 |           "fromIndex": 1
 |         }
+|       }
+|     ]
+|   },
+|   "common": {
+|     "sources": [
+|       {
+|         "methodId": "my.namespace.Input.get_input"
 |       }
 |     ]
 |   }
