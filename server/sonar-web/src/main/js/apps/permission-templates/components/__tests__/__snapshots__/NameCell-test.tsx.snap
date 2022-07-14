@@ -7,7 +7,7 @@ exports[`render correctly 1`] = `
   <Link
     to={
       Object {
-        "pathname": "/permission_templates",
+        "pathname": "/admin/permission_templates",
         "search": "?id=1",
       }
     }
