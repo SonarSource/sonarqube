@@ -8,7 +8,7 @@ exports[`should render correctly for bugs 1`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=BUG&sinceLeakPeriod=false&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=BUG&inNewCodePeriod=false&id=my-project",
       }
     }
   >
@@ -29,7 +29,7 @@ exports[`should render correctly for bugs 2`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=BUG&sinceLeakPeriod=true&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=BUG&inNewCodePeriod=true&id=my-project",
       }
     }
   >
@@ -50,7 +50,7 @@ exports[`should render correctly for code smells 1`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&sinceLeakPeriod=false&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&inNewCodePeriod=false&id=my-project",
       }
     }
   >
@@ -71,7 +71,7 @@ exports[`should render correctly for code smells 2`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&sinceLeakPeriod=true&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&inNewCodePeriod=true&id=my-project",
       }
     }
   >
@@ -92,7 +92,7 @@ exports[`should render correctly for hotspots 1`] = `
       Object {
         "hash": "",
         "pathname": "/security_hotspots",
-        "search": "?id=my-project&pullRequest=1001&sinceLeakPeriod=false",
+        "search": "?id=my-project&pullRequest=1001&inNewCodePeriod=false",
       }
     }
   >
@@ -117,7 +117,7 @@ exports[`should render correctly for hotspots 2`] = `
       Object {
         "hash": "",
         "pathname": "/security_hotspots",
-        "search": "?id=my-project&pullRequest=1001&sinceLeakPeriod=true",
+        "search": "?id=my-project&pullRequest=1001&inNewCodePeriod=true",
       }
     }
   >
@@ -142,7 +142,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&sinceLeakPeriod=false&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&inNewCodePeriod=false&id=my-project",
       }
     }
   >
@@ -163,7 +163,7 @@ exports[`should render correctly for vulnerabilities 2`] = `
       Object {
         "hash": "",
         "pathname": "/project/issues",
-        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&sinceLeakPeriod=true&id=my-project",
+        "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&inNewCodePeriod=true&id=my-project",
       }
     }
   >

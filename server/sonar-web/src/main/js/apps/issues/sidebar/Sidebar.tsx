@@ -212,7 +212,7 @@ export class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.createdAt}
-          sinceLeakPeriod={query.sinceLeakPeriod}
+          inNewCodePeriod={query.inNewCodePeriod}
           stats={facets.createdAt}
         />
         <LanguageFacet

@@ -130,7 +130,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
           <EmptyHotspotsPage
             filtered={
               filters.assignedToMe ||
-              (isBranch(branchLike) && filters.sinceLeakPeriod) ||
+              (isBranch(branchLike) && filters.inNewCodePeriod) ||
               filters.status !== HotspotStatusFilter.TO_REVIEW
             }
             filterByFile={Boolean(filterByFile)}

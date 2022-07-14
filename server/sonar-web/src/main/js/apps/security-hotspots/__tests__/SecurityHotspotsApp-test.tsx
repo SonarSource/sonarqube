@@ -201,13 +201,13 @@ it('should load data correctly when hotspot key list is forced', async () => {
 });
 
 it('should set "leakperiod" filter according to context (branchlike & location query)', () => {
-  expect(shallowRender().state().filters.sinceLeakPeriod).toBe(false);
-  expect(shallowRender({ branchLike: mockPullRequest() }).state().filters.sinceLeakPeriod).toBe(
+  expect(shallowRender().state().filters.inNewCodePeriod).toBe(false);
+  expect(shallowRender({ branchLike: mockPullRequest() }).state().filters.inNewCodePeriod).toBe(
     true
   );
   expect(
-    shallowRender({ location: mockLocation({ query: { sinceLeakPeriod: 'true' } }) }).state()
-      .filters.sinceLeakPeriod
+    shallowRender({ location: mockLocation({ query: { inNewCodePeriod: 'true' } }) }).state()
+      .filters.inNewCodePeriod
   ).toBe(true);
 });
 
@@ -383,7 +383,7 @@ it('should handle leakPeriod filter change', async () => {
 
   expect(getMeasures).toBeCalledTimes(1);
 
-  wrapper.instance().handleChangeFilters({ sinceLeakPeriod: true });
+  wrapper.instance().handleChangeFilters({ inNewCodePeriod: true });
 
   expect(getMeasures).toBeCalledTimes(2);
   expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ inNewCodePeriod: true }));

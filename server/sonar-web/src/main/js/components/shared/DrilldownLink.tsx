@@ -78,7 +78,7 @@ interface Props {
   className?: string;
   component: string;
   metric: string;
-  sinceLeakPeriod?: boolean;
+  inNewCodePeriod?: boolean;
 }
 
 export default class DrilldownLink extends React.PureComponent<Props> {
@@ -91,8 +91,8 @@ export default class DrilldownLink extends React.PureComponent<Props> {
       ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' })
     };
 
-    if (this.props.sinceLeakPeriod) {
-      params.sinceLeakPeriod = true;
+    if (this.props.inNewCodePeriod) {
+      params.inNewCodePeriod = true;
     }
 
     return params;

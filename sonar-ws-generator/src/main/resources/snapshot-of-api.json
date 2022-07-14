@@ -1902,7 +1902,7 @@
               ]
             },
             {
-              "key": "sinceLeakPeriod",
+              "key": "inNewCodePeriod",
               "description": "To retrieve issues created since the leak period.<br>If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.",
               "required": false,
               "internal": false,

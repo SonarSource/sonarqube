@@ -40,33 +40,33 @@ interface Props {
 }
 
 export default class QualityGateCondition extends React.PureComponent<Props> {
-  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: Dict<string>) => {
+  getIssuesUrl = (inNewCodePeriod: boolean, customQuery: Dict<string>) => {
     const query: Dict<string | undefined> = {
       resolved: 'false',
       ...getBranchLikeQuery(this.props.branchLike),
       ...customQuery
     };
-    if (sinceLeakPeriod) {
-      Object.assign(query, { sinceLeakPeriod: 'true' });
+    if (inNewCodePeriod) {
+      Object.assign(query, { inNewCodePeriod: 'true' });
     }
     return getComponentIssuesUrl(this.props.component.key, query);
   };
 
-  getUrlForSecurityHotspot(sinceLeakPeriod: boolean) {
+  getUrlForSecurityHotspot(inNewCodePeriod: boolean) {
     const query: Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike)
     };
-    if (sinceLeakPeriod) {
-      Object.assign(query, { sinceLeakPeriod: 'true' });
+    if (inNewCodePeriod) {
+      Object.assign(query, { inNewCodePeriod: 'true' });
     }
     return getComponentSecurityHotspotsUrl(this.props.component.key, query);
   }
 
-  getUrlForCodeSmells(sinceLeakPeriod: boolean) {
-    return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
+  getUrlForCodeSmells(inNewCodePeriod: boolean) {
+    return this.getIssuesUrl(inNewCodePeriod, { types: 'CODE_SMELL' });
   }
 
-  getUrlForBugsOrVulnerabilities(type: string, sinceLeakPeriod: boolean) {
+  getUrlForBugsOrVulnerabilities(type: string, inNewCodePeriod: boolean) {
     const RATING_TO_SEVERITIES_MAPPING = [
       'BLOCKER,CRITICAL,MAJOR,MINOR',
       'BLOCKER,CRITICAL,MAJOR',
@@ -77,7 +77,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const { condition } = this.props;
     const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
 
-    return this.getIssuesUrl(sinceLeakPeriod, {
+    return this.getIssuesUrl(inNewCodePeriod, {
       types: type,
       severities: RATING_TO_SEVERITIES_MAPPING[Number(threshold) - 1]
     });
@@ -118,7 +118,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
         className={className}
         component={component.key}
         metric={condition.measure.metric.key}
-        sinceLeakPeriod={condition.period != null}>
+        inNewCodePeriod={condition.period != null}>
         {children}
       </DrilldownLink>
     );

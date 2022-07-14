@@ -122,7 +122,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
   it('should forward some query parameters', () => {
     expect(
       getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
-        sinceLeakPeriod: 'true',
+        inNewCodePeriod: 'true',
         [SecurityStandard.OWASP_TOP10_2021]: 'a1',
         [SecurityStandard.CWE]: 'a1',
         [SecurityStandard.OWASP_TOP10]: 'a1',
@@ -135,7 +135,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
         pathname: '/security_hotspots',
         search: queryToSearch({
           id: SIMPLE_COMPONENT_KEY,
-          sinceLeakPeriod: 'true',
+          inNewCodePeriod: 'true',
           [SecurityStandard.OWASP_TOP10_2021]: 'a1',
           [SecurityStandard.SONARSOURCE]: 'a1',
           [SecurityStandard.OWASP_TOP10]: 'a1',

@@ -127,7 +127,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
       isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
       this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
-      this.props.location.query.sinceLeakPeriod !== previous.location.query.sinceLeakPeriod
+      this.props.location.query.inNewCodePeriod !== previous.location.query.inNewCodePeriod
     ) {
       this.setState(({ filters }) => ({
         filters: { ...this.constructFiltersFromProps, ...filters }
@@ -228,11 +228,11 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   constructFiltersFromProps(
     props: Props
-  ): Pick<HotspotFilters, 'assignedToMe' | 'sinceLeakPeriod'> {
+  ): Pick<HotspotFilters, 'assignedToMe' | 'inNewCodePeriod'> {
     return {
       assignedToMe: props.location.query.assignedToMe === 'true' && isLoggedIn(props.currentUser),
-      sinceLeakPeriod:
-        isPullRequest(props.branchLike) || props.location.query.sinceLeakPeriod === 'true'
+      inNewCodePeriod:
+        isPullRequest(props.branchLike) || props.location.query.inNewCodePeriod === 'true'
     };
   }
 
@@ -270,7 +270,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     const { branchLike, component } = this.props;
     const { filters } = this.state;
 
-    const reviewedHotspotsMetricKey = filters.sinceLeakPeriod
+    const reviewedHotspotsMetricKey = filters.inNewCodePeriod
       ? 'new_security_hotspots_reviewed'
       : 'security_hotspots_reviewed';
 
@@ -285,7 +285,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           return;
         }
         const measure = measures && measures.length > 0 ? measures[0] : undefined;
-        const hotspotsReviewedMeasure = filters.sinceLeakPeriod
+        const hotspotsReviewedMeasure = filters.inNewCodePeriod
           ? getLeakValue(measure)
           : measure?.value;
 
@@ -345,7 +345,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         p: page,
         ps: PAGE_SIZE,
         status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
-        inNewCodePeriod: filters.sinceLeakPeriod && Boolean(filterByFile), // only add leak period when filtering by file
+        inNewCodePeriod: filters.inNewCodePeriod && Boolean(filterByFile), // only add leak period when filtering by file
         ...getBranchLikeQuery(branchLike)
       });
     }
@@ -367,7 +367,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       status,
       resolution,
       onlyMine: filters.assignedToMe,
-      inNewCodePeriod: filters.sinceLeakPeriod,
+      inNewCodePeriod: filters.inNewCodePeriod,
       ...getBranchLikeQuery(branchLike)
     });
   }
@@ -397,7 +397,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       ({ filters }) => ({ filters: { ...filters, ...changes } }),
       () => {
         this.reloadSecurityHotspotList();
-        if (changes.sinceLeakPeriod !== undefined) {
+        if (changes.inNewCodePeriod !== undefined) {
           this.fetchSecurityHotspotsReviewed();
         }
       }

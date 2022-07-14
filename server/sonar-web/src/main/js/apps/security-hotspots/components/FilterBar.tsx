@@ -128,11 +128,11 @@ export function FilterBar(props: FilterBarProps) {
                     className="input-medium big-spacer-right"
                     aria-label={translate('hotspot.filters.period')}
                     onChange={(option: { value: boolean }) =>
-                      props.onChangeFilters({ sinceLeakPeriod: option.value })
+                      props.onChangeFilters({ inNewCodePeriod: option.value })
                     }
                     options={periodOptions}
                     isSearchable={false}
-                    value={periodOptions.find(period => period.value === filters.sinceLeakPeriod)}
+                    value={periodOptions.find(period => period.value === filters.inNewCodePeriod)}
                   />
                 )}
               </div>
@@ -151,7 +151,7 @@ export function FilterBar(props: FilterBarProps) {
                     <Measure
                       className="spacer-left huge it__hs-review-percentage"
                       metricKey={
-                        onBranch && !filters.sinceLeakPeriod
+                        onBranch && !filters.inNewCodePeriod
                           ? 'security_hotspots_reviewed'
                           : 'new_security_hotspots_reviewed'
                       }

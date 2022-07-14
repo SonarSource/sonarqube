@@ -49,7 +49,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  sinceLeakPeriod: boolean;
+  inNewCodePeriod: boolean;
   stats: Dict<number> | undefined;
 }
 
@@ -65,7 +65,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
     this.props.createdAt.length > 0 ||
     this.props.createdBefore !== undefined ||
     this.props.createdInLast.length > 0 ||
-    this.props.sinceLeakPeriod;
+    this.props.inNewCodePeriod;
 
   handleHeaderClick = () => {
     this.props.onToggle(this.property);
@@ -81,7 +81,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
       createdAt: undefined,
       createdBefore: undefined,
       createdInLast: undefined,
-      sinceLeakPeriod: undefined,
+      inNewCodePeriod: undefined,
       ...changes
     });
   };
@@ -102,7 +102,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
 
   handlePeriodClick = (period: string) => this.resetTo({ createdInLast: period });
 
-  handleLeakPeriodClick = () => this.resetTo({ sinceLeakPeriod: true });
+  handleLeakPeriodClick = () => this.resetTo({ inNewCodePeriod: true });
 
   getValues() {
     const {
@@ -111,7 +111,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
       createdAt,
       createdBefore,
       createdInLast,
-      sinceLeakPeriod
+      inNewCodePeriod
     } = this.props;
     const { formatDate } = this.props.intl;
     const values = [];
@@ -138,7 +138,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
     if (createdInLast === '1y') {
       values.push(translate('issues.facet.createdAt.last_year'));
     }
-    if (sinceLeakPeriod) {
+    if (inNewCodePeriod) {
       values.push(translate('issues.new_code'));
     }
     return values;
@@ -221,7 +221,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   }
 
   renderPredefinedPeriods() {
-    const { component, createdInLast, sinceLeakPeriod } = this.props;
+    const { component, createdInLast, inNewCodePeriod } = this.props;
     return (
       <div className="spacer-top issues-predefined-periods">
         <FacetItem
@@ -233,7 +233,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
         />
         {component && !isPortfolioLike(component.qualifier) ? (
           <FacetItem
-            active={sinceLeakPeriod}
+            active={inNewCodePeriod}
             name={translate('issues.new_code')}
             onClick={this.handleLeakPeriodClick}
             tooltip={translate('issues.new_code_period')}

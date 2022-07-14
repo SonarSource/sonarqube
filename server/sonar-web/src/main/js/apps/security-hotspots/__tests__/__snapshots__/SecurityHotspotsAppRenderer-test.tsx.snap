@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
     filters={
       Object {
         "assignedToMe": false,
-        "sinceLeakPeriod": false,
+        "inNewCodePeriod": false,
         "status": "TO_REVIEW",
       }
     }
@@ -371,7 +371,7 @@ exports[`should render correctly with hotspots 1`] = `
     filters={
       Object {
         "assignedToMe": false,
-        "sinceLeakPeriod": false,
+        "inNewCodePeriod": false,
         "status": "TO_REVIEW",
       }
     }
@@ -509,7 +509,7 @@ exports[`should render correctly: loading 1`] = `
     filters={
       Object {
         "assignedToMe": false,
-        "sinceLeakPeriod": false,
+        "inNewCodePeriod": false,
         "status": "TO_REVIEW",
       }
     }
@@ -575,7 +575,7 @@ exports[`should render correctly: no hotspots with filters 1`] = `
     filters={
       Object {
         "assignedToMe": true,
-        "sinceLeakPeriod": false,
+        "inNewCodePeriod": false,
         "status": "TO_REVIEW",
       }
     }

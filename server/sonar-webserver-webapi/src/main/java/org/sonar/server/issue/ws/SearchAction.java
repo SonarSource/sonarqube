@@ -317,6 +317,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_SINCE_LEAK_PERIOD)
       .setDescription("To retrieve issues created since the leak period.<br>" +
         "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
+      .setDeprecatedSince("9.4")
       .setBooleanPossibleValues();
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
       .setDescription("To retrieve issues created in the new code period.<br>" +

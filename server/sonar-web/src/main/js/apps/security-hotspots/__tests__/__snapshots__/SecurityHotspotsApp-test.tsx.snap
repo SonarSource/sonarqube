@@ -35,7 +35,7 @@ exports[`should render correctly 1`] = `
   filters={
     Object {
       "assignedToMe": false,
-      "sinceLeakPeriod": false,
+      "inNewCodePeriod": false,
       "status": "TO_REVIEW",
     }
   }

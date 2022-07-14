@@ -52,7 +52,7 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
     shallowRender({
-      filters: { assignedToMe: true, sinceLeakPeriod: false, status: HotspotStatusFilter.TO_REVIEW }
+      filters: { assignedToMe: true, inNewCodePeriod: false, status: HotspotStatusFilter.TO_REVIEW }
     })
   ).toMatchSnapshot('no hotspots with filters');
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
@@ -139,7 +139,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       component={mockComponent()}
       filters={{
         assignedToMe: false,
-        sinceLeakPeriod: false,
+        inNewCodePeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
       hotspots={[]}

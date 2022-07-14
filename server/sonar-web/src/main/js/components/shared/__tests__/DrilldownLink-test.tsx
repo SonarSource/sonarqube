@@ -37,10 +37,10 @@ describe('propsToIssueParams', () => {
   });
 
   it(`should render correct params`, () => {
-    const wrapper = shallowRender({ metric: 'false_positive_issues', sinceLeakPeriod: true });
+    const wrapper = shallowRender({ metric: 'false_positive_issues', inNewCodePeriod: true });
     expect(wrapper.instance().propsToIssueParams()).toEqual({
       resolutions: 'FALSE-POSITIVE',
-      sinceLeakPeriod: true
+      inNewCodePeriod: true
     });
   });
 });

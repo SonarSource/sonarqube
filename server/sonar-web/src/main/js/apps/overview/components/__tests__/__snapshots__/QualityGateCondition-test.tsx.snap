@@ -4,8 +4,8 @@ exports[`should render correclty 1`] = `
 <DrilldownLink
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   component="abcd-key"
+  inNewCodePeriod={false}
   metric="open_issues"
-  sinceLeakPeriod={false}
 >
   <div
     className="overview-quality-gate-condition-container display-flex-center"
@@ -187,7 +187,7 @@ exports[`should render correclty 5`] = `
     Object {
       "hash": "",
       "pathname": "/project/issues",
-      "search": "?resolved=false&types=BUG&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&sinceLeakPeriod=true&id=abcd-key",
+      "search": "?resolved=false&types=BUG&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&inNewCodePeriod=true&id=abcd-key",
     }
   }
 >
@@ -233,7 +233,7 @@ exports[`should render correclty 6`] = `
     Object {
       "hash": "",
       "pathname": "/project/issues",
-      "search": "?resolved=false&types=VULNERABILITY&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&sinceLeakPeriod=true&id=abcd-key",
+      "search": "?resolved=false&types=VULNERABILITY&severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR&inNewCodePeriod=true&id=abcd-key",
     }
   }
 >
@@ -279,7 +279,7 @@ exports[`should render correclty 7`] = `
     Object {
       "hash": "",
       "pathname": "/project/issues",
-      "search": "?resolved=false&types=CODE_SMELL&sinceLeakPeriod=true&id=abcd-key",
+      "search": "?resolved=false&types=CODE_SMELL&inNewCodePeriod=true&id=abcd-key",
     }
   }
 >
@@ -371,7 +371,7 @@ exports[`should render correclty 9`] = `
     Object {
       "hash": "",
       "pathname": "/security_hotspots",
-      "search": "?id=abcd-key&sinceLeakPeriod=true",
+      "search": "?id=abcd-key&inNewCodePeriod=true",
     }
   }
 >
@@ -417,7 +417,7 @@ exports[`should work with branch 1`] = `
     Object {
       "hash": "",
       "pathname": "/project/issues",
-      "search": "?resolved=false&branch=branch-6.7&types=CODE_SMELL&sinceLeakPeriod=true&id=abcd-key",
+      "search": "?resolved=false&branch=branch-6.7&types=CODE_SMELL&inNewCodePeriod=true&id=abcd-key",
     }
   }
 >

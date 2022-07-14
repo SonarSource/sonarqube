@@ -61,7 +61,7 @@ export interface Query {
   sansTop25: string[];
   scopes: string[];
   severities: string[];
-  sinceLeakPeriod: boolean;
+  inNewCodePeriod: boolean;
   sonarsourceSecurity: string[];
   sort: string;
   statuses: string[];
@@ -104,7 +104,7 @@ export function parseQuery(query: RawQuery): Query {
     sansTop25: parseAsArray(query.sansTop25, parseAsString),
     scopes: parseAsArray(query.scopes, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
-    sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
+    inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
@@ -148,7 +148,7 @@ export function serializeQuery(query: Query): RawQuery {
     sansTop25: serializeStringArray(query.sansTop25),
     scopes: serializeStringArray(query.scopes),
     severities: serializeStringArray(query.severities),
-    sinceLeakPeriod: query.sinceLeakPeriod ? 'true' : undefined,
+    inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),

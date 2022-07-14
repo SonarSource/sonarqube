@@ -54,7 +54,7 @@ export function IssueLabel(props: IssueLabelProps) {
     ...getBranchLikeQuery(branchLike),
     resolved: 'false',
     types: type,
-    sinceLeakPeriod: useDiffMetric ? 'true' : 'false'
+    inNewCodePeriod: useDiffMetric ? 'true' : 'false'
   };
 
   return (

@@ -64,7 +64,7 @@ function shallowRender(props?: Partial<CreationDateFacet['props']>) {
       createdAt=""
       createdBefore={undefined}
       createdInLast=""
-      sinceLeakPeriod={false}
+      inNewCodePeriod={false}
       intl={
         {
           formatDate: (date: string) => 'formatted.' + date

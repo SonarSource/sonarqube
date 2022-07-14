@@ -196,14 +196,14 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Path
  * Generate URL for a component's security hotspot page
  */
 export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Path {
-  const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe, file } = query;
+  const { branch, pullRequest, inNewCodePeriod, hotspots, assignedToMe, file } = query;
   return {
     pathname: '/security_hotspots',
     search: queryToSearch({
       id: componentKey,
       branch,
       pullRequest,
-      sinceLeakPeriod,
+      inNewCodePeriod,
       hotspots,
       assignedToMe,
       file,
