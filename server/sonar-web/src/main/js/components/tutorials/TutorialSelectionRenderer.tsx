@@ -30,7 +30,7 @@ import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelines
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
 import GitLabCITutorial from './gitlabci/GitLabCITutorial';
 import JenkinsTutorial from './jenkins/JenkinsTutorial';
-import ManualTutorial from './manual/ManualTutorial';
+import OtherTutorial from './other/OtherTutorial';
 import { TutorialModes } from './types';
 
 export interface TutorialSelectionRendererProps {
@@ -59,7 +59,7 @@ function renderButton(
       className={`button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-${mode}`}
       // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
       // tutorial in the future.
-      onClick={() => onSelectTutorial(mode === TutorialModes.OtherCI ? TutorialModes.Manual : mode)}
+      onClick={() => onSelectTutorial(mode)}
       type="button">
       {icon}
       <div className="medium big-spacer-top">
@@ -186,11 +186,11 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
             </div>
 
             <p className="big-spacer-bottom spacer-top">
-              {translate('onboarding.tutorial.choose_method.locally.description')}
+              {translate('onboarding.tutorial.choose_method.local.description')}
             </p>
             <div>
               {renderButton(
-                TutorialModes.Manual,
+                TutorialModes.Local,
                 props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
@@ -203,8 +203,17 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         </>
       )}
 
-      {selectedTutorial === TutorialModes.Manual && (
-        <ManualTutorial component={component} currentUser={currentUser} />
+      {selectedTutorial === TutorialModes.Local && (
+        <OtherTutorial
+          component={component}
+          baseUrl={baseUrl}
+          isLocal={true}
+          currentUser={currentUser}
+        />
+      )}
+
+      {selectedTutorial === TutorialModes.OtherCI && (
+        <OtherTutorial component={component} baseUrl={baseUrl} currentUser={currentUser} />
       )}
 
       {selectedTutorial === TutorialModes.BitbucketPipelines && (

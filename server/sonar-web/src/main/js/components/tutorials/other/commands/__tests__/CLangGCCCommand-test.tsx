@@ -17,30 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/mocks/component';
+import { OSs } from '../../../types';
+import ClangGCCCommand from '../ClangGCCCommand';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
-
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
-}
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };
+it('should render correctly', () => {
+  expect(
+    shallow(
+      <ClangGCCCommand
+        os={OSs.Linux}
+        baseUrl="http://example.com"
+        isLocal={true}
+        host="host"
+        component={mockComponent({ key: 'projectKey' })}
+        token="token"
+      />
+    )
+  ).toMatchSnapshot();
+});

@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/mocks/component';
+import { OSs } from '../../../types';
+import Other, { OtherProps } from '../Other';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+function shallowRender(props: Partial<OtherProps> = {}) {
+  return shallow<OtherProps>(
+    <Other
+      host="host"
+      isLocal={true}
+      os={OSs.Linux}
+      component={mockComponent({ key: 'projectKey' })}
+      token="token"
+      {...props}
+    />
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

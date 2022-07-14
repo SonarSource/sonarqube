@@ -52,11 +52,11 @@ exports[`should render correctly for azure 1`] = `
     <p
       className="big-spacer-bottom spacer-top"
     >
-      onboarding.tutorial.choose_method.locally.description
+      onboarding.tutorial.choose_method.local.description
     </p>
     <div>
       <button
-        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-manual"
+        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-local"
         onClick={[Function]}
         type="button"
       >
@@ -68,7 +68,7 @@ exports[`should render correctly for azure 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.manual
+          onboarding.tutorial.choose_method.local
         </div>
       </button>
     </div>
@@ -128,11 +128,11 @@ exports[`should render correctly for bitbucket server 1`] = `
     <p
       className="big-spacer-bottom spacer-top"
     >
-      onboarding.tutorial.choose_method.locally.description
+      onboarding.tutorial.choose_method.local.description
     </p>
     <div>
       <button
-        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-manual"
+        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-local"
         onClick={[Function]}
         type="button"
       >
@@ -144,7 +144,7 @@ exports[`should render correctly for bitbucket server 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.manual
+          onboarding.tutorial.choose_method.local
         </div>
       </button>
     </div>
@@ -237,11 +237,11 @@ exports[`should render correctly for github 1`] = `
     <p
       className="big-spacer-bottom spacer-top"
     >
-      onboarding.tutorial.choose_method.locally.description
+      onboarding.tutorial.choose_method.local.description
     </p>
     <div>
       <button
-        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-manual"
+        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-local"
         onClick={[Function]}
         type="button"
       >
@@ -253,7 +253,7 @@ exports[`should render correctly for github 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.manual
+          onboarding.tutorial.choose_method.local
         </div>
       </button>
     </div>
@@ -329,11 +329,11 @@ exports[`should render correctly for gitlab 1`] = `
     <p
       className="big-spacer-bottom spacer-top"
     >
-      onboarding.tutorial.choose_method.locally.description
+      onboarding.tutorial.choose_method.local.description
     </p>
     <div>
       <button
-        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-manual"
+        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-local"
         onClick={[Function]}
         type="button"
       >
@@ -345,7 +345,7 @@ exports[`should render correctly for gitlab 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.manual
+          onboarding.tutorial.choose_method.local
         </div>
       </button>
     </div>
@@ -547,7 +547,8 @@ exports[`should render correctly: loading 1`] = `
 
 exports[`should render correctly: manual tutorial 1`] = `
 <Fragment>
-  <ManualTutorial
+  <OtherTutorial
+    baseUrl="http://localhost:9000"
     component={
       Object {
         "breadcrumbs": Array [],
@@ -582,6 +583,7 @@ exports[`should render correctly: manual tutorial 1`] = `
         "scmAccounts": Array [],
       }
     }
+    isLocal={true}
   />
 </Fragment>
 `;
@@ -703,11 +705,11 @@ exports[`should render correctly: selection 1`] = `
     <p
       className="big-spacer-bottom spacer-top"
     >
-      onboarding.tutorial.choose_method.locally.description
+      onboarding.tutorial.choose_method.local.description
     </p>
     <div>
       <button
-        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-manual"
+        className="button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-local"
         onClick={[Function]}
         type="button"
       >
@@ -719,7 +721,7 @@ exports[`should render correctly: selection 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.manual
+          onboarding.tutorial.choose_method.local
         </div>
       </button>
     </div>

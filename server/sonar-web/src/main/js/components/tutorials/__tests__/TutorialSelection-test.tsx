@@ -74,10 +74,10 @@ it('should handle selection', () => {
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   const instance = wrapper.instance();
 
-  instance.handleSelectTutorial(TutorialModes.Manual);
+  instance.handleSelectTutorial(TutorialModes.Local);
   expect(push).toHaveBeenLastCalledWith(
     expect.objectContaining({
-      query: { selectedTutorial: TutorialModes.Manual }
+      query: { selectedTutorial: TutorialModes.Local }
     })
   );
 

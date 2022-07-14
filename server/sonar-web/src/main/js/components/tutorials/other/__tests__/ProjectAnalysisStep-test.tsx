@@ -17,30 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import ProjectAnalysisStep from '../ProjectAnalysisStep';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+function shallowRender() {
+  return shallow(
+    <ProjectAnalysisStep
+      component={mockComponent()}
+      isLocal={true}
+      baseUrl="http://example.com"
+      open={true}
+      stepNumber={2}
+    />
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

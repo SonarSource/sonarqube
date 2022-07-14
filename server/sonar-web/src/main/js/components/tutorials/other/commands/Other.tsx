@@ -17,30 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
+import * as React from 'react';
+import { Component } from '../../../../types/types';
+import { OSs } from '../../types';
+import DownloadScanner from './DownloadScanner';
+import ExecScanner from './ExecScanner';
+
+export interface OtherProps {
+  component: Component;
+  isLocal: boolean;
+  host: string;
+  os: OSs;
+  token: string;
 }
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+export default function Other(props: OtherProps) {
+  const { host, os, component, isLocal, token } = props;
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+  return (
+    <div>
+      <DownloadScanner isLocal={isLocal} os={os} token={token} />
+      <ExecScanner host={host} isLocal={isLocal} os={os} component={component} token={token} />
+    </div>
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

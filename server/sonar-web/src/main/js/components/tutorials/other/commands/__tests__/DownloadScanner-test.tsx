@@ -17,30 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Local = 'local',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { OSs } from '../../../types';
+import DownloadScanner, { DownloadScannerProps } from '../DownloadScanner';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', os => {
+  expect(shallowRender({ isLocal: false, os })).toMatchSnapshot('remote');
+  expect(shallowRender({ os })).toMatchSnapshot('local');
+});
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+function shallowRender(props: Partial<DownloadScannerProps> = {}) {
+  return shallow<DownloadScannerProps>(
+    <DownloadScanner isLocal={true} os={OSs.Linux} token="token" {...props} />
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

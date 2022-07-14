@@ -47,7 +47,7 @@ it.each([
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('selection');
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
-  expect(shallowRender({ selectedTutorial: TutorialModes.Manual })).toMatchSnapshot(
+  expect(shallowRender({ selectedTutorial: TutorialModes.Local })).toMatchSnapshot(
     'manual tutorial'
   );
   expect(
@@ -89,8 +89,8 @@ it('should allow mode selection for Bitbucket', () => {
   click(wrapper.find('button.tutorial-mode-jenkins'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
 
-  click(wrapper.find('button.tutorial-mode-manual'));
-  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+  click(wrapper.find('button.tutorial-mode-local'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Local);
 });
 
 it('should allow mode selection for Github', () => {
@@ -103,8 +103,8 @@ it('should allow mode selection for Github', () => {
   click(wrapper.find('button.tutorial-mode-jenkins'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
 
-  click(wrapper.find('button.tutorial-mode-manual'));
-  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+  click(wrapper.find('button.tutorial-mode-local'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Local);
 
   click(wrapper.find('button.tutorial-mode-github-actions'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitHubActions);
@@ -126,8 +126,8 @@ it('should allow mode selection for GitLab', () => {
   click(wrapper.find('button.tutorial-mode-gitlab-ci'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitLabCI);
 
-  click(wrapper.find('button.tutorial-mode-manual'));
-  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+  click(wrapper.find('button.tutorial-mode-local'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Local);
 });
 
 it('should allow mode selection for Bitbucket pipepline', () => {
@@ -143,8 +143,8 @@ it('should allow mode selection for Bitbucket pipepline', () => {
   click(wrapper.find('button.tutorial-mode-bitbucket-pipelines'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.BitbucketPipelines);
 
-  click(wrapper.find('button.tutorial-mode-manual'));
-  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+  click(wrapper.find('button.tutorial-mode-local'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Local);
 });
 
 it('should allow mode selection for Azure DevOps', () => {
@@ -157,8 +157,8 @@ it('should allow mode selection for Azure DevOps', () => {
   click(wrapper.find('button.tutorial-mode-azure-pipelines'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.AzurePipelines);
 
-  click(wrapper.find('button.tutorial-mode-manual'));
-  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+  click(wrapper.find('button.tutorial-mode-local'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Local);
 });
 
 function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {

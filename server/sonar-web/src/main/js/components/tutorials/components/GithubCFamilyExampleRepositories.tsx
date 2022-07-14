@@ -42,7 +42,7 @@ const CI_SEARCH_MAP = {
   [TutorialModes.GitHubActions]: 'gh-actions',
   [TutorialModes.GitLabCI]: 'gitlab',
   [TutorialModes.BitbucketPipelines]: 'bitbucket',
-  [TutorialModes.Manual]: 'otherci',
+  [TutorialModes.Local]: 'otherci',
   [TutorialModes.OtherCI]: 'otherci'
 };
 
