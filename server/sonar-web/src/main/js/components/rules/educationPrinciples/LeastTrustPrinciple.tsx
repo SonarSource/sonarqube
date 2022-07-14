@@ -43,7 +43,7 @@ export default function LeastTrustPrinciple() {
       <p>
         Next, the code must sanitize the data before performing mission-critical operations on the
         attacker-controlled data. The code must know in which contexts the intercepted data is used
-        and act accordingly (section &quot;How to fix it?&quot;).
+        and act accordingly.
       </p>
     </>
   );
