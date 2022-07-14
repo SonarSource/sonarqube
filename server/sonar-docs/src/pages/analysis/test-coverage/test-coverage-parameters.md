@@ -67,7 +67,7 @@ Note that the `.coverage` report format must be converted to `.coveragexml` form
 Path to the report from Bullseye, version >= 8.9.63 (use the [`covxml`](http://www.bullseye.com/help/ref-covxml.html) tool)
 
 
-## C#
+## C&#x23;
 
 See [.NET Test Coverage](/analysis/test-coverage/dotnet-test-coverage/) for examples and details.
 
