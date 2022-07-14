@@ -46,7 +46,7 @@ Path to the directory holding the [CPPUnit](https://sourceforge.net/projects/cpp
 Note that while measures such as the number of tests are displayed at the project level, no drill-down is available.
 
 
-## C#
+## C&#x23;
 
 ### sonar.cs.vstest.reportsPaths
 
