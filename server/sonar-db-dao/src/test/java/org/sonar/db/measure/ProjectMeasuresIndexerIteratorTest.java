@@ -21,6 +21,7 @@ package org.sonar.db.measure;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,10 +30,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -43,6 +47,8 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.db.component.ComponentDbTester.defaults;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ProjectMeasuresIndexerIteratorTest {
@@ -157,6 +163,17 @@ public class ProjectMeasuresIndexerIteratorTest {
 
     assertThat(docsById.get(project.uuid()).getMeasures().getNclocByLanguages())
       .containsOnly(entry("<null>", 4), entry("java", 12), entry("xoo", 36));
+  }
+
+  @Test
+  public void return_language_distribution_measure_from_project_with_no_branches() {
+    ComponentDto project = insertComponentAndProject(ComponentTesting.newPublicProjectDto(), false,
+      defaults(), defaults());
+
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById.get(project.uuid()).getMeasures().getNclocByLanguages())
+      .isEmpty();
   }
 
   @Test
@@ -291,5 +308,19 @@ public class ProjectMeasuresIndexerIteratorTest {
     Map<String, ProjectMeasures> docsById = Maps.uniqueIndex(it, pm -> pm.getProject().getUuid());
     it.close();
     return docsById;
+  }
+
+  private ComponentDto insertComponentAndProject(ComponentDto component, @Nullable Boolean isPrivate,
+    Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
+    componentDtoPopulator.accept(component);
+    checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
+    dbClient.componentDao().insert(dbSession, component);
+
+    ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
+    projectDtoPopulator.accept(projectDto);
+    dbClient.projectDao().insert(dbSession, projectDto);
+
+    dbTester.commit();
+    return component;
   }
 }

@@ -202,13 +202,16 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
 
       List<String> projectBranches = selectProjectBranches(dbSession, projectUuid);
-      long biggestNcloc = selectProjectBiggestNcloc(dbSession, projectBranches);
-      String biggestBranch = selectProjectBiggestBranch(dbSession, projectBranches, biggestNcloc);
-      PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch);
-      rs = prepareNclocByLanguageStatement.executeQuery();
 
-      if (rs.next()) {
-        readMeasure(rs, measures);
+      if (!projectBranches.isEmpty()) {
+        long biggestNcloc = selectProjectBiggestNcloc(dbSession, projectBranches);
+        String biggestBranch = selectProjectBiggestBranch(dbSession, projectBranches, biggestNcloc);
+        PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch);
+        rs = prepareNclocByLanguageStatement.executeQuery();
+
+        if (rs.next()) {
+          readMeasure(rs, measures);
+        }
       }
 
       return measures;
@@ -242,10 +245,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static List<String> selectProjectBranches(DbSession session, @Nullable String projectUuid) {
+  private static List<String> selectProjectBranches(DbSession session, String projectUuid) {
     ResultSet rs = null;
     List<String> projectBranches = new ArrayList<>();
-    try (PreparedStatement stmt = session.getConnection().prepareStatement(SQL_PROJECT_BRANCHES)){
+    try (PreparedStatement stmt = session.getConnection().prepareStatement(SQL_PROJECT_BRANCHES)) {
       AtomicInteger index = new AtomicInteger(1);
       stmt.setString(index.getAndIncrement(), projectUuid);
 
@@ -327,7 +330,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
     if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
       readTextValue(rs, measures::setNclocByLanguages);
-      return;
     }
   }
 
