@@ -38,6 +38,8 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogAndArguments;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 
 public class SamlIdentityProviderTest {
   private static final String SQ_CALLBACK_URL = "http://localhost:9000/oauth2/callback/saml";
@@ -62,6 +65,8 @@ public class SamlIdentityProviderTest {
 
   @Rule
   public DbTester db = DbTester.create();
+  @Rule
+  public LogTester log = new LogTester();
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
   private final SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
@@ -216,6 +221,20 @@ public class SamlIdentityProviderTest {
     assertThat(callbackContext.userIdentity.getEmail()).isNull();
     assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.userIdentity.getGroups()).isEmpty();
+  }
+
+  @Test
+  public void log_clear_error_when_private_key_is_not_pkcs8() {
+    var WRONG_FORMAT_PRIVATE_KEY = "MIIEpAIBAAKCAQEA0haE9+9QtP5JWbj4LymxiLZJk2n+QsHjVy/Lt/PXffGjl0aQ0O5mk13Vf1vlXC/L1FoPMhup5/AkcMHmJxkzXZ/VAHYYJJ78UHt6atxMDicpbOBaYqumE4fg0H4mVEIs4xYwzq/xhuTtpTb00ZCOF2Y/151o0alWcLbYgObZtbCpLxncjkJY8J+CY2v1WyE3VfBgErpseugYpf8GpkrKiM5tkY7DjhkrH+VY2FD8A6G6bkn/o+Ay7Vo3pv/byMyNsHBN9LgvCwQIDtyQJSEvTUK3IY0vcYTCUaITqIrWkj5qrDsuw9gR9Ie11+kzYL/1mE5AWOHmT2qNz7C9gOgJoQIDAQABAoIBAQCY9dRyQEfev5XgQZBRpmWgSDhhoDaDnG9Nt3r3wA4RoLGfHr2poSoF+bfMNrhT2mjpf3i43vNh77JYdpR/uxVvAUQwRctmPmsunfiPfT3SwCilIOQuGxOb/L5ujqqRhmzwGeQHWIrd0ChGtjChtEIAP24UKoN6w3QwNLCFiY7RfTC7+yyO05tKoIhzirCNDBARZPmaIm4ClmIf3Z3xg0Vsgtz7qntd63UoXjSWFA0f9EDJHfxCTaS1r9OrpPsPMNpVOEYDek4le+mWVCBmQABxYDBCycrILQUwpDkGOa6D7tezpjGYyn8Z4HiHzcneNqt/0+g5lG28DWHz9h0TKIjBAoGBAOklXNZmeMpMrQvTOta2cE/ts17SSrnUFWtKqU7ZH9Gs50ZpwzrnNWy+3sCiCCKfa+RylbXjukioKR5qz/qpr28GdD8+dWYNDHraEpk/ZtOfff7TlNpOjiNPXb0OF2t3HDeQs5etUPx5DHgCA58vDK4RlQcIWpZROCeH5vzo7lStAoGBAOauiFYKmbX3FdWsyBerjhbem5X59eNs68KtHxd/Y6INn/uI12gSsOi+Gj9B7yC/N1AKxqaWGN9fPeGy2+mC+BI0tiTWwATNlZyaSXeKBqKThONhgmZWUaX++dczqbWADdtzRUroy5X2lHzG8q6iG0RQtgwnczU1OdBk+UgF1/NFAoGBAJcr0Lx8CQozGWk3d0lNVhmdaNasyCMh7xl4ebtUcZtE31j6rsn8rNlsEYcaCOhaMl0YJxafKGSAFNlSLLS9XbFBoBJ57ylSgKsPx0tynrvNCKc4jaXXlbYzefZhsrHNs5Ab1Tcd/AsYegs+UxbeLPyZDeZXdlVNKHoJVq7aYd6pAoGAC7M2fwaynSQXG2tUCr9MyaQoyAaRjiNsIceeGBcB+qouPxfFtSWdi3B47FRvyH1qVMj3ImPihxHRlaz4snNOGb5KrrulqZizyemZaFK722sYBmBfuMkQAxdXnK6mIOqJyWOjVBVSnhyPk3STwn++WkytrxghI8W7VPKKIjkJpvECgYBBnvWXa8Ez/azEN+Y2Lc1PnU9OpNa/QRPUPApq15dB8Cu9e2Vm6F+CdGKBY8WQvDw7DJd6eOjCfN6ymy1O9vLiooNQJGaO/znncU1r3s42dfpQ8owthILl24GNXnEgth2yYfYPr/EVLoVsbgO0WKFvdsVbSo/upeLzGnVT+DMqfA==";
+    setSettings(true);
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", WRONG_FORMAT_PRIVATE_KEY);
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
+
+    underTest.callback(callbackContext);
+
+    assertThat(log.getLogs(ERROR))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
   }
 
   @Test

@@ -209,10 +209,12 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
     // During callback, the callback URL is by definition not needed, but the Saml2Settings does never allow this setting to be empty...
     samlData.put("onelogin.saml2.sp.assertion_consumer_service.url", callbackUrl != null ? callbackUrl : ANY_URL);
-    SettingsBuilder builder = new SettingsBuilder();
-    return builder
-      .fromValues(samlData)
-      .build();
+
+    var saml2Settings = new SettingsBuilder().fromValues(samlData).build();
+    if (samlSettings.getServiceProviderPrivateKey().isPresent() && saml2Settings.getSPkey() == null) {
+      LOGGER.error("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    }
+    return saml2Settings;
   }
 
   private static HttpServletRequest useProxyHeadersInRequest(HttpServletRequest request) {
