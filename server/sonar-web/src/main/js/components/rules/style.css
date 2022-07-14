@@ -21,12 +21,14 @@
 .education-principles {
   background-color: var(--educationPrinciplesBgColor);
   border-radius: 2px;
-  display: inline-block;
+  display: block;
   margin-left: 16px;
   margin-right: 16px;
   margin-bottom: 16px;
-  padding-left: 16px;
-  padding-right: 16px;
+}
+
+.education-principles h3:first-child {
+  margin-top: 0px;
 }
 
 .tab-view-header {
