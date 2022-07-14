@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
-import { scrollToElement } from '../../helpers/scrolling';
 import { Dict } from '../../types/types';
 import { ButtonLink } from '../controls/buttons';
 import { Alert } from '../ui/Alert';
@@ -44,7 +43,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   handleNotificationScroll = () => {
     const element = this.props.educationPrinciplesRef?.current;
     if (element) {
-      scrollToElement(element, { topOffset: 20, bottomOffset: 250 });
+      element.scrollIntoView();
     }
   };
 
@@ -91,7 +90,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
                 return null;
               }
               return (
-                <div key={key} className="education-principles rule-desc">
+                <div key={key} className="education-principles rule-desc big-padded">
                   <Concept />
                 </div>
               );

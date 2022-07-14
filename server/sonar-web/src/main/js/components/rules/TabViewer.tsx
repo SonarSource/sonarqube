@@ -73,7 +73,7 @@ export default class TabViewer extends React.PureComponent<Props, State> {
     };
     this.educationPrinciplesRef = React.createRef();
     this.checkIfConceptIsVisible = debounce(this.checkIfConceptIsVisible, DEBOUNCE_FOR_SCROLL);
-    document.addEventListener('scroll', this.checkIfConceptIsVisible);
+    document.addEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
   }
 
   componentDidMount() {
@@ -104,7 +104,7 @@ export default class TabViewer extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('scroll', this.checkIfConceptIsVisible);
+    document.removeEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
   }
 
   checkIfConceptIsVisible = () => {
@@ -114,7 +114,7 @@ export default class TabViewer extends React.PureComponent<Props, State> {
       if (isView && this.showNotification) {
         dismissNotification(NoticeType.EDUCATION_PRINCIPLES)
           .then(() => {
-            document.removeEventListener('scroll', this.checkIfConceptIsVisible);
+            document.removeEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
             this.showNotification = false;
           })
           .catch(() => {

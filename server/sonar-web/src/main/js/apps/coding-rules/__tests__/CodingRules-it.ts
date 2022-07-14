@@ -34,6 +34,7 @@ let handler: CodingRulesMock;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
+  window.HTMLElement.prototype.scrollIntoView = jest.fn();
   handler = new CodingRulesMock();
 });
 
