@@ -46,7 +46,7 @@ public class PullActionIssuesRetrieverTest {
   private final List<String> ruleRepositories = List.of("js-security", "java");
   private final Long defaultChangedSince = 1_000_000L;
 
-  private final IssueQueryParams queryParams = new IssueQueryParams(branchUuid, languages, ruleRepositories, false, defaultChangedSince);
+  private final IssueQueryParams queryParams = new IssueQueryParams(branchUuid, languages, ruleRepositories, null, false, defaultChangedSince);
   private final IssueDao issueDao = mock(IssueDao.class);
 
   @Before

@@ -23,22 +23,28 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Issues;
+
+import static org.sonarqube.ws.Issues.IssueLite;
+import static org.sonarqube.ws.Issues.IssuesPullQueryTimestamp;
+import static org.sonarqube.ws.Issues.Location;
+import static org.sonarqube.ws.Issues.TextRange;
 
 @ServerSide
-public class PullActionProtobufObjectGenerator {
+public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerator {
 
-  Issues.IssuesPullQueryTimestamp generateTimestampMessage(long timestamp) {
-    Issues.IssuesPullQueryTimestamp.Builder responseBuilder = Issues.IssuesPullQueryTimestamp.newBuilder();
+  @Override
+  public IssuesPullQueryTimestamp generateTimestampMessage(long timestamp) {
+    IssuesPullQueryTimestamp.Builder responseBuilder = IssuesPullQueryTimestamp.newBuilder();
     responseBuilder.setQueryTimestamp(timestamp);
     return responseBuilder.build();
   }
 
-  Issues.IssueLite generateIssueMessage(IssueDto issueDto) {
-    Issues.IssueLite.Builder issueBuilder = Issues.IssueLite.newBuilder();
+  @Override
+  public IssueLite generateIssueMessage(IssueDto issueDto) {
+    IssueLite.Builder issueBuilder = IssueLite.newBuilder();
     DbIssues.Locations mainLocation = issueDto.parseLocations();
 
-    Issues.Location.Builder locationBuilder = Issues.Location.newBuilder();
+    Location.Builder locationBuilder = Location.newBuilder();
     if (issueDto.getMessage() != null) {
       locationBuilder.setMessage(issueDto.getMessage());
     }
@@ -46,10 +52,10 @@ public class PullActionProtobufObjectGenerator {
       locationBuilder.setFilePath(issueDto.getFilePath());
     }
     if (mainLocation != null) {
-      Issues.TextRange textRange = buildTextRange(mainLocation);
+      TextRange textRange = buildTextRange(mainLocation);
       locationBuilder.setTextRange(textRange);
     }
-    Issues.Location location = locationBuilder.build();
+    Location location = locationBuilder.build();
 
     issueBuilder.setKey(issueDto.getKey());
     issueBuilder.setCreationDate(issueDto.getCreatedAt());
@@ -65,24 +71,11 @@ public class PullActionProtobufObjectGenerator {
     return issueBuilder.build();
   }
 
-  Issues.IssueLite generateClosedIssueMessage(String uuid) {
-    Issues.IssueLite.Builder issueBuilder = Issues.IssueLite.newBuilder();
+  @Override
+  public IssueLite generateClosedIssueMessage(String uuid) {
+    IssueLite.Builder issueBuilder = IssueLite.newBuilder();
     issueBuilder.setKey(uuid);
     issueBuilder.setClosed(true);
     return issueBuilder.build();
-  }
-
-  private static Issues.TextRange buildTextRange(DbIssues.Locations mainLocation) {
-    int startLine = mainLocation.getTextRange().getStartLine();
-    int endLine = mainLocation.getTextRange().getEndLine();
-    int startOffset = mainLocation.getTextRange().getStartOffset();
-    int endOffset = mainLocation.getTextRange().getEndOffset();
-
-    return Issues.TextRange.newBuilder()
-      .setHash(mainLocation.getChecksum())
-      .setStartLine(startLine)
-      .setEndLine(endLine)
-      .setStartLineOffset(startOffset)
-      .setEndLineOffset(endOffset).build();
   }
 }

@@ -32,6 +32,7 @@ import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
+import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
 
 public class IssueWsModule extends Module {
@@ -70,7 +71,9 @@ public class IssueWsModule extends Module {
       BulkChangeAction.class,
       QGChangeEventListenersImpl.class,
       PullAction.class,
+      PullTaintAction.class,
       PullActionResponseWriter.class,
-      PullActionProtobufObjectGenerator.class);
+      PullActionProtobufObjectGenerator.class,
+      PullTaintActionProtobufObjectGenerator.class);
   }
 }

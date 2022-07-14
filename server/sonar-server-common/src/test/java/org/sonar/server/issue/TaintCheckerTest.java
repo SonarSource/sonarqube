@@ -78,6 +78,14 @@ public class TaintCheckerTest {
     assertThat(issuesByTaintStatus.get(false).get(2).getKey()).isEqualTo("standardIssue3");
   }
 
+  @Test
+  public void test_getTaintRepositories() {
+    assertThat(TaintChecker.getTaintRepositories())
+      .hasSize(6)
+      .containsExactlyInAnyOrder("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity",
+        "tssecurity", "phpsecurity", "pythonsecurity");
+  }
+
   private List<IssueDto> getIssues() {
     List<IssueDto> issues = new ArrayList<>();
 

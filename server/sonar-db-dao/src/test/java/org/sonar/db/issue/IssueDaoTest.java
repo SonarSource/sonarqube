@@ -41,6 +41,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,6 +153,43 @@ public class IssueDaoTest {
   }
 
   @Test
+  public void selectIssueKeysByComponentUuidFiltersAccordingly() {
+    // contains I1 and I2
+    prepareTables();
+
+    // adds I3
+    underTest.insert(db.getSession(), newIssueDto("I3")
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setStatus("OPEN")
+      .setProjectUuid(PROJECT_UUID));
+
+    // Filter by including repositories
+    Set<String> issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, List.of("xoo"),
+      emptyList(), emptyList(), null, false);
+    // results are not ordered, so do not use "containsExactly"
+    assertThat(issues).containsOnly("I1", "I2", "I3");
+
+    // Filter by excluding repositories
+    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), List.of("xoo"),
+      emptyList(), null, false);
+    assertThat(issues).isEmpty();
+
+    // Filter by language
+    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), List.of("xoo"), null, false);
+    assertThat(issues).containsOnly("I1", "I2", "I3");
+
+    // Filter by resolved only
+    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), emptyList(), true, false);
+    assertThat(issues).containsOnly("I1");
+
+    // Filter by non-closed issues only
+    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), emptyList(), null, true);
+    assertThat(issues).containsOnly("I1", "I3");
+  }
+
+  @Test
   public void selectIssueKeysByComponentUuidAndChangedSince() {
     long t1 = 1_340_000_000_000L;
     long t2 = 1_400_000_000_000L;
@@ -163,8 +201,40 @@ public class IssueDaoTest {
     Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2);
 
     // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).containsOnly("I1", "I2");
+    assertThat(issues).containsOnly("I1");
   }
+
+  @Test
+  public void selectIssueKeysByComponentUuidAndChangedSinceFiltersAccordingly() {
+    long t1 = 1_340_000_000_000L;
+    long t2 = 1_400_000_000_000L;
+    // contains I1 and I2
+    prepareTables();
+    // Insert I3, I4, where t1 < t2
+    IntStream.range(3, 5).forEach(i -> underTest.insert(db.getSession(), newIssueDto("I" + i).setUpdatedAt(t1)));
+
+    // Filter by including repositories
+    Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, List.of("xoo"),
+      emptyList(), emptyList(), null);
+    // results are not ordered, so do not use "containsExactly"
+    assertThat(issues).containsOnly("I1");
+
+    // Filter by excluding repositories
+    issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2,
+      emptyList(), List.of("xoo"), emptyList(), null);
+    assertThat(issues).isEmpty();
+
+    // Filter by language
+    issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, emptyList(),
+      emptyList(), List.of("xoo"), null);
+    assertThat(issues).containsOnly("I1");
+
+    // Filter by resolved only
+    issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, emptyList(),
+      emptyList(), emptyList(), true);
+    assertThat(issues).containsOnly("I1");
+  }
+
 
   @Test
   public void selectByBranch() {
@@ -246,11 +316,11 @@ public class IssueDaoTest {
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), file.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), project.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), "does_not_exist")).isEmpty();
   }
@@ -278,11 +348,11 @@ public class IssueDaoTest {
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
       .extracting(IssueDto::getKey)
       .containsExactlyInAnyOrder(
-        Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+        Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), module))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
 
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto();
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), notPersisted)).isEmpty();
@@ -787,6 +857,7 @@ public class IssueDaoTest {
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)
+      .setStatus("CLOSED")
       .setProjectUuid(PROJECT_UUID));
     db.getSession().commit();
   }
@@ -800,6 +871,6 @@ public class IssueDaoTest {
   }
 
   private static IssueQueryParams buildSelectByBranchQuery(ComponentDto branch, String language, boolean resolvedOnly, Long changedSince) {
-    return new IssueQueryParams(branch.uuid(), List.of(language), List.of(language), resolvedOnly, changedSince);
+    return new IssueQueryParams(branch.uuid(), List.of(language), List.of(), List.of(), resolvedOnly, changedSince);
   }
 }

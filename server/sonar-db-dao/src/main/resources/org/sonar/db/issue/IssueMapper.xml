@@ -473,17 +473,74 @@
     select
       i.kee
     from issues i
-    where
+   <if test="includingRepositories != null || excludingRepositories != null || languages != null">
+     inner join rules r on i.rule_uuid = r.uuid
+   </if>
+     where
       i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+    <choose>
+      <when test="openIssuesOnly == true">
+        AND i.issue_type != 4
+        AND i.status != 'CLOSED'
+      </when>
+      <when test="resolvedOnly == true">
+        AND i.issue_type != 4
+        AND i.status = 'RESOLVED'
+      </when>
+    </choose>
+    <if test="includingRepositories != null and includingRepositories.size() > 0">
+        AND r.plugin_name IN
+          <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
+            #{ruleRepository}
+          </foreach>
+    </if>
+    <if test="excludingRepositories != null and excludingRepositories.size() > 0">
+      AND r.plugin_name NOT IN
+        <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
+          #{ruleRepository}
+        </foreach>
+    </if>
+    <if test="languages != null and languages.size() > 0">
+        AND r.language IN
+          <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
+              #{language}
+          </foreach>
+    </if>
   </select>
 
   <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string">
     select
       i.kee
     from issues i
+    <if test="includingRepositories != null || excludingRepositories != null || languages != null">
+       inner join rules r on i.rule_uuid = r.uuid
+    </if>
     where
       i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
       AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
+      AND i.status != 'CLOSED'
+      AND i.issue_type != 4
+    <if test="resolvedOnly == true">
+       AND i.status = 'RESOLVED'
+    </if>
+    <if test="includingRepositories != null and includingRepositories.size() > 0">
+      AND r.plugin_name IN
+        <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
+          #{ruleRepository}
+        </foreach>
+    </if>
+    <if test="excludingRepositories != null and excludingRepositories.size() > 0">
+      AND r.plugin_name NOT IN
+        <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
+          #{ruleRepository}
+        </foreach>
+    </if>
+    <if test="languages != null and languages.size() > 0">
+      AND r.language IN
+        <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
+            #{language}
+        </foreach>
+   </if>
   </select>
 
   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
@@ -551,6 +608,7 @@
     result.ruleUuid as ruleUuid,
     result.createdAt as createdAt,
     result.status as status,
+    result.priority,
     result.ruleType as ruleType,
     result.ruleRepo as ruleRepo,
     result.ruleKey as ruleKey,
@@ -560,7 +618,8 @@
     result.type as type,
     result.locations as locations,
     result.component_uuid,
-    c.path as filePath
+    c.path as filePath,
+    result.assigneeUuid
   </sql>
 
   <sql id="selectByBranchColumnsOuterQuery">
@@ -568,6 +627,7 @@
     t.ruleUuid as ruleUuid,
     t.createdAt as createdAt,
     t.status as status,
+    t.priority,
     t.ruleType as ruleType,
     t.ruleRepo as ruleRepo,
     t.ruleKey as ruleKey,
@@ -576,7 +636,8 @@
     t.manualSeverity as manualSeverity,
     t.type as type,
     t.locations as locations,
-    t.component_uuid
+    t.component_uuid,
+    t.assigneeUuid
   </sql>
 
   <sql id="selectByBranchColumns">
@@ -584,6 +645,7 @@
     i.rule_uuid as ruleUuid,
     i.created_at as createdAt,
     i.status as status,
+    r.priority,
     r.rule_type as ruleType,
     r.plugin_name as ruleRepo,
     r.plugin_rule_key as ruleKey,
@@ -592,7 +654,8 @@
     i.manual_severity as manualSeverity,
     i.issue_type as type,
     i.locations as locations,
-    i.component_uuid as component_uuid
+    i.component_uuid as component_uuid,
+    i.assignee as assigneeUuid
   </sql>
 
   <select id="selectByBranch" parameterType="map" resultType="Issue">
@@ -604,28 +667,28 @@
         inner join components p on p.uuid=i.component_uuid
     where
       i.project_uuid = #{queryParams.branchUuid}
-     <if test="queryParams.changedSince != null">
-      AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
-     </if>
-     <if test="queryParams.resolvedOnly == true">
-       AND i.status = 'RESOLVED'
-     </if>
       AND i.status &lt;&gt; 'CLOSED'
       AND i.issue_type &lt;&gt; 4
-     <if test="queryParams.ruleRepositories != null">
-      AND r.plugin_name IN
-        <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
-          #{ruleRepository}
-        </foreach>
-    </if>
-    <if test="queryParams.languages != null">
-      AND r.language IN
-        <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
-            #{language}
-        </foreach>
-    </if>
-    order by i.kee ASC
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+       <if test="queryParams.changedSince != null">
+        AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+       </if>
+        <if test="queryParams.resolvedOnly == true">
+          AND i.status = 'RESOLVED'
+        </if>
+       <if test="queryParams.ruleRepositories.size() > 0">
+        AND r.plugin_name IN
+          <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
+            #{ruleRepository}
+          </foreach>
+        </if>
+        <if test="queryParams.languages.size() > 0">
+          AND r.language IN
+            <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
+                #{language}
+            </foreach>
+        </if>
+      order by i.kee ASC
+      limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectByBranch" parameterType="map" resultType="Issue" databaseId="mssql">
@@ -642,21 +705,21 @@
           inner join rules r on r.uuid = i.rule_uuid
       where
         i.project_uuid = #{queryParams.branchUuid}
-          <if test="queryParams.changedSince != null">
-        AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
-         </if>
-         <if test="queryParams.resolvedOnly == true">
-           AND i.status = 'RESOLVED'
-         </if>
         AND i.status &lt;&gt; 'CLOSED'
-          AND i.issue_type &lt;&gt; 4
-        <if test="queryParams.ruleRepositories != null">
+        AND i.issue_type &lt;&gt; 4
+        <if test="queryParams.changedSince != null">
+            AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+        </if>
+        <if test="queryParams.resolvedOnly == true">
+          AND i.status = 'RESOLVED'
+        </if>
+        <if test="queryParams.ruleRepositories.size() > 0">
           AND r.plugin_name IN
             <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
               #{ruleRepository}
             </foreach>
         </if>
-        <if test="queryParams.languages != null">
+        <if test="queryParams.languages.size() > 0">
           AND r.language IN
             <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
                 #{language}
@@ -679,21 +742,21 @@
               inner join rules r on r.uuid = i.rule_uuid
           where
             i.project_uuid = #{queryParams.branchUuid}
-              <if test="queryParams.changedSince != null">
-            AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
-             </if>
-             <if test="queryParams.resolvedOnly == true">
-               AND i.status = 'RESOLVED'
-             </if>
             AND i.status &lt;&gt; 'CLOSED'
-              AND i.issue_type &lt;&gt; 4
-            <if test="queryParams.ruleRepositories != null">
+            AND i.issue_type &lt;&gt; 4
+            <if test="queryParams.changedSince != null">
+                AND i.issue_update_date &gt;= #{queryParams.changedSince,jdbcType=BIGINT}
+            </if>
+            <if test="queryParams.resolvedOnly == true">
+              AND i.status = 'RESOLVED'
+            </if>
+            <if test="queryParams.ruleRepositories.size() > 0">
               AND r.plugin_name IN
                 <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
                   #{ruleRepository}
                 </foreach>
             </if>
-            <if test="queryParams.languages != null">
+            <if test="queryParams.languages.size() > 0">
               AND r.language IN
                 <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
                     #{language}
@@ -715,19 +778,25 @@
     where
       i.project_uuid = #{queryParams.branchUuid}
       AND issue_update_date &gt;= #{queryParams.changedSince}
-        <if test="queryParams.ruleRepositories != null">
+      AND i.status = 'CLOSED'
+        <if test="queryParams.ruleRepositories.size() > 0">
           AND r.plugin_name IN
           <foreach item="ruleRepository" index="index" collection="queryParams.ruleRepositories" open="(" separator="," close=")">
             #{ruleRepository}
           </foreach>
         </if>
-        <if test="queryParams.languages != null">
+        <if test="queryParams.excludingRuleRepositories.size() > 0">
+          AND r.plugin_name NOT IN
+          <foreach item="ruleRepository" index="index" collection="queryParams.excludingRuleRepositories" open="(" separator="," close=")">
+            #{ruleRepository}
+          </foreach>
+        </if>
+        <if test="queryParams.languages.size() > 0">
           AND r.language IN
           <foreach item="language" index="index" collection="queryParams.languages" open="(" separator="," close=")">
             #{language}
           </foreach>
         </if>
-      AND i.status = 'CLOSED'
   </select>
 
 </mapper>

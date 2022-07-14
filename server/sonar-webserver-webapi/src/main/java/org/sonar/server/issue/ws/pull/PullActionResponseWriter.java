@@ -19,35 +19,35 @@
  */
 package org.sonar.server.issue.ws.pull;
 
+import com.google.protobuf.AbstractMessageLite;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.db.issue.IssueDto;
-import org.sonarqube.ws.Issues;
 
 @ServerSide
 public class PullActionResponseWriter {
 
   private final System2 system2;
-  private final PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator;
+  private final ProtobufObjectGenerator protobufObjectGenerator;
 
-  public PullActionResponseWriter(System2 system2, PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator) {
+  public PullActionResponseWriter(System2 system2, ProtobufObjectGenerator protobufObjectGenerator) {
     this.system2 = system2;
-    this.pullActionProtobufObjectGenerator = pullActionProtobufObjectGenerator;
+    this.protobufObjectGenerator = protobufObjectGenerator;
   }
 
   public void appendTimestampToResponse(OutputStream outputStream) throws IOException {
-    Issues.IssuesPullQueryTimestamp issuesPullQueryTimestamp = pullActionProtobufObjectGenerator.generateTimestampMessage(system2.now());
-    issuesPullQueryTimestamp.writeDelimitedTo(outputStream);
+    AbstractMessageLite messageLite = protobufObjectGenerator.generateTimestampMessage(system2.now());
+    messageLite.writeDelimitedTo(outputStream);
   }
 
   public void appendIssuesToResponse(List<IssueDto> issueDtos, OutputStream outputStream) {
     try {
       for (IssueDto issueDto : issueDtos) {
-        Issues.IssueLite issueLite = pullActionProtobufObjectGenerator.generateIssueMessage(issueDto);
-        issueLite.writeDelimitedTo(outputStream);
+        AbstractMessageLite messageLite = protobufObjectGenerator.generateIssueMessage(issueDto);
+        messageLite.writeDelimitedTo(outputStream);
       }
       outputStream.flush();
     } catch (IOException e) {
@@ -58,8 +58,8 @@ public class PullActionResponseWriter {
   public void appendClosedIssuesUuidsToResponse(List<String> closedIssuesUuids,
     OutputStream outputStream) throws IOException {
     for (String uuid : closedIssuesUuids) {
-      Issues.IssueLite issueLite = pullActionProtobufObjectGenerator.generateClosedIssueMessage(uuid);
-      issueLite.writeDelimitedTo(outputStream);
+      AbstractMessageLite messageLite = protobufObjectGenerator.generateClosedIssueMessage(uuid);
+      messageLite.writeDelimitedTo(outputStream);
     }
   }
 

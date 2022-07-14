@@ -19,23 +19,28 @@
  */
 package org.sonar.db.issue;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNullElse;
 
 public class IssueQueryParams {
 
   private final String branchUuid;
   private final List<String> languages;
-  private final List<String> ruleRepositories;
   private final boolean resolvedOnly;
   private final Long changedSince;
+  private final List<String> ruleRepositories;
+  private final List<String> excludingRuleRepositories;
 
-  public IssueQueryParams(String branchUuid, @Nullable List<String> languages,
-    @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
+  public IssueQueryParams(String branchUuid, @Nullable List<String> languages, @Nullable List<String> ruleRepositories,
+    @Nullable List<String> excludingRuleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
     this.branchUuid = branchUuid;
-    this.languages = languages;
-    this.ruleRepositories = ruleRepositories;
+    this.languages = requireNonNullElse(languages, new ArrayList<>());
+    this.ruleRepositories = requireNonNullElse(ruleRepositories, new ArrayList<>());
+    this.excludingRuleRepositories = requireNonNullElse(excludingRuleRepositories, new ArrayList<>());
     this.resolvedOnly = resolvedOnly;
     this.changedSince = changedSince;
   }
@@ -44,14 +49,16 @@ public class IssueQueryParams {
     return branchUuid;
   }
 
-  @CheckForNull
   public List<String> getLanguages() {
     return languages;
   }
 
-  @CheckForNull
   public List<String> getRuleRepositories() {
     return ruleRepositories;
+  }
+
+  public List<String> getExcludingRuleRepositories() {
+    return excludingRuleRepositories;
   }
 
   public boolean isResolvedOnly() {

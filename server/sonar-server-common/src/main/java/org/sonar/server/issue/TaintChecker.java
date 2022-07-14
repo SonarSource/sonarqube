@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +29,7 @@ import org.sonar.db.issue.IssueDto;
 
 public class TaintChecker {
 
-  private static final Set<String> TAINT_REPOSITORIES = Set.of("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity");
+  private static final List<String> TAINT_REPOSITORIES = List.of("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity");
 
   private TaintChecker() {
     throw new IllegalStateException("Utility class, cannot be instantiated.");
@@ -63,6 +62,10 @@ public class TaintChecker {
       return issueDto -> TAINT_REPOSITORIES.contains(issueDto.getRuleRepo());
     }
     return issueDto -> !TAINT_REPOSITORIES.contains(issueDto.getRuleRepo());
+  }
+
+  public static List<String> getTaintRepositories() {
+    return TAINT_REPOSITORIES;
   }
 
 }

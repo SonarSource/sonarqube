@@ -1,0 +1,34 @@
+# The response contains a single protocol buffer message: TaintVulnerabilityPullQueryTimestamp followed by 0..n number of TaintLite protocol buffer messages.
+message TaintVulnerabilityPullQueryTimestamp {
+  required int64 queryTimestamp = 1;
+}
+
+message TaintLite {
+  required string key = 1;
+  optional int64 creationDate = 2;
+  optional bool resolved = 3;
+  optional string ruleKey = 4;
+  optional string severity = 5;
+  optional string type = 6;
+  optional Location mainLocation = 7;
+  optional bool closed = 8;
+  optional Flow flows = 9;
+}
+
+message Location {
+  optional string filePath = 1;
+  optional string message = 2;
+  optional TextRange textRange = 3;
+}
+
+message Flow {
+  repeated Location locations = 1;
+}
+
+message TextRange {
+  optional int32 startLine = 1;
+  optional int32 startLineOffset = 2;
+  optional int32 endLine = 3;
+  optional int32 endLineOffset = 4;
+  optional string hash = 5;
+}

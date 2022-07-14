@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Pagination;
@@ -37,12 +38,20 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
-  Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);
+  Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid,
+    @Param("includingRepositories") List<String> includingRepositories,
+    @Param("excludingRepositories") List<String> excludingRepositories,
+    @Param("languages") List<String> languages, @Param("resolvedOnly") @Nullable Boolean resolvedOnly,
+    @Param("openIssuesOnly") boolean openIssuesOnly);
 
-  Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(@Param("componentUuid") String componentUuid, @Param("changedSince") long changedSince);
+  Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(@Param("componentUuid") String componentUuid,
+    @Param("changedSince") long changedSince,
+    @Param("includingRepositories") List<String> includingRepositories,
+    @Param("excludingRepositories") List<String> excludingRepositories,
+    @Param("languages") List<String> languages, @Param("resolvedOnly") @Nullable Boolean resolvedOnly);
 
   List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
-                                                @Param("pagination") Pagination pagination);
+    @Param("pagination") Pagination pagination);
 
   List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);
 

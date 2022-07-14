@@ -25,7 +25,6 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueQueryParamsTest {
-  private final List<String> languages = List.of("java");
   private final List<String> ruleRepositories = List.of("js-security", "java");
 
   @Test
@@ -34,11 +33,12 @@ public class IssueQueryParamsTest {
     long changedSince = 1_000_000L;
     String branchUuid = "master-branch-uuid";
 
-    IssueQueryParams queryParameters = new IssueQueryParams(branchUuid, languages, ruleRepositories, resolvedOnly, changedSince);
+    IssueQueryParams queryParameters = new IssueQueryParams(branchUuid, null, ruleRepositories, null, resolvedOnly, changedSince);
 
     assertThat(queryParameters.getBranchUuid()).isEqualTo(branchUuid);
-    assertThat(queryParameters.getLanguages()).isEqualTo(languages);
+    assertThat(queryParameters.getLanguages()).isNotNull().isEmpty();
     assertThat(queryParameters.getRuleRepositories()).isEqualTo(ruleRepositories);
+    assertThat(queryParameters.getExcludingRuleRepositories()).isNotNull().isEmpty();
     assertThat(queryParameters.isResolvedOnly()).isFalse();
     assertThat(queryParameters.getChangedSince()).isEqualTo(changedSince);
 

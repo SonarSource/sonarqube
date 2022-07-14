@@ -30,58 +30,53 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueQueryParams;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.TaintChecker;
-import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
+import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
-import static org.sonarqube.ws.WsUtils.checkArgument;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_PULL_TAINT;
 
-public class PullAction extends BasePullAction {
-  private static final String ISSUE_TYPE = "issues";
-  private static final String REPOSITORY_EXAMPLE = "java";
-  private static final String RESOURCE_EXAMPLE = "pull-example.proto";
-  private static final String SINCE_VERSION = "9.5";
+public class PullTaintAction extends BasePullAction {
+  private static final String ISSUE_TYPE = "taint vulnerabilities";
+  private static final String RESOURCE_EXAMPLE = "pull-taint-example.proto";
+  private static final String SINCE_VERSION = "9.6";
 
   private final DbClient dbClient;
 
-  public PullAction(System2 system2, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession,
-    PullActionProtobufObjectGenerator protobufObjectGenerator) {
-    super(system2, componentFinder, dbClient, userSession, protobufObjectGenerator, ACTION_PULL,
-      ISSUE_TYPE, REPOSITORY_EXAMPLE, SINCE_VERSION, RESOURCE_EXAMPLE);
+  public PullTaintAction(System2 system2, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession,
+    PullTaintActionProtobufObjectGenerator protobufObjectGenerator) {
+    super(system2, componentFinder, dbClient, userSession, protobufObjectGenerator, ACTION_PULL_TAINT,
+      ISSUE_TYPE, "", SINCE_VERSION, RESOURCE_EXAMPLE);
     this.dbClient = dbClient;
   }
 
   @Override
   protected Set<String> getIssueKeysSnapshot(IssueQueryParams issueQueryParams) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<Long> changedSinceDate = ofNullable(issueQueryParams.getChangedSince());
+    Optional<Long> changedSinceDate = ofNullable(issueQueryParams.getChangedSince());
 
+    try (DbSession dbSession = dbClient.openSession(false)) {
       if (changedSinceDate.isPresent()) {
         return dbClient.issueDao().selectIssueKeysByComponentUuidAndChangedSinceDate(dbSession, issueQueryParams.getBranchUuid(),
-          changedSinceDate.get(), issueQueryParams.getRuleRepositories(), TaintChecker.getTaintRepositories(),
-          issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly());
+          changedSinceDate.get(), issueQueryParams.getRuleRepositories(), emptyList(),
+          issueQueryParams.getLanguages(), false);
       }
 
       return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, issueQueryParams.getBranchUuid(),
-        issueQueryParams.getRuleRepositories(), TaintChecker.getTaintRepositories(),
-        issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly(), true);
+        issueQueryParams.getRuleRepositories(),
+        emptyList(), issueQueryParams.getLanguages(),
+        issueQueryParams.isResolvedOnly(), true);
+
     }
   }
 
   @Override
   protected IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
-    return new IssueQueryParams(branchDto.getUuid(), languages, ruleRepositories, TaintChecker.getTaintRepositories(), resolvedOnly, changedSince);
+    return new IssueQueryParams(branchDto.getUuid(), languages, TaintChecker.getTaintRepositories(), emptyList(), resolvedOnly, changedSince);
   }
-
 
   @Override
   protected void validateRuleRepositories(List<String> ruleRepositories) {
-    checkArgument(ruleRepositories
-      .stream()
-      .filter(TaintChecker.getTaintRepositories()::contains)
-      .count() == 0, "Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
-
   }
 }

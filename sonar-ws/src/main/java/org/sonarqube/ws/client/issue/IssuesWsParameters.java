@@ -39,6 +39,7 @@ public class IssuesWsParameters {
   public static final String ACTION_SET_TYPE = "set_type";
   public static final String ACTION_BULK_CHANGE = "bulk_change";
   public static final String ACTION_PULL = "pull";
+  public static final String ACTION_PULL_TAINT = "pull_taint";
 
   public static final String PARAM_ISSUE = "issue";
   public static final String PARAM_COMMENT = "comment";

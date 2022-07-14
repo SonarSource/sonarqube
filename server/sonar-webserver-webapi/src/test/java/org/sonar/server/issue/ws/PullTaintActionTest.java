@@ -38,11 +38,12 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
+import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -58,8 +59,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
-public class PullActionTest {
-
+public class PullTaintActionTest {
   private static final long NOW = 10_000_000_000L;
   private static final long PAST = 1_000_000_000L;
 
@@ -75,16 +75,14 @@ public class PullActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final System2 system2 = mock(System2.class);
-  private final PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator = new PullActionProtobufObjectGenerator();
-
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), resourceTypes);
-
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
   private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
-  private final PullAction underTest = new PullAction(system2, componentFinder, db.getDbClient(), userSession, pullActionProtobufObjectGenerator);
-  private final WsActionTester tester = new WsActionTester(underTest);
+  private PullTaintActionProtobufObjectGenerator objectGenerator = new PullTaintActionProtobufObjectGenerator(db.getDbClient(), userSession);
+  private PullTaintAction underTest = new PullTaintAction(system2, componentFinder, db.getDbClient(), userSession, objectGenerator);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   private RuleDto correctRule, incorrectRule;
   private ComponentDto correctProject, incorrectProject;
@@ -93,13 +91,18 @@ public class PullActionTest {
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
-    correctRule = db.rules().insertIssueRule();
+    RuleRepositoryDto repository = new RuleRepositoryDto("javasecurity", "java", "Security SonarAnalyzer");
+    db.getDbClient().ruleRepositoryDao().insert(db.getSession(), List.of(repository));
+    correctRule = db.rules().insertIssueRule(r -> r.setRepositoryKey("javasecurity").setRuleKey("S1000").setSeverity(3));
+
     correctProject = db.components().insertPrivateProject();
     correctFile = db.components().insertComponent(newFileDto(correctProject));
 
     incorrectRule = db.rules().insertIssueRule();
     incorrectProject = db.components().insertPrivateProject();
     incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
+
+
   }
 
   @Test
@@ -166,19 +169,7 @@ public class PullActionTest {
   }
 
   @Test
-  public void givenTaintRuleRepository_throwException() {
-    TestRequest request = tester.newRequest()
-      .setParam("projectKey", "project-key")
-      .setParam("branchName", "branch-name")
-      .setParam("ruleRepositories", "javasecurity");
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
-  }
-
-  @Test
-  public void givenValidProjectKeyAndOneIssueOnBranch_returnOneIssue() throws IOException {
+  public void givenValidProjectKeyAndOneNormalIssueOnBranch_returnNoTaintVulnerabilities() throws IOException {
     DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
       .setStartLine(1)
       .setEndLine(2)
@@ -204,19 +195,55 @@ public class PullActionTest {
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).hasSize(1);
+    assertThat(taints).isEmpty();
+  }
 
-    Issues.IssueLite issueLite = issues.get(0);
-    assertThat(issueLite.getKey()).isEqualTo(issueDto.getKey());
-    assertThat(issueLite.getUserSeverity()).isEqualTo("MINOR");
-    assertThat(issueLite.getCreationDate()).isEqualTo(NOW);
-    assertThat(issueLite.getResolved()).isTrue();
-    assertThat(issueLite.getRuleKey()).isEqualTo("java:S1000");
-    assertThat(issueLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()).name());
+  @Test
+  public void givenValidProjectKeyAndOneTaintOnBranch_returnOneTaint_WithMetadataSeverity() throws IOException {
+    loginWithBrowsePermission(correctProject.projectUuid(), correctFile.uuid());
+    DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
+      .setStartLine(1)
+      .setEndLine(2)
+      .setStartOffset(3)
+      .setEndOffset(4)
+      .build();
+    DbIssues.Locations.Builder mainLocation = DbIssues.Locations.newBuilder()
+      .setChecksum("hash")
+      .setTextRange(textRange);
 
-    Issues.Location location = issueLite.getMainLocation();
+    IssueDto issueDto = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+      .setRule(correctRule)
+      .setProject(correctProject)
+      .setComponent(correctFile)
+      .setAssigneeUuid(userSession.getUuid())
+      .setManualSeverity(true)
+      .setMessage("message")
+      .setCreatedAt(NOW)
+      .setStatus(Issue.STATUS_OPEN)
+      .setLocations(mainLocation.build())
+      .setType(Common.RuleType.VULNERABILITY.getNumber()));
+
+    TestRequest request = tester.newRequest()
+      .setParam("projectKey", issueDto.getProjectKey())
+      .setParam("branchName", DEFAULT_BRANCH);
+
+    TestResponse response = request.execute();
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
+    Issues.TaintVulnerabilityLite taintLite = taints.get(0);
+
+    assertThat(taints).hasSize(1);
+
+    assertThat(taintLite.getKey()).isEqualTo(issueDto.getKey());
+    assertThat(taintLite.getSeverity()).isEqualTo("CRITICAL");
+    assertThat(taintLite.getCreationDate()).isEqualTo(NOW);
+    assertThat(taintLite.getResolved()).isFalse();
+    assertThat(taintLite.getRuleKey()).isEqualTo("javasecurity:S1000");
+    assertThat(taintLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()).name());
+    assertThat(taintLite.getAssignedToSubscribedUser()).isTrue();
+
+    Issues.Location location = taintLite.getMainLocation();
     assertThat(location.getMessage()).isEqualTo(issueDto.getMessage());
 
     Issues.TextRange locationTextRange = location.getTextRange();
@@ -228,42 +255,10 @@ public class PullActionTest {
   }
 
   @Test
-  public void givenValidProjectKeyAndOneTaintVulnerabilityOnBranch_returnNoIssues() throws IOException {
-    DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
-      .setStartLine(1)
-      .setEndLine(2)
-      .setStartOffset(3)
-      .setEndOffset(4)
-      .build();
-    DbIssues.Locations.Builder mainLocation = DbIssues.Locations.newBuilder()
-      .setChecksum("hash")
-      .setTextRange(textRange);
-
-    RuleDto rule = db.rules().insertIssueRule(r -> r.setRepositoryKey("javasecurity").setRuleKey("S1000"));
-    IssueDto issueDto = issueDbTester.insertIssue(rule, p -> p.setSeverity("MINOR")
-      .setManualSeverity(true)
-      .setMessage("message")
-      .setCreatedAt(NOW)
-      .setStatus(Issue.STATUS_RESOLVED)
-      .setLocations(mainLocation.build())
-      .setType(Common.RuleType.BUG.getNumber()));
-    loginWithBrowsePermission(issueDto);
-
-    TestRequest request = tester.newRequest()
-      .setParam("projectKey", issueDto.getProjectKey())
-      .setParam("branchName", DEFAULT_BRANCH);
-
-    TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
-
-    assertThat(issues).isEmpty();
-  }
-
-  @Test
-  public void givenIssueOnAnotherBranch_returnOneIssue() throws IOException {
+  public void givenTaintOnAnotherBranch_returnOneTaint() throws IOException {
     ComponentDto developBranch = componentDbTester.insertPrivateProjectWithCustomBranch("develop");
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
-    generateIssues(correctRule, developBranch, developFile, 1);
+    generateTaints(correctRule, developBranch, developFile, 1);
     loginWithBrowsePermission(developBranch.uuid(), developFile.uuid());
 
     TestRequest request = tester.newRequest()
@@ -271,78 +266,47 @@ public class PullActionTest {
       .setParam("branchName", "develop");
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).hasSize(1);
+    assertThat(taints).hasSize(1);
   }
 
   @Test
-  public void inIncrementalModeReturnClosedIssues() throws IOException {
-    IssueDto openIssue = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
-      .setManualSeverity(true)
-      .setMessage("openIssue")
-      .setCreatedAt(NOW)
-      .setStatus(Issue.STATUS_OPEN)
-      .setType(Common.RuleType.BUG.getNumber()));
-
-    issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
-      .setMessage("closedIssue")
-      .setCreatedAt(NOW)
-      .setStatus(Issue.STATUS_CLOSED)
-      .setType(Common.RuleType.BUG.getNumber())
-      .setComponentUuid(openIssue.getComponentUuid())
-      .setProjectUuid(openIssue.getProjectUuid())
-      .setIssueUpdateTime(PAST)
-      .setIssueCreationTime(PAST));
-
-    loginWithBrowsePermission(openIssue);
-
-    TestRequest request = tester.newRequest()
-      .setParam("projectKey", openIssue.getProjectKey())
-      .setParam("branchName", DEFAULT_BRANCH)
-      .setParam("changedSince", PAST + "");
-
-    TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
-
-    assertThat(issues).hasSize(2);
-  }
-
-  @Test
-  public void given15IssuesInTheTable_returnOnly10ThatBelongToProject() throws IOException {
+  public void given15TaintsInTheTable_returnOnly10ThatBelongToProject() throws IOException {
     loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    generateIssues(correctRule, correctProject, correctFile, 10);
-    generateIssues(incorrectRule, incorrectProject, incorrectFile, 5);
+    generateTaints(correctRule, correctProject, correctFile, 10);
+    generateTaints(incorrectRule, incorrectProject, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", correctProject.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).hasSize(10);
+    assertThat(taints).hasSize(10);
   }
 
   @Test
-  public void givenNoIssuesBelongToTheProject_return0Issues() throws IOException {
+  public void givenNoTaintsBelongToTheProject_return0Taints() throws IOException {
     loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    generateIssues(incorrectRule, incorrectProject, incorrectFile, 5);
+    generateTaints(incorrectRule, incorrectProject, incorrectFile, 5);
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", correctProject.getKey())
       .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).isEmpty();
+    assertThat(taints).isEmpty();
   }
 
   @Test
-  public void testLanguagesParam_return1Issue() throws IOException {
+  public void testLanguagesParam_return1Taint() throws IOException {
     loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java"));
+    RuleDto javaRule = db.rules().insert(r -> r.setLanguage("java").setRepositoryKey("javasecurity"));
+    RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript").setRepositoryKey("javasecurity"));
 
     IssueDto javaIssue = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
@@ -354,7 +318,19 @@ public class PullActionTest {
       .setLanguage("java")
       .setProject(correctProject)
       .setComponent(correctFile)
-      .setType(Common.RuleType.BUG.getNumber()));
+      .setType(Common.RuleType.VULNERABILITY.getNumber()));
+
+    issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+      .setManualSeverity(true)
+      .setMessage("openIssue")
+      .setCreatedAt(NOW)
+      .setRule(javascriptRule)
+      .setRuleUuid(javascriptRule.getUuid())
+      .setStatus(Issue.STATUS_OPEN)
+      .setLanguage("java")
+      .setProject(correctProject)
+      .setComponent(correctFile)
+      .setType(Common.RuleType.VULNERABILITY.getNumber()));
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", correctProject.getKey())
@@ -362,16 +338,16 @@ public class PullActionTest {
       .setParam("languages", "java");
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).getKey()).isEqualTo(javaIssue.getKey());
+    assertThat(taints).hasSize(1);
+    assertThat(taints.get(0).getKey()).isEqualTo(javaIssue.getKey());
   }
 
   @Test
-  public void testLanguagesParam_givenWrongLanguage_return0Issues() throws IOException {
+  public void testLanguagesParam_givenWrongLanguage_return0Taints() throws IOException {
     loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("javascript"));
+    RuleDto javascriptRule = db.rules().insert(r -> r.setLanguage("jssecurity"));
 
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
@@ -390,15 +366,15 @@ public class PullActionTest {
       .setParam("languages", "java");
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).isEmpty();
+    assertThat(taints).isEmpty();
   }
 
   @Test
-  public void testRuleRepositoriesParam_return1IssueForGivenRepository() throws IOException {
+  public void given1TaintAnd1NormalIssue_return1Taint() throws IOException {
     loginWithBrowsePermission(correctProject.uuid(), correctFile.uuid());
-    RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("java"));
+    RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("javasecurity"));
     RuleDto javaScriptRule = db.rules().insert(r -> r.setRepositoryKey("javascript"));
 
     IssueDto issueDto = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
@@ -411,7 +387,7 @@ public class PullActionTest {
       .setComponent(correctFile)
       .setType(2));
 
-    //this one should not be returned - it is a different rule repository
+    //this one should not be returned - it is a normal issue, no taint
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("openIssue")
@@ -420,40 +396,84 @@ public class PullActionTest {
       .setStatus(Issue.STATUS_OPEN)
       .setProject(correctProject)
       .setComponent(correctFile)
-      .setType(Common.RuleType.BUG.getNumber()));
+      .setType(Common.RuleType.VULNERABILITY.getNumber()));
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", correctProject.getKey())
-      .setParam("branchName", DEFAULT_BRANCH)
-      .setParam("ruleRepositories", "java");
+      .setParam("branchName", DEFAULT_BRANCH);
 
     TestResponse response = request.execute();
-    List<Issues.IssueLite> issues = readAllIssues(response);
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
-    assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).getKey()).isEqualTo(issueDto.getKey());
+    assertThat(taints).hasSize(1);
+    assertThat(taints.get(0).getKey()).isEqualTo(issueDto.getKey());
   }
 
-  private void generateIssues(RuleDto rule, ComponentDto project, ComponentDto file, int numberOfIssues) {
+  @Test
+  public void inIncrementalModeReturnClosedIssues() throws IOException {
+    IssueDto openIssue = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+      .setRule(correctRule)
+      .setManualSeverity(true)
+      .setMessage("openIssue")
+      .setCreatedAt(NOW)
+      .setStatus(Issue.STATUS_OPEN)
+      .setType(Common.RuleType.BUG.getNumber()));
+
+    issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+      .setRule(correctRule)
+      .setMessage("closedIssue")
+      .setCreatedAt(NOW)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setType(Common.RuleType.BUG.getNumber())
+      .setComponentUuid(openIssue.getComponentUuid())
+      .setProjectUuid(openIssue.getProjectUuid())
+      .setIssueUpdateTime(PAST)
+      .setIssueCreationTime(PAST));
+
+    issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
+      .setRule(incorrectRule)
+      .setMessage("closedIssue")
+      .setCreatedAt(NOW)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setType(Common.RuleType.BUG.getNumber())
+      .setComponentUuid(openIssue.getComponentUuid())
+      .setProjectUuid(openIssue.getProjectUuid())
+      .setIssueUpdateTime(PAST)
+      .setIssueCreationTime(PAST));
+
+    loginWithBrowsePermission(openIssue);
+
+    TestRequest request = tester.newRequest()
+      .setParam("projectKey", openIssue.getProjectKey())
+      .setParam("branchName", DEFAULT_BRANCH)
+      .setParam("changedSince", PAST + "");
+
+    TestResponse response = request.execute();
+    List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
+
+    assertThat(taints).hasSize(2);
+  }
+
+  private void generateTaints(RuleDto rule, ComponentDto project, ComponentDto file, int numberOfIssues) {
     for (int j = 0; j < numberOfIssues; j++) {
       issueDbTester.insert(i -> i.setProject(project)
-        .setComponentUuid(file.uuid())
-        .setRuleUuid(rule.getUuid())
+        .setRule(rule)
+        .setComponent(file)
         .setStatus(Issue.STATUS_OPEN)
-        .setType(2));
+        .setType(3));
     }
   }
 
-  private List<Issues.IssueLite> readAllIssues(TestResponse response) throws IOException {
-    List<Issues.IssueLite> issues = new ArrayList<>();
+  private List<Issues.TaintVulnerabilityLite> readAllTaint(TestResponse response) throws IOException {
+    List<Issues.TaintVulnerabilityLite> taints = new ArrayList<>();
     InputStream inputStream = response.getInputStream();
-    Issues.IssuesPullQueryTimestamp.parseDelimitedFrom(inputStream);
+    Issues.TaintVulnerabilityPullQueryTimestamp.parseDelimitedFrom(inputStream);
 
     while (inputStream.available() > 0) {
-      issues.add(Issues.IssueLite.parseDelimitedFrom(inputStream));
+      taints.add(Issues.TaintVulnerabilityLite.parseDelimitedFrom(inputStream));
     }
 
-    return issues;
+    return taints;
   }
 
   private void loginWithBrowsePermission(IssueDto issueDto) {

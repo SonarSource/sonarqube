@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -30,6 +31,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -59,11 +61,27 @@ public class IssueDao implements Dao {
   }
 
   public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid) {
-    return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
+    return selectIssueKeysByComponentUuid(session, componentUuid, emptyList(), emptyList(), emptyList(),
+      null, false);
+  }
+
+  public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid,
+    List<String> includingRepositories, List<String> excludingRepositories,
+    List<String> languages, @Nullable Boolean resolvedOnly, boolean openIssuesOnly) {
+    return mapper(session).selectIssueKeysByComponentUuid(componentUuid, includingRepositories, excludingRepositories,
+      languages, resolvedOnly, openIssuesOnly);
   }
 
   public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince) {
-    return mapper(session).selectIssueKeysByComponentUuidAndChangedSinceDate(componentUuid, changedSince);
+    return selectIssueKeysByComponentUuidAndChangedSinceDate(session, componentUuid, changedSince, emptyList(), emptyList(),
+      emptyList(), null);
+  }
+
+  public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince,
+    List<String> includingRepositories, List<String> excludingRepositories,
+    List<String> languages, @Nullable Boolean resolvedOnly) {
+    return mapper(session).selectIssueKeysByComponentUuidAndChangedSinceDate(componentUuid, changedSince,
+      includingRepositories, excludingRepositories, languages, resolvedOnly);
   }
 
   public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
