@@ -78,7 +78,7 @@
       {
         "title": "Test Coverage",
         "children": [
-          "/analysis/test-coverage/overview/",
+          "/analysis/coverage/",
           "/analysis/test-coverage/java-test-coverage/",
           "/analysis/test-coverage/javascript-typescript-test-coverage/",
           "/analysis/test-coverage/dotnet-test-coverage/",
