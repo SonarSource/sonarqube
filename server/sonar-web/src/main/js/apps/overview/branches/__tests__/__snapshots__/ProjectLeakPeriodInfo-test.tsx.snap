@@ -16,6 +16,15 @@ exports[`should render a more precise date 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly for "REFERENCE_BRANCH" 1`] = `
+<div
+  className="note spacer-top"
+>
+  overview.period.reference_branch.master
+   
+</div>
+`;
+
 exports[`should render correctly for "manual_baseline" 1`] = `
 <Fragment>
   <div

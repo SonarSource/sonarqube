@@ -47,7 +47,11 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
     return null;
   }
 
-  if (leakPeriod.mode === 'days' || leakPeriod.mode === 'NUMBER_OF_DAYS') {
+  if (
+    leakPeriod.mode === 'days' ||
+    leakPeriod.mode === 'NUMBER_OF_DAYS' ||
+    leakPeriod.mode === 'REFERENCE_BRANCH'
+  ) {
     return <div className="note spacer-top">{leakPeriodLabel} </div>;
   }
 

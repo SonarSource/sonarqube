@@ -50,6 +50,10 @@ it('should render correctly for "previous_analysis"', () => {
   expect(shallowRender({ mode: 'previous_analysis' })).toMatchSnapshot();
 });
 
+it('should render correctly for "REFERENCE_BRANCH"', () => {
+  expect(shallowRender({ mode: 'REFERENCE_BRANCH', parameter: 'master' })).toMatchSnapshot();
+});
+
 it('should render correctly for "manual_baseline"', () => {
   expect(shallowRender({ mode: 'manual_baseline' })).toMatchSnapshot();
   expect(shallowRender({ mode: 'manual_baseline', parameter: '1.1.2' })).toMatchSnapshot();
