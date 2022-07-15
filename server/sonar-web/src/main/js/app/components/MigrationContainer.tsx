@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { getSystemStatus } from '../../helpers/system';
 
 export function MigrationContainer() {
-  const location = useLocation();
-
   if (getSystemStatus() !== 'UP') {
+    const returnTo = window.location.pathname + window.location.search + window.location.hash;
     const to = {
       pathname: '/maintenance',
       search: new URLSearchParams({
-        return_to: location.pathname + location.search + location.hash
+        return_to: returnTo
       }).toString()
     };
 
