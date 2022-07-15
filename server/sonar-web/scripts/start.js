@@ -98,7 +98,7 @@ function run() {
           } else if (req.url.match(/l10n\/index/)) {
             handleL10n(res);
           } else if (
-            req.url.includes('api/') ||
+            (req.url.includes('api/') && !req.url.includes('/web_api')) ||
             req.url.includes('images/') ||
             req.url.includes('static/')
           ) {
