@@ -73,6 +73,7 @@ public class PersistPushEventsStep implements ComputationStep {
 
   private void pushEvent(DbSession dbSession, PushEvent<?> event) {
     PushEventDto eventDto = new PushEventDto()
+      .setName(event.getName())
       .setProjectUuid(treeRootHolder.getRoot().getUuid())
       .setPayload(serializeIssueToPushEvent(event));
     dbClient.pushEventDao().insert(dbSession, eventDto);

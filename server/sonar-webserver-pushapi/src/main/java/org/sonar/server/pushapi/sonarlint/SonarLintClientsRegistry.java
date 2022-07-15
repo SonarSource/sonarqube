@@ -34,6 +34,7 @@ import org.sonar.core.util.issue.IssueChangeListener;
 import org.sonar.core.util.issue.IssueChangedEvent;
 import org.sonar.core.util.rule.RuleActivationListener;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.pushapi.issues.IssueChangeBroadcastUtils;
 import org.sonar.server.pushapi.issues.IssueChangeEventsDistributor;
@@ -86,6 +87,10 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
     LOG.debug("Removing SonarLint client");
   }
 
+  public List<SonarLintClient> getClients() {
+    return clients;
+  }
+
   public long countConnectedClients() {
     return clients.size();
   }
@@ -98,6 +103,11 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
   @Override
   public void listen(IssueChangedEvent issueChangedEvent) {
     broadcastMessage(issueChangedEvent, IssueChangeBroadcastUtils.getFilterForEvent(issueChangedEvent));
+  }
+
+  public void broadcastMessage(PushEventDto event) {
+    // TODO:: different task for broadcasting event
+    LOG.info("received event: ({}, {}) ", event.getUuid(), event.getName());
   }
 
   public void broadcastMessage(RuleSetChangedEvent event, Predicate<SonarLintClient> filter) {

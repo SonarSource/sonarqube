@@ -4,6 +4,7 @@
 
   <sql id="pushEventColumns">
     pe.uuid as uuid,
+    pe.name as name,
     pe.project_uuid as projectUuid,
     pe.payload as payload,
     pe.created_at as createdAt
@@ -12,12 +13,14 @@
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     INSERT INTO push_events (
     uuid,
+    name,
     project_uuid,
     payload,
     created_at
     )
     VALUES (
     #{uuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR},
     #{payload,jdbcType=BLOB},
     #{createdAt,jdbcType=BIGINT}
@@ -30,6 +33,47 @@
     FROM push_events pe
     where
     pe.uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectChunkByProjectUuids" parameterType="map" resultType="PushEvent">
+    SELECT
+    <include refid="pushEventColumns"/>
+    FROM push_events pe
+    WHERE created_at &gt;= #{lastPullTimestamp,jdbcType=BIGINT}
+    AND ( created_at &gt; #{lastPullTimestamp,jdbcType=BIGINT} OR uuid &gt; #{lastSeenUuid,jdbcType=VARCHAR} )
+    AND pe.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+    ORDER BY created_at, uuid
+    LIMIT #{count}
+  </select>
+
+  <select id="selectChunkByProjectUuids" parameterType="map" resultType="PushEvent" databaseId="mssql">
+    SELECT top (#{count,jdbcType=BIGINT})
+    <include refid="pushEventColumns"/>
+    FROM push_events pe
+    WHERE created_at &gt;= #{lastPullTimestamp,jdbcType=BIGINT}
+    AND ( created_at &gt; #{lastPullTimestamp,jdbcType=BIGINT} OR uuid &gt; #{lastSeenUuid,jdbcType=VARCHAR} )
+    AND pe.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+    ORDER BY created_at, uuid
+  </select>
+
+  <select id="selectChunkByProjectUuids" parameterType="map" resultType="PushEvent" databaseId="oracle">
+    SELECT * FROM (SELECT
+    <include refid="pushEventColumns"/>
+    FROM push_events pe
+    WHERE created_at &gt;= #{lastPullTimestamp,jdbcType=BIGINT}
+    AND ( created_at &gt; #{lastPullTimestamp,jdbcType=BIGINT} OR uuid &gt; #{lastSeenUuid,jdbcType=VARCHAR} )
+    AND pe.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+    ORDER BY created_at, uuid)
+    WHERE rownum &lt;= #{count,jdbcType=BIGINT}
   </select>
 
   <select id="selectUuidsOfExpiredEvents" parameterType="long" resultType="string">

@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.polling;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.api.server.ServerSide;
 
-public interface PushEventMapper {
+@ServerSide
+public interface PushEventExecutorService extends ScheduledExecutorService {
 
-  void insert(PushEventDto event);
-
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
-
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
-
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
-
-  LinkedList<PushEventDto> selectChunkByProjectUuids(@Param("projectUuids") Set<String> projectUuids,
-    @Param("lastPullTimestamp") Long lastPullTimestamp,
-    @Param("lastSeenUuid") String lastSeenUuid, @Param("count") long count);
 }

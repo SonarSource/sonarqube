@@ -19,6 +19,7 @@
  */
 package org.sonar.db.pushevent;
 
+import java.util.Deque;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -67,4 +68,8 @@ public class PushEventDao implements Dao {
     return session.getMapper(PushEventMapper.class);
   }
 
+  public Deque<PushEventDto> selectChunkByProjectUuids(DbSession dbSession, Set<String> projectUuids,
+    Long lastPullTimestamp, String lastSeenUuid, long count) {
+    return mapper(dbSession).selectChunkByProjectUuids(projectUuids, lastPullTimestamp, lastSeenUuid, count);
+  }
 }

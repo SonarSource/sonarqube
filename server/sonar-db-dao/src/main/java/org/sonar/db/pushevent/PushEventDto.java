@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 
 public class PushEventDto {
   private String uuid;
+  private String name;
   private String projectUuid;
   private byte[] payload;
   private Long createdAt;
@@ -37,6 +38,15 @@ public class PushEventDto {
 
   public PushEventDto setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public PushEventDto setName(String name) {
+    this.name = name;
     return this;
   }
 

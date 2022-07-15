@@ -78,10 +78,12 @@ public class SonarLintClientsRegistryTest {
     underTest.registerClient(sonarLintClient);
 
     assertThat(underTest.countConnectedClients()).isEqualTo(1);
+    assertThat(underTest.getClients()).contains(sonarLintClient);
 
     underTest.unregisterClient(sonarLintClient);
 
     assertThat(underTest.countConnectedClients()).isZero();
+    assertThat(underTest.getClients()).isEmpty();
     verify(sonarLintClient).close();
   }
 

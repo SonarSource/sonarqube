@@ -20,9 +20,11 @@
 package org.sonar.db.pushevent;
 
 import java.util.Set;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
@@ -45,11 +47,14 @@ public class PushEventDaoTest {
 
     PushEventDto eventDtoFirst = new PushEventDto()
       .setUuid("test-uuid")
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setPayload("some-event".getBytes(UTF_8));
 
     PushEventDto eventDtoSecond = new PushEventDto()
       .setProjectUuid("project-uuid")
+      .setName("Event")
+
       .setPayload("some-event".getBytes(UTF_8));
 
     underTest.insert(session, eventDtoFirst);
@@ -71,16 +76,19 @@ public class PushEventDaoTest {
   @Test
   public void select_expired_events() {
     PushEventDto eventDtoFirst = new PushEventDto()
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setCreatedAt(1000L)
       .setPayload("some-event".getBytes(UTF_8));
 
     PushEventDto eventDtoSecond = new PushEventDto()
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setCreatedAt(1000L)
       .setPayload("some-event".getBytes(UTF_8));
 
     PushEventDto eventDtoThird = new PushEventDto()
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setCreatedAt(2000L)
       .setPayload("some-event".getBytes(UTF_8));
@@ -97,11 +105,13 @@ public class PushEventDaoTest {
   @Test
   public void delete_events_in_batches() {
     PushEventDto eventDtoFirst = new PushEventDto()
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setCreatedAt(1000L)
       .setPayload("some-event".getBytes(UTF_8));
 
     PushEventDto eventDtoSecond = new PushEventDto()
+      .setName("Event")
       .setProjectUuid("project-uuid")
       .setCreatedAt(1000L)
       .setPayload("some-event".getBytes(UTF_8));
@@ -112,6 +122,58 @@ public class PushEventDaoTest {
     assertThat(underTest.selectUuidsOfExpiredEvents(db.getSession(), 2000L)).hasSize(2);
     underTest.deleteByUuids(db.getSession(), Set.of(event1.getUuid(), event2.getUuid()));
     assertThat(underTest.selectUuidsOfExpiredEvents(db.getSession(), 2000L)).isEmpty();
+  }
+
+  @Test
+  public void selectChunkByProjectKeys() {
+    system2.setNow(1L);
+    generatePushEvent("proj1");
+    system2.tick(); // tick=2
+    generatePushEvent("proj2");
+
+    system2.tick(); // tick=3
+    var eventDto4 = generatePushEvent("proj2");
+
+    var events = underTest.selectChunkByProjectUuids(session, Set.of("proj1", "proj2"), 2L, null, 10);
+
+    // tick=1 and tick=2 skipped
+    assertThat(events).extracting(PushEventDto::getUuid).containsExactly(eventDto4.getUuid());
+
+    system2.tick(); // tick=4
+    var eventDto5 = generatePushEvent("proj2");
+    var eventDto6 = generatePushEvent("proj2");
+
+    system2.tick(); // tick =5
+    var eventDto7 = generatePushEvent("proj2");
+
+    events = underTest.selectChunkByProjectUuids(session, Set.of("proj1", "proj2"), eventDto4.getCreatedAt(), eventDto4.getUuid(), 10);
+    assertThat(events).extracting(PushEventDto::getUuid).containsExactly(eventDto5.getUuid(), eventDto6.getUuid(), eventDto7.getUuid());
+  }
+
+  @Test
+  public void selectChunkByProjectKeys_pagination() {
+    system2.setNow(3L);
+
+    IntStream.range(1, 10)
+      .forEach(value -> generatePushEvent("event-" + value, "proj1"));
+
+    var events = underTest.selectChunkByProjectUuids(session, Set.of("proj1"), 1L, null, 3);
+    assertThat(events).extracting(PushEventDto::getUuid).containsExactly("event-1", "event-2", "event-3");
+
+    events = underTest.selectChunkByProjectUuids(session, Set.of("proj1"), 3L, "event-3", 3);
+    assertThat(events).extracting(PushEventDto::getUuid).containsExactly("event-4", "event-5", "event-6");
+  }
+
+  private PushEventDto generatePushEvent(String projectUuid) {
+    return generatePushEvent(UuidFactoryFast.getInstance().create(), projectUuid);
+  }
+
+  private PushEventDto generatePushEvent(String uuid, String projectUuid) {
+    return underTest.insert(session, new PushEventDto()
+      .setName("Event")
+      .setUuid(uuid)
+      .setProjectUuid(projectUuid)
+      .setPayload("some-event".getBytes(UTF_8)));
   }
 
 }

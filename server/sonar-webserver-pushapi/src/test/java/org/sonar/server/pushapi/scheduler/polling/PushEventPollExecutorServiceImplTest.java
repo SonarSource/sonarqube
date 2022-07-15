@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.polling;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface PushEventMapper {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void insert(PushEventDto event);
+public class PushEventPollExecutorServiceImplTest {
 
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
+  @Test
+  public void create_executor() {
+    PushEventPollExecutorServiceImpl underTest = new PushEventPollExecutorServiceImpl();
 
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
+    assertThat(underTest.createThread(() -> {
+    }))
+      .extracting(Thread::getPriority, Thread::isDaemon, Thread::getName)
+      .containsExactly(Thread.MIN_PRIORITY, true, "PushEventPoll-%d");
 
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
+  }
 
-  LinkedList<PushEventDto> selectChunkByProjectUuids(@Param("projectUuids") Set<String> projectUuids,
-    @Param("lastPullTimestamp") Long lastPullTimestamp,
-    @Param("lastSeenUuid") String lastSeenUuid, @Param("count") long count);
 }
