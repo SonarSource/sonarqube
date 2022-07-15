@@ -63,6 +63,7 @@ public class ListAction implements WsAction {
     }
   }
 
+  @Override
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("list")
       .setDescription("List supported programming languages")

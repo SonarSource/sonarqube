@@ -98,6 +98,7 @@ import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.favorite.ws.FavoriteWsModule;
+import org.sonar.server.feature.ws.FeatureWsModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.hotspot.ws.HotspotsWsModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -593,6 +594,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // UI
       new NavigationWsModule(),
+
+      // SonarQube features
+      new FeatureWsModule(),
 
       // webhooks
       WebhookQGChangeEventListener.class,
