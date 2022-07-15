@@ -458,4 +458,5 @@ public class DatabaseUtils {
       checkArgument(values.size() <= PARTITION_SIZE_FOR_ORACLE, message);
     }
   }
+
 }

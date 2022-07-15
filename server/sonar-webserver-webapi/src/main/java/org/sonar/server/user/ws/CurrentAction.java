@@ -51,6 +51,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
+import static org.sonar.server.user.ws.DismissNoticeAction.SONARLINT_AD;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
@@ -89,7 +90,9 @@ public class CurrentAction implements UsersWsAction {
         new Change("6.5", "showOnboardingTutorial is now returned in the response"),
         new Change("7.1", "'parameter' is replaced by 'component' and 'organization' in the response"),
         new Change("9.2", "boolean 'usingSonarLintConnectedMode' and 'sonarLintAdSeen' fields are now returned in the response"),
-        new Change("9.5", "showOnboardingTutorial is not returned anymore in the response"));
+        new Change("9.5", "showOnboardingTutorial is not returned anymore in the response"),
+        new Change("9.6", "'sonarLintAdSeen' is removed and replaced by a 'dismissedNotices' map that support multiple values")
+      );
   }
 
   @Override
@@ -122,8 +125,8 @@ public class CurrentAction implements UsersWsAction {
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
-      .setSonarLintAdSeen(user.isSonarlintAdSeen())
-      .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES));
+      .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
+      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD));
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);

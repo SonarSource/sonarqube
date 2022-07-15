@@ -36,6 +36,8 @@ public class DbVersion96 implements DbVersion {
       .add(6505, "Add column 'rule_description_context_key' to 'issues'", AddRuleDescriptionContextKeyInIssuesTable.class)
       .add(6506, "Add column 'education_principles' to 'rules'", AddEducationPrinciplesColumnToRuleTable.class)
       .add(6507, "Overwrite plugin file hash to force reloading rules", ForceReloadingOfAllPlugins.class)
+      .add(6508, "Migrate 'sonarlint_ad_seen' from users to properties", MigrateSonarlintAdSeenFromUsersToProperties.class)
+      .add(6509, "Drop column sonarlint_ad_seen in 'users'", DropSonarlintAdSeenColumnInUsersTable.class)
     ;
   }
 }

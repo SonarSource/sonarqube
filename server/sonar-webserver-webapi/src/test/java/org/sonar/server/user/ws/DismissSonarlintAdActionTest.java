@@ -40,13 +40,14 @@ public class DismissSonarlintAdActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private final WsActionTester tester = new WsActionTester(new DismissSonarlintAdAction(userSession, db.getDbClient()));
+  private final DismissNoticeAction dismissNoticeAction = new DismissNoticeAction(userSession, db.getDbClient());
+  private final WsActionTester underTest = new WsActionTester(new DismissSonarlintAdAction(userSession, dismissNoticeAction));
 
   @Test
   public void test_definition() {
-    WebService.Action definition = tester.getDef();
+    WebService.Action definition = underTest.getDef();
     assertThat(definition.key()).isEqualTo(ACTION_DISMISS_SONARLINT_AD);
-    assertThat(definition.description()).isEqualTo("Dismiss SonarLint advertisement.");
+    assertThat(definition.description()).isEqualTo("Dismiss SonarLint advertisement. Deprecated since 9.6, replaced api/users/dismiss_notice");
     assertThat(definition.since()).isEqualTo("9.2");
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).isEmpty();
@@ -55,7 +56,7 @@ public class DismissSonarlintAdActionTest {
 
   @Test
   public void endpoint_throw_exception_if_no_user_login() {
-    final TestRequest request = tester.newRequest();
+    final TestRequest request = underTest.newRequest();
     assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
@@ -67,10 +68,10 @@ public class DismissSonarlintAdActionTest {
       .setName("Obiwan Kenobi")
       .setEmail(null));
     userSession.logIn(user);
-    assertThat(user.isSonarlintAdSeen()).isFalse();
+    assertThat(db.properties().findFirstUserProperty(userSession.getUuid(), "user.dismissedNotices.sonarlintAd")).isEmpty();
 
-    tester.newRequest().execute();
+    underTest.newRequest().execute();
     UserDto updatedUser = db.users().selectUserByLogin(user.getLogin()).get();
-    assertThat(updatedUser.isSonarlintAdSeen()).isTrue();
+    assertThat(db.properties().findFirstUserProperty(userSession.getUuid(), "user.dismissedNotices.sonarlintAd")).isPresent();
   }
 }

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v91;
+package org.sonar.server.platform.db.migration.version.v96;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DropColumnWithConstraint;
 
-public class DropUserManagedColumnFromMetricsTable extends DropColumnWithConstraint {
+public class DropSonarlintAdSeenColumnInUsersTable extends DropColumnWithConstraint {
 
-  private static final String TABLE_NAME = "metrics";
-  private static final String COLUMN = "user_managed";
+  private static final String TABLE_NAME = "users";
+  private static final String COLUMN = "sonarlint_ad_seen";
 
-  public DropUserManagedColumnFromMetricsTable(Database db) {
+  public DropSonarlintAdSeenColumnInUsersTable(Database db) {
     super(db, TABLE_NAME, COLUMN);
   }
 

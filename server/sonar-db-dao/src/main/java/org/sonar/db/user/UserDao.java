@@ -125,10 +125,6 @@ public class UserDao implements Dao {
     mapper(session).updateSonarlintLastConnectionDate(login, system2.now());
   }
 
-  public void dismissSonarlintAd(DbSession session, String login) {
-    mapper(session).dismissSonarlintAd(login);
-  }
-
   public void deactivateUser(DbSession dbSession, UserDto user) {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
     auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));

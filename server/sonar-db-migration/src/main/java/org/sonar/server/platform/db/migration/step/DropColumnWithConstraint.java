@@ -21,36 +21,31 @@ package org.sonar.server.platform.db.migration.step;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropMsSQLDefaultConstraintsBuilder;
 
-public abstract class DropColumnChange extends DdlChange {
+public class DropColumnWithConstraint extends DropColumnChange {
 
   private final String tableName;
-  private final String columnName;
+  private final String column;
 
-  protected DropColumnChange(Database db, String tableName, String columnName) {
-    super(db);
+  public DropColumnWithConstraint(Database db, String tableName, String column) {
+    super(db, tableName, column);
     this.tableName = tableName;
-    this.columnName = columnName;
+    this.column = column;
   }
 
   @Override
-  public void execute(DdlChange.Context context) throws SQLException {
+  public void execute(Context context) throws SQLException {
     if (!checkIfUseManagedColumnExists()) {
       return;
     }
 
-    context.execute(new DropColumnsBuilder(getDatabase().getDialect(), tableName, columnName).build());
-  }
-
-  public boolean checkIfUseManagedColumnExists() throws SQLException {
-    try (var connection = getDatabase().getDataSource().getConnection()) {
-      if (DatabaseUtils.tableColumnExists(connection, tableName, columnName)) {
-        return true;
-      }
+    if (MsSql.ID.equals(getDatabase().getDialect().getId())) {
+      context.execute(new DropMsSQLDefaultConstraintsBuilder(getDatabase()).setTable(tableName).setColumns(column).build());
     }
-    return false;
+    context.execute(new DropColumnsBuilder(getDatabase().getDialect(), tableName, column).build());
   }
 
 }

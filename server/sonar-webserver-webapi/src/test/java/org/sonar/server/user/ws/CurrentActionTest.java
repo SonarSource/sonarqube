@@ -130,8 +130,8 @@ public class CurrentActionTest {
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getUsingSonarLintConnectedMode, CurrentWsResponse::getSonarLintAdSeen)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false, false);
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getUsingSonarLintConnectedMode)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false);
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -240,14 +240,32 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void handle_givenSonarLintAdSeenUserInDatabase_returnSonarLintAdSeenUserFromTheEndpoint() {
-    UserDto user = db.users().insertUser(u -> u.setSonarlintAdSeen(true));
+  public void return_sonarlintAd_dismiss_notice() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.sonarlintAd");
+    db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getDismissedNoticesMap().entrySet())
+      .extracting(Map.Entry::getKey, Map.Entry::getValue)
+      .contains(Tuple.tuple("sonarlintAd", true));
+  }
+
+  @Test
+  public void return_sonarlintAd_not_dismissed() {
+    UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
     CurrentWsResponse response = call();
 
-    assertThat(response.getSonarLintAdSeen()).isTrue();
+    assertThat(response.getDismissedNoticesMap().entrySet())
+      .extracting(Map.Entry::getKey, Map.Entry::getValue)
+      .contains(Tuple.tuple("sonarlintAd", false));
   }
+
 
   @Test
   public void test_definition() {
@@ -259,7 +277,7 @@ public class CurrentActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).hasSize(4);
+    assertThat(definition.changelog()).isNotEmpty();
   }
 
   private CurrentWsResponse call() {

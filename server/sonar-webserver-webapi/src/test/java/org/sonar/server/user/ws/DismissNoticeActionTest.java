@@ -57,6 +57,20 @@ public class DismissNoticeActionTest {
     assertThat(propertyDto).isPresent();
   }
 
+  @Test
+  public void dismiss_sonarlintAd() {
+    userSessionRule.logIn();
+
+    TestResponse testResponse = tester.newRequest()
+      .setParam("notice", "sonarlintAd")
+      .execute();
+
+    assertThat(testResponse.getStatus()).isEqualTo(204);
+
+    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.sonarlintAd");
+    assertThat(propertyDto).isPresent();
+  }
+
 
   @Test
   public void authentication_is_required() {
@@ -88,22 +102,23 @@ public class DismissNoticeActionTest {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples]");
+      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd]");
   }
 
 
   @Test
-  public void notice_already_exist() {
+  public void notice_already_exist_dont_fail() {
     userSessionRule.logIn();
     PropertyDto property = new PropertyDto().setKey("user.dismissedNotices.educationPrinciples").setUserUuid(userSessionRule.getUuid());
     db.properties().insertProperties(userSessionRule.getLogin(), null, null, null, property);
+    assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
 
-    TestRequest testRequest = tester.newRequest()
-      .setParam("notice", "educationPrinciples");
+    TestResponse testResponse = tester.newRequest()
+      .setParam("notice", "sonarlintAd")
+      .execute();
 
-    assertThatThrownBy(testRequest::execute)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Notice educationPrinciples is already dismissed");
+    assertThat(testResponse.getStatus()).isEqualTo(204);
+    assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
   }
 
 

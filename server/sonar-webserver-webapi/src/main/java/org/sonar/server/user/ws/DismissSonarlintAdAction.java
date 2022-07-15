@@ -22,37 +22,37 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.user.ws.DismissNoticeAction.SONARLINT_AD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_DISMISS_SONARLINT_AD;
 
+/**
+ * @deprecated use DismissNoticeAction
+ */
+@Deprecated(since = "9.6", forRemoval = true)
 public class DismissSonarlintAdAction implements UsersWsAction {
   private final UserSession userSession;
-  private final DbClient dbClient;
+  private final DismissNoticeAction dismissNoticeAction;
 
-  public DismissSonarlintAdAction(UserSession userSession, DbClient dbClient) {
+  public DismissSonarlintAdAction(UserSession userSession, DismissNoticeAction dismissNoticeAction) {
     this.userSession = userSession;
-    this.dbClient = dbClient;
+    this.dismissNoticeAction = dismissNoticeAction;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction(ACTION_DISMISS_SONARLINT_AD)
-      .setDescription("Dismiss SonarLint advertisement.")
+      .setDescription("Dismiss SonarLint advertisement. Deprecated since 9.6, replaced api/users/dismiss_notice")
       .setSince("9.2")
       .setPost(true)
+      .setDeprecatedSince("9.6")
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.userDao().dismissSonarlintAd(dbSession, userSession.getLogin());
-      dbSession.commit();
-    }
-    response.noContent();
+    dismissNoticeAction.dismissNotice(response, userSession.getUuid(), SONARLINT_AD);
   }
 }

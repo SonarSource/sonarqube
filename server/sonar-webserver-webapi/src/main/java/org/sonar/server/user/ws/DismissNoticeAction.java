@@ -33,6 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class DismissNoticeAction implements UsersWsAction {
 
   public static final String EDUCATION_PRINCIPLES = "educationPrinciples";
+  public static final String SONARLINT_AD = "sonarlintAd";
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
 
   private final UserSession userSession;
@@ -46,7 +47,7 @@ public class DismissNoticeAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
-      .setDescription("Dismiss a notice for the current user.")
+      .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
       .setSince("9.6")
       .setInternal(true)
       .setHandler(this)
@@ -55,7 +56,7 @@ public class DismissNoticeAction implements UsersWsAction {
     action.createParam("notice")
       .setDescription("notice key to dismiss")
       .setExampleValue(EDUCATION_PRINCIPLES)
-      .setPossibleValues(EDUCATION_PRINCIPLES);
+      .setPossibleValues(EDUCATION_PRINCIPLES, SONARLINT_AD);
   }
 
   @Override
@@ -66,6 +67,10 @@ public class DismissNoticeAction implements UsersWsAction {
 
     String noticeKeyParam = request.mandatoryParam("notice");
 
+    dismissNotice(response, currentUserUuid, noticeKeyParam);
+  }
+
+  public void dismissNotice(Response response, String currentUserUuid, String noticeKeyParam) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String paramKey = USER_DISMISS_CONSTANT + noticeKeyParam;
       PropertyQuery query = new PropertyQuery.Builder()
@@ -74,7 +79,8 @@ public class DismissNoticeAction implements UsersWsAction {
         .build();
 
       if (!dbClient.propertiesDao().selectByQuery(query, dbSession).isEmpty()) {
-        throw new IllegalArgumentException(String.format("Notice %s is already dismissed", noticeKeyParam));
+        // already dismissed
+        response.noContent();
       }
 
       PropertyDto property = new PropertyDto().setUserUuid(currentUserUuid).setKey(paramKey);
@@ -82,6 +88,5 @@ public class DismissNoticeAction implements UsersWsAction {
       dbSession.commit();
       response.noContent();
     }
-
   }
 }

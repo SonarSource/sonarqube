@@ -22,7 +22,6 @@
         u.homepage_parameter as "homepageParameter",
         u.last_connection_date as "lastConnectionDate",
         u.last_sonarlint_connection as "lastSonarlintConnectionDate",
-        u.sonarlint_ad_seen as "sonarlintAdSeen",
         u.created_at as "createdAt",
         u.updated_at as "updatedAt"
     </sql>
@@ -160,13 +159,6 @@
         login = #{login, jdbcType=VARCHAR}
     </update>
 
-    <update id="dismissSonarlintAd" parameterType="map">
-        update users set
-        sonarlint_ad_seen = ${_true}
-        where
-        login = #{login, jdbcType=VARCHAR}
-    </update>
-
     <update id="deactivateUser" parameterType="map">
         update users set
         <include refid="deactivateUserUpdatedFields"/>
@@ -209,7 +201,6 @@
         crypted_password,
         hash_method,
         last_sonarlint_connection,
-        sonarlint_ad_seen,
         reset_password,
         homepage_type,
         homepage_parameter,
@@ -230,7 +221,6 @@
         #{user.cryptedPassword,jdbcType=VARCHAR},
         #{user.hashMethod,jdbcType=VARCHAR},
         #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
-        #{user.sonarlintAdSeen,jdbcType=BOOLEAN},
         #{user.resetPassword,jdbcType=BOOLEAN},
         #{user.homepageType,jdbcType=VARCHAR},
         #{user.homepageParameter,jdbcType=VARCHAR},
@@ -258,7 +248,6 @@
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
         last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
         last_sonarlint_connection = #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
-        sonarlint_ad_seen = #{user.sonarlintAdSeen,jdbcType=BOOLEAN},
         updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}

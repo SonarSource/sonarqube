@@ -112,7 +112,7 @@ message CurrentWsResponse {
   optional Homepage homepage = 13;
   reserved 15; // settings removed
   optional bool usingSonarLintConnectedMode = 16;
-  optional bool sonarLintAdSeen = 17;
+  reserved 17; // sonarLintAdSeen removed
   map<string,bool> dismissedNotices = 18;
 
   message Permissions {

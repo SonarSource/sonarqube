@@ -98,18 +98,6 @@ public class UserDaoTest {
   }
 
   @Test
-  public void dismiss_sonarlint_ad() {
-    UserDto user = db.users().insertUser(u -> u.setLogin("user"));
-    assertThat(user.isSonarlintAdSeen()).isFalse();
-
-    underTest.dismissSonarlintAd(session, "user");
-
-    user = db.users().selectUserByLogin("user").get();
-
-    assertThat(user.isSonarlintAdSeen()).isTrue();
-  }
-
-  @Test
   public void selectUsersByLogins() {
     db.users().insertUser(user -> user.setLogin("user1"));
     db.users().insertUser(user -> user.setLogin("user2"));
