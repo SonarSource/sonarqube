@@ -31,10 +31,12 @@ public class ProjectSensorsExecutor {
   private static final Profiler profiler = Profiler.create(LOG);
   private final ProjectSensorExtensionDictionary selector;
   private final ScannerPluginRepository pluginRepo;
+  private final ExecutingSensorContext executingSensorCtx;
 
-  public ProjectSensorsExecutor(ProjectSensorExtensionDictionary selector, ScannerPluginRepository pluginRepo) {
+  public ProjectSensorsExecutor(ProjectSensorExtensionDictionary selector, ScannerPluginRepository pluginRepo, ExecutingSensorContext executingSensorCtx) {
     this.selector = selector;
     this.pluginRepo = pluginRepo;
+    this.executingSensorCtx = executingSensorCtx;
   }
 
   public void execute() {
@@ -44,20 +46,19 @@ public class ProjectSensorsExecutor {
       .map(Object::toString)
       .collect(Collectors.joining(" -> ")));
     for (ProjectSensorWrapper sensor : sensors) {
-      String sensorName = getSensorName(sensor);
-      profiler.startInfo("Sensor " + sensorName);
+      SensorId sensorId = getSensorId(sensor);
+      executingSensorCtx.setSensorExecuting(sensorId);
+      profiler.startInfo("Sensor " + sensorId);
       sensor.analyse();
       profiler.stopInfo();
+      executingSensorCtx.clearExecutingSensor();
     }
   }
 
-  private String getSensorName(ProjectSensorWrapper sensor) {
+  private SensorId getSensorId(ProjectSensorWrapper sensor) {
     ClassLoader cl = getSensorClassLoader(sensor);
     String pluginKey = pluginRepo.getPluginKey(cl);
-    if (pluginKey != null) {
-      return sensor.toString() + " [" + pluginKey + "]";
-    }
-    return sensor.toString();
+    return new SensorId(pluginKey, sensor.toString());
   }
 
   private static ClassLoader getSensorClassLoader(ProjectSensorWrapper sensor) {

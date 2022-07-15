@@ -126,10 +126,12 @@ import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.scm.ScmRevisionImpl;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
+import org.sonar.scanner.sensor.ExecutingSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
+import org.sonar.scanner.sensor.UnchangedFilesHandler;
 import org.sonar.scm.git.GitScmSupport;
 import org.sonar.scm.svn.SvnScmSupport;
 
@@ -275,7 +277,9 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ProjectSensorContext.class,
       ProjectSensorOptimizer.class,
       ProjectSensorsExecutor.class,
+      ExecutingSensorContext.class,
       ProjectSensorExtensionDictionary.class,
+      UnchangedFilesHandler.class,
 
       // Filesystem
       DefaultProjectFileSystem.class,

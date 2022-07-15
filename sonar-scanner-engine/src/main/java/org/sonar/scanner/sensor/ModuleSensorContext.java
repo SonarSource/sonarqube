@@ -39,8 +39,9 @@ public class ModuleSensorContext extends ProjectSensorContext {
 
   public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableModuleSettings, FileSystem fs, ActiveRules activeRules,
     DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration,
-    WriteCache writeCache, ReadCache readCache, AnalysisCacheEnabled analysisCacheEnabled) {
-    super(project, config, mutableModuleSettings, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled);
+    WriteCache writeCache, ReadCache readCache, AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler) {
+    super(project, config, mutableModuleSettings, fs, activeRules, sensorStorage, sonarRuntime, branchConfiguration, writeCache, readCache, analysisCacheEnabled,
+      unchangedFilesHandler);
     this.module = module;
   }
 

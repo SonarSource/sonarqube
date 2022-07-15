@@ -71,13 +71,14 @@ public class ProjectSensorContext implements SensorContext {
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
   private final boolean skipUnchangedFiles;
+  private final UnchangedFilesHandler unchangedFilesHandler;
   private final WriteCache writeCache;
   private final ReadCache readCache;
   private final AnalysisCacheEnabled analysisCacheEnabled;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
     DefaultSensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration, WriteCache writeCache, ReadCache readCache,
-    AnalysisCacheEnabled analysisCacheEnabled) {
+    AnalysisCacheEnabled analysisCacheEnabled, UnchangedFilesHandler unchangedFilesHandler) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -89,6 +90,7 @@ public class ProjectSensorContext implements SensorContext {
     this.readCache = readCache;
     this.analysisCacheEnabled = analysisCacheEnabled;
     this.skipUnchangedFiles = branchConfiguration.isPullRequest();
+    this.unchangedFilesHandler = unchangedFilesHandler;
   }
 
   @Override
@@ -194,8 +196,7 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public void markAsUnchanged(InputFile inputFile) {
-    DefaultInputFile defaultInputFile = (DefaultInputFile) inputFile;
-    defaultInputFile.setMarkedAsUnchanged(true);
+    unchangedFilesHandler.markAsUnchanged((DefaultInputFile) inputFile);
   }
 
   @Override
