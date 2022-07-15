@@ -212,7 +212,7 @@ public class UserSessionInitializerTest {
     when(threadLocalSession.isLoggedIn()).thenReturn(true);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
-    verify(response).addHeader("sq-authentication-token-expiration", formatDateTime(expirationTimestamp));
+    verify(response).addHeader("SonarQube-Authentication-Token-Expiration", formatDateTime(expirationTimestamp));
   }
 
   private void assertPathIsIgnored(String path) {

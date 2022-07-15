@@ -108,7 +108,7 @@ public class GenerateAction implements UserTokensWsAction {
 
     action.createParam(PARAM_EXPIRATION_DATE)
       .setSince("9.6")
-      .setDescription("The expiration date of the token being generated, in ISO 8601 format (YYYY-MM-DD).");
+      .setDescription("The expiration date of the token being generated, in ISO 8601 format (YYYY-MM-DD). If not set, default to no expiration.");
   }
 
   @Override

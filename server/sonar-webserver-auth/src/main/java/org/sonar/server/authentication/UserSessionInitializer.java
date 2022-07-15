@@ -52,7 +52,7 @@ public class UserSessionInitializer {
    */
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
 
-  private static final String SQ_AUTHENTICATION_TOKEN_EXPIRATION = "sq-authentication-token-expiration";
+  private static final String SQ_AUTHENTICATION_TOKEN_EXPIRATION = "SonarQube-Authentication-Token-Expiration";
 
   // SONAR-6546 these urls should be get from WebService
   private static final Set<String> SKIPPED_URLS = Set.of(

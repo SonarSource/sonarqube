@@ -53,16 +53,19 @@ public class TokenExpirationEmailComposerTest {
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
     underTest.addReportContent(email, emailData);
-    verify(email).setSubject(String.format("Your token with name \"projectToken\" will expire on %s.", parseDate(expiredDate)));
-    verify(email).setHtmlMsg(String.format("Token Summary<br/><br/>"
-        + "Name: projectToken<br/>"
-        + "Type: PROJECT_ANALYSIS_TOKEN<br/>"
-        + "Project: projectA<br/>"
-        + "Created on: 01/01/2022<br/>"
-        + "Last used on: 01/01/2022<br/>"
-        + "Expires on: %s<br/><br/>"
-        + "If this token is still needed, visit <a href=\"http://localhost/account/security/\">here</a> to generate an equivalent.",
-      parseDate(expiredDate)));
+    verify(email).setSubject(String.format("Your token \"projectToken\" will expire."));
+    verify(email).setHtmlMsg(
+      String.format("Your token \"projectToken\" will expire on %s.<br/><br/>"
+          + "Token Summary<br/><br/>"
+          + "Name: projectToken<br/>"
+          + "Type: PROJECT_ANALYSIS_TOKEN<br/>"
+          + "Project: projectA<br/>"
+          + "Created on: January 01, 2022<br/>"
+          + "Last used on: January 01, 2022<br/>"
+          + "Expires on: %s<br/><br/>"
+          + "If this token is still needed, please consider <a href=\"http://localhost/account/security/\">generating</a> an equivalent.<br/><br/>"
+          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarLint to SonarQube, and any places where you make calls to web services.",
+        parseDate(expiredDate), parseDate(expiredDate)));
   }
 
   @Test
@@ -72,15 +75,18 @@ public class TokenExpirationEmailComposerTest {
     var emailData = new TokenExpirationEmail("admin@sonarsource.com", token);
     var email = mock(HtmlEmail.class);
     underTest.addReportContent(email, emailData);
-    verify(email).setSubject("Your token with name \"globalToken\" has expired.");
-    verify(email).setHtmlMsg(String.format("Token Summary<br/><br/>"
-        + "Name: globalToken<br/>"
-        + "Type: GLOBAL_ANALYSIS_TOKEN<br/>"
-        + "Created on: 01/01/2022<br/>"
-        + "Last used on: 01/01/2022<br/>"
-        + "Expired on: %s<br/><br/>"
-        + "If this token is still needed, visit <a href=\"http://localhost/account/security/\">here</a> to generate an equivalent.",
-      parseDate(expiredDate)));
+    verify(email).setSubject("Your token \"globalToken\" has expired.");
+    verify(email).setHtmlMsg(
+      String.format("Your token \"globalToken\" has expired.<br/><br/>"
+          + "Token Summary<br/><br/>"
+          + "Name: globalToken<br/>"
+          + "Type: GLOBAL_ANALYSIS_TOKEN<br/>"
+          + "Created on: January 01, 2022<br/>"
+          + "Last used on: January 01, 2022<br/>"
+          + "Expired on: %s<br/><br/>"
+          + "If this token is still needed, please consider <a href=\"http://localhost/account/security/\">generating</a> an equivalent.<br/><br/>"
+          + "Don't forget to update the token in the locations where it is in use. This may include the CI pipeline that analyzes your projects, the IDE settings that connect SonarLint to SonarQube, and any places where you make calls to web services.",
+        parseDate(expiredDate)));
   }
 
   private UserTokenDto createToken(String name, String project, long expired) {
@@ -99,6 +105,6 @@ public class TokenExpirationEmailComposerTest {
   }
 
   private String parseDate(long timestamp) {
-    return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
   }
 }

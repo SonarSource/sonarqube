@@ -23,7 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,7 +54,8 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultScannerWsClient implements ScannerWsClient {
   private static final int MAX_ERROR_MSG_LEN = 128;
-  private static final String SQ_TOKEN_EXPIRATION_HEADER = "sq-authentication-token-expiration";
+  private static final String SQ_TOKEN_EXPIRATION_HEADER = "SonarQube-Authentication-Token-Expiration";
+  private static final DateTimeFormatter USER_FRIENDLY_DATETIME_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
   private static final Logger LOG = Loggers.get(DefaultScannerWsClient.class);
 
   private final Set<String> warningMessages = new HashSet<>();
@@ -129,28 +129,30 @@ public class DefaultScannerWsClient implements ScannerWsClient {
   private void checkAuthenticationWarnings(WsResponse response) {
     if (response.code() == HTTP_OK) {
       response.header(SQ_TOKEN_EXPIRATION_HEADER).ifPresent(expirationDate -> {
-        if (isTokenExpiringInOneWeek(expirationDate)) {
-          addAnalysisWarning(expirationDate);
+        var datetimeInUTC = ZonedDateTime.from(DateTimeFormatter.ofPattern(DATETIME_FORMAT)
+          .parse(expirationDate)).withZoneSameInstant(ZoneOffset.UTC);
+        if (isTokenExpiringInOneWeek(datetimeInUTC)) {
+          addAnalysisWarning(datetimeInUTC);
         }
       });
     }
   }
 
-  private static boolean isTokenExpiringInOneWeek(String expirationDate) {
+  private static boolean isTokenExpiringInOneWeek(ZonedDateTime expirationDate) {
     ZonedDateTime localDateTime = ZonedDateTime.now(ZoneOffset.UTC);
-    ZonedDateTime headerDateTime = LocalDateTime.from(DateTimeFormatter.ofPattern(DATETIME_FORMAT)
-      .parse(expirationDate)).minusDays(7).atZone(ZoneOffset.UTC);
+    ZonedDateTime headerDateTime = expirationDate.minusDays(7);
     return localDateTime.isAfter(headerDateTime);
   }
 
-  private void addAnalysisWarning(String tokenExpirationDate) {
-    String warningMessage = "The token used for this analysis will expire on: " + tokenExpirationDate;
+  private void addAnalysisWarning(ZonedDateTime tokenExpirationDate) {
+    String warningMessage = "The token used for this analysis will expire on: " + tokenExpirationDate.format(USER_FRIENDLY_DATETIME_FORMAT);
     if (!warningMessages.contains(warningMessage)) {
       warningMessages.add(warningMessage);
       LOG.warn(warningMessage);
-      LOG.warn("Analysis executed with this token after the expiration date will fail.");
+      LOG.warn("Analysis executed with this token will fail after the expiration date.");
     }
-    analysisWarnings.addUnique(warningMessage + "\nAnalysis executed with this token after the expiration date will fail.");
+    analysisWarnings.addUnique(warningMessage + "\nAfter this date, the token can no longer be used to execute the analysis. "
+      + "Please consider generating a new token and updating it in the locations where it is in use.");
   }
 
   /**

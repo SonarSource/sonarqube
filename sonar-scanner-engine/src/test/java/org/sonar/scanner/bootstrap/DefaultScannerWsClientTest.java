@@ -133,9 +133,10 @@ public class DefaultScannerWsClientTest {
   @Test
   public void warnings_are_added_when_expiration_approaches() {
     WsRequest request = newRequest();
+    var fiveDaysLatter = LocalDateTime.now().atZone(ZoneOffset.UTC).plusDays(5);
     String expirationDate = DateTimeFormatter
       .ofPattern(DATETIME_FORMAT)
-      .format(LocalDateTime.now().atOffset(ZoneOffset.UTC).plusDays(5));
+      .format(fiveDaysLatter);
     WsResponse response = newResponse()
       .setCode(200)
       .setExpirationDate(expirationDate);
@@ -150,8 +151,8 @@ public class DefaultScannerWsClientTest {
     // check logs
     List<String> warningLogs = logTester.logs(LoggerLevel.WARN);
     assertThat(warningLogs).hasSize(2);
-    assertThat(warningLogs.get(0)).contains("The token used for this analysis will expire on: " + expirationDate);
-    assertThat(warningLogs.get(1)).contains("Analysis executed with this token after the expiration date will fail.");
+    assertThat(warningLogs.get(0)).contains("The token used for this analysis will expire on: " + fiveDaysLatter.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")));
+    assertThat(warningLogs.get(1)).contains("Analysis executed with this token will fail after the expiration date.");
   }
 
   @Test

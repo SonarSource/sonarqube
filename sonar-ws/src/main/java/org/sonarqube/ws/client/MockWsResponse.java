@@ -35,7 +35,7 @@ import static java.util.Objects.requireNonNull;
 public class MockWsResponse extends BaseResponse {
 
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
-  private static final String SQ_TOKEN_EXPIRATION_HEADER = "sq-authentication-token-expiration";
+  private static final String SQ_TOKEN_EXPIRATION_HEADER = "SonarQube-Authentication-Token-Expiration";
 
   private int code = HttpURLConnection.HTTP_OK;
   private String requestUrl;

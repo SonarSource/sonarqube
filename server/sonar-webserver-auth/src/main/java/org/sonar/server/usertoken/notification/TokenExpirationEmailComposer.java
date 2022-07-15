@@ -42,16 +42,22 @@ public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEma
     email.addTo(emailData.getRecipients().toArray(String[]::new));
     UserTokenDto token = emailData.getUserToken();
     if (token.isExpired()) {
-      email.setSubject(format("Your token with name \"%s\" has expired.", token.getName()));
+      email.setSubject(format("Your token \"%s\" has expired.", token.getName()));
     } else {
-      email.setSubject(format("Your token with name \"%s\" will expire on %s.", token.getName(), parseDate(token.getExpirationDate())));
+      email.setSubject(format("Your token \"%s\" will expire.", token.getName()));
     }
     email.setHtmlMsg(composeEmailBody(token));
   }
 
   private String composeEmailBody(UserTokenDto token) {
     StringBuilder builder = new StringBuilder();
-    builder.append("Token Summary<br/><br/>")
+    if (token.isExpired()) {
+      builder.append(format("Your token \"%s\" has expired.<br/><br/>", token.getName()));
+    } else {
+      builder.append(format("Your token \"%s\" will expire on %s.<br/><br/>", token.getName(), parseDate(token.getExpirationDate())));
+    }
+    builder
+      .append("Token Summary<br/><br/>")
       .append(format("Name: %s<br/>", token.getName()))
       .append(format("Type: %s<br/>", token.getType()));
     if (PROJECT_ANALYSIS_TOKEN.name().equals(token.getType())) {
@@ -62,11 +68,16 @@ public class TokenExpirationEmailComposer extends EmailSender<TokenExpirationEma
       builder.append(format("Last used on: %s<br/>", parseDate(token.getLastConnectionDate())));
     }
     builder.append(format("%s on: %s<br/>", token.isExpired() ? "Expired" : "Expires", parseDate(token.getExpirationDate())))
-      .append(format("<br/>If this token is still needed, visit <a href=\"%s/account/security/\">here</a> to generate an equivalent.", emailSettings.getServerBaseURL()));
+      .append(
+        format("<br/>If this token is still needed, please consider <a href=\"%s/account/security/\">generating</a> an equivalent.<br/><br/>", emailSettings.getServerBaseURL()))
+      .append("Don't forget to update the token in the locations where it is in use. "
+        + "This may include the CI pipeline that analyzes your projects, "
+        + "the IDE settings that connect SonarLint to SonarQube, "
+        + "and any places where you make calls to web services.");
     return builder.toString();
   }
 
   private static String parseDate(long timestamp) {
-    return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
   }
 }
