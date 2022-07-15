@@ -1,6 +1,6 @@
 ---
 title: Overview
-url: /analysis/test-coverage/overview/
+url: /analysis/coverage/
 ---
 
 Test coverage reports and test execution reports are important metrics in assessing the quality of your code.

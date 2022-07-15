@@ -221,7 +221,7 @@ Note that the initial scoping parameter for test code is `sonar.tests` (that's `
 
 ### Relation to test coverage reporting
 
-The test scoping parameters ( `source.tests`, `sonar.test.exclusion`, and `sonar.test.inclusion`) do not have anything to do with setting up test coverage reporting (see [Test Coverage](https://docs.sonarqube.org/analysis/test-coverage/overview/)). However, SonarQube will report an error if an imported coverage report lists a test file not encountered in the directories specified by the scoping parameters.
+The test scoping parameters ( `source.tests`, `sonar.test.exclusion`, and `sonar.test.inclusion`) do not have anything to do with setting up test coverage reporting (see [Test Coverage](/analysis/coverage/)). However, SonarQube will report an error if an imported coverage report lists a test file not encountered in the directories specified by the scoping parameters.
 
 The parameter `sonar.coverage.exclusions`, on the other hand, is directly related to test coverage reporting (see below).
 
