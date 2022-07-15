@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.version.v95;
 
+import org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
@@ -38,7 +39,7 @@ public class DbVersion95 implements DbVersion {
       .add(6408, "Drop column DESCRIPTIONS from RULES table", DropRuleDescriptionColumn.class)
       .add(6409, "Drop column CREATED_AT from RULES_METADATA table", DropRuleMetadataCreatedAtColumn.class)
       .add(6410, "Drop column UPDATED_AT from RULES_METADATA table", DropRuleMetadataUpdatedAtColumn.class)
-      .add(6411, "Overwrite plugin file hash to force reloading rules", OverwritePluginFileHash.class)
+      .add(6411, "Overwrite plugin file hash to force reloading rules", ForceReloadingOfAllPlugins.class)
 
       .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
       .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)

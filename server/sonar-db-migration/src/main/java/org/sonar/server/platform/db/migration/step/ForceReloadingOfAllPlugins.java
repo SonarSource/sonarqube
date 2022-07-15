@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v95;
+package org.sonar.server.platform.db.migration.step;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.Upsert;
 
-public class OverwritePluginFileHash extends DataChange {
+public class ForceReloadingOfAllPlugins extends DataChange {
   @VisibleForTesting
   static final String OVERWRITE_HASH = "cccccccccccccccccccccccccccccccc";
 
-  public OverwritePluginFileHash(Database db) {
+  public ForceReloadingOfAllPlugins(Database db) {
     super(db);
   }
 

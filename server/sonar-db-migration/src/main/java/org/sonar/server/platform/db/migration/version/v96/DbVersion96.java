@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.version.v96;
 
+import org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
@@ -34,6 +35,7 @@ public class DbVersion96 implements DbVersion {
       .add(6504, "Add column 'expiration_date' to 'user_tokens'", AddExpirationDateColumnToUserTokens.class)
       .add(6505, "Add column 'rule_description_context_key' to 'issues'", AddRuleDescriptionContextKeyInIssuesTable.class)
       .add(6506, "Add column 'education_principles' to 'rules'", AddEducationPrinciplesColumnToRuleTable.class)
+      .add(6507, "Overwrite plugin file hash to force reloading rules", ForceReloadingOfAllPlugins.class)
     ;
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v95;
+package org.sonar.server.platform.db.migration.step;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -27,19 +27,18 @@ import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.v95.OverwritePluginFileHash.OVERWRITE_HASH;
+import static org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins.OVERWRITE_HASH;
 
-public class OverwritePluginFileHashTest {
+public class ForceReloadingOfAllPluginsTest {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(OverwritePluginFileHashTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(ForceReloadingOfAllPluginsTest.class, "schema.sql");
 
-  private final DataChange underTest = new OverwritePluginFileHash(db.database());
+  private final DataChange underTest = new ForceReloadingOfAllPlugins(db.database());
 
   @Test
   public void migration_overwrite_file_hash_on_all_plugins() throws SQLException {
