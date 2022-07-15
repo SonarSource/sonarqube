@@ -63,7 +63,7 @@ public class RegisterPluginsTest {
 
   @Before
   public void setUp() {
-    when(system2.now()).thenReturn(now).thenThrow(new IllegalStateException("Should be called only once"));
+    when(system2.now()).thenReturn(now);
   }
 
   /**
@@ -123,6 +123,27 @@ public class RegisterPluginsTest {
     verify(pluginsByKey.get("java"), Type.BUNDLED, null, "bd451e47a1aa76e73da0359cef63dd63", true, 1L, now);
     verify(pluginsByKey.get("java2"), Type.BUNDLED, null, "bd451e47a1aa76e73da0359cef63dd63", true, 1L, 1L);
     verify(pluginsByKey.get("csharp"), Type.EXTERNAL, null, "a20d785dbacb8f41a3b7392aa7d03b78", false, 1L, 1L);
+  }
+
+  @Test
+  public void re_add_previously_removed_plugin() throws IOException {
+    dbClient.pluginDao().insert(dbTester.getSession(), new PluginDto()
+      .setUuid("c")
+      .setKee("csharp")
+      .setBasePluginKey(null)
+      .setFileHash("a20d785dbacb8f41a3b7392aa7d03b78")
+      .setType(Type.EXTERNAL)
+      .setRemoved(true)
+      .setCreatedAt(1L)
+      .setUpdatedAt(1L));
+    dbTester.commit();
+
+    addPlugin("csharp", PluginType.EXTERNAL, null);
+    register.start();
+
+    Map<String, PluginDto> pluginsByKey = selectAllPlugins();
+    assertThat(pluginsByKey).hasSize(1);
+    verify(pluginsByKey.get("csharp"), Type.EXTERNAL, null, "a20d785dbacb8f41a3b7392aa7d03b78", false, 1L, now);
   }
 
   /**
