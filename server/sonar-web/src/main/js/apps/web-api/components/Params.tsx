@@ -47,23 +47,23 @@ export default class Params extends React.PureComponent<Props> {
           </div>
         )}
 
-        {this.props.showDeprecated && param.deprecatedKey && (
-          <div className="little-spacer-top">
-            <code>{param.deprecatedKey}</code>
-          </div>
-        )}
-
-        {this.props.showDeprecated && param.deprecatedKey && param.deprecatedKeySince && (
-          <div className="little-spacer-top">
-            <DeprecatedBadge since={param.deprecatedKeySince} />
-          </div>
-        )}
-
         <div className="note little-spacer-top">{param.required ? 'required' : 'optional'}</div>
 
         {param.since && (
           <div className="note little-spacer-top">
             {translateWithParameters('since_x', param.since)}
+          </div>
+        )}
+
+        {this.props.showDeprecated && param.deprecatedKey && (
+          <div className="big-spacer-top spacer-left">
+            <div className="note little-spacer-bottom">{translate('replaces')}:</div>
+            <code>{param.deprecatedKey}</code>
+            {param.deprecatedKeySince && (
+              <div className="little-spacer-top">
+                <DeprecatedBadge since={param.deprecatedKeySince} />
+              </div>
+            )}
           </div>
         )}
       </td>

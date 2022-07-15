@@ -48,7 +48,7 @@ it('should not render deprecated parameters', () => {
 
 it('should render deprecated key', () => {
   const params = [
-    { ...DEFAULT_PARAM, deprecatedKey: 'foo-deprecated', deprecatedSince: '5.0' },
+    { ...DEFAULT_PARAM, deprecatedKey: 'foo-deprecated', deprecatedKeySince: '5.0' },
     { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true }
   ];
   expect(

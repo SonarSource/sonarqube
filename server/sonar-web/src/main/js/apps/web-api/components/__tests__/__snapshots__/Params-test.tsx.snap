@@ -137,23 +137,29 @@ exports[`should render deprecated key 1`] = `
             foo
           </code>
           <div
-            className="little-spacer-top"
-          >
-            <DeprecatedBadge
-              since="5.0"
-            />
-          </div>
-          <div
-            className="little-spacer-top"
-          >
-            <code>
-              foo-deprecated
-            </code>
-          </div>
-          <div
             className="note little-spacer-top"
           >
             optional
+          </div>
+          <div
+            className="big-spacer-top spacer-left"
+          >
+            <div
+              className="note little-spacer-bottom"
+            >
+              replaces
+              :
+            </div>
+            <code>
+              foo-deprecated
+            </code>
+            <div
+              className="little-spacer-top"
+            >
+              <DeprecatedBadge
+                since="5.0"
+              />
+            </div>
           </div>
         </td>
         <td>
