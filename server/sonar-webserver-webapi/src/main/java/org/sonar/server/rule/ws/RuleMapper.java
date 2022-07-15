@@ -376,18 +376,16 @@ public class RuleMapper {
     return ruleDescriptionSectionDtos.size() > 1 && s.isDefault();
   }
 
-  private static Rules.Rule.DescriptionSection toDescriptionSection(RuleDto ruleDto, RuleDescriptionSectionDto section) {
+  private Rules.Rule.DescriptionSection toDescriptionSection(RuleDto ruleDto, RuleDescriptionSectionDto section) {
+    String htmlContent = ruleDescriptionFormatter.toHtml(ruleDto.getDescriptionFormat(), section);
+    String interpretedHtmlContent = macroInterpreter.interpret(htmlContent);
+
     Rules.Rule.DescriptionSection.Builder sectionBuilder = Rules.Rule.DescriptionSection.newBuilder()
       .setKey(section.getKey())
-      .setContent(retrieveDescriptionContent(ruleDto.getDescriptionFormat(), section));
+      .setContent(interpretedHtmlContent);
     toProtobufContext(section.getContext()).ifPresent(sectionBuilder::setContext);
-    return sectionBuilder.build();
-  }
 
-  private static String retrieveDescriptionContent(@Nullable RuleDto.Format format, RuleDescriptionSectionDto sectionDto) {
-    return MARKDOWN.equals(format) ?
-      Markdown.convertToHtml(sectionDto.getContent()) :
-      sectionDto.getContent();
+    return sectionBuilder.build();
   }
 
   private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {

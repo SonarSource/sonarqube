@@ -23,6 +23,7 @@ import com.google.common.collect.MoreCollectors;
 import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.markdown.Markdown;
@@ -41,7 +42,7 @@ public class RuleDescriptionFormatter {
   }
 
   @CheckForNull
-  private static String retrieveDescription(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, RuleDto.Format descriptionFormat) {
+  private String retrieveDescription(Collection<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, RuleDto.Format descriptionFormat) {
     return ruleDescriptionSectionDtos.stream()
       .filter(RuleDescriptionSectionDto::isDefault)
       .collect(MoreCollectors.toOptional())
@@ -49,12 +50,11 @@ public class RuleDescriptionFormatter {
       .orElse(null);
   }
 
-  private static String toHtml(RuleDto.Format descriptionFormat, RuleDescriptionSectionDto ruleDescriptionSectionDto) {
+  public String toHtml(@Nullable RuleDto.Format descriptionFormat, RuleDescriptionSectionDto ruleDescriptionSectionDto) {
     if (MARKDOWN.equals(descriptionFormat)) {
       return Markdown.convertToHtml(ruleDescriptionSectionDto.getContent());
-    } else {
-      return ruleDescriptionSectionDto.getContent();
     }
+    return ruleDescriptionSectionDto.getContent();
   }
 
 }

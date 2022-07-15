@@ -86,6 +86,7 @@ import static org.assertj.guava.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -463,6 +464,8 @@ public class SearchActionTest {
 
   @Test
   public void should_return_specified_fields() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
     RuleDescriptionSectionDto section1context1 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", "ctx1");
     RuleDescriptionSectionDto section1context2 = createRuleDescriptionSectionWithContext(RESOURCES_SECTION_KEY, "<div>Another context</div>", "ctx2");
     RuleDto rule = newRuleWithoutDescriptionSection()

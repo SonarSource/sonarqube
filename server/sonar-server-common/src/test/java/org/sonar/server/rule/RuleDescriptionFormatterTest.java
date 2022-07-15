@@ -27,7 +27,10 @@ import org.sonar.db.rule.RuleDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
+import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
+import static org.sonar.db.rule.RuleDto.Format.HTML;
+import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 
 public class RuleDescriptionFormatterTest {
 
@@ -37,7 +40,7 @@ public class RuleDescriptionFormatterTest {
 
   @Test
   public void getMarkdownDescriptionAsHtml() {
-    RuleDto rule = new RuleDto().setDescriptionFormat(RuleDto.Format.MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION).setType(RuleType.BUG);
+    RuleDto rule = new RuleDto().setDescriptionFormat(MARKDOWN).addRuleDescriptionSectionDto(MARKDOWN_SECTION).setType(RuleType.BUG);
     String html = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(html).isEqualTo("<strong>md</strong> <code>description</code>");
   }
@@ -76,6 +79,25 @@ public class RuleDescriptionFormatterTest {
     RuleDto rule = new RuleDto().addRuleDescriptionSectionDto(sectionWithNullFormat).setType(RuleType.BUG);
     String result = ruleDescriptionFormatter.getDescriptionAsHtml(rule);
     assertThat(result).isNull();
+  }
+
+  @Test
+  public void toHtmlWithNullFormat() {
+    RuleDescriptionSectionDto section = createRuleDescriptionSection(DEFAULT_KEY, "whatever");
+    String result = ruleDescriptionFormatter.toHtml(null, section);
+    assertThat(result).isEqualTo(section.getContent());
+  }
+
+  @Test
+  public void toHtmlWithMarkdownFormat() {
+    String result = ruleDescriptionFormatter.toHtml(MARKDOWN, MARKDOWN_SECTION);
+    assertThat(result).isEqualTo("<strong>md</strong> <code>description</code>");
+  }
+
+  @Test
+  public void toHtmlWithHtmlFormat() {
+    String result = ruleDescriptionFormatter.toHtml(HTML, HTML_SECTION);
+    assertThat(result).isEqualTo(HTML_SECTION.getContent());
   }
 
   private static RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {

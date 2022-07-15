@@ -54,6 +54,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
@@ -313,7 +314,7 @@ public class ShowActionTest {
 
     assertThat(result.getRule().getHtmlDesc()).isEqualTo(INTERPRETED);
     assertThat(result.getRule().getTemplateKey()).isEqualTo(templateRule.getKey().toString());
-    verify(macroInterpreter).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
+    verify(macroInterpreter, times(2)).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
   }
 
   @Test
@@ -395,6 +396,45 @@ public class ShowActionTest {
   }
 
   @Test
+  public void show_rule_desc_sections_and_html_desc_with_macro() {
+    RuleDescriptionSectionDto section = createRuleDescriptionSection(DEFAULT_KEY, "<div>Testing macro: {rule:java:S001}</div>");
+    RuleDto rule = createRuleWithDescriptionSections(section);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+    Rule resultRule = result.getRule();
+
+    assertThat(resultRule.getHtmlDesc()).isEqualTo(INTERPRETED);
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(DEFAULT_KEY, INTERPRETED));
+  }
+
+  @Test
+  public void show_rule_desc_sections_and_markdown_desc_with_macro() {
+    RuleDescriptionSectionDto section = createRuleDescriptionSection(DEFAULT_KEY, "Testing macro: {rule:java:S001}");
+    RuleDto rule = createRuleWithDescriptionSections(section);
+    rule.setDescriptionFormat(MARKDOWN);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+    Rule resultRule = result.getRule();
+
+    assertThat(resultRule.getHtmlDesc()).isEqualTo(INTERPRETED);
+    assertThat(resultRule.getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(DEFAULT_KEY, INTERPRETED));
+  }
+
+  @Test
   public void show_if_advanced_sections_and_default_filters_out_default() {
     when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -424,7 +464,7 @@ public class ShowActionTest {
   public void show_rule_markdown_description() {
     when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    var section = createRuleDescriptionSection("default", "*toto is toto*");
+    var section = createRuleDescriptionSection(DEFAULT_KEY, "*toto is toto*");
 
     RuleDto rule = createRuleWithDescriptionSections(section);
     rule.setDescriptionFormat(MARKDOWN);
