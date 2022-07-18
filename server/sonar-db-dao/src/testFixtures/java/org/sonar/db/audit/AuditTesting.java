@@ -27,6 +27,10 @@ public class AuditTesting {
 
   private static final Random random = new Random();
 
+  private AuditTesting() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static AuditDto newAuditDto() {
     return newAuditDto(random.nextLong(), "operation");
   }
@@ -44,7 +48,7 @@ public class AuditTesting {
     auditDto.setUuid(randomAlphanumeric(20));
     auditDto.setUserUuid(randomAlphanumeric(40));
     auditDto.setUserLogin(randomAlphanumeric(40));
-    auditDto.setNewValue("{ \"someKey\": \"someValue\",  \"anotherKey\": \"anotherValue\\\n\t\b\f\r\"}");
+    auditDto.setNewValue("{ \"someKey\": \"someValue\",  \"anotherKey\": \"\\\"anotherValue\\\" with quotes \\ \n\t\b\f\r\"}");
     auditDto.setOperation(operation);
     auditDto.setCategory("category");
     auditDto.setCreatedAt(createdAt);
