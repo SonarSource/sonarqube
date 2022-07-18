@@ -46,7 +46,7 @@ import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
 import { getIssueFlowSnippets, searchIssues } from '../issues';
 import { getRuleDetails } from '../rules';
-import { dismissNotification, getCurrentUser } from '../users';
+import { dismissNotice, getCurrentUser } from '../users';
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -200,7 +200,7 @@ export default class IssuesServiceMock {
       this.handleGetComponentForSourceViewer
     );
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
-    (dismissNotification as jest.Mock).mockImplementation(this.handleDismissNotification);
+    (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
   }
 
   async getStandards(): Promise<Standards> {

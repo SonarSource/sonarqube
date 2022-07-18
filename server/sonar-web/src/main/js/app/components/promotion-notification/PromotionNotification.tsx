@@ -18,28 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { dismissSonarlintAd } from '../../../api/users';
+import { dismissNotice } from '../../../api/users';
 import { ButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { isLoggedIn } from '../../../types/users';
+import { isLoggedIn, NoticeType } from '../../../types/users';
 import { CurrentUserContextInterface } from '../current-user/CurrentUserContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import './PromotionNotification.css';
 
-export interface PromotionNotificationProps
-  extends Pick<CurrentUserContextInterface, 'currentUser' | 'updateCurrentUserSonarLintAdSeen'> {}
+export interface PromotionNotificationProps extends CurrentUserContextInterface {}
 
 export function PromotionNotification(props: PromotionNotificationProps) {
   const { currentUser } = props;
 
-  if (!isLoggedIn(currentUser) || currentUser.sonarLintAdSeen) {
+  if (!isLoggedIn(currentUser) || currentUser.dismissedNotices[NoticeType.SONARLINT_AD]) {
     return null;
   }
 
   const onClick = () => {
-    dismissSonarlintAd();
-    props.updateCurrentUserSonarLintAdSeen();
+    dismissNotice(NoticeType.SONARLINT_AD)
+      .then(() => {
+        props.updateDismissedNotices(NoticeType.SONARLINT_AD, true);
+      })
+      .catch(() => {
+        /* noop */
+      });
   };
 
   return (

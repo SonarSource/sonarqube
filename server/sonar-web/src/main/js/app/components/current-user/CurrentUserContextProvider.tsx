@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, HomePage } from '../../../types/users';
+import { CurrentUser, HomePage, NoticeType } from '../../../types/users';
 import { CurrentUserContext } from './CurrentUserContext';
 
 interface Props {
@@ -41,9 +41,12 @@ export default class CurrentUserContextProvider extends React.PureComponent<Prop
     }));
   };
 
-  updateCurrentUserSonarLintAdSeen = () => {
+  updateDismissedNotices = (key: NoticeType, value: boolean) => {
     this.setState(prevState => ({
-      currentUser: { ...prevState.currentUser, sonarLintAdSeen: true }
+      currentUser: {
+        ...prevState.currentUser,
+        dismissedNotices: { ...prevState.currentUser.dismissedNotices, [key]: value }
+      }
     }));
   };
 
@@ -53,7 +56,7 @@ export default class CurrentUserContextProvider extends React.PureComponent<Prop
         value={{
           currentUser: this.state.currentUser,
           updateCurrentUserHomepage: this.updateCurrentUserHomepage,
-          updateCurrentUserSonarLintAdSeen: this.updateCurrentUserSonarLintAdSeen
+          updateDismissedNotices: this.updateDismissedNotices
         }}>
         {this.props.children}
       </CurrentUserContext.Provider>

@@ -26,7 +26,7 @@ export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current', undefined, true);
 }
 
-export function dismissNotification(notice: NoticeType) {
+export function dismissNotice(notice: NoticeType) {
   return post('/api/users/dismiss_notice', { notice }).catch(throwGlobalError);
 }
 
@@ -98,8 +98,4 @@ export function deactivateUser(data: { login: string }): Promise<User> {
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
-}
-
-export function dismissSonarlintAd(): Promise<void | Response> {
-  return post('/api/users/dismiss_sonarlint_ad').catch(throwGlobalError);
 }

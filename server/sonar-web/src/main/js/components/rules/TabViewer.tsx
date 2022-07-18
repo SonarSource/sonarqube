@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { debounce, Dictionary } from 'lodash';
 import * as React from 'react';
-import { dismissNotification, getCurrentUser } from '../../api/users';
+import { dismissNotice, getCurrentUser } from '../../api/users';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { RuleDetails } from '../../types/types';
 import { CurrentUser, NoticeType } from '../../types/users';
@@ -112,7 +112,7 @@ export default class TabViewer extends React.PureComponent<Props, State> {
       const rect = this.educationPrinciplesRef.current.getBoundingClientRect();
       const isView = rect.top <= (window.innerHeight || document.documentElement.clientHeight);
       if (isView && this.showNotification) {
-        dismissNotification(NoticeType.EDUCATION_PRINCIPLES)
+        dismissNotice(NoticeType.EDUCATION_PRINCIPLES)
           .then(() => {
             document.removeEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
             this.showNotification = false;

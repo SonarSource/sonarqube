@@ -32,7 +32,7 @@ export interface Notice {
 
 export enum NoticeType {
   EDUCATION_PRINCIPLES = 'educationPrinciples',
-  SONARLINT_AD_SEEN = 'sonarlint_ad_seen'
+  SONARLINT_AD = 'sonarlintAd'
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

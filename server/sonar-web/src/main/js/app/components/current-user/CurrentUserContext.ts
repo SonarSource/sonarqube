@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, HomePage } from '../../../types/users';
+import { CurrentUser, HomePage, NoticeType } from '../../../types/users';
 
 export interface CurrentUserContextInterface {
   currentUser: CurrentUser;
   updateCurrentUserHomepage: (homepage: HomePage) => void;
-  updateCurrentUserSonarLintAdSeen: () => void;
+  updateDismissedNotices: (key: NoticeType, value: boolean) => void;
 }
 
 export const CurrentUserContext = React.createContext<CurrentUserContextInterface | undefined>(

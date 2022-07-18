@@ -40,7 +40,7 @@ import {
   SearchQualityProfilesResponse
 } from '../quality-profiles';
 import { getRuleDetails, getRulesApp, searchRules, updateRule } from '../rules';
-import { dismissNotification, getCurrentUser } from '../users';
+import { dismissNotice, getCurrentUser } from '../users';
 
 interface FacetFilter {
   languages?: string;
@@ -184,7 +184,7 @@ export default class CodingRulesMock {
     (bulkDeactivateRules as jest.Mock).mockImplementation(this.handleBulkDeactivateRules);
     (getFacet as jest.Mock).mockImplementation(this.handleGetGacet);
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
-    (dismissNotification as jest.Mock).mockImplementation(this.handleDismissNotification);
+    (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
     this.rules = cloneDeep(this.defaultRules);
   }
 

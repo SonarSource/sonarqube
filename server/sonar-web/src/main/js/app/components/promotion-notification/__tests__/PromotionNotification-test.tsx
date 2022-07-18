@@ -19,12 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import { dismissSonarlintAd } from '../../../../api/users';
+import { dismissNotice } from '../../../../api/users';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { NoticeType } from '../../../../types/users';
 import { PromotionNotification, PromotionNotificationProps } from '../PromotionNotification';
 
 jest.mock('../../../../api/users', () => ({
-  dismissSonarlintAd: jest.fn()
+  dismissNotice: jest.fn().mockResolvedValue({})
 }));
 
 beforeEach(() => {
@@ -34,38 +36,43 @@ beforeEach(() => {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('anonymous');
   expect(
-    shallowRender({ currentUser: mockLoggedInUser({ sonarLintAdSeen: true }) })
+    shallowRender({
+      currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: true } })
+    })
   ).toMatchSnapshot('adAlreadySeen');
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('loggedIn');
 });
 
-it('should remove the toaster when click on dismiss', () => {
-  const updateCurrentUserSonarLintAdSeen = jest.fn();
+it('should remove the toaster when click on dismiss', async () => {
+  const updateDismissedNotices = jest.fn();
   const wrapper = shallowRender({
-    currentUser: mockLoggedInUser({ sonarLintAdSeen: false }),
-    updateCurrentUserSonarLintAdSeen
+    currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: false } }),
+    updateDismissedNotices
   });
   wrapper.find('.toaster-actions ButtonLink').simulate('click');
-  expect(dismissSonarlintAd).toBeCalled();
-  expect(updateCurrentUserSonarLintAdSeen).toBeCalled();
+  expect(dismissNotice).toBeCalled();
+  await waitAndUpdate(wrapper);
+  expect(updateDismissedNotices).toBeCalled();
 });
 
-it('should remove the toaster and navigate to sonarlint when click on learn more', () => {
-  const updateCurrentUserSonarLintAdSeen = jest.fn();
+it('should remove the toaster and navigate to sonarlint when click on learn more', async () => {
+  const updateDismissedNotices = jest.fn();
   const wrapper = shallowRender({
-    currentUser: mockLoggedInUser({ sonarLintAdSeen: false }),
-    updateCurrentUserSonarLintAdSeen
+    currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: false } }),
+    updateDismissedNotices
   });
   wrapper.find('.toaster-actions .button-primary').simulate('click');
-  expect(dismissSonarlintAd).toBeCalled();
-  expect(updateCurrentUserSonarLintAdSeen).toBeCalled();
+  expect(dismissNotice).toBeCalled();
+  await waitAndUpdate(wrapper);
+  expect(updateDismissedNotices).toBeCalled();
 });
 
 function shallowRender(props: Partial<PromotionNotificationProps> = {}) {
   return shallow(
     <PromotionNotification
       currentUser={mockCurrentUser()}
-      updateCurrentUserSonarLintAdSeen={jest.fn()}
+      updateDismissedNotices={jest.fn()}
+      updateCurrentUserHomepage={jest.fn()}
       {...props}
     />
   );
