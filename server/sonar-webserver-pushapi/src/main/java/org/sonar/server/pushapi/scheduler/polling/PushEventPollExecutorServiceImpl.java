@@ -21,7 +21,6 @@ package org.sonar.server.pushapi.scheduler.polling;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.sonar.api.server.ServerSide;
 import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
 import static java.lang.Thread.MIN_PRIORITY;

@@ -34,7 +34,6 @@ import org.sonar.core.util.issue.IssueChangeListener;
 import org.sonar.core.util.issue.IssueChangedEvent;
 import org.sonar.core.util.rule.RuleActivationListener;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
-import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.pushapi.issues.IssueChangeBroadcastUtils;
 import org.sonar.server.pushapi.issues.IssueChangeEventsDistributor;
@@ -105,9 +104,22 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
     broadcastMessage(issueChangedEvent, IssueChangeBroadcastUtils.getFilterForEvent(issueChangedEvent));
   }
 
-  public void broadcastMessage(PushEventDto event) {
-    // TODO:: different task for broadcasting event
-    LOG.info("received event: ({}, {}) ", event.getUuid(), event.getName());
+  public void broadcastMessage(SonarLintPushEvent event) {
+    clients.stream().filter(client -> client.getClientProjectKeys().contains(event.getProjectKey()))
+      .forEach(c -> {
+        Set<String> clientProjectKeys = new HashSet<>(c.getClientProjectKeys());
+        clientProjectKeys.retainAll(Set.of(event.getProjectKey()));
+        try {
+          sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), clientProjectKeys);
+          c.writeAndFlush(event.serialize());
+        } catch (ForbiddenException forbiddenException) {
+          logClientUnauthenticated(forbiddenException);
+          unregisterClient(c);
+        } catch (IllegalStateException | IOException e) {
+          logUnexpectedError(e);
+          unregisterClient(c);
+        }
+      });
   }
 
   public void broadcastMessage(RuleSetChangedEvent event, Predicate<SonarLintClient> filter) {
@@ -121,10 +133,10 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
         String message = RuleSetChangeBroadcastUtils.getMessage(personalizedEvent);
         c.writeAndFlush(message);
       } catch (ForbiddenException forbiddenException) {
-        LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
+        logClientUnauthenticated(forbiddenException);
         unregisterClient(c);
       } catch (IllegalStateException | IOException e) {
-        LOG.error("Unable to send message to a client: " + e.getMessage());
+        logUnexpectedError(e);
         unregisterClient(c);
       }
     });
@@ -139,13 +151,21 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
         String message = IssueChangeBroadcastUtils.getMessage(event);
         c.writeAndFlush(message);
       } catch (ForbiddenException forbiddenException) {
-        LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
+        logClientUnauthenticated(forbiddenException);
         unregisterClient(c);
       } catch (IllegalStateException | IOException e) {
-        LOG.error("Unable to send message to a client: " + e.getMessage());
+        logUnexpectedError(e);
         unregisterClient(c);
       }
     });
+  }
+
+  private static void logUnexpectedError(Exception e) {
+    LOG.error("Unable to send message to a client: " + e.getMessage());
+  }
+
+  private static void logClientUnauthenticated(ForbiddenException forbiddenException) {
+    LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
   }
 
   class SonarLintClientEventsListener implements AsyncListener {

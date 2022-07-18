@@ -20,6 +20,7 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
@@ -28,9 +29,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.issue.Issue;
 import org.sonar.core.util.issue.IssueChangedEvent;
-import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.rule.RuleChange;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -176,7 +177,7 @@ public class SonarLintClientsRegistryTest {
 
   @Test
   public void listen_givenUserNotPermittedToReceiveIssueChangeEvent_closeConnection() {
-    Issue[] issues = new Issue[]{ new Issue("issue-1", "branch-1")};
+    Issue[] issues = new Issue[] {new Issue("issue-1", "branch-1")};
     IssueChangedEvent issueChangedEvent = new IssueChangedEvent("project1", issues, true, "BLOCKER", "BUG");
 
     SonarLintClient sonarLintClient = createSampleSLClient();
@@ -204,6 +205,64 @@ public class SonarLintClientsRegistryTest {
     doThrow(new IllegalStateException("Things went wrong")).when(sonarLintClient).writeAndFlush(anyString());
 
     underTest.listen(ruleSetChangedEvent);
+
+    verify(sonarLintClient, times(2)).close();
+  }
+
+  @Test
+  public void broadcast_push_event_to_clients() throws IOException {
+    SonarLintPushEvent event = new SonarLintPushEvent("event", "data".getBytes(StandardCharsets.UTF_8), "project2");
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+
+    underTest.broadcastMessage(event);
+
+    verify(permissionsValidator, times(1)).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    verify(sonarLintClient, times(1)).writeAndFlush(anyString());
+  }
+
+  @Test
+  public void broadcast_skips_push_if_event_project_does_not_match_with_client() throws IOException {
+    SonarLintPushEvent event = new SonarLintPushEvent("event", "data".getBytes(StandardCharsets.UTF_8), "project4");
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+
+    underTest.broadcastMessage(event);
+
+    verify(permissionsValidator, times(0)).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    verify(sonarLintClient, times(0)).close();
+    verify(sonarLintClient, times(0)).writeAndFlush(anyString());
+  }
+
+  @Test
+  public void broadcast_givenUserNotPermittedToReceiveSonarLintPushEvent_closeConnection() {
+    SonarLintPushEvent event = new SonarLintPushEvent("event", "data".getBytes(StandardCharsets.UTF_8), "project1");
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+
+    underTest.broadcastMessage(event);
+
+    verify(sonarLintClient).close();
+  }
+
+  @Test
+  public void broadcast_givenUnregisteredClient_closeConnection() throws IOException {
+    SonarLintPushEvent event = new SonarLintPushEvent("event", "data".getBytes(StandardCharsets.UTF_8), "project1");
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+    doThrow(new IOException("Broken pipe")).when(sonarLintClient).writeAndFlush(anyString());
+
+    underTest.broadcastMessage(event);
+
+    underTest.registerClient(sonarLintClient);
+    doThrow(new IllegalStateException("Things went wrong")).when(sonarLintClient).writeAndFlush(anyString());
+
+    underTest.broadcastMessage(event);
 
     verify(sonarLintClient, times(2)).close();
   }
@@ -258,7 +317,7 @@ public class SonarLintClientsRegistryTest {
   private RuleChange createRuleChange() {
     RuleChange javaRule = new RuleChange();
     javaRule.setLanguage("java");
-    javaRule.setParams(new ParamChange[]{new ParamChange("param-key", "param-value")});
+    javaRule.setParams(new ParamChange[] {new ParamChange("param-key", "param-value")});
     javaRule.setTemplateKey("repo:template-key");
     javaRule.setSeverity(Severity.CRITICAL);
     javaRule.setKey("repo:rule-key");

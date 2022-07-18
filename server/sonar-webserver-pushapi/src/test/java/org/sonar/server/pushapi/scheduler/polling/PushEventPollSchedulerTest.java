@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.pushapi.sonarlint.SonarLintClient;
 import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
+import org.sonar.server.pushapi.sonarlint.SonarLintPushEvent;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -68,7 +69,7 @@ public class PushEventPollSchedulerTest {
     assertThatCode(executorService::runCommand)
       .doesNotThrowAnyException();
 
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
   }
 
   @Test
@@ -80,7 +81,7 @@ public class PushEventPollSchedulerTest {
 
     executorService.runCommand();
 
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
   }
 
   @Test
@@ -96,7 +97,29 @@ public class PushEventPollSchedulerTest {
 
     executorService.runCommand();
 
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
+  }
+
+  @Test
+  public void nothing_to_broadcast_if_project_key_does_not_exist() {
+    var project = db.components().insertPrivateProject();
+
+    system2.setNow(1L);
+    var sonarLintClient = mock(SonarLintClient.class);
+    when(sonarLintClient.getClientProjectKeys()).thenReturn(Set.of("not-existing-project-key"));
+    when(clientsRegistry.getClients()).thenReturn(List.of(sonarLintClient));
+
+    var underTest = new PushEventPollScheduler(executorService, clientsRegistry, db.getDbClient(), system2, config);
+    underTest.start();
+
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
+
+    system2.tick(); // tick=2
+    generatePushEvent(project.uuid());
+
+    executorService.runCommand();
+
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
   }
 
   @Test
@@ -112,7 +135,7 @@ public class PushEventPollSchedulerTest {
     underTest.start();
     executorService.runCommand();
 
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
 
     system2.tick(); // tick=2
     generatePushEvent(project.uuid());
@@ -124,7 +147,7 @@ public class PushEventPollSchedulerTest {
     underTest.start();
     executorService.runCommand();
 
-    verify(clientsRegistry, times(3)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(3)).broadcastMessage(any(SonarLintPushEvent.class));
 
     system2.tick(); // tick=4
     generatePushEvent(project.uuid());
@@ -132,7 +155,7 @@ public class PushEventPollSchedulerTest {
 
     underTest.start();
     executorService.runCommand();
-    verify(clientsRegistry, times(5)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(5)).broadcastMessage(any(SonarLintPushEvent.class));
   }
 
   @Test
@@ -148,7 +171,7 @@ public class PushEventPollSchedulerTest {
     underTest.start();
     executorService.runCommand();
 
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
 
     system2.tick(); // tick=2
     generatePushEvent(project.uuid());
@@ -157,7 +180,7 @@ public class PushEventPollSchedulerTest {
     executorService.runCommand();
 
     // all clients have been unregistered, nothing to broadcast
-    verify(clientsRegistry, times(0)).broadcastMessage(any(PushEventDto.class));
+    verify(clientsRegistry, times(0)).broadcastMessage(any(SonarLintPushEvent.class));
   }
 
   private PushEventDto generatePushEvent(String projectUuid) {
