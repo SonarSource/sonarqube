@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.purge;
 
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import javax.annotation.Nullable;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 
-public interface PushEventMapper {
+public class PushEventsPurgeInitializer implements ServerStartHandler {
 
-  void insert(PushEventDto event);
+  private final PushEventsPurgeScheduler pushEventsPurgeScheduler;
 
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
+  public PushEventsPurgeInitializer(@Nullable PushEventsPurgeScheduler pushEventsPurgeScheduler) {
+    this.pushEventsPurgeScheduler = pushEventsPurgeScheduler;
+  }
 
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
-
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
+  @Override
+  public void onServerStart(Server server) {
+    if (pushEventsPurgeScheduler != null) {
+      pushEventsPurgeScheduler.startScheduling();
+    }
+  }
 
 }

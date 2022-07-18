@@ -19,11 +19,13 @@
  */
 package org.sonar.db.pushevent;
 
+import javax.annotation.CheckForNull;
+
 public class PushEventDto {
   private String uuid;
   private String projectUuid;
   private byte[] payload;
-  private long createdAt;
+  private Long createdAt;
 
   public PushEventDto() {
     // nothing to do
@@ -56,7 +58,8 @@ public class PushEventDto {
     return this;
   }
 
-  public long getCreatedAt() {
+  @CheckForNull
+  public Long getCreatedAt() {
     return createdAt;
   }
 

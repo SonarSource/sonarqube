@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.purge;
 
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Before;
+import org.junit.Test;
 
-public interface PushEventMapper {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-  void insert(PushEventDto event);
+public class PushEventsPurgeInitializerTest {
 
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
+  private PushEventsPurgeScheduler pushEventsPurgeScheduler;
 
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
+  @Before
+  public void before() {
+    pushEventsPurgeScheduler = mock(PushEventsPurgeScheduler.class);
+  }
 
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
+  @Test
+  public void onServerStart_givenProjectReportScheduler_startScheduling() {
+    PushEventsPurgeInitializer pushEventsPurgeInitializer = new PushEventsPurgeInitializer(pushEventsPurgeScheduler);
 
+    pushEventsPurgeInitializer.onServerStart(null);
+
+    verify(pushEventsPurgeScheduler, times(1)).startScheduling();
+  }
 }

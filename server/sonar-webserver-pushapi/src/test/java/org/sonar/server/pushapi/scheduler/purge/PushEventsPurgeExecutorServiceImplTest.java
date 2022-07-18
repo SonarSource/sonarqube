@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.purge;
 
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface PushEventMapper {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void insert(PushEventDto event);
+public class PushEventsPurgeExecutorServiceImplTest {
 
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
+  @Test
+  public void constructor_createsProperDeleagateThatIsReadyToAct() {
+    PushEventsPurgeExecutorServiceImpl pushEventsPurgeExecutorService = new PushEventsPurgeExecutorServiceImpl();
 
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
-
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
-
+    assertThat(pushEventsPurgeExecutorService.isShutdown()).isFalse();
+    assertThat(pushEventsPurgeExecutorService.isTerminated()).isFalse();
+  }
 }

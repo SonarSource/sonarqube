@@ -24,12 +24,25 @@
     )
   </insert>
 
-  <select id="selectByUuid" parameterType="String" resultType="PushEvent">
+   <select id="selectByUuid" parameterType="String" resultType="PushEvent">
     SELECT
     <include refid="pushEventColumns"/>
     FROM push_events pe
     where
     pe.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
+
+  <select id="selectUuidsOfExpiredEvents" parameterType="long" resultType="string">
+    SELECT
+    pe.uuid
+    FROM push_events pe
+    where
+    pe.created_at &lt;= #{timestamp,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByUuids" parameterType="String">
+    delete from push_events
+    where uuid in <foreach collection="pushEventUuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </delete>
 
 </mapper>

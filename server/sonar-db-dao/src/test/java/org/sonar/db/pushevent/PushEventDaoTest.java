@@ -19,6 +19,7 @@
  */
 package org.sonar.db.pushevent;
 
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -65,6 +66,52 @@ public class PushEventDaoTest {
       .extracting(PushEventDto::getUuid, PushEventDto::getProjectUuid, PushEventDto::getPayload, PushEventDto::getCreatedAt)
       .containsExactly(eventDtoSecond.getUuid(), eventDtoSecond.getProjectUuid(), eventDtoSecond.getPayload(), eventDtoSecond.getCreatedAt());
 
+  }
+
+  @Test
+  public void select_expired_events() {
+    PushEventDto eventDtoFirst = new PushEventDto()
+      .setProjectUuid("project-uuid")
+      .setCreatedAt(1000L)
+      .setPayload("some-event".getBytes(UTF_8));
+
+    PushEventDto eventDtoSecond = new PushEventDto()
+      .setProjectUuid("project-uuid")
+      .setCreatedAt(1000L)
+      .setPayload("some-event".getBytes(UTF_8));
+
+    PushEventDto eventDtoThird = new PushEventDto()
+      .setProjectUuid("project-uuid")
+      .setCreatedAt(2000L)
+      .setPayload("some-event".getBytes(UTF_8));
+
+    underTest.insert(session, eventDtoFirst);
+    underTest.insert(session, eventDtoSecond);
+    underTest.insert(session, eventDtoThird);
+
+    assertThat(underTest.selectUuidsOfExpiredEvents(session, 2000L)).hasSize(3);
+    assertThat(underTest.selectUuidsOfExpiredEvents(session, 1500L)).hasSize(2);
+    assertThat(underTest.selectUuidsOfExpiredEvents(session, 150L)).isEmpty();
+  }
+
+  @Test
+  public void delete_events_in_batches() {
+    PushEventDto eventDtoFirst = new PushEventDto()
+      .setProjectUuid("project-uuid")
+      .setCreatedAt(1000L)
+      .setPayload("some-event".getBytes(UTF_8));
+
+    PushEventDto eventDtoSecond = new PushEventDto()
+      .setProjectUuid("project-uuid")
+      .setCreatedAt(1000L)
+      .setPayload("some-event".getBytes(UTF_8));
+
+    PushEventDto event1 = underTest.insert(session, eventDtoFirst);
+    PushEventDto event2 = underTest.insert(session, eventDtoSecond);
+
+    assertThat(underTest.selectUuidsOfExpiredEvents(db.getSession(), 2000L)).hasSize(2);
+    underTest.deleteByUuids(db.getSession(), Set.of(event1.getUuid(), event2.getUuid()));
+    assertThat(underTest.selectUuidsOfExpiredEvents(db.getSession(), 2000L)).isEmpty();
   }
 
 }

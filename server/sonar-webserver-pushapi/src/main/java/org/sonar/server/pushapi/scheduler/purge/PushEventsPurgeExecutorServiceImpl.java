@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.pushevent;
+package org.sonar.server.pushapi.scheduler.purge;
 
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-public interface PushEventMapper {
+public class PushEventsPurgeExecutorServiceImpl
+  extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements PushEventsPurgeExecutorService {
 
-  void insert(PushEventDto event);
-
-  @CheckForNull
-  PushEventDto selectByUuid(String uuid);
-
-  Set<String> selectUuidsOfExpiredEvents(@Param("timestamp") long timestamp);
-
-  void deleteByUuids(@Param("pushEventUuids") List<String> pushEventUuids);
-
+  public PushEventsPurgeExecutorServiceImpl() {
+    super(Executors.newSingleThreadScheduledExecutor(r -> {
+      Thread thread = Executors.defaultThreadFactory().newThread(r);
+      thread.setDaemon(true);
+      thread.setName(String.format("PushEvents-Purge-%d", System.nanoTime()));
+      return thread;
+    }));
+  }
 }

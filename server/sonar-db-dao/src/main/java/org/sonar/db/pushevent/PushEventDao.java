@@ -19,10 +19,13 @@
  */
 package org.sonar.db.pushevent;
 
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class PushEventDao implements Dao {
 
@@ -39,13 +42,25 @@ public class PushEventDao implements Dao {
       event.setUuid(uuidFactory.create());
     }
 
-    event.setCreatedAt(system2.now());
+    if (event.getCreatedAt() == null) {
+      event.setCreatedAt(system2.now());
+    }
+
     mapper(dbSession).insert(event);
     return event;
   }
 
   public PushEventDto selectByUuid(DbSession dbSession, String uuid) {
     return mapper(dbSession).selectByUuid(uuid);
+  }
+
+
+  public Set<String> selectUuidsOfExpiredEvents(DbSession dbSession, long timestamp) {
+    return mapper(dbSession).selectUuidsOfExpiredEvents(timestamp);
+  }
+
+  public void deleteByUuids(DbSession dbSession, Set<String> pushEventUuids) {
+    executeLargeUpdates(pushEventUuids, mapper(dbSession)::deleteByUuids);
   }
 
   private static PushEventMapper mapper(DbSession session) {
