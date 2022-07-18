@@ -45,7 +45,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class PushEventsPurgeSchedulerImplTest {
+public class PushEventsPurgeSchedulerTest {
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
   private final GlobalLockManager lockManager = mock(GlobalLockManagerImpl.class);
@@ -53,7 +53,7 @@ public class PushEventsPurgeSchedulerImplTest {
   private final PushEventsPurgeExecutorServiceImpl executorService = new PushEventsPurgeExecutorServiceImpl();
   private final Configuration configuration = mock(Configuration.class);
   private final System2 system2 = mock(System2.class);
-  private final PushEventsPurgeSchedulerImpl underTest = new PushEventsPurgeSchedulerImpl(dbClient, configuration,
+  private final PushEventsPurgeScheduler underTest = new PushEventsPurgeScheduler(dbClient, configuration,
     lockManager, executorService, system2);
 
   @Before
@@ -65,7 +65,7 @@ public class PushEventsPurgeSchedulerImplTest {
   public void doNothingIfLocked() {
     when(lockManager.tryLock(any(), anyInt())).thenReturn(false);
 
-    underTest.startScheduling();
+    underTest.start();
 
     executorService.runCommand();
 
@@ -76,7 +76,7 @@ public class PushEventsPurgeSchedulerImplTest {
   public void doNothingIfExceptionIsThrown() {
     when(lockManager.tryLock(any(), anyInt())).thenThrow(new IllegalArgumentException("Oops"));
 
-    underTest.startScheduling();
+    underTest.start();
 
     executorService.runCommand();
 
@@ -90,7 +90,7 @@ public class PushEventsPurgeSchedulerImplTest {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.pushEventDao().selectUuidsOfExpiredEvents(any(), anyLong())).thenReturn(Set.of("1", "2"));
 
-    underTest.startScheduling();
+    underTest.start();
 
     executorService.runCommand();
 
