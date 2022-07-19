@@ -33,7 +33,7 @@ interface Props {
 
 export default function TokensFormModal(props: Props) {
   return (
-    <Modal size="medium" contentLabel={translate('users.tokens')} onRequestClose={props.onClose}>
+    <Modal size="large" contentLabel={translate('users.tokens')} onRequestClose={props.onClose}>
       <header className="modal-head">
         <h2>
           <FormattedMessage

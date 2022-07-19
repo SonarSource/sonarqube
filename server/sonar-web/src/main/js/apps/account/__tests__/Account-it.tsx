@@ -344,7 +344,7 @@ describe('security page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", async () => {
+  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", () => {
     (getScannableProjects as jest.Mock).mockResolvedValueOnce({
       projects: []
     });
@@ -353,8 +353,39 @@ describe('security page', () => {
       securityPagePath
     );
 
-    await selectEvent.openMenu(screen.getAllByRole('textbox')[1]);
+    selectEvent.openMenu(screen.getAllByRole('textbox')[1]);
     expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
+  });
+
+  it('should preselect the user token type if the user has no scan rights', async () => {
+    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+      projects: []
+    });
+    renderAccountApp(mockLoggedInUser(), securityPagePath);
+
+    const globalToken = await screen.findByText(`users.tokens.${TokenType.User}`);
+    expect(globalToken).toBeInTheDocument();
+  });
+
+  it('should preselect the only project the user has access to if they select project token', async () => {
+    (getScannableProjects as jest.Mock).mockResolvedValueOnce({
+      projects: [
+        {
+          key: 'project-key-1',
+          name: 'Project Name 1'
+        }
+      ]
+    });
+    renderAccountApp(
+      mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
+      securityPagePath
+    );
+
+    await selectEvent.select(screen.getAllByRole('textbox')[1], [
+      `users.tokens.${TokenType.Project}`
+    ]);
+
+    expect(screen.getByText('Project Name 1')).toBeInTheDocument();
   });
 
   it('should allow local users to change password', async () => {

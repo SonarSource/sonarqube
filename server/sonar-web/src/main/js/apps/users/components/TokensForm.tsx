@@ -54,7 +54,7 @@ interface State {
   newTokenType?: TokenType;
   tokens: UserToken[];
   projects: BasicSelectOption[];
-  selectedProject: { key: string; name: string };
+  selectedProject?: BasicSelectOption;
   newTokenExpiration: TokenExpiration;
   tokenExpirationOptions: { value: TokenExpiration; label: string }[];
 }
@@ -66,7 +66,6 @@ export class TokensForm extends React.PureComponent<Props, State> {
     loading: true,
     newTokenName: '',
     newTokenType: this.props.displayTokenTypeInput ? undefined : TokenType.User,
-    selectedProject: { key: '', name: '' },
     tokens: [],
     projects: [],
     newTokenExpiration: TokenExpiration.OneMonth,
@@ -113,7 +112,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
     const { projects: projectArray } = await getScannableProjects();
     const projects = projectArray.map(project => ({ label: project.name, value: project.key }));
     this.setState({
-      projects
+      projects,
+      selectedProject: projects.length === 1 ? projects[0] : undefined
     });
   };
 
@@ -139,7 +139,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
         name: newTokenName,
         login,
         type: newTokenType,
-        ...(newTokenType === TokenType.Project && { projectKey: selectedProject.key }),
+        ...(newTokenType === TokenType.Project &&
+          selectedProject !== undefined && { projectKey: selectedProject.value }),
         ...(newTokenExpiration !== TokenExpiration.NoExpiration && {
           expirationDate: computeTokenExpirationDate(newTokenExpiration)
         })
@@ -155,17 +156,19 @@ export class TokensForm extends React.PureComponent<Props, State> {
               isExpired: false,
               expirationDate: newToken.expirationDate,
               type: newTokenType,
-              ...(newTokenType === TokenType.Project && {
-                project: { key: selectedProject.key, name: selectedProject.name }
-              })
+              ...(newTokenType === TokenType.Project &&
+                selectedProject !== undefined && {
+                  project: { key: selectedProject.value, name: selectedProject.label }
+                })
             }
           ];
           return {
             generating: false,
             newToken,
             newTokenName: '',
-            selectedProject: { key: '', name: '' },
+            selectedProject: undefined,
             newTokenType: undefined,
+            newTokenExpiration: TokenExpiration.OneMonth,
             tokens
           };
         }, this.updateTokensCount);
@@ -198,7 +201,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
       return true;
     }
     if (newTokenType === TokenType.Project) {
-      return !selectedProject.key;
+      return !selectedProject?.value;
     }
 
     return !newTokenType;
@@ -212,8 +215,8 @@ export class TokensForm extends React.PureComponent<Props, State> {
     this.setState({ newTokenType: value });
   };
 
-  handleProjectChange = ({ value, label }: { value: string; label: string }) => {
-    this.setState({ selectedProject: { key: value, name: label } });
+  handleProjectChange = (selectedProject: BasicSelectOption) => {
+    this.setState({ selectedProject });
   };
 
   handleNewTokenExpirationChange = ({ value }: { value: TokenExpiration }) => {
@@ -277,7 +280,11 @@ export class TokensForm extends React.PureComponent<Props, State> {
                 onChange={this.handleNewTokenTypeChange}
                 options={tokenTypeOptions}
                 placeholder={translate('users.tokens.select_type')}
-                value={tokenTypeOptions.find(option => option.value === newTokenType) || null}
+                value={
+                  tokenTypeOptions.length === 1
+                    ? tokenTypeOptions[0]
+                    : tokenTypeOptions.find(option => option.value === newTokenType) || null
+                }
               />
             </div>
             {newTokenType === TokenType.Project && (
@@ -291,7 +298,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
                   onChange={this.handleProjectChange}
                   options={projects}
                   placeholder={translate('users.tokens.select_project')}
-                  value={projects.find(project => project.value === selectedProject.key)}
+                  value={selectedProject}
                 />
               </div>
             )}
