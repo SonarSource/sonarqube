@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
@@ -29,10 +30,11 @@ installExtensionsHandler();
 initApplication();
 
 async function initApplication() {
-  const [l10nBundle, currentUser, appState] = await Promise.all([
+  const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
     loadL10nBundle(),
     isMainApp() ? getCurrentUser() : undefined,
-    isMainApp() ? getGlobalNavigation() : undefined
+    isMainApp() ? getGlobalNavigation() : undefined,
+    isMainApp() ? getAvailableFeatures() : undefined
   ]).catch(error => {
     // eslint-disable-next-line no-console
     console.error('Application failed to start', error);
@@ -40,7 +42,7 @@ async function initApplication() {
   });
 
   const startReactApp = await import('./utils/startReactApp').then(i => i.default);
-  startReactApp(l10nBundle.locale, currentUser, appState);
+  startReactApp(l10nBundle.locale, currentUser, appState, availableFeatures);
 }
 
 function isMainApp() {

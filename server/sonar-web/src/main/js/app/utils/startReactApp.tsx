@@ -61,11 +61,16 @@ import webhooksRoutes from '../../apps/webhooks/routes';
 import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { AppState } from '../../types/appstate';
+import { Feature } from '../../types/features';
 import { CurrentUser } from '../../types/users';
 import AdminContainer from '../components/AdminContainer';
 import App from '../components/App';
 import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
 import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
+import {
+  AvailableFeaturesContext,
+  DEFAULT_AVAILABLE_FEATURES
+} from '../components/available-features/AvailableFeaturesContext';
 import ComponentContainer from '../components/ComponentContainer';
 import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
@@ -227,7 +232,8 @@ function renderAdminRoutes() {
 export default function startReactApp(
   lang: string,
   currentUser?: CurrentUser,
-  appState?: AppState
+  appState?: AppState,
+  availableFeatures?: Feature[]
 ) {
   exportModulesAsGlobals();
 
@@ -236,77 +242,78 @@ export default function startReactApp(
   render(
     <HelmetProvider>
       <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
-        <CurrentUserContextProvider currentUser={currentUser}>
-          <IntlProvider defaultLocale={lang} locale={lang}>
-            <GlobalMessagesContainer />
-            <BrowserRouter basename={getBaseUrl()}>
-              <Routes>
-                {renderRedirects()}
+        <AvailableFeaturesContext.Provider value={availableFeatures ?? DEFAULT_AVAILABLE_FEATURES}>
+          <CurrentUserContextProvider currentUser={currentUser}>
+            <IntlProvider defaultLocale={lang} locale={lang}>
+              <GlobalMessagesContainer />
+              <BrowserRouter basename={getBaseUrl()}>
+                <Routes>
+                  {renderRedirects()}
+                  <Route path="formatting/help" element={<FormattingHelp />} />
 
-                <Route path="formatting/help" element={<FormattingHelp />} />
+                  <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
 
-                <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
+                  <Route element={<MigrationContainer />}>
+                    {sessionsRoutes()}
 
-                <Route element={<MigrationContainer />}>
-                  {sessionsRoutes()}
+                    <Route path="/" element={<App />}>
+                      <Route index={true} element={<Landing />} />
 
-                  <Route path="/" element={<App />}>
-                    <Route index={true} element={<Landing />} />
+                      <Route element={<GlobalContainer />}>
+                        {accountRoutes()}
 
-                    <Route element={<GlobalContainer />}>
-                      {accountRoutes()}
+                        {codingRulesRoutes()}
 
-                      {codingRulesRoutes()}
+                        {documentationRoutes()}
 
-                      {documentationRoutes()}
+                        <Route
+                          path="extension/:pluginKey/:extensionKey"
+                          element={<GlobalPageExtension />}
+                        />
 
+                        {globalIssuesRoutes()}
+
+                        {projectsRoutes()}
+
+                        {qualityGatesRoutes()}
+                        {qualityProfilesRoutes()}
+
+                        <Route path="portfolios" element={<PortfoliosPage />} />
+                        {webAPIRoutes()}
+
+                        {renderComponentRoutes()}
+
+                        {renderAdminRoutes()}
+                      </Route>
                       <Route
-                        path="extension/:pluginKey/:extensionKey"
-                        element={<GlobalPageExtension />}
+                        // We don't want this route to have any menu.
+                        // That is why we can not have it under the accountRoutes
+                        path="account/reset_password"
+                        element={<ResetPassword />}
                       />
 
-                      {globalIssuesRoutes()}
+                      <Route
+                        // We don't want this route to have any menu. This is why we define it here
+                        // rather than under the admin routes.
+                        path="admin/change_admin_password"
+                        element={<ChangeAdminPasswordApp />}
+                      />
 
-                      {projectsRoutes()}
-
-                      {qualityGatesRoutes()}
-                      {qualityProfilesRoutes()}
-
-                      <Route path="portfolios" element={<PortfoliosPage />} />
-                      {webAPIRoutes()}
-
-                      {renderComponentRoutes()}
-
-                      {renderAdminRoutes()}
+                      <Route
+                        // We don't want this route to have any menu. This is why we define it here
+                        // rather than under the admin routes.
+                        path="admin/plugin_risk_consent"
+                        element={<PluginRiskConsent />}
+                      />
+                      <Route path="not_found" element={<NotFound />} />
+                      <Route path="*" element={<NotFound />} />
                     </Route>
-                    <Route
-                      // We don't want this route to have any menu.
-                      // That is why we can not have it under the accountRoutes
-                      path="account/reset_password"
-                      element={<ResetPassword />}
-                    />
-
-                    <Route
-                      // We don't want this route to have any menu. This is why we define it here
-                      // rather than under the admin routes.
-                      path="admin/change_admin_password"
-                      element={<ChangeAdminPasswordApp />}
-                    />
-
-                    <Route
-                      // We don't want this route to have any menu. This is why we define it here
-                      // rather than under the admin routes.
-                      path="admin/plugin_risk_consent"
-                      element={<PluginRiskConsent />}
-                    />
-                    <Route path="not_found" element={<NotFound />} />
-                    <Route path="*" element={<NotFound />} />
                   </Route>
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </IntlProvider>
-        </CurrentUserContextProvider>
+                </Routes>
+              </BrowserRouter>
+            </IntlProvider>
+          </CurrentUserContextProvider>
+        </AvailableFeaturesContext.Provider>
       </AppStateContextProvider>
     </HelmetProvider>,
     el

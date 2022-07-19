@@ -176,7 +176,7 @@ exports[`should render correctly: when there are configuration errors (admin use
         />
       </div>
     </div>
-    <withAppStateContext(AlmSpecificForm)
+    <withAvailableFeaturesContext(AlmSpecificForm)
       alm="github"
       formData={
         Object {
@@ -733,7 +733,7 @@ exports[`should render correctly: with a valid and saved form 1`] = `
         />
       </div>
     </div>
-    <withAppStateContext(AlmSpecificForm)
+    <withAvailableFeaturesContext(AlmSpecificForm)
       alm="github"
       formData={
         Object {

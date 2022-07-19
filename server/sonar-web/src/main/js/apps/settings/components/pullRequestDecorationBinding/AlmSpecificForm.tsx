@@ -20,7 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
-import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../../app/components/available-features/withAvailableFeatures';
 import Toggle from '../../../../components/controls/Toggle';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
@@ -32,16 +34,14 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
-import { AppState } from '../../../../types/appstate';
-import { EditionKey } from '../../../../types/editions';
+import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
 
-export interface AlmSpecificFormProps {
+export interface AlmSpecificFormProps extends WithAvailableFeaturesProps {
   alm: AlmKeys;
   instances: AlmSettingsInstance[];
   formData: Omit<ProjectAlmBindingResponse, 'alm'>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
-  appState: AppState;
 }
 
 interface LabelProps {
@@ -147,8 +147,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
     instances,
-    formData: { repository, slug, summaryCommentEnabled, monorepo },
-    appState
+    formData: { repository, slug, summaryCommentEnabled, monorepo }
   } = props;
 
   let formFields: JSX.Element;
@@ -278,10 +277,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
       break;
   }
 
-  // This feature trigger will be replaced when SONAR-14349 is implemented
-  const monorepoEnabled = [EditionKey.enterprise, EditionKey.datacenter].includes(
-    appState.edition as EditionKey
-  );
+  const monorepoEnabled = props.hasFeature(Feature.MonoRepositoryPullRequestDecoration);
 
   return (
     <>
@@ -310,4 +306,4 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
   );
 }
 
-export default withAppStateContext(AlmSpecificForm);
+export default withAvailableFeatures(AlmSpecificForm);
