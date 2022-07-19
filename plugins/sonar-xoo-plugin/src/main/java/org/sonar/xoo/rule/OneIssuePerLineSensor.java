@@ -45,7 +45,6 @@ public class OneIssuePerLineSensor implements Sensor {
     descriptor
       .name("One Issue Per Line")
       .onlyOnLanguages(Xoo.KEY, Xoo2.KEY)
-      .onlyWhenConfiguration(c -> !c.getBoolean("sonar.markAsUnchanged").orElse(false))
       .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY, XooRulesDefinition.XOO2_REPOSITORY)
       .processesFilesIndependently();
   }

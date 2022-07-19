@@ -43,6 +43,7 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
+import org.sonar.scanner.sensor.ExecutingSensorContext;
 import org.sonar.scanner.sensor.ModuleSensorContext;
 import org.sonar.scanner.sensor.ModuleSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ModuleSensorOptimizer;
@@ -50,6 +51,7 @@ import org.sonar.scanner.sensor.ModuleSensorWrapper;
 import org.sonar.scanner.sensor.ModuleSensorsExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -78,6 +80,7 @@ public class ModuleSensorsExecutorTest {
   private final ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
   private final MutableFileSystem fileSystem = mock(MutableFileSystem.class);
   private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private final ExecutingSensorContext executingSensorContext = mock(ExecutingSensorContext.class);
 
   @Before
   public void setUp() throws IOException {
@@ -102,8 +105,8 @@ public class ModuleSensorsExecutorTest {
     InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
     when(hierarchy.isRoot(rootModule)).thenReturn(true);
 
-    rootModuleExecutor = new ModuleSensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepository);
-    subModuleExecutor = new ModuleSensorsExecutor(selector, subModule, hierarchy, strategy, pluginRepository);
+    rootModuleExecutor = new ModuleSensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepository, executingSensorContext);
+    subModuleExecutor = new ModuleSensorsExecutor(selector, subModule, hierarchy, strategy, pluginRepository, executingSensorContext);
   }
 
   @Test
@@ -127,7 +130,9 @@ public class ModuleSensorsExecutorTest {
     verify(globalSensor).analyse();
     verify(perModuleSensor).analyse();
 
-    verifyNoMoreInteractions(perModuleSensor, globalSensor);
+    verify(executingSensorContext, times(2)).setSensorExecuting(any());
+    verify(executingSensorContext, times(2)).clearExecutingSensor();
+    verifyNoMoreInteractions(perModuleSensor, globalSensor, executingSensorContext);
   }
 
   @Test
@@ -195,7 +200,7 @@ public class ModuleSensorsExecutorTest {
     InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
     when(hierarchy.isRoot(rootModule)).thenReturn(true);
 
-    return new ModuleSensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepo);
+    return new ModuleSensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepo, executingSensorContext);
   }
 
   private static class TestSensor implements Sensor {

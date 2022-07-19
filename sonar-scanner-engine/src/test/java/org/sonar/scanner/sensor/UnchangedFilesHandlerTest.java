@@ -100,6 +100,15 @@ public class UnchangedFilesHandlerTest {
   }
 
   @Test
+  public void dont_mark_file_if_no_sensor_running() {
+    executingSensorContext.clearExecutingSensor();
+    UnchangedFilesHandler handler = new UnchangedFilesHandler(enabledConfig, defaultBranchConfig, executingSensorContext);
+
+    handler.markAsUnchanged(file);
+    verifyNoInteractions(file);
+  }
+
+  @Test
   public void dont_mark_file_is_status_is_not_same() {
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
     executingSensorContext.setSensorExecuting(new SensorId("cpp", "CFamily"));

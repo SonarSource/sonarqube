@@ -32,7 +32,9 @@ public class UnchangedFilesHandler {
   private static final Logger LOG = Loggers.get(UnchangedFilesHandler.class);
   private static final Set<SensorId> ENABLED_SENSORS = Set.of(
     new SensorId("cpp", "CFamily"),
-    new SensorId("cobol", "CobolSquidSensor"));
+    new SensorId("cobol", "CobolSquidSensor"),
+    // for ITs
+    new SensorId("xoo", "Mark As Unchanged Sensor"));
   private static final String ENABLE_PROPERTY_KEY = "sonar.unchangedFiles.optimize";
   private final boolean featureActive;
   private final ExecutingSensorContext executingSensorContext;
@@ -67,6 +69,6 @@ public class UnchangedFilesHandler {
   }
 
   private boolean isFeatureActive() {
-    return featureActive && ENABLED_SENSORS.contains(executingSensorContext.getSensorExecuting());
+    return featureActive && executingSensorContext.getSensorExecuting() != null && ENABLED_SENSORS.contains(executingSensorContext.getSensorExecuting());
   }
 }

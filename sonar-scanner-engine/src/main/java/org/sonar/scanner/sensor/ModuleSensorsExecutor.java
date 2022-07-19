@@ -37,13 +37,15 @@ public class ModuleSensorsExecutor {
   private final ModuleSensorExtensionDictionary selector;
   private final SensorStrategy strategy;
   private final ScannerPluginRepository pluginRepo;
+  private final ExecutingSensorContext executingSensorCtx;
   private final boolean isRoot;
 
   public ModuleSensorsExecutor(ModuleSensorExtensionDictionary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
-    SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
+    SensorStrategy strategy, ScannerPluginRepository pluginRepo, ExecutingSensorContext executingSensorCtx) {
     this.selector = selector;
     this.strategy = strategy;
     this.pluginRepo = pluginRepo;
+    this.executingSensorCtx = executingSensorCtx;
     this.isRoot = hierarchy.isRoot(module);
   }
 
@@ -80,20 +82,19 @@ public class ModuleSensorsExecutor {
 
   private void execute(Collection<ModuleSensorWrapper> sensors) {
     for (ModuleSensorWrapper sensor : sensors) {
-      String sensorName = getSensorName(sensor);
-      profiler.startInfo("Sensor " + sensorName);
+      SensorId sensorId = getSensorId(sensor);
+      profiler.startInfo("Sensor " + sensorId);
+      executingSensorCtx.setSensorExecuting(sensorId);
       sensor.analyse();
+      executingSensorCtx.clearExecutingSensor();
       profiler.stopInfo();
     }
   }
 
-  private String getSensorName(ModuleSensorWrapper sensor) {
+  private SensorId getSensorId(ModuleSensorWrapper sensor) {
     ClassLoader cl = getSensorClassLoader(sensor);
     String pluginKey = pluginRepo.getPluginKey(cl);
-    if (pluginKey != null) {
-      return sensor.toString() + " [" + pluginKey + "]";
-    }
-    return sensor.toString();
+    return new SensorId(pluginKey, sensor.toString());
   }
 
   private static ClassLoader getSensorClassLoader(ModuleSensorWrapper sensor) {
