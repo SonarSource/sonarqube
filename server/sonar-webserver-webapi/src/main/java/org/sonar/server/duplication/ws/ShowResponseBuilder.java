@@ -92,7 +92,6 @@ public class ShowResponseBuilder {
 
   private void writeFileRefs(DbSession session, Map<String, Reference> refByComponentKey, ShowResponse.Builder response, @Nullable String branch, @Nullable String pullRequest) {
     Map<String, ComponentDto> projectsByUuid = new HashMap<>();
-    Map<String, ComponentDto> parentModulesByUuid = new HashMap<>();
 
     for (Map.Entry<String, Reference> entry : refByComponentKey.entrySet()) {
       Reference ref = entry.getValue();
