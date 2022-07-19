@@ -6,7 +6,13 @@ url: /user-guide/security-reports/
 *Security Reports are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
 
 ## What do Security Reports show?
-Security Reports quickly give you the big picture on your application's security. They allow you to know where you stand compared to the most common security mistakes made in the past: [OWASP Top 10 2021](https://owasp.org/Top10/), [OWASP Top 10 2017](https://owasp.org/www-project-top-ten/2017), [CWE Top 25 2021](https://cwe.mitre.org/top25/archive/2021/2021_cwe_top25.html), [CWE Top 25 2020](https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html), and [CWE Top 25 2019](https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html). They represent a bare minimum to comply with for anyone putting in place secure development lifecycle.
+Security Reports quickly give you the big picture on your application's security. They allow you to know where you stand compared to the most common security mistakes made in the past:
+
+- [PCI DSS](https://www.pcisecuritystandards.org/) (versions 4.0 and 3.2.1)
+- [OWASP Top 10](https://owasp.org/Top10/) (versions 2021 and 2017)
+- [CWE Top 25](https://cwe.mitre.org/top25/) (versions 2021, 2020, and 2019)
+
+They represent the bare minimum to comply with for anyone putting in place a secure development lifecycle.
 
 [[warning]]
 | The SANS Top 25 report is based on outdated statistics and should no longer be used. Instead, we recommend using the CWE Top 25 reports.
