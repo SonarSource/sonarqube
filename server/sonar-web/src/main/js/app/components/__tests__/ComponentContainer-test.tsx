@@ -23,7 +23,7 @@ import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/al
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
-import { getComponentNavigation } from '../../../api/nav';
+import { getComponentNavigation } from '../../../api/navigation';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -65,7 +65,7 @@ jest.mock('../../../api/components', () => ({
   getComponentData: jest.fn().mockResolvedValue({ component: { analysisDate: '2018-07-30' } })
 }));
 
-jest.mock('../../../api/nav', () => ({
+jest.mock('../../../api/navigation', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({
     breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
     key: 'portfolioKey'

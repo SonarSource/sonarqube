@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getComponentNavigation } from '../../../api/nav';
+import { getComponentNavigation } from '../../../api/navigation';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';

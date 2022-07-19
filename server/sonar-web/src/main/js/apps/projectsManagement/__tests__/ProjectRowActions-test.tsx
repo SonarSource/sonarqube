@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getComponentNavigation } from '../../../api/nav';
+import { getComponentNavigation } from '../../../api/navigation';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
 
-jest.mock('../../../api/nav', () => ({
+jest.mock('../../../api/navigation', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({})
 }));
 

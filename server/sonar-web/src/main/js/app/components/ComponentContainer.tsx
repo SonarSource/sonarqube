@@ -24,7 +24,7 @@ import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-s
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
-import { getComponentNavigation } from '../../api/nav';
+import { getComponentNavigation } from '../../api/navigation';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,

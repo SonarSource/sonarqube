@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { AppState } from '../../../types/appstate';
 
-const defaultAppState = {
+export const DEFAULT_APP_STATE = {
   authenticationError: false,
   authorizationError: false,
   edition: undefined,
@@ -30,4 +30,4 @@ const defaultAppState = {
   settings: {},
   version: ''
 };
-export const AppStateContext = React.createContext<AppState>(defaultAppState);
+export const AppStateContext = React.createContext<AppState>(DEFAULT_APP_STATE);

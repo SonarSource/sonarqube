@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
-import { getSettingsNavigation } from '../../api/nav';
+import { getSettingsNavigation } from '../../api/navigation';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';

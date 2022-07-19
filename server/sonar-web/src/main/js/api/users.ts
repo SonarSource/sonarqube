@@ -23,7 +23,7 @@ import { IdentityProvider, Paging } from '../types/types';
 import { CurrentUser, HomePage, NoticeType, User } from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
-  return getJSON('/api/users/current');
+  return getJSON('/api/users/current', undefined, true);
 }
 
 export function dismissNotification(notice: NoticeType) {

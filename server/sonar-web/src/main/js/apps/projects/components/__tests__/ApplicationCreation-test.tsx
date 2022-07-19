@@ -19,7 +19,7 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { getComponentNavigation } from '../../../../api/nav';
+import { getComponentNavigation } from '../../../../api/navigation';
 import CreateApplicationForm from '../../../../app/components/extensions/CreateApplicationForm';
 import { Button } from '../../../../components/controls/buttons';
 import { mockAppState, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
@@ -27,7 +27,7 @@ import { queryToSearch } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { ApplicationCreation, ApplicationCreationProps } from '../ApplicationCreation';
 
-jest.mock('../../../../api/nav', () => ({
+jest.mock('../../../../api/navigation', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({})
 }));
 

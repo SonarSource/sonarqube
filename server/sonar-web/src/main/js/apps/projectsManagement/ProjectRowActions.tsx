@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Project } from '../../api/components';
-import { getComponentNavigation } from '../../api/nav';
+import { getComponentNavigation } from '../../api/navigation';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';

@@ -17,118 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getGlobalNavigation } from '../api/navigation';
+import { getCurrentUser } from '../api/users';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
 import { loadL10nBundle } from '../helpers/l10nBundle';
-import { HttpStatus, parseJSON, request } from '../helpers/request';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
-import { AppState } from '../types/appstate';
-import { L10nBundle } from '../types/l10nBundle';
-import { CurrentUser } from '../types/users';
 import './styles/sonar.ts';
 
 installWebAnalyticsHandler();
+installExtensionsHandler();
+initApplication();
 
-if (isMainApp()) {
-  installExtensionsHandler();
-
-  loadAll(loadAppState, loadUser).then(
-    ([l10nBundle, user, appState, startReactApp]) => {
-      startReactApp(l10nBundle.locale, appState, user);
-    },
-    error => {
-      if (isResponse(error) && error.status === HttpStatus.Unauthorized) {
-        redirectToLogin();
-      } else {
-        logError(error);
-      }
-    }
-  );
-} else {
-  // login, maintenance or setup pages
-
-  const appStateLoader = () =>
-    loadAppState().catch(() => {
-      return {
-        edition: undefined,
-        productionDatabase: true,
-        qualifiers: [],
-        settings: {},
-        version: ''
-      };
-    });
-
-  loadAll(appStateLoader).then(
-    ([l10nBundle, _user, appState, startReactApp]) => {
-      startReactApp(l10nBundle.locale, appState);
-    },
-    error => {
-      logError(error);
-    }
-  );
-}
-
-async function loadAll(
-  appStateLoader: () => Promise<AppState>,
-  userLoader?: () => Promise<CurrentUser | undefined>
-): Promise<
-  [
-    Required<L10nBundle>,
-    CurrentUser | undefined,
-    AppState,
-    (lang: string, appState: AppState, currentUser?: CurrentUser) => void
-  ]
-> {
-  const [l10nBundle, user, appState] = await Promise.all([
+async function initApplication() {
+  const [l10nBundle, currentUser, appState] = await Promise.all([
     loadL10nBundle(),
-    userLoader ? userLoader() : undefined,
-    appStateLoader()
-  ]);
-
-  const startReactApp = await loadApp();
-
-  return [l10nBundle, user, appState, startReactApp];
-}
-
-function loadUser() {
-  return request('/api/users/current')
-    .submit()
-    .then(checkStatus)
-    .then(parseJSON);
-}
-
-function loadAppState() {
-  return request('/api/navigation/global')
-    .submit()
-    .then(checkStatus)
-    .then(parseJSON);
-}
-
-function loadApp() {
-  return import(/* webpackChunkName: 'app' */ './utils/startReactApp').then(i => i.default);
-}
-
-function checkStatus(response: Response) {
-  return new Promise((resolve, reject) => {
-    if (response.status >= 200 && response.status < 300) {
-      resolve(response);
-    } else {
-      reject(response);
-    }
+    isMainApp() ? getCurrentUser() : undefined,
+    isMainApp() ? getGlobalNavigation() : undefined
+  ]).catch(error => {
+    // eslint-disable-next-line no-console
+    console.error('Application failed to start', error);
+    throw error;
   });
-}
 
-function isResponse(error: any): error is Response {
-  return typeof error.status === 'number';
-}
-
-function redirectToLogin() {
-  const returnTo = window.location.pathname + window.location.search + window.location.hash;
-  window.location.href = `${getBaseUrl()}/sessions/new?return_to=${encodeURIComponent(returnTo)}`;
-}
-
-function logError(error: any) {
-  // eslint-disable-next-line no-console
-  console.error('Application failed to start!', error);
+  const startReactApp = await import('./utils/startReactApp').then(i => i.default);
+  startReactApp(l10nBundle.locale, currentUser, appState);
 }
 
 function isMainApp() {

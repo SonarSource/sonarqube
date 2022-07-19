@@ -64,6 +64,7 @@ import { AppState } from '../../types/appstate';
 import { CurrentUser } from '../../types/users';
 import AdminContainer from '../components/AdminContainer';
 import App from '../components/App';
+import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
 import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
 import ComponentContainer from '../components/ComponentContainer';
 import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
@@ -223,14 +224,18 @@ function renderAdminRoutes() {
   );
 }
 
-export default function startReactApp(lang: string, appState: AppState, currentUser?: CurrentUser) {
+export default function startReactApp(
+  lang: string,
+  currentUser?: CurrentUser,
+  appState?: AppState
+) {
   exportModulesAsGlobals();
 
   const el = document.getElementById('content');
 
   render(
     <HelmetProvider>
-      <AppStateContextProvider appState={appState}>
+      <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
         <CurrentUserContextProvider currentUser={currentUser}>
           <IntlProvider defaultLocale={lang} locale={lang}>
             <GlobalMessagesContainer />

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { EditionKey } from '../../../types/editions';
 import EditionBoxes from '../EditionBoxes';
 
-jest.mock('../../../api/nav', () => ({
+jest.mock('../../../api/navigation', () => ({
   getMarketplaceNavigation: jest.fn().mockResolvedValue({})
 }));
 

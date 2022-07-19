@@ -19,6 +19,7 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON } from '../helpers/request';
+import { AppState } from '../types/appstate';
 import { BranchParameters } from '../types/branch-like';
 import { Component, Extension } from '../types/types';
 
@@ -39,4 +40,8 @@ export function getSettingsNavigation(): Promise<{
   showUpdateCenter: boolean;
 }> {
   return getJSON('/api/navigation/settings').catch(throwGlobalError);
+}
+
+export function getGlobalNavigation(): Promise<AppState> {
+  return getJSON('/api/navigation/global', undefined, true);
 }
