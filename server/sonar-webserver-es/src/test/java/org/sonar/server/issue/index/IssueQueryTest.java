@@ -50,8 +50,6 @@ public class IssueQueryTest {
       .languages(List.of("xoo"))
       .tags(List.of("tag1", "tag2"))
       .types(List.of("RELIABILITY", "SECURITY"))
-      .owaspTop10(List.of("a1", "a2"))
-      .owaspTop10For2021(List.of("a3", "a4"))
       .sansTop25(List.of("insecure-interaction", "porous-defenses"))
       .cwe(List.of("12", "125"))
       .branchUuid("my_branch")
@@ -76,8 +74,6 @@ public class IssueQueryTest {
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
-    assertThat(query.owaspTop10()).containsOnly("a1", "a2");
-    assertThat(query.owaspTop10For2021()).containsOnly("a3", "a4");
     assertThat(query.sansTop25()).containsOnly("insecure-interaction", "porous-defenses");
     assertThat(query.cwe()).containsOnly("12", "125");
     assertThat(query.branchUuid()).isEqualTo("my_branch");
@@ -92,6 +88,28 @@ public class IssueQueryTest {
     assertThat(query.newCodeOnReferenceByProjectUuids()).containsOnly("PROJECT");
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void build_pci_dss_query() {
+    IssueQuery query = IssueQuery.builder()
+      .pciDss32(List.of("1.2.3", "3.2.1"))
+      .pciDss40(List.of("3.4.5", "5.6"))
+      .build();
+
+    assertThat(query.pciDss32()).containsOnly("1.2.3", "3.2.1");
+    assertThat(query.pciDss40()).containsOnly("3.4.5", "5.6");
+  }
+
+  @Test
+  public void build_owasp_query() {
+    IssueQuery query = IssueQuery.builder()
+      .owaspTop10(List.of("a1", "a2"))
+      .owaspTop10For2021(List.of("a3", "a4"))
+      .build();
+
+    assertThat(query.owaspTop10()).containsOnly("a1", "a2");
+    assertThat(query.owaspTop10For2021()).containsOnly("a3", "a4");
   }
 
   @Test

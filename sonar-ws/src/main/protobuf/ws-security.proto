@@ -55,6 +55,7 @@ message CweStatistics {
   optional int64 activeRules = 8;
   optional int64 totalRules = 9;
   optional bool hasMoreRules = 10;
+  optional string category = 11;
 }
 
 

@@ -80,6 +80,8 @@ public class IssueQuery {
   private final Collection<String> tags;
   private final Collection<String> types;
   private final Collection<String> owaspTop10;
+  private final Collection<String> pciDss32;
+  private final Collection<String> pciDss40;
   private final Collection<String> owaspTop10For2021;
   private final Collection<String> sansTop25;
   private final Collection<String> cwe;
@@ -119,6 +121,8 @@ public class IssueQuery {
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
     this.types = defaultCollection(builder.types);
+    this.pciDss32 = defaultCollection(builder.pciDss32);
+    this.pciDss40 = defaultCollection(builder.pciDss40);
     this.owaspTop10 = defaultCollection(builder.owaspTop10);
     this.owaspTop10For2021 = defaultCollection(builder.owaspTop10For2021);
     this.sansTop25 = defaultCollection(builder.sansTop25);
@@ -211,6 +215,14 @@ public class IssueQuery {
 
   public Collection<String> types() {
     return types;
+  }
+
+  public Collection<String> pciDss32() {
+    return pciDss32;
+  }
+
+  public Collection<String> pciDss40() {
+    return pciDss40;
   }
 
   public Collection<String> owaspTop10() {
@@ -333,6 +345,8 @@ public class IssueQuery {
     private Collection<String> languages;
     private Collection<String> tags;
     private Collection<String> types;
+    private Collection<String> pciDss32;
+    private Collection<String> pciDss40;
     private Collection<String> owaspTop10;
     private Collection<String> owaspTop10For2021;
     private Collection<String> sansTop25;
@@ -445,6 +459,16 @@ public class IssueQuery {
 
     public Builder types(@Nullable Collection<String> t) {
       this.types = t;
+      return this;
+    }
+
+    public Builder pciDss32(@Nullable Collection<String> o) {
+      this.pciDss32 = o;
+      return this;
+    }
+
+    public Builder pciDss40(@Nullable Collection<String> o) {
+      this.pciDss40 = o;
       return this;
     }
 

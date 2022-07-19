@@ -37,6 +37,8 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
+import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V4_0;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -54,6 +56,8 @@ public final class SecurityStandards {
 
   private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
   private static final String OWASP_TOP10_2021_PREFIX = "owaspTop10-2021:";
+  private static final String PCI_DSS_32_PREFIX = V3_2.prefix() + ":";
+  private static final String PCI_DSS_40_PREFIX = V4_0.prefix() + ":";
   private static final String CWE_PREFIX = "cwe:";
   // See https://www.sans.org/top25-software-errors
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
@@ -159,6 +163,20 @@ public final class SecurityStandards {
     }
   }
 
+  public enum PciDss {
+    R1("1"), R2("2"), R3("3"), R4("4"), R5("5"), R6("6"), R7("7"), R8("8"), R9("9"), R10("10"), R11("11"), R12("12");
+
+    private final String category;
+
+    PciDss(String category) {
+      this.category = category;
+    }
+
+    public String category() {
+      return category;
+    }
+  }
+
   public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
     .put(SQCategory.BUFFER_OVERFLOW, Set.of("119", "120", "131", "676", "788"))
     .put(SQCategory.SQL_INJECTION, Set.of("89", "564", "943"))
@@ -207,6 +225,14 @@ public final class SecurityStandards {
     return cwe;
   }
 
+  public Set<String> getPciDss32() {
+    return toPciDss(standards, PCI_DSS_32_PREFIX);
+  }
+
+  public Set<String> getPciDss40() {
+    return toPciDss(standards, PCI_DSS_40_PREFIX);
+  }
+
   public Set<String> getOwaspTop10() {
     return toOwaspTop10(standards, OWASP_TOP10_PREFIX);
   }
@@ -248,6 +274,13 @@ public final class SecurityStandards {
     SQCategory sqCategory = sq.iterator().next();
     Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(toSet());
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
+  }
+
+  private static Set<String> toPciDss(Set<String> securityStandards, String prefix) {
+    return securityStandards.stream()
+      .filter(s -> s.startsWith(prefix))
+      .map(s -> s.substring(prefix.length()))
+      .collect(toSet());
   }
 
   private static Set<String> toOwaspTop10(Set<String> securityStandards, String prefix) {

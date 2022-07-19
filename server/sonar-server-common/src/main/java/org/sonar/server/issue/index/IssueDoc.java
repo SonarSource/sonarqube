@@ -276,18 +276,38 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
-  public Collection<String> getOwaspTop10() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10);
+  public Collection<String> getPciDss32() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_32);
+  }
+
+  public IssueDoc setPciDss32(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_32, o);
+    return this;
+  }
+
+  public IssueDoc setPciDss40(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_40, o);
+    return this;
   }
 
   @CheckForNull
-  public Collection<String> getOwaspTop10For2021() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021);
+  public Collection<String> getPciDss40() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_40);
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspTop10() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10);
   }
 
   public IssueDoc setOwaspTop10(@Nullable Collection<String> o) {
     setField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, o);
     return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspTop10For2021() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021);
   }
 
   public IssueDoc setOwaspTop10For2021(@Nullable Collection<String> o) {

@@ -29,6 +29,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -40,9 +41,11 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
 
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
 import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,6 +210,27 @@ public class IssueIndexSecurityReportsTest {
   }
 
   @Test
+  public void getPciDss32Report_aggregation() {
+    List<SecurityStandardCategoryStatistics> pciDss32Report = indexIssuesAndAssertPciDss32Report();
+
+    assertThat(pciDss32Report)
+      .isNotEmpty();
+
+    assertThat(pciDss32Report.get(0).getChildren()).hasSize(2);
+    assertThat(pciDss32Report.get(1).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(2).getChildren()).hasSize(4);
+    assertThat(pciDss32Report.get(3).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(4).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(5).getChildren()).hasSize(2);
+    assertThat(pciDss32Report.get(6).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(7).getChildren()).hasSize(1);
+    assertThat(pciDss32Report.get(8).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(9).getChildren()).hasSize(1);
+    assertThat(pciDss32Report.get(10).getChildren()).isEmpty();
+    assertThat(pciDss32Report.get(11).getChildren()).isEmpty();
+  }
+
+  @Test
   public void getOwaspTop10Report_aggregation_with_cwe() {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(true);
 
@@ -284,6 +308,47 @@ public class IssueIndexSecurityReportsTest {
         tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 1),
         tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 1));
     return owaspTop10Report;
+  }
+
+  private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertPciDss32Report() {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDoc("openvul1", project).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("openvul3", project).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notpcidssvul", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDoc("toreviewhotspot1", project).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot2", project).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("reviewedHotspot", project).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("notpcidsshotspot", project).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+
+    List<SecurityStandardCategoryStatistics> pciDssReport = underTest.getPciDssReport(project.uuid(), false, RulesDefinition.PciDssVersion.V3_2).stream()
+      .sorted(comparing(s -> parseInt(s.getCategory())))
+      .collect(toList());
+    assertThat(pciDssReport)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
+        tuple("2", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */, 4),
+        tuple("4", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("5", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("6", 2L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
+        tuple("7", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
+        tuple("9", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("10", 1L, OptionalInt.of(2), 0L, 0L, 1),
+        tuple("11", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("12", 0L, OptionalInt.empty(), 0L, 0L, 1));
+
+    return pciDssReport;
   }
 
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwasp2021Report(boolean includeCwe) {
@@ -393,6 +458,53 @@ public class IssueIndexSecurityReportsTest {
         tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 1));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
+  }
+
+  @Test
+  public void getPciDssReport_aggregation_on_portfolio() {
+    ComponentDto portfolio1 = db.components().insertPrivateApplication();
+    ComponentDto portfolio2 = db.components().insertPrivateApplication();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    indexIssues(
+      newDoc("openvul1", project1).setPciDss32(asList("1.2.0", "3.4.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project2).setPciDss32(asList("3.3.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("openvul3", project1).setPciDss32(asList("10.1.2", "6.5")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notpcidssvul", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDoc("toreviewhotspot1", project2).setPciDss32(asList("1.3.0", "3.3.2")).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot2", project1).setPciDss32(asList("3.5.6", "6.4.5")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("reviewedHotspot", project2).setPciDss32(asList("3.1.1", "8.6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("notpcidsshotspot", project1).setPciDss32(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+
+    indexView(portfolio1.uuid(), singletonList(project1.uuid()));
+    indexView(portfolio2.uuid(), singletonList(project2.uuid()));
+
+    List<SecurityStandardCategoryStatistics> pciDssReport = underTest.getPciDssReport(portfolio1.uuid(), true, RulesDefinition.PciDssVersion.V3_2).stream()
+      .sorted(comparing(s -> parseInt(s.getCategory())))
+      .collect(toList());
+    assertThat(pciDssReport)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("2", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("3", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot2 */, 0L, 5),
+        tuple("4", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("5", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("6", 1L /* openvul3 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
+        tuple("7", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("8", 0L, OptionalInt.empty(), 0L, 0L /* reviewedHotspot */, 1),
+        tuple("9", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("10", 1L /* openvul3 */, OptionalInt.of(2), 0L, 0L, 1),
+        tuple("11", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("12", 0L, OptionalInt.empty(), 0L, 0L, 1));
   }
 
   @Test

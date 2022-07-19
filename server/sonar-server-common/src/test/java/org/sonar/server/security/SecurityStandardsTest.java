@@ -19,10 +19,13 @@
  */
 package org.sonar.server.security;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
+import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 
 import static java.util.Collections.emptySet;
@@ -114,5 +117,12 @@ public class SecurityStandardsTest {
 
       sqCategories.remove(expected);
     }
+  }
+
+  @Test
+  public void pciDss_categories_check() {
+    List<String> pciDssCategories = Arrays.stream(PciDss.values()).map(PciDss::category).collect(Collectors.toList());
+
+    assertThat(pciDssCategories).hasSize(12).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
   }
 }
