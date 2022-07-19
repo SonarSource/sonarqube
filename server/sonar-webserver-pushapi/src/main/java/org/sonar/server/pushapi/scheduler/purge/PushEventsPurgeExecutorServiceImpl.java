@@ -31,7 +31,7 @@ public class PushEventsPurgeExecutorServiceImpl
     super(Executors.newSingleThreadScheduledExecutor(r -> {
       Thread thread = Executors.defaultThreadFactory().newThread(r);
       thread.setDaemon(true);
-      thread.setName(String.format("PushEvents-Purge-%d", System.nanoTime()));
+      thread.setName(String.format("PushEvent-Purge-%d", System.nanoTime()));
       return thread;
     }));
   }

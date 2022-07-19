@@ -37,7 +37,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @ServerSide
 public class PushEventsPurgeScheduler implements Startable {
   private static final Logger LOG = Loggers.get(PushEventsPurgeScheduler.class);
-  private static final String LOCK_NAME = "PushEventsPurgeCheck";
+  private static final String LOCK_NAME = "PushPurgeCheck";
   private static final String INITIAL_DELAY_IN_SECONDS = "sonar.push.events.purge.initial.delay";
   private static final String ENQUEUE_DELAY_IN_SECONDS = "sonar.push.events.purge.enqueue.delay";
   private static final int ENQUEUE_LOCK_DELAY_IN_SECONDS = 60;
