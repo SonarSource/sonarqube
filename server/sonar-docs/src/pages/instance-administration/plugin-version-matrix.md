@@ -8,4 +8,4 @@ url: /instance-administration/plugin-version-matrix/
 
 [Open in a new window](https://update.sonarsource.org/plugins/compatibility-matrix.html)
 
-<iframe src="https://update.sonarsource.org/plugins/compatibility-matrix.html" height="3100">Your browser does not support iframes.</iframe>
+<iframe src="https://update.sonarsource.org/plugins/compatibility-matrix.html">Your browser does not support iframes.</iframe>

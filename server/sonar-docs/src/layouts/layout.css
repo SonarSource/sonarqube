@@ -28,6 +28,8 @@ body,
 iframe {
   width: 100%;
   border: 0;
+  overflow-y: auto;
+  height: 70vh;
 }
 
 .blue-bar {

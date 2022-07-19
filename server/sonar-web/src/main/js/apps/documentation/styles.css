@@ -36,6 +36,17 @@
   line-height: 1.7;
 }
 
+.documentation-content .markdown-content {
+  width: 100%;
+}
+
+.documentation-content.markdown iframe {
+  width: 100%;
+  border: 0;
+  overflow-y: auto;
+  height: 65vh;
+}
+
 .documentation-content.markdown .documentation-title {
   font-size: 24px;
   padding-top: var(--gridSize);
