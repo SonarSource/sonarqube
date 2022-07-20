@@ -226,6 +226,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void stopAll() throws InterruptedException {
     // order is important for non-cluster mode
+    LOG.info("Sonarqube has been requested to stop");
     stopProcess(ProcessId.COMPUTE_ENGINE);
     stopProcess(ProcessId.WEB_SERVER);
     stopProcess(ProcessId.ELASTICSEARCH);
@@ -240,7 +241,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private void stopProcess(ProcessId processId) throws InterruptedException {
     ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
-      LOG.debug("Stopping [{}]...", process.getProcessId().getHumanReadableName());
+      LOG.info("Stopping [{}] process...", process.getProcessId().getHumanReadableName());
       process.stop();
     }
   }
