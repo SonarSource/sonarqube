@@ -62,9 +62,9 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
     issueBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     issueBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.isManualSeverity() && issueDto.getSeverity() != null) {
-      issueBuilder.setUserSeverity(issueDto.getSeverity());
+      issueBuilder.setUserSeverity(Common.Severity.valueOf(issueDto.getSeverity()));
     }
-    issueBuilder.setType(Common.RuleType.forNumber(issueDto.getType()).name());
+    issueBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
     issueBuilder.setClosed(false);
     issueBuilder.setMainLocation(location);
 

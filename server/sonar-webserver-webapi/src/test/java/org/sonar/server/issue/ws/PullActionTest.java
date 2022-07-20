@@ -210,11 +210,11 @@ public class PullActionTest {
 
     Issues.IssueLite issueLite = issues.get(0);
     assertThat(issueLite.getKey()).isEqualTo(issueDto.getKey());
-    assertThat(issueLite.getUserSeverity()).isEqualTo("MINOR");
+    assertThat(issueLite.getUserSeverity()).isEqualTo(Common.Severity.MINOR);
     assertThat(issueLite.getCreationDate()).isEqualTo(NOW);
     assertThat(issueLite.getResolved()).isTrue();
     assertThat(issueLite.getRuleKey()).isEqualTo("java:S1000");
-    assertThat(issueLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()).name());
+    assertThat(issueLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()));
 
     Issues.Location location = issueLite.getMainLocation();
     assertThat(location.getMessage()).isEqualTo(issueDto.getMessage());

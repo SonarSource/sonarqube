@@ -32,7 +32,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.SeverityUtil;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -89,10 +88,10 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
     taintBuilder.setCreationDate(issueDto.getCreatedAt());
     taintBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     taintBuilder.setRuleKey(issueDto.getRuleKey().toString());
-    if (issueDto.getPriority() != null) {
-      taintBuilder.setSeverity(SeverityUtil.getSeverityFromOrdinal(issueDto.getPriority()));
+    if (issueDto.getSeverity() != null) {
+      taintBuilder.setSeverity(Common.Severity.valueOf(issueDto.getSeverity()));
     }
-    taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()).name());
+    taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
     taintBuilder.setClosed(false);
     taintBuilder.setMainLocation(locationBuilder.build());
 

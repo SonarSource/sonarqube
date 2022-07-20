@@ -87,8 +87,6 @@ public final class IssueDto implements Serializable {
    */
   private Long selectedAt;
 
-  private Integer priority;
-
   // joins
   private String ruleKey;
   private String ruleRepo;
@@ -580,16 +578,6 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setSelectedAt(@Nullable Long d) {
     this.selectedAt = d;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getPriority() {
-    return priority;
-  }
-
-  public IssueDto setPriority(@Nullable Integer priority) {
-    this.priority = priority;
     return this;
   }
 

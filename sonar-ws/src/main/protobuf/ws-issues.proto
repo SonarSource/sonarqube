@@ -260,8 +260,8 @@ message IssueLite {
   optional int64 creationDate = 2;
   optional bool resolved = 3;
   optional string ruleKey = 4;
-  optional string userSeverity = 5;
-  optional string type = 6;
+  optional sonarqube.ws.commons.Severity userSeverity = 5;
+  optional sonarqube.ws.commons.RuleType type = 6;
   optional Location mainLocation = 7;
   optional bool closed = 8;
 }
@@ -277,8 +277,8 @@ message TaintVulnerabilityLite {
   optional int64 creationDate = 2;
   optional bool resolved = 3;
   optional string ruleKey = 4;
-  optional string severity = 5;
-  optional string type = 6;
+  optional sonarqube.ws.commons.Severity severity = 5;
+  optional sonarqube.ws.commons.RuleType type = 6;
   optional Location mainLocation = 7;
   optional bool closed = 8;
   repeated Flow flows = 9;

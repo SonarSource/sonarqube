@@ -236,11 +236,11 @@ public class PullTaintActionTest {
     assertThat(taints).hasSize(1);
 
     assertThat(taintLite.getKey()).isEqualTo(issueDto.getKey());
-    assertThat(taintLite.getSeverity()).isEqualTo("CRITICAL");
+    assertThat(taintLite.getSeverity()).isEqualTo(Common.Severity.MINOR);
     assertThat(taintLite.getCreationDate()).isEqualTo(NOW);
     assertThat(taintLite.getResolved()).isFalse();
     assertThat(taintLite.getRuleKey()).isEqualTo("javasecurity:S1000");
-    assertThat(taintLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()).name());
+    assertThat(taintLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()));
     assertThat(taintLite.getAssignedToSubscribedUser()).isTrue();
 
     Issues.Location location = taintLite.getMainLocation();
