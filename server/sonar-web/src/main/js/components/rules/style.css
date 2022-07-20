@@ -21,10 +21,7 @@
 .education-principles {
   background-color: var(--educationPrinciplesBgColor);
   border-radius: 2px;
-  display: block;
-  margin-left: 16px;
-  margin-right: 16px;
-  margin-bottom: 16px;
+  border: 1px solid var(--educationPrinciplesBorderColor);
 }
 
 .education-principles h3:first-child {

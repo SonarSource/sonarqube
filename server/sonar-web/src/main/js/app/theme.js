@@ -59,6 +59,7 @@ module.exports = {
     globalNavBarBg: '#262626',
 
     educationPrinciplesBgColor: '#F4F6FF',
+    educationPrinciplesBorderColor: '#B0BDF9',
 
     // table
     rowHoverHighlight: '#ecf6fe',

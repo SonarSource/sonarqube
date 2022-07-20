@@ -50,54 +50,46 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   render() {
     const { showNotification, sections = [], educationPrinciples = [] } = this.props;
     return (
-      <>
+      <div className="big-padded rule-desc">
         {showNotification && (
-          <div className="big-padded-top big-padded-left big-padded-right rule-desc info-message">
-            <Alert variant="info">
-              <p className="little-spacer-bottom little-spacer-top">
-                {translate('coding_rules.more_info.notification_message')}
-              </p>
-              <ButtonLink
-                onClick={() => {
-                  this.handleNotificationScroll();
-                }}>
-                {translate('coding_rules.more_info.scroll_message')}
-              </ButtonLink>
-            </Alert>
-          </div>
+          <Alert variant="info">
+            <p className="little-spacer-bottom little-spacer-top">
+              {translate('coding_rules.more_info.notification_message')}
+            </p>
+            <ButtonLink
+              onClick={() => {
+                this.handleNotificationScroll();
+              }}>
+              {translate('coding_rules.more_info.scroll_message')}
+            </ButtonLink>
+          </Alert>
         )}
         {sections.length > 0 && (
           <>
-            <div className="big-padded-left big-padded-right big-padded-top rule-desc">
-              <h2 className="null-spacer-bottom">
-                {translate('coding_rules.more_info.resources.title')}
-              </h2>
-            </div>
-            <RuleDescription key="more-info" sections={sections} />
+            <h2>{translate('coding_rules.more_info.resources.title')}</h2>
+            <RuleDescription sections={sections} />
           </>
         )}
 
         {educationPrinciples.length > 0 && (
           <>
-            <div className="big-padded-left big-padded-right rule-desc">
-              <h2 ref={this.props.educationPrinciplesRef} className="null-spacer-top">
-                {translate('coding_rules.more_info.education_principles.title')}
-              </h2>
-            </div>
+            <h2 ref={this.props.educationPrinciplesRef}>
+              {translate('coding_rules.more_info.education_principles.title')}
+            </h2>
             {educationPrinciples.map(key => {
               const Concept = EDUCATION_PRINCIPLES_MAP[key];
               if (Concept === undefined) {
                 return null;
               }
               return (
-                <div key={key} className="education-principles rule-desc big-padded">
+                <div key={key} className="education-principles big-spacer-top big-padded">
                   <Concept />
                 </div>
               );
             })}
           </>
         )}
-      </>
+      </div>
     );
   }
 }

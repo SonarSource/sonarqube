@@ -20,6 +20,7 @@ exports[`should render correctly: fix 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -35,6 +36,7 @@ exports[`should render correctly: fix 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -50,6 +52,7 @@ exports[`should render correctly: fix 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -70,6 +73,7 @@ exports[`should render correctly: fix 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <RuleDescription
+      className="big-padded"
       isDefault={true}
       sections={
         Array [
@@ -104,6 +108,7 @@ exports[`should render correctly: risk 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -119,6 +124,7 @@ exports[`should render correctly: risk 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -134,6 +140,7 @@ exports[`should render correctly: risk 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -184,6 +191,7 @@ exports[`should render correctly: vulnerability 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -199,6 +207,7 @@ exports[`should render correctly: vulnerability 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -214,6 +223,7 @@ exports[`should render correctly: vulnerability 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -234,6 +244,7 @@ exports[`should render correctly: vulnerability 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <RuleDescription
+      className="big-padded"
       isDefault={true}
       sections={
         Array [
@@ -268,6 +279,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -283,6 +295,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [
@@ -298,6 +311,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         },
         Object {
           "content": <RuleDescription
+            className="big-padded"
             isDefault={true}
             sections={
               Array [

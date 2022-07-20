@@ -135,7 +135,11 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         key: TabKeys.RiskDescription,
         label: translate('hotspots.tabs.risk_description'),
         content: rootCauseDescriptionSections && (
-          <RuleDescription sections={rootCauseDescriptionSections} isDefault={true} />
+          <RuleDescription
+            className="big-padded"
+            sections={rootCauseDescriptionSections}
+            isDefault={true}
+          />
         )
       },
       {
@@ -143,6 +147,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         label: translate('hotspots.tabs.vulnerability_description'),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
+            className="big-padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
             isDefault={true}
           />
@@ -153,6 +158,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         label: translate('hotspots.tabs.fix_recommendations'),
         content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
+            className="big-padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             isDefault={true}
           />

@@ -36,7 +36,7 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-export default class RuleViewerTabs extends React.PureComponent<Props> {
+export default class RuleTabViewer extends React.PureComponent<Props> {
   computeTabs = (showNotice: boolean, educationPrinciplesRef: React.RefObject<HTMLDivElement>) => {
     const { ruleDetails } = this.props;
     const descriptionSectionsByKey = groupBy(
@@ -63,6 +63,7 @@ export default class RuleViewerTabs extends React.PureComponent<Props> {
         label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
+            className="big-padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         )

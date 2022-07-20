@@ -159,15 +159,13 @@ export default class TabViewer extends React.PureComponent<Props, State> {
             'tab-view-header': pageType === 'issues'
           })}>
           <BoxedTabs
-            className="bordered-bottom big-spacer-top"
+            className="big-spacer-top"
             onSelect={this.handleSelectTabs}
             selected={currentTab.key}
             tabs={tabs}
           />
         </div>
-        <div className="bordered-right bordered-left bordered-bottom huge-spacer-bottom">
-          {currentTab.content}
-        </div>
+        <div className="bordered">{currentTab.content}</div>
       </>
     );
   }
@@ -212,6 +210,7 @@ export const getHowToFixTab = (
     label: title,
     content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
       <RuleDescription
+        className="big-padded"
         sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
         defaultContextKey={ruleDescriptionContextKey}
       />
@@ -230,6 +229,7 @@ export const getWhyIsThisAnIssueTab = (
     label: title,
     content: rootCauseDescriptionSections && (
       <RuleDescription
+        className="big-padded"
         sections={rootCauseDescriptionSections}
         isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
         defaultContextKey={ruleDescriptionContextKey}

@@ -32,6 +32,7 @@ interface Props {
   isDefault?: boolean;
   sections: RuleDescriptionSection[];
   defaultContextKey?: string;
+  className?: string;
 }
 
 interface State {
@@ -108,7 +109,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { sections, isDefault } = this.props;
+    const { className, sections, isDefault } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
 
     const options = contexts.map(ctxt => ({
@@ -119,7 +120,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     if (contexts.length > 0 && selectedContext) {
       return (
         <div
-          className={classNames('big-padded', {
+          className={classNames(className, {
             markdown: isDefault,
             'rule-desc': !isDefault
           })}>
@@ -166,7 +167,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
 
     return (
       <div
-        className={classNames('big-padded', {
+        className={classNames(className, {
           markdown: isDefault,
           'rule-desc': !isDefault
         })}

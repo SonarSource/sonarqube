@@ -117,6 +117,13 @@
   font-size: 20px;
   font-weight: 400;
   border-bottom: 1px solid #e6e6e6;
+  line-height: 2rem;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.rule-desc h2:first-child {
+  margin-top: 0;
 }
 
 .rule-desc h3 {
