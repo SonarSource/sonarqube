@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 import AlertErrorIcon from '../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import MandatoryFieldMarker from '../ui/MandatoryFieldMarker';
@@ -63,7 +64,12 @@ export default function ValidationInput(props: ValidationInputProps) {
     childrenWithStatus = (
       <>
         {children}
-        {isValid && <AlertSuccessIcon className="spacer-left text-middle" />}
+        {isValid && (
+          <AlertSuccessIcon
+            ariaLabel={translate('valid_input')}
+            className="spacer-left text-middle"
+          />
+        )}
         {isInvalid && <AlertErrorIcon className="spacer-left text-middle" />}
         {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}
       </>
@@ -72,7 +78,12 @@ export default function ValidationInput(props: ValidationInputProps) {
     childrenWithStatus = (
       <>
         {children}
-        {isValid && <AlertSuccessIcon className="spacer-left text-middle" />}
+        {isValid && (
+          <AlertSuccessIcon
+            ariaLabel={translate('valid_input')}
+            className="spacer-left text-middle"
+          />
+        )}
         <div className="spacer-top">
           {isInvalid && <AlertErrorIcon className="text-middle" />}
           {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}

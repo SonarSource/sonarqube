@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { createProject, doesComponentExists } from '../../../../api/components';
-import ProjectKeyInput from '../../../../components/common/ProjectKeyInput';
-import { SubmitButton } from '../../../../components/controls/buttons';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { validateProjectKey } from '../../../../helpers/projects';
-import { change, mockEvent, submit, waitAndUpdate } from '../../../../helpers/testUtils';
-import { ProjectKeyValidationResult } from '../../../../types/component';
-import { PROJECT_NAME_MAX_LEN } from '../constants';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import ManualProjectCreate from '../ManualProjectCreate';
 
 jest.mock('../../../../api/components', () => ({
@@ -36,119 +31,149 @@ jest.mock('../../../../api/components', () => ({
     .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
 }));
 
-jest.mock('../../../../helpers/projects', () => {
-  const { PROJECT_KEY_INVALID_CHARACTERS } = jest.requireActual('../../../../helpers/projects');
-  return {
-    validateProjectKey: jest.fn(() => ProjectKeyValidationResult.Valid),
-    PROJECT_KEY_INVALID_CHARACTERS
-  };
-});
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-
-  const wrapper = shallowRender();
-  wrapper.instance().handleProjectNameChange('My new awesome app');
-  expect(wrapper).toMatchSnapshot('with form filled');
-
-  expect(shallowRender({ branchesEnabled: true })).toMatchSnapshot('with branches enabled');
+it('should show branch information', async () => {
+  renderManualProjectCreate({ branchesEnabled: true });
+  expect(
+    await screen.findByText('onboarding.create_project.pr_decoration.information')
+  ).toBeInTheDocument();
 });
 
-it('should correctly create a project', async () => {
+it('should validate form input', async () => {
+  const user = userEvent.setup();
+  renderManualProjectCreate();
+
+  // All input valid
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
+  );
+  await user.keyboard('test');
+  expect(
+    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+  ).toHaveValue('test');
+  expect(screen.getByRole('button', { name: 'set_up' })).toBeEnabled();
+
+  // Sanitize the key
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
+  );
+  await user.keyboard('{Control>}a{/Control}This is not a key%^$');
+  expect(
+    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+  ).toHaveValue('This-is-not-a-key-');
+
+  // Clear name
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
+  );
+  await user.keyboard('{Control>}a{/Control}{Backspace}');
+  expect(
+    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+  ).toHaveValue('');
+  expect(
+    screen.getByText('onboarding.create_project.display_name.error.empty')
+  ).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'set_up' })).toBeDisabled();
+
+  // Only key
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.project_key field_required'
+    })
+  );
+  await user.keyboard('awsome-key');
+  expect(
+    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+  ).toHaveValue('');
+  expect(screen.getByLabelText('valid_input')).toBeInTheDocument();
+  expect(
+    screen.getByText('onboarding.create_project.display_name.error.empty')
+  ).toBeInTheDocument();
+
+  // Invalid key
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.project_key field_required'
+    })
+  );
+  await user.keyboard('{Control>}a{/Control}123');
+  expect(
+    await screen.findByText('onboarding.create_project.project_key.error.only_digits')
+  ).toBeInTheDocument();
+  await user.keyboard('{Control>}a{/Control}@');
+  expect(
+    await screen.findByText('onboarding.create_project.project_key.error.invalid_char')
+  ).toBeInTheDocument();
+  await user.keyboard('{Control>}a{/Control}exists');
+  expect(
+    await screen.findByText('onboarding.create_project.project_key.taken')
+  ).toBeInTheDocument();
+});
+
+it('should submit form input', async () => {
+  const user = userEvent.setup();
   const onProjectCreate = jest.fn();
-  const wrapper = shallowRender({ onProjectCreate });
+  renderManualProjectCreate({ onProjectCreate });
 
-  wrapper
-    .find(ProjectKeyInput)
-    .props()
-    .onProjectKeyChange(mockEvent({ currentTarget: { value: 'bar' } }));
-  change(wrapper.find('input#project-name'), 'Bar');
-  expect(wrapper.find(SubmitButton).props().disabled).toBe(false);
-  expect(validateProjectKey).toBeCalledWith('bar');
-  expect(doesComponentExists).toBeCalledWith({ component: 'bar' });
-
-  submit(wrapper.find('form'));
-  expect(createProject).toBeCalledWith({
-    project: 'bar',
-    name: 'Bar'
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith('bar');
-});
-
-it('should not display any status when the name is not defined', () => {
-  const wrapper = shallowRender();
-  const projectNameInput = wrapper.find(ValidationInput);
-  expect(projectNameInput.props().isInvalid).toBe(false);
-  expect(projectNameInput.props().isValid).toBe(false);
-});
-
-it('should have an error when the key is invalid', () => {
-  (validateProjectKey as jest.Mock).mockReturnValueOnce(ProjectKeyValidationResult.TooLong);
-
-  const wrapper = shallowRender();
-
-  wrapper.instance().handleProjectKeyChange('');
-  expect(wrapper.find(ProjectKeyInput).props().error).toBe(
-    `onboarding.create_project.project_key.error.${ProjectKeyValidationResult.TooLong}`
+  // All input valid
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
   );
+  await user.keyboard('test');
+  await user.click(screen.getByRole('button', { name: 'set_up' }));
+  expect(createProject).toHaveBeenCalledWith({ name: 'test', project: 'test' });
+  expect(onProjectCreate).toBeCalled();
 });
 
-it('should have an error when the key already exists', async () => {
-  const wrapper = shallowRender();
-  wrapper.instance().handleProjectKeyChange('exists', true);
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().projectKeyError).toBe('onboarding.create_project.project_key.taken');
-});
+it('should handle create failure', async () => {
+  const user = userEvent.setup();
+  (createProject as jest.Mock).mockRejectedValueOnce({});
+  const onProjectCreate = jest.fn();
+  renderManualProjectCreate({ onProjectCreate });
 
-it('should ignore promise return if value has been changed in the meantime', async () => {
-  (validateProjectKey as jest.Mock)
-    .mockReturnValueOnce(ProjectKeyValidationResult.Valid)
-    .mockReturnValueOnce(ProjectKeyValidationResult.InvalidChar);
-  const wrapper = shallowRender();
-  const instance = wrapper.instance();
-
-  instance.handleProjectKeyChange('exists', true);
-  instance.handleProjectKeyChange('exists%', true);
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().projectKeyTouched).toBe(true);
-  expect(wrapper.state().projectKeyError).toBe(
-    `onboarding.create_project.project_key.error.${ProjectKeyValidationResult.InvalidChar}`
+  // All input valid
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
   );
+  await user.keyboard('test');
+  await user.click(screen.getByRole('button', { name: 'set_up' }));
+
+  expect(onProjectCreate).not.toHaveBeenCalled();
 });
 
-it('should autofill the key based on the name, and sanitize it', () => {
-  const wrapper = shallowRender();
+it('should handle component exists failure', async () => {
+  const user = userEvent.setup();
+  (doesComponentExists as jest.Mock).mockRejectedValueOnce({});
+  const onProjectCreate = jest.fn();
+  renderManualProjectCreate({ onProjectCreate });
 
-  wrapper.instance().handleProjectNameChange('newName', true);
-  expect(wrapper.state().projectKey).toBe('newName');
-
-  wrapper.instance().handleProjectNameChange('my invalid +"*ç%&/()= name', true);
-  expect(wrapper.state().projectKey).toBe('my-invalid-name');
-});
-
-it.each([
-  ['empty', ''],
-  ['too_long', new Array(PROJECT_NAME_MAX_LEN + 1).fill('a').join('')]
-])('should have an error when the name is %s', (errorSuffix: string, projectName: string) => {
-  const wrapper = shallowRender();
-
-  wrapper.instance().handleProjectNameChange(projectName, true);
-  expect(wrapper.find(ValidationInput).props().isInvalid).toBe(true);
-  expect(wrapper.state().projectNameError).toBe(
-    `onboarding.create_project.display_name.error.${errorSuffix}`
+  // All input valid
+  await user.click(
+    await screen.findByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    })
   );
+  await user.keyboard('test');
+  expect(
+    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+  ).toHaveValue('test');
 });
 
-function shallowRender(props: Partial<ManualProjectCreate['props']> = {}) {
-  return shallow<ManualProjectCreate>(
+function renderManualProjectCreate(props: Partial<ManualProjectCreate['props']> = {}) {
+  renderComponent(
     <ManualProjectCreate branchesEnabled={false} onProjectCreate={jest.fn()} {...props} />
   );
 }

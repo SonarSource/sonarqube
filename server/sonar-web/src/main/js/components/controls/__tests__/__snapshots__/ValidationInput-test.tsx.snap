@@ -19,6 +19,7 @@ exports[`should render correctly: default 1`] = `
   >
     <div />
     <AlertSuccessIcon
+      ariaLabel="valid_input"
       className="spacer-left text-middle"
     />
   </div>
@@ -76,6 +77,7 @@ exports[`should render correctly: no label 1`] = `
   >
     <div />
     <AlertSuccessIcon
+      ariaLabel="valid_input"
       className="spacer-left text-middle"
     />
   </div>

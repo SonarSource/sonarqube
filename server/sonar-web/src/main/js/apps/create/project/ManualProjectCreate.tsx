@@ -42,10 +42,10 @@ interface Props {
 interface State {
   projectName: string;
   projectNameError?: string;
-  projectNameTouched?: boolean;
+  projectNameTouched: boolean;
   projectKey: string;
   projectKeyError?: string;
-  projectKeyTouched?: boolean;
+  projectKeyTouched: boolean;
   validatingProjectKey: boolean;
   submitting: boolean;
 }
@@ -61,6 +61,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectKey: '',
       projectName: '',
       submitting: false,
+      projectKeyTouched: false,
+      projectNameTouched: false,
       validatingProjectKey: false
     };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
@@ -166,8 +168,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   validateName = (projectName: string) => {
     if (projectName.length === 0) {
       return translate('onboarding.create_project.display_name.error.empty');
-    } else if (projectName.length > PROJECT_NAME_MAX_LEN) {
-      return translate('onboarding.create_project.display_name.error.too_long');
     }
     return undefined;
   };
@@ -186,8 +186,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     const { branchesEnabled } = this.props;
 
     const touched = !!(projectKeyTouched || projectNameTouched);
-    const projectNameIsInvalid = touched && projectNameError !== undefined;
-    const projectNameIsValid = touched && projectNameError === undefined;
+    const projectNameIsInvalid = projectNameTouched && projectNameError !== undefined;
+    const projectNameIsValid = projectNameTouched && projectNameError === undefined;
 
     return (
       <>
