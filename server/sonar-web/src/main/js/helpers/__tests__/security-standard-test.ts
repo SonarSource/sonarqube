@@ -22,6 +22,8 @@ import {
   renderCWECategory,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
+  renderPciDss32Category,
+  renderPciDss40Category,
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../security-standard';
@@ -39,7 +41,9 @@ describe('renderCWECategory', () => {
     owaspTop10: {},
     'owaspTop10-2021': {},
     sansTop25: {},
-    sonarsourceSecurity: {}
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {}
   };
   it('should render cwe categories correctly', () => {
     expect(renderCWECategory(standards, '1004')).toEqual(
@@ -60,7 +64,9 @@ describe('renderOwaspTop10Category', () => {
     },
     'owaspTop10-2021': {},
     sansTop25: {},
-    sonarsourceSecurity: {}
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {}
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop10Category(standards, 'a1')).toEqual('A1 - Injection');
@@ -80,13 +86,59 @@ describe('renderOwaspTop102021Category', () => {
       }
     },
     sansTop25: {},
-    sonarsourceSecurity: {}
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {}
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop102021Category(standards, 'a1')).toEqual('A1 - Injection');
     expect(renderOwaspTop102021Category(standards, 'a1', true)).toEqual('OWASP A1 - Injection');
     expect(renderOwaspTop102021Category(standards, 'a2')).toEqual('A2');
     expect(renderOwaspTop102021Category(standards, 'a2', true)).toEqual('OWASP A2');
+  });
+});
+
+describe('renderPciDss32Category', () => {
+  const standards: Standards = {
+    cwe: {},
+    owaspTop10: {},
+    'owaspTop10-2021': {},
+    sansTop25: {},
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {
+      '1': {
+        title: 'Install and maintain a firewall configuration to protect cardholder data'
+      }
+    },
+    'pciDss-4.0': {}
+  };
+  it('should render Pci Dss 3.2 correctly', () => {
+    expect(renderPciDss32Category(standards, '1')).toEqual(
+      '1 - Install and maintain a firewall configuration to protect cardholder data'
+    );
+    expect(renderPciDss32Category(standards, '1.1')).toEqual('1.1');
+  });
+});
+
+describe('renderPciDss40Category', () => {
+  const standards: Standards = {
+    cwe: {},
+    owaspTop10: {},
+    'owaspTop10-2021': {},
+    sansTop25: {},
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {
+      '1': {
+        title: 'Install and maintain a firewall configuration to protect cardholder data'
+      }
+    }
+  };
+  it('should render Pci Dss 4.0 correctly', () => {
+    expect(renderPciDss40Category(standards, '1')).toEqual(
+      '1 - Install and maintain a firewall configuration to protect cardholder data'
+    );
+    expect(renderPciDss40Category(standards, '1.1')).toEqual('1.1');
   });
 });
 
@@ -100,7 +152,9 @@ describe('renderSansTop25Category', () => {
         title: 'Insecure Interaction Between Components'
       }
     },
-    sonarsourceSecurity: {}
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {}
   };
   it('should render sans categories correctly', () => {
     expect(renderSansTop25Category(standards, 'insecure-interaction')).toEqual(
@@ -127,7 +181,9 @@ describe('renderSonarSourceSecurityCategory', () => {
       others: {
         title: 'Others'
       }
-    }
+    },
+    'pciDss-3.2': {},
+    'pciDss-4.0': {}
   };
   it('should render sonarsource categories correctly', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss')).toEqual(

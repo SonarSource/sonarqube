@@ -124,10 +124,12 @@ describe('#getComponentSecurityHotspotsUrl', () => {
       getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
         inNewCodePeriod: 'true',
         [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-        [SecurityStandard.CWE]: 'a1',
+        [SecurityStandard.CWE]: '213',
         [SecurityStandard.OWASP_TOP10]: 'a1',
-        [SecurityStandard.SANS_TOP25]: 'a1',
-        [SecurityStandard.SONARSOURCE]: 'a1',
+        [SecurityStandard.SANS_TOP25]: 'insecure-interaction',
+        [SecurityStandard.SONARSOURCE]: 'command-injection',
+        [SecurityStandard.PCI_DSS_3_2]: '4.2',
+        [SecurityStandard.PCI_DSS_4_0]: '4.1',
         ignoredParam: '1234'
       })
     ).toEqual(
@@ -137,10 +139,12 @@ describe('#getComponentSecurityHotspotsUrl', () => {
           id: SIMPLE_COMPONENT_KEY,
           inNewCodePeriod: 'true',
           [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-          [SecurityStandard.SONARSOURCE]: 'a1',
           [SecurityStandard.OWASP_TOP10]: 'a1',
-          [SecurityStandard.SANS_TOP25]: 'a1',
-          [SecurityStandard.CWE]: 'a1'
+          [SecurityStandard.SONARSOURCE]: 'command-injection',
+          [SecurityStandard.SANS_TOP25]: 'insecure-interaction',
+          [SecurityStandard.CWE]: '213',
+          [SecurityStandard.PCI_DSS_3_2]: '4.2',
+          [SecurityStandard.PCI_DSS_4_0]: '4.1'
         })
       })
     );

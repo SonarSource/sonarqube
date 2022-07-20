@@ -78,7 +78,9 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
           a3: { title: 'A3 - Sensitive Data Exposure' }
         },
         sansTop25: {},
-        sonarsourceSecurity: {}
+        sonarsourceSecurity: {},
+        'pciDss-3.2': {},
+        'pciDss-4.0': {}
       }}
       {...props}
     />

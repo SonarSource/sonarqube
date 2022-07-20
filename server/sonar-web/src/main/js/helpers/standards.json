@@ -3966,5 +3966,81 @@
     "others": {
       "title": "Others"
     }
+  },
+  "pciDss-3.2": {
+    "1": {
+      "title": "Install and maintain a firewall configuration to protect cardholder data"
+    },
+    "2": {
+      "title": "Do not use vendor-supplied defaults for system passwords and other security parameters"
+    },
+    "3": {
+      "title": "Protect stored cardholder data"
+    },
+    "4": {
+      "title": "Encrypt transmission of cardholder data across open, public networks"
+    },
+    "5": {
+      "title": "Protect all systems against malware and regularly update anti-virus software or programs"
+    },
+    "6": {
+      "title": "Develop and maintain secure systems and applications"
+    },
+    "7": {
+      "title": "Restrict access to cardholder data by business need to know"
+    },
+    "8": {
+      "title": "Identify and authenticate access to system components"
+    },
+    "9": {
+      "title": "Restrict physical access to cardholder data"
+    },
+    "10": {
+      "title": "Track and monitor all access to network resources and cardholder data"
+    },
+    "11": {
+      "title": "Regularly test security systems and processes"
+    },
+    "12": {
+      "title": "Maintain a policy that addresses information security for all personnel"
+    }
+  },
+  "pciDss-4.0": {
+    "1": {
+      "title": "Install and Maintain Network Security Controls"
+    },
+    "2": {
+      "title": "Apply Secure Configurations to All System Components"
+    },
+    "3": {
+      "title": "Protect Stored Account Data"
+    },
+    "4": {
+      "title": "Protect Cardholder Data with Strong Cryptography During Transmission Over Open, Public Networks"
+    },
+    "5": {
+      "title": "Protect All Systems and Networks from Malicious Software Sections"
+    },
+    "6": {
+      "title": "Develop and Maintain Secure Systems and Software"
+    },
+    "7": {
+      "title": "Restrict Access to System Components and Cardholder Data by Business Need to Know"
+    },
+    "8": {
+      "title": "Identify Users and Authenticate Access to System Components"
+    },
+    "9": {
+      "title": "Restrict Physical Access to Cardholder Data"
+    },
+    "10": {
+      "title": "Log and Monitor All Access to System Components and Cardholder Data"
+    },
+    "11": {
+      "title": "Test Security of Systems and Networks Regularly"
+    },
+    "12": {
+      "title": "Support Information Security with Organizational Policies and Programs"
+    }
   }
 }

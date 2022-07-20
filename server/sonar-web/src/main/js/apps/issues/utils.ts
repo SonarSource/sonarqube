@@ -35,7 +35,7 @@ import { scrollToElement } from '../../helpers/scrolling';
 import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
-import { SecurityStandard, StandardType } from '../../types/security';
+import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
 import { UserBase } from '../../types/users';
 
@@ -54,6 +54,8 @@ export interface Query {
   languages: string[];
   owaspTop10: string[];
   'owaspTop10-2021': string[];
+  'pciDss-3.2': string[];
+  'pciDss-4.0': string[];
   projects: string[];
   resolutions: string[];
   resolved: boolean;
@@ -70,12 +72,6 @@ export interface Query {
 }
 
 export const STANDARDS = 'standards';
-export const STANDARD_TYPES: StandardType[] = [
-  SecurityStandard.OWASP_TOP10,
-  SecurityStandard.SANS_TOP25,
-  SecurityStandard.CWE,
-  SecurityStandard.SONARSOURCE
-];
 
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
@@ -93,10 +89,13 @@ export function parseQuery(query: RawQuery): Query {
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
     files: parseAsArray(query.files, parseAsString),
+    inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
     'owaspTop10-2021': parseAsArray(query['owaspTop10-2021'], parseAsString),
+    'pciDss-3.2': parseAsArray(query['pciDss-3.2'], parseAsString),
+    'pciDss-4.0': parseAsArray(query['pciDss-4.0'], parseAsString),
     projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
@@ -104,7 +103,6 @@ export function parseQuery(query: RawQuery): Query {
     sansTop25: parseAsArray(query.sansTop25, parseAsString),
     scopes: parseAsArray(query.scopes, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
-    inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
@@ -140,6 +138,8 @@ export function serializeQuery(query: Query): RawQuery {
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),
     'owaspTop10-2021': serializeStringArray(query['owaspTop10-2021']),
+    'pciDss-3.2': serializeStringArray(query['pciDss-3.2']),
+    'pciDss-4.0': serializeStringArray(query['pciDss-4.0']),
     projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
     resolved: query.resolved ? undefined : 'false',
@@ -257,7 +257,12 @@ export function shouldOpenStandardsFacet(
 export function shouldOpenStandardsChildFacet(
   openFacets: Dict<boolean>,
   query: Partial<Query>,
-  standardType: SecurityStandard
+  standardType:
+    | SecurityStandard.CWE
+    | SecurityStandard.OWASP_TOP10
+    | SecurityStandard.OWASP_TOP10_2021
+    | SecurityStandard.SANS_TOP25
+    | SecurityStandard.SONARSOURCE
 ): boolean {
   const filter = query[standardType];
   return (
@@ -283,7 +288,19 @@ function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
 }
 
 function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Query>): boolean {
-  return STANDARD_TYPES.some(standardType =>
-    shouldOpenStandardsChildFacet(openFacets, query, standardType)
+  return [
+    SecurityStandard.OWASP_TOP10,
+    SecurityStandard.SANS_TOP25,
+    SecurityStandard.CWE,
+    SecurityStandard.SONARSOURCE
+  ].some(
+    (
+      standardType:
+        | SecurityStandard.CWE
+        | SecurityStandard.OWASP_TOP10
+        | SecurityStandard.OWASP_TOP10_2021
+        | SecurityStandard.SANS_TOP25
+        | SecurityStandard.SONARSOURCE
+    ) => shouldOpenStandardsChildFacet(openFacets, query, standardType)
   );
 }

@@ -22,6 +22,8 @@ import {
   renderCWECategory,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
+  renderPciDss32Category,
+  renderPciDss40Category,
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../helpers/security-standard';
@@ -52,7 +54,9 @@ export const SECURITY_STANDARDS = [
   SecurityStandard.OWASP_TOP10,
   SecurityStandard.OWASP_TOP10_2021,
   SecurityStandard.SANS_TOP25,
-  SecurityStandard.CWE
+  SecurityStandard.CWE,
+  SecurityStandard.PCI_DSS_3_2,
+  SecurityStandard.PCI_DSS_4_0
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
@@ -60,7 +64,9 @@ export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.OWASP_TOP10_2021]: renderOwaspTop102021Category,
   [SecurityStandard.SANS_TOP25]: renderSansTop25Category,
   [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
-  [SecurityStandard.CWE]: renderCWECategory
+  [SecurityStandard.CWE]: renderCWECategory,
+  [SecurityStandard.PCI_DSS_3_2]: renderPciDss32Category,
+  [SecurityStandard.PCI_DSS_4_0]: renderPciDss40Category
 };
 
 export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {

@@ -29,9 +29,8 @@ export function renderCWECategory(standards: Standards, category: string): strin
     return `CWE-${category}`;
   } else if (category === 'unknown') {
     return record.title;
-  } else {
-    return `CWE-${category} - ${record.title}`;
   }
+  return `CWE-${category} - ${record.title}`;
 }
 
 export function renderOwaspTop10Category(
@@ -82,9 +81,24 @@ export function renderSonarSourceSecurityCategory(
     return addPrefix(category.toUpperCase(), 'SONAR', withPrefix);
   } else if (category === 'others') {
     return record.title;
-  } else {
-    return addPrefix(record.title, 'SONAR', withPrefix);
   }
+  return addPrefix(record.title, 'SONAR', withPrefix);
+}
+
+export function renderPciDss32Category(standards: Standards, category: string): string {
+  const record = standards['pciDss-3.2'][category];
+  if (!record) {
+    return category;
+  }
+  return `${category} - ${record.title}`;
+}
+
+export function renderPciDss40Category(standards: Standards, category: string): string {
+  const record = standards['pciDss-4.0'][category];
+  if (!record) {
+    return category;
+  }
+  return `${category} - ${record.title}`;
 }
 
 function addPrefix(title: string, prefix: string, withPrefix: boolean) {

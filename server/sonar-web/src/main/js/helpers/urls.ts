@@ -208,10 +208,12 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
       file,
       ...pick(query, [
         SecurityStandard.OWASP_TOP10_2021,
-        SecurityStandard.SONARSOURCE,
         SecurityStandard.OWASP_TOP10,
+        SecurityStandard.SONARSOURCE,
         SecurityStandard.SANS_TOP25,
-        SecurityStandard.CWE
+        SecurityStandard.CWE,
+        SecurityStandard.PCI_DSS_3_2,
+        SecurityStandard.PCI_DSS_4_0
       ])
     }),
     hash: ''

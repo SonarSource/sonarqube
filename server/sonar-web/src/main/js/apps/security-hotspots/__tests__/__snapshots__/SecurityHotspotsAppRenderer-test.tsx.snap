@@ -168,6 +168,16 @@ exports[`should render correctly when filtered by category or cwe: category 1`] 
               "title": "Sensitive Data Exposure",
             },
           },
+          "pciDss-3.2": Object {
+            "1": Object {
+              "title": " Install and maintain a firewall configuration to protect cardholder data",
+            },
+          },
+          "pciDss-4.0": Object {
+            "2": Object {
+              "title": "This is useless...",
+            },
+          },
           "sansTop25": Object {
             "insecure-interaction": Object {
               "title": "Insecure Interaction Between Components",
@@ -298,6 +308,16 @@ exports[`should render correctly when filtered by category or cwe: cwe 1`] = `
             },
             "a3": Object {
               "title": "Sensitive Data Exposure",
+            },
+          },
+          "pciDss-3.2": Object {
+            "1": Object {
+              "title": " Install and maintain a firewall configuration to protect cardholder data",
+            },
+          },
+          "pciDss-4.0": Object {
+            "2": Object {
+              "title": "This is useless...",
             },
           },
           "sansTop25": Object {

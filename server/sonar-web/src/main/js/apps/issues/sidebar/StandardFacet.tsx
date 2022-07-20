@@ -40,7 +40,7 @@ import {
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
 import { Facet } from '../../../types/issues';
-import { SecurityStandard, Standards, StandardType } from '../../../types/security';
+import { SecurityStandard, Standards } from '../../../types/security';
 import { Dict } from '../../../types/types';
 import { formatFacetStat, Query, STANDARDS } from '../utils';
 
@@ -83,7 +83,7 @@ type StatsProp =
   | 'cweStats'
   | 'sansTop25Stats'
   | 'sonarsourceSecurityStats';
-type ValuesProp = StandardType;
+type ValuesProp = 'owaspTop10-2021' | 'owaspTop10' | 'sansTop25' | 'sonarsourceSecurity' | 'cwe';
 
 const INITIAL_FACET_COUNT = 15;
 export default class StandardFacet extends React.PureComponent<Props, State> {
@@ -96,7 +96,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       'owaspTop10-2021': {},
       sansTop25: {},
       cwe: {},
-      sonarsourceSecurity: {}
+      sonarsourceSecurity: {},
+      'pciDss-3.2': {},
+      'pciDss-4.0': {}
     }
   };
 
@@ -133,7 +135,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         owaspTop10,
         sansTop25,
         cwe,
-        sonarsourceSecurity
+        sonarsourceSecurity,
+        'pciDss-3.2': pciDss3_2,
+        'pciDss-4.0': pciDss4_0
       }: Standards) => {
         if (this.mounted) {
           this.setState({
@@ -142,7 +146,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               owaspTop10,
               sansTop25,
               cwe,
-              sonarsourceSecurity
+              sonarsourceSecurity,
+              'pciDss-3.2': pciDss3_2,
+              'pciDss-4.0': pciDss4_0
             }
           });
         }

@@ -183,6 +183,16 @@ export function mockStandards(): Standards {
       rce: {
         title: 'Code Injection (RCE)'
       }
+    },
+    'pciDss-3.2': {
+      '1': {
+        title: ' Install and maintain a firewall configuration to protect cardholder data'
+      }
+    },
+    'pciDss-4.0': {
+      '2': {
+        title: 'This is useless...'
+      }
     }
   };
 }

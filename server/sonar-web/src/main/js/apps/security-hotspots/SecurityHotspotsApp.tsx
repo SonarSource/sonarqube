@@ -98,7 +98,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         [SecurityStandard.OWASP_TOP10_2021]: {},
         [SecurityStandard.SANS_TOP25]: {},
         [SecurityStandard.SONARSOURCE]: {},
-        [SecurityStandard.CWE]: {}
+        [SecurityStandard.CWE]: {},
+        [SecurityStandard.PCI_DSS_3_2]: {},
+        [SecurityStandard.PCI_DSS_4_0]: {}
       },
       filters: {
         ...this.constructFiltersFromProps(props),
@@ -451,6 +453,8 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         [SecurityStandard.SANS_TOP25]: undefined,
         [SecurityStandard.SONARSOURCE]: undefined,
         [SecurityStandard.OWASP_TOP10_2021]: undefined,
+        [SecurityStandard.PCI_DSS_3_2]: undefined,
+        [SecurityStandard.PCI_DSS_4_0]: undefined,
         file: undefined
       }
     });
