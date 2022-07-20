@@ -26,16 +26,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEvent;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepository;
+import org.sonar.ce.task.projectanalysis.pushevent.TaintVulnerabilityClosed;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.server.issue.TaintChecker;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,12 +60,15 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   ProtoIssueCache protoIssueCache;
   VisitorsCrawler underTest;
+  PushEventRepository pushEventRepository = mock(PushEventRepository.class);
+  TaintChecker taintChecker = mock(TaintChecker.class);
 
   @Before
   public void setUp() throws Exception {
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     underTest = new VisitorsCrawler(
-      Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, protoIssueCache, issueLifecycle)));
+      Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues,
+        protoIssueCache, issueLifecycle, pushEventRepository, taintChecker)));
   }
 
   @Test
@@ -71,10 +80,41 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     DefaultIssue issue = new DefaultIssue().setKey(issueUuid).setType(RuleType.BUG).setCreationDate(new Date())
       .setComponentKey("c").setProjectUuid("u").setProjectKey("k").setRuleKey(RuleKey.of("r", "r")).setStatus("OPEN");
     when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
+    when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
     verify(issueLifecycle).doAutomaticTransition(issue);
+    verifyNoInteractions(pushEventRepository);
+    CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
+    assertThat(issues.hasNext()).isTrue();
+
+    DefaultIssue result = issues.next();
+    assertThat(result.key()).isEqualTo(issueUuid);
+    assertThat(result.isBeingClosed()).isTrue();
+    assertThat(result.isOnDisabledRule()).isFalse();
+  }
+
+  @Test
+  public void close_taint_vulnerability() {
+    String fileUuid = "FILE1";
+    String issueUuid = "ABCD";
+
+    when(componentsWithUnprocessedIssues.getUuids()).thenReturn(newHashSet(fileUuid));
+    DefaultIssue issue = new DefaultIssue().setKey(issueUuid).setType(RuleType.BUG).setCreationDate(new Date())
+      .setComponentKey("c").setProjectUuid("u").setProjectKey("k").setRuleKey(RuleKey.of("r", "r")).setStatus("OPEN");
+    when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
+    when(taintChecker.isTaintVulnerability(any())).thenReturn(true);
+
+    underTest.visit(ReportComponent.builder(PROJECT, 1).build());
+
+    verify(issueLifecycle).doAutomaticTransition(issue);
+
+    ArgumentCaptor<PushEvent<TaintVulnerabilityClosed>> pushEventCaptor = ArgumentCaptor.forClass(PushEvent.class);
+    verify(pushEventRepository).add(pushEventCaptor.capture());
+    PushEvent<TaintVulnerabilityClosed> pushEvent = pushEventCaptor.getValue();
+    assertThat(pushEvent.getName()).isEqualTo("TaintVulnerabilityClosed");
+
     CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isTrue();
 

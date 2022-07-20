@@ -24,8 +24,12 @@ import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEvent;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepository;
+import org.sonar.ce.task.projectanalysis.pushevent.TaintVulnerabilityClosed;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.issue.TaintChecker;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -38,14 +42,19 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
   private final ProtoIssueCache protoIssueCache;
   private final IssueLifecycle issueLifecycle;
+  private final PushEventRepository pushEventRepository;
+  private final TaintChecker taintChecker;
+
 
   public CloseIssuesOnRemovedComponentsVisitor(ComponentIssuesLoader issuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, ProtoIssueCache protoIssueCache,
-    IssueLifecycle issueLifecycle) {
+    IssueLifecycle issueLifecycle, PushEventRepository pushEventRepository, TaintChecker taintChecker) {
     super(CrawlerDepthLimit.PROJECT, POST_ORDER);
     this.issuesLoader = issuesLoader;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
     this.protoIssueCache = protoIssueCache;
     this.issueLifecycle = issueLifecycle;
+    this.pushEventRepository = pushEventRepository;
+    this.taintChecker = taintChecker;
   }
 
   @Override
@@ -63,8 +72,18 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
           issue.setOnDisabledRule(false);
           issueLifecycle.doAutomaticTransition(issue);
           cacheAppender.append(issue);
+          addPushEventIfTaintVulnerability(issue);
         }
       }
     }
   }
+
+  private void addPushEventIfTaintVulnerability(DefaultIssue issue) {
+    if (taintChecker.isTaintVulnerability(issue)) {
+      TaintVulnerabilityClosed event = new TaintVulnerabilityClosed(issue.key(), issue.projectKey());
+      PushEvent<?> pushEvent = new PushEvent<TaintVulnerabilityClosed>().setName("TaintVulnerabilityClosed").setData(event);
+      pushEventRepository.add(pushEvent);
+    }
+  }
+
 }

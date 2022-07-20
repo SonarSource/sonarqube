@@ -279,12 +279,13 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,
       IssueOnReferenceBranchVisitor.class,
-      TaintVulnerabilityVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       AnalysisFromSonarQube94Visitor.class,
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
+      TaintChecker.class,
+      TaintVulnerabilityVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,
       MaintainabilityMeasuresVisitor.class,
       NewMaintainabilityMeasuresVisitor.class,

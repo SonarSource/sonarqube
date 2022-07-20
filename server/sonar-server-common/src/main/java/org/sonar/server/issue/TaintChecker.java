@@ -28,6 +28,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
 
 public class TaintChecker {
@@ -86,6 +88,13 @@ public class TaintChecker {
     repositories.addAll(Arrays.stream(config.getStringArray(EXTRA_TAINT_REPOSITORIES)).collect(Collectors.toList()));
 
     return repositories;
+  }
+
+
+  public boolean isTaintVulnerability(DefaultIssue issue) {
+    return taintRepositories.contains(issue.getRuleKey().repository())
+      && issue.getLocations() != null
+      && !RuleType.SECURITY_HOTSPOT.equals(issue.type());
   }
 
 }

@@ -22,9 +22,14 @@ package org.sonar.server.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -98,6 +103,29 @@ public class TaintCheckerTest {
         "tssecurity", "phpsecurity", "pythonsecurity", "extra-1", "extra-2");
   }
 
+  @Test
+  public void test_isTaintVulnerability() {
+    DefaultIssue taintWithoutLocation = createIssueWithRepository("noTaintIssue", "roslyn.sonaranalyzer.security.cs")
+      .toDefaultIssue();
+    DefaultIssue taint = createIssueWithRepository("taintIssue", "roslyn.sonaranalyzer.security.cs")
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .build())
+      .toDefaultIssue();
+    DefaultIssue issue = createIssueWithRepository("standardIssue", "java")
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .build())
+      .toDefaultIssue();
+    DefaultIssue hotspot = createIssueWithRepository("hotspot", "roslyn.sonaranalyzer.security.cs",
+      RuleType.SECURITY_HOTSPOT).toDefaultIssue();
+
+    assertThat(underTest.isTaintVulnerability(taintWithoutLocation)).isFalse();
+    assertThat(underTest.isTaintVulnerability(taint)).isTrue();
+    assertThat(underTest.isTaintVulnerability(issue)).isFalse();
+    assertThat(underTest.isTaintVulnerability(hotspot)).isFalse();
+  }
+
   private List<IssueDto> getIssues() {
     List<IssueDto> issues = new ArrayList<>();
 
@@ -116,9 +144,16 @@ public class TaintCheckerTest {
   }
 
   private IssueDto createIssueWithRepository(String issueKey, String repository) {
+    return createIssueWithRepository(issueKey, repository, null);
+  }
+
+
+  private IssueDto createIssueWithRepository(String issueKey, String repository, @Nullable RuleType ruleType) {
     IssueDto issueDto = new IssueDto();
+    issueDto.setStatus("OPEN");
     issueDto.setKee(issueKey);
     issueDto.setRuleKey(repository, "S1");
+    issueDto.setType(ruleType == null ? RuleType.VULNERABILITY : ruleType);
     return issueDto;
   }
 
