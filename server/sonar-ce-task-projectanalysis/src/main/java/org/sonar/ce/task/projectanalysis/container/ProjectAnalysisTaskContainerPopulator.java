@@ -151,6 +151,7 @@ import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.ce.task.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
 import org.sonar.server.view.index.ViewIndex;
 

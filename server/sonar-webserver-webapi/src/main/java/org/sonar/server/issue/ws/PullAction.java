@@ -44,12 +44,14 @@ public class PullAction extends BasePullAction {
   private static final String SINCE_VERSION = "9.5";
 
   private final DbClient dbClient;
+  private final TaintChecker taintChecker;
 
   public PullAction(System2 system2, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession,
-    PullActionProtobufObjectGenerator protobufObjectGenerator) {
+    PullActionProtobufObjectGenerator protobufObjectGenerator, TaintChecker taintChecker) {
     super(system2, componentFinder, dbClient, userSession, protobufObjectGenerator, ACTION_PULL,
       ISSUE_TYPE, REPOSITORY_EXAMPLE, SINCE_VERSION, RESOURCE_EXAMPLE);
     this.dbClient = dbClient;
+    this.taintChecker = taintChecker;
   }
 
   @Override
@@ -59,12 +61,12 @@ public class PullAction extends BasePullAction {
 
       if (changedSinceDate.isPresent()) {
         return dbClient.issueDao().selectIssueKeysByComponentUuidAndChangedSinceDate(dbSession, issueQueryParams.getBranchUuid(),
-          changedSinceDate.get(), issueQueryParams.getRuleRepositories(), TaintChecker.getTaintRepositories(),
+          changedSinceDate.get(), issueQueryParams.getRuleRepositories(), taintChecker.getTaintRepositories(),
           issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly());
       }
 
       return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, issueQueryParams.getBranchUuid(),
-        issueQueryParams.getRuleRepositories(), TaintChecker.getTaintRepositories(),
+        issueQueryParams.getRuleRepositories(), taintChecker.getTaintRepositories(),
         issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly(), true);
     }
   }
@@ -72,7 +74,7 @@ public class PullAction extends BasePullAction {
   @Override
   protected IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
-    return new IssueQueryParams(branchDto.getUuid(), languages, ruleRepositories, TaintChecker.getTaintRepositories(), resolvedOnly, changedSince);
+    return new IssueQueryParams(branchDto.getUuid(), languages, ruleRepositories, taintChecker.getTaintRepositories(), resolvedOnly, changedSince);
   }
 
 
@@ -80,7 +82,7 @@ public class PullAction extends BasePullAction {
   protected void validateRuleRepositories(List<String> ruleRepositories) {
     checkArgument(ruleRepositories
       .stream()
-      .filter(TaintChecker.getTaintRepositories()::contains)
+      .filter(taintChecker.getTaintRepositories()::contains)
       .count() == 0, "Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
 
   }

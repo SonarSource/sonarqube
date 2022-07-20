@@ -42,6 +42,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -75,6 +76,7 @@ public class PullActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final System2 system2 = mock(System2.class);
+  private final TaintChecker taintChecker = mock(TaintChecker.class);
   private final PullActionProtobufObjectGenerator pullActionProtobufObjectGenerator = new PullActionProtobufObjectGenerator();
 
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
@@ -83,7 +85,8 @@ public class PullActionTest {
   private final IssueDbTester issueDbTester = new IssueDbTester(db);
   private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
 
-  private final PullAction underTest = new PullAction(system2, componentFinder, db.getDbClient(), userSession, pullActionProtobufObjectGenerator);
+  private final PullAction underTest = new PullAction(system2, componentFinder, db.getDbClient(), userSession,
+    pullActionProtobufObjectGenerator, taintChecker);
   private final WsActionTester tester = new WsActionTester(underTest);
 
   private RuleDto correctRule, incorrectRule;
@@ -100,6 +103,9 @@ public class PullActionTest {
     incorrectRule = db.rules().insertIssueRule();
     incorrectProject = db.components().insertPrivateProject();
     incorrectFile = db.components().insertComponent(newFileDto(incorrectProject));
+
+    when(taintChecker.getTaintRepositories()).thenReturn(List.of("roslyn.sonaranalyzer.security.cs",
+      "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity"));
   }
 
   @Test

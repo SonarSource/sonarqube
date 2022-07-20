@@ -24,6 +24,7 @@ import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
@@ -70,6 +71,7 @@ public class IssueWsModule extends Module {
       ChangelogAction.class,
       BulkChangeAction.class,
       QGChangeEventListenersImpl.class,
+      TaintChecker.class,
       PullAction.class,
       PullTaintAction.class,
       PullActionResponseWriter.class,

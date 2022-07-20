@@ -23,19 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.issue.IssueDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.TaintChecker.getStandardIssuesOnly;
-import static org.sonar.server.issue.TaintChecker.getTaintIssuesOnly;
-import static org.sonar.server.issue.TaintChecker.mapIssuesByTaintStatus;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.issue.TaintChecker.EXTRA_TAINT_REPOSITORIES;
 
 public class TaintCheckerTest {
+  private final Configuration configuration = mock(Configuration.class);
+  private final TaintChecker underTest = new TaintChecker(configuration);
 
   @Test
   public void test_getTaintIssuesOnly() {
-
-    List<IssueDto> taintIssues = getTaintIssuesOnly(getIssues());
+    List<IssueDto> taintIssues = underTest.getTaintIssuesOnly(getIssues());
 
     assertThat(taintIssues).hasSize(6);
     assertThat(taintIssues.get(0).getKey()).isEqualTo("taintIssue1");
@@ -44,13 +46,12 @@ public class TaintCheckerTest {
     assertThat(taintIssues.get(3).getKey()).isEqualTo("taintIssue4");
     assertThat(taintIssues.get(4).getKey()).isEqualTo("taintIssue5");
     assertThat(taintIssues.get(5).getKey()).isEqualTo("taintIssue6");
-
   }
 
   @Test
   public void test_getStandardIssuesOnly() {
 
-    List<IssueDto> standardIssues = getStandardIssuesOnly(getIssues());
+    List<IssueDto> standardIssues = underTest.getStandardIssuesOnly(getIssues());
 
     assertThat(standardIssues).hasSize(3);
     assertThat(standardIssues.get(0).getKey()).isEqualTo("standardIssue1");
@@ -60,7 +61,7 @@ public class TaintCheckerTest {
 
   @Test
   public void test_mapIssuesByTaintStatus() {
-    Map<Boolean, List<IssueDto>> issuesByTaintStatus = mapIssuesByTaintStatus(getIssues());
+    Map<Boolean, List<IssueDto>> issuesByTaintStatus = underTest.mapIssuesByTaintStatus(getIssues());
 
     assertThat(issuesByTaintStatus.keySet()).hasSize(2);
     assertThat(issuesByTaintStatus.get(true)).hasSize(6);
@@ -80,10 +81,21 @@ public class TaintCheckerTest {
 
   @Test
   public void test_getTaintRepositories() {
-    assertThat(TaintChecker.getTaintRepositories())
+    assertThat(underTest.getTaintRepositories())
       .hasSize(6)
       .containsExactlyInAnyOrder("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity",
         "tssecurity", "phpsecurity", "pythonsecurity");
+  }
+
+  @Test
+  public void test_getTaintRepositories_withExtraReposFromConfiguration() {
+    when(configuration.hasKey(EXTRA_TAINT_REPOSITORIES)).thenReturn(true);
+    when(configuration.getStringArray(EXTRA_TAINT_REPOSITORIES)).thenReturn(new String[]{"extra-1", "extra-2"});
+    TaintChecker underTest = new TaintChecker(configuration);
+    assertThat(underTest.getTaintRepositories())
+      .hasSize(8)
+      .containsExactlyInAnyOrder("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity",
+        "tssecurity", "phpsecurity", "pythonsecurity", "extra-1", "extra-2");
   }
 
   private List<IssueDto> getIssues() {

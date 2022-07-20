@@ -43,12 +43,14 @@ public class PullTaintAction extends BasePullAction {
   private static final String SINCE_VERSION = "9.6";
 
   private final DbClient dbClient;
+  private final TaintChecker taintChecker;
 
   public PullTaintAction(System2 system2, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession,
-    PullTaintActionProtobufObjectGenerator protobufObjectGenerator) {
+    PullTaintActionProtobufObjectGenerator protobufObjectGenerator, TaintChecker taintChecker) {
     super(system2, componentFinder, dbClient, userSession, protobufObjectGenerator, ACTION_PULL_TAINT,
       ISSUE_TYPE, "", SINCE_VERSION, RESOURCE_EXAMPLE);
     this.dbClient = dbClient;
+    this.taintChecker = taintChecker;
   }
 
   @Override
@@ -73,7 +75,7 @@ public class PullTaintAction extends BasePullAction {
   @Override
   protected IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
-    return new IssueQueryParams(branchDto.getUuid(), languages, TaintChecker.getTaintRepositories(), emptyList(), resolvedOnly, changedSince);
+    return new IssueQueryParams(branchDto.getUuid(), languages, taintChecker.getTaintRepositories(), emptyList(), resolvedOnly, changedSince);
   }
 
   @Override

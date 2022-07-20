@@ -19,53 +19,73 @@
  */
 package org.sonar.server.issue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.issue.IssueDto;
 
 public class TaintChecker {
+  protected static final String EXTRA_TAINT_REPOSITORIES = "sonar.issues.taint.extra.repositories";
 
-  private static final List<String> TAINT_REPOSITORIES = List.of("roslyn.sonaranalyzer.security.cs", "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity");
+  private final Configuration config;
 
-  private TaintChecker() {
-    throw new IllegalStateException("Utility class, cannot be instantiated.");
+  private final List<String> taintRepositories;
+
+  public TaintChecker(Configuration config) {
+    this.config = config;
+    this.taintRepositories = initializeRepositories();
   }
 
-  public static List<IssueDto> getTaintIssuesOnly(List<IssueDto> issues) {
+  public List<IssueDto> getTaintIssuesOnly(List<IssueDto> issues) {
     return filterTaintIssues(issues, true);
   }
 
-  public static List<IssueDto> getStandardIssuesOnly(List<IssueDto> issues) {
+  public List<IssueDto> getStandardIssuesOnly(List<IssueDto> issues) {
     return filterTaintIssues(issues, false);
   }
 
-  public static Map<Boolean, List<IssueDto>> mapIssuesByTaintStatus(List<IssueDto> issues) {
+  public Map<Boolean, List<IssueDto>> mapIssuesByTaintStatus(List<IssueDto> issues) {
     Map<Boolean, List<IssueDto>> issuesMap = new HashMap<>();
     issuesMap.put(true, getTaintIssuesOnly(issues));
     issuesMap.put(false, getStandardIssuesOnly(issues));
     return issuesMap;
   }
 
-  private static List<IssueDto> filterTaintIssues(List<IssueDto> issues, boolean returnTaint) {
+  private List<IssueDto> filterTaintIssues(List<IssueDto> issues, boolean returnTaint) {
     return issues.stream()
       .filter(getTaintIssueFilter(returnTaint))
       .collect(Collectors.toList());
   }
 
   @NotNull
-  private static Predicate<IssueDto> getTaintIssueFilter(boolean returnTaint) {
+  private Predicate<IssueDto> getTaintIssueFilter(boolean returnTaint) {
     if (returnTaint) {
-      return issueDto -> TAINT_REPOSITORIES.contains(issueDto.getRuleRepo());
+      return issueDto -> taintRepositories.contains(issueDto.getRuleRepo());
     }
-    return issueDto -> !TAINT_REPOSITORIES.contains(issueDto.getRuleRepo());
+    return issueDto -> !taintRepositories.contains(issueDto.getRuleRepo());
   }
 
-  public static List<String> getTaintRepositories() {
-    return TAINT_REPOSITORIES;
+  public List<String> getTaintRepositories() {
+    return taintRepositories;
+  }
+
+  private List<String> initializeRepositories() {
+    List<String> repositories = new ArrayList<>(List.of("roslyn.sonaranalyzer.security.cs",
+      "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity"));
+
+    if (!config.hasKey(EXTRA_TAINT_REPOSITORIES)) {
+      return repositories;
+    }
+
+    repositories.addAll(Arrays.stream(config.getStringArray(EXTRA_TAINT_REPOSITORIES)).collect(Collectors.toList()));
+
+    return repositories;
   }
 
 }
