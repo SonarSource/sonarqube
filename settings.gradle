@@ -13,6 +13,7 @@ pluginManagement {
 rootProject.name = 'sonarqube'
 
 include 'plugins:sonar-xoo-plugin'
+include 'plugins:sonar-education-plugin'
 
 include 'server:sonar-auth-common'
 include 'server:sonar-auth-bitbucket'
