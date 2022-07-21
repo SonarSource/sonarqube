@@ -57,6 +57,7 @@ Desktop.ini
 # ---- frontend
 node/
 node_modules/
+install-state.gz
 
 # ---- SonarQube
 .sonar/
