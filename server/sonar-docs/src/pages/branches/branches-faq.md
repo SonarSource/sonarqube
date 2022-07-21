@@ -25,4 +25,4 @@ Yes, an extra node called "branch" is added to the payload.
 When the computation of the background task is done for a given branch.
 
 ## What is the impact on my LOCs consumption vs my license?  
-The LOC of your largest branch are counted toward your license limit. All other branches are ignored.  
+The [LOC](/instance-administration/license-manager/) of your largest branch are counted toward your license limit. All other branches are ignored.  

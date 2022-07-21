@@ -2,7 +2,7 @@
 title: Try Out SonarQube
 url: /setup/get-started-2-minutes/
 ---
-You've heard about how [SonarQube](https://www.sonarqube.org/) can help you write cleaner and safer code, and now you're ready to try it out for yourself. This guide shows you how to install a local instance of SonarQube and analyze a project. Installing a local instance gets you up and running quickly, so you can experience SonarQube first hand.
+You've heard about how [SonarQube](https://www.sonarqube.org/) and the [Clean as you code](/user-guide/clean-as-you-code/) strategy can help you write cleaner and safer code, and now you're ready to try it out for yourself. This guide shows you how to install a local instance of SonarQube and analyze a project. Installing a local instance gets you up and running quickly, so you can experience SonarQube firsthand.
 
 Once you're ready to set up a production instance, take a look at the [Install SonarQube](/setup/install-server/) documentation.
 
@@ -59,4 +59,4 @@ After successfully analyzing your code, you'll see your first analysis on SonarQ
 
 ![successful analysis](/images/successfulproject.png)
 
-
+Your first analysis is a measure of your current code. As a developer, you focus on maintaining high standards and taking responsibility specifically for the New Code you're working on. Code that has been added or changed from this point should be your focus moving forward. For more information about the [Clean as you code](/user-guide/clean-as-you-code/) strategy, please review the SonarQube [User Guide Concepts](https://docs.sonarqube.org/latest/user-guide/concepts/).

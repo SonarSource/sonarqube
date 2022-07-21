@@ -25,7 +25,7 @@ Branch settings and Quality Profiles are the same as those set for the main bran
 
 ### New Code
 
-You can set a New Code definition for each branch. This is especially helpful if you are likely to develop and release multiple versions from the branch. See the [Defining New Code](/project-administration/new-code-period/) documentation for more information.
+You can set a New Code definition for each branch. This is especially helpful if you are likely to develop and release multiple versions from the branch. See the [Defining New Code](/project-administration/new-code-period/) documentation for more information, and look at the [Clean as you code](/user-guide/clean-as-you-code/) strategy to learn how to implement this best practice.
 
 ### Quality Gate
 

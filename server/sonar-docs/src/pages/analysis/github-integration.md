@@ -20,7 +20,7 @@ With this integration, you'll be able to:
 Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
 
 ## Importing your GitHub repositories to SonarQube
-You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. This is also the first step in adding authentication, and, starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), the first step in reporting your analysis and Quality Gate status to your pull requests.
+You need to use a GitHub App to connect SonarQube with GitHub and import your GitHub repositories into SonarQube. This is also the first step in adding authentication, and, starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), the first step in reporting your analysis and Quality Gate status to your pull requests.
 
 If you want to set up authentication without importing your GitHub repositories, see the **Creating a dedicated app for authentication** section below for instructions on setting up authentication.
 

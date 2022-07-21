@@ -11,6 +11,8 @@ Pull Request analysis shows your Pull Request's Quality Gate and analysis in the
 
 ![Pull Request Analysis.](/images/pranalysis.png)
 
+The New Code should be your focus moving forward when using the [Clean as you code](/user-guide/clean-as-you-code/) strategy. More about this can be found in the SonarQube [User Guide Concepts](https://docs.sonarqube.org/latest/user-guide/concepts/) pages.
+
 ## Prerequisites
 
 Before analyzing your Pull Requests, make sure that:
@@ -33,7 +35,7 @@ You can also report the pull request analysis and Quality Gate status directly i
 ## Pull request Quality Gate
 
 A [Quality Gate](/user-guide/quality-gates/) lets you ensure you are meeting your organization's quality policy and that you can merge your pull request. The pull request uses your project Quality Gate as follows:
-* **Focuses on new code** – The Pull Request quality gate only uses your project's quality gate conditions that apply to "on New Code" metrics.
+* **Focuses on new code** – The Pull Request quality gate only uses your project's quality gate conditions that apply to "on New Code" metrics using the [Clean as you code](/user-guide/clean-as-you-code/) strategy. 
 * **Assigns a status** – Each Pull Request shows a quality gate status reflecting whether it Passed or Failed.
 
 Pull request analyses on SonarQube are deleted automatically after 30 days with no analysis. This can be updated in **Administration > Configuration > General Settings > Housekeeping > Number of days before purging inactive branches**. 

@@ -26,7 +26,7 @@ Background tasks usually succeed, but sometimes unusual circumstances cause proc
 When that happens, the failed status is reflected on the project homepage, but that requires someone to notice it. You can also choose to be notified by email when background tasks fail - either on a project by project basis, or globally on all projects where you have administration rights, in the **Notifications** section of your profile.
 
 ## How do I diagnose a failing background task?
-For each Analysis Report there is a dropdown menu allowing you to access to the "Scanner Context" showing you the configuration of the Scanner at the moment when the code scan has been run.
+For each Analysis Report there is a dropdown menu allowing access to the "Scanner Context," displaying the configuration of the Scanner at the moment when the code scan has been run.
 
 If processing failed for the task, an additional option will be available: "Show Error Details", to get the technical details why the processing of the Background Task failed.
 
