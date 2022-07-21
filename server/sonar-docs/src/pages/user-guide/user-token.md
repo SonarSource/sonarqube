@@ -56,3 +56,7 @@ User tokens must replace your normal login process in the following scenarios:
 * when invoking web services: just pass the token instead of your login while doing the basic authentication.
 
 In both cases, you don't need to provide a password (so when running analyses on your code, the property `sonar.password` is optional). Using a token is the preferred method over using a login and password.
+
+### Expiration date in HTTP response
+
+When using a token to interact with web services, a `SonarQube-Authentication-Token-Expiration` HTTP header will be added to the response. This header contains the token expiration date and can help third-party tools track upcoming expirations, so the token can be rotated in time.
