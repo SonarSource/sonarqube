@@ -87,10 +87,14 @@ it('should open issue and navigate', async () => {
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
   expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
 
-  // Select the resources tab and check its content
+  // Select the main info tab and check its content
   expect(screen.getByRole('button', { name: `issue.tabs.more_info` })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `issue.tabs.more_info` }));
   expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
+
+  // check for extended description
+  const extendedDescriptions = screen.getAllByText('Extended Description');
+  expect(extendedDescriptions).toHaveLength(1);
 
   // Select the previous issue (with a simple rule) through keyboard shortcut
   await user.keyboard('{ArrowUp}');

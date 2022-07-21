@@ -55,22 +55,6 @@ export default class IssueViewerTabs extends React.PureComponent<Props> {
       !!ruleDetails.educationPrinciples && ruleDetails.educationPrinciples.length > 0;
     const showNotification = showNotice && hasEducationPrinciples;
 
-    if (ruleDetails.htmlNote) {
-      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] !== undefined) {
-        // We add the extended description (htmlNote) in the first context, in case there are contexts
-        // Extended description will get reworked in future
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
-          '<br/>' + ruleDetails.htmlNote;
-      } else {
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: ruleDetails.htmlNote
-          }
-        ];
-      }
-    }
-
     const rootCauseDescriptionSections =
       descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
       descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
