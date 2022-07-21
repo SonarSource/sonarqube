@@ -43,7 +43,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   handleNotificationScroll = () => {
     const element = this.props.educationPrinciplesRef?.current;
     if (element) {
-      element.scrollIntoView();
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
     }
   };
 
