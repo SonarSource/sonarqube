@@ -18,30 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { debounce, Dictionary } from 'lodash';
+import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
-import { dismissNotice, getCurrentUser } from '../../api/users';
-import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import { dismissNotice } from '../../api/users';
+import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
+import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
-import { CurrentUser, NoticeType } from '../../types/users';
+import { NoticeType } from '../../types/users';
 import BoxedTabs from '../controls/BoxedTabs';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 import './style.css';
 
-interface Props {
+interface TabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;
+  extendedDescription?: string;
+  ruleDescriptionContextKey?: string;
   codeTabContent?: React.ReactNode;
-  computeTabs: (
-    showNotice: boolean,
-    educationPrinciplesRef: React.RefObject<HTMLDivElement>
-  ) => Tab[];
   pageType?: string;
 }
 
 interface State {
-  currentTab: Tab;
   tabs: Tab[];
+  selectedTab?: Tab;
+  displayEducationalPrinciplesNotification?: boolean;
+  educationalPrinciplesNotificationHasBeenDismissed?: boolean;
 }
 
 export interface Tab {
@@ -60,62 +63,209 @@ export enum TabKeys {
 
 const DEBOUNCE_FOR_SCROLL = 250;
 
-export default class TabViewer extends React.PureComponent<Props, State> {
-  showNotification = false;
+export class TabViewer extends React.PureComponent<TabViewerProps, State> {
+  state: State = {
+    tabs: []
+  };
+
   educationPrinciplesRef: React.RefObject<HTMLDivElement>;
 
-  constructor(props: Props) {
+  constructor(props: TabViewerProps) {
     super(props);
-    const tabs = this.getUpdatedTabs(false);
-    this.state = {
-      tabs,
-      currentTab: tabs[0]
-    };
     this.educationPrinciplesRef = React.createRef();
-    this.checkIfConceptIsVisible = debounce(this.checkIfConceptIsVisible, DEBOUNCE_FOR_SCROLL);
-    document.addEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
+    this.checkIfEducationPrinciplesAreVisible = debounce(
+      this.checkIfEducationPrinciplesAreVisible,
+      DEBOUNCE_FOR_SCROLL
+    );
   }
 
   componentDidMount() {
-    this.getNotificationValue();
+    this.setState(prevState => this.computeState(prevState));
+    this.attachScrollEvent();
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const { currentTab } = this.state;
+  componentDidUpdate(prevProps: TabViewerProps, prevState: State) {
+    const { ruleDetails, codeTabContent, ruleDescriptionContextKey, currentUser } = this.props;
+    const { selectedTab } = this.state;
+
     if (
-      prevProps.ruleDetails !== this.props.ruleDetails ||
-      prevProps.codeTabContent !== this.props.codeTabContent
+      prevProps.ruleDetails.key !== ruleDetails.key ||
+      prevProps.ruleDescriptionContextKey !== ruleDescriptionContextKey ||
+      prevProps.codeTabContent !== codeTabContent ||
+      prevProps.currentUser !== currentUser
     ) {
-      const tabs = this.getUpdatedTabs(this.showNotification);
-      this.getNotificationValue();
-      this.setState({
-        tabs,
-        currentTab: tabs[0]
-      });
-    }
-    if (currentTab.key === TabKeys.MoreInfo) {
-      this.checkIfConceptIsVisible();
+      this.setState(pState => this.computeState(pState, prevProps.ruleDetails !== ruleDetails));
     }
 
-    if (prevState.currentTab.key === TabKeys.MoreInfo && !this.showNotification) {
-      const tabs = this.getUpdatedTabs(this.showNotification);
-      this.setState({ tabs });
+    if (selectedTab?.key === TabKeys.MoreInfo) {
+      this.checkIfEducationPrinciplesAreVisible();
+    }
+
+    if (
+      prevState.selectedTab?.key === TabKeys.MoreInfo &&
+      prevState.displayEducationalPrinciplesNotification &&
+      prevState.educationalPrinciplesNotificationHasBeenDismissed
+    ) {
+      this.props.updateDismissedNotices(NoticeType.EDUCATION_PRINCIPLES, true);
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
+    this.detachScrollEvent();
   }
 
-  checkIfConceptIsVisible = () => {
+  computeState = (prevState: State, resetSelectedTab: boolean = false) => {
+    const {
+      ruleDetails,
+      currentUser: { isLoggedIn, dismissedNotices }
+    } = this.props;
+
+    const displayEducationalPrinciplesNotification =
+      !!ruleDetails.educationPrinciples &&
+      ruleDetails.educationPrinciples.length > 0 &&
+      isLoggedIn &&
+      !dismissedNotices[NoticeType.EDUCATION_PRINCIPLES];
+    const tabs = this.computeTabs(displayEducationalPrinciplesNotification);
+
+    return {
+      tabs,
+      selectedTab: resetSelectedTab || !prevState.selectedTab ? tabs[0] : prevState.selectedTab,
+      displayEducationalPrinciplesNotification
+    };
+  };
+
+  computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
+    const {
+      codeTabContent,
+      ruleDetails: { descriptionSections, educationPrinciples, type: ruleType },
+      ruleDescriptionContextKey,
+      extendedDescription
+    } = this.props;
+
+    // As we might tamper with the description later on, we clone to avoid any side effect
+    const descriptionSectionsByKey = cloneDeep(
+      groupBy(descriptionSections, section => section.key)
+    );
+
+    if (extendedDescription) {
+      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]?.length > 0) {
+        // We add the extended description (htmlNote) in the first context, in case there are contexts
+        // Extended description will get reworked in future
+        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
+          '<br/>' + extendedDescription;
+      } else {
+        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
+          {
+            key: RuleDescriptionSections.RESOURCES,
+            content: extendedDescription
+          }
+        ];
+      }
+    }
+
+    const tabs: Tab[] = [
+      {
+        key: TabKeys.WhyIsThisAnIssue,
+        label:
+          ruleType === 'SECURITY_HOTSPOT'
+            ? translate('coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT')
+            : translate('coding_rules.description_section.title.root_cause'),
+        content: (descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+          descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
+          <RuleDescription
+            className="big-padded"
+            sections={
+              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+              descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
+            }
+            isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
+            defaultContextKey={ruleDescriptionContextKey}
+          />
+        )
+      },
+      {
+        key: TabKeys.AssessTheIssue,
+        label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
+        content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
+          <RuleDescription
+            className="big-padded"
+            sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
+          />
+        )
+      },
+      {
+        key: TabKeys.HowToFixIt,
+        label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
+        content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
+          <RuleDescription
+            className="big-padded"
+            sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
+            defaultContextKey={ruleDescriptionContextKey}
+          />
+        )
+      },
+      {
+        key: TabKeys.MoreInfo,
+        label: (
+          <>
+            {translate('coding_rules.description_section.title', TabKeys.MoreInfo)}
+            {displayEducationalPrinciplesNotification && <div className="notice-dot" />}
+          </>
+        ),
+        content: ((educationPrinciples && educationPrinciples.length > 0) ||
+          descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
+          <MoreInfoRuleDescription
+            educationPrinciples={educationPrinciples}
+            sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
+            displayEducationalPrinciplesNotification={displayEducationalPrinciplesNotification}
+            educationPrinciplesRef={this.educationPrinciplesRef}
+          />
+        )
+      }
+    ];
+
+    if (codeTabContent !== undefined) {
+      tabs.unshift({
+        key: TabKeys.Code,
+        label: translate('issue.tabs', TabKeys.Code),
+        content: <div className="padded">{codeTabContent}</div>
+      });
+    }
+
+    return tabs.filter(tab => tab.content);
+  };
+
+  attachScrollEvent = () => {
+    document.addEventListener('scroll', this.checkIfEducationPrinciplesAreVisible, {
+      capture: true
+    });
+  };
+
+  detachScrollEvent = () => {
+    document.removeEventListener('scroll', this.checkIfEducationPrinciplesAreVisible, {
+      capture: true
+    });
+  };
+
+  checkIfEducationPrinciplesAreVisible = () => {
+    const {
+      displayEducationalPrinciplesNotification,
+      educationalPrinciplesNotificationHasBeenDismissed
+    } = this.state;
+
     if (this.educationPrinciplesRef.current) {
       const rect = this.educationPrinciplesRef.current.getBoundingClientRect();
-      const isView = rect.top <= (window.innerHeight || document.documentElement.clientHeight);
-      if (isView && this.showNotification) {
+      const isVisible = rect.top <= (window.innerHeight || document.documentElement.clientHeight);
+
+      if (
+        isVisible &&
+        displayEducationalPrinciplesNotification &&
+        !educationalPrinciplesNotificationHasBeenDismissed
+      ) {
         dismissNotice(NoticeType.EDUCATION_PRINCIPLES)
           .then(() => {
-            document.removeEventListener('scroll', this.checkIfConceptIsVisible, { capture: true });
-            this.showNotification = false;
+            this.detachScrollEvent();
+            this.setState({ educationalPrinciplesNotificationHasBeenDismissed: true });
           })
           .catch(() => {
             /* noop */
@@ -124,34 +274,22 @@ export default class TabViewer extends React.PureComponent<Props, State> {
     }
   };
 
-  getNotificationValue() {
-    getCurrentUser()
-      .then((data: CurrentUser) => {
-        const educationPrinciplesDismissed = data.dismissedNotices[NoticeType.EDUCATION_PRINCIPLES];
-        if (educationPrinciplesDismissed !== undefined) {
-          this.showNotification = !educationPrinciplesDismissed;
-          const tabs = this.getUpdatedTabs(!educationPrinciplesDismissed);
-          this.setState({ tabs });
-        }
-      })
-      .catch(() => {
-        /* noop */
-      });
-  }
-
   handleSelectTabs = (currentTabKey: TabKeys) => {
     this.setState(({ tabs }) => ({
-      currentTab: tabs.find(tab => tab.key === currentTabKey) || tabs[0]
+      selectedTab: tabs.find(tab => tab.key === currentTabKey) || tabs[0]
     }));
   };
 
-  getUpdatedTabs = (showNotification: boolean) => {
-    return this.props.computeTabs(showNotification, this.educationPrinciplesRef);
-  };
-
   render() {
-    const { tabs, currentTab } = this.state;
+    const { tabs, selectedTab } = this.state;
     const { pageType } = this.props;
+
+    if (!tabs || tabs.length === 0 || !selectedTab) {
+      return null;
+    }
+
+    const tabContent = tabs.find(t => t.key === selectedTab.key)?.content;
+
     return (
       <>
         <div
@@ -161,79 +299,14 @@ export default class TabViewer extends React.PureComponent<Props, State> {
           <BoxedTabs
             className="big-spacer-top"
             onSelect={this.handleSelectTabs}
-            selected={currentTab.key}
+            selected={selectedTab.key}
             tabs={tabs}
           />
         </div>
-        <div className="bordered">{currentTab.content}</div>
+        <div className="bordered">{tabContent}</div>
       </>
     );
   }
 }
 
-export const getMoreInfoTab = (
-  showNotification: boolean,
-  descriptionSectionsByKey: Dictionary<RuleDescriptionSection[]>,
-  educationPrinciplesRef: React.RefObject<HTMLDivElement>,
-  title: string,
-  educationPrinciples?: string[]
-) => {
-  return {
-    key: TabKeys.MoreInfo,
-    label: showNotification ? (
-      <div>
-        {title}
-        <div className="notice-dot" />
-      </div>
-    ) : (
-      title
-    ),
-    content: ((educationPrinciples && educationPrinciples.length > 0) ||
-      descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]) && (
-      <MoreInfoRuleDescription
-        educationPrinciples={educationPrinciples}
-        sections={descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]}
-        showNotification={showNotification}
-        educationPrinciplesRef={educationPrinciplesRef}
-      />
-    )
-  };
-};
-
-export const getHowToFixTab = (
-  descriptionSectionsByKey: Dictionary<RuleDescriptionSection[]>,
-  title: string,
-  ruleDescriptionContextKey?: string
-) => {
-  return {
-    key: TabKeys.HowToFixIt,
-    label: title,
-    content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
-      <RuleDescription
-        className="big-padded"
-        sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
-        defaultContextKey={ruleDescriptionContextKey}
-      />
-    )
-  };
-};
-
-export const getWhyIsThisAnIssueTab = (
-  rootCauseDescriptionSections: RuleDescriptionSection[],
-  descriptionSectionsByKey: Dictionary<RuleDescriptionSection[]>,
-  title: string,
-  ruleDescriptionContextKey?: string
-) => {
-  return {
-    key: TabKeys.WhyIsThisAnIssue,
-    label: title,
-    content: rootCauseDescriptionSections && (
-      <RuleDescription
-        className="big-padded"
-        sections={rootCauseDescriptionSections}
-        isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
-        defaultContextKey={ruleDescriptionContextKey}
-      />
-    )
-  };
-};
+export default withCurrentUserContext(TabViewer);

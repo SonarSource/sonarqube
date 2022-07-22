@@ -18,102 +18,51 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { groupBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import TabViewer, {
-  getHowToFixTab,
-  getMoreInfoTab,
-  getWhyIsThisAnIssueTab,
-  Tab,
-  TabKeys
-} from '../../../components/rules/TabViewer';
-import { translate } from '../../../helpers/l10n';
+import TabViewer from '../../../components/rules/TabViewer';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Component, Issue, RuleDetails } from '../../../types/types';
-import { RuleDescriptionSections } from '../../coding-rules/rule';
 
-interface Props {
+interface IssueViewerTabsProps {
   component?: Component;
   issue: Issue;
   codeTabContent: React.ReactNode;
   ruleDetails: RuleDetails;
 }
 
-export default class IssueViewerTabs extends React.PureComponent<Props> {
-  computeTabs = (showNotice: boolean, educationPrinciplesRef: React.RefObject<HTMLDivElement>) => {
-    const {
-      ruleDetails,
-      codeTabContent,
-      issue: { ruleDescriptionContextKey }
-    } = this.props;
-    const descriptionSectionsByKey = groupBy(
-      ruleDetails.descriptionSections,
-      section => section.key
-    );
-    const hasEducationPrinciples =
-      !!ruleDetails.educationPrinciples && ruleDetails.educationPrinciples.length > 0;
-    const showNotification = showNotice && hasEducationPrinciples;
-
-    const rootCauseDescriptionSections =
-      descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
-      descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
-
-    return [
-      {
-        key: TabKeys.Code,
-        label: translate('issue.tabs', TabKeys.Code),
-        content: <div className="padded">{codeTabContent}</div>
-      },
-      getWhyIsThisAnIssueTab(
-        rootCauseDescriptionSections,
-        descriptionSectionsByKey,
-        translate('issue.tabs', TabKeys.WhyIsThisAnIssue),
-        ruleDescriptionContextKey
-      ),
-      getHowToFixTab(
-        descriptionSectionsByKey,
-        translate('issue.tabs', TabKeys.HowToFixIt),
-        ruleDescriptionContextKey
-      ),
-      getMoreInfoTab(
-        showNotification,
-        descriptionSectionsByKey,
-        educationPrinciplesRef,
-        translate('issue.tabs', TabKeys.MoreInfo),
-        ruleDetails.educationPrinciples
-      )
-    ].filter(tab => tab.content) as Array<Tab>;
-  };
-
-  render() {
-    const { ruleDetails, codeTabContent } = this.props;
-    const {
-      component,
-      ruleDetails: { name, key },
-      issue: { message }
-    } = this.props;
-    return (
-      <>
-        <div
-          className={classNames('issue-header', {
-            'issue-project-level': component !== undefined
-          })}>
-          <h1 className="text-bold">{message}</h1>
-          <div className="spacer-top big-spacer-bottom">
-            <span className="note padded-right">{name}</span>
-            <Link className="small" to={getRuleUrl(key)} target="_blank">
-              {key}
-            </Link>
-          </div>
+export default function IssueViewerTabs(props: IssueViewerTabsProps) {
+  const {
+    ruleDetails,
+    codeTabContent,
+    issue: { ruleDescriptionContextKey }
+  } = props;
+  const {
+    component,
+    ruleDetails: { name, key },
+    issue: { message }
+  } = props;
+  return (
+    <>
+      <div
+        className={classNames('issue-header', {
+          'issue-project-level': component !== undefined
+        })}>
+        <h1 className="text-bold">{message}</h1>
+        <div className="spacer-top big-spacer-bottom">
+          <span className="note padded-right">{name}</span>
+          <Link className="small" to={getRuleUrl(key)} target="_blank">
+            {key}
+          </Link>
         </div>
-        <TabViewer
-          ruleDetails={ruleDetails}
-          computeTabs={this.computeTabs}
-          codeTabContent={codeTabContent}
-          pageType="issues"
-        />
-      </>
-    );
-  }
+      </div>
+      <TabViewer
+        ruleDetails={ruleDetails}
+        extendedDescription={ruleDetails.htmlNote}
+        ruleDescriptionContextKey={ruleDescriptionContextKey}
+        codeTabContent={codeTabContent}
+        pageType="issues"
+      />
+    </>
+  );
 }

@@ -31,7 +31,7 @@ import './style.css';
 interface Props {
   sections?: RuleDescriptionSection[];
   educationPrinciples?: string[];
-  showNotification?: boolean;
+  displayEducationalPrinciplesNotification?: boolean;
   educationPrinciplesRef?: React.RefObject<HTMLDivElement>;
 }
 
@@ -48,10 +48,15 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
   };
 
   render() {
-    const { showNotification, sections = [], educationPrinciples = [] } = this.props;
+    const {
+      displayEducationalPrinciplesNotification,
+      sections = [],
+      educationPrinciples = [],
+      educationPrinciplesRef
+    } = this.props;
     return (
       <div className="big-padded rule-desc">
-        {showNotification && (
+        {displayEducationalPrinciplesNotification && (
           <Alert variant="info">
             <p className="little-spacer-bottom little-spacer-top">
               {translate('coding_rules.more_info.notification_message')}
@@ -73,7 +78,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
 
         {educationPrinciples.length > 0 && (
           <>
-            <h2 ref={this.props.educationPrinciplesRef}>
+            <h2 ref={educationPrinciplesRef}>
               {translate('coding_rules.more_info.education_principles.title')}
             </h2>
             {educationPrinciples.map(key => {

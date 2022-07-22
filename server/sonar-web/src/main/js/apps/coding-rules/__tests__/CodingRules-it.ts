@@ -20,7 +20,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
-import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
@@ -378,7 +378,7 @@ it('should handle hash parameters', async () => {
 
 it('should show notification for rule advanced section and remove it after user visits', async () => {
   const user = userEvent.setup();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule8');
+  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
   await screen.findByRole('heading', {
     level: 3,
     name: 'Awesome Python rule with education principles'
@@ -422,7 +422,8 @@ it('should show notification for rule advanced section and remove it after user 
 
 it('should show notification for rule advanced section and removes it when user scroll to the principles', async () => {
   const user = userEvent.setup();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule8');
+  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+
   await screen.findByRole('heading', {
     level: 3,
     name: 'Awesome Python rule with education principles'
@@ -463,7 +464,9 @@ it('should show notification for rule advanced section and removes it when user 
       name: 'coding_rules.more_info.scroll_message'
     })
   ).toBeInTheDocument();
+
   fireEvent.scroll(screen.getByText('coding_rules.more_info.education_principles.title'));
+
   // navigate away and come back
   await user.click(
     screen.getByRole('button', {
@@ -476,6 +479,24 @@ it('should show notification for rule advanced section and removes it when user 
     })
   );
   expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
+});
+
+it('should not show notification for anonymous users', async () => {
+  const user = userEvent.setup();
+  renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule8');
+
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'coding_rules.description_section.title.more_info'
+    })
+  );
+
+  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: 'coding_rules.more_info.scroll_message'
+    })
+  ).not.toBeInTheDocument();
 });
 
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {

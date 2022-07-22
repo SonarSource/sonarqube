@@ -22,8 +22,10 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
+import { mockCurrentUser } from '../../../helpers/testMocks';
 import { renderApp, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { IssueType } from '../../../types/issues';
+import { CurrentUser } from '../../../types/users';
 import IssuesApp from '../components/IssuesApp';
 import { projectIssuesRoutes } from '../routes';
 
@@ -42,14 +44,16 @@ beforeEach(() => {
 it('should show education principles', async () => {
   const user = userEvent.setup();
   renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
-  await user.click(await screen.findByRole('button', { name: `issue.tabs.more_info` }));
+  await user.click(
+    await screen.findByRole('button', { name: `coding_rules.description_section.title.more_info` })
+  );
   expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
 });
 
 it('should open issue and navigate', async () => {
   const user = userEvent.setup();
 
-  renderIssueApp();
+  renderIssueApp(mockCurrentUser());
 
   // Select an issue with an advanced rule
   expect(await screen.findByRole('region', { name: 'Fix that' })).toBeInTheDocument();
@@ -60,13 +64,21 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
 
   // Select the "why is this an issue" tab and check its content
-  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
+  expect(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+  );
   expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
   // Select the "how to fix it" tab
-  expect(screen.getByRole('button', { name: `issue.tabs.how_to_fix` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.how_to_fix` }));
+  expect(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.how_to_fix` })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.how_to_fix` })
+  );
 
   // Is the context selector present with the expected values and default selection?
   expect(screen.getByRole('button', { name: 'Context 2' })).toBeInTheDocument();
@@ -88,8 +100,12 @@ it('should open issue and navigate', async () => {
   expect(screen.getByText('coding_rules.context.others.description.second')).toBeInTheDocument();
 
   // Select the main info tab and check its content
-  expect(screen.getByRole('button', { name: `issue.tabs.more_info` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.more_info` }));
+  expect(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.more_info` })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.more_info` })
+  );
   expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
   // check for extended description
@@ -104,8 +120,12 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
   // Select the "why is this an issue tab" and check its content
-  expect(screen.getByRole('button', { name: `issue.tabs.why` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.why` }));
+  expect(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+  );
   expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
   // Select the previous issue (with a simple rule) through keyboard shortcut
@@ -115,9 +135,7 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
-  // Select the "Where is the issue" tab and check its content
-  expect(screen.getByRole('button', { name: `issue.tabs.code` })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: `issue.tabs.code` }));
+  // The "Where is the issue" tab should be selected by default. Check its content
   expect(screen.getByRole('region', { name: 'Issue on file' })).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
@@ -171,8 +189,8 @@ describe('redirects', () => {
   });
 });
 
-function renderIssueApp() {
-  renderApp('project/issues', <IssuesApp />);
+function renderIssueApp(currentUser?: CurrentUser) {
+  renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(), ...currentUser });
 }
 
 function renderProjectIssuesApp(navigateTo?: string) {

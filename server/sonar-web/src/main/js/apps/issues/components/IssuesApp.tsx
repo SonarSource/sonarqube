@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { debounce, groupBy, keyBy, omit, without } from 'lodash';
+import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -74,7 +74,6 @@ import {
 import { SecurityStandard } from '../../../types/security';
 import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
-import { RuleDescriptionSections } from '../../coding-rules/rule';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
@@ -355,39 +354,12 @@ export class App extends React.PureComponent<Props, State> {
     }
     this.setState({ loadingRule: true });
     const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
-      .then(response => {
-        const ruleDetails = response.rule;
-        this.addExtendedDescription(ruleDetails);
-        return ruleDetails;
-      })
+      .then(response => response.rule)
       .catch(() => undefined);
     if (this.mounted) {
       this.setState({ loadingRule: false, openRuleDetails });
     }
   }
-
-  addExtendedDescription = (ruleDetails: RuleDetails) => {
-    const descriptionSectionsByKey = groupBy(
-      ruleDetails.descriptionSections,
-      section => section.key
-    );
-
-    if (ruleDetails.htmlNote) {
-      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] !== undefined) {
-        // We add the extended description (htmlNote) in the first context, in case there are contexts
-        // Extended description will get reworked in future
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
-          '<br/>' + ruleDetails.htmlNote;
-      } else {
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: ruleDetails.htmlNote
-          }
-        ];
-      }
-    }
-  };
 
   selectPreviousIssue = () => {
     const { issues } = this.state;

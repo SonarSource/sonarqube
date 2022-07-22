@@ -21,7 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchIssues } from '../../../../api/issues';
 import { getRuleDetails } from '../../../../api/rules';
-import TabViewer from '../../../../components/rules/TabViewer';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
@@ -54,8 +53,6 @@ import {
 } from '../../actions';
 import BulkChangeModal from '../BulkChangeModal';
 import { App } from '../IssuesApp';
-import IssuesSourceViewer from '../IssuesSourceViewer';
-import IssueViewerTabs from '../IssueTabViewer';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -207,24 +204,6 @@ it('should open standard facets for vulnerabilities and hotspots', () => {
   instance.handleFacetToggle('owaspTop10');
   expect(wrapper.state('openFacets').owaspTop10).toEqual(true);
   expect(fetchFacet).lastCalledWith('owaspTop10');
-});
-
-it('should switch to source view if an issue is selected', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find(IssueViewerTabs).exists()).toBe(false);
-
-  wrapper.setProps({ location: mockLocation({ query: { open: 'third' } }) });
-  await waitAndUpdate(wrapper);
-  expect(
-    wrapper
-      .find(IssueViewerTabs)
-      .dive()
-      .find(TabViewer)
-      .dive()
-      .find(IssuesSourceViewer)
-      .exists()
-  ).toBe(true);
 });
 
 it('should correctly bind key events for issue navigation', async () => {
