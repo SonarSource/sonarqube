@@ -34,11 +34,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static java.lang.String.format;
@@ -60,17 +60,17 @@ public class PluginJarLoader {
   private static final String LOAD_ERROR_GENERIC_MESSAGE = "Startup failed: Plugins can't be loaded. See web logs for more information";
 
   private final ServerFileSystem fs;
-  private final SonarQubeVersion sonarQubeVersion;
+  private final SonarRuntime sonarRuntime;
   private final Set<String> blacklistedPluginKeys;
 
   @Inject
-  public PluginJarLoader(ServerFileSystem fs, SonarQubeVersion sonarQubeVersion) {
-    this(fs, sonarQubeVersion, DEFAULT_BLACKLISTED_PLUGINS);
+  public PluginJarLoader(ServerFileSystem fs, SonarRuntime sonarRuntime) {
+    this(fs, sonarRuntime, DEFAULT_BLACKLISTED_PLUGINS);
   }
 
-  PluginJarLoader(ServerFileSystem fs, SonarQubeVersion sonarQubeVersion, Set<String> blacklistedPluginKeys) {
+  PluginJarLoader(ServerFileSystem fs, SonarRuntime sonarRuntime, Set<String> blacklistedPluginKeys) {
     this.fs = fs;
-    this.sonarQubeVersion = sonarQubeVersion;
+    this.sonarRuntime = sonarRuntime;
     this.blacklistedPluginKeys = blacklistedPluginKeys;
   }
 
@@ -211,8 +211,9 @@ public class PluginJarLoader {
       return false;
     }
 
-    if (!info.isCompatibleWith(sonarQubeVersion.get().toString())) {
-      throw MessageException.of(format("Plugin %s [%s] requires at least SonarQube %s", info.getName(), info.getKey(), info.getMinimalSqVersion()));
+    if (!info.isCompatibleWith(sonarRuntime.getApiVersion().toString())) {
+      throw MessageException.of(format("Plugin %s [%s] requires at least Sonar Plugin API version %s (current: %s)",
+        info.getName(), info.getKey(), info.getMinimalSonarPluginApiVersion(), sonarRuntime.getApiVersion()));
     }
     return true;
   }

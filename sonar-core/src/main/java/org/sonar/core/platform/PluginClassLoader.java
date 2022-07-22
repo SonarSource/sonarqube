@@ -98,8 +98,8 @@ public class PluginClassLoader {
           Loggers.get(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(), info.getKey());
         }
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
-        Version minSqVersion = info.getMinimalSqVersion();
-        boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
+        Version minSonarPluginApiVersion = info.getMinimalSonarPluginApiVersion();
+        boolean compatibilityMode = minSonarPluginApiVersion != null && minSonarPluginApiVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         if (compatibilityMode) {
           Loggers.get(getClass()).warn("API compatibility mode is no longer supported. In case of error, plugin {} [{}] should package its dependencies.",
             info.getName(), info.getKey());

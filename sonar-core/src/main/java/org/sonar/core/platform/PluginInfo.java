@@ -64,7 +64,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private String displayVersion;
 
   @CheckForNull
-  private Version minimalSqVersion;
+  private Version minimalSonarPluginApiVersion;
 
   @CheckForNull
   private String description;
@@ -145,8 +145,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   @CheckForNull
-  public Version getMinimalSqVersion() {
-    return minimalSqVersion;
+  public Version getMinimalSonarPluginApiVersion() {
+    return minimalSonarPluginApiVersion;
   }
 
   @CheckForNull
@@ -220,8 +220,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return this;
   }
 
-  public PluginInfo setMinimalSqVersion(@Nullable Version v) {
-    this.minimalSqVersion = v;
+  public PluginInfo setMinimalSonarPluginApiVersion(@Nullable Version v) {
+    this.minimalSonarPluginApiVersion = v;
     return this;
   }
 
@@ -300,20 +300,20 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   /**
-   * Find out if this plugin is compatible with a given version of SonarQube.
-   * The version of SQ must be greater than or equal to the minimal version
+   * Find out if this plugin is compatible with a given version of Sonar Plugin API.
+   * The version of plugin api embedded in SQ must be greater than or equal to the minimal version
    * needed by the plugin.
    */
-  public boolean isCompatibleWith(String runtimeVersion) {
-    if (null == this.minimalSqVersion) {
+  public boolean isCompatibleWith(String runtimePluginApiVersion) {
+    if (null == this.minimalSonarPluginApiVersion) {
       // no constraint defined on the plugin
       return true;
     }
 
-    Version effectiveMin = Version.create(minimalSqVersion.getName()).removeQualifier();
-    Version effectiveVersion = Version.create(runtimeVersion).removeQualifier();
+    Version effectiveMin = Version.create(minimalSonarPluginApiVersion.getName()).removeQualifier();
+    Version effectiveVersion = Version.create(runtimePluginApiVersion).removeQualifier();
 
-    if (runtimeVersion.endsWith("-SNAPSHOT")) {
+    if (runtimePluginApiVersion.endsWith("-SNAPSHOT")) {
       // check only the major and minor versions (two first fields)
       effectiveMin = Version.create(effectiveMin.getMajor() + "." + effectiveMin.getMinor());
     }
@@ -389,9 +389,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
     setOrganizationName(manifest.getOrganization());
     setOrganizationUrl(manifest.getOrganizationUrl());
     setDisplayVersion(manifest.getDisplayVersion());
-    String minSqVersion = manifest.getSonarVersion();
-    if (minSqVersion != null) {
-      setMinimalSqVersion(Version.create(minSqVersion));
+    String minSonarPluginApiVersion = manifest.getSonarVersion();
+    if (minSonarPluginApiVersion != null) {
+      setMinimalSonarPluginApiVersion(Version.create(minSonarPluginApiVersion));
     }
     setHomepageUrl(manifest.getHomepage());
     setIssueTrackerUrl(manifest.getIssueTrackerUrl());

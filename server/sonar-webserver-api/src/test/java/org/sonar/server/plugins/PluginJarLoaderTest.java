@@ -35,10 +35,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.PluginManifest;
 
@@ -56,12 +56,12 @@ public class PluginJarLoaderTest {
 
   private final ServerFileSystem fs = mock(ServerFileSystem.class);
   private final Set<String> blacklisted = new HashSet<>();
-  private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
-  private final PluginJarLoader underTest = new PluginJarLoader(fs, sonarQubeVersion, blacklisted);
+  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final PluginJarLoader underTest = new PluginJarLoader(fs, sonarRuntime, blacklisted);
 
   @Before
   public void setUp() throws IOException {
-    when(sonarQubeVersion.get()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
+    when(sonarRuntime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
     when(fs.getDeployedPluginsDir()).thenReturn(temp.newFolder("deployed"));
     when(fs.getDownloadedPluginsDir()).thenReturn(temp.newFolder("downloaded"));
     when(fs.getHomeDir()).thenReturn(temp.newFolder("home"));
@@ -285,12 +285,12 @@ public class PluginJarLoaderTest {
   }
 
   @Test
-  public void fail_if_plugin_does_not_support_sq_version() throws Exception {
-    when(sonarQubeVersion.get()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
+  public void fail_if_plugin_does_not_support_plugin_api_version() throws Exception {
+    when(sonarRuntime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
     copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
 
     assertThatThrownBy(() -> underTest.loadPlugins())
-      .hasMessage("Plugin Base Plugin [testbase] requires at least SonarQube 4.5.4");
+      .hasMessage("Plugin Base Plugin [testbase] requires at least Sonar Plugin API version 4.5.4 (current: 1.0)");
   }
 
   private static File copyTestPluginTo(String testPluginName, File toDir) throws IOException {

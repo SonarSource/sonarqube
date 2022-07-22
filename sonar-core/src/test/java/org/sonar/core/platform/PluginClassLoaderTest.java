@@ -54,7 +54,7 @@ public class PluginClassLoaderTest {
     PluginInfo plugin = new PluginInfo("foo")
       .setJarFile(jarFile)
       .setMainClass("org.foo.FooPlugin")
-      .setMinimalSqVersion(Version.create("5.2"));
+      .setMinimalSonarPluginApiVersion(Version.create("5.2"));
 
     ExplodedPlugin explodedPlugin = createExplodedPlugin(plugin);
     Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(
@@ -141,7 +141,7 @@ public class PluginClassLoaderTest {
     PluginInfo info = new PluginInfo("foo")
       .setJarFile(jarFile)
       .setMainClass("org.foo.FooPlugin")
-      .setMinimalSqVersion(Version.create("4.5.2"));
+      .setMinimalSonarPluginApiVersion(Version.create("4.5.2"));
 
     Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(
       ImmutableMap.of("foo", createExplodedPlugin(info)));

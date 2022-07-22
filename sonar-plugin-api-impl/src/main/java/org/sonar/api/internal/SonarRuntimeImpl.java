@@ -80,8 +80,8 @@ public class SonarRuntimeImpl implements SonarRuntime {
   /**
    * Create an instance for SonarQube runtime environment.
    */
-  public static SonarRuntime forSonarQube(Version version, SonarQubeSide side, SonarEdition edition) {
-    return new SonarRuntimeImpl(version, SonarProduct.SONARQUBE, side, edition);
+  public static SonarRuntime forSonarQube(Version apiVersion, SonarQubeSide side, SonarEdition edition) {
+    return new SonarRuntimeImpl(apiVersion, SonarProduct.SONARQUBE, side, edition);
   }
 
   /**

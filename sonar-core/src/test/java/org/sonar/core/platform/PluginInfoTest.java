@@ -187,7 +187,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getLicense()).isNull();
     assertThat(pluginInfo.getOrganizationName()).isNull();
     assertThat(pluginInfo.getOrganizationUrl()).isNull();
-    assertThat(pluginInfo.getMinimalSqVersion()).isNull();
+    assertThat(pluginInfo.getMinimalSonarPluginApiVersion()).isNull();
     assertThat(pluginInfo.getRequiredPlugins()).isEmpty();
     assertThat(pluginInfo.isSonarLintSupported()).isFalse();
   }
@@ -222,7 +222,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getLicense()).isEqualTo("LGPL");
     assertThat(pluginInfo.getOrganizationName()).isEqualTo("SonarSource");
     assertThat(pluginInfo.getOrganizationUrl()).isEqualTo("http://sonarsource.com");
-    assertThat(pluginInfo.getMinimalSqVersion().getName()).isEqualTo("4.5.1");
+    assertThat(pluginInfo.getMinimalSonarPluginApiVersion().getName()).isEqualTo("4.5.1");
     assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
     assertThat(pluginInfo.isSonarLintSupported()).isTrue();
   }
@@ -272,7 +272,7 @@ public class PluginInfoTest {
 
     assertThat(checkstyleInfo.getName()).isEqualTo("Checkstyle");
     assertThat(checkstyleInfo.getDocumentationPath()).isNull();
-    assertThat(checkstyleInfo.getMinimalSqVersion()).isEqualTo(Version.create("2.8"));
+    assertThat(checkstyleInfo.getMinimalSonarPluginApiVersion()).isEqualTo(Version.create("2.8"));
   }
 
   @Test
@@ -319,7 +319,7 @@ public class PluginInfoTest {
   PluginInfo withMinSqVersion(@Nullable String version) {
     PluginInfo pluginInfo = new PluginInfo("foo");
     if (version != null) {
-      pluginInfo.setMinimalSqVersion(Version.create(version));
+      pluginInfo.setMinimalSonarPluginApiVersion(Version.create(version));
     }
     return pluginInfo;
   }
