@@ -19,19 +19,22 @@
  */
 import * as React from 'react';
 
-export default function LeastTrustPrinciple() {
+export default function NeverTrustUserInput() {
   return (
     <>
-      <h3>Least Trust Principle</h3>
-      <p>Applications must treat all third-party data as attacker-controlled data. </p>
+      <h3>Never Trust User Input</h3>
       <p>
-        First, the application must determine where the third-party data originates and treat that
-        data source as an attack vector.
+        Applications must treat all user input and, more generally, all third-party data as
+        attacker-controlled data.
+      </p>
+      <p>
+        The application must determine where the third-party data comes from and treat that data
+        source as an attack vector. Two rules apply:
       </p>
 
       <p>
-        Then, the application must validate the attacker-controlled data against predefined formats,
-        such as:
+        First, before using it in the application&apos;s business logic, the application must
+        validate the attacker-controlled data against predefined formats, such as:
       </p>
       <ul>
         <li>Character sets</li>
@@ -41,9 +44,9 @@ export default function LeastTrustPrinciple() {
       </ul>
 
       <p>
-        Next, the code must sanitize the data before performing mission-critical operations on the
-        attacker-controlled data. The code must know in which contexts the intercepted data is used
-        and act accordingly.
+        Second, the application must sanitize string data before inserting it into interpreted
+        contexts (client-side code, file paths, SQL queries). Unsanitized code can corrupt the
+        application&apos;s logic.
       </p>
     </>
   );

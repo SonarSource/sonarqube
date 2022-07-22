@@ -171,7 +171,7 @@ export default class CodingRulesMock {
             content: resourceContent
           }
         ],
-        educationPrinciples: ['defense_in_depth', 'least_trust_principle']
+        educationPrinciples: ['defense_in_depth', 'never_trust_user_input']
       })
     ];
 

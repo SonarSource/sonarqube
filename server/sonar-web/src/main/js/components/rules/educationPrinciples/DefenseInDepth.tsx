@@ -26,7 +26,7 @@ export default function DefenseInDepth() {
       <p>
         Applications and infrastructure benefit greatly from relying on multiple security mechanisms
         layered on top of each other. If one security mechanism fails, there is a high probability
-        that the subsequent layer of security will successfully defend against the attack.
+        that the subsequent layers of security will successfully defend against the attack.
       </p>
 
       <p>A non-exhaustive list of these code protection ramparts includes the following:</p>
@@ -40,8 +40,8 @@ export default function DefenseInDepth() {
       </ul>
 
       <p>
-        Note that these layers must be simple enough to use in an everyday workflow. Harsh security
-        measures can lead to users bypassing them.
+        Note that these layers must be simple enough to use in an everyday workflow. Security
+        measures should not break usability.
       </p>
     </>
   );

@@ -24,7 +24,7 @@ import { Dict } from '../../types/types';
 import { ButtonLink } from '../controls/buttons';
 import { Alert } from '../ui/Alert';
 import DefenseInDepth from './educationPrinciples/DefenseInDepth';
-import LeastTrustPrinciple from './educationPrinciples/LeastTrustPrinciple';
+import NeverTrustUserInput from './educationPrinciples/NeverTrustUserInput';
 import RuleDescription from './RuleDescription';
 import './style.css';
 
@@ -37,7 +37,7 @@ interface Props {
 
 const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
   defense_in_depth: DefenseInDepth,
-  least_trust_principle: LeastTrustPrinciple
+  never_trust_user_input: NeverTrustUserInput
 };
 export default class MoreInfoRuleDescription extends React.PureComponent<Props, {}> {
   handleNotificationScroll = () => {
