@@ -19,31 +19,18 @@
  */
 package org.sonar.server.issue.index;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
-import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
-import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -58,20 +45,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexSecurityHotspotsTest {
-
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_security_hotspots_type() {
@@ -129,33 +103,12 @@ public class IssueIndexSecurityHotspotsTest {
     assertThatFacetHasOnly(IssueQuery.builder().types(singletonList(SECURITY_HOTSPOT.name())), "severities");
   }
 
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(asList(issues).iterator());
-    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
-  }
-
   @SafeVarargs
   private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsOnly(expectedEntries);
-  }
-
-  private void assertThatSearchReturnsOnly(IssueQuery.Builder query, String... expectedIssueKeys) {
-    List<String> keys = searchAndReturnKeys(query);
-    assertThat(keys).containsExactlyInAnyOrder(expectedIssueKeys);
-  }
-
-  private void assertThatSearchReturnsEmpty(IssueQuery.Builder query) {
-    List<String> keys = searchAndReturnKeys(query);
-    assertThat(keys).isEmpty();
-  }
-
-  private List<String> searchAndReturnKeys(IssueQuery.Builder query) {
-    return Arrays.stream(underTest.search(query.build(), new SearchOptions()).getHits().getHits())
-      .map(SearchHit::getId)
-      .collect(Collectors.toList());
   }
 
 }

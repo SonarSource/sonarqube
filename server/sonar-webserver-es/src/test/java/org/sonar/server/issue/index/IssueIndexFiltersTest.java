@@ -20,43 +20,26 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.assertj.core.api.Fail;
-import org.elasticsearch.search.SearchHit;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.permission.index.IndexPermissions;
-import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards.SQCategory;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
-import org.sonar.server.view.index.ViewIndexer;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.TimeZone.getTimeZone;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -66,20 +49,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexFiltersTest {
-
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  private final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
-  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
-  private final PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private final IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_keys() {
@@ -844,31 +814,7 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().sonarsourceSecurity(singletonList("buffer-overflow")), "I1");
   }
 
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(asList(issues).iterator());
-    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
-  }
-
   private void indexView(String viewUuid, List<String> projects) {
     viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
-  }
-
-  /**
-   * Execute the search request and return the document ids of results.
-   */
-  private List<String> searchAndReturnKeys(IssueQuery.Builder query) {
-    return Arrays.stream(underTest.search(query.build(), new SearchOptions()).getHits().getHits())
-      .map(SearchHit::getId)
-      .collect(Collectors.toList());
-  }
-
-  private void assertThatSearchReturnsOnly(IssueQuery.Builder query, String... expectedIssueKeys) {
-    List<String> keys = searchAndReturnKeys(query);
-    assertThat(keys).containsExactlyInAnyOrder(expectedIssueKeys);
-  }
-
-  private void assertThatSearchReturnsEmpty(IssueQuery.Builder query) {
-    List<String> keys = searchAndReturnKeys(query);
-    assertThat(keys).isEmpty();
   }
 }

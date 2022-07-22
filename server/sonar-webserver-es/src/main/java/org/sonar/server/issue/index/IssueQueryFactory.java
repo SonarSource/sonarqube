@@ -133,6 +133,8 @@ public class IssueQueryFactory {
         .languages(request.getLanguages())
         .tags(request.getTags())
         .types(request.getTypes())
+        .pciDss32(request.getPciDss32())
+        .pciDss40(request.getPciDss40())
         .owaspTop10(request.getOwaspTop10())
         .owaspTop10For2021(request.getOwaspTop10For2021())
         .sansTop25(request.getSansTop25())
@@ -199,8 +201,8 @@ public class IssueQueryFactory {
       if (!QUALIFIERS_WITHOUT_LEAK_PERIOD.contains(component.qualifier()) && request.getPullRequest() == null) {
         Optional<SnapshotDto> snapshot = getLastAnalysis(dbSession, component);
         if (!snapshot.isEmpty() && isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, snapshot.get())) {
-            builder.newCodeOnReference(true);
-            return;
+          builder.newCodeOnReference(true);
+          return;
         }
         // if last analysis has no period date, then no issue should be considered new.
         Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(snapshot);

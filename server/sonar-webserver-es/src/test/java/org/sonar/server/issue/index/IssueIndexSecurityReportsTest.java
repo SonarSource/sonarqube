@@ -23,34 +23,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.permission.index.IndexPermissions;
-import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
-import org.sonar.server.view.index.ViewIndexer;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
-import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -60,21 +47,7 @@ import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEF
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 
-public class IssueIndexSecurityReportsTest {
-
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
 
   @Test
   public void getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
@@ -673,11 +646,6 @@ public class IssueIndexSecurityReportsTest {
 
   private SecurityStandardCategoryStatistics findRuleInCweByYear(SecurityStandardCategoryStatistics statistics, String cweId) {
     return statistics.getChildren().stream().filter(stat -> stat.getCategory().equals(cweId)).findAny().orElse(null);
-  }
-
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(asList(issues).iterator());
-    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
   }
 
   private void indexView(String viewUuid, List<String> projects) {

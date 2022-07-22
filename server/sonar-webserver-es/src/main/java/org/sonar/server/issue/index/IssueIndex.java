@@ -455,8 +455,8 @@ public class IssueIndex {
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
 
     // security category
-    addSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
-    addSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
+    addPciDssSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
+    addPciDssSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
@@ -483,6 +483,49 @@ public class IssueIndex {
           .must(securityCategoryFilter)
           .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
+  }
+
+  /**
+   * <p>Builds the Elasticsearch boolean query to filter the PCI DSS categories.</p>
+   *
+   * <p>The PCI DSS security report handles all the subcategories as one level. This means that subcategory 1.1 doesn't include the issues from 1.1.1.
+   * Taking this into account, the search filter follows the same logic and uses prefix matching for top-level categories and exact matching for subcategories</p>
+   *
+   * <p>Example</p>
+   * <p>List of PCI DSS categories in issues: {1.5.8, 1.5.9, 1.6.7}
+   *   <ul>
+   *     <li>Search: {1}, returns {1.5.8, 1.5.9, 1.6.7}</li>
+   *     <li>Search: {1.5.8}, returns {1.5.8}</li>
+   *     <li>Search: {1.5}, returns {}</li>
+   *   </ul>
+   * </p>
+   *
+   * @param fieldName The PCI DSS version, e.g. pciDss-3.2
+   * @param facet The facet used for the filter
+   * @param values The PCI DSS categories to search for
+   * @param allFilters Object that holds all the filters for the Elastic search call
+   */
+  private static void addPciDssSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
+    if (values.isEmpty()) {
+      return;
+    }
+
+    BoolQueryBuilder boolQueryBuilder = boolQuery()
+      // ensures that at least one "should" query is matched. Without it, "should" queries are optional, when a "must" is also present.
+      .minimumShouldMatch(1)
+      // the field type must be vulnerability or security hotspot
+      .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name()));
+    // for top level categories a prefix query is added, while for subcategories a term query is used for exact matching
+    values.stream().map(v -> choosePciDssQuery(fieldName, v)).forEach(boolQueryBuilder::should);
+
+    allFilters.addFilter(
+      fieldName,
+      facet.getFilterScope(),
+      boolQueryBuilder);
+  }
+
+  private static QueryBuilder choosePciDssQuery(String fieldName, String value) {
+    return value.contains(".") ? createTermFilter(fieldName, value) : createPrefixFilter(fieldName, value + ".");
   }
 
   private static void addSeverityFilter(IssueQuery query, AllFilters allFilters) {
@@ -615,6 +658,10 @@ public class IssueIndex {
     return value == null ? null : termQuery(field, value);
   }
 
+  private static QueryBuilder createPrefixFilter(String field, String value) {
+    return prefixQuery(field, value);
+  }
+
   private void configureSorting(IssueQuery query, SearchSourceBuilder esRequest) {
     createSortBuilders(query).forEach(esRequest::sort);
   }
@@ -715,6 +762,8 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TYPES, query.types().toArray());
 
+    addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_32, PCI_DSS_32, options, aggregationHelper, esRequest, query.pciDss32().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_PCI_DSS_40, PCI_DSS_40, options, aggregationHelper, esRequest, query.pciDss40().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest, query.owaspTop10().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10_2021, OWASP_TOP_10_2021, options, aggregationHelper, esRequest, query.owaspTop10For2021().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SANS_TOP_25, SANS_TOP_25, options, aggregationHelper, esRequest, query.sansTop25().toArray());
@@ -1003,7 +1052,7 @@ public class IssueIndex {
     requestBuilder.source(sourceBuilder);
     SearchResponse response = client.search(requestBuilder);
     return response.getAggregations().asList().stream()
-      .map(x -> (ParsedFilter) x)
+      .map(ParsedFilter.class::cast)
       .flatMap(projectBucket -> ((ParsedStringTerms) projectBucket.getAggregations().get("branchUuid")).getBuckets().stream()
         .flatMap(branchBucket -> {
           long count = ((ParsedValueCount) branchBucket.getAggregations().get(AGG_COUNT)).getValue();

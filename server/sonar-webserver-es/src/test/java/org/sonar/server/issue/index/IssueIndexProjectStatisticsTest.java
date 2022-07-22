@@ -21,44 +21,22 @@ package org.sonar.server.issue.index;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.permission.index.IndexPermissions;
-import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexProjectStatisticsTest {
-
-  private System2 system2 = mock(System2.class);
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), null, new IssueIteratorFactory(null), null);
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+public class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
 
   @Test
   public void searchProjectStatistics_returns_empty_list_if_no_input() {
@@ -248,10 +226,5 @@ public class IssueIndexProjectStatisticsTest {
       .containsExactly(
         tuple(2L, branch.uuid(), from + 2L),
         tuple(1L, project.uuid(), from + 1L));
-  }
-
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(asList(issues).iterator());
-    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
   }
 }

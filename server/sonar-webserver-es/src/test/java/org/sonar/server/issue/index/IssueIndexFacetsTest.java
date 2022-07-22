@@ -23,30 +23,17 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 import org.elasticsearch.action.search.SearchResponse;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.permission.index.IndexPermissions;
-import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards.SQCategory;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
-import static java.util.TimeZone.getTimeZone;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -59,7 +46,6 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
@@ -67,6 +53,8 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
+import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
+import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V4_0;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -74,21 +62,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexFacetsTest {
-
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  private final TimeZone defaultTimezone = getTimeZone("GMT-01:00");
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(defaultTimezone);
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+public class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
   @Test
   public void facet_on_projectUuids() {
@@ -185,6 +159,38 @@ public class IssueIndexFacetsTest {
       entry("20", 1L),
       entry("564", 1L),
       entry("89", 1L));
+  }
+
+  @Test
+  public void facets_on_pciDss32() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setPciDss32(asList("1", "2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setPciDss32(singletonList("3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), V3_2.prefix(),
+      entry("1", 1L),
+      entry("2", 1L),
+      entry("3", 1L));
+  }
+
+  @Test
+  public void facets_on_pciDss40() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setPciDss40(asList("1", "2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setPciDss40(singletonList("3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), V4_0.prefix(),
+      entry("1", 1L),
+      entry("2", 1L),
+      entry("3", 1L));
   }
 
   @Test
@@ -635,11 +641,6 @@ public class IssueIndexFacetsTest {
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
     return new SearchOptions().addFacets("createdAt");
-  }
-
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(asList(issues).iterator());
-    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
   }
 
   @SafeVarargs

@@ -61,6 +61,8 @@ public class SearchRequest {
   private List<String> statuses;
   private List<String> tags;
   private Set<String> types;
+  private List<String> pciDss32;
+  private List<String> pciDss40;
   private List<String> owaspTop10;
   private List<String> owaspTop10For2021;
   private List<String> sansTop25;
@@ -365,6 +367,26 @@ public class SearchRequest {
 
   public SearchRequest setTypes(@Nullable Collection<String> types) {
     this.types = types == null ? null : ImmutableSet.copyOf(types);
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getPciDss32() {
+    return pciDss32;
+  }
+
+  public SearchRequest setPciDss32(@Nullable List<String> pciDss32) {
+    this.pciDss32 = pciDss32;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getPciDss40() {
+    return pciDss40;
+  }
+
+  public SearchRequest setPciDss40(@Nullable List<String> pciDss40) {
+    this.pciDss40 = pciDss40;
     return this;
   }
 

@@ -214,8 +214,7 @@ public class SearchActionTest {
         .getIssuesList()
         .get(0)
         .getActions()
-        .getActionsList()
-    ).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
+        .getActionsList()).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
 
     response = ws.newRequest()
       .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
@@ -227,8 +226,7 @@ public class SearchActionTest {
         .getIssuesList()
         .get(0)
         .getActions()
-        .getActionsList()
-    ).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
+        .getActionsList()).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
   }
 
   @Test
@@ -1049,6 +1047,234 @@ public class SearchActionTest {
   }
 
   @Test
+  public void only_vulnerabilities_are_returned_by_pciDss32() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "pciDss-3.2:10.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("pciDss-3.2", "10")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "10.1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void multiple_categories_pciDss32() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    // Rule 1
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "pciDss-3.2:10.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    // Rule 2
+    ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("pciDss-4.0:6.5.3", "pciDss-3.2:1.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    // Rule 3
+    ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("pciDss-4.0:6.5.3", "pciDss-3.2:2.3", "pciDss-3.2:10.1.2"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("pciDss-3.2", "1,10")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(), issueDto6.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto3.getKey(), issueDto4.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "1,10,4")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(), issueDto6.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "4")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "4,7,12")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
+
+    result = ws.newRequest()
+      .setParam("pciDss-3.2", "10.1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void only_vulnerabilities_are_returned_by_pciDss40() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-4.0:6.5.3", "pciDss-4.0:10.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("pciDss-4.0", "10,6,5")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-4.0", "10.1,6.5,5.5")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void multiple_categories_pciDss40() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    // Rule 1
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-4.0:6.5.3", "pciDss-4.0:10.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    // Rule 2
+    ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("pciDss-4.0:6.5.3", "pciDss-4.0:1.1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    // Rule 3
+    ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("pciDss-3.2:6.5.3", "pciDss-4.0:2.3"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("pciDss-4.0", "1,10")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-4.0", "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto3.getKey(), issueDto4.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-4.0", "1,10,4")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey());
+
+    result = ws.newRequest()
+      .setParam("pciDss-4.0", "4")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
+
+    result = ws.newRequest()
+      .setParam("pciDss-4.0", "4,7,12")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
+  }
+
+  @Test
   public void only_vulnerabilities_are_returned_by_cwe() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -1457,8 +1683,8 @@ public class SearchActionTest {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "owaspTop10", "owaspTop10-2021", "sansTop25",
-      "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspTop10",
+      "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();

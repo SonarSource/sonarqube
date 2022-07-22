@@ -112,6 +112,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_32;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PCI_DSS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
@@ -147,6 +149,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_LANGUAGES,
     PARAM_TAGS,
     PARAM_TYPES,
+    PARAM_PCI_DSS_32,
+    PARAM_PCI_DSS_40,
     PARAM_OWASP_TOP_10,
     PARAM_OWASP_TOP_10_2021,
     PARAM_SANS_TOP_25,
@@ -189,6 +193,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.6", "Added facets 'pciDss-3.2' and 'pciDss-4.0"),
+        new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("9.6", "New possible value for 'additionalFields' parameter: 'ruleDescriptionContextKey'"),
         new Change("9.6", "Facet 'moduleUuids' is dropped."),
@@ -261,6 +267,14 @@ public class SearchAction implements IssuesWsAction {
       .setSince("5.5")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
+    action.createParam(PARAM_PCI_DSS_32)
+      .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
+      .setSince("9.6")
+      .setExampleValue("4,6.5.8,10.1");
+    action.createParam(PARAM_PCI_DSS_40)
+      .setDescription("Comma-separated list of PCI DSS v4.0 categories.")
+      .setSince("9.6")
+      .setExampleValue("4,6.5.8,10.1");
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 2017 lowercase categories.")
       .setSince("7.3")
@@ -466,6 +480,8 @@ public class SearchAction implements IssuesWsAction {
 
     setTypesFacet(facets);
 
+    addMandatoryValuesToFacet(facets, PARAM_PCI_DSS_32, request.getPciDss32());
+    addMandatoryValuesToFacet(facets, PARAM_PCI_DSS_40, request.getPciDss40());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
@@ -485,9 +501,7 @@ public class SearchAction implements IssuesWsAction {
     Map<String, Long> buckets = facets.get(facetName);
     if (buckets != null && mandatoryValues != null) {
       for (String mandatoryValue : mandatoryValues) {
-        if (!buckets.containsKey(mandatoryValue)) {
-          buckets.put(mandatoryValue, 0L);
-        }
+        buckets.putIfAbsent(mandatoryValue, 0L);
       }
     }
   }
@@ -542,6 +556,8 @@ public class SearchAction implements IssuesWsAction {
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
+      .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))
+      .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
