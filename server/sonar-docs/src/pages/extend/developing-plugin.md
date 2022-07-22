@@ -10,10 +10,14 @@ To build a plugin, you need Java 8 and Maven 3.1 (or greater). Gradle can also b
 
 ### Sonar Plugin API
 The `sonar-plugin-api` is a Java API that is used to develop plugins for SonarQube, SonarCloud and SonarLint.
-This API used to be part of SonarQube and released with it, but it is a separate component since v9.5, with its own releases. You can find it here:  [sonar-plugin-api](https://github.com/SonarSource/sonar-plugin-api).
-*The groupId was relocated from `org.sonarsource.sonarqube` to `org.sonarsource.api.plugin`*. These are the new coordinates:
+
+[[warning]]
+| The API used to be part of SonarQube and released with it, but it is a separate component since v9.5, with its own releases. You can find it here:  [sonar-plugin-api](https://github.com/SonarSource/sonar-plugin-api).
+*The groupId was relocated from `org.sonarsource.sonarqube` to `org.sonarsource.api.plugin`*. 
+
+These are the new coordinates of the dependency:
 ```
-org.sonarsource.api.plugin:sonar-plugin-api:9.8.0.203
+org.sonarsource.api.plugin:sonar-plugin-api:<version>
 ```
 
 ### Create a Maven Project
@@ -431,6 +435,8 @@ The rules are:
     ```
 
 ## API Changes
+[[warning]]
+| Starting with v9.5, the API is released independently of SonarQube. You can find the changes for newer releases in its [code repository](https://github.com/SonarSource/sonar-plugin-api/releases).
 
 ### Release 9.3
 ![](/images/check.svg) Added
