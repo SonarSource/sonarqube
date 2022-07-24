@@ -48,7 +48,7 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
  */
 public class XooRulesDefinition implements RulesDefinition {
 
-  public static final String[] AVAILABLE_CONTEXTS = { "JavaScript", "JQuery", "Express.js", "React", "Axios" };
+  public static final String[] AVAILABLE_CONTEXTS = {"JavaScript", "JQuery", "Express.js", "React", "Axios"};
 
   public static final String XOO_REPOSITORY = "xoo";
   public static final String XOO2_REPOSITORY = "xoo2";
@@ -240,11 +240,15 @@ public class XooRulesDefinition implements RulesDefinition {
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 5))) {
       hotspot
         .addPciDss(PciDssVersion.V4_0, "6.5.1", "4.1")
-        .addPciDss(PciDssVersion.V3_2, "6.5.1", "4.2");
+        .addPciDss(PciDssVersion.V3_2, "6.5.1", "4.2")
+        .addPciDss(PciDssVersion.V4_0, "6.5a.1", "4.2c")
+        .addPciDss(PciDssVersion.V3_2, "6.5a.1b", "4.2b");
 
       oneVulnerabilityIssuePerModule
         .addPciDss(PciDssVersion.V4_0, "10.1")
-        .addPciDss(PciDssVersion.V3_2, "10.2");
+        .addPciDss(PciDssVersion.V3_2, "10.2")
+        .addPciDss(PciDssVersion.V4_0, "10.1a.2b")
+        .addPciDss(PciDssVersion.V3_2, "10.1a.2c");
     }
 
     NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
