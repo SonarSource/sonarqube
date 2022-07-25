@@ -121,6 +121,8 @@ public class SearchActionTest {
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
+  private static final String PARAM_PCI_DSS_32 = "pciDss-3.2";
+  private static final String PARAM_PCI_DSS_40 = "pciDss-4.0";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
@@ -154,6 +156,8 @@ public class SearchActionTest {
   @Test
   public void verify_ws_def() {
     WebService.Param onlyMineParam = actionTester.getDef().param(PARAM_ONLY_MINE);
+    WebService.Param pciDss32Param = actionTester.getDef().param(PARAM_PCI_DSS_32);
+    WebService.Param pciDss40Param = actionTester.getDef().param(PARAM_PCI_DSS_40);
     WebService.Param owaspTop10Param = actionTester.getDef().param(PARAM_OWASP_TOP_10_2017);
     WebService.Param sansTop25Param = actionTester.getDef().param(PARAM_SANS_TOP_25);
     WebService.Param sonarsourceSecurityParam = actionTester.getDef().param(PARAM_SONARSOURCE_SECURITY);
@@ -165,6 +169,10 @@ public class SearchActionTest {
     assertThat(actionTester.getDef().param(PARAM_ONLY_MINE).possibleValues())
       .containsExactlyInAnyOrder("yes", "no", "true", "false");
 
+    assertThat(pciDss32Param).isNotNull();
+    assertThat(pciDss32Param.isRequired()).isFalse();
+    assertThat(pciDss40Param).isNotNull();
+    assertThat(pciDss40Param.isRequired()).isFalse();
     assertThat(owaspTop10Param).isNotNull();
     assertThat(owaspTop10Param.isRequired()).isFalse();
     assertThat(sansTop25Param).isNotNull();
@@ -1453,6 +1461,37 @@ public class SearchActionTest {
     assertThat(response.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspot3.getKey());
+  }
+
+  @Test
+  public void returns_hotspots_with_specified_pciDss_category() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("cwe:117", "cwe:190")));
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("pciDss-3.2:1.2.3")));
+    RuleDto rule4 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("pciDss-4.0:2.3a")));
+    insertHotspot(project, file, rule1);
+    insertHotspot(project, file, rule2);
+    IssueDto hotspot3 = insertHotspot(project, file, rule3);
+    IssueDto hotspot4 = insertHotspot(project, file, rule4);
+    indexIssues();
+
+    SearchWsResponse response32 = newRequest(project).setParam(PARAM_PCI_DSS_32, "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response32.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot3.getKey());
+
+    SearchWsResponse response40 = newRequest(project).setParam(PARAM_PCI_DSS_40, "2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response40.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot4.getKey());
   }
 
   @Test

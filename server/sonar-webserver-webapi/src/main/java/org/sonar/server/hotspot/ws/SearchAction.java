@@ -41,6 +41,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -109,6 +110,8 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
+  private static final String PARAM_PCI_DSS_32 = "pciDss-3.2";
+  private static final String PARAM_PCI_DSS_40 = "pciDss-4.0";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
@@ -144,6 +147,8 @@ public class SearchAction implements HotspotsWsAction {
 
   private static WsRequest toWsRequest(Request request) {
     Set<String> hotspotKeys = setFromList(request.paramAsStrings(PARAM_HOTSPOTS));
+    Set<String> pciDss32 = setFromList(request.paramAsStrings(PARAM_PCI_DSS_32));
+    Set<String> pciDss40 = setFromList(request.paramAsStrings(PARAM_PCI_DSS_40));
     Set<String> owasp2017Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2017));
     Set<String> owasp2021Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     Set<String> sansTop25 = setFromList(request.paramAsStrings(PARAM_SANS_TOP_25));
@@ -154,7 +159,7 @@ public class SearchAction implements HotspotsWsAction {
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owasp2017Top10, owasp2021Top10, sansTop25,
+      request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), pciDss32, pciDss40, owasp2017Top10, owasp2021Top10, sansTop25,
       sonarsourceSecurity, cwes, files);
   }
 
@@ -192,7 +197,9 @@ public class SearchAction implements HotspotsWsAction {
         + "For applications, it also requires 'Browse' permission on its child projects. <br>"
         + "When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
-      .setInternal(true);
+      .setInternal(true)
+      .setChangelog(
+        new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"));
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
@@ -226,6 +233,14 @@ public class SearchAction implements HotspotsWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false")
       .setSince("9.5");
+    action.createParam(PARAM_PCI_DSS_32)
+      .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
+      .setSince("9.6")
+      .setExampleValue("4,6.5.8,10.1");
+    action.createParam(PARAM_PCI_DSS_40)
+      .setDescription("Comma-separated list of PCI DSS v4.0 categories.")
+      .setSince("9.6")
+      .setExampleValue("4,6.5.8,10.1");
     action.createParam(PARAM_ONLY_MINE)
       .setDescription("If 'projectKey' is provided, returns only Security Hotspots assigned to the current user")
       .setBooleanPossibleValues()
@@ -395,6 +410,12 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private static void addSecurityStandardFilters(WsRequest wsRequest, IssueQuery.Builder builder) {
+    if (!wsRequest.getPciDss32().isEmpty()) {
+      builder.pciDss32(wsRequest.getPciDss32());
+    }
+    if (!wsRequest.getPciDss40().isEmpty()) {
+      builder.pciDss40(wsRequest.getPciDss40());
+    }
     if (!wsRequest.getOwaspTop10For2017().isEmpty()) {
       builder.owaspTop10(wsRequest.getOwaspTop10For2017());
     }
@@ -615,6 +636,8 @@ public class SearchAction implements HotspotsWsAction {
     private final String resolution;
     private final boolean inNewCodePeriod;
     private final boolean onlyMine;
+    private final Set<String> pciDss32;
+    private final Set<String> pciDss40;
     private final Set<String> owaspTop10For2017;
     private final Set<String> owaspTop10For2021;
     private final Set<String> sansTop25;
@@ -626,7 +649,8 @@ public class SearchAction implements HotspotsWsAction {
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod,
-      @Nullable Boolean onlyMine, Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25, Set<String> sonarsourceSecurity,
+      @Nullable Boolean onlyMine, Set<String> pciDss32, Set<String> pciDss40, Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25,
+      Set<String> sonarsourceSecurity,
       Set<String> cwe, @Nullable Set<String> files) {
       this.page = page;
       this.index = index;
@@ -638,6 +662,8 @@ public class SearchAction implements HotspotsWsAction {
       this.resolution = resolution;
       this.inNewCodePeriod = inNewCodePeriod != null && inNewCodePeriod;
       this.onlyMine = onlyMine != null && onlyMine;
+      this.pciDss32 = pciDss32;
+      this.pciDss40 = pciDss40;
       this.owaspTop10For2017 = owaspTop10For2017;
       this.owaspTop10For2021 = owaspTop10For2021;
       this.sansTop25 = sansTop25;
@@ -684,6 +710,14 @@ public class SearchAction implements HotspotsWsAction {
 
     boolean isOnlyMine() {
       return onlyMine;
+    }
+
+    public Set<String> getPciDss32() {
+      return pciDss32;
+    }
+
+    public Set<String> getPciDss40() {
+      return pciDss40;
     }
 
     public Set<String> getOwaspTop10For2017() {
