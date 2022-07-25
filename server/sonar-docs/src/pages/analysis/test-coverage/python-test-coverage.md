@@ -129,7 +129,7 @@ sonar.python.coverage.reportPaths=coverage.xml
 
 ## Coverage parameters can be set in multiple places
 
-As with other analysis parameters, `sonar.pyhton.coverage.reportPaths` can be set in multiple places:
+As with other analysis parameters, `sonar.python.coverage.reportPaths` can be set in multiple places:
 
 * In the `sonar-project.properties` file, as mentioned above.
 
