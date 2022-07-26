@@ -30,16 +30,16 @@ jest.mock('react', () => {
 });
 
 it('should correctly trigger a scroll', () => {
-  const element = { current: {} };
+  const scroll = jest.fn();
+  const element = { current: { scrollIntoView: scroll } };
   (React.useEffect as jest.Mock).mockImplementation(f => f());
   (React.useRef as jest.Mock).mockImplementation(() => element);
 
-  const scroll = jest.fn();
-  shallowRender({ scroll, scrollToUncoveredLine: true });
-  expect(scroll).toHaveBeenCalledWith(element.current);
+  shallowRender({ scrollToUncoveredLine: true });
+  expect(scroll).toHaveBeenCalled();
 
   scroll.mockReset();
-  shallowRender({ scroll, scrollToUncoveredLine: false });
+  shallowRender({ scrollToUncoveredLine: false });
   expect(scroll).not.toHaveBeenCalled();
 });
 

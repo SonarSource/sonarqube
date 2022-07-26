@@ -58,7 +58,6 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
     }
     onLocationSelect={[MockFunction]}
     onSymbolClick={[MockFunction]}
-    scroll={[MockFunction]}
     secondaryIssueLocations={Array []}
   />
 </tr>

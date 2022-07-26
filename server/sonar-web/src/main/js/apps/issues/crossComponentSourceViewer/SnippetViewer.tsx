@@ -28,7 +28,6 @@ import {
   optimizeLocationMessage
 } from '../../../components/SourceViewer/helpers/lines';
 import { translate } from '../../../helpers/l10n';
-import { scrollHorizontally } from '../../../helpers/scrolling';
 import {
   Duplication,
   ExpandDirection,
@@ -60,53 +59,12 @@ interface Props {
   onLocationSelect: (index: number) => void;
   renderAdditionalChildInLine?: (line: SourceLine) => React.ReactNode | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
-  scroll?: (element: HTMLElement, offset?: number) => void;
   snippet: SourceLine[];
 }
 
 export default class SnippetViewer extends React.PureComponent<Props> {
-  snippetNodeRef: React.RefObject<HTMLDivElement>;
-
-  constructor(props: Props) {
-    super(props);
-    this.snippetNodeRef = React.createRef();
-  }
-
-  doScroll = (element: HTMLElement) => {
-    if (this.props.scroll) {
-      this.props.scroll(element);
-    }
-    const parent = this.snippetNodeRef.current as Element;
-
-    if (parent) {
-      const offset = parent.getBoundingClientRect().width / 2;
-
-      scrollHorizontally(element, {
-        leftOffset: offset,
-        rightOffset: offset,
-        parent
-      });
-    }
-  };
-
-  scrollToLastExpandedRow = () => {
-    if (this.props.scroll) {
-      const snippetNode = this.snippetNodeRef.current as Element;
-      if (!snippetNode) {
-        return;
-      }
-      const rows = snippetNode.querySelectorAll('tr');
-      const lastRow = rows[rows.length - 1];
-      this.props.scroll(lastRow, 100);
-    }
-  };
-
   expandBlock = (direction: ExpandDirection) => () =>
-    this.props.expandBlock(this.props.index, direction).then(() => {
-      if (direction === 'down') {
-        this.scrollToLastExpandedRow();
-      }
-    });
+    this.props.expandBlock(this.props.index, direction);
 
   renderLine({
     displayDuplications,
@@ -169,7 +127,6 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         openIssues={false}
         previousLine={index > 0 ? snippet[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
-        scroll={this.doScroll}
         secondaryIssueLocations={secondaryIssueLocations}
         verticalBuffer={verticalBuffer}>
         {this.props.renderAdditionalChildInLine && this.props.renderAdditionalChildInLine(line)}
@@ -203,7 +160,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
       Boolean(this.props.loadDuplications) && snippet.some(s => !!s.duplicated);
 
     return (
-      <div className="source-viewer-code snippet" ref={this.snippetNodeRef}>
+      <div className="source-viewer-code snippet">
         <div>
           {snippet[0].line > 1 && (
             <div className="expand-block expand-block-above">

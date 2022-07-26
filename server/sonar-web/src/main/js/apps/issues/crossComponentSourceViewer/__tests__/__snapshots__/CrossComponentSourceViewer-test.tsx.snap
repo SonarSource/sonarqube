@@ -22,30 +22,13 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `
-<div>
+<Fragment>
   <ContextProvider
     key="1-0-0"
     value={
       Object {
         "branchLike": undefined,
-        "file": Object {
-          "canMarkAsFavorite": true,
-          "fav": false,
-          "key": "project:main.js",
-          "longName": "main.js",
-          "measures": Object {
-            "coverage": "85.2",
-            "duplicationDensity": "1.0",
-            "issues": "12",
-            "lines": "56",
-          },
-          "name": "main.js",
-          "path": "main.js",
-          "project": "project",
-          "projectName": "MyProject",
-          "q": "FIL",
-          "uuid": "foo-bar",
-        },
+        "file": Object {},
       }
     }
   >
@@ -55,7 +38,7 @@ exports[`should render correctly 2`] = `
       issue={
         Object {
           "actions": Array [],
-          "component": "main.js",
+          "component": "project:main.js",
           "componentLongName": "main.js",
           "componentQualifier": "FIL",
           "componentUuid": "foo1234",
@@ -143,9 +126,9 @@ exports[`should render correctly 2`] = `
           "severity": "MAJOR",
           "status": "OPEN",
           "textRange": Object {
-            "endLine": 26,
+            "endLine": 2,
             "endOffset": 15,
-            "startLine": 25,
+            "startLine": 1,
             "startOffset": 0,
           },
           "transitions": Array [],
@@ -158,7 +141,7 @@ exports[`should render correctly 2`] = `
       locations={
         Array [
           Object {
-            "component": "main.js",
+            "component": "project:main.js",
             "index": 0,
             "textRange": Object {
               "endLine": 2,
@@ -174,30 +157,12 @@ exports[`should render correctly 2`] = `
       onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
-      scroll={[MockFunction]}
       snippetGroup={
         Object {
-          "component": Object {
-            "canMarkAsFavorite": true,
-            "fav": false,
-            "key": "project:main.js",
-            "longName": "main.js",
-            "measures": Object {
-              "coverage": "85.2",
-              "duplicationDensity": "1.0",
-              "issues": "12",
-              "lines": "56",
-            },
-            "name": "main.js",
-            "path": "main.js",
-            "project": "project",
-            "projectName": "MyProject",
-            "q": "FIL",
-            "uuid": "foo-bar",
-          },
+          "component": Object {},
           "locations": Array [
             Object {
-              "component": "main.js",
+              "component": "project:main.js",
               "index": 0,
               "textRange": Object {
                 "endLine": 2,
@@ -207,28 +172,16 @@ exports[`should render correctly 2`] = `
               },
             },
           ],
-          "sources": Object {
-            "16": Object {
-              "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
-              "coverageStatus": "covered",
-              "coveredConditions": 2,
-              "duplicated": false,
-              "isNew": true,
-              "line": 16,
-              "scmAuthor": "simon.brandhof@sonarsource.com",
-              "scmDate": "2018-12-11T10:48:39+0100",
-              "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
-            },
-          },
+          "sources": Array [],
         }
       }
     />
   </ContextProvider>
-</div>
+</Fragment>
 `;
 
 exports[`should render correctly: no component found 1`] = `
-<div>
+<Fragment>
   <ContextProvider
     key="unknown-0-0"
     value={
@@ -350,7 +303,6 @@ exports[`should render correctly: no component found 1`] = `
       onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
-      scroll={[MockFunction]}
       snippetGroup={
         Object {
           "component": Object {},
@@ -365,24 +317,7 @@ exports[`should render correctly: no component found 1`] = `
     value={
       Object {
         "branchLike": undefined,
-        "file": Object {
-          "canMarkAsFavorite": true,
-          "fav": false,
-          "key": "project:main.js",
-          "longName": "main.js",
-          "measures": Object {
-            "coverage": "85.2",
-            "duplicationDensity": "1.0",
-            "issues": "12",
-            "lines": "56",
-          },
-          "name": "main.js",
-          "path": "main.js",
-          "project": "project",
-          "projectName": "MyProject",
-          "q": "FIL",
-          "uuid": "foo-bar",
-        },
+        "file": Object {},
       }
     }
   >
@@ -495,7 +430,7 @@ exports[`should render correctly: no component found 1`] = `
       locations={
         Array [
           Object {
-            "component": "main.js",
+            "component": "project:main.js",
             "index": 0,
             "textRange": Object {
               "endLine": 2,
@@ -511,30 +446,12 @@ exports[`should render correctly: no component found 1`] = `
       onIssueSelect={[MockFunction]}
       onLocationSelect={[MockFunction]}
       renderDuplicationPopup={[Function]}
-      scroll={[MockFunction]}
       snippetGroup={
         Object {
-          "component": Object {
-            "canMarkAsFavorite": true,
-            "fav": false,
-            "key": "project:main.js",
-            "longName": "main.js",
-            "measures": Object {
-              "coverage": "85.2",
-              "duplicationDensity": "1.0",
-              "issues": "12",
-              "lines": "56",
-            },
-            "name": "main.js",
-            "path": "main.js",
-            "project": "project",
-            "projectName": "MyProject",
-            "q": "FIL",
-            "uuid": "foo-bar",
-          },
+          "component": Object {},
           "locations": Array [
             Object {
-              "component": "main.js",
+              "component": "project:main.js",
               "index": 0,
               "textRange": Object {
                 "endLine": 2,
@@ -544,22 +461,10 @@ exports[`should render correctly: no component found 1`] = `
               },
             },
           ],
-          "sources": Object {
-            "16": Object {
-              "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
-              "coverageStatus": "covered",
-              "coveredConditions": 2,
-              "duplicated": false,
-              "isNew": true,
-              "line": 16,
-              "scmAuthor": "simon.brandhof@sonarsource.com",
-              "scmDate": "2018-12-11T10:48:39+0100",
-              "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
-            },
-          },
+          "sources": Array [],
         }
       }
     />
   </ContextProvider>
-</div>
+</Fragment>
 `;

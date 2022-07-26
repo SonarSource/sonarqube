@@ -21,7 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getComponentTree } from '../../../../api/components';
 import { mockComponentMeasure } from '../../../../helpers/mocks/component';
-import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MeasureContent from '../MeasureContent';
@@ -118,17 +117,6 @@ it('should render correctly for a file', async () => {
   expect(wrapper.type()).toBeNull();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should correctly handle scrolling', () => {
-  const element = {} as Element;
-  const wrapper = shallowRender();
-  wrapper.instance().handleScroll(element);
-  expect(scrollToElement).toBeCalledWith(element, {
-    topOffset: 300,
-    bottomOffset: 400,
-    smooth: true
-  });
 });
 
 it('should test fetchMoreComponents to work correctly', async () => {

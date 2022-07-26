@@ -29,7 +29,6 @@ import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile, isView } from '../../../types/component';
@@ -286,11 +285,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   };
 
-  handleScroll = (element: Element) => {
-    const offset = window.innerHeight / 2;
-    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth: true });
-  };
-
   getDefaultShowBestMeasures() {
     const { asc, view } = this.props;
     if ((asc !== undefined && view === 'list') || view === 'tree') {
@@ -420,7 +414,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 component={baseComponent.key}
                 metricKey={this.state.metric?.key}
                 onIssueChange={this.props.onIssueChange}
-                scroll={this.handleScroll}
               />
             </div>
           ) : (

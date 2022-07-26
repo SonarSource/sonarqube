@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, ReactWrapper, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { range, times } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../../api/components';
@@ -37,23 +37,6 @@ import SnippetViewer from '../SnippetViewer';
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
 }));
-
-/*
- * Quick & dirty fix to make the tests pass
- * this whole thing should be replaced by RTL tests!
- */
-jest.mock('react-router-dom', () => {
-  const routerDom = jest.requireActual('react-router-dom');
-
-  function Link() {
-    return <div>Link</div>;
-  }
-
-  return {
-    ...routerDom,
-    Link
-  };
-});
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -301,121 +284,6 @@ it('should correctly handle lines actions', () => {
   );
 });
 
-describe('getNodes', () => {
-  const snippetGroup: SnippetGroup = {
-    component: mockSourceViewerFile(),
-    locations: [],
-    sources: []
-  };
-  const wrapper = mount<ComponentSourceSnippetGroupViewer>(
-    <ComponentSourceSnippetGroupViewer
-      branchLike={mockMainBranch()}
-      highlightedLocationMessage={{ index: 0, text: '' }}
-      isLastOccurenceOfPrimaryComponent={true}
-      issue={mockIssue()}
-      issuesByLine={{}}
-      lastSnippetGroup={false}
-      loadDuplications={jest.fn()}
-      locations={[]}
-      onIssueChange={jest.fn()}
-      onIssueSelect={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
-      onLocationSelect={jest.fn()}
-      renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
-      snippetGroup={snippetGroup}
-    />
-  );
-
-  it('should return undefined if any node is missing', async () => {
-    await waitAndUpdate(wrapper);
-    const rootNode = wrapper.instance().rootNodeRef;
-    mockDom(rootNode.current!);
-    expect(wrapper.instance().getNodes(0)).toBeUndefined();
-    expect(wrapper.instance().getNodes(1)).toBeUndefined();
-    expect(wrapper.instance().getNodes(2)).toBeUndefined();
-  });
-
-  it('should return elements if dom is correct', async () => {
-    await waitAndUpdate(wrapper);
-    const rootNode = wrapper.instance().rootNodeRef;
-    mockDom(rootNode.current!);
-    expect(wrapper.instance().getNodes(3)).not.toBeUndefined();
-  });
-
-  it('should enable cleaning the dom', async () => {
-    await waitAndUpdate(wrapper);
-    const rootNode = wrapper.instance().rootNodeRef;
-    mockDom(rootNode.current!);
-
-    wrapper.instance().cleanDom(3);
-    const nodes = wrapper.instance().getNodes(3);
-    expect(nodes!.wrapper.style.maxHeight).toBe('');
-    expect(nodes!.table.style.marginTop).toBe('');
-  });
-});
-
-describe('getHeight', () => {
-  beforeAll(() => {
-    jest.useFakeTimers();
-  });
-
-  afterAll(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
-  const snippetGroup: SnippetGroup = {
-    component: mockSourceViewerFile(),
-    locations: [],
-    sources: []
-  };
-  const wrapper = mount<ComponentSourceSnippetGroupViewer>(
-    <ComponentSourceSnippetGroupViewer
-      branchLike={mockMainBranch()}
-      highlightedLocationMessage={{ index: 0, text: '' }}
-      isLastOccurenceOfPrimaryComponent={true}
-      issue={mockIssue()}
-      issuesByLine={{}}
-      lastSnippetGroup={false}
-      loadDuplications={jest.fn()}
-      locations={[]}
-      onIssueChange={jest.fn()}
-      onIssueSelect={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
-      onLocationSelect={jest.fn()}
-      renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
-      snippetGroup={snippetGroup}
-    />
-  );
-
-  it('should set maxHeight to current height', async () => {
-    await waitAndUpdate(wrapper);
-
-    const nodes = mockDomForSizes(wrapper, { wrapperHeight: 42, tableHeight: 68 });
-    wrapper.instance().setMaxHeight(0);
-
-    expect(nodes.wrapper.getAttribute('style')).toBe('max-height: 88px;');
-    expect(nodes.table.getAttribute('style')).toBeNull();
-  });
-
-  it('should set margin and then maxHeight for a nice upwards animation', async () => {
-    await waitAndUpdate(wrapper);
-
-    const nodes = mockDomForSizes(wrapper, { wrapperHeight: 42, tableHeight: 68 });
-    wrapper.instance().setMaxHeight(0, undefined, true);
-
-    expect(nodes.wrapper.getAttribute('style')).toBeNull();
-    expect(nodes.table.getAttribute('style')).toBe('transition: none; margin-top: -26px;');
-
-    jest.runAllTimers();
-
-    expect(nodes.wrapper.getAttribute('style')).toBe('max-height: 88px;');
-    expect(nodes.table.getAttribute('style')).toBe('margin-top: 0px;');
-  });
-});
-
 function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']> = {}) {
   const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
@@ -437,53 +305,8 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
       onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
       snippetGroup={snippetGroup}
       {...props}
     />
   );
-}
-
-function mockDom(refNode: HTMLDivElement) {
-  refNode.querySelector = jest.fn(query => {
-    const index = query.split('-').pop();
-
-    switch (index) {
-      case '0':
-        return null;
-      case '1':
-        return mount(<div />).getDOMNode();
-      case '2':
-        return mount(
-          <div>
-            <div className="snippet" />
-          </div>
-        ).getDOMNode();
-      case '3':
-        return mount(
-          <div>
-            <div className="snippet">
-              <div />
-            </div>
-          </div>
-        ).getDOMNode();
-      default:
-        return null;
-    }
-  });
-}
-
-function mockDomForSizes(
-  componentWrapper: ReactWrapper<{}, {}, ComponentSourceSnippetGroupViewer>,
-  { wrapperHeight = 0, tableHeight = 0 }
-) {
-  const wrapper = mount(<div className="snippet" />).getDOMNode();
-  wrapper.getBoundingClientRect = jest.fn().mockReturnValue({ height: wrapperHeight });
-  const table = mount(<div />).getDOMNode();
-  table.getBoundingClientRect = jest.fn().mockReturnValue({ height: tableHeight });
-  componentWrapper.instance().getNodes = jest.fn().mockReturnValue({
-    wrapper,
-    table
-  });
-  return { wrapper, table };
 }

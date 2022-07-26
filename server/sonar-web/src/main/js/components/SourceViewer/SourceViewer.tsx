@@ -87,7 +87,6 @@ export interface Props {
   onIssueChange?: (issue: Issue) => void;
   onIssueSelect?: (issueKey: string) => void;
   onIssueUnselect?: () => void;
-  scroll?: (element: HTMLElement) => void;
   selectedIssue?: string;
   showMeasures?: boolean;
   metricKey?: string;
@@ -594,7 +593,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
         onSymbolClick={this.handleSymbolClick}
         openIssuesByLine={this.state.openIssuesByLine}
         renderDuplicationPopup={this.renderDuplicationPopup}
-        scroll={this.props.scroll}
         metricKey={this.props.metricKey}
         selectedIssue={this.state.selectedIssue}
         sources={sources}

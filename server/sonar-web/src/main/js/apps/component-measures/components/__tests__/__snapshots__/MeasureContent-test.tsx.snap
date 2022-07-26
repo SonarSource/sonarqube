@@ -102,7 +102,6 @@ exports[`should render correctly for a file 1`] = `
         displayIssueLocationsLink={true}
         displayLocationMarkers={true}
         metricKey="bugs"
-        scroll={[Function]}
       />
     </div>
   </div>

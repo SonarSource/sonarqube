@@ -58,7 +58,6 @@ interface Props {
   openIssues: boolean;
   previousLine: SourceLine | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
-  scroll?: (element: HTMLElement) => void;
   scrollToUncoveredLine?: boolean;
   secondaryIssueLocations: LinearIssueLocation[];
   verticalBuffer?: number;
@@ -165,11 +164,7 @@ export default class Line extends React.PureComponent<Props> {
           })}
 
         {displayCoverage && (
-          <LineCoverage
-            line={line}
-            scroll={this.props.scroll}
-            scrollToUncoveredLine={scrollToUncoveredLine}
-          />
+          <LineCoverage line={line} scrollToUncoveredLine={scrollToUncoveredLine} />
         )}
 
         <LineCode
@@ -181,7 +176,6 @@ export default class Line extends React.PureComponent<Props> {
           onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
           padding={bottomPadding}
-          scroll={this.props.scroll}
           secondaryIssueLocations={secondaryIssueLocations}>
           {children}
         </LineCode>

@@ -1089,7 +1089,6 @@ export class App extends React.PureComponent<Props, State> {
       paging,
       loadingRule
     } = this.state;
-    const { component } = this.props;
     return (
       <div className="layout-page-main-inner">
         <DeferredSpinner loading={loadingRule}>
@@ -1109,7 +1108,6 @@ export class App extends React.PureComponent<Props, State> {
                 />
               }
               issue={openIssue}
-              component={component}
               ruleDetails={openRuleDetails}
             />
           ) : (
@@ -1140,10 +1138,13 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { component } = this.props;
     const { openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     return (
-      <div className="layout-page issues" id="issues-page">
+      <div
+        className={classNames('layout-page issues', { 'project-level': component !== undefined })}
+        id="issues-page">
         <Suggestions suggestions="issues" />
         <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
 

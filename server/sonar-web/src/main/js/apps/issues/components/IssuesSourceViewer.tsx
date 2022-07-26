@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
@@ -53,21 +52,17 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
     }
   }
 
-  scrollToIssue = (smooth = true) => {
+  scrollToIssue = () => {
     if (this.node) {
       const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
       if (element) {
-        this.handleScroll(element, undefined, smooth);
+        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       }
     }
   };
 
-  handleScroll = (element: Element, offset = window.innerHeight / 2, smooth = true) => {
-    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
-  };
-
   handleLoaded = () => {
-    this.scrollToIssue(false);
+    this.scrollToIssue();
   };
 
   render() {
@@ -100,7 +95,6 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
           onIssueSelect={this.props.onIssueSelect}
           onLoaded={this.handleLoaded}
           onLocationSelect={this.props.onLocationSelect}
-          scroll={this.handleScroll}
           selectedFlowIndex={selectedFlowIndex}
         />
       </div>

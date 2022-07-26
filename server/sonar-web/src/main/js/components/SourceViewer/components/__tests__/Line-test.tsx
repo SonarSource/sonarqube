@@ -89,7 +89,6 @@ function shallowRender(props: Partial<Line['props']> = {}) {
       openIssues={false}
       previousLine={undefined}
       renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
       secondaryIssueLocations={[]}
       {...props}
     />

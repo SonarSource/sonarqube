@@ -197,7 +197,6 @@ export default function HotspotSnippetContainerRenderer(
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}
-              scroll={getScrollHandler(scrollableRef)}
             />
           )}
         </DeferredSpinner>

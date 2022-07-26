@@ -55,7 +55,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
       educationPrinciplesRef
     } = this.props;
     return (
-      <div className="big-padded rule-desc">
+      <div className="padded rule-desc">
         {displayEducationalPrinciplesNotification && (
           <Alert variant="info">
             <p className="little-spacer-bottom little-spacer-top">

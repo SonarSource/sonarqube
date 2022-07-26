@@ -27,11 +27,3 @@
 .education-principles h3:first-child {
   margin-top: 0px;
 }
-
-.tab-view-header {
-  z-index: 100;
-  position: sticky;
-  top: 118px;
-  background-color: white;
-  padding-top: 20px;
-}

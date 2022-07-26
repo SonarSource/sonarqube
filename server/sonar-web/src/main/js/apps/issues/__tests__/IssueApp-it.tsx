@@ -37,8 +37,9 @@ jest.mock('../../../api/users');
 let handler: IssuesServiceMock;
 
 beforeEach(() => {
-  window.scrollTo = jest.fn();
   handler = new IssuesServiceMock();
+  window.scrollTo = jest.fn();
+  window.HTMLElement.prototype.scrollIntoView = jest.fn();
 });
 
 it('should show education principles', async () => {

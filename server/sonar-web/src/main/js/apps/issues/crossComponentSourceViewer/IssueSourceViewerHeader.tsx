@@ -65,7 +65,10 @@ export default function IssueSourceViewerHeader(props: Props) {
   const isProjectRoot = q === ComponentQualifier.Project;
 
   return (
-    <div className="source-viewer-header-slim display-flex-row display-flex-space-between">
+    <div
+      className="issue-source-viewer-header display-flex-row display-flex-space-between"
+      role="separator"
+      aria-label={sourceViewerFile.path}>
       <div className="display-flex-center flex-1">
         {displayProjectName && (
           <div className="spacer-right">

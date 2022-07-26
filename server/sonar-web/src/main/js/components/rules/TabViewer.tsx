@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { dismissNotice } from '../../api/users';
@@ -27,6 +26,7 @@ import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
+import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import BoxedTabs from '../controls/BoxedTabs';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
@@ -37,7 +37,7 @@ interface TabViewerProps extends CurrentUserContextInterface {
   extendedDescription?: string;
   ruleDescriptionContextKey?: string;
   codeTabContent?: React.ReactNode;
-  pageType?: string;
+  scrollInTab?: boolean;
 }
 
 interface State {
@@ -173,7 +173,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
         content: (descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
           descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
           <RuleDescription
-            className="big-padded"
+            className="padded"
             sections={
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
@@ -188,7 +188,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
         label: translate('coding_rules.description_section.title', TabKeys.AssessTheIssue),
         content: descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM] && (
           <RuleDescription
-            className="big-padded"
+            className="padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
         )
@@ -198,7 +198,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
         label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
         content: descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX] && (
           <RuleDescription
-            className="big-padded"
+            className="padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             defaultContextKey={ruleDescriptionContextKey}
           />
@@ -228,7 +228,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
       tabs.unshift({
         key: TabKeys.Code,
         label: translate('issue.tabs', TabKeys.Code),
-        content: <div className="padded">{codeTabContent}</div>
+        content: codeTabContent
       });
     }
 
@@ -281,8 +281,8 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
   };
 
   render() {
+    const { scrollInTab } = this.props;
     const { tabs, selectedTab } = this.state;
-    const { pageType } = this.props;
 
     if (!tabs || tabs.length === 0 || !selectedTab) {
       return null;
@@ -292,10 +292,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
 
     return (
       <>
-        <div
-          className={classNames({
-            'tab-view-header': pageType === 'issues'
-          })}>
+        <div>
           <BoxedTabs
             className="big-spacer-top"
             onSelect={this.handleSelectTabs}
@@ -303,7 +300,18 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
             tabs={tabs}
           />
         </div>
-        <div className="bordered">{tabContent}</div>
+        <ScreenPositionHelper>
+          {({ top }) => (
+            <div
+              style={{
+                // We substract the footer height with padding (80) and the main layout padding (20)
+                maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial'
+              }}
+              className="bordered display-flex-column">
+              <div className="overflow-y-auto spacer">{tabContent}</div>
+            </div>
+          )}
+        </ScreenPositionHelper>
       </>
     );
   }

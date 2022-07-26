@@ -34,7 +34,6 @@ interface Props {
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: Array<string>) => void;
   padding?: number;
-  scroll?: (element: HTMLElement) => void;
   secondaryIssueLocations: LinearIssueLocation[];
 }
 
@@ -42,22 +41,19 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
   activeMarkerNode?: HTMLElement | null;
   symbols?: NodeListOf<HTMLElement>;
 
-  componentDidMount() {
-    if (this.props.highlightedLocationMessage && this.activeMarkerNode && this.props.scroll) {
-      this.props.scroll(this.activeMarkerNode);
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.highlightedLocationMessage &&
       (!prevProps.highlightedLocationMessage ||
         prevProps.highlightedLocationMessage.index !==
           this.props.highlightedLocationMessage.index) &&
-      this.activeMarkerNode &&
-      this.props.scroll
+      this.activeMarkerNode
     ) {
-      this.props.scroll(this.activeMarkerNode);
+      this.activeMarkerNode.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
     }
   }
 

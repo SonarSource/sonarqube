@@ -396,7 +396,6 @@ function getSourceViewerUi(override?: Partial<SourceViewer['props']>) {
       onIssueSelect={jest.fn()}
       onLoaded={jest.fn()}
       onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
       {...override}
     />
   );

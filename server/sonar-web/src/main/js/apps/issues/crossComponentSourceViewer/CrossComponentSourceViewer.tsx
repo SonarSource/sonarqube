@@ -51,7 +51,7 @@ import {
   SourceViewerFile
 } from '../../../types/types';
 import ComponentSourceSnippetGroupViewer from './ComponentSourceSnippetGroupViewer';
-import { getPrimaryLocation, groupLocationsByComponent } from './utils';
+import { groupLocationsByComponent } from './utils';
 
 interface Props {
   branchLike: BranchLike | undefined;
@@ -63,7 +63,6 @@ interface Props {
   onIssueSelect: (issueKey: string) => void;
   onLoaded?: () => void;
   onLocationSelect: (index: number) => void;
-  scroll?: (element: HTMLElement) => void;
   selectedFlowIndex: number | undefined;
 }
 
@@ -226,9 +225,8 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     const issuesByComponent = issuesByComponentAndLine(this.props.issues);
     const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
-    const lastOccurenceOfPrimaryComponent = findLastIndex(
-      locationsByComponent,
-      ({ component }) => component.key === issue.component
+    const lastOccurenceOfPrimaryComponent = findLastIndex(locationsByComponent, ({ component }) =>
+      component ? component.key === issue.component : true
     );
 
     if (components[issue.component] === undefined) {
@@ -236,7 +234,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     }
 
     return (
-      <div>
+      <>
         {locationsByComponent.map((snippetGroup, i) => {
           return (
             <SourceViewerContext.Provider
@@ -260,45 +258,12 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
                 onIssuePopupToggle={this.handleIssuePopupToggle}
                 onLocationSelect={this.props.onLocationSelect}
                 renderDuplicationPopup={this.renderDuplicationPopup}
-                scroll={this.props.scroll}
                 snippetGroup={snippetGroup}
               />
             </SourceViewerContext.Provider>
           );
         })}
-
-        {locationsByComponent.length === 0 && (
-          <SourceViewerContext.Provider
-            value={{
-              branchLike: this.props.branchLike,
-              file: components[issue.component].component
-            }}>
-            <ComponentSourceSnippetGroupViewer
-              branchLike={this.props.branchLike}
-              duplications={duplications}
-              duplicationsByLine={duplicationsByLine}
-              highlightedLocationMessage={this.props.highlightedLocationMessage}
-              issue={issue}
-              issuePopup={this.state.issuePopup}
-              issuesByLine={issuesByComponent[issue.component] || {}}
-              isLastOccurenceOfPrimaryComponent={true}
-              lastSnippetGroup={true}
-              loadDuplications={this.fetchDuplications}
-              locations={[]}
-              onIssueChange={this.props.onIssueChange}
-              onIssueSelect={this.props.onIssueSelect}
-              onIssuePopupToggle={this.handleIssuePopupToggle}
-              onLocationSelect={this.props.onLocationSelect}
-              renderDuplicationPopup={this.renderDuplicationPopup}
-              scroll={this.props.scroll}
-              snippetGroup={{
-                locations: [getPrimaryLocation(issue)],
-                ...components[issue.component]
-              }}
-            />
-          </SourceViewerContext.Provider>
-        )}
-      </div>
+      </>
     );
   }
 }

@@ -55,7 +55,6 @@ exports[`should render correctly 1`] = `
           onSymbolClick={[MockFunction]}
           openIssues={false}
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -107,7 +106,6 @@ exports[`should render correctly 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -159,7 +157,6 @@ exports[`should render correctly 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -235,7 +232,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
           onSymbolClick={[MockFunction]}
           openIssues={false}
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -287,7 +283,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -339,7 +334,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -391,7 +385,6 @@ exports[`should render correctly when at the bottom of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -456,7 +449,6 @@ exports[`should render correctly when at the top of the file 1`] = `
           onSymbolClick={[MockFunction]}
           openIssues={false}
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -508,7 +500,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -560,7 +551,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -612,7 +602,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -664,7 +653,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -716,7 +704,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -768,7 +755,6 @@ exports[`should render correctly when at the top of the file 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -845,7 +831,6 @@ exports[`should render correctly with no SCM 1`] = `
           onSymbolClick={[MockFunction]}
           openIssues={false}
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -898,7 +883,6 @@ exports[`should render correctly with no SCM 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />
@@ -951,7 +935,6 @@ exports[`should render correctly with no SCM 1`] = `
             }
           }
           renderDuplicationPopup={[MockFunction]}
-          scroll={[Function]}
           secondaryIssueLocations={Array []}
           verticalBuffer={0}
         />

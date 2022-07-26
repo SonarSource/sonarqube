@@ -24,17 +24,20 @@ import { SourceLine } from '../../../types/types';
 
 export interface LineCoverageProps {
   line: SourceLine;
-  scroll?: (element: HTMLElement) => void;
   scrollToUncoveredLine?: boolean;
 }
 
-export function LineCoverage({ line, scroll, scrollToUncoveredLine }: LineCoverageProps) {
-  const coverageMarker = React.useRef<HTMLTableDataCellElement>(null);
+export function LineCoverage({ line, scrollToUncoveredLine }: LineCoverageProps) {
+  const coverageMarker = React.useRef<HTMLTableCellElement>(null);
   React.useEffect(() => {
-    if (scrollToUncoveredLine && scroll && coverageMarker.current) {
-      scroll(coverageMarker.current);
+    if (scrollToUncoveredLine && coverageMarker.current) {
+      coverageMarker.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
     }
-  }, [scrollToUncoveredLine, scroll, coverageMarker]);
+  }, [scrollToUncoveredLine, coverageMarker]);
 
   const className =
     'source-meta source-line-coverage' +

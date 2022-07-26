@@ -23,7 +23,7 @@ import { createSnippets, expandSnippet, groupLocationsByComponent } from '../uti
 
 describe('groupLocationsByComponent', () => {
   it('should handle empty args', () => {
-    expect(groupLocationsByComponent(mockIssue(), [], {})).toEqual([]);
+    expect(groupLocationsByComponent(mockIssue(), [], {})).toEqual([{ locations: [] }]);
   });
 
   it('should group correctly', () => {

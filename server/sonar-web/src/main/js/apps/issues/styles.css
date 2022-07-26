@@ -137,15 +137,6 @@
   color: white;
 }
 
-.component-source-container + .component-source-container {
-  margin-top: var(--gridSize);
-}
-
-.component-source-container-header {
-  background-color: var(--gray94);
-  padding: var(--gridSize);
-}
-
 .issues-page-actions {
   display: inline-block;
   min-width: 80px;
@@ -228,19 +219,6 @@
 
 .bulk-change-radio-button:hover {
   background-color: var(--barBackgroundColor);
-}
-
-.issue-header {
-  z-index: 100;
-  position: sticky;
-  top: 48px;
-  background-color: white;
-  padding-top: 20px;
-  height: 50px;
-}
-
-.issue-project-level.issue-header {
-  top: 120px;
 }
 
 .layout-page-main.open-issue {

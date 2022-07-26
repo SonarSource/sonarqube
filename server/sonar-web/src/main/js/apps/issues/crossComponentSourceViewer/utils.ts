@@ -181,6 +181,10 @@ export function groupLocationsByComponent(
     currentGroup.locations.push(loc);
   });
 
+  if (groups.length === 0) {
+    groups.push({ locations: [], ...components[issue.component] });
+  }
+
   return groups;
 }
 

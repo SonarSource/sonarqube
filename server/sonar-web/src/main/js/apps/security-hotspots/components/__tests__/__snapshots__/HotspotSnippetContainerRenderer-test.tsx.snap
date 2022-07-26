@@ -506,7 +506,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         onLocationSelect={[MockFunction]}
         renderAdditionalChildInLine={[Function]}
         renderDuplicationPopup={[Function]}
-        scroll={[Function]}
         snippet={
           Array [
             Object {

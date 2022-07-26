@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
-import { scrollHorizontally } from '../../../../helpers/scrolling';
 import { mockIssue } from '../../../../helpers/testMocks';
 import SnippetViewer from '../SnippetViewer';
 
@@ -115,29 +114,6 @@ it('should correctly handle expansion', () => {
   expect(expandBlock).toHaveBeenCalledWith(2, 'down');
 });
 
-it('should handle scrolling', () => {
-  const scroll = jest.fn();
-  const wrapper = mountRender({ scroll });
-
-  const element = {} as HTMLElement;
-
-  wrapper.instance().doScroll(element);
-
-  expect(scroll).toHaveBeenCalledWith(element);
-
-  expect(scrollHorizontally).toHaveBeenCalled();
-  expect((scrollHorizontally as jest.Mock).mock.calls[0][0]).toBe(element);
-});
-
-it('should handle scrolling to expanded row', () => {
-  const scroll = jest.fn();
-  const wrapper = mountRender({ scroll });
-
-  wrapper.instance().scrollToLastExpandedRow();
-
-  expect(scroll).toHaveBeenCalled();
-});
-
 function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
   return shallow<SnippetViewer>(
     <SnippetViewer
@@ -156,33 +132,7 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       locationsByLine={{}}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
       snippet={[]}
-      {...props}
-    />
-  );
-}
-
-function mountRender(props: Partial<SnippetViewer['props']> = {}) {
-  return mount<SnippetViewer>(
-    <SnippetViewer
-      component={mockSourceViewerFile()}
-      duplications={undefined}
-      duplicationsByLine={undefined}
-      expandBlock={jest.fn()}
-      handleSymbolClick={jest.fn()}
-      highlightedLocationMessage={{ index: 0, text: '' }}
-      highlightedSymbols={[]}
-      index={0}
-      issue={mockIssue()}
-      lastSnippetOfLastGroup={false}
-      loadDuplications={jest.fn()}
-      locations={[]}
-      locationsByLine={{}}
-      onLocationSelect={jest.fn()}
-      renderDuplicationPopup={jest.fn()}
-      scroll={jest.fn()}
-      snippet={[mockSourceLine()]}
       {...props}
     />
   );

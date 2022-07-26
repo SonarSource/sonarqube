@@ -78,7 +78,6 @@ interface Props {
   onSymbolClick: (symbols: string[]) => void;
   openIssuesByLine: { [line: number]: boolean };
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
-  scroll?: (element: HTMLElement) => void;
   metricKey?: string;
   selectedIssue: string | undefined;
   sources: SourceLine[];
@@ -185,7 +184,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         openIssues={this.props.openIssuesByLine[line.line] || false}
         previousLine={index > 0 ? sources[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
-        scroll={this.props.scroll}
         scrollToUncoveredLine={scrollToUncoveredLine}
         secondaryIssueLocations={secondaryIssueLocations}>
         <LineIssuesList

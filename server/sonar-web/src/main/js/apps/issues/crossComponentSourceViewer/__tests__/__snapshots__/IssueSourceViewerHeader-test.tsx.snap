@@ -2,7 +2,9 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+  aria-label="foo/bar.ts"
+  className="issue-source-viewer-header display-flex-row display-flex-space-between"
+  role="separator"
 >
   <div
     className="display-flex-center flex-1"
@@ -82,7 +84,9 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly: no link to project 1`] = `
 <div
-  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+  aria-label="foo/bar.ts"
+  className="issue-source-viewer-header display-flex-row display-flex-space-between"
+  role="separator"
 >
   <div
     className="display-flex-center flex-1"
@@ -157,7 +161,9 @@ exports[`should render correctly: no link to project 1`] = `
 
 exports[`should render correctly: no project name 1`] = `
 <div
-  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+  aria-label="foo/bar.ts"
+  className="issue-source-viewer-header display-flex-row display-flex-space-between"
+  role="separator"
 >
   <div
     className="display-flex-center flex-1"
@@ -221,7 +227,9 @@ exports[`should render correctly: no project name 1`] = `
 
 exports[`should render correctly: project root 1`] = `
 <div
-  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+  aria-label="foo/bar.ts"
+  className="issue-source-viewer-header display-flex-row display-flex-space-between"
+  role="separator"
 >
   <div
     className="display-flex-center flex-1"

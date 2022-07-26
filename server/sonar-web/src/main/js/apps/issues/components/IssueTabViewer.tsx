@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import TabViewer from '../../../components/rules/TabViewer';
 import { getRuleUrl } from '../../../helpers/urls';
-import { Component, Issue, RuleDetails } from '../../../types/types';
+import { Issue, RuleDetails } from '../../../types/types';
 
 interface IssueViewerTabsProps {
-  component?: Component;
   issue: Issue;
   codeTabContent: React.ReactNode;
   ruleDetails: RuleDetails;
@@ -35,19 +33,12 @@ export default function IssueViewerTabs(props: IssueViewerTabsProps) {
   const {
     ruleDetails,
     codeTabContent,
-    issue: { ruleDescriptionContextKey }
-  } = props;
-  const {
-    component,
     ruleDetails: { name, key },
-    issue: { message }
+    issue: { ruleDescriptionContextKey, message }
   } = props;
   return (
     <>
-      <div
-        className={classNames('issue-header', {
-          'issue-project-level': component !== undefined
-        })}>
+      <div className="big-padded-top">
         <h1 className="text-bold">{message}</h1>
         <div className="spacer-top big-spacer-bottom">
           <span className="note padded-right">{name}</span>
@@ -61,7 +52,7 @@ export default function IssueViewerTabs(props: IssueViewerTabsProps) {
         extendedDescription={ruleDetails.htmlNote}
         ruleDescriptionContextKey={ruleDescriptionContextKey}
         codeTabContent={codeTabContent}
-        pageType="issues"
+        scrollInTab={true}
       />
     </>
   );
