@@ -61,6 +61,8 @@ module.exports = {
     educationPrinciplesBgColor: '#F4F6FF',
     educationPrinciplesBorderColor: '#B0BDF9',
 
+    favoriteColor: '#e77213',
+
     // table
     rowHoverHighlight: '#ecf6fe',
 
