@@ -50,7 +50,11 @@ exports[`should render correctly 1`] = `
             }
           }
         >
-          name
+          <span
+            aria-label="overview.link_to_x_profile_y.CSS.name"
+          >
+            name
+          </span>
         </Link>
       </div>
     </li>
@@ -112,7 +116,11 @@ exports[`should render correctly 2`] = `
               }
             }
           >
-            name
+            <span
+              aria-label="overview.link_to_x_profile_y.CSS.name"
+            >
+              name
+            </span>
           </Link>
         </div>
       </li>

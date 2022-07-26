@@ -95,7 +95,16 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
         {profile.deleted ? (
           profile.name
         ) : (
-          <Link to={getQualityProfileUrl(profile.name, profile.language)}>{profile.name}</Link>
+          <Link to={getQualityProfileUrl(profile.name, profile.language)}>
+            <span
+              aria-label={translateWithParameters(
+                'overview.link_to_x_profile_y',
+                languageName,
+                profile.name
+              )}>
+              {profile.name}
+            </span>
+          </Link>
         )}
       </div>
     );
