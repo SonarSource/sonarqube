@@ -55,6 +55,7 @@ import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvide
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.ComputeLocationHashesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.ComponentsWithUnprocessedIssues;
@@ -271,6 +272,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // debt)
       RuleTagsCopier.class,
       IssueCreationDateCalculator.class,
+      ComputeLocationHashesVisitor.class,
       DebtCalculator.class,
       EffortAggregator.class,
       NewEffortAggregator.class,

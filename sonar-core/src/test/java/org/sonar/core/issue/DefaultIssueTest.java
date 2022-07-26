@@ -54,6 +54,8 @@ public class DefaultIssueTest {
       .setAssigneeUuid("julien")
       .setAuthorLogin("steph")
       .setChecksum("c7b5db46591806455cf082bb348631e8")
+      .setLocations("loc")
+      .setLocationsChanged(true)
       .setNew(true)
       .setIsOnChangedLine(true)
       .setIsNewCodeReferenceIssue(true)
@@ -69,6 +71,8 @@ public class DefaultIssueTest {
       .setSelectedAt(1400000000000L)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
 
+    assertThat((Object) issue.getLocations()).isEqualTo("loc");
+    assertThat(issue.locationsChanged()).isTrue();
     assertThat(issue.key()).isEqualTo("ABCD");
     assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
     assertThat(issue.projectKey()).isEqualTo("Sample");

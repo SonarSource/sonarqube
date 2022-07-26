@@ -28,6 +28,8 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -269,21 +271,90 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void change_locations() {
-    issue.setLocations("[1-3]");
-    boolean updated = underTest.setLocations(issue, "[1-4]");
+  public void change_locations_if_primary_text_rage_changed() {
+    DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .setTextRange(range)
+      .build();
+    DbIssues.Locations locations2 = locations.toBuilder().setTextRange(range.toBuilder().setEndLine(2).build()).build();
+    issue.setLocations(locations);
+    boolean updated = underTest.setLocations(issue, locations2);
     assertThat(updated).isTrue();
-    assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
+    assertThat((Object) issue.getLocations()).isEqualTo(locations2);
+    assertThat(issue.locationsChanged()).isTrue();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
-  public void do_not_change_locations() {
-    issue.setLocations("[1-3]");
-    boolean updated = underTest.setLocations(issue, "[1-3]");
+  public void change_locations_if_secondary_text_rage_changed() {
+    DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setTextRange(range))
+        .build())
+      .build();
+    issue.setLocations(locations);
+    DbIssues.Locations.Builder builder = locations.toBuilder();
+    builder.getFlowBuilder(0).getLocationBuilder(0).setTextRange(range.toBuilder().setEndLine(2));
+    boolean updated = underTest.setLocations(issue, builder.build());
+    assertThat(updated).isTrue();
+  }
+
+  @Test
+  public void change_locations_if_secondary_message_changed() {
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setMsg("msg1"))
+        .build())
+      .build();
+    issue.setLocations(locations);
+    DbIssues.Locations.Builder builder = locations.toBuilder();
+    builder.getFlowBuilder(0).getLocationBuilder(0).setMsg("msg2");
+    boolean updated = underTest.setLocations(issue, builder.build());
+    assertThat(updated).isTrue();
+  }
+
+  @Test
+  public void change_locations_if_different_flow_count() {
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder())
+        .build())
+      .build();
+    issue.setLocations(locations);
+    DbIssues.Locations.Builder builder = locations.toBuilder();
+    builder.clearFlow();
+    boolean updated = underTest.setLocations(issue, builder.build());
+    assertThat(updated).isTrue();
+  }
+
+  @Test
+  public void do_not_change_locations_if_primary_hash_changed() {
+    DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .setTextRange(range)
+      .setChecksum("1")
+      .build();
+    issue.setLocations(locations);
+    boolean updated = underTest.setLocations(issue, locations.toBuilder().setChecksum("2").build());
     assertThat(updated).isFalse();
-    assertThat(issue.getLocations().toString()).isEqualTo("[1-3]");
+  }
+
+  @Test
+  public void do_not_change_locations_if_secondary_hash_changed() {
+    DbCommons.TextRange range = DbCommons.TextRange.newBuilder().setStartLine(1).build();
+    DbIssues.Locations locations = DbIssues.Locations.newBuilder()
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder().setTextRange(range))
+        .build())
+      .setChecksum("1")
+      .build();
+    issue.setLocations(locations);
+    DbIssues.Locations.Builder builder = locations.toBuilder();
+    builder.getFlowBuilder(0).getLocationBuilder(0).setChecksum("2");
+    boolean updated = underTest.setLocations(issue, builder.build());
+    assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }

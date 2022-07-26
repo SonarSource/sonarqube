@@ -104,6 +104,9 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   // true if the issue is being copied between branch
   private boolean isCopied = false;
 
+  // true if any of the locations have changed (ignoring hashes)
+  private boolean locationsChanged = false;
+
   // True if the issue did exist in the previous scan but not in the current one. That means
   // that this issue should be closed.
   private boolean beingClosed = false;
@@ -398,6 +401,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     isCopied = b;
     return this;
   }
+
+  public boolean locationsChanged() {
+    return locationsChanged;
+  }
+
+  public DefaultIssue setLocationsChanged(boolean locationsChanged) {
+    this.locationsChanged = locationsChanged;
+    return this;
+  }
+
 
   public DefaultIssue setNew(boolean b) {
     isNew = b;

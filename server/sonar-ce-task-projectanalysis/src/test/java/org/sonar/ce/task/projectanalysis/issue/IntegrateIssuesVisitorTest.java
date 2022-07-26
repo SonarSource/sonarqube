@@ -150,8 +150,8 @@ public class IntegrateIssuesVisitorTest {
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
 
     DbClient dbClient = dbTester.getDbClient();
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, sourceLinesRepository,
-      new CommonRuleEngineImpl(), issueFilter, ruleRepositoryRule, activeRulesHolder);
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter,
+      ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
       new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
     TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient);

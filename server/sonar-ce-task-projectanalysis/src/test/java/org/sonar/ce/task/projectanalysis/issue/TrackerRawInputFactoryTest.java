@@ -75,8 +75,7 @@ public class TrackerRawInputFactoryTest {
   private static final String FILE_UUID = "fake_uuid";
   private static final String ANOTHER_FILE_UUID = "another_fake_uuid";
   private static final String EXAMPLE_LINE_OF_CODE_FORMAT = "int example = line + of + code + %d; ";
-  private static final String LINE_IN_THE_MAIN_FILE = "String string = 'line-in-the-main-file';";
-  private static final String LINE_IN_ANOTHER_FILE = "String string = 'line-in-the-another-file';";
+
   private static final int FILE_REF = 2;
   private static final int NOT_IN_REPORT_FILE_REF = 3;
   private static final int ANOTHER_FILE_REF = 4;
@@ -96,19 +95,10 @@ public class TrackerRawInputFactoryTest {
   private static final ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(FILE, ANOTHER_FILE).build();
 
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
   private final CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
   private final IssueFilter issueFilter = mock(IssueFilter.class);
   private final TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
-    sourceLinesRepository, commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
-
-  @Before
-  public void before() {
-    Iterator<String> stringIterator = IntStream.rangeClosed(1, 9)
-      .mapToObj(i -> String.format(EXAMPLE_LINE_OF_CODE_FORMAT, i))
-      .iterator();
-    when(sourceLinesRepository.readLines(any())).thenReturn(CloseableIterator.from(stringIterator));
-  }
+    commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
 
   @Test
   public void load_source_hash_sequences() {
@@ -168,8 +158,6 @@ public class TrackerRawInputFactoryTest {
     assertInitializedIssue(issue);
     assertThat(issue.effort()).isNull();
     assertThat(issue.getRuleDescriptionContextKey()).isEmpty();
-
-    assertLocationHashIsMadeOf(input, "intexample=line+of+code+2;");
   }
 
   @Test
@@ -194,121 +182,6 @@ public class TrackerRawInputFactoryTest {
       .hasSize(1)
       .extracting(DefaultIssue::getRuleDescriptionContextKey)
       .containsOnly(Optional.of(TEST_CONTEXT_KEY));
-  }
-
-  @Test
-  public void calculateLocationHash_givenIssueOn3Lines_calculateHashOn3Lines() {
-    RuleKey ruleKey = RuleKey.of("java", "S001");
-    markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-
-    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(3)
-        .setStartOffset(0)
-        .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
-        .build())
-      .setMsg("the message")
-      .setRuleRepository(ruleKey.repository())
-      .setRuleKey(ruleKey.rule())
-      .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-
-    assertLocationHashIsMadeOf(input, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
-  }
-
-  @Test
-  public void calculateLocationHash_givenIssuePartiallyOn1Line_calculateHashOnAPartOfLine() {
-    RuleKey ruleKey = RuleKey.of("java", "S001");
-    markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-
-    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(1)
-        .setStartOffset(13)
-        .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
-        .build())
-      .setMsg("the message")
-      .setRuleRepository(ruleKey.repository())
-      .setRuleKey(ruleKey.rule())
-      .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-
-    assertLocationHashIsMadeOf(input, "line+of+code+1;");
-  }
-
-  @Test
-  public void calculateLocationHash_givenIssuePartiallyOn1LineAndPartiallyOnThirdLine_calculateHashAccordingly() {
-    RuleKey ruleKey = RuleKey.of("java", "S001");
-    markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-
-    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(3)
-        .setStartOffset(13)
-        .setEndOffset(11)
-        .build())
-      .setMsg("the message")
-      .setRuleRepository(ruleKey.repository())
-      .setRuleKey(ruleKey.rule())
-      .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-
-    assertLocationHashIsMadeOf(input, "line+of+code+1;intexample=line+of+code+2;intexample");
-  }
-
-  @Test
-  public void calculateLocationHash_givenIssueOn2Components_calculateHashesByReading2Files() {
-    when(sourceLinesRepository.readLines(any())).thenReturn(
-      newOneLineIterator(LINE_IN_THE_MAIN_FILE),
-      newOneLineIterator(LINE_IN_THE_MAIN_FILE),
-      newOneLineIterator(LINE_IN_ANOTHER_FILE));
-    RuleKey ruleKey = RuleKey.of("java", "S001");
-    markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-
-    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setTextRange(newTextRange(1, LINE_IN_THE_MAIN_FILE.length()))
-      .setMsg("the message")
-      .setRuleRepository(ruleKey.repository())
-      .setRuleKey(ruleKey.rule())
-      .setSeverity(Constants.Severity.BLOCKER)
-      .setGap(3.14)
-      .addFlow(ScannerReport.Flow.newBuilder()
-        .addLocation(ScannerReport.IssueLocation.newBuilder()
-          .setComponentRef(FILE_REF)
-          .setMsg("Secondary location in same file")
-          .setTextRange(newTextRange(1, LINE_IN_THE_MAIN_FILE.length())))
-        .addLocation(ScannerReport.IssueLocation.newBuilder()
-          .setComponentRef(ANOTHER_FILE_REF)
-          .setMsg("Secondary location in other file")
-          .setTextRange(newTextRange(1, LINE_IN_ANOTHER_FILE.length())))
-        .build())
-      .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-    DefaultIssue issue = Iterators.getOnlyElement(input.getIssues().iterator());
-
-    DbIssues.Locations locations = issue.getLocations();
-
-    assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='line-in-the-main-file';"));
-    assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='line-in-the-another-file';"));
-  }
-
-  private CloseableIterator<String> newOneLineIterator(String lineContent) {
-    return CloseableIterator.from(List.of(lineContent).iterator());
   }
 
   @Test
@@ -556,6 +429,15 @@ public class TrackerRawInputFactoryTest {
     assertThat(input.getIssues()).isEmpty();
   }
 
+  private ScannerReport.TextRange newTextRange(int issueOnLine) {
+    return ScannerReport.TextRange.newBuilder()
+      .setStartLine(issueOnLine)
+      .setEndLine(issueOnLine)
+      .setStartOffset(0)
+      .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
+      .build();
+  }
+
   private void assertInitializedIssue(DefaultIssue issue) {
     assertInitializedExternalIssue(issue, STATUS_OPEN);
     assertThat(issue.effort()).isNull();
@@ -581,31 +463,4 @@ public class TrackerRawInputFactoryTest {
     dumbRule.setName(name);
     ruleRepository.add(dumbRule);
   }
-
-  private TextRange newTextRange(int issueOnLine, int endOffset) {
-    return TextRange.newBuilder()
-      .setStartLine(issueOnLine)
-      .setEndLine(issueOnLine)
-      .setStartOffset(0)
-      .setEndOffset(endOffset)
-      .build();
-  }
-
-  private TextRange newTextRange(int issueOnLine) {
-    return TextRange.newBuilder()
-      .setStartLine(issueOnLine)
-      .setEndLine(issueOnLine)
-      .setStartOffset(0)
-      .setEndOffset(EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)
-      .build();
-  }
-
-  private void assertLocationHashIsMadeOf(Input<DefaultIssue> input, String stringToHash) {
-    DefaultIssue defaultIssue = Iterators.getOnlyElement(input.getIssues().iterator());
-    String expectedHash = DigestUtils.md5Hex(stringToHash);
-    DbIssues.Locations locations = defaultIssue.getLocations();
-
-    assertThat(locations.getChecksum()).isEqualTo(expectedHash);
-  }
-
 }

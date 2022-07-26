@@ -35,6 +35,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -171,13 +172,52 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  /**
+   * New value will be set if the locations are different, ignoring the hashes. If that's the case, we mark the issue as changed,
+   * and we also flag that the locations have changed, so that we calculate all the hashes later, in an efficient way.
+   * WARNING: It is possible that the hashes changes without the text ranges changing, but for optimization we take that risk.
+   *
+   * @see ComputeLocationHashesVisitor
+   */
   public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {
-    if (!Objects.equals(locations, issue.getLocations())) {
+    if (!locationsEqualsIgnoreHashes(locations, issue.getLocations())) {
       issue.setLocations(locations);
       issue.setChanged(true);
+      issue.setLocationsChanged(true);
       return true;
     }
     return false;
+  }
+
+  private static boolean locationsEqualsIgnoreHashes(@Nullable Object l1, @Nullable DbIssues.Locations l2) {
+    if (l1 == null && l2 == null) {
+      return true;
+    }
+
+    if (l2 == null || !(l1 instanceof DbIssues.Locations)) {
+      return false;
+    }
+
+    DbIssues.Locations l1c = (DbIssues.Locations) l1;
+    if (!Objects.equals(l1c.getTextRange(), l2.getTextRange()) || l1c.getFlowCount() != l2.getFlowCount()) {
+      return false;
+    }
+
+    for (int i = 0; i < l1c.getFlowCount(); i++) {
+      if (l1c.getFlow(i).getLocationCount() != l2.getFlow(i).getLocationCount()) {
+        return false;
+      }
+      for (int j = 0; j < l1c.getFlow(i).getLocationCount(); j++) {
+        if (!locationEqualsIgnoreHashes(l1c.getFlow(i).getLocation(j), l2.getFlow(i).getLocation(j))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private static boolean locationEqualsIgnoreHashes(DbIssues.Location l1, DbIssues.Location l2) {
+    return Objects.equals(l1.getComponentId(), l2.getComponentId()) && Objects.equals(l1.getTextRange(), l2.getTextRange()) && Objects.equals(l1.getMsg(), l2.getMsg());
   }
 
   public boolean setPastLocations(DefaultIssue issue, @Nullable Object previousLocations) {
