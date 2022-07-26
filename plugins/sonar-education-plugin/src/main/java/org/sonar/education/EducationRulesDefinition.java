@@ -59,7 +59,7 @@ public class EducationRulesDefinition implements RulesDefinition {
   }
 
   private void createRuleWithDescriptionSectionsAndEducationPrinciples(NewRepository repo) {
-    String[] educationPrinciples = {"defense_in_depth", "least_trust_principle"};
+    String[] educationPrinciples = {"defense_in_depth", "never_trust_user_input"};
     String ruleKey = EducationPrinciplesSensor.EDUCATION_WITH_GENERIC_CONCEPTS_RULE_KEY;
     NewRule ruleWithSingleContext = repo.createRule(ruleKey).setName("Rule with description sections and education principles")
       .addTags(EDUCATION_KEY);
