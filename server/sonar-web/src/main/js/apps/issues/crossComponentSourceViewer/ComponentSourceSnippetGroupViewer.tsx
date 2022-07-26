@@ -23,7 +23,6 @@ import Issue from '../../../components/issue/Issue';
 import SecondaryIssue from '../../../components/issue/SecondaryIssue';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
-import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
@@ -40,6 +39,7 @@ import {
   SourceLine,
   SourceViewerFile
 } from '../../../types/types';
+import IssueSourceViewerHeader from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
 import {
   createSnippets,
@@ -422,7 +422,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
     return (
       <div className="component-source-container" ref={this.rootNodeRef}>
-        <SourceViewerHeaderSlim
+        <IssueSourceViewerHeader
           branchLike={branchLike}
           expandable={!fullyShown && isFile(snippetGroup.component.q)}
           loading={loading}

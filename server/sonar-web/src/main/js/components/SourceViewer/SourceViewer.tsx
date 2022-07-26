@@ -60,7 +60,6 @@ import defaultLoadIssues from './helpers/loadIssues';
 import SourceViewerCode from './SourceViewerCode';
 import { SourceViewerContext } from './SourceViewerContext';
 import SourceViewerHeader from './SourceViewerHeader';
-import SourceViewerHeaderSlim from './SourceViewerHeaderSlim';
 import './styles.css';
 
 export interface Props {
@@ -92,7 +91,6 @@ export interface Props {
   selectedIssue?: string;
   showMeasures?: boolean;
   metricKey?: string;
-  slimHeader?: boolean;
 }
 
 interface State {
@@ -605,10 +603,8 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     );
   }
 
-  renderHeader(branchLike: BranchLike | undefined, sourceViewerFile: SourceViewerFile) {
-    return this.props.slimHeader ? (
-      <SourceViewerHeaderSlim branchLike={branchLike} sourceViewerFile={sourceViewerFile} />
-    ) : (
+  renderHeader(sourceViewerFile: SourceViewerFile) {
+    return (
       <WorkspaceContext.Consumer>
         {({ openComponent }) => (
           <SourceViewerHeader
@@ -653,7 +649,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
         <div className="source-viewer" ref={node => (this.node = node)}>
-          {this.renderHeader(this.props.branchLike, component)}
+          {this.renderHeader(component)}
           {sourceRemoved && (
             <Alert className="spacer-top" variant="warning">
               {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}

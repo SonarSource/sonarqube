@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMainBranch } from '../../../helpers/mocks/branch-like';
-import { mockSourceViewerFile } from '../../../helpers/mocks/sources';
-import { ComponentQualifier } from '../../../types/component';
-import SourceViewerHeaderSlim, { Props } from '../SourceViewerHeaderSlim';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockSourceViewerFile } from '../../../../helpers/mocks/sources';
+import { ComponentQualifier } from '../../../../types/component';
+import IssueSourceViewerHeader, { Props } from '../IssueSourceViewerHeader';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -39,7 +39,7 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
-    <SourceViewerHeaderSlim
+    <IssueSourceViewerHeader
       branchLike={mockMainBranch()}
       expandable={true}
       onExpand={jest.fn()}

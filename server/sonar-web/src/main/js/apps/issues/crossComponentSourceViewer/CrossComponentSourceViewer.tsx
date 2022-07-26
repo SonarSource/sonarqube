@@ -268,29 +268,35 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
         })}
 
         {locationsByComponent.length === 0 && (
-          <ComponentSourceSnippetGroupViewer
-            branchLike={this.props.branchLike}
-            duplications={duplications}
-            duplicationsByLine={duplicationsByLine}
-            highlightedLocationMessage={this.props.highlightedLocationMessage}
-            issue={issue}
-            issuePopup={this.state.issuePopup}
-            issuesByLine={issuesByComponent[issue.component] || {}}
-            isLastOccurenceOfPrimaryComponent={true}
-            lastSnippetGroup={true}
-            loadDuplications={this.fetchDuplications}
-            locations={[]}
-            onIssueChange={this.props.onIssueChange}
-            onIssueSelect={this.props.onIssueSelect}
-            onIssuePopupToggle={this.handleIssuePopupToggle}
-            onLocationSelect={this.props.onLocationSelect}
-            renderDuplicationPopup={this.renderDuplicationPopup}
-            scroll={this.props.scroll}
-            snippetGroup={{
-              locations: [getPrimaryLocation(issue)],
-              ...components[issue.component]
-            }}
-          />
+          <SourceViewerContext.Provider
+            value={{
+              branchLike: this.props.branchLike,
+              file: components[issue.component].component
+            }}>
+            <ComponentSourceSnippetGroupViewer
+              branchLike={this.props.branchLike}
+              duplications={duplications}
+              duplicationsByLine={duplicationsByLine}
+              highlightedLocationMessage={this.props.highlightedLocationMessage}
+              issue={issue}
+              issuePopup={this.state.issuePopup}
+              issuesByLine={issuesByComponent[issue.component] || {}}
+              isLastOccurenceOfPrimaryComponent={true}
+              lastSnippetGroup={true}
+              loadDuplications={this.fetchDuplications}
+              locations={[]}
+              onIssueChange={this.props.onIssueChange}
+              onIssueSelect={this.props.onIssueSelect}
+              onIssuePopupToggle={this.handleIssuePopupToggle}
+              onLocationSelect={this.props.onLocationSelect}
+              renderDuplicationPopup={this.renderDuplicationPopup}
+              scroll={this.props.scroll}
+              snippetGroup={{
+                locations: [getPrimaryLocation(issue)],
+                ...components[issue.component]
+              }}
+            />
+          </SourceViewerContext.Provider>
         )}
       </div>
     );

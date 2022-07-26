@@ -20,19 +20,19 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonIcon } from '../../components/controls/buttons';
-import { ClipboardIconButton } from '../../components/controls/clipboard';
-import ExpandSnippetIcon from '../../components/icons/ExpandSnippetIcon';
-import QualifierIcon from '../../components/icons/QualifierIcon';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { getBranchLikeQuery } from '../../helpers/branch-like';
-import { translate } from '../../helpers/l10n';
-import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
-import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../../helpers/urls';
-import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
-import { SourceViewerFile } from '../../types/types';
-import './SourceViewerHeaderSlim.css';
+import { ButtonIcon } from '../../../components/controls/buttons';
+import { ClipboardIconButton } from '../../../components/controls/clipboard';
+import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
+import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
+import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
+import { SourceViewerFile } from '../../../types/types';
+import './IssueSourceViewerHeader.css';
 
 export interface Props {
   branchLike: BranchLike | undefined;
@@ -44,7 +44,7 @@ export interface Props {
   sourceViewerFile: SourceViewerFile;
 }
 
-export default function SourceViewerHeaderSlim(props: Props) {
+export default function IssueSourceViewerHeader(props: Props) {
   const {
     branchLike,
     expandable,

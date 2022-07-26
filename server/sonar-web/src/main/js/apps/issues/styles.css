@@ -137,10 +137,6 @@
   color: white;
 }
 
-.component-source-container {
-  border: 1px solid var(--gray80);
-}
-
 .component-source-container + .component-source-container {
   margin-top: var(--gridSize);
 }
