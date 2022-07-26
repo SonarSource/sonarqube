@@ -34,6 +34,14 @@ interface Props {
 
 export function ProjectNotifications(props: WithNotificationsProps & Props) {
   const { channels, component, loading, notifications, perProjectTypes } = props;
+  const heading = React.useRef<HTMLHeadingElement>(null);
+
+  React.useEffect(() => {
+    if (heading.current) {
+      // a11y: provide focus to the heading when the info drawer page is opened.
+      heading.current.focus();
+    }
+  }, [heading]);
 
   const handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
     props.addNotification({ project: component.key, channel, type });
@@ -55,9 +63,11 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
 
   return (
     <>
-      <h3>{translate('project.info.notifications')}</h3>
+      <h3 tabIndex={-1} ref={heading}>
+        {translate('project.info.notifications')}
+      </h3>
 
-      <Alert className="spacer-top" variant="info">
+      <Alert className="spacer-top" variant="info" aria-live="off">
         {translate('notification.dispatcher.information')}
       </Alert>
 

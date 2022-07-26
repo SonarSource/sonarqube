@@ -40,6 +40,13 @@ jest.mock('../../../../../../../api/project-badges', () => ({
   renewProjectBadgesToken: jest.fn().mockResolvedValue({})
 }));
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    createRef: jest.fn().mockReturnValue({ current: document.createElement('h3') })
+  };
+});
+
 it('should display correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -67,12 +74,21 @@ it('should renew token', async () => {
   expect(wrapper.find('.it__project-info-renew-badge').props().disabled).toBe(false);
 });
 
-function shallowRender(overrides = {}) {
-  return shallow(
+it('should set focus on the heading when rendered', async () => {
+  const fakeElement = document.createElement('h3');
+  const focus = jest.fn();
+  (React.createRef as jest.Mock).mockReturnValueOnce({ current: { ...fakeElement, focus } });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(focus).toHaveBeenCalled();
+});
+
+function shallowRender(props: Partial<ProjectBadges['props']> = {}) {
+  return shallow<ProjectBadges>(
     <ProjectBadges
       branchLike={mockBranch()}
       component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
-      {...overrides}
+      {...props}
     />
   );
 }

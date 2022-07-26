@@ -19,12 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAppState } from '../../../../../../helpers/testMocks';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
+import { mockAppState } from '../../../../../../helpers/testMocks';
 import {
   ProjectInformationRenderer,
   ProjectInformationRendererProps
 } from '../ProjectInformationRenderer';
+
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => f()),
+    useRef: jest.fn().mockReturnValue(document.createElement('h2'))
+  };
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
@@ -65,6 +73,15 @@ it('should render app correctly when regulatoryReportFeatureEnabled is false', (
       })
     })
   ).toMatchSnapshot();
+});
+
+it('should set focus on the heading when rendered', () => {
+  const fakeElement = document.createElement('h2');
+  const focus = jest.fn();
+  (React.useRef as jest.Mock).mockReturnValueOnce({ current: { ...fakeElement, focus } });
+
+  shallowRender();
+  expect(focus).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ProjectInformationRendererProps> = {}) {

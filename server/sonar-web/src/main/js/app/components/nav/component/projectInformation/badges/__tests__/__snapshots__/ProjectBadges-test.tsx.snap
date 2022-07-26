@@ -4,7 +4,9 @@ exports[`should display correctly 1`] = `
 <div
   className="display-flex-column"
 >
-  <h3>
+  <h3
+    tabIndex={-1}
+  >
     overview.badges.get_badge.TRK
   </h3>
   <p

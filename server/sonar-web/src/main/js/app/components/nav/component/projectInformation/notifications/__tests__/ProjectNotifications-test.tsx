@@ -22,6 +22,14 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../../../helpers/mocks/component';
 import { ProjectNotifications } from '../ProjectNotifications';
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => f()),
+    useRef: jest.fn().mockReturnValue({ current: document.createElement('h3') })
+  };
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
@@ -40,6 +48,15 @@ it('should add and remove a notification for the project', () => {
 
   wrapper.find('NotificationsList').prop<Function>('onRemove')(notification);
   expect(removeNotification).toHaveBeenCalledWith({ ...notification, project: 'foo' });
+});
+
+it('should set focus on the heading when rendered', () => {
+  const fakeElement = document.createElement('h3');
+  const focus = jest.fn();
+  (React.useRef as jest.Mock).mockReturnValueOnce({ current: { ...fakeElement, focus } });
+
+  shallowRender();
+  expect(focus).toHaveBeenCalled();
 });
 
 function shallowRender(props = {}) {

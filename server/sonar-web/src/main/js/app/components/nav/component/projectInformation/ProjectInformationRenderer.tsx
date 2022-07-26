@@ -58,12 +58,20 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
     branchLike
   } = props;
 
+  const heading = React.useRef<HTMLHeadingElement>(null);
   const isApp = component.qualifier === ComponentQualifier.Application;
+
+  React.useEffect(() => {
+    if (heading.current) {
+      // a11y: provide focus to the heading when the Project Information is opened.
+      heading.current.focus();
+    }
+  }, [heading]);
 
   return (
     <>
       <div>
-        <h2 className="big-padded bordered-bottom">
+        <h2 className="big-padded bordered-bottom" tabIndex={-1} ref={heading}>
           {translate(isApp ? 'application' : 'project', 'info.title')}
         </h2>
       </div>

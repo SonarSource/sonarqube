@@ -5,6 +5,7 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -112,6 +113,7 @@ exports[`should render a private project correctly 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -285,6 +287,7 @@ exports[`should render an app correctly: default 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       application.info.title
     </h2>
@@ -392,6 +395,7 @@ exports[`should render app correctly when regulatoryReportFeatureEnabled is fals
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -556,6 +560,7 @@ exports[`should render correctly: default 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -729,6 +734,7 @@ exports[`should render correctly: no badges 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -895,6 +901,7 @@ exports[`should render correctly: no badges, no notifications 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -1054,6 +1061,7 @@ exports[`should render correctly: with notifications 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>
@@ -1220,6 +1228,7 @@ exports[`should render with description 1`] = `
   <div>
     <h2
       className="big-padded bordered-bottom"
+      tabIndex={-1}
     >
       project.info.title
     </h2>

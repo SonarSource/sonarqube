@@ -50,6 +50,7 @@ interface State {
 
 export default class ProjectBadges extends React.PureComponent<Props, State> {
   mounted = false;
+  headingNodeRef = React.createRef<HTMLHeadingElement>();
   state: State = {
     isRenewing: false,
     token: '',
@@ -60,6 +61,9 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchToken();
+    if (this.headingNodeRef.current) {
+      this.headingNodeRef.current.focus();
+    }
   }
 
   componentWillUnmount() {
@@ -114,7 +118,9 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
 
     return (
       <div className="display-flex-column">
-        <h3>{translate('overview.badges.get_badge', qualifier)}</h3>
+        <h3 tabIndex={-1} ref={this.headingNodeRef}>
+          {translate('overview.badges.get_badge', qualifier)}
+        </h3>
         <p className="big-spacer-bottom">{translate('overview.badges.description', qualifier)}</p>
         <BadgeButton
           onClick={this.handleSelectBadge}

@@ -2,10 +2,13 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <h3>
+  <h3
+    tabIndex={-1}
+  >
     project.info.notifications
   </h3>
   <Alert
+    aria-live="off"
     className="spacer-top"
     variant="info"
   >
