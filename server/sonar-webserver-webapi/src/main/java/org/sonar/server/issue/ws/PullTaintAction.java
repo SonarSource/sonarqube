@@ -54,20 +54,19 @@ public class PullTaintAction extends BasePullAction {
   }
 
   @Override
-  protected Set<String> getIssueKeysSnapshot(IssueQueryParams issueQueryParams) {
+  protected Set<String> getIssueKeysSnapshot(IssueQueryParams issueQueryParams, int page) {
     Optional<Long> changedSinceDate = ofNullable(issueQueryParams.getChangedSince());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (changedSinceDate.isPresent()) {
         return dbClient.issueDao().selectIssueKeysByComponentUuidAndChangedSinceDate(dbSession, issueQueryParams.getBranchUuid(),
           changedSinceDate.get(), issueQueryParams.getRuleRepositories(), emptyList(),
-          issueQueryParams.getLanguages(), false);
+          issueQueryParams.getLanguages(), page);
       }
 
       return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, issueQueryParams.getBranchUuid(),
         issueQueryParams.getRuleRepositories(),
-        emptyList(), issueQueryParams.getLanguages(),
-        issueQueryParams.isResolvedOnly(), true);
+        emptyList(), issueQueryParams.getLanguages(),page);
 
     }
   }
@@ -75,7 +74,7 @@ public class PullTaintAction extends BasePullAction {
   @Override
   protected IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince) {
-    return new IssueQueryParams(branchDto.getUuid(), languages, taintChecker.getTaintRepositories(), emptyList(), resolvedOnly, changedSince);
+    return new IssueQueryParams(branchDto.getUuid(), languages, taintChecker.getTaintRepositories(), emptyList(), false, changedSince);
   }
 
   @Override

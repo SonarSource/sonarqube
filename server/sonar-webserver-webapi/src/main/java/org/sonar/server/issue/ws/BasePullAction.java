@@ -47,7 +47,6 @@ import static java.util.Collections.emptyList;
 import static org.sonar.api.web.UserRole.USER;
 
 public abstract class BasePullAction implements IssuesWsAction {
-
   protected static final String PROJECT_KEY_PARAM = "projectKey";
   protected static final String BRANCH_NAME_PARAM = "branchName";
   protected static final String LANGUAGES_PARAM = "languages";
@@ -162,9 +161,7 @@ public abstract class BasePullAction implements IssuesWsAction {
 
     var issuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
 
-    Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(queryParams));
-    Consumer<List<IssueDto>> listConsumer = issueDtos -> pullActionResponseWriter.appendIssuesToResponse(issueDtos, outputStream);
-    issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer);
+    processNonClosedIssuesInBatches(dbSession, queryParams, outputStream, issuesRetriever);
 
     if (queryParams.getChangedSince() != null) {
       // in the "incremental mode" we need to send SonarLint also recently closed issues keys
@@ -178,6 +175,21 @@ public abstract class BasePullAction implements IssuesWsAction {
   protected abstract IssueQueryParams initializeQueryParams(BranchDto branchDto, @Nullable List<String> languages,
     @Nullable List<String> ruleRepositories, boolean resolvedOnly, @Nullable Long changedSince);
 
-  protected abstract Set<String> getIssueKeysSnapshot(IssueQueryParams queryParams);
+  protected abstract Set<String> getIssueKeysSnapshot(IssueQueryParams queryParams, int page);
 
+  private void processNonClosedIssuesInBatches(DbSession dbSession, IssueQueryParams queryParams, OutputStream outputStream,
+    PullActionIssuesRetriever issuesRetriever) {
+    int nextPage = 1;
+    do {
+      Set<String> issueKeysSnapshot = new HashSet<>(getIssueKeysSnapshot(queryParams, nextPage));
+      Consumer<List<IssueDto>> listConsumer = issueDtos -> pullActionResponseWriter.appendIssuesToResponse(issueDtos, outputStream);
+      issuesRetriever.processIssuesByBatch(dbSession, issueKeysSnapshot, listConsumer);
+
+      if (issueKeysSnapshot.isEmpty()) {
+        nextPage = -1;
+      } else {
+        nextPage++;
+      }
+    } while (nextPage > 0);
+  }
 }

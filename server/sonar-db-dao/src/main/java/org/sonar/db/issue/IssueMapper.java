@@ -38,17 +38,18 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
-  Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid,
+  Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);
+
+  Set<String> selectIssueKeysByComponentUuidWithFilters(@Param("componentUuid") String componentUuid,
     @Param("includingRepositories") List<String> includingRepositories,
     @Param("excludingRepositories") List<String> excludingRepositories,
-    @Param("languages") List<String> languages, @Param("resolvedOnly") @Nullable Boolean resolvedOnly,
-    @Param("openIssuesOnly") boolean openIssuesOnly);
+    @Param("languages") List<String> languages, @Param("pagination") Pagination pagination);
 
   Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(@Param("componentUuid") String componentUuid,
     @Param("changedSince") long changedSince,
     @Param("includingRepositories") List<String> includingRepositories,
     @Param("excludingRepositories") List<String> excludingRepositories,
-    @Param("languages") List<String> languages, @Param("resolvedOnly") @Nullable Boolean resolvedOnly);
+    @Param("languages") List<String> languages, @Param("pagination") Pagination pagination);
 
   List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
     @Param("pagination") Pagination pagination);
@@ -79,9 +80,8 @@ public interface IssueMapper {
 
   Collection<IssueGroupDto> selectIssueGroupsByComponent(@Param("component") ComponentDto component, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
 
+  List<IssueDto> selectByBranch(@Param("keys") Set<String> keys, @Nullable @Param("changedSince") Long changedSince);
 
-  List<IssueDto> selectByBranch(@Param("queryParams") IssueQueryParams issueQueryParams,
-    @Param("pagination") Pagination pagination);
 
   List<String> selectRecentlyClosedIssues(@Param("queryParams") IssueQueryParams issueQueryParams);
 }

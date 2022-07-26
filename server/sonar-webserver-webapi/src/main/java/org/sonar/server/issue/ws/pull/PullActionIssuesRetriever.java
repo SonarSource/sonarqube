@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws.pull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -28,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 
+import static java.util.stream.Collectors.toList;
 import static org.sonar.db.issue.IssueDao.DEFAULT_PAGE_SIZE;
 
 public class PullActionIssuesRetriever {
@@ -41,41 +43,46 @@ public class PullActionIssuesRetriever {
   }
 
   public void processIssuesByBatch(DbSession dbSession, Set<String> issueKeysSnapshot, Consumer<List<IssueDto>> listConsumer) {
-    int nextPage = 1;
-    boolean hasMoreIssues = true;
+    boolean hasMoreIssues = !issueKeysSnapshot.isEmpty();
+    long offset = 0;
+
+    List<IssueDto> issueDtos = new ArrayList<>();
 
     while (hasMoreIssues) {
-      List<IssueDto> issueDtos = nextOpenIssues(dbSession, nextPage);
-      listConsumer.accept(filterDuplicateIssues(issueDtos, issueKeysSnapshot));
-      nextPage++;
-      if (issueDtos.isEmpty() || issueDtos.size() < DEFAULT_PAGE_SIZE) {
-        hasMoreIssues = false;
-      }
+      Set<String> page = paginate(issueKeysSnapshot, offset);
+      issueDtos.addAll(filterIssues(nextOpenIssues(dbSession, page)));
+      offset += page.size();
+      hasMoreIssues = offset < issueKeysSnapshot.size();
     }
+
+    listConsumer.accept(issueDtos);
   }
 
-  private static List<IssueDto> filterDuplicateIssues(List<IssueDto> issues, Set<String> issueKeysSnapshot) {
+  private List<IssueDto> filterIssues(List<IssueDto> issues) {
     return issues
       .stream()
-      .filter(issue -> isUniqueIssue(issue.getKee(), issueKeysSnapshot))
-      .collect(Collectors.toList());
+      .filter(i -> hasCorrectTypeAndStatus(i, issueQueryParams))
+      .collect(toList());
   }
 
-  private static boolean isUniqueIssue(String issueKey, Set<String> issueKeysSnapshot) {
-    boolean isUniqueIssue = issueKeysSnapshot.contains(issueKey);
-
-    if (isUniqueIssue) {
-      issueKeysSnapshot.remove(issueKey);
-    }
-
-    return isUniqueIssue;
+  private static boolean hasCorrectTypeAndStatus(IssueDto issueDto, IssueQueryParams queryParams) {
+    return issueDto.getType() != 4 &&
+      (queryParams.isResolvedOnly() ? issueDto.getStatus().equals("RESOLVED") : true);
   }
 
   public List<String> retrieveClosedIssues(DbSession dbSession) {
     return dbClient.issueDao().selectRecentlyClosedIssues(dbSession, issueQueryParams);
   }
 
-  private List<IssueDto> nextOpenIssues(DbSession dbSession, int nextPage) {
-    return dbClient.issueDao().selectByBranch(dbSession, issueQueryParams, nextPage);
+  private List<IssueDto> nextOpenIssues(DbSession dbSession, Set<String> issueKeysSnapshot) {
+    return dbClient.issueDao().selectByBranch(dbSession, issueKeysSnapshot, issueQueryParams);
+  }
+
+  private static Set<String> paginate(Set<String> issueKeys, long offset) {
+    return issueKeys
+      .stream()
+      .skip(offset)
+      .limit(DEFAULT_PAGE_SIZE)
+      .collect(Collectors.toSet());
   }
 }

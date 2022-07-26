@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -37,6 +36,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
   public static final int DEFAULT_PAGE_SIZE = 1000;
+  public static final int BIG_PAGE_SIZE = 1000000;
 
   public Optional<IssueDto> selectByKey(DbSession session, String key) {
     return Optional.ofNullable(mapper(session).selectByKey(key));
@@ -61,27 +61,26 @@ public class IssueDao implements Dao {
   }
 
   public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid) {
-    return selectIssueKeysByComponentUuid(session, componentUuid, emptyList(), emptyList(), emptyList(),
-      null, false);
+    return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
   }
 
   public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid,
     List<String> includingRepositories, List<String> excludingRepositories,
-    List<String> languages, @Nullable Boolean resolvedOnly, boolean openIssuesOnly) {
-    return mapper(session).selectIssueKeysByComponentUuid(componentUuid, includingRepositories, excludingRepositories,
-      languages, resolvedOnly, openIssuesOnly);
+    List<String> languages, int page) {
+    return mapper(session).selectIssueKeysByComponentUuidWithFilters(componentUuid, includingRepositories, excludingRepositories,
+      languages, Pagination.forPage(page).andSize(BIG_PAGE_SIZE));
   }
 
-  public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince) {
+  public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince, int page) {
     return selectIssueKeysByComponentUuidAndChangedSinceDate(session, componentUuid, changedSince, emptyList(), emptyList(),
-      emptyList(), null);
+      emptyList(), page);
   }
 
   public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince,
     List<String> includingRepositories, List<String> excludingRepositories,
-    List<String> languages, @Nullable Boolean resolvedOnly) {
+    List<String> languages, int page) {
     return mapper(session).selectIssueKeysByComponentUuidAndChangedSinceDate(componentUuid, changedSince,
-      includingRepositories, excludingRepositories, languages, resolvedOnly);
+      includingRepositories, excludingRepositories, languages, Pagination.forPage(page).andSize(BIG_PAGE_SIZE));
   }
 
   public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
@@ -145,9 +144,8 @@ public class IssueDao implements Dao {
     return session.getMapper(IssueMapper.class);
   }
 
-  public List<IssueDto> selectByBranch(DbSession dbSession, IssueQueryParams issueQueryParams, int page) {
-    Pagination pagination = Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE);
-    return mapper(dbSession).selectByBranch(issueQueryParams, pagination);
+  public List<IssueDto> selectByBranch(DbSession dbSession, Set<String> issueKeysSnapshot, IssueQueryParams issueQueryParams) {
+    return mapper(dbSession).selectByBranch(issueKeysSnapshot, issueQueryParams.getChangedSince());
   }
 
   public List<String> selectRecentlyClosedIssues(DbSession dbSession, IssueQueryParams issueQueryParams) {

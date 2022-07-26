@@ -167,25 +167,17 @@ public class IssueDaoTest {
 
     // Filter by including repositories
     Set<String> issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, List.of("xoo"),
-      emptyList(), emptyList(), null, false);
+      emptyList(), emptyList(), 1);
     // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).containsOnly("I1", "I2", "I3");
+    assertThat(issues).containsOnly("I1", "I3");
 
     // Filter by excluding repositories
     issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), List.of("xoo"),
-      emptyList(), null, false);
+      emptyList(), 1);
     assertThat(issues).isEmpty();
 
     // Filter by language
-    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), List.of("xoo"), null, false);
-    assertThat(issues).containsOnly("I1", "I2", "I3");
-
-    // Filter by resolved only
-    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), emptyList(), true, false);
-    assertThat(issues).containsOnly("I1");
-
-    // Filter by non-closed issues only
-    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), emptyList(), null, true);
+    issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID, emptyList(), emptyList(), List.of("xoo"), 1);
     assertThat(issues).containsOnly("I1", "I3");
   }
 
@@ -198,10 +190,9 @@ public class IssueDaoTest {
     // Insert I3, I4, where t1 < t2
     IntStream.range(3, 5).forEach(i -> underTest.insert(db.getSession(), newIssueDto("I" + i).setUpdatedAt(t1)));
 
-    Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2);
+    Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, 1);
 
-    // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).containsOnly("I1");
+    assertThat(issues).contains("I1");
   }
 
   @Test
@@ -215,24 +206,19 @@ public class IssueDaoTest {
 
     // Filter by including repositories
     Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, List.of("xoo"),
-      emptyList(), emptyList(), null);
+      emptyList(), emptyList(), 1);
     // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).containsOnly("I1");
+    assertThat(issues).contains("I1");
 
     // Filter by excluding repositories
     issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2,
-      emptyList(), List.of("xoo"), emptyList(), null);
+      emptyList(), List.of("xoo"), emptyList(), 1);
     assertThat(issues).isEmpty();
 
     // Filter by language
     issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, emptyList(),
-      emptyList(), List.of("xoo"), null);
-    assertThat(issues).containsOnly("I1");
-
-    // Filter by resolved only
-    issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, emptyList(),
-      emptyList(), emptyList(), true);
-    assertThat(issues).containsOnly("I1");
+      emptyList(), List.of("xoo"), 1);
+    assertThat(issues).contains("I1");
   }
 
 
@@ -256,7 +242,8 @@ public class IssueDaoTest {
     List<String> statusesB = List.of(STATUS_OPEN, STATUS_RESOLVED);
     IntStream.range(0, statusesB.size()).forEach(i -> insertBranchIssue(branchB, fileB, rule, "B" + i, statusesB.get(i), updatedAt));
 
-    List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchA, "java", false, changedSince), 1);
+    List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3"),
+      buildSelectByBranchQuery(branchA, "java", false, changedSince));
 
     assertThat(branchAIssuesA1)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
@@ -266,13 +253,16 @@ public class IssueDaoTest {
         tuple("issueA3", STATUS_RESOLVED)
       );
 
-    List<IssueDto> branchAIssuesA2 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchA, "java", true, changedSince), 1);
+    List<IssueDto> branchAIssuesA2 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3"),
+      buildSelectByBranchQuery(branchA, "java", true, changedSince));
 
     assertThat(branchAIssuesA2)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
-      .containsExactly(tuple("issueA3", STATUS_RESOLVED));
+      .containsExactly(tuple("issueA0", STATUS_OPEN),
+        tuple("issueA1", STATUS_REVIEWED),
+        tuple("issueA3", STATUS_RESOLVED));
 
-    List<IssueDto> branchBIssuesB1 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchB, "java", false, changedSince), 1);
+    List<IssueDto> branchBIssuesB1 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"), buildSelectByBranchQuery(branchB, "java", false, changedSince));
 
     assertThat(branchBIssuesB1)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
@@ -281,11 +271,12 @@ public class IssueDaoTest {
         tuple("issueB1", STATUS_RESOLVED)
       );
 
-    List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), buildSelectByBranchQuery(branchB, "java", true, changedSince), 1);
+    List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"), buildSelectByBranchQuery(branchB, "java", true, changedSince));
 
     assertThat(branchBIssuesB2)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
-      .containsExactly(tuple("issueB1", STATUS_RESOLVED));
+      .containsExactly(tuple("issueB0", STATUS_OPEN),
+        tuple("issueB1", STATUS_RESOLVED));
   }
 
   @Test

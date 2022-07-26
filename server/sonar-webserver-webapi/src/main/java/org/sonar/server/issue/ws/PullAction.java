@@ -55,19 +55,19 @@ public class PullAction extends BasePullAction {
   }
 
   @Override
-  protected Set<String> getIssueKeysSnapshot(IssueQueryParams issueQueryParams) {
+  protected Set<String> getIssueKeysSnapshot(IssueQueryParams issueQueryParams, int page) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<Long> changedSinceDate = ofNullable(issueQueryParams.getChangedSince());
 
       if (changedSinceDate.isPresent()) {
         return dbClient.issueDao().selectIssueKeysByComponentUuidAndChangedSinceDate(dbSession, issueQueryParams.getBranchUuid(),
           changedSinceDate.get(), issueQueryParams.getRuleRepositories(), taintChecker.getTaintRepositories(),
-          issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly());
+          issueQueryParams.getLanguages(), page);
       }
 
       return dbClient.issueDao().selectIssueKeysByComponentUuid(dbSession, issueQueryParams.getBranchUuid(),
         issueQueryParams.getRuleRepositories(), taintChecker.getTaintRepositories(),
-        issueQueryParams.getLanguages(), issueQueryParams.isResolvedOnly(), true);
+        issueQueryParams.getLanguages(), page);
     }
   }
 
@@ -77,13 +77,11 @@ public class PullAction extends BasePullAction {
     return new IssueQueryParams(branchDto.getUuid(), languages, ruleRepositories, taintChecker.getTaintRepositories(), resolvedOnly, changedSince);
   }
 
-
   @Override
   protected void validateRuleRepositories(List<String> ruleRepositories) {
     checkArgument(ruleRepositories
       .stream()
       .filter(taintChecker.getTaintRepositories()::contains)
       .count() == 0, "Incorrect rule repositories list: it should only include repositories that define Issues, and no Taint Vulnerabilities");
-
   }
 }
