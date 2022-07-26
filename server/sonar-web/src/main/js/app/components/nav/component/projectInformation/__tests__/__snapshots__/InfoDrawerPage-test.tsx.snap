@@ -3,32 +3,24 @@
 exports[`should render correctly 1`] = `
 <div
   className="info-drawer-page info-drawer-pane display-flex-column overflow-hidden"
->
-  <h2
-    className="back-button big-padded bordered-bottom"
-    onClick={[Function]}
-  >
-    <BackIcon
-      className="little-spacer-right"
-    />
-    back
-  </h2>
-</div>
+/>
 `;
 
 exports[`should render correctly 2`] = `
 <div
   className="info-drawer-page info-drawer-pane display-flex-column overflow-hidden open"
 >
-  <h2
-    className="back-button big-padded bordered-bottom"
+  <a
+    className="h2 back-button big-padded bordered-bottom"
     onClick={[Function]}
+    role="link"
+    tabIndex={-1}
   >
     <BackIcon
       className="little-spacer-right"
     />
     back
-  </h2>
+  </a>
   <div
     className="overflow-y-auto big-padded"
   >

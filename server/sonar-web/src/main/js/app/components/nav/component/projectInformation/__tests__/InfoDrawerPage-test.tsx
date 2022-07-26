@@ -28,7 +28,7 @@ it('should render correctly', () => {
 
 it('should call onPageChange when clicked', () => {
   const onPageChange = jest.fn();
-  const wrapper = shallowRender({ onPageChange });
+  const wrapper = shallowRender({ onPageChange, displayed: true });
 
   wrapper.find('.back-button').simulate('click');
 

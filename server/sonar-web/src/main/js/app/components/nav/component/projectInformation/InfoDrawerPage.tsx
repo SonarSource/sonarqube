@@ -38,12 +38,19 @@ export default function InfoDrawerPage(props: InfoDrawerPageProps) {
           open: displayed
         }
       )}>
-      <h2 className="back-button big-padded bordered-bottom" onClick={() => onPageChange()}>
-        <BackIcon className="little-spacer-right" />
-        {translate('back')}
-      </h2>
-
-      {displayed && <div className="overflow-y-auto big-padded">{children}</div>}
+      {displayed && (
+        <>
+          <a
+            className="h2 back-button big-padded bordered-bottom"
+            onClick={() => onPageChange()}
+            role="link"
+            tabIndex={-1}>
+            <BackIcon className="little-spacer-right" />
+            {translate('back')}
+          </a>
+          <div className="overflow-y-auto big-padded">{children}</div>
+        </>
+      )}
     </div>
   );
 }
