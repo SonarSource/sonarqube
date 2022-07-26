@@ -258,7 +258,7 @@ public class IssueDaoTest {
 
     assertThat(branchAIssuesA2)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
-      .containsExactly(tuple("issueA0", STATUS_OPEN),
+      .containsExactlyInAnyOrder(tuple("issueA0", STATUS_OPEN),
         tuple("issueA1", STATUS_REVIEWED),
         tuple("issueA3", STATUS_RESOLVED));
 
@@ -275,7 +275,7 @@ public class IssueDaoTest {
 
     assertThat(branchBIssuesB2)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
-      .containsExactly(tuple("issueB0", STATUS_OPEN),
+      .containsExactlyInAnyOrder(tuple("issueB0", STATUS_OPEN),
         tuple("issueB1", STATUS_RESOLVED));
   }
 
