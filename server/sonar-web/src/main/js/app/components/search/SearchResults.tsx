@@ -41,39 +41,30 @@ export default function SearchResults(props: Props): React.ReactElement<Props> {
   sortQualifiers(qualifiers).forEach(qualifier => {
     const components = props.results[qualifier];
 
-    if (components.length > 0 && renderedComponents.length > 0) {
-      renderedComponents.push(<li className="divider" key={`divider-${qualifier}`} />);
-    }
-
     if (components.length > 0) {
-      renderedComponents.push(
-        <li className="menu-header" key={`header-${qualifier}`}>
-          {translate('qualifiers', qualifier)}
-        </li>
-      );
-    }
+      const more = props.more[qualifier];
 
-    components.forEach(component => renderedComponents.push(props.renderResult(component)));
-
-    const more = props.more[qualifier];
-    if (more !== undefined && more > 0) {
       renderedComponents.push(
-        <SearchShowMore
-          allowMore={props.allowMore}
-          key={`more-${qualifier}`}
-          loadingMore={props.loadingMore}
-          onMoreClick={props.onMoreClick}
-          onSelect={props.onSelect}
-          qualifier={qualifier}
-          selected={props.selected === `qualifier###${qualifier}`}
-        />
+        <ul className="menu" key={`header-${qualifier}`} role="group">
+          <li className="menu-header" role="presentation">
+            {translate('qualifiers', qualifier)}
+          </li>
+          {components.map(component => props.renderResult(component))}
+          {more !== undefined && more > 0 && (
+            <SearchShowMore
+              allowMore={props.allowMore}
+              key={`more-${qualifier}`}
+              loadingMore={props.loadingMore}
+              onMoreClick={props.onMoreClick}
+              onSelect={props.onSelect}
+              qualifier={qualifier}
+              selected={props.selected === `qualifier###${qualifier}`}
+            />
+          )}
+        </ul>
       );
     }
   });
 
-  return renderedComponents.length > 0 ? (
-    <ul className="menu">{renderedComponents}</ul>
-  ) : (
-    props.renderNoResults()
-  );
+  return renderedComponents.length > 0 ? <div>{renderedComponents}</div> : props.renderNoResults();
 }

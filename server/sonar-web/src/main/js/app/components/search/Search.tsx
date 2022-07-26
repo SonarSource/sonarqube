@@ -378,7 +378,7 @@ export class Search extends React.PureComponent<Props, State> {
                 selected={this.state.selected}
               />
               <div className="dropdown-bottom-hint">
-                <div className="pull-right">
+                <div className="pull-right" aria-hidden={true}>
                   <ClockIcon className="little-spacer-right" size={12} />
                   {translate('recently_browsed')}
                 </div>

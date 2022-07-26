@@ -2,7 +2,9 @@
 
 exports[`renders favorite 1`] = `
 <li
+  aria-selected={false}
   key="foo"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}
@@ -49,7 +51,9 @@ exports[`renders favorite 1`] = `
 
 exports[`renders match 1`] = `
 <li
+  aria-selected={false}
   key="foo"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}
@@ -95,7 +99,9 @@ exports[`renders match 1`] = `
 
 exports[`renders projects 1`] = `
 <li
+  aria-selected={false}
   key="qwe"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}
@@ -146,7 +152,9 @@ exports[`renders projects 1`] = `
 
 exports[`renders recently browsed 1`] = `
 <li
+  aria-selected={false}
   key="foo"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}
@@ -192,7 +200,9 @@ exports[`renders recently browsed 1`] = `
 
 exports[`renders selected 1`] = `
 <li
+  aria-selected={false}
   key="foo"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}
@@ -235,8 +245,10 @@ exports[`renders selected 1`] = `
 
 exports[`renders selected 2`] = `
 <li
+  aria-selected={true}
   className="active"
   key="foo"
+  role="option"
 >
   <Tooltip
     mouseEnterDelay={1}

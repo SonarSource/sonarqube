@@ -1,72 +1,82 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders "Show More" link 1`] = `
-<ul
-  className="menu"
->
-  <li
-    className="menu-header"
+<div>
+  <ul
+    className="menu"
     key="header-TRK"
+    role="group"
   >
-    qualifiers.TRK
-  </li>
-  <span
-    key="foo"
-  >
-    foo
-  </span>
-  <span
-    key="bar"
-  >
-    bar
-  </span>
-  <SearchShowMore
-    allowMore={true}
-    key="more-TRK"
-    onMoreClick={[MockFunction]}
-    onSelect={[MockFunction]}
-    qualifier="TRK"
-    selected={false}
-  />
-</ul>
+    <li
+      className="menu-header"
+      role="presentation"
+    >
+      qualifiers.TRK
+    </li>
+    <span
+      key="foo"
+    >
+      foo
+    </span>
+    <span
+      key="bar"
+    >
+      bar
+    </span>
+    <SearchShowMore
+      allowMore={true}
+      key="more-TRK"
+      onMoreClick={[MockFunction]}
+      onSelect={[MockFunction]}
+      qualifier="TRK"
+      selected={false}
+    />
+  </ul>
+</div>
 `;
 
 exports[`renders different components and dividers between them 1`] = `
-<ul
-  className="menu"
->
-  <li
-    className="menu-header"
+<div>
+  <ul
+    className="menu"
     key="header-FIL"
+    role="group"
   >
-    qualifiers.FIL
-  </li>
-  <span
-    key="zux"
-  >
-    zux
-  </span>
-  <li
-    className="divider"
-    key="divider-TRK"
-  />
-  <li
-    className="menu-header"
+    <li
+      className="menu-header"
+      role="presentation"
+    >
+      qualifiers.FIL
+    </li>
+    <span
+      key="zux"
+    >
+      zux
+    </span>
+  </ul>
+  <ul
+    className="menu"
     key="header-TRK"
+    role="group"
   >
-    qualifiers.TRK
-  </li>
-  <span
-    key="foo"
-  >
-    foo
-  </span>
-  <span
-    key="bar"
-  >
-    bar
-  </span>
-</ul>
+    <li
+      className="menu-header"
+      role="presentation"
+    >
+      qualifiers.TRK
+    </li>
+    <span
+      key="foo"
+    >
+      foo
+    </span>
+    <span
+      key="bar"
+    >
+      bar
+    </span>
+  </ul>
+</div>
 `;
 
 exports[`should render no results 1`] = `

@@ -41,6 +41,7 @@ interface State {
 }
 
 const TOOLTIP_DELAY = 1000;
+const MILLISECONDS_PER_SECOND = 1000;
 
 export default class SearchResult extends React.PureComponent<Props, State> {
   interval?: number;
@@ -101,9 +102,11 @@ export default class SearchResult extends React.PureComponent<Props, State> {
       <li
         className={this.props.selected ? 'active' : undefined}
         key={component.key}
-        ref={node => this.props.innerRef(component.key, node)}>
+        ref={node => this.props.innerRef(component.key, node)}
+        role="option"
+        aria-selected={this.props.selected}>
         <Tooltip
-          mouseEnterDelay={TOOLTIP_DELAY / 1000}
+          mouseEnterDelay={TOOLTIP_DELAY / MILLISECONDS_PER_SECOND}
           overlay={component.key}
           placement="left"
           visible={this.state.tooltipVisible}>
@@ -118,7 +121,8 @@ export default class SearchResult extends React.PureComponent<Props, State> {
               {component.match ? (
                 <span
                   className="navbar-search-item-match"
-                  // Safe: comes from the backend
+                  // Safe: comes from the search engine, that injects bold tags into component names
+                  // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: component.match }}
                 />
               ) : (
