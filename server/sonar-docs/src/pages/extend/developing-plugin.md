@@ -139,8 +139,8 @@ Supported standard pom node properties:
 
 Maven Property|Manifest Key|Notes
 ---|---|---
-`version` | Plugin-Version | (required) Plugin version as displayed in page "Marketplace". Default: ${project.version}
-- | Sonar-Version | (required) Minimal version of supported SonarQube at runtime. For example if value is 5.2, then deploying the plugin on versions 5.1 and lower will fail. Default value is given by the version of sonar-plugin-api dependency. It can be overridden with the Maven property sonarQubeMinVersion (since sonar-packaging-maven-plugin 1.16). That allows in some cases to use new features of recent API and to still be compatible at runtime with older versions of SonarQube. Default: version of dependency sonar-plugin-api
+`version` | Plugin-Version | (required) Plugin version as displayed in page "Marketplace". Default: `${project.version}`
+`pluginApiMinVersion` | Sonar-Version | Minimal version of supported Sonar Plugin API at runtime. For example if value is 9.8.0.203, then deploying the plugin on SonarQube versions with `sonar-plugin-api` 9.6.1.114 (ie. SonarQube 9.5) and lower will fail. Default value is given by the version of `sonar-plugin-api` dependency. It can be overridden with the Maven property `pluginApiMinVersion` (since `sonar-packaging-maven-plugin` 1.22). That allows in some cases to use new features of recent API and to still be compatible at runtime with older versions of SonarQube. Default: version of dependency `sonar-plugin-api`
 `license` | Plugin-License | Plugin license as displayed in page "Marketplace". Default `${project.licenses}`
 `developers` | Plugin-Developers | List of developers displayed in page "Marketplace". Default: `${project.developers}`
 
