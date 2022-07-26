@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throttle } from 'lodash';
+import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { rawSizes } from '../../app/theme';
+import EscKeydownHandler from './EscKeydownHandler';
 import ScreenPositionFixer from './ScreenPositionFixer';
 import './Tooltip.css';
 
@@ -65,9 +66,8 @@ function isMeasured(state: State): state is OwnState & Measurements {
 }
 
 export default function Tooltip(props: TooltipProps) {
-  // overlay is a ReactNode, so it can be `undefined` or `null`
-  // this allows to easily render a tooltip conditionally
-  // more generaly we avoid rendering empty tooltips
+  // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
+  // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.
   return props.overlay != null && props.overlay !== '' ? (
     <TooltipInner {...props} />
   ) : (
@@ -82,6 +82,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   tooltipNode?: HTMLElement | null;
   mounted = false;
   mouseIn = false;
+  id: string;
 
   static defaultProps = {
     mouseEnterDelay: 0.1
@@ -94,6 +95,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       placement: props.placement,
       visible: props.visible !== undefined ? props.visible : false
     };
+    this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, 10);
   }
 
@@ -182,9 +184,9 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   positionTooltip = () => {
-    // `findDOMNode(this)` will search for the DOM node for the current component
-    // first it will find a React.Fragment (see `render`),
-    // so it will get the DOM node of the first child, i.e. DOM node of `this.props.children`
+    // `findDOMNode(this)` will search for the DOM node for the current component.
+    // First, it will find a React.Fragment (see `render`). It will skip this, and
+    // it will get the DOM node of the first child, i.e. DOM node of `this.props.children`.
     // docs: https://reactjs.org/docs/refs-and-the-dom.html#exposing-dom-refs-to-parent-components
 
     // eslint-disable-next-line react/no-find-dom-node
@@ -217,8 +219,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           break;
       }
 
-      // save width and height (and later set in `render`) to avoid resizing the tooltip element,
-      // when it's placed close to the window edge
+      // Save width and height (and later set in `render`) to avoid resizing the tooltip
+      // element when it's placed close to the window's edge.
       this.setState({
         left: window.pageXOffset + left,
         top: window.pageYOffset + top,
@@ -241,9 +243,9 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   handleMouseEnter = () => {
     this.mouseEnterTimeout = window.setTimeout(() => {
-      // for some reason even after the `this.mouseEnterTimeout` is cleared, it still triggers
-      // to workaround this issue, check that its value is not `undefined`
-      // (if it's `undefined`, it means the timer has been reset)
+      // For some reason, even after the `this.mouseEnterTimeout` is cleared, it still
+      // triggers. To workaround this issue, check that its value is not `undefined`
+      // (if it's `undefined`, it means the timer has been reset).
       if (
         this.mounted &&
         this.props.visible === undefined &&
@@ -273,6 +275,20 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           this.props.onHide();
         }
       }, (this.props.mouseLeaveDelay || 0) * 1000);
+    }
+  };
+
+  handleFocus = () => {
+    this.setState({ visible: true });
+    if (this.props.onShow) {
+      this.props.onShow();
+    }
+  };
+
+  handleBlur = () => {
+    this.setState({ visible: false });
+    if (this.props.onHide) {
+      this.props.onHide();
     }
   };
 
@@ -350,7 +366,9 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         onPointerLeave={this.handleOverlayMouseLeave}
         ref={this.tooltipNodeRef}
         style={style}>
-        <div className={`${classNameSpace}-inner`}>{this.props.overlay}</div>
+        <div className={`${classNameSpace}-inner`} id={this.id}>
+          {this.props.overlay}
+        </div>
         <div
           className={`${classNameSpace}-arrow`}
           style={
@@ -368,14 +386,25 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       <>
         {React.cloneElement(this.props.children, {
           onPointerEnter: this.handleMouseEnter,
-          onPointerLeave: this.handleMouseLeave
+          onPointerLeave: this.handleMouseLeave,
+          onFocus: this.handleFocus,
+          onBlur: this.handleBlur,
+          tabIndex: 0,
+          // aria-describedby is the semantically correct property to use, but it's not
+          // always well supported. As a fallback, we use aria-labelledby as well.
+          // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
+          // See https://css-tricks.com/accessible-svgs/
+          'aria-describedby': this.id,
+          'aria-labelledby': this.id
         })}
         {this.isVisible() && (
-          <TooltipPortal>
-            <ScreenPositionFixer ready={isMeasured(this.state)}>
-              {this.renderActual}
-            </ScreenPositionFixer>
-          </TooltipPortal>
+          <EscKeydownHandler onKeydown={this.handleBlur}>
+            <TooltipPortal>
+              <ScreenPositionFixer ready={isMeasured(this.state)}>
+                {this.renderActual}
+              </ScreenPositionFixer>
+            </TooltipPortal>
+          </EscKeydownHandler>
         )}
       </>
     );

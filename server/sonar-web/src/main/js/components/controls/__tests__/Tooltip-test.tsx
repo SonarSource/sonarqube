@@ -37,6 +37,13 @@ jest.mock('react-dom', () => {
   });
 });
 
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash');
+  return Object.assign({}, actual, {
+    uniqueId: jest.fn(prefix => `${prefix}1`)
+  });
+});
+
 beforeEach(jest.clearAllMocks);
 
 it('should render', () => {
@@ -65,6 +72,17 @@ it('should open & close', () => {
   wrapper.find('#tooltip').simulate('pointerleave');
   jest.runOnlyPendingTimers();
   wrapper.update();
+  expect(wrapper.find('TooltipPortal').exists()).toBe(false);
+  expect(onHide).toBeCalled();
+
+  onShow.mockReset();
+  onHide.mockReset();
+
+  wrapper.find('#tooltip').simulate('focus');
+  expect(wrapper.find('TooltipPortal').exists()).toBe(true);
+  expect(onShow).toBeCalled();
+
+  wrapper.find('#tooltip').simulate('blur');
   expect(wrapper.find('TooltipPortal').exists()).toBe(false);
   expect(onHide).toBeCalled();
 });

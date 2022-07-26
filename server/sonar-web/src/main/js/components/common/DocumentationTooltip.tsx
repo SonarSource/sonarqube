@@ -52,7 +52,14 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
               <hr className="big-spacer-top big-spacer-bottom" />
 
               {links.map(({ href, label, inPlace }) => (
-                <div className="little-spacer-bottom" key={label}>
+                <div
+                  className="little-spacer-bottom"
+                  key={label}
+                  // a11y: tooltips with interactive content are not supported by screen readers.
+                  // To prevent the screen reader from reading out the links for no reason (as
+                  // they won't be "clickable"), we hide the whole links section.
+                  // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
+                  aria-hidden={true}>
                   {inPlace ? (
                     <Link to={href}>
                       <span>{label}</span>

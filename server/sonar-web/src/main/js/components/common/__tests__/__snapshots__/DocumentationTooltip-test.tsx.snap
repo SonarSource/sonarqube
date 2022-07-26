@@ -74,6 +74,7 @@ exports[`renders correctly: with links 1`] = `
           className="big-spacer-top big-spacer-bottom"
         />
         <div
+          aria-hidden={true}
           className="little-spacer-bottom"
         >
           <Link
@@ -92,6 +93,7 @@ exports[`renders correctly: with links 1`] = `
           </Link>
         </div>
         <div
+          aria-hidden={true}
           className="little-spacer-bottom"
         >
           <Link
@@ -106,6 +108,7 @@ exports[`renders correctly: with links 1`] = `
           </Link>
         </div>
         <div
+          aria-hidden={true}
           className="little-spacer-bottom"
         >
           <Link
