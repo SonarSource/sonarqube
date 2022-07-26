@@ -4,7 +4,7 @@ exports[`ListStyleFacet Renderers should include renderFacetItem 1`] = `
 <React.Fragment>
   <TagsIcon
     className="little-spacer-right"
-    fill="#999"
+    fill="#888"
   />
   tag
 </React.Fragment>
@@ -14,7 +14,7 @@ exports[`ListStyleFacet Renderers should include renderSearchResult 1`] = `
 <React.Fragment>
   <TagsIcon
     className="little-spacer-right"
-    fill="#999"
+    fill="#888"
   />
   <React.Fragment>
     my-

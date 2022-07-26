@@ -58,7 +58,7 @@ exports[`should render properly 1`] = `
       <line
         style={
           Object {
-            "stroke": "#999",
+            "stroke": "#888",
             "strokeWidth": 4,
           }
         }
@@ -82,7 +82,7 @@ exports[`should render properly 1`] = `
       <line
         style={
           Object {
-            "stroke": "#999",
+            "stroke": "#888",
             "strokeWidth": 4,
           }
         }
@@ -106,7 +106,7 @@ exports[`should render properly 1`] = `
       <line
         style={
           Object {
-            "stroke": "#999",
+            "stroke": "#888",
             "strokeWidth": 4,
           }
         }
@@ -130,7 +130,7 @@ exports[`should render properly 1`] = `
       <line
         style={
           Object {
-            "stroke": "#999",
+            "stroke": "#888",
             "strokeWidth": 4,
           }
         }

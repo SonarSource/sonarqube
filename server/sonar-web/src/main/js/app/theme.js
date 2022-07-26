@@ -41,7 +41,7 @@ module.exports = {
     gray80: '#cdcdcd',
     gray71: '#b4b4b4',
     gray67: '#aaa',
-    gray60: '#999',
+    gray60: '#888',
     gray40: '#404040',
 
     transparentWhite: 'rgba(255,255,255,0.62)',

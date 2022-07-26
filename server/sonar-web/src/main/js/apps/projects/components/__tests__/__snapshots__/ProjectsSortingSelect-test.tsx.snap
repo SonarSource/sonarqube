@@ -75,7 +75,7 @@ exports[`should handle the descending sort direction 1`] = `
     <ButtonIcon
       aria-label="projects.sort_descending"
       className="js-projects-sorting-invert spacer-left"
-      color="#999"
+      color="#888"
       onClick={[Function]}
     >
       <SortDescIcon
@@ -168,7 +168,7 @@ exports[`should render correctly for leak view 1`] = `
     <ButtonIcon
       aria-label="projects.sort_ascending"
       className="js-projects-sorting-invert spacer-left"
-      color="#999"
+      color="#888"
       onClick={[Function]}
     >
       <SortAscIcon
@@ -261,7 +261,7 @@ exports[`should render correctly for overall view 1`] = `
     <ButtonIcon
       aria-label="projects.sort_ascending"
       className="js-projects-sorting-invert spacer-left"
-      color="#999"
+      color="#888"
       onClick={[Function]}
     >
       <SortAscIcon
