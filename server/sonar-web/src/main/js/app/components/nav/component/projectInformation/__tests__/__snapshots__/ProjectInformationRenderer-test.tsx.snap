@@ -78,25 +78,31 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -245,25 +251,31 @@ exports[`should render a private project correctly 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -355,16 +367,22 @@ exports[`should render an app correctly: default 1`] = `
         qualifier="APP"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.APP"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.APP"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -513,16 +531,22 @@ exports[`should render app correctly when regulatoryReportFeatureEnabled is fals
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -671,25 +695,31 @@ exports[`should render correctly: default 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -838,20 +868,24 @@ exports[`should render correctly: no badges 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -1000,15 +1034,17 @@ exports[`should render correctly: no badges, no notifications 1`] = `
         qualifier="TRK"
       />
     </div>
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -1157,20 +1193,24 @@ exports[`should render correctly: with notifications 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;
@@ -1320,25 +1360,31 @@ exports[`should render with description 1`] = `
         qualifier="TRK"
       />
     </div>
-    <Memo(DrawerLink)
-      label="overview.badges.get_badge.TRK"
-      onPageChange={[MockFunction]}
-      to={1}
-    />
-    <Memo(DrawerLink)
-      label="project.info.to_notifications"
-      onPageChange={[MockFunction]}
-      to={2}
-    />
-    <div
-      className="big-padded bordered-bottom"
-    >
-      <ModalButton
-        modal={[Function]}
+    <ul>
+      <li>
+        <Memo(DrawerLink)
+          label="overview.badges.get_badge.TRK"
+          onPageChange={[MockFunction]}
+          to={1}
+        />
+      </li>
+      <li>
+        <Memo(DrawerLink)
+          label="project.info.to_notifications"
+          onPageChange={[MockFunction]}
+          to={2}
+        />
+      </li>
+      <li
+        className="big-padded bordered-bottom"
       >
-        <Component />
-      </ModalButton>
-    </div>
+        <ModalButton
+          modal={[Function]}
+        >
+          <Component />
+        </ModalButton>
+      </li>
+    </ul>
   </div>
 </Fragment>
 `;

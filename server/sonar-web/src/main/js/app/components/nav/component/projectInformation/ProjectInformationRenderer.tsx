@@ -94,18 +94,16 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
         {!isApp &&
           (component.qualityGate ||
             (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
-            <>
-              <div className="big-padded bordered-bottom">
-                {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
+            <div className="big-padded bordered-bottom">
+              {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
 
-                {component.qualityProfiles && component.qualityProfiles.length > 0 && (
-                  <MetaQualityProfiles
-                    headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
-                    profiles={component.qualityProfiles}
-                  />
-                )}
-              </div>
-            </>
+              {component.qualityProfiles && component.qualityProfiles.length > 0 && (
+                <MetaQualityProfiles
+                  headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
+                  profiles={component.qualityProfiles}
+                />
+              )}
+            </div>
           )}
 
         {!isApp && <MetaLinks component={component} />}
@@ -114,37 +112,43 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
           <MetaKey componentKey={component.key} qualifier={component.qualifier} />
         </div>
 
-        {canUseBadges && (
-          <DrawerLink
-            label={translate('overview.badges.get_badge', component.qualifier)}
-            onPageChange={props.onPageChange}
-            to={ProjectInformationPages.badges}
-          />
-        )}
-        {canConfigureNotifications && (
-          <DrawerLink
-            label={translate('project.info.to_notifications')}
-            onPageChange={props.onPageChange}
-            to={ProjectInformationPages.notifications}
-          />
-        )}
-        {component.qualifier === ComponentQualifier.Project &&
-          appState.regulatoryReportFeatureEnabled && (
-            <div className="big-padded bordered-bottom">
-              <ModalButton
-                modal={({ onClose }) => (
-                  <RegulatoryReportModal
-                    component={component}
-                    branchLike={branchLike}
-                    onClose={onClose}
-                  />
-                )}>
-                {({ onClick }) => (
-                  <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
-                )}
-              </ModalButton>
-            </div>
+        <ul>
+          {canUseBadges && (
+            <li>
+              <DrawerLink
+                label={translate('overview.badges.get_badge', component.qualifier)}
+                onPageChange={props.onPageChange}
+                to={ProjectInformationPages.badges}
+              />
+            </li>
           )}
+          {canConfigureNotifications && (
+            <li>
+              <DrawerLink
+                label={translate('project.info.to_notifications')}
+                onPageChange={props.onPageChange}
+                to={ProjectInformationPages.notifications}
+              />
+            </li>
+          )}
+          {component.qualifier === ComponentQualifier.Project &&
+            appState.regulatoryReportFeatureEnabled && (
+              <li className="big-padded bordered-bottom">
+                <ModalButton
+                  modal={({ onClose }) => (
+                    <RegulatoryReportModal
+                      component={component}
+                      branchLike={branchLike}
+                      onClose={onClose}
+                    />
+                  )}>
+                  {({ onClick }) => (
+                    <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
+                  )}
+                </ModalButton>
+              </li>
+            )}
+        </ul>
       </div>
     </>
   );
