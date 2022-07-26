@@ -90,10 +90,7 @@
 .global-navbar-menu > li > a:focus,
 .global-navbar-menu > .dropdown.open > a {
   background-color: #020202;
-}
-
-.global-navbar-menu > li > a.active {
-  border-bottom-color: #646464;
+  border-bottom-color: var(--blue);
 }
 
 .global-navbar-menu-right {
