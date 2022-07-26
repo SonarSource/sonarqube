@@ -20,7 +20,7 @@
 import * as React from 'react';
 import DrilldownLink from '../../../../../../components/shared/DrilldownLink';
 import SizeRating from '../../../../../../components/ui/SizeRating';
-import { translate } from '../../../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../../../helpers/l10n';
 import { formatMeasure, localizeMetric } from '../../../../../../helpers/measures';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { MetricKey } from '../../../../../../types/metrics';
@@ -45,10 +45,16 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
         <span className="spacer-left small">({translate('project.info.main_branch')})</span>
       </div>
       <div className="display-flex-center">
-        {ncloc ? (
+        {ncloc && ncloc.value ? (
           <>
             <DrilldownLink className="huge" component={component.key} metric={MetricKey.ncloc}>
-              {formatMeasure(ncloc.value, 'SHORT_INT')}
+              <span
+                aria-label={translateWithParameters(
+                  'project.info.see_more_info_on_x_locs',
+                  ncloc.value
+                )}>
+                {formatMeasure(ncloc.value, 'SHORT_INT')}
+              </span>
             </DrilldownLink>
 
             <span className="spacer-left">

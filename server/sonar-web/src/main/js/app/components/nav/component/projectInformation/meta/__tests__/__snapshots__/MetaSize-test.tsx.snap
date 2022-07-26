@@ -24,7 +24,11 @@ exports[`should render correctly: application 1`] = `
       component="my-project"
       metric="ncloc"
     >
-      1
+      <span
+        aria-label="project.info.see_more_info_on_x_locs.1.0"
+      >
+        1
+      </span>
     </DrilldownLink>
     <span
       className="spacer-left"
@@ -80,7 +84,11 @@ exports[`should render correctly: project 1`] = `
       component="my-project"
       metric="ncloc"
     >
-      1
+      <span
+        aria-label="project.info.see_more_info_on_x_locs.1.0"
+      >
+        1
+      </span>
     </DrilldownLink>
     <span
       className="spacer-left"
