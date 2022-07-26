@@ -8,16 +8,7 @@ exports[`should render correctly: default 1`] = `
       "top": 120,
     }
   }
->
-  <div
-    className="close-button"
-  >
-    <ClearButton
-      aria-label="close"
-      onClick={[MockFunction]}
-    />
-  </div>
-</div>
+/>
 `;
 
 exports[`should render correctly: displayed 1`] = `

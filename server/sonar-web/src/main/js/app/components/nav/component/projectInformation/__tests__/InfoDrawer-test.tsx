@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ClearButton } from '../../../../../../components/controls/buttons';
 import InfoDrawer, { InfoDrawerProps } from '../InfoDrawer';
 
 it('should render correctly', () => {
@@ -28,9 +29,8 @@ it('should render correctly', () => {
 
 it('should call onClose when button is clicked', () => {
   const onClose = jest.fn();
-  const wrapper = shallowRender({ onClose });
-
-  wrapper.find('ClearButton').simulate('click');
+  const wrapper = shallowRender({ onClose, displayed: true });
+  wrapper.find(ClearButton).simulate('click');
 
   expect(onClose).toBeCalled();
 });

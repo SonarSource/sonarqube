@@ -39,15 +39,17 @@ export default function InfoDrawer(props: InfoDrawerProps) {
     <div
       className={classNames('info-drawer info-drawer-pane', { open: displayed })}
       style={{ top }}>
-      <div className="close-button">
-        <ClearButton aria-label={translate('close')} onClick={onClose} />
-      </div>
       {displayed && (
-        <EscKeydownHandler onKeydown={onClose}>
-          <OutsideClickHandler onClickOutside={onClose}>
-            <div className="display-flex-column max-height-100">{children}</div>
-          </OutsideClickHandler>
-        </EscKeydownHandler>
+        <>
+          <div className="close-button">
+            <ClearButton aria-label={translate('close')} onClick={onClose} />
+          </div>
+          <EscKeydownHandler onKeydown={onClose}>
+            <OutsideClickHandler onClickOutside={onClose}>
+              <div className="display-flex-column max-height-100">{children}</div>
+            </OutsideClickHandler>
+          </EscKeydownHandler>
+        </>
       )}
     </div>
   );
