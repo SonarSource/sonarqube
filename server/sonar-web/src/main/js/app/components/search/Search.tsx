@@ -55,6 +55,8 @@ interface State {
   shortQuery: boolean;
 }
 
+const MIN_SEARCH_QUERY_LENGTH = 2;
+
 export class Search extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
@@ -155,7 +157,7 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   search = (query: string) => {
-    if (query.length === 0 || query.length >= 2) {
+    if (query.length === 0 || query.length >= MIN_SEARCH_QUERY_LENGTH) {
       this.setState({ loading: true });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
       getSuggestions(query, recentlyBrowsed).then(response => {
@@ -176,7 +178,7 @@ export class Search extends React.PureComponent<Props, State> {
             projects: { ...state.projects, ...keyBy(response.projects, 'key') },
             results,
             selected: list.length > 0 ? list[0] : undefined,
-            shortQuery: query.length > 2 && response.warning === 'short_input'
+            shortQuery: query.length > MIN_SEARCH_QUERY_LENGTH && response.warning === 'short_input'
           }));
         }
       }, this.stopLoading);
@@ -336,7 +338,7 @@ export class Search extends React.PureComponent<Props, State> {
   );
 
   renderNoResults = () => (
-    <div className="navbar-search-no-results">
+    <div className="navbar-search-no-results" aria-live="assertive">
       {translateWithParameters('no_results_for_x', this.state.query)}
     </div>
   );
@@ -358,8 +360,8 @@ export class Search extends React.PureComponent<Props, State> {
         />
 
         {this.state.shortQuery && (
-          <span className="navbar-search-input-hint">
-            {translateWithParameters('select2.tooShort', 2)}
+          <span className="navbar-search-input-hint" aria-live="assertive">
+            {translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
           </span>
         )}
 

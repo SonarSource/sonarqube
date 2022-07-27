@@ -44,6 +44,20 @@ it('selects results', () => {
   prev(form, 'foo');
 });
 
+it('renders no results', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.instance().renderNoResults()).toMatchSnapshot();
+});
+
+it('should skip too short a query', () => {
+  const wrapper = shallowRender();
+
+  wrapper.setState({ loading: true });
+  wrapper.instance().search('s');
+
+  expect(wrapper.state().loading).toBe(false);
+});
+
 it('opens selected project on enter', () => {
   const router = mockRouter();
   const form = shallowRender({ router });
