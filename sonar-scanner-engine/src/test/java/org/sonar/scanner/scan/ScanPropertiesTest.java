@@ -65,6 +65,14 @@ public class ScanPropertiesTest {
   }
 
   @Test
+  public void should_define_report_publish_timeout() {
+    assertThat(underTest.reportPublishTimeout()).isEqualTo(60);
+
+    settings.setProperty("sonar.ws.report.timeout", "10");
+    assertThat(underTest.reportPublishTimeout()).isEqualTo(10);
+  }
+
+  @Test
   public void should_define_preload_file_metadata() {
     settings.setProperty("sonar.preloadFileMetadata", "true");
     assertThat(underTest.preloadFileMetadata()).isTrue();

@@ -103,7 +103,9 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void use_30s_write_timeout() {
+  public void use_write_timeout_from_properties() {
+    when(properties.reportPublishTimeout()).thenReturn(60);
+
     MockWsResponse submitMockResponse = new MockWsResponse();
     submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
     when(wsClient.call(any())).thenReturn(submitMockResponse);
@@ -111,7 +113,7 @@ public class ReportPublisherTest {
     underTest.start();
     underTest.execute();
 
-    verify(wsClient).call(argThat(req -> (req).getWriteTimeOutInMs().orElse(0) == 30_000));
+    verify(wsClient).call(argThat(req -> (req).getWriteTimeOutInMs().orElse(0) == 60_000));
   }
 
   @Test

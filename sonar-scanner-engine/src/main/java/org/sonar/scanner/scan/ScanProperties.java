@@ -42,6 +42,7 @@ public class ScanProperties {
   public static final String SCM_REVISION = "sonar.scm.revision";
   public static final String QUALITY_GATE_WAIT = "sonar.qualitygate.wait";
   public static final String QUALITY_GATE_TIMEOUT_IN_SEC = "sonar.qualitygate.timeout";
+  public static final String REPORT_PUBLISH_TIMEOUT_IN_SEC = "sonar.ws.report.timeout";
 
   private final Configuration configuration;
   private final DefaultInputProject project;
@@ -86,6 +87,10 @@ public class ScanProperties {
 
   public int qualityGateWaitTimeout() {
     return configuration.getInt(QUALITY_GATE_TIMEOUT_IN_SEC).orElse(300);
+  }
+
+  public int reportPublishTimeout() {
+    return configuration.getInt(REPORT_PUBLISH_TIMEOUT_IN_SEC).orElse(60);
   }
 
   /**
