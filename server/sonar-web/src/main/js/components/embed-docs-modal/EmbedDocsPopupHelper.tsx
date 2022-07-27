@@ -52,7 +52,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
 
   render() {
     return (
-      <li className="dropdown">
+      <div className="dropdown">
         <Toggler
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
@@ -66,7 +66,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
             <HelpIcon />
           </ButtonLink>
         </Toggler>
-      </li>
+      </div>
     );
   }
 }

@@ -41,7 +41,6 @@
 
 .navbar-login {
   margin-right: -10px;
-  white-space: nowrap;
 }
 
 .navbar-avatar {
@@ -70,7 +69,8 @@
   height: var(--globalNavHeight);
 }
 
-.global-navbar-menu > li > a {
+.global-navbar-menu > li > a,
+.global-navbar-menu .navbar-login {
   display: block;
   height: var(--globalNavHeight);
   padding: calc((var(--globalNavHeight) - var(--globalNavContentHeight)) / 2) 10px;
@@ -88,7 +88,9 @@
 .global-navbar-menu > li > a.active,
 .global-navbar-menu > li > a:hover,
 .global-navbar-menu > li > a:focus,
-.global-navbar-menu > .dropdown.open > a {
+.navbar-login.active,
+.navbar-login:hover,
+.navbar-login:focus {
   background-color: #020202;
   border-bottom-color: var(--blue);
 }

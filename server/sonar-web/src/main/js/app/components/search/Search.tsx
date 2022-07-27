@@ -343,7 +343,7 @@ export class Search extends React.PureComponent<Props, State> {
 
   render() {
     const search = (
-      <li className="navbar-search dropdown">
+      <div className="navbar-search dropdown">
         <DeferredSpinner className="navbar-search-icon" loading={this.state.loading} />
 
         <SearchBox
@@ -393,7 +393,7 @@ export class Search extends React.PureComponent<Props, State> {
             </div>
           </DropdownOverlay>
         )}
-      </li>
+      </div>
     );
 
     return this.state.open ? (

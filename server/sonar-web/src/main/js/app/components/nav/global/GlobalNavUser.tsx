@@ -75,8 +75,7 @@ export class GlobalNavUser extends React.PureComponent<Props> {
               </a>
             </li>
           </ul>
-        }
-        tagName="li">
+        }>
         <a className="dropdown-toggle navbar-avatar" href="#" title={currentUser.name}>
           <Avatar
             hash={currentUser.avatar}
@@ -90,11 +89,11 @@ export class GlobalNavUser extends React.PureComponent<Props> {
 
   renderAnonymous() {
     return (
-      <li>
+      <div>
         <a className="navbar-login" href="/sessions/new" onClick={this.handleLogin}>
           {translate('layout.login')}
         </a>
-      </li>
+      </div>
     );
   }
 

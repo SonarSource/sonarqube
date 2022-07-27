@@ -42,11 +42,11 @@ export function GlobalNav(props: GlobalNavProps) {
 
       <GlobalNavMenu currentUser={currentUser} location={location} />
 
-      <ul className="global-navbar-menu global-navbar-menu-right">
+      <div className="global-navbar-menu global-navbar-menu-right">
         <EmbedDocsPopupHelper />
         <Search />
         <GlobalNavUser currentUser={currentUser} />
-      </ul>
+      </div>
     </NavBar>
   );
 }

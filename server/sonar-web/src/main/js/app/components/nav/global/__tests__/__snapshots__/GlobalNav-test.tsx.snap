@@ -20,7 +20,7 @@ exports[`should render correctly: anonymous users 1`] = `
       }
     }
   />
-  <ul
+  <div
     className="global-navbar-menu global-navbar-menu-right"
   >
     <EmbedDocsPopupHelper />
@@ -33,7 +33,7 @@ exports[`should render correctly: anonymous users 1`] = `
         }
       }
     />
-  </ul>
+  </div>
 </NavBar>
 `;
 
@@ -56,7 +56,7 @@ exports[`should render correctly: logged in users 1`] = `
       }
     }
   />
-  <ul
+  <div
     className="global-navbar-menu global-navbar-menu-right"
   >
     <EmbedDocsPopupHelper />
@@ -68,6 +68,6 @@ exports[`should render correctly: logged in users 1`] = `
         }
       }
     />
-  </ul>
+  </div>
 </NavBar>
 `;

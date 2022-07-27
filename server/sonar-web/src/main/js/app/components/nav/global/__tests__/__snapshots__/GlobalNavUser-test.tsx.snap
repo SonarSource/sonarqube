@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render the right interface for anonymous user 1`] = `
-<li>
+<div>
   <a
     className="navbar-login"
     href="/sessions/new"
@@ -9,7 +9,7 @@ exports[`should render the right interface for anonymous user 1`] = `
   >
     layout.login
   </a>
-</li>
+</div>
 `;
 
 exports[`should render the right interface for logged in user 1`] = `
@@ -51,7 +51,6 @@ exports[`should render the right interface for logged in user 1`] = `
       </li>
     </ul>
   }
-  tagName="li"
 >
   <a
     className="dropdown-toggle navbar-avatar"
