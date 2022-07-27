@@ -30,6 +30,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -68,11 +69,12 @@ class PostgresCharsetHandler extends CharsetHandler {
     // Examples:
     // issues | key | ''
     // projects | name | utf8
-    List<String[]> rows = getSqlExecutor().select(connection, "select table_name, column_name, collation_name " +
+    var schema = ofNullable(connection.getSchema()).orElse("public");
+    List<String[]> rows = getSqlExecutor().select(connection, String.format("select table_name, column_name, collation_name " +
       "from information_schema.columns " +
-      "where table_schema='public' " +
+      "where table_schema='%s' " +
       "and udt_name='varchar' " +
-      "order by table_name, column_name", new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
+      "order by table_name, column_name", schema), new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
     Set<String> errors = new LinkedHashSet<>();
     for (String[] row : rows) {
       if (!isBlank(row[2]) && !containsIgnoreCase(row[2], UTF8)) {
