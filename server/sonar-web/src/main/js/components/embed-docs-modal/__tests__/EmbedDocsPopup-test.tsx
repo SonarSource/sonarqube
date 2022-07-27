@@ -17,11 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { SuggestionLink } from '../../../types/types';
 import EmbedDocsPopup from '../EmbedDocsPopup';
+import { SuggestionsContext } from '../SuggestionsContext';
 
-it('should render', () => {
-  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} />);
-  expect(wrapper).toMatchSnapshot();
+it('should render with no suggestions', () => {
+  renderEmbedDocsPopup();
+
+  expect(screen.getAllByRole('link')).toHaveLength(5);
+  expect(screen.getByText('embed_docs.documentation')).toHaveFocus();
 });
+
+it('should render with suggestions', () => {
+  renderEmbedDocsPopup([
+    { link: '/docs/awesome-doc', text: 'mindblowing' },
+    { link: '/docs/whocares', text: 'boring' }
+  ]);
+
+  expect(screen.getAllByRole('link')).toHaveLength(7);
+  expect(screen.getByText('mindblowing')).toHaveFocus();
+});
+
+function renderEmbedDocsPopup(suggestions: SuggestionLink[] = []) {
+  return renderComponent(
+    <SuggestionsContext.Provider
+      value={{ addSuggestions: jest.fn(), removeSuggestions: jest.fn(), suggestions }}>
+      <EmbedDocsPopup onClose={jest.fn()} />
+    </SuggestionsContext.Provider>
+  );
+}

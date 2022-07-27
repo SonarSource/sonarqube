@@ -33,6 +33,12 @@ interface Props {
 }
 
 export class GlobalNavUser extends React.PureComponent<Props> {
+  focusNode = (node: HTMLAnchorElement | null) => {
+    if (node) {
+      node.focus();
+    }
+  };
+
   handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
@@ -67,7 +73,9 @@ export class GlobalNavUser extends React.PureComponent<Props> {
             </li>
             <li className="divider" />
             <li>
-              <Link to="/account">{translate('my_account.page')}</Link>
+              <Link ref={this.focusNode} to="/account">
+                {translate('my_account.page')}
+              </Link>
             </li>
             <li>
               <a href="#" onClick={this.handleLogout}>

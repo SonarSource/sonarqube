@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../../../helpers/testMocks';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { GlobalNavUser } from '../GlobalNavUser';
 
 it('should render the right interface for anonymous user', () => {
-  expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot();
+  renderGlobalNavUser({ currentUser: mockCurrentUser() });
+  expect(screen.getByText('layout.login')).toBeInTheDocument();
 });
 
-it('should render the right interface for logged in user', () => {
-  const wrapper = shallowRender();
-  wrapper.setState({ open: true });
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
+it('should render the right interface for logged in user', async () => {
+  const user = userEvent.setup();
+  renderGlobalNavUser();
+  await user.click(screen.getByRole('link'));
+
+  expect(screen.getByRole('link', { name: 'my_account.page' })).toHaveFocus();
 });
 
-function shallowRender(overrides: Partial<GlobalNavUser['props']> = {}) {
-  return shallow<GlobalNavUser>(
+function renderGlobalNavUser(overrides: Partial<GlobalNavUser['props']> = {}) {
+  return renderComponent(
     <GlobalNavUser currentUser={mockLoggedInUser()} router={mockRouter()} {...overrides} />
   );
 }

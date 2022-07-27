@@ -30,6 +30,21 @@ interface Props {
 }
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
+  firstItem: HTMLAnchorElement | null = null;
+
+  /*
+   * Will be called by the first suggestion (if any), as well as the first link (documentation)
+   * Since we don't know if we have any suggestions, we need to allow both to make the call.
+   * If we have at least 1 suggestion, it will make the call first, and prevent 'documentation' from
+   * getting the focus.
+   */
+  focusFirstItem = (node: HTMLAnchorElement | null) => {
+    if (node && !this.firstItem) {
+      this.firstItem = node;
+      this.firstItem.focus();
+    }
+  };
+
   renderTitle(text: string) {
     return (
       <li role="presentation" className="menu-header">
@@ -45,9 +60,13 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return (
       <ul className="menu abs-width-240" role="group">
         {this.renderTitle(translate('embed_docs.suggestion'))}
-        {suggestions.map(suggestion => (
+        {suggestions.map((suggestion, i) => (
           <li key={suggestion.link}>
-            <Link onClick={this.props.onClose} target="_blank" to={suggestion.link}>
+            <Link
+              ref={i === 0 ? this.focusFirstItem : undefined}
+              onClick={this.props.onClose}
+              target="_blank"
+              to={suggestion.link}>
               {suggestion.text}
             </Link>
           </li>
@@ -77,7 +96,11 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
         <ul className="menu abs-width-240" role="group">
           <li>
-            <Link onClick={this.props.onClose} target="_blank" to="/documentation">
+            <Link
+              ref={this.focusFirstItem}
+              onClick={this.props.onClose}
+              target="_blank"
+              to="/documentation">
               {translate('embed_docs.documentation')}
             </Link>
           </li>
