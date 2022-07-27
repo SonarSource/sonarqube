@@ -31,7 +31,11 @@ interface Props {
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
   renderTitle(text: string) {
-    return <li className="menu-header">{text}</li>;
+    return (
+      <li role="presentation" className="menu-header">
+        {text}
+      </li>
+    );
   }
 
   renderSuggestions = ({ suggestions }: { suggestions: SuggestionLink[] }) => {
@@ -39,17 +43,16 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <>
+      <ul className="menu abs-width-240" role="group">
         {this.renderTitle(translate('embed_docs.suggestion'))}
-        {suggestions.map((suggestion, index) => (
-          <li key={index}>
+        {suggestions.map(suggestion => (
+          <li key={suggestion.link}>
             <Link onClick={this.props.onClose} target="_blank" to={suggestion.link}>
               {suggestion.text}
             </Link>
           </li>
         ))}
-        <li className="divider" />
-      </>
+      </ul>
     );
   };
 
@@ -71,8 +74,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
   render() {
     return (
       <DropdownOverlay>
-        <ul className="menu abs-width-240">
-          <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
+        <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
+        <ul className="menu abs-width-240" role="group">
           <li>
             <Link onClick={this.props.onClose} target="_blank" to="/documentation">
               {translate('embed_docs.documentation')}
@@ -83,13 +86,15 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
               {translate('api_documentation.page')}
             </Link>
           </li>
-          <li className="divider" />
+        </ul>
+        <ul className="menu abs-width-240" role="group">
           <li>
             <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
               {translate('embed_docs.get_help')}
             </a>
           </li>
-          <li className="divider" />
+        </ul>
+        <ul className="menu abs-width-240" role="group">
           {this.renderTitle(translate('embed_docs.stay_connected'))}
           <li>
             {this.renderIconLink(

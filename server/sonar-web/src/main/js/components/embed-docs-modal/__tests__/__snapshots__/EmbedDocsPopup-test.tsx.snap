@@ -2,12 +2,13 @@
 
 exports[`should render 1`] = `
 <DropdownOverlay>
+  <ContextConsumer>
+    <Component />
+  </ContextConsumer>
   <ul
     className="menu abs-width-240"
+    role="group"
   >
-    <ContextConsumer>
-      <Component />
-    </ContextConsumer>
     <li>
       <Link
         onClick={[MockFunction]}
@@ -25,9 +26,11 @@ exports[`should render 1`] = `
         api_documentation.page
       </Link>
     </li>
-    <li
-      className="divider"
-    />
+  </ul>
+  <ul
+    className="menu abs-width-240"
+    role="group"
+  >
     <li>
       <a
         href="https://community.sonarsource.com/"
@@ -37,11 +40,14 @@ exports[`should render 1`] = `
         embed_docs.get_help
       </a>
     </li>
-    <li
-      className="divider"
-    />
+  </ul>
+  <ul
+    className="menu abs-width-240"
+    role="group"
+  >
     <li
       className="menu-header"
+      role="presentation"
     >
       embed_docs.stay_connected
     </li>

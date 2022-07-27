@@ -27,6 +27,10 @@
   background-clip: padding-box;
 }
 
+.menu:not(:last-of-type) {
+  padding-bottom: 12px;
+}
+
 .menu + .menu {
   border-top: 1px solid var(--barBorderColor);
 }
