@@ -214,6 +214,7 @@ declare namespace T {
     isLoggedIn: boolean;
     permissions?: { global: string[] };
     showOnboardingTutorial?: boolean;
+    groups:string[];
   }
 
   export interface CurrentUserSetting {
@@ -289,6 +290,12 @@ declare namespace T {
     membersCount: number;
     name: string;
   }
+
+  // TODO
+  // Currently not being used, it has to be used.
+  // Group Names are dynamic or static?
+  // Check with backend developer and see all the possible group names
+  export type UserGroupNames = 'Members' | 'Owners' | 'sonar-administrators';
 
   export type HealthType = 'RED' | 'YELLOW' | 'GREEN';
 

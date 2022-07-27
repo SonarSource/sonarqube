@@ -28,6 +28,7 @@ import { isSonarCloud } from '../../../../helpers/system';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { isLoggedIn } from '../../../../helpers/users';
 
+
 interface Props {
   appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
   currentUser: T.CurrentUser;
@@ -126,7 +127,9 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministrationLink() {
-    if (!this.props.appState.canAdmin) {
+    const isSonarAdminGroupAvailable:boolean = this.props.currentUser.groups.includes('sonar-administrators');
+
+    if (!this.props.appState.canAdmin || !isSonarAdminGroupAvailable) {
       return null;
     }
 
