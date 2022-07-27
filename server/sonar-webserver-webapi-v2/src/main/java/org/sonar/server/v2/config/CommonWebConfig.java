@@ -17,31 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user;
+package org.sonar.server.v2.config;
 
-import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Request;
+import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-/**
- * Passcode for accessing some web services, usually for connecting
- * monitoring tools without using the credentials
- * of a system administrator.
- *
- * Important - the web services accepting passcode must be listed in
- * {@link org.sonar.server.authentication.UserSessionInitializer#URL_USING_PASSCODE}.
- */
-public interface SystemPasscode {
+@Configuration
+@EnableWebMvc
+public class CommonWebConfig {
 
-  /**
-   * Whether the system passcode is provided by the HTTP request or not.
-   * Returns {@code false} if passcode is not configured or not valid.
-   */
-  boolean isValid(Request request);
-
-  /**
-   * Check if the passcode passed as argument is valid.
-   * Returns {@code false} if passcode is not configured or not valid.
-   */
-  boolean isValidPasscode(@Nullable String passcode);
+  @Bean
+  public RestResponseEntityExceptionHandler restResponseEntityExceptionHandler() {
+    return new RestResponseEntityExceptionHandler();
+  }
 
 }

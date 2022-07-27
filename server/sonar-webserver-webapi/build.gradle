@@ -13,6 +13,12 @@ dependencies {
   api 'io.prometheus:simpleclient_common'
   api 'io.prometheus:simpleclient_servlet'
 
+  api 'org.springframework:spring-webmvc:5.3.23'
+  api 'org.springframework:spring-web:5.3.23'
+  api 'org.springframework:spring-context:5.3.23'
+  api 'org.springframework:spring-core:5.3.23'
+  testImplementation 'org.springframework:spring-test:5.3.23'
+
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')
   api project(':server:sonar-db-dao')
@@ -38,6 +44,7 @@ dependencies {
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.springframework:spring-test:5.3.23'
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-auth'))
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
@@ -45,4 +52,3 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 }
-

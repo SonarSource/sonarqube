@@ -51,6 +51,7 @@ public class WebPagesFilter implements Filter {
   private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
     .builder()
     .excludes(staticResourcePatterns())
+    .excludes("/api/v2/*")
     .build();
 
   private WebPagesCache webPagesCache;

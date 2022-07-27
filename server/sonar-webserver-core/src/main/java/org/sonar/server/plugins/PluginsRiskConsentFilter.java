@@ -47,7 +47,7 @@ public class PluginsRiskConsentFilter extends ServletFilter {
     PLUGINS_RISK_CONSENT_PATH,
     "/account/reset_password",
     "/admin/change_admin_password",
-    "/batch/*", "/api/*");
+    "/batch/*", "/api/*", "/api/v2/*");
   private final ThreadLocalUserSession userSession;
   private final Configuration config;
 

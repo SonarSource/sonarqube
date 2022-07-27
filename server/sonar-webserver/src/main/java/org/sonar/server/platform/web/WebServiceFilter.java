@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.web;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -34,6 +35,7 @@ import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WebServiceEngine;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Stream.concat;
 import static org.sonar.server.platform.web.WebServiceReroutingFilter.MOVED_WEB_SERVICES;
 
@@ -63,8 +65,8 @@ public class WebServiceFilter extends ServletFilter {
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .filter(action -> action.handler() instanceof ServletFilterHandler)
-        .map(toPath()))
-          .collect(MoreCollectors.toSet());
+        .map(toPath())).collect(toCollection(HashSet::new));
+    excludeUrls.add("/api/v2/*");
   }
 
   @Override

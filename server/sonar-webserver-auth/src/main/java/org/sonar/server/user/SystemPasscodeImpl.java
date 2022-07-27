@@ -19,7 +19,9 @@
  */
 package org.sonar.server.user;
 
+import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
@@ -46,8 +48,13 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
     if (configuredPasscode == null) {
       return false;
     }
-    return request.header(PASSCODE_HTTP_HEADER)
-      .map(s -> configuredPasscode.equals(s))
+    return isValidPasscode(request.header(PASSCODE_HTTP_HEADER).orElse(null));
+  }
+
+  @Override
+  public boolean isValidPasscode(@Nullable String passcode) {
+    return Optional.ofNullable(passcode)
+      .map(s -> Objects.equals(configuredPasscode, s))
       .orElse(false);
   }
 

@@ -38,6 +38,7 @@ import static java.util.concurrent.TimeUnit.HOURS;
 public class SonarLintConnectionFilter extends ServletFilter {
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/api/*")
+    .excludes("/api/v2/*")
     .build();
   private final DbClient dbClient;
   private final ThreadLocalUserSession userSession;

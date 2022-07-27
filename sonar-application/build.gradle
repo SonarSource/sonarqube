@@ -43,7 +43,7 @@ jar.enabled = false
 shadowJar {
   archiveBaseName = 'sonar-application'
   archiveClassifier = null
-  mergeServiceFiles()
+  mergeServiceFiles('META-INF/spring.*')
   manifest {
     attributes('Main-Class': 'org.sonar.application.App')
   }

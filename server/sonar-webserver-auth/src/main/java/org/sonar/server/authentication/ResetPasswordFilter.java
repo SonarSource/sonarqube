@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Set;
 import javax.servlet.FilterChain;
@@ -38,9 +37,9 @@ import static org.sonar.server.authentication.AuthenticationRedirection.redirect
 public class ResetPasswordFilter extends ServletFilter {
   private static final String RESET_PASSWORD_PATH = "/account/reset_password";
 
-  private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
+  private static final Set<String> SKIPPED_URLS = Set.of(
     RESET_PASSWORD_PATH,
-    "/batch/*", "/api/*");
+    "/batch/*", "/api/*", "/api/v2/*");
 
   private final ThreadLocalUserSession userSession;
 

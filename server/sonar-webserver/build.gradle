@@ -21,6 +21,7 @@ dependencies {
   api project(':server:sonar-process')
   api project(':server:sonar-webserver-core')
   api project(':server:sonar-webserver-webapi')
+  api project(':server:sonar-webserver-webapi-v2')
   api project(':server:sonar-webserver-pushapi')
   api project(':server:sonar-webserver-monitoring')
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Set;
 import javax.servlet.FilterChain;
@@ -43,10 +42,10 @@ public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
   // is why this is not defined in org.sonar.process.ProcessProperties.
   private static final String SONAR_FORCE_REDIRECT_DEFAULT_ADMIN_CREDENTIALS = "sonar.forceRedirectOnDefaultAdminCredentials";
 
-  private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
+  private static final Set<String> SKIPPED_URLS = Set.of(
     RESET_PASSWORD_PATH,
     CHANGE_ADMIN_PASSWORD_PATH,
-    "/batch/*", "/api/*");
+    "/batch/*", "/api/*", "/api/v2/*");
 
   private final Configuration config;
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
