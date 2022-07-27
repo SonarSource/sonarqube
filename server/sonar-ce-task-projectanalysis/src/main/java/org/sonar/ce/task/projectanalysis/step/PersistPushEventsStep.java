@@ -19,48 +19,49 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.util.Collection;
+import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEvent;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepository;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.pushevent.PushEventDto;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class PersistPushEventsStep implements ComputationStep {
   private static final int MAX_BATCH_SIZE = 250;
   private static final Logger LOGGER = Loggers.get(PersistPushEventsStep.class);
-  private static final Gson GSON = new GsonBuilder().create();
 
   private final DbClient dbClient;
-  private final PushEventRepository pushEventRepository;
-  private final TreeRootHolder treeRootHolder;
+  private final ProtoIssueCache protoIssueCache;
+  private final PushEventFactory pushEventFactory;
 
-  public PersistPushEventsStep(DbClient dbClient, PushEventRepository pushEventRepository,
-    TreeRootHolder treeRootHolder) {
+  public PersistPushEventsStep(DbClient dbClient,
+    ProtoIssueCache protoIssueCache,
+    PushEventFactory pushEventFactory) {
     this.dbClient = dbClient;
-    this.pushEventRepository = pushEventRepository;
-    this.treeRootHolder = treeRootHolder;
+    this.protoIssueCache = protoIssueCache;
+    this.pushEventFactory = pushEventFactory;
   }
 
   @Override
   public void execute(Context context) {
-    Collection<PushEvent<?>> issues = pushEventRepository.getEvents();
-    if (issues.isEmpty()) {
-      return;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(true)) {
+    try (DbSession dbSession = dbClient.openSession(true);
+      CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       int batchCounter = 0;
-      for (PushEvent<?> event : issues) {
-        pushEvent(dbSession, event);
+
+      while (issues.hasNext()) {
+        DefaultIssue currentIssue = issues.next();
+        Optional<PushEventDto> raisedEvent = pushEventFactory.raiseEventOnIssue(currentIssue);
+
+        if (raisedEvent.isEmpty()) {
+          continue;
+        }
+
+        dbClient.pushEventDao().insert(dbSession, raisedEvent.get());
         batchCounter++;
         batchCounter = flushIfNeeded(dbSession, batchCounter);
       }
@@ -69,18 +70,6 @@ public class PersistPushEventsStep implements ComputationStep {
     } catch (Exception ex) {
       LOGGER.warn("Error during publishing push event", ex);
     }
-  }
-
-  private void pushEvent(DbSession dbSession, PushEvent<?> event) {
-    PushEventDto eventDto = new PushEventDto()
-      .setName(event.getName())
-      .setProjectUuid(treeRootHolder.getRoot().getUuid())
-      .setPayload(serializeIssueToPushEvent(event));
-    dbClient.pushEventDao().insert(dbSession, eventDto);
-  }
-
-  private static byte[] serializeIssueToPushEvent(PushEvent<?> event) {
-    return GSON.toJson(event.getData()).getBytes(UTF_8);
   }
 
   private static int flushIfNeeded(DbSession dbSession, int batchCounter) {

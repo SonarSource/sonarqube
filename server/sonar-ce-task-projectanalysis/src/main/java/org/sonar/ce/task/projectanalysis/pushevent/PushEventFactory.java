@@ -19,57 +19,73 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.issue.IssueVisitor;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.issue.TaintChecker;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
-public class TaintVulnerabilityVisitor extends IssueVisitor {
+@ComputeEngineSide
+public class PushEventFactory {
+  private static final Gson GSON = new GsonBuilder().create();
 
-  private final PushEventRepository pushEventRepository;
+  private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TaintChecker taintChecker;
-  private final TreeRootHolder treeRootHolder;
 
-  public TaintVulnerabilityVisitor(PushEventRepository pushEventRepository,
-    AnalysisMetadataHolder analysisMetadataHolder, TaintChecker taintChecker,
-    TreeRootHolder treeRootHolder) {
-    this.pushEventRepository = pushEventRepository;
+  public PushEventFactory(TreeRootHolder treeRootHolder,
+    AnalysisMetadataHolder analysisMetadataHolder, TaintChecker taintChecker) {
+    this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.taintChecker = taintChecker;
-    this.treeRootHolder = treeRootHolder;
   }
 
-  @Override
-  public void onIssue(Component component, DefaultIssue issue) {
-    if (!taintChecker.isTaintVulnerability(issue)) {
-      return;
-    }
-    if (issue.isNew() || issue.isCopied()) {
-      PushEvent<?> pushEvent = raiseTaintVulnerabilityRaisedEvent(component, issue);
-      pushEventRepository.add(pushEvent);
-      return;
+  public Optional<PushEventDto> raiseEventOnIssue(DefaultIssue currentIssue) {
+    var currentIssueComponentUuid = currentIssue.componentUuid();
+    if (!taintChecker.isTaintVulnerability(currentIssue) || currentIssueComponentUuid == null) {
+      return Optional.empty();
     }
 
-    if (issue.isBeingClosed()) {
-      PushEvent<?> pushEvent = raiseTaintVulnerabilityClosedEvent(issue);
-      pushEventRepository.add(pushEvent);
+    var component = treeRootHolder.getComponentByUuid(Objects.requireNonNull(currentIssue.componentUuid()));
+    if (currentIssue.isNew() || currentIssue.isCopied() || isReopened(currentIssue)) {
+      return Optional.of(raiseTaintVulnerabilityRaisedEvent(component, currentIssue));
     }
+    if (currentIssue.isBeingClosed()) {
+      return Optional.of(raiseTaintVulnerabilityClosedEvent(currentIssue));
+    }
+    return Optional.empty();
   }
 
-  private PushEvent<TaintVulnerabilityRaised> raiseTaintVulnerabilityRaisedEvent(Component component, DefaultIssue issue) {
+  private static boolean isReopened(DefaultIssue currentIssue) {
+    var currentChange = currentIssue.currentChange();
+    if (currentChange == null) {
+      return false;
+    }
+    var status = currentChange.get("status");
+    return status != null && status.toString().equals("CLOSED|OPEN");
+  }
+
+  private PushEventDto raiseTaintVulnerabilityRaisedEvent(Component component, DefaultIssue issue) {
     TaintVulnerabilityRaised event = prepareEvent(component, issue);
-    return new PushEvent<TaintVulnerabilityRaised>().setName("TaintVulnerabilityRaised").setData(event);
+    return new PushEventDto()
+      .setName("TaintVulnerabilityRaised")
+      .setProjectUuid(treeRootHolder.getRoot().getUuid())
+      .setPayload(serializeEvent(event));
   }
 
   private TaintVulnerabilityRaised prepareEvent(Component component, DefaultIssue issue) {
@@ -116,9 +132,16 @@ public class TaintVulnerabilityVisitor extends IssueVisitor {
     return event;
   }
 
-  private static PushEvent<TaintVulnerabilityClosed> raiseTaintVulnerabilityClosedEvent(DefaultIssue issue) {
+  private PushEventDto raiseTaintVulnerabilityClosedEvent(DefaultIssue issue) {
     TaintVulnerabilityClosed event = new TaintVulnerabilityClosed(issue.key(), issue.projectKey());
-    return new PushEvent<TaintVulnerabilityClosed>().setName("TaintVulnerabilityClosed").setData(event);
+    return new PushEventDto()
+      .setName("TaintVulnerabilityClosed")
+      .setProjectUuid(treeRootHolder.getRoot().getUuid())
+      .setPayload(serializeEvent(event));
+  }
+
+  private static byte[] serializeEvent(Object event) {
+    return GSON.toJson(event).getBytes(UTF_8);
   }
 
   @NotNull
@@ -131,4 +154,5 @@ public class TaintVulnerabilityVisitor extends IssueVisitor {
     textRange.setHash(checksum);
     return textRange;
   }
+
 }

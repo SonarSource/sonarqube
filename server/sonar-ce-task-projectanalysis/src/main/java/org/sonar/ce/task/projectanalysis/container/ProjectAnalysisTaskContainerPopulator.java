@@ -113,8 +113,7 @@ import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepositoryImpl;
-import org.sonar.ce.task.projectanalysis.pushevent.TaintVulnerabilityVisitor;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateServiceImpl;
@@ -223,7 +222,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
-      PushEventRepositoryImpl.class,
       ConfigurationRepositoryImpl.class,
       DisabledComponentsHolderImpl.class,
       QualityGateServiceImpl.class,
@@ -257,6 +255,9 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ComponentIssuesRepositoryImpl.class,
       IssueFilter.class,
 
+      // push events
+      PushEventFactory.class,
+
       // common rules
       CommonRuleEngineImpl.class,
       BranchCoverageRule.class,
@@ -285,7 +286,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
       TaintChecker.class,
-      TaintVulnerabilityVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,
       MaintainabilityMeasuresVisitor.class,
       NewMaintainabilityMeasuresVisitor.class,

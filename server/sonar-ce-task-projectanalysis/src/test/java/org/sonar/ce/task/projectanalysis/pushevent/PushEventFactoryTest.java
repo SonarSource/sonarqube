@@ -30,28 +30,23 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.TestBranch;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component.Status;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
-import org.sonar.ce.task.projectanalysis.component.ComponentImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.issue.TaintChecker;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class TaintVulnerabilityVisitorTest {
+public class PushEventFactoryTest {
 
-  private final PushEventRepository repositoryMock = mock(PushEventRepository.class);
   private final TaintChecker taintChecker = mock(TaintChecker.class);
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
@@ -59,59 +54,90 @@ public class TaintVulnerabilityVisitorTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setBranch(new TestBranch("develop"));
 
-  private final TaintVulnerabilityVisitor underTest = new TaintVulnerabilityVisitor(repositoryMock, analysisMetadataHolder,
-    taintChecker, treeRootHolder);
+  private final PushEventFactory underTest = new PushEventFactory(treeRootHolder, analysisMetadataHolder, taintChecker);
 
   @Before
   public void setUp() {
     when(taintChecker.getTaintRepositories()).thenReturn(List.of("roslyn.sonaranalyzer.security.cs",
       "javasecurity", "jssecurity", "tssecurity", "phpsecurity", "pythonsecurity"));
     when(taintChecker.isTaintVulnerability(any())).thenReturn(true);
+    buildComponentTree();
   }
 
   @Test
-  public void add_event_to_repository_if_taint_vulnerability_is_new() {
-    buildComponentTree();
-    Component component = createIssueComponent();
+  public void raise_event_to_repository_if_taint_vulnerability_is_new() {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setNew(true);
 
-    underTest.onIssue(component, defaultIssue);
+    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+      .isNotEmpty()
+      .hasValueSatisfying(pushEventDto -> {
+        assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
+        assertThat(pushEventDto.getPayload()).isNotNull();
+      });
 
-    verify(repositoryMock).add(argThat(PushEventMatcher.eq(new PushEvent<>().setName("TaintVulnerabilityRaised"))));
   }
 
   @Test
-  public void add_event_to_repository_if_taint_vulnerability_is_copied() {
-    buildComponentTree();
-    Component component = createIssueComponent();
+  public void raise_event_to_repository_if_taint_vulnerability_is_reopened() {
+    DefaultIssue defaultIssue = createDefaultIssue()
+      .setChanged(true)
+      .setNew(false)
+      .setCopied(false)
+      .setCurrentChange(new FieldDiffs().setDiff("status", "CLOSED", "OPEN"));
+
+    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+      .isNotEmpty()
+      .hasValueSatisfying(pushEventDto -> {
+        assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
+        assertThat(pushEventDto.getPayload()).isNotNull();
+      });
+  }
+
+  @Test
+  public void skip_event_if_taint_vulnerability_status_change() {
+    DefaultIssue defaultIssue = createDefaultIssue()
+        .setChanged(true)
+        .setNew(false)
+        .setCopied(false)
+        .setCurrentChange(new FieldDiffs().setDiff("status", "OPEN", "FIXED"));
+
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+  }
+
+  @Test
+  public void raise_event_to_repository_if_taint_vulnerability_is_copied() {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setCopied(true);
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock).add(argThat(PushEventMatcher.eq(new PushEvent<>().setName("TaintVulnerabilityRaised"))));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+      .isNotEmpty()
+      .hasValueSatisfying(pushEventDto -> {
+        assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
+        assertThat(pushEventDto.getPayload()).isNotNull();
+      });
   }
 
   @Test
-  public void add_event_to_repository_if_taint_vulnerability_is_closed() {
-    buildComponentTree();
-    Component component = createIssueComponent();
+  public void raise_event_to_repository_if_taint_vulnerability_is_closed() {
     DefaultIssue defaultIssue = createDefaultIssue()
+      .setComponentUuid("")
       .setNew(false)
       .setCopied(false)
       .setBeingClosed(true);
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock).add(argThat(PushEventMatcher.eq(new PushEvent<>().setName("TaintVulnerabilityClosed"))));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+      .isNotEmpty()
+      .hasValueSatisfying(pushEventDto -> {
+        assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityClosed");
+        assertThat(pushEventDto.getPayload()).isNotNull();
+      });
   }
 
   @Test
   public void skip_issue_if_issue_changed() {
-    Component component = createIssueComponent();
-
     DefaultIssue defaultIssue = new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setNew(false)
       .setCopied(false)
       .setChanged(true)
@@ -119,68 +145,56 @@ public class TaintVulnerabilityVisitorTest {
       .setCreationDate(DateUtils.parseDate("2022-01-01"))
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock, times(0)).add(any(PushEvent.class));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
   }
 
   @Test
   public void skip_if_issue_not_from_taint_vulnerability_repository() {
-    Component component = createIssueComponent();
-
     DefaultIssue defaultIssue = new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setChanged(true)
       .setType(RuleType.VULNERABILITY)
       .setRuleKey(RuleKey.of("weirdrepo", "S123"));
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock, times(0)).add(any(PushEvent.class));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
 
     defaultIssue = new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setChanged(false)
       .setNew(false)
       .setBeingClosed(true)
       .setType(RuleType.VULNERABILITY)
       .setRuleKey(RuleKey.of("weirdrepo", "S123"));
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock, times(0)).add(any(PushEvent.class));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
   }
 
   @Test
   public void skip_if_issue_is_a_hotspot() {
-    Component component = createIssueComponent();
-
     DefaultIssue defaultIssue = new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setChanged(true)
       .setType(RuleType.SECURITY_HOTSPOT)
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock, times(0)).add(any(PushEvent.class));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
   }
 
   @Test
   public void skip_if_issue_does_not_have_locations() {
-    Component component = createIssueComponent();
-
     DefaultIssue defaultIssue = new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setChanged(true)
       .setType(RuleType.VULNERABILITY)
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    underTest.onIssue(component, defaultIssue);
-
-    verify(repositoryMock, times(0)).add(any(PushEvent.class));
+    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
   }
 
   private void buildComponentTree() {
@@ -195,18 +209,9 @@ public class TaintVulnerabilityVisitorTest {
       .build());
   }
 
-  private ComponentImpl createIssueComponent() {
-    return ComponentImpl.builder(Type.FILE)
-      .setReportAttributes(mock(ReportAttributes.class))
-      .setUuid("issue-component-uuid")
-      .setDbKey("issue-component-key")
-      .setName("project/SomeClass.java")
-      .setStatus(Status.ADDED)
-      .build();
-  }
-
   private DefaultIssue createDefaultIssue() {
     return new DefaultIssue()
+      .setComponentUuid("issue-component-uuid")
       .setType(RuleType.VULNERABILITY)
       .setCreationDate(new Date())
       .setLocations(DbIssues.Locations.newBuilder()
@@ -223,20 +228,20 @@ public class TaintVulnerabilityVisitorTest {
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
   }
 
-  private static class PushEventMatcher implements ArgumentMatcher<PushEvent<?>> {
+  private static class PushEventMatcher implements ArgumentMatcher<PushEventDto> {
 
-    private final PushEvent<?> left;
+    private final PushEventDto left;
 
-    static PushEventMatcher eq(PushEvent<?> left) {
+    static PushEventMatcher eq(PushEventDto left) {
       return new PushEventMatcher(left);
     }
 
-    private PushEventMatcher(PushEvent<?> left) {
+    private PushEventMatcher(PushEventDto left) {
       this.left = left;
     }
 
     @Override
-    public boolean matches(PushEvent<?> right) {
+    public boolean matches(PushEventDto right) {
       return left.getName().equals(right.getName());
     }
   }

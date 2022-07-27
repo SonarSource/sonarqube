@@ -19,24 +19,31 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.ce.task.projectanalysis.component.Component.Type;
-import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.component.ReportComponent;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEvent;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepository;
-import org.sonar.ce.task.projectanalysis.pushevent.PushEventRepositoryImpl;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
+import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.pushevent.PushEventDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistPushEventsStepTest {
 
@@ -44,75 +51,122 @@ public class PersistPushEventsStepTest {
 
   @Rule
   public DbTester db = DbTester.create(system2);
+
+  public final PushEventFactory pushEventFactory = mock(PushEventFactory.class);
   @Rule
-  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
+  public TemporaryFolder temp = new TemporaryFolder();
 
-  private final PushEventRepository pushEventRepository = new PushEventRepositoryImpl();
-
-  private final PersistPushEventsStep underTest = new PersistPushEventsStep(db.getDbClient(), pushEventRepository, treeRootHolder);
+  private ProtoIssueCache protoIssueCache;
+  private PersistPushEventsStep underTest;
 
   @Before
-  public void before() {
-    treeRootHolder.setRoot(ReportComponent.builder(Type.PROJECT, 1)
-      .setUuid("uuid_1")
-      .build());
+  public void before() throws IOException {
+    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
+    underTest = new PersistPushEventsStep(db.getDbClient(), protoIssueCache, pushEventFactory);
+  }
+
+  @Test
+  public void description() {
+    assertThat(underTest.getDescription()).isEqualTo("Publishing taint vulnerabilities events");
+  }
+
+  @Test
+  public void do_nothing_if_no_issues() {
+    underTest.execute(mock(ComputationStep.Context.class));
+
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isZero();
+  }
+
+  @Test
+  public void resilient_to_failure() {
+    protoIssueCache.newAppender().append(
+      createIssue("key1").setType(RuleType.VULNERABILITY))
+      .close();
+
+    when(pushEventFactory.raiseEventOnIssue(any())).thenThrow(new RuntimeException("I have a bad feelings about this"));
+
+    assertThatCode(() -> underTest.execute(mock(ComputationStep.Context.class)))
+      .doesNotThrowAnyException();
+
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isZero();
+  }
+
+  @Test
+  public void skip_persist_if_no_push_events() {
+    protoIssueCache.newAppender().append(
+      createIssue("key1").setType(RuleType.VULNERABILITY))
+      .close();
+
+    underTest.execute(mock(ComputationStep.Context.class));
+
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isZero();
+  }
+
+  @Test
+  public void do_nothing_if_issue_does_not_have_component() {
+    protoIssueCache.newAppender().append(
+      createIssue("key1").setType(RuleType.VULNERABILITY)
+        .setComponentUuid(null))
+      .close();
+
+    underTest.execute(mock(ComputationStep.Context.class));
+
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isZero();
   }
 
   @Test
   public void store_push_events() {
-    pushEventRepository.add(new PushEvent<>().setName("event1").setData("data1"));
-    pushEventRepository.add(new PushEvent<>().setName("event2").setData("data2"));
-    pushEventRepository.add(new PushEvent<>().setName("event3").setData("data3"));
+    protoIssueCache.newAppender()
+      .append(createIssue("key1").setType(RuleType.VULNERABILITY)
+        .setComponentUuid("cu1")
+        .setComponentKey("ck1"))
+      .append(createIssue("key2").setType(RuleType.VULNERABILITY)
+        .setComponentUuid("cu2")
+        .setComponentKey("ck2"))
+      .close();
+
+    when(pushEventFactory.raiseEventOnIssue(any(DefaultIssue.class))).thenReturn(
+      Optional.of(createPushEvent()),
+      Optional.of(createPushEvent()));
 
     underTest.execute(mock(ComputationStep.Context.class));
 
-    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isEqualTo(3);
-  }
-
-  @Test
-  public void event_data_should_be_serialized() {
-    system2.setNow(1L);
-    pushEventRepository.add(new PushEvent<>().setName("event1").setData(new Data().setEventData("something")));
-
-    underTest.execute(mock(ComputationStep.Context.class));
-
-    assertThat(db.getDbClient().pushEventDao().selectByUuid(db.getSession(), "1"))
-      .extracting(PushEventDto::getUuid, PushEventDto::getProjectUuid, PushEventDto::getPayload, PushEventDto::getCreatedAt)
-      .containsExactly("1", "uuid_1", "{\"eventData\":\"something\"}".getBytes(UTF_8), 1L);
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isEqualTo(2);
   }
 
   @Test
   public void store_push_events_in_batches() {
+    var appender = protoIssueCache.newAppender();
+
     IntStream.range(1, 252)
-      .forEach(value -> pushEventRepository.add(new PushEvent<>().setName("event" + value).setData("data" + value)));
+      .forEach(value -> {
+        var defaultIssue = createIssue("key-" + value).setType(RuleType.VULNERABILITY)
+          .setComponentUuid("cu" + value)
+          .setComponentKey("ck" + value);
+        appender.append(defaultIssue);
+        when(pushEventFactory.raiseEventOnIssue(defaultIssue)).thenReturn(Optional.of(createPushEvent()));
+      });
+
+    appender.close();
 
     underTest.execute(mock(ComputationStep.Context.class));
 
     assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isEqualTo(251);
   }
 
-  @Test
-  public void skip_persist_if_no_push_events() {
-    underTest.execute(mock(ComputationStep.Context.class));
-
-    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isZero();
+  private DefaultIssue createIssue(String key) {
+    return new DefaultIssue()
+      .setKey(key)
+      .setProjectKey("p")
+      .setStatus("OPEN")
+      .setProjectUuid("project-uuid")
+      .setComponentKey("c")
+      .setRuleKey(RuleKey.of("r", "r"))
+      .setCreationDate(new Date());
   }
 
-  private static class Data {
-    private String eventData;
-
-    public Data() {
-      // nothing to do
-    }
-
-    public String getEventData() {
-      return eventData;
-    }
-
-    public Data setEventData(String eventData) {
-      this.eventData = eventData;
-      return this;
-    }
+  private PushEventDto createPushEvent() {
+    return new PushEventDto().setProjectUuid("project-uuid").setName("event").setPayload("test".getBytes(UTF_8));
   }
 
 }
