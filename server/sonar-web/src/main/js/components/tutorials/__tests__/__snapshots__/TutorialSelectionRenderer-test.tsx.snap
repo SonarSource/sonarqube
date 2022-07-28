@@ -2,11 +2,11 @@
 
 exports[`should render correctly for azure 1`] = `
 <Fragment>
-  <h1
+  <h2
     className="spacer-top huge-spacer-bottom"
   >
     onboarding.tutorial.choose_method
-  </h1>
+  </h2>
   <div
     className="tutorial-selection"
   >
@@ -78,11 +78,11 @@ exports[`should render correctly for azure 1`] = `
 
 exports[`should render correctly for bitbucket server 1`] = `
 <Fragment>
-  <h1
+  <h2
     className="spacer-top huge-spacer-bottom"
   >
     onboarding.tutorial.choose_method
-  </h1>
+  </h2>
   <div
     className="tutorial-selection"
   >
@@ -154,11 +154,11 @@ exports[`should render correctly for bitbucket server 1`] = `
 
 exports[`should render correctly for github 1`] = `
 <Fragment>
-  <h1
+  <h2
     className="spacer-top huge-spacer-bottom"
   >
     onboarding.tutorial.choose_method
-  </h1>
+  </h2>
   <div
     className="tutorial-selection"
   >
@@ -263,11 +263,11 @@ exports[`should render correctly for github 1`] = `
 
 exports[`should render correctly for gitlab 1`] = `
 <Fragment>
-  <h1
+  <h2
     className="spacer-top huge-spacer-bottom"
   >
     onboarding.tutorial.choose_method
-  </h1>
+  </h2>
   <div
     className="tutorial-selection"
   >
@@ -590,11 +590,11 @@ exports[`should render correctly: manual tutorial 1`] = `
 
 exports[`should render correctly: selection 1`] = `
 <Fragment>
-  <h1
+  <h2
     className="spacer-top huge-spacer-bottom"
   >
     onboarding.tutorial.choose_method
-  </h1>
+  </h2>
   <div
     className="tutorial-selection"
   >

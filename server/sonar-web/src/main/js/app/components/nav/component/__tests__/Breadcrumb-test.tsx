@@ -17,36 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
-import { Breadcrumb } from '../Breadcrumb';
+import { Breadcrumb, BreadcrumbProps } from '../Breadcrumb';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  renderBreadcrumb();
+  expect(screen.getByRole('link', { name: 'Parent portfolio' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Child portfolio' })).toBeInTheDocument();
 });
 
-function shallowRender() {
-  return shallow(
+it('should render correctly when not on a main branch', () => {
+  renderBreadcrumb({ currentBranchLike: mockBranch() });
+  expect(screen.getByRole('link', { name: 'Child portfolio' })).toBeInTheDocument();
+});
+
+function renderBreadcrumb(props: Partial<BreadcrumbProps> = {}) {
+  return renderComponent(
     <Breadcrumb
       component={mockComponent({
         breadcrumbs: [
           {
             key: 'parent-portfolio',
-            name: 'parent-portfolio',
+            name: 'Parent portfolio',
             qualifier: ComponentQualifier.Portfolio
           },
           {
             key: 'child-portfolio',
-            name: 'child-portfolio',
+            name: 'Child portfolio',
             qualifier: ComponentQualifier.SubPortfolio
           }
         ]
       })}
       currentBranchLike={mockMainBranch()}
+      {...props}
     />
   );
 }

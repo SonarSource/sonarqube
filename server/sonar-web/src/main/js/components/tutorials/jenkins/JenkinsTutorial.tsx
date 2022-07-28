@@ -69,7 +69,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   return (
     <>
       <div className="page-header big-spacer-bottom">
-        <h1 className="page-title">{translate('onboarding.tutorial.with.jenkins.title')}</h1>
+        <h2 className="page-title">{translate('onboarding.tutorial.with.jenkins.title')}</h2>
       </div>
 
       {hasSelectAlmStep && (

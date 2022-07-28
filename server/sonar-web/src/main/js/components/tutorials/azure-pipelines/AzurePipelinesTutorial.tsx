@@ -91,9 +91,9 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
   return (
     <>
       <div className="page-header big-spacer-bottom">
-        <h1 className="page-title">
+        <h2 className="page-title">
           {translate('onboarding.tutorial.with.azure_pipelines.title')}
-        </h1>
+        </h2>
       </div>
 
       {steps.map((step, i) => (

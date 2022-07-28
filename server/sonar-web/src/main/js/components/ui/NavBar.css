@@ -29,6 +29,10 @@
   right: 0;
 }
 
+.navbar-inner h1 {
+  line-height: inherit;
+}
+
 .navbar-inner > div {
   position: relative;
   min-width: var(--minPageWidth);

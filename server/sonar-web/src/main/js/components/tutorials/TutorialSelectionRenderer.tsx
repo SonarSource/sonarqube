@@ -113,9 +113,9 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     <>
       {selectedTutorial === undefined && (
         <>
-          <h1 className="spacer-top huge-spacer-bottom">
+          <h2 className="spacer-top huge-spacer-bottom">
             {translate('onboarding.tutorial.choose_method')}
-          </h1>
+          </h2>
 
           <div className="tutorial-selection">
             <p className="big-spacer-bottom">

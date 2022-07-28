@@ -5,11 +5,11 @@ exports[`renders correctly: default 1`] = `
   <div
     className="page-header big-spacer-bottom"
   >
-    <h1
+    <h2
       className="page-title"
     >
       onboarding.project_analysis.header
-    </h1>
+    </h2>
     <p
       className="page-description"
     >

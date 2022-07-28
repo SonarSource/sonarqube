@@ -60,7 +60,7 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
     return (
       <>
         <div className="page-header big-spacer-bottom">
-          <h1 className="page-title">{translate('onboarding.project_analysis.header')}</h1>
+          <h2 className="page-title">{translate('onboarding.project_analysis.header')}</h2>
           <p className="page-description">
             <InstanceMessage message={translate('onboarding.project_analysis.description')} />
           </p>

@@ -5,11 +5,11 @@ exports[`should render correctly: branches not enabled 1`] = `
   <div
     className="page-header big-spacer-bottom"
   >
-    <h1
+    <h2
       className="page-title"
     >
       onboarding.tutorial.with.jenkins.title
-    </h1>
+    </h2>
   </div>
   <PreRequisitesStep
     alm="bitbucket"
@@ -86,11 +86,11 @@ exports[`should render correctly: default 1`] = `
   <div
     className="page-header big-spacer-bottom"
   >
-    <h1
+    <h2
       className="page-title"
     >
       onboarding.tutorial.with.jenkins.title
-    </h1>
+    </h2>
   </div>
   <PreRequisitesStep
     alm="bitbucket"
@@ -176,11 +176,11 @@ exports[`should render correctly: no project binding 1`] = `
   <div
     className="page-header big-spacer-bottom"
   >
-    <h1
+    <h2
       className="page-title"
     >
       onboarding.tutorial.with.jenkins.title
-    </h1>
+    </h2>
   </div>
   <SelectAlmStep
     onCheck={[Function]}

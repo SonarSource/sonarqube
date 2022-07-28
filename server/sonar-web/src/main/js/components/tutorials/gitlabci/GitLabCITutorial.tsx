@@ -51,7 +51,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   return (
     <>
       <div className="page-header big-spacer-bottom">
-        <h1 className="page-title">{translate('onboarding.tutorial.with.gitlab_ci.title')}</h1>
+        <h2 className="page-title">{translate('onboarding.tutorial.with.gitlab_ci.title')}</h2>
       </div>
 
       <ProjectKeyStep

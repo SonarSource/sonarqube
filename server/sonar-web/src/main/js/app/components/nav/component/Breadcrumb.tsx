@@ -26,12 +26,12 @@ import { getComponentOverviewUrl } from '../../../../helpers/urls';
 import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
 
-interface Props {
+export interface BreadcrumbProps {
   component: Component;
   currentBranchLike: BranchLike | undefined;
 }
 
-export function Breadcrumb(props: Props) {
+export function Breadcrumb(props: BreadcrumbProps) {
   const {
     component: { breadcrumbs },
     currentBranchLike
@@ -51,16 +51,18 @@ export function Breadcrumb(props: Props) {
               <QualifierIcon className="spacer-right" qualifier={lastBreadcrumbElement.qualifier} />
             )}
             {isNoMainBranch || isNotLast ? (
-              <Link
-                className="link-no-underline text-ellipsis"
-                title={breadcrumbElement.name}
-                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
-                {breadcrumbElement.name}
-              </Link>
+              <h1>
+                <Link
+                  className="link-no-underline text-ellipsis"
+                  title={breadcrumbElement.name}
+                  to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
+                  {breadcrumbElement.name}
+                </Link>
+              </h1>
             ) : (
-              <span className="text-ellipsis" title={breadcrumbElement.name}>
+              <h1 className="text-ellipsis" title={breadcrumbElement.name}>
                 {breadcrumbElement.name}
-              </span>
+              </h1>
             )}
             {isNotLast && <span className="slash-separator" />}
           </span>

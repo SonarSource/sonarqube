@@ -5,11 +5,11 @@ exports[`should render correctly 1`] = `
   <div
     className="page-header big-spacer-bottom"
   >
-    <h1
+    <h2
       className="page-title"
     >
       onboarding.tutorial.with.gitlab_ci.title
-    </h1>
+    </h2>
   </div>
   <withCLanguageFeature(ProjectKeyStep)
     component={
