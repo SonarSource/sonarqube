@@ -17,29 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { ClipboardButton } from '../../../../../../components/controls/clipboard';
-import { translate } from '../../../../../../helpers/l10n';
+import { renderComponent } from '../../../../../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../../../../../types/component';
+import MetaKey, { MetaKeyProps } from '../MetaKey';
 
-export interface MetaKeyProps {
-  componentKey: string;
-  qualifier: string;
-}
+it('should render correctly', () => {
+  renderMetaKey();
+  expect(
+    screen.getByLabelText(`overview.project_key.${ComponentQualifier.Project}`)
+  ).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
+});
 
-export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
-  return (
-    <>
-      <h3 id="project-key">{translate('overview.project_key', qualifier)}</h3>
-      <div className="display-flex-center">
-        <input
-          className="overview-key"
-          aria-labelledby="project-key"
-          readOnly={true}
-          type="text"
-          value={componentKey}
-        />
-        <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
-      </div>
-    </>
+function renderMetaKey(props: Partial<MetaKeyProps> = {}) {
+  return renderComponent(
+    <MetaKey componentKey="foo" qualifier={ComponentQualifier.Project} {...props} />
   );
 }
