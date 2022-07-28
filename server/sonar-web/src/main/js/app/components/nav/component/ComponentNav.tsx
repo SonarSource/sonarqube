@@ -144,6 +144,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         isInProgress={isInProgress}
         isPending={isPending}
         onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
+        projectInfoDisplayed={displayProjectInfo}
       />
       <InfoDrawer
         displayed={displayProjectInfo}

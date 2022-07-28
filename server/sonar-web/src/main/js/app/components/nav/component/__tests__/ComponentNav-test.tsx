@@ -17,104 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
+import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
 import { TaskStatuses } from '../../../../../types/tasks';
-import RecentHistory from '../../../RecentHistory';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
-import Menu from '../Menu';
-import InfoDrawer from '../projectInformation/InfoDrawer';
 
-jest.mock('react', () => {
-  return {
-    ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => f())
-  };
+it('renders correctly when there are warnings', () => {
+  renderComponentNav({ warnings: [mockTaskWarning()] });
+  expect(screen.getByText('component_navigation.last_analysis_had_warnings')).toBeInTheDocument();
 });
 
-jest.mock('../../../RecentHistory', () => {
-  return {
-    __esModule: true,
-    default: class RecentHistory {
-      static add = jest.fn();
-    }
-  };
+it('renders correctly when there is a background task in progress', () => {
+  renderComponentNav({ isInProgress: true });
+  expect(screen.getByText('component_navigation.status.in_progress')).toBeInTheDocument();
 });
 
-beforeEach(() => {
-  jest.clearAllMocks();
+it('renders correctly when there is a background task pending', () => {
+  renderComponentNav({ isPending: true });
+  expect(screen.getByText('component_navigation.status.pending')).toBeInTheDocument();
 });
 
-it('renders correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ warnings: [mockTaskWarning()] })).toMatchSnapshot('has warnings');
-  expect(shallowRender({ isInProgress: true })).toMatchSnapshot('has in progress notification');
-  expect(shallowRender({ isPending: true })).toMatchSnapshot('has pending notification');
-  expect(shallowRender({ currentTask: mockTask({ status: TaskStatuses.Failed }) })).toMatchSnapshot(
-    'has failed notification'
-  );
-  expect(
-    shallowRender({
-      projectBindingErrors: mockProjectAlmBindingConfigurationErrors()
-    })
-  ).toMatchSnapshot('has failed project binding');
+it('renders correctly when there is a failing background task', () => {
+  renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
+  expect(screen.getByText('component_navigation.status.failed_X')).toBeInTheDocument();
 });
 
-it('correctly adds data to the history if there are breadcrumbs', () => {
-  const key = 'foo';
-  const name = 'Foo';
-  const qualifier = ComponentQualifier.Portfolio;
-
-  shallowRender({
-    component: mockComponent({
-      key,
-      name,
-      breadcrumbs: [
-        {
-          key: 'bar',
-          name: 'Bar',
-          qualifier
-        }
-      ]
-    })
+it('renders correctly when the project binding is incorrect', () => {
+  renderComponentNav({
+    projectBindingErrors: mockProjectAlmBindingConfigurationErrors()
   });
-
-  expect(RecentHistory.add).toBeCalledWith(key, name, qualifier.toLowerCase());
+  expect(screen.getByText('component_navigation.pr_deco.error_detected_X')).toBeInTheDocument();
 });
 
-it('correctly toggles the project info display', () => {
-  const wrapper = shallowRender();
-  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
+it('correctly returns focus to the Project Information link when the drawer is closed', () => {
+  renderComponentNav();
+  screen.getByRole('button', { name: 'project.info.title' }).click();
+  expect(screen.getByRole('button', { name: 'project.info.title' })).not.toHaveFocus();
 
-  wrapper
-    .find(Menu)
-    .props()
-    .onToggleProjectInfo();
-  expect(wrapper.find(InfoDrawer).props().displayed).toBe(true);
-
-  wrapper
-    .find(Menu)
-    .props()
-    .onToggleProjectInfo();
-  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
-
-  wrapper
-    .find(Menu)
-    .props()
-    .onToggleProjectInfo();
-  wrapper
-    .find(InfoDrawer)
-    .props()
-    .onClose();
-  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
+  screen.getByRole('button', { name: 'close' }).click();
+  expect(screen.getByRole('button', { name: 'project.info.title' })).toHaveFocus();
 });
 
-function shallowRender(props: Partial<ComponentNavProps> = {}) {
-  return shallow<ComponentNavProps>(
+function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
+  return renderApp(
+    '/',
     <ComponentNav
       branchLikes={[]}
       component={mockComponent({

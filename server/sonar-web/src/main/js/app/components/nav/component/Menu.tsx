@@ -59,11 +59,24 @@ interface Props {
   isInProgress?: boolean;
   isPending?: boolean;
   onToggleProjectInfo: () => void;
+  projectInfoDisplayed: boolean;
 }
 
 type Query = BranchParameters & { id: string };
 
 export class Menu extends React.PureComponent<Props> {
+  projectInfoLink = React.createRef<HTMLAnchorElement>();
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.projectInfoDisplayed &&
+      !this.props.projectInfoDisplayed &&
+      this.projectInfoLink.current
+    ) {
+      this.projectInfoLink.current.focus();
+    }
+  }
+
   hasAnalysis = () => {
     const { branchLikes = [], component, isInProgress, isPending } = this.props;
     const hasBranches = branchLikes.length > 1;
@@ -356,7 +369,8 @@ export class Menu extends React.PureComponent<Props> {
             }}
             href="#"
             role="button"
-            tabIndex={0}>
+            tabIndex={0}
+            ref={this.projectInfoLink}>
             <BulletListIcon className="little-spacer-right" />
             {label}
           </a>

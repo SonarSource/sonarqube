@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import {
   mockBranch,
@@ -26,153 +26,127 @@ import {
 } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockAppState } from '../../../../../helpers/testMocks';
+import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Menu } from '../Menu';
 
-const mainBranch = mockMainBranch();
-
-const baseComponent = mockComponent({
+const BASE_COMPONENT = mockComponent({
   analysisDate: '2019-12-01',
   key: 'foo',
   name: 'foo'
 });
 
-it('should work with extensions', () => {
+it('should render correctly', () => {
   const component = {
-    ...baseComponent,
-    configuration: { showSettings: true, extensions: [{ key: 'foo', name: 'Foo' }] },
-    extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-  };
-  const wrapper = shallowRender({ component });
-  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
-  expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
-});
-
-it('should work with multiple extensions', () => {
-  const component = {
-    ...baseComponent,
+    ...BASE_COMPONENT,
     configuration: {
       showSettings: true,
       extensions: [
         { key: 'foo', name: 'Foo' },
-        { key: 'bar', name: 'Bar' }
+        { key: 'bar', name: 'Bar' },
+        { key: 'securityreport/foo', name: 'Foo' }
       ]
     },
     extensions: [
       { key: 'component-foo', name: 'ComponentFoo' },
-      { key: 'component-bar', name: 'ComponentBar' }
+      { key: 'component-bar', name: 'ComponentBar' },
+      { key: 'securityreport/foo', name: 'Security Report' }
     ]
   };
-  const wrapper = shallowRender({ component });
-  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
-  expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
+  renderMenu({ component });
+
+  // Security Report is rendered on its own, as is not part of the dropdown menu.
+  expect(screen.getByRole('link', { name: 'layout.security_reports' })).toBeInTheDocument();
+
+  // Check the dropdown.
+  const button = screen.getByRole('button', { name: 'more' });
+  expect(button).toBeInTheDocument();
+  button.click();
+  expect(screen.getByRole('link', { name: 'ComponentFoo' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'ComponentBar' })).toBeInTheDocument();
 });
 
-it('should render correctly for security extensions', () => {
-  const component = {
-    ...baseComponent,
-    configuration: {
-      showSettings: true,
-      extensions: [
-        { key: 'securityreport/foo', name: 'Foo' },
-        { key: 'bar', name: 'Bar' }
-      ]
-    },
-    extensions: [
-      { key: 'securityreport/foo', name: 'ComponentFoo' },
-      { key: 'component-bar', name: 'ComponentBar' }
-    ]
-  };
-  const wrapper = shallowRender({ component });
-  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
-  expect(wrapper.find('Dropdown[data-test="security"]')).toMatchSnapshot();
-});
-
-it('should work for a branch', () => {
-  const branchLike = mockBranch({
-    name: 'release'
+it('should render correctly when on a branch', () => {
+  renderMenu({
+    branchLike: mockBranch(),
+    component: {
+      ...BASE_COMPONENT,
+      configuration: { showSettings: true },
+      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+    }
   });
-  [true, false].forEach(showSettings =>
-    expect(
-      shallowRender({
-        branchLike,
-        component: {
-          ...baseComponent,
-          configuration: { showSettings },
-          extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-        }
-      })
-    ).toMatchSnapshot()
-  );
+
+  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
+
+  // If on a branch, regardless is the user is an admin or not, we do not show
+  // the settings link.
+  expect(
+    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
+  ).not.toBeInTheDocument();
 });
 
-it('should work for pull requests', () => {
-  [true, false].forEach(showSettings =>
-    expect(
-      shallowRender({
-        branchLike: mockPullRequest(),
-        component: {
-          ...baseComponent,
-          configuration: { showSettings },
-          extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-        }
-      })
-    ).toMatchSnapshot()
-  );
-});
+it('should render correctly when on a pull request', () => {
+  renderMenu({
+    branchLike: mockPullRequest(),
+    component: {
+      ...BASE_COMPONENT,
+      configuration: { showSettings: true },
+      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+    }
+  });
 
-it.each([
-  [ComponentQualifier.Project, false],
-  [ComponentQualifier.Portfolio, false],
-  [ComponentQualifier.Portfolio, true],
-  [ComponentQualifier.SubPortfolio, false],
-  [ComponentQualifier.SubPortfolio, true],
-  [ComponentQualifier.Application, false]
-])('should work for qualifier: %s, %s', (qualifier, enableGovernance) => {
-  const component = {
-    ...baseComponent,
-    canBrowseAllChildProjects: true,
-    configuration: { showSettings: true },
-    extensions: enableGovernance ? [{ key: 'governance/', name: 'governance' }] : [],
-    qualifier
-  };
-  expect(shallowRender({ component })).toMatchSnapshot();
+  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
+
+  expect(
+    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'project.info.title' })).not.toBeInTheDocument();
 });
 
 it('should disable links if no analysis has been done', () => {
-  expect(
-    shallowRender({
-      component: {
-        ...baseComponent,
-        analysisDate: undefined
-      }
-    })
-  ).toMatchSnapshot();
+  renderMenu({
+    component: {
+      ...BASE_COMPONENT,
+      analysisDate: undefined
+    }
+  });
+  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
 it('should disable links if application has inaccessible projects', () => {
-  expect(
-    shallowRender({
-      component: {
-        ...baseComponent,
-        qualifier: ComponentQualifier.Application,
-        canBrowseAllChildProjects: false,
-        configuration: { showSettings: true }
-      }
-    })
-  ).toMatchSnapshot();
+  renderMenu({
+    component: {
+      ...BASE_COMPONENT,
+      qualifier: ComponentQualifier.Application,
+      canBrowseAllChildProjects: false
+    }
+  });
+  expect(screen.queryByRole('link', { name: 'overview.page' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'application.info.title' })).not.toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<Menu['props']>) {
-  return shallow<Menu>(
+function renderMenu(props: Partial<Menu['props']> = {}) {
+  const mainBranch = mockMainBranch();
+  return renderComponent(
     <Menu
-      appState={mockAppState({ branchesEnabled: true })}
+      appState={mockAppState()}
       branchLike={mainBranch}
       branchLikes={[mainBranch]}
-      component={baseComponent}
+      component={BASE_COMPONENT}
       isInProgress={false}
       isPending={false}
       onToggleProjectInfo={jest.fn()}
+      projectInfoDisplayed={false}
       {...props}
     />
   );
