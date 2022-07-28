@@ -46,7 +46,10 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link className={classNames({ active })} to="/projects">
+        <Link
+          aria-current={active ? 'page' : undefined}
+          className={classNames({ active })}
+          to="/projects">
           {translate('projects.page')}
         </Link>
       </li>
@@ -64,17 +67,18 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    const active = this.props.location.pathname.startsWith('/issues');
-
     const search = (this.props.currentUser.isLoggedIn && isMySet()
       ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
       : new URLSearchParams({ resolved: 'false' })
     ).toString();
+
     return (
       <li>
-        <Link className={classNames({ active })} to={{ pathname: '/issues', search }}>
+        <NavLink
+          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
+          to={{ pathname: '/issues', search }}>
           {translate('issues.page')}
-        </Link>
+        </NavLink>
       </li>
     );
   }
