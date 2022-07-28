@@ -284,7 +284,7 @@ describe('security page', () => {
       expect(
         await screen.findByText(`users.tokens.new_token_created.${newTokenName}`)
       ).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
       const lastTokenCreated = tokenMock.getTokens().pop();
       expect(lastTokenCreated).toBeDefined();

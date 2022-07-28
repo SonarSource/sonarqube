@@ -28,7 +28,9 @@ it('should render correctly', () => {
   expect(
     screen.getByLabelText(`overview.project_key.${ComponentQualifier.Project}`)
   ).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'overview.project_key.click_to_copy' })
+  ).toBeInTheDocument();
 });
 
 function renderMetaKey(props: Partial<MetaKeyProps> = {}) {

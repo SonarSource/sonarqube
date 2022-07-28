@@ -38,7 +38,11 @@ export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
           type="text"
           value={componentKey}
         />
-        <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
+        <ClipboardButton
+          aria-label={translate('overview.project_key.click_to_copy')}
+          className="little-spacer-left"
+          copyValue={componentKey}
+        />
       </div>
     </>
   );

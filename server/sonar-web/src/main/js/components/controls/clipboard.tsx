@@ -32,13 +32,14 @@ export interface State {
 interface RenderProps {
   setCopyButton: (node: HTMLElement | null) => void;
   copySuccess: boolean;
+  role: string;
 }
 
-interface BaseProps {
+interface Props {
   children: (props: RenderProps) => React.ReactNode;
 }
 
-export class ClipboardBase extends React.PureComponent<BaseProps, State> {
+export class ClipboardBase extends React.PureComponent<Props, State> {
   private clipboard?: Clipboard;
   private copyButton?: HTMLElement | null;
   mounted = false;
@@ -87,18 +88,25 @@ export class ClipboardBase extends React.PureComponent<BaseProps, State> {
   render() {
     return this.props.children({
       setCopyButton: this.setCopyButton,
-      copySuccess: this.state.copySuccess
+      copySuccess: this.state.copySuccess,
+      role: 'button'
     });
   }
 }
 
-interface ButtonProps {
+export interface ClipboardButtonProps {
+  'aria-label'?: string;
   className?: string;
   copyValue: string;
   children?: React.ReactNode;
 }
 
-export function ClipboardButton({ className, children, copyValue }: ButtonProps) {
+export function ClipboardButton({
+  className,
+  children,
+  copyValue,
+  'aria-label': ariaLabel
+}: ClipboardButtonProps) {
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
@@ -106,7 +114,8 @@ export function ClipboardButton({ className, children, copyValue }: ButtonProps)
           <Button
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
-            innerRef={setCopyButton}>
+            innerRef={setCopyButton}
+            aria-label={ariaLabel ?? translate('copy_to_clipboard')}>
             {children || (
               <>
                 <CopyIcon className="little-spacer-right" />
@@ -120,13 +129,13 @@ export function ClipboardButton({ className, children, copyValue }: ButtonProps)
   );
 }
 
-interface IconButtonProps {
+export interface ClipboardIconButtonProps {
   'aria-label'?: string;
   className?: string;
   copyValue: string;
 }
 
-export function ClipboardIconButton(props: IconButtonProps) {
+export function ClipboardIconButton(props: ClipboardIconButtonProps) {
   const { className, copyValue } = props;
   return (
     <ClipboardBase>

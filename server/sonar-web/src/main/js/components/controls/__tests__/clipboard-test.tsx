@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { Button } from '../buttons';
-import { ClipboardBase, ClipboardButton, ClipboardIconButton } from '../clipboard';
-
-const constructor = jest.fn();
-const destroy = jest.fn();
-const on = jest.fn();
-
-jest.mock(
-  'clipboard',
-  () =>
-    function(...args: any) {
-      constructor(...args);
-      return {
-        destroy,
-        on
-      };
-    }
-);
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import {
+  ClipboardBase,
+  ClipboardButton,
+  ClipboardButtonProps,
+  ClipboardIconButton,
+  ClipboardIconButtonProps
+} from '../clipboard';
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -49,61 +39,69 @@ afterAll(() => {
 
 describe('ClipboardBase', () => {
   it('should display correctly', () => {
-    const children = jest.fn().mockReturnValue(<Button>copy</Button>);
-    const wrapper = shallowRender(children);
-    const instance = wrapper.instance();
-    expect(wrapper).toMatchSnapshot();
-    instance.handleSuccessCopy();
-    expect(children).toBeCalledWith({ copySuccess: true, setCopyButton: instance.setCopyButton });
-    jest.runAllTimers();
-    expect(children).toBeCalledWith({ copySuccess: false, setCopyButton: instance.setCopyButton });
+    renderClipboardBase();
+    expect(screen.getByText('click to copy')).toBeInTheDocument();
   });
 
   it('should allow its content to be copied', () => {
-    const wrapper = mountRender(({ setCopyButton }) => (
-      <Button innerRef={setCopyButton}>click</Button>
-    ));
-    const button = wrapper.find('button').getDOMNode();
-    const instance = wrapper.instance();
+    renderClipboardBase();
+    const button = screen.getByRole('button');
+    button.click();
 
-    expect(constructor).toBeCalledWith(button);
-    expect(on).toBeCalledWith('success', instance.handleSuccessCopy);
+    expect(screen.getByText('copied')).toBeInTheDocument();
 
-    jest.clearAllMocks();
+    jest.runAllTimers();
 
-    wrapper.unmount();
-    expect(destroy).toBeCalled();
+    expect(screen.getByText('click to copy')).toBeInTheDocument();
   });
 
-  function shallowRender(children?: ClipboardBase['props']['children']) {
-    return shallow<ClipboardBase>(<ClipboardBase>{children || (() => null)}</ClipboardBase>);
-  }
-
-  function mountRender(children?: ClipboardBase['props']['children']) {
-    return mount<ClipboardBase>(<ClipboardBase>{children || (() => null)}</ClipboardBase>);
+  function renderClipboardBase(props: Partial<ClipboardBase['props']> = {}) {
+    return renderComponent(
+      <ClipboardBase {...props}>
+        {({ setCopyButton, copySuccess }) => (
+          <span data-clipboard-text="foo" ref={setCopyButton} role="button">
+            {copySuccess ? 'copied' : 'click to copy'}
+          </span>
+        )}
+      </ClipboardBase>
+    );
   }
 });
 
 describe('ClipboardButton', () => {
   it('should display correctly', () => {
-    expect(shallowRender()).toMatchSnapshot();
+    renderClipboardButton();
+    expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
   });
 
   it('should render a custom label if provided', () => {
-    expect(shallowRender('Foo Bar')).toMatchSnapshot();
+    renderClipboardButton({ children: 'custom label' });
+    expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
+    expect(screen.getByText('custom label')).toBeInTheDocument();
   });
 
-  function shallowRender(children?: React.ReactNode) {
-    return shallow(<ClipboardButton copyValue="foo">{children}</ClipboardButton>).dive();
+  it('should render a custom aria-label if provided', () => {
+    renderClipboardButton({ 'aria-label': 'custom label' });
+    expect(screen.getByRole('button', { name: 'custom label' })).toBeInTheDocument();
+  });
+
+  function renderClipboardButton(props: Partial<ClipboardButtonProps> = {}) {
+    return renderComponent(<ClipboardButton copyValue="foo" {...props} />);
   }
 });
 
 describe('ClipboardIconButton', () => {
   it('should display correctly', () => {
-    expect(shallowRender()).toMatchSnapshot();
+    renderClipboardIconButton();
+    expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
   });
 
-  function shallowRender() {
-    return shallow(<ClipboardIconButton copyValue="foo" />).dive();
+  it('should render a custom aria-label if provided', () => {
+    renderClipboardIconButton({ 'aria-label': 'custom label' });
+    expect(screen.getByRole('button', { name: 'custom label' })).toBeInTheDocument();
+  });
+
+  function renderClipboardIconButton(props: Partial<ClipboardIconButtonProps> = {}) {
+    return renderComponent(<ClipboardIconButton copyValue="foo" {...props} />);
   }
 });
