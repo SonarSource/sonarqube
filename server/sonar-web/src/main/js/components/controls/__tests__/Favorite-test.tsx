@@ -17,37 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import FavoriteButton from '../../../components/controls/FavoriteButton';
+import { addFavorite, removeFavorite } from '../../../api/favorites';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../types/component';
 import Favorite from '../Favorite';
 
 jest.mock('../../../api/favorites', () => ({
-  addFavorite: jest.fn(() => Promise.resolve()),
-  removeFavorite: jest.fn(() => Promise.resolve())
+  addFavorite: jest.fn().mockResolvedValue(null),
+  removeFavorite: jest.fn().mockResolvedValue(null)
 }));
 
-it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('renders and behaves correctly', async () => {
+  renderFavorite({ favorite: false });
+  let button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+
+  button.click();
+  await new Promise(setImmediate);
+  expect(addFavorite).toHaveBeenCalled();
+
+  button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveFocus();
+
+  button.click();
+  await new Promise(setImmediate);
+  expect(removeFavorite).toHaveBeenCalled();
+
+  button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveFocus();
 });
 
-it('calls handleFavorite when given', async () => {
+it('correctly calls handleFavorite if passed', async () => {
   const handleFavorite = jest.fn();
-  const wrapper = shallowRender(handleFavorite);
-  const favoriteBase = wrapper.find(FavoriteButton);
-  const toggleFavorite = favoriteBase.prop<Function>('toggleFavorite');
+  renderFavorite({ handleFavorite });
 
-  toggleFavorite();
+  screen.getByRole('button').click();
   await new Promise(setImmediate);
   expect(handleFavorite).toHaveBeenCalledWith('foo', false);
 
-  toggleFavorite();
+  screen.getByRole('button').click();
   await new Promise(setImmediate);
   expect(handleFavorite).toHaveBeenCalledWith('foo', true);
 });
 
-function shallowRender(handleFavorite?: () => void) {
-  return shallow(
-    <Favorite component="foo" favorite={true} handleFavorite={handleFavorite} qualifier="TRK" />
+function renderFavorite(props: Partial<Favorite['props']> = {}) {
+  return renderComponent(
+    <Favorite component="foo" favorite={true} qualifier={ComponentQualifier.Project} {...props} />
   );
 }

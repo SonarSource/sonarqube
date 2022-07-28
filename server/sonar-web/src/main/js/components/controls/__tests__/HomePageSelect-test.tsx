@@ -17,51 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
-import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { click, waitAndUpdate } from '../../../helpers/testUtils';
-import { HomePage } from '../../../types/users';
+import { setHomePage } from '../../../api/users';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 jest.mock('../../../api/users', () => ({
   setHomePage: jest.fn().mockResolvedValue(null)
 }));
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('unchecked');
-  expect(
-    shallowRender({ currentUser: mockLoggedInUser({ homepage: { type: 'MY_PROJECTS' } }) })
-  ).toMatchSnapshot('checked');
-  expect(
-    shallowRender({
-      currentUser: mockLoggedInUser({ homepage: DEFAULT_HOMEPAGE }),
-      currentPage: DEFAULT_HOMEPAGE
-    })
-  ).toMatchSnapshot('checked, and on default');
-  expect(shallowRender({ currentUser: mockCurrentUser() }).type()).toBeNull();
-});
-
-it('should correctly call webservices', async () => {
+it('renders and behaves correctly', async () => {
   const updateCurrentUserHomepage = jest.fn();
-  const currentPage: HomePage = { type: 'MY_ISSUES' };
-  const wrapper = shallowRender({ updateCurrentUserHomepage, currentPage });
+  renderHomePageSelect({ updateCurrentUserHomepage });
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
 
-  // Set homepage.
-  click(wrapper.find(ButtonLink));
-  await waitAndUpdate(wrapper);
-  expect(updateCurrentUserHomepage).toHaveBeenLastCalledWith(currentPage);
-
-  // Reset.
-  wrapper.setProps({ currentUser: mockLoggedInUser({ homepage: currentPage }) });
-  click(wrapper.find(ButtonLink));
-  await waitAndUpdate(wrapper);
-  expect(updateCurrentUserHomepage).toHaveBeenLastCalledWith(DEFAULT_HOMEPAGE);
+  button.click();
+  await new Promise(setImmediate);
+  expect(setHomePage).toHaveBeenCalledWith({ type: 'MY_PROJECTS' });
+  expect(updateCurrentUserHomepage).toHaveBeenCalled();
+  expect(button).toHaveFocus();
 });
 
-function shallowRender(props: Partial<HomePageSelect['props']> = {}) {
-  return shallow<HomePageSelect>(
+it('renders correctly if user is on the homepage', async () => {
+  renderHomePageSelect({ currentUser: mockLoggedInUser({ homepage: { type: 'MY_PROJECTS' } }) });
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+
+  button.click();
+  await new Promise(setImmediate);
+  expect(setHomePage).toHaveBeenCalledWith(DEFAULT_HOMEPAGE);
+  expect(button).toHaveFocus();
+});
+
+function renderHomePageSelect(props: Partial<HomePageSelect['props']> = {}) {
+  return renderComponent(
     <HomePageSelect
       currentPage={{ type: 'MY_PROJECTS' }}
       currentUser={mockLoggedInUser()}

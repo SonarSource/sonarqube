@@ -38,6 +38,8 @@ interface Props
 export const DEFAULT_HOMEPAGE: HomePage = { type: 'PROJECTS' };
 
 export class HomePageSelect extends React.PureComponent<Props> {
+  buttonNode?: HTMLElement | null;
+
   async setCurrentUserHomepage(homepage: HomePage) {
     const { currentUser } = this.props;
 
@@ -45,6 +47,10 @@ export class HomePageSelect extends React.PureComponent<Props> {
       await setHomePage(homepage);
 
       this.props.updateCurrentUserHomepage(homepage);
+
+      if (this.buttonNode) {
+        this.buttonNode.focus();
+      }
     }
   }
 
@@ -82,7 +88,8 @@ export class HomePageSelect extends React.PureComponent<Props> {
           <ButtonLink
             aria-label={tooltip}
             className={classNames('link-no-underline', 'set-homepage-link', this.props.className)}
-            onClick={isChecked ? this.handleReset : this.handleClick}>
+            onClick={isChecked ? this.handleReset : this.handleClick}
+            innerRef={node => (this.buttonNode = node)}>
             <HomeIcon filled={isChecked} />
           </ButtonLink>
         )}

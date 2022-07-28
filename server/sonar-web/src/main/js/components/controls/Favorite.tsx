@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { addFavorite, removeFavorite } from '../../api/favorites';
-import FavoriteButton from '../../components/controls/FavoriteButton';
+import { translate } from '../../helpers/l10n';
+import FavoriteIcon from '../icons/FavoriteIcon';
+import { ButtonLink } from './buttons';
+import Tooltip from './Tooltip';
 
 interface Props {
   className?: string;
@@ -35,6 +39,7 @@ interface State {
 
 export default class Favorite extends React.PureComponent<Props, State> {
   mounted = false;
+  buttonNode?: HTMLElement | null;
 
   constructor(props: Props) {
     super(props);
@@ -68,6 +73,9 @@ export default class Favorite extends React.PureComponent<Props, State> {
           if (this.props.handleFavorite) {
             this.props.handleFavorite(this.props.component, newFavorite);
           }
+          if (this.buttonNode) {
+            this.buttonNode.focus();
+          }
         });
       }
     });
@@ -77,14 +85,21 @@ export default class Favorite extends React.PureComponent<Props, State> {
     const { className, qualifier } = this.props;
     const { favorite } = this.state;
 
+    const tooltip = favorite
+      ? translate('favorite.current', qualifier)
+      : translate('favorite.check', qualifier);
+    const ariaLabel = translate('favorite.action', favorite ? 'remove' : 'add');
+
     return (
-      <FavoriteButton
-        className={className}
-        favorite={favorite}
-        qualifier={qualifier}
-        toggleFavorite={this.toggleFavorite}
-      />
+      <Tooltip overlay={tooltip}>
+        <ButtonLink
+          aria-label={ariaLabel}
+          innerRef={node => (this.buttonNode = node)}
+          className={classNames('favorite-link', 'link-no-underline', className)}
+          onClick={this.toggleFavorite}>
+          <FavoriteIcon favorite={favorite} />
+        </ButtonLink>
+      </Tooltip>
     );
   }
 }
-/*  */
