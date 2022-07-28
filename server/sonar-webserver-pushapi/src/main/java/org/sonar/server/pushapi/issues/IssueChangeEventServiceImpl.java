@@ -19,6 +19,8 @@
  */
 package org.sonar.server.pushapi.issues;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,9 +33,13 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs.Diff;
 import org.sonar.core.util.issue.Issue;
 import org.sonar.core.util.issue.IssueChangedEvent;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.pushevent.PushEventDto;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
@@ -43,6 +49,9 @@ import static org.sonar.db.component.BranchType.BRANCH;
 
 @ServerSide
 public class IssueChangeEventServiceImpl implements IssueChangeEventService {
+  private static final Gson GSON = new GsonBuilder().create();
+
+  private static final String EVENT_NAME = "IssueChanged";
   private static final String FALSE_POSITIVE_KEY = "FALSE-POSITIVE";
   private static final String WONT_FIX_KEY = "WONTFIX";
 
@@ -50,10 +59,10 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
   private static final String SEVERITY_KEY = "severity";
   private static final String TYPE_KEY = "type";
 
-  private final IssueChangeEventsDistributor eventsDistributor;
+  private final DbClient dbClient;
 
-  public IssueChangeEventServiceImpl(IssueChangeEventsDistributor eventsDistributor) {
-    this.eventsDistributor = eventsDistributor;
+  public IssueChangeEventServiceImpl(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -69,7 +78,8 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
 
     IssueChangedEvent event = new IssueChangedEvent(projectKey, new Issue[]{changedIssue},
       resolved, severity, type);
-    eventsDistributor.pushEvent(event);
+
+    persistEvent(event, issue.projectUuid());
   }
 
   @Override
@@ -96,7 +106,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       IssueChangedEvent event = getIssueChangedEvent(projectKey, issuesInProject, issueChanges);
 
       if (event != null) {
-        eventsDistributor.pushEvent(event);
+        persistEvent(event, entry.getValue().projectUuid());
       }
     }
   }
@@ -150,5 +160,20 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
 
     return transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
       transitionOrStatus.equals(FALSE_POSITIVE_KEY) || transitionOrStatus.equals(WONT_FIX_KEY);
+  }
+
+  private void persistEvent(IssueChangedEvent event, String entry) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PushEventDto eventDto = new PushEventDto()
+        .setName(EVENT_NAME)
+        .setProjectUuid(entry)
+        .setPayload(serializeIssueToPushEvent(event));
+      dbClient.pushEventDao().insert(dbSession, eventDto);
+      dbSession.commit();
+    }
+  }
+
+  private static byte[] serializeIssueToPushEvent(IssueChangedEvent event) {
+    return GSON.toJson(event).getBytes(UTF_8);
   }
 }

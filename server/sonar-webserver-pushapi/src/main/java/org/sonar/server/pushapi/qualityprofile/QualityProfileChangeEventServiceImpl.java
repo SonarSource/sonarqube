@@ -19,8 +19,11 @@
  */
 package org.sonar.server.pushapi.qualityprofile;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,7 @@ import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
@@ -47,6 +51,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.function.Predicate.not;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
@@ -54,17 +59,18 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
 @ServerSide
 public class QualityProfileChangeEventServiceImpl implements QualityProfileChangeEventService {
+  private static final Gson GSON = new GsonBuilder().create();
+  private static final String EVENT_NAME = "RuleSetChanged";
 
   private final DbClient dbClient;
-  private final RuleActivatorEventsDistributor eventsDistributor;
 
-  public QualityProfileChangeEventServiceImpl(DbClient dbClient, RuleActivatorEventsDistributor eventsDistributor) {
+  public QualityProfileChangeEventServiceImpl(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.eventsDistributor = eventsDistributor;
   }
 
   @Override
-  public void publishRuleActivationToSonarLintClients(ProjectDto project, @Nullable QProfileDto activatedProfile, @Nullable QProfileDto deactivatedProfile) {
+  public void publishRuleActivationToSonarLintClients(ProjectDto project, @Nullable QProfileDto activatedProfile,
+    @Nullable QProfileDto deactivatedProfile) {
     List<RuleChange> activatedRules = new ArrayList<>();
     Set<String> deactivatedRules = new HashSet<>();
 
@@ -81,9 +87,8 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     }
 
     String language = activatedProfile != null ? activatedProfile.getLanguage() : deactivatedProfile.getLanguage();
-    RuleSetChangedEvent event = new RuleSetChangedEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new String[0]),
-      language);
-    eventsDistributor.pushEvent(event);
+
+    persistPushEvent(project.getKey(), activatedRules.toArray(new RuleChange[0]), deactivatedRules, language, project.getUuid());
   }
 
   private List<RuleChange> createRuleChanges(@NotNull QProfileDto profileDto) {
@@ -193,15 +198,29 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       .map(RuleKey::toString)
       .collect(Collectors.toSet());
 
-    Set<String> projectKeys = getProjectKeys(profiles);
+    Map<String, String> projectKeyAndUuids = getProjectKeyAndUuids(profiles);
 
     if (activatedRules.isEmpty() && deactivatedRules.isEmpty()) {
       return;
     }
 
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projectKeys.toArray(new String[0]), activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new String[0]),
-      language);
-    eventsDistributor.pushEvent(event);
+    for (Map.Entry<String, String> entry : projectKeyAndUuids.entrySet()) {
+      persistPushEvent(entry.getKey(), activatedRules.toArray(new RuleChange[0]), deactivatedRules, language, entry.getValue());
+    }
+  }
+
+  private void persistPushEvent(String projectKey, RuleChange[] activatedRules, Set<String> deactivatedRules, String language, String projectUuid) {
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projectKey, activatedRules, deactivatedRules.toArray(new String[0]));
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PushEventDto eventDto = new PushEventDto()
+        .setName(EVENT_NAME)
+        .setProjectUuid(projectUuid)
+        .setLanguage(language)
+        .setPayload(serializeIssueToPushEvent(event));
+      dbClient.pushEventDao().insert(dbSession, eventDto);
+      dbSession.commit();
+    }
   }
 
   private Optional<String> templateKey(ActiveRuleChange arc) {
@@ -219,17 +238,20 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     return Optional.empty();
   }
 
-  private Set<String> getProjectKeys(Collection<QProfileDto> profiles) {
-    Set<String> projectKeys = new HashSet<>();
+  private Map<String, String> getProjectKeyAndUuids(Collection<QProfileDto> profiles) {
+    Map<String, String> projectKeyAndUuids = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       for (QProfileDto profileDto : profiles) {
         List<ProjectQprofileAssociationDto> associationDtos = dbClient.qualityProfileDao().selectSelectedProjects(dbSession, profileDto, null);
         for (ProjectQprofileAssociationDto associationDto : associationDtos) {
-          projectKeys.add(associationDto.getProjectKey());
+          projectKeyAndUuids.put(associationDto.getProjectKey(), associationDto.getProjectUuid());
         }
       }
-      return projectKeys;
+      return projectKeyAndUuids;
     }
   }
 
+  private static byte[] serializeIssueToPushEvent(RuleSetChangedEvent event) {
+    return GSON.toJson(event).getBytes(UTF_8);
+  }
 }

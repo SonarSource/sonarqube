@@ -34,7 +34,7 @@ public class IssueChangedEventTest {
     Issue[] issues = new Issue[]{new Issue(ISSUE_KEY, BRANCH_NAME)};
     IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, issues, null, null, null);
 
-    assertThat(event.getEvent()).isEqualTo("IssueChangedEvent");
+    assertThat(event.getEvent()).isEqualTo("IssueChanged");
     assertThat(event.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertThat(event.getResolved()).isNull();
     assertThat(event.getUserSeverity()).isNull();
@@ -47,7 +47,7 @@ public class IssueChangedEventTest {
     Issue[] issues = new Issue[]{new Issue(ISSUE_KEY, BRANCH_NAME)};
     IssueChangedEvent event = new IssueChangedEvent(PROJECT_KEY, issues, true, "BLOCKER", "BUG");
 
-    assertThat(event.getEvent()).isEqualTo("IssueChangedEvent");
+    assertThat(event.getEvent()).isEqualTo("IssueChanged");
     assertThat(event.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertThat(event.getResolved()).isTrue();
     assertThat(event.getUserSeverity()).isEqualTo("BLOCKER");

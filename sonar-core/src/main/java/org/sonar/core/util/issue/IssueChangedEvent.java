@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class IssueChangedEvent implements Serializable {
-  private static final String EVENT = "IssueChangedEvent";
+  private static final String EVENT = "IssueChanged";
 
   private final String projectKey;
   private final Issue[] issues;

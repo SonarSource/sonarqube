@@ -21,8 +21,6 @@ package org.sonar.process.cluster.hz;
 
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.memberselector.MemberSelectors;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.topic.ITopic;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -36,17 +34,10 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.core.util.issue.IssueChangeListener;
-import org.sonar.core.util.rule.RuleActivationListener;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class HazelcastMemberImplTest {
 
@@ -113,32 +104,6 @@ public class HazelcastMemberImplTest {
     List<Exception> failures = extractFailures(answer);
     assertThat(failures).hasSize(1);
     assertThat(failures.get(0)).hasMessageContaining("BOOM");
-  }
-
-  @Test
-  public void subscribeRuleActivationTopic_listenerAdded() {
-    RuleActivationListener listener = mock(RuleActivationListener.class);
-    HazelcastInstance hzInstance = mock(HazelcastInstance.class);
-    ITopic<Object> topic = mock(ITopic.class);
-    when(hzInstance.getTopic(any())).thenReturn(topic);
-    HazelcastMemberImpl underTest = new HazelcastMemberImpl(hzInstance);
-
-    underTest.subscribeRuleActivationTopic(listener);
-
-    verify(topic, times(1)).addMessageListener(any());
-  }
-
-  @Test
-  public void subscribeIssueChangeTopic_listenerAdded() {
-    IssueChangeListener listener = mock(IssueChangeListener.class);
-    HazelcastInstance hzInstance = mock(HazelcastInstance.class);
-    ITopic<Object> topic = mock(ITopic.class);
-    when(hzInstance.getTopic(any())).thenReturn(topic);
-    HazelcastMemberImpl underTest = new HazelcastMemberImpl(hzInstance);
-
-    underTest.subscribeIssueChangeTopic(listener);
-
-    verify(topic, times(1)).addMessageListener(any());
   }
 
   private static HazelcastMember newHzMember(int port, int... otherPorts) {

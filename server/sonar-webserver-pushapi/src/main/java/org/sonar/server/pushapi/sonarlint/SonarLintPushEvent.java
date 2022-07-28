@@ -19,6 +19,9 @@
  */
 package org.sonar.server.pushapi.sonarlint;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SonarLintPushEvent {
@@ -26,15 +29,22 @@ public class SonarLintPushEvent {
   private final String name;
   private final byte[] data;
   private final String projectKey;
+  private final String language;
 
-  public SonarLintPushEvent(String name, byte[] data, String projectKey) {
+  public SonarLintPushEvent(String name, byte[] data, String projectKey, @Nullable String language) {
     this.name = name;
     this.data = data;
     this.projectKey = projectKey;
+    this.language = language;
   }
 
   public String getProjectKey() {
     return projectKey;
+  }
+
+  @CheckForNull
+  public String getLanguage() {
+    return language;
   }
 
   public String getName() {

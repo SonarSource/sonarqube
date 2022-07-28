@@ -25,6 +25,7 @@ public class PushEventDto {
   private String uuid;
   private String name;
   private String projectUuid;
+  private String language;
   private byte[] payload;
   private Long createdAt;
 
@@ -56,6 +57,16 @@ public class PushEventDto {
 
   public PushEventDto setProjectUuid(String projectUuid) {
     this.projectUuid = projectUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public String getLanguage() {
+    return language;
+  }
+
+  public PushEventDto setLanguage(String language) {
+    this.language = language;
     return this;
   }
 

@@ -40,6 +40,7 @@ public class DbVersion96 implements DbVersion {
       .add(6509, "Drop column sonarlint_ad_seen in 'users'", DropSonarlintAdSeenColumnInUsersTable.class)
       .add(6510, "Create table 'push_events'", CreatePushEventsTable.class)
       .add(6511, "Create index 'idx_push_even_crea_uuid_proj' on 'push_events'", CreateIndexForPushEvents.class)
+      .add(6512, "Add column 'language' to 'push_events'", AddLanguageColumnToPushEventsTable.class)
     ;
   }
 }

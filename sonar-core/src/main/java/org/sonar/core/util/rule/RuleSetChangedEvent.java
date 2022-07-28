@@ -22,34 +22,21 @@ package org.sonar.core.util.rule;
 import java.io.Serializable;
 
 public class RuleSetChangedEvent implements Serializable {
-
-  private static final String EVENT = "RuleSetChanged";
-
   private final String[] projects;
-  private final String language;
   private final RuleChange[] activatedRules;
   private final String[] deactivatedRules;
 
-  public RuleSetChangedEvent(String[] projects, RuleChange[] activatedRules, String[] deactivatedRules, String language) {
-    this.projects = projects;
+  public RuleSetChangedEvent(String projectKey, RuleChange[] activatedRules, String[] deactivatedRules) {
+    this.projects = new String[]{projectKey};
     this.activatedRules = activatedRules;
     this.deactivatedRules = deactivatedRules;
     if (activatedRules.length == 0 && deactivatedRules.length == 0) {
       throw new IllegalArgumentException("Can't create RuleSetChangedEvent without any rules that have changed");
     }
-    this.language = language;
-  }
-
-  public String getEvent() {
-    return EVENT;
   }
 
   public String[] getProjects() {
     return projects;
-  }
-
-  public String getLanguage() {
-    return language;
   }
 
   public RuleChange[] getActivatedRules() {

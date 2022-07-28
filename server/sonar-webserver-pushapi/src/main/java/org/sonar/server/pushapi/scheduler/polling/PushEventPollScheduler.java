@@ -49,6 +49,7 @@ public class PushEventPollScheduler implements Startable {
   private static final Logger LOG = Loggers.get(PushEventPollScheduler.class);
 
   private static final String INITIAL_DELAY_IN_SECONDS = "sonar.pushevents.polling.initial.delay";
+  private static final String LAST_TIMESTAMP_IN_SECONDS = "sonar.pushevents.polling.last.timestamp";
   private static final String PERIOD_IN_SECONDS = "sonar.pushevents.polling.period";
   private static final String PAGE_SIZE = "sonar.pushevents.polling.page.size";
 
@@ -91,7 +92,7 @@ public class PushEventPollScheduler implements Startable {
     }
 
     if (lastPullTimestamp == null) {
-      lastPullTimestamp = system2.now();
+      lastPullTimestamp = getLastPullTimestamp();
     }
 
     var projectKeys = getClientsProjectKeys(clients);
@@ -120,7 +121,8 @@ public class PushEventPollScheduler implements Startable {
       LOG.debug("Could not find key for project with uuid [{}]", pushEventDto.getProjectUuid());
       return Optional.empty();
     }
-    return Optional.of(new SonarLintPushEvent(pushEventDto.getName(), pushEventDto.getPayload(), resolvedProjectKey));
+    return Optional.of(new SonarLintPushEvent(pushEventDto.getName(), pushEventDto.getPayload(), resolvedProjectKey,
+      pushEventDto.getLanguage()));
   }
 
   private static Set<String> getClientsProjectKeys(List<SonarLintClient> clients) {
@@ -154,8 +156,12 @@ public class PushEventPollScheduler implements Startable {
     return config.getLong(PERIOD_IN_SECONDS).orElse(40L);
   }
 
+  public long getLastPullTimestamp() {
+    // execute every 40 seconds
+    return config.getLong(LAST_TIMESTAMP_IN_SECONDS).orElse(system2.now());
+  }
+
   public long getPageSize() {
-    // 20 events per 40 seconds
     return config.getLong(PAGE_SIZE).orElse(20L);
   }
 

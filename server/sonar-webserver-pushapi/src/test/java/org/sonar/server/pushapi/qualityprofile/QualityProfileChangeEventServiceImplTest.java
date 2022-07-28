@@ -19,17 +19,17 @@
  */
 package org.sonar.server.pushapi.qualityprofile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.util.ParamChange;
-import org.sonar.core.util.rule.RuleChange;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -37,14 +37,11 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonarqube.ws.Common;
 
 import static java.util.List.of;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -54,9 +51,7 @@ public class QualityProfileChangeEventServiceImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  RuleActivatorEventsDistributor eventsDistributor = mock(RuleActivatorEventsDistributor.class);
-
-  public final QualityProfileChangeEventServiceImpl underTest = new QualityProfileChangeEventServiceImpl(db.getDbClient(), eventsDistributor);
+  public final QualityProfileChangeEventServiceImpl underTest = new QualityProfileChangeEventServiceImpl(db.getDbClient());
 
   @Test
   public void distributeRuleChangeEvent() {
@@ -84,33 +79,27 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.distributeRuleChangeEvent(profiles, of(activeRuleChange), "xoo");
 
-    ArgumentCaptor<RuleSetChangedEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangedEvent.class);
-    verify(eventsDistributor).pushEvent(eventCaptor.capture());
+    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, 1);
 
-    RuleSetChangedEvent ruleSetChangedEvent = eventCaptor.getValue();
-    assertThat(ruleSetChangedEvent).isNotNull();
-    assertThat(ruleSetChangedEvent).extracting(RuleSetChangedEvent::getEvent,
-        RuleSetChangedEvent::getLanguage, RuleSetChangedEvent::getProjects)
-      .containsExactly("RuleSetChanged", "xoo", new String[]{project.getKey()});
+    assertThat(events).isNotEmpty().hasSize(1);
+    assertThat(events.getFirst())
+      .extracting(PushEventDto::getName, PushEventDto::getLanguage)
+      .contains("RuleSetChanged", "xoo");
 
-    assertThat(ruleSetChangedEvent.getActivatedRules())
-      .extracting(RuleChange::getKey, RuleChange::getLanguage,
-        RuleChange::getSeverity, RuleChange::getTemplateKey)
-      .containsExactly(tuple("repo:ruleKey", "xoo", null, "xoo:template-key"));
+    String ruleSetChangedEvent = new String(events.getFirst().getPayload(), StandardCharsets.UTF_8);
 
-    assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
-    assertThat(actualParamChange)
-      .extracting(ParamChange::getKey, ParamChange::getValue)
-      .containsExactly("paramChangeKey", "paramChangeValue");
-
-    assertThat(ruleSetChangedEvent.getDeactivatedRules()).isEmpty();
-
+    assertThat(ruleSetChangedEvent)
+      .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]}]," +
+        "\"deactivatedRules\":[]");
   }
 
   @Test
   public void publishRuleActivationToSonarLintClients() {
-    ProjectDto projectDao = new ProjectDto();
+    ProjectDto projectDao = new ProjectDto().setUuid("project-uuid");
     QProfileDto activatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     activatedQualityProfile.setLanguage("xoo");
     db.qualityProfiles().insert(activatedQualityProfile);
@@ -134,30 +123,21 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.publishRuleActivationToSonarLintClients(projectDao, activatedQualityProfile, deactivatedQualityProfile);
 
-    ArgumentCaptor<RuleSetChangedEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangedEvent.class);
-    verify(eventsDistributor).pushEvent(eventCaptor.capture());
+    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(projectDao.getUuid()), 1l, null, 1);
 
-    RuleSetChangedEvent ruleSetChangedEvent = eventCaptor.getValue();
-    assertThat(ruleSetChangedEvent).isNotNull();
-    assertThat(ruleSetChangedEvent).extracting(RuleSetChangedEvent::getEvent,
-        RuleSetChangedEvent::getLanguage, RuleSetChangedEvent::getProjects)
-      .containsExactly("RuleSetChanged", "xoo", new String[]{null});
+    assertThat(events).isNotEmpty().hasSize(1);
+    assertThat(events.getFirst())
+      .extracting(PushEventDto::getName, PushEventDto::getLanguage)
+      .contains("RuleSetChanged", "xoo");
 
-    // activated rule
-    assertThat(ruleSetChangedEvent.getActivatedRules())
-      .extracting(RuleChange::getKey, RuleChange::getLanguage,
-        RuleChange::getSeverity, RuleChange::getTemplateKey)
-      .containsExactly(tuple("repo:ruleKey", "xoo", rule1.getSeverityString(), null));
+    String ruleSetChangedEvent = new String(events.getFirst().getPayload(), StandardCharsets.UTF_8);
 
-    assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
-    assertThat(actualParamChange)
-      .extracting(ParamChange::getKey, ParamChange::getValue)
-      .containsExactly(activeRuleParam1.getKey(), activeRuleParam1.getValue());
-
-    // deactivated rule
-    assertThat(ruleSetChangedEvent.getDeactivatedRules())
-      .containsExactly("repo2:ruleKey2");
+    assertThat(ruleSetChangedEvent)
+      .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
+        "\"language\":\"xoo\",\"severity\":\"" + Common.Severity.forNumber(rule1.getSeverity()).name() + "\"," +
+        "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]}]," +
+        "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
   }
 
 }

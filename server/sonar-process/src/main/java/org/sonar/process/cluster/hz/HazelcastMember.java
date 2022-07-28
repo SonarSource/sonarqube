@@ -26,10 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
-import org.sonar.core.util.issue.IssueChangeListener;
-import org.sonar.core.util.issue.IssueChangedEvent;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.process.ProcessId;
 
 public interface HazelcastMember extends AutoCloseable {
@@ -109,14 +105,6 @@ public interface HazelcastMember extends AutoCloseable {
    * @throws java.util.concurrent.RejectedExecutionException if no member is selected
    */
   <T> void callAsync(DistributedCall<T> callable, MemberSelector memberSelector, DistributedCallback<T> callback);
-
-  void subscribeRuleActivationTopic(RuleActivationListener listener);
-
-  void publishEvent(RuleSetChangedEvent event);
-
-  void subscribeIssueChangeTopic(IssueChangeListener listener);
-
-  void publishEvent(IssueChangedEvent event);
 
   @Override
   void close();

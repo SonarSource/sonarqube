@@ -19,34 +19,30 @@
  */
 package org.sonar.server.pushapi.issues;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.issue.IssueChangedEvent;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonarqube.ws.Common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
@@ -64,9 +60,7 @@ public class IssueChangeEventServiceImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  IssueChangeEventsDistributor eventsDistributor = mock(IssueChangeEventsDistributor.class);
-
-  public final IssueChangeEventServiceImpl underTest = new IssueChangeEventServiceImpl(eventsDistributor);
+  public final IssueChangeEventServiceImpl underTest = new IssueChangeEventServiceImpl(db.getDbClient());
 
   @Test
   public void distributeIssueChangeEvent_singleIssueChange_severityChange() {
@@ -74,9 +68,9 @@ public class IssueChangeEventServiceImplTest {
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i-> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
 
-    assertIssueDistribution(project, branch, issue, BLOCKER.name(), null, null, null, 1);
+    assertPushEventIsPersisted(project, branch, issue, BLOCKER.name(), null, null, null, 1);
   }
 
   @Test
@@ -85,9 +79,9 @@ public class IssueChangeEventServiceImplTest {
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i-> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
 
-    assertIssueDistribution(project, branch, issue, null, Common.RuleType.BUG.name(), null, null, 1);
+    assertPushEventIsPersisted(project, branch, issue, null, Common.RuleType.BUG.name(), null, null, 1);
   }
 
   @Test
@@ -96,16 +90,16 @@ public class IssueChangeEventServiceImplTest {
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i-> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
 
-    assertIssueDistribution(project, branch, issue, null, null, WONT_FIX, true, 1);
-    assertIssueDistribution(project, branch, issue, null, null, REOPEN, false, 2);
-    assertIssueDistribution(project, branch, issue, null, null, FALSE_POSITIVE, true, 3);
-    assertIssueDistribution(project, branch, issue, null, null, REOPEN, false, 4);
-    assertIssueDistribution(project, branch, issue, null, null, RESOLVE, false, 5);
-    assertIssueDistribution(project, branch, issue, null, null, REOPEN, false, 6);
-    assertNoIssueDistribution(project, branch, issue, null, null, CONFIRM);
-    assertNoIssueDistribution(project, branch, issue, null, null, UNCONFIRM);
+    assertPushEventIsPersisted(project, branch, issue, null, null, WONT_FIX, true, 1);
+    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 2);
+    assertPushEventIsPersisted(project, branch, issue, null, null, FALSE_POSITIVE, true, 3);
+    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 4);
+    assertPushEventIsPersisted(project, branch, issue, null, null, RESOLVE, false, 5);
+    assertPushEventIsPersisted(project, branch, issue, null, null, REOPEN, false, 6);
+    assertNoIssueDistribution(project, branch, issue, null, null, CONFIRM, 7);
+    assertNoIssueDistribution(project, branch, issue, null, null, UNCONFIRM, 8);
   }
 
   @Test
@@ -114,9 +108,9 @@ public class IssueChangeEventServiceImplTest {
     ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto.uuid()).get();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getUuid()).get();
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, componentDto, i-> i.setSeverity(MAJOR.name()));
+    IssueDto issue = db.issues().insert(rule, project, componentDto, i -> i.setSeverity(MAJOR.name()));
 
-    assertIssueDistribution(project, branch, issue, BLOCKER.name(), Common.RuleType.BUG.name(), WONT_FIX, true, 1);
+    assertPushEventIsPersisted(project, branch, issue, BLOCKER.name(), Common.RuleType.BUG.name(), WONT_FIX, true, 1);
   }
 
   @Test
@@ -126,17 +120,17 @@ public class IssueChangeEventServiceImplTest {
     ComponentDto componentDto1 = db.components().insertPublicProject();
     ProjectDto project1 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto1.uuid()).get();
     BranchDto branch1 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project1.getUuid()).get();
-    IssueDto issue1 = db.issues().insert(rule, project1, componentDto1, i-> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    IssueDto issue1 = db.issues().insert(rule, project1, componentDto1, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     ComponentDto componentDto2 = db.components().insertPublicProject();
     ProjectDto project2 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto2.uuid()).get();
     BranchDto branch2 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project2.getUuid()).get();
-    IssueDto issue2 = db.issues().insert(rule, project2, componentDto2, i-> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    IssueDto issue2 = db.issues().insert(rule, project2, componentDto2, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     ComponentDto componentDto3 = db.components().insertPublicProject();
     ProjectDto project3 = db.getDbClient().projectDao().selectByUuid(db.getSession(), componentDto3.uuid()).get();
     BranchDto branch3 = db.getDbClient().branchDao().selectByUuid(db.getSession(), project3.getUuid()).get();
-    IssueDto issue3 = db.issues().insert(rule, project3, componentDto3, i-> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    IssueDto issue3 = db.issues().insert(rule, project3, componentDto3, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     DefaultIssue defaultIssue1 = issue1.toDefaultIssue().setCurrentChangeWithoutAddChange(new FieldDiffs()
       .setDiff("resolution", null, null)
@@ -159,18 +153,35 @@ public class IssueChangeEventServiceImplTest {
 
     underTest.distributeIssueChangeEvent(issues, projectsByUuid, branchesByProjectUuid);
 
-    ArgumentCaptor<IssueChangedEvent> eventCaptor = ArgumentCaptor.forClass(IssueChangedEvent.class);
-    verify(eventsDistributor, times(2)).pushEvent(eventCaptor.capture());
+    Deque<PushEventDto> issueChangedEvents = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(project1.getUuid(), project2.getUuid()),
+        1l, null, 3);
 
-    List<IssueChangedEvent> issueChangedEvents = eventCaptor.getAllValues();
     assertThat(issueChangedEvents).hasSize(2);
 
     assertThat(issueChangedEvents)
-      .extracting(IssueChangedEvent::getEvent, IssueChangedEvent::getProjectKey,
-        IssueChangedEvent::getUserSeverity, IssueChangedEvent::getUserType, IssueChangedEvent::getResolved)
+      .extracting(PushEventDto::getName, PushEventDto::getProjectUuid)
       .containsExactlyInAnyOrder(
-        tuple("IssueChangedEvent", project1.getKey(), CRITICAL.name(), CODE_SMELL.name(), false),
-        tuple("IssueChangedEvent", project2.getKey(), CRITICAL.name(), CODE_SMELL.name(), true));
+        tuple("IssueChanged", project1.getUuid()),
+        tuple("IssueChanged", project2.getUuid()));
+
+    Optional<PushEventDto> project1Event = issueChangedEvents.stream().filter(e -> e.getProjectUuid().equals(project1.getUuid())).findFirst();
+    Optional<PushEventDto> project2Event = issueChangedEvents.stream().filter(e -> e.getProjectUuid().equals(project2.getUuid())).findFirst();
+
+    assertThat(project1Event).isPresent();
+    assertThat(project2Event).isPresent();
+
+    String firstPayload = new String(project1Event.get().getPayload(), StandardCharsets.UTF_8);
+    assertThat(firstPayload)
+      .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
+        "\"userType\":\"" + CODE_SMELL.name() + "\"",
+        "\"resolved\":" + false);
+
+    String secondPayload = new String(project2Event.get().getPayload(), StandardCharsets.UTF_8);
+    assertThat(secondPayload)
+      .contains("\"userSeverity\":\"" + CRITICAL.name() + "\"",
+        "\"userType\":\"" + CODE_SMELL.name() + "\"",
+        "\"resolved\":" + true);
   }
 
   @Test
@@ -183,7 +194,7 @@ public class IssueChangeEventServiceImplTest {
       .setMergeBranchUuid(project.uuid()));
     BranchDto branch1 = db.getDbClient().branchDao().selectByUuid(db.getSession(), pullRequest.uuid()).get();
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
-    IssueDto issue1 = db.issues().insert(rule, pullRequest, file, i-> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
+    IssueDto issue1 = db.issues().insert(rule, pullRequest, file, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     DefaultIssue defaultIssue1 = issue1.toDefaultIssue().setCurrentChangeWithoutAddChange(new FieldDiffs()
       .setDiff("resolution", null, null)
@@ -198,29 +209,40 @@ public class IssueChangeEventServiceImplTest {
 
     underTest.distributeIssueChangeEvent(issues, projectsByUuid, branchesByProjectUuid);
 
-    verifyNoInteractions(eventsDistributor);
-  }
-
-  private void assertIssueDistribution(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
-    @Nullable String type, @Nullable String transition, Boolean resolved, int times) {
-    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, type, transition, branch, project.getKey());
-
-    ArgumentCaptor<IssueChangedEvent> eventCaptor = ArgumentCaptor.forClass(IssueChangedEvent.class);
-    verify(eventsDistributor, times(times)).pushEvent(eventCaptor.capture());
-
-    IssueChangedEvent issueChangedEvent = eventCaptor.getValue();
-    assertThat(issueChangedEvent).isNotNull();
-    assertThat(issueChangedEvent).extracting(IssueChangedEvent::getEvent, IssueChangedEvent::getProjectKey,
-        IssueChangedEvent::getUserSeverity, IssueChangedEvent::getUserType, IssueChangedEvent::getResolved)
-      .containsExactly("IssueChangedEvent", project.getKey(), severity, type, resolved);
   }
 
   private void assertNoIssueDistribution(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
-    @Nullable String type, @Nullable String transition) {
+    @Nullable String type, @Nullable String transition, int page) {
     underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, type, transition, branch, project.getKey());
 
-    ArgumentCaptor<IssueChangedEvent> eventCaptor = ArgumentCaptor.forClass(IssueChangedEvent.class);
-    verifyNoMoreInteractions(eventsDistributor);
+    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);
+    assertThat(events).hasSizeLessThan(page);
+  }
+
+  private void assertPushEventIsPersisted(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
+    @Nullable String type, @Nullable String transition, Boolean resolved, int page) {
+    underTest.distributeIssueChangeEvent(issue.toDefaultIssue(), severity, type, transition, branch, project.getKey());
+
+    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, page);
+    assertThat(events).isNotEmpty();
+    assertThat(events).extracting(PushEventDto::getName, PushEventDto::getProjectUuid)
+      .contains(tuple("IssueChanged", project.getUuid()));
+
+    String payload = new String(events.getLast().getPayload(), StandardCharsets.UTF_8);
+    if (severity != null) {
+      assertThat(payload).contains("\"userSeverity\":\"" + severity + "\"");
+    }
+
+    if (type != null) {
+      assertThat(payload).contains("\"userType\":\"" + type + "\"");
+    }
+
+    if (resolved != null) {
+      assertThat(payload).contains("\"resolved\":" + resolved);
+    }
+
   }
 
 }

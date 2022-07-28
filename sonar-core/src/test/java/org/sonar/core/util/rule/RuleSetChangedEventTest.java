@@ -27,36 +27,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class RuleSetChangedEventTest {
 
   @Test
-  public void getLanguage_givenNoDeactivatedRules_languageIsCorrectlyIdentified() {
-    String[] projects = {"sonarqube"};
-    RuleChange[] activatedRules = {createRuleChange("java")};
-    String[] deactivatedRules = {};
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java");
-
-    String language = event.getLanguage();
-
-    assertThat(language).isEqualTo("java");
-  }
-
-  @Test
-  public void getLanguage_givenNoActivatedRules_languageIsCorrectlyIdentified() {
-    String[] projects = {"sonarqube"};
-    RuleChange[] activatedRules = {};
+  public void getDeactivatedAndActivatedRules() {
+    String project = "sonarqube";
+    RuleChange[] activatedRules = { new RuleChange()};
     String[] deactivatedRules = {"ruleKey"};
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java");
+    RuleSetChangedEvent event = new RuleSetChangedEvent(project, activatedRules, deactivatedRules);
 
-    String language = event.getLanguage();
-
-    assertThat(language).isEqualTo("java");
+    assertThat(event.getActivatedRules()).isEqualTo(activatedRules);
+    assertThat(event.getDeactivatedRules()).isEqualTo(deactivatedRules);
   }
 
   @Test
   public void getLanguage_givenBothArraysEmpty_throwException() {
-    String[] projects = {"sonarqube"};
+    String project = "sonarqube";
     RuleChange[] activatedRules = {};
     String[] deactivatedRules = {};
 
-    assertThatThrownBy(() -> new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java"))
+    assertThatThrownBy(() -> new RuleSetChangedEvent(project, activatedRules, deactivatedRules))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

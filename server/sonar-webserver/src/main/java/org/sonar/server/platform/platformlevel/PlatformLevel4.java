@@ -185,12 +185,8 @@ import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.pushapi.ServerPushModule;
-import org.sonar.server.pushapi.issues.DistributedIssueChangeEventsDistributor;
 import org.sonar.server.pushapi.issues.IssueChangeEventServiceImpl;
-import org.sonar.server.pushapi.issues.StandaloneIssueChangeEventsDistributor;
-import org.sonar.server.pushapi.qualityprofile.DistributedRuleActivatorEventsDistributor;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
-import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
@@ -284,12 +280,6 @@ public class PlatformLevel4 extends PlatformLevel {
       EsDbCompatibilityImpl.class);
 
     addIfCluster(new NodeHealthModule());
-
-    addIfCluster(DistributedRuleActivatorEventsDistributor.class);
-    addIfStandalone(StandaloneRuleActivatorEventsDistributor.class);
-
-    addIfCluster(DistributedIssueChangeEventsDistributor.class);
-    addIfStandalone(StandaloneIssueChangeEventsDistributor.class);
 
     add(
       RuleDescriptionFormatter.class,

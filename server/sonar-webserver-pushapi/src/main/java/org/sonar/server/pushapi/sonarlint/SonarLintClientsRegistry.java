@@ -24,60 +24,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.issue.IssueChangeListener;
-import org.sonar.core.util.issue.IssueChangedEvent;
-import org.sonar.core.util.rule.RuleActivationListener;
-import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.pushapi.issues.IssueChangeBroadcastUtils;
-import org.sonar.server.pushapi.issues.IssueChangeEventsDistributor;
-import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
-import org.sonar.server.pushapi.qualityprofile.RuleSetChangeBroadcastUtils;
 
 @ServerSide
-public class SonarLintClientsRegistry implements RuleActivationListener, IssueChangeListener {
+public class SonarLintClientsRegistry {
 
   private static final Logger LOG = Loggers.get(SonarLintClientsRegistry.class);
 
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
-  private final RuleActivatorEventsDistributor ruleEventsDistributor;
-  private final IssueChangeEventsDistributor issueChangeEventsDistributor;
 
-  private boolean registeredToEvents = false;
-
-  public SonarLintClientsRegistry(IssueChangeEventsDistributor issueChangeEventsDistributor,
-    RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
-    this.issueChangeEventsDistributor = issueChangeEventsDistributor;
+  public SonarLintClientsRegistry(SonarLintClientPermissionsValidator permissionsValidator) {
     this.sonarLintClientPermissionsValidator = permissionsValidator;
-    this.ruleEventsDistributor = ruleActivatorEventsDistributor;
   }
 
   public void registerClient(SonarLintClient sonarLintClient) {
-    ensureListeningToEvents();
     clients.add(sonarLintClient);
     sonarLintClient.scheduleHeartbeat();
     sonarLintClient.addListener(new SonarLintClientEventsListener(sonarLintClient));
     LOG.debug("Registering new SonarLint client");
-  }
-
-  private synchronized void ensureListeningToEvents() {
-    if (registeredToEvents) {
-      return;
-    }
-    try {
-      ruleEventsDistributor.subscribe(this);
-      issueChangeEventsDistributor.subscribe(this);
-      registeredToEvents = true;
-    } catch (RuntimeException e) {
-      LOG.warn("Can not listen to rule activation or issue events for server push. Web Server might not have started fully yet.", e);
-    }
   }
 
   public void unregisterClient(SonarLintClient client) {
@@ -94,18 +64,8 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
     return clients.size();
   }
 
-  @Override
-  public void listen(RuleSetChangedEvent ruleSetChangedEvent) {
-    broadcastMessage(ruleSetChangedEvent, RuleSetChangeBroadcastUtils.getFilterForEvent(ruleSetChangedEvent));
-  }
-
-  @Override
-  public void listen(IssueChangedEvent issueChangedEvent) {
-    broadcastMessage(issueChangedEvent, IssueChangeBroadcastUtils.getFilterForEvent(issueChangedEvent));
-  }
-
   public void broadcastMessage(SonarLintPushEvent event) {
-    clients.stream().filter(client -> client.getClientProjectKeys().contains(event.getProjectKey()))
+    clients.stream().filter(client -> isRelevantEvent(event, client))
       .forEach(c -> {
         Set<String> clientProjectKeys = new HashSet<>(c.getClientProjectKeys());
         clientProjectKeys.retainAll(Set.of(event.getProjectKey()));
@@ -122,42 +82,9 @@ public class SonarLintClientsRegistry implements RuleActivationListener, IssueCh
       });
   }
 
-  public void broadcastMessage(RuleSetChangedEvent event, Predicate<SonarLintClient> filter) {
-    clients.stream().filter(filter).forEach(c -> {
-      Set<String> projectKeysInterestingForClient = new HashSet<>(c.getClientProjectKeys());
-      projectKeysInterestingForClient.retainAll(Set.of(event.getProjects()));
-      try {
-        sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
-        RuleSetChangedEvent personalizedEvent = new RuleSetChangedEvent(projectKeysInterestingForClient.toArray(String[]::new), event.getActivatedRules(),
-          event.getDeactivatedRules(), event.getLanguage());
-        String message = RuleSetChangeBroadcastUtils.getMessage(personalizedEvent);
-        c.writeAndFlush(message);
-      } catch (ForbiddenException forbiddenException) {
-        logClientUnauthenticated(forbiddenException);
-        unregisterClient(c);
-      } catch (IllegalStateException | IOException e) {
-        logUnexpectedError(e);
-        unregisterClient(c);
-      }
-    });
-  }
-
-  public void broadcastMessage(IssueChangedEvent event, Predicate<SonarLintClient> filter) {
-    clients.stream().filter(filter).forEach(c -> {
-      Set<String> projectKeysInterestingForClient = new HashSet<>(c.getClientProjectKeys());
-      projectKeysInterestingForClient.retainAll(Set.of(event.getProjectKey()));
-      try {
-        sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
-        String message = IssueChangeBroadcastUtils.getMessage(event);
-        c.writeAndFlush(message);
-      } catch (ForbiddenException forbiddenException) {
-        logClientUnauthenticated(forbiddenException);
-        unregisterClient(c);
-      } catch (IllegalStateException | IOException e) {
-        logUnexpectedError(e);
-        unregisterClient(c);
-      }
-    });
+  private static boolean isRelevantEvent(SonarLintPushEvent event, SonarLintClient client) {
+    return client.getClientProjectKeys().contains(event.getProjectKey())
+      && (!event.getName().equals("RuleSetChanged") || client.getLanguages().contains(event.getLanguage()));
   }
 
   private static void logUnexpectedError(Exception e) {

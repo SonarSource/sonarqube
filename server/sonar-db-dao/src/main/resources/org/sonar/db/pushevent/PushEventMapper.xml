@@ -6,6 +6,7 @@
     pe.uuid as uuid,
     pe.name as name,
     pe.project_uuid as projectUuid,
+    pe.language,
     pe.payload as payload,
     pe.created_at as createdAt
   </sql>
@@ -15,6 +16,7 @@
     uuid,
     name,
     project_uuid,
+    language,
     payload,
     created_at
     )
@@ -22,6 +24,7 @@
     #{uuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR},
+    #{language,jdbcType=VARCHAR},
     #{payload,jdbcType=BLOB},
     #{createdAt,jdbcType=BIGINT}
     )
