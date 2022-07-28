@@ -52,8 +52,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -68,10 +66,10 @@ public class ChangelogActionTest {
 
   private ComponentDto project;
   private ComponentDto file;
-  private IssueFinder issueFinder = new IssueFinder(db.getDbClient(), userSession);
-  private IssueChangeWSSupport issueChangeSupport = new IssueChangeWSSupport(db.getDbClient(), new AvatarResolverImpl(), userSession);
-  private ChangelogAction underTest = new ChangelogAction(db.getDbClient(), issueFinder, issueChangeSupport);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final IssueFinder issueFinder = new IssueFinder(db.getDbClient(), userSession);
+  private final IssueChangeWSSupport issueChangeSupport = new IssueChangeWSSupport(db.getDbClient(), new AvatarResolverImpl(), userSession);
+  private final ChangelogAction underTest = new ChangelogAction(db.getDbClient(), issueFinder, issueChangeSupport);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -96,40 +94,6 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("93942e96f5acd83e2e047ad8fe03114d");
     assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
     assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
-  }
-
-  @Test
-  public void changelog_of_file_move_contains_file_names() {
-    RuleDto rule = db.rules().insert(newRuleDto());
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
-    IssueDto issueDto = db.issues().insertIssue(newDto(rule, file2, project));
-    userSession.logIn("john")
-      .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setDiff("file", file1.uuid(), file2.uuid()).setCreationDate(new Date()));
-
-    ChangelogWsResponse result = call(issueDto.getKey());
-
-    assertThat(result.getChangelogList()).hasSize(1);
-    assertThat(result.getChangelogList().get(0).hasUser()).isFalse();
-    assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
-    assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue)
-      .containsOnly(tuple("file", file1.longName(), file2.longName()));
-  }
-
-  @Test
-  public void changelog_of_file_move_is_empty_when_files_does_not_exists() {
-    IssueDto issueDto = insertNewIssue();
-    userSession.logIn("john")
-      .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setDiff("file", "UNKNOWN_1", "UNKNOWN_2").setCreationDate(new Date()));
-
-    ChangelogWsResponse result = call(issueDto.getKey());
-
-    assertThat(result.getChangelogList()).hasSize(1);
-    assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::hasOldValue, Diff::hasNewValue)
-      .containsOnly(tuple("file", false, false));
   }
 
   @Test

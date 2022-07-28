@@ -21,12 +21,11 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Date;
 import java.util.Optional;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -56,10 +55,7 @@ public class MovedIssueVisitor extends IssueVisitor {
       "Issue %s doesn't belong to file %s registered as original file of current file %s",
       issue, originalFile.getUuid(), component);
 
-    // changes the issue's component uuid, add a change and set issue as changed to enforce it is persisted to DB
-    issueUpdater.setIssueMoved(issue, component.getUuid(), IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null));
-    // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
-    issue.setComponentKey(component.getKey());
-    issue.setModuleUuidPath(null);
+    // changes the issue's component uuid, and set issue as changed to enforce it is persisted to DB
+    issueUpdater.setIssueComponent(issue, component.getUuid(), component.getKey(), new Date(analysisMetadataHolder.getAnalysisDate()));
   }
 }

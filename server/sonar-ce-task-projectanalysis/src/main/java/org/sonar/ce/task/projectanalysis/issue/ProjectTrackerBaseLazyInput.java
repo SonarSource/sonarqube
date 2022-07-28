@@ -45,12 +45,12 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
 
-  private AnalysisMetadataHolder analysisMetadataHolder;
-  private ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
-  private DbClient dbClient;
-  private IssueFieldsSetter issueUpdater;
-  private ComponentIssuesLoader issuesLoader;
-  private ReportModulesPath reportModulesPath;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
+  private final DbClient dbClient;
+  private final IssueFieldsSetter issueUpdater;
+  private final ComponentIssuesLoader issuesLoader;
+  private final ReportModulesPath reportModulesPath;
 
   ProjectTrackerBaseLazyInput(AnalysisMetadataHolder analysisMetadataHolder, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, DbClient dbClient,
     IssueFieldsSetter issueUpdater, ComponentIssuesLoader issuesLoader, ReportModulesPath reportModulesPath, Component component) {
@@ -108,10 +108,7 @@ class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
       if (StringUtils.isNotBlank(modulePath)) {
         issueUpdater.setMessage(i, "[" + modulePath + "] " + i.getMessage(), context);
       }
-      issueUpdater.setIssueMoved(i, component.getUuid(), context);
-      // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
-      i.setComponentKey(component.getKey());
-      i.setModuleUuidPath(null);
+      issueUpdater.setIssueComponent(i, component.getUuid(), component.getKey(), context.date());
     }
     return issuesOnModule;
   }

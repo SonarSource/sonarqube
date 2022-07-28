@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
@@ -45,9 +44,9 @@ public class IssueFieldsSetterTest {
 
   private final String DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY = "spring";
 
-  private DefaultIssue issue = new DefaultIssue();
-  private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
-  private IssueFieldsSetter underTest = new IssueFieldsSetter();
+  private final DefaultIssue issue = new DefaultIssue();
+  private final IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+  private final IssueFieldsSetter underTest = new IssueFieldsSetter();
 
   @Test
   public void assign() {
@@ -479,36 +478,34 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void setIssueMoved_has_no_effect_if_component_uuid_is_not_changed() {
-    String componentUuid = "a";
+  public void setIssueComponent_has_no_effect_if_component_uuid_is_not_changed() {
+    String componentKey = "key";
+    String componentUuid = "uuid";
+
     issue.setComponentUuid(componentUuid);
+    issue.setComponentKey(componentKey);
 
-    underTest.setIssueMoved(issue, componentUuid, context);
+    underTest.setIssueComponent(issue, componentUuid, componentKey, context.date());
 
-    assertThat(issue.changes()).isEmpty();
     assertThat(issue.componentUuid()).isEqualTo(componentUuid);
+    assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.isChanged()).isFalse();
     assertThat(issue.updateDate()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
-  public void setIssueMoved_changes_componentUuid_adds_a_change() {
+  public void setIssueComponent_changes_component_uuid() {
     String oldComponentUuid = "a";
     String newComponentUuid = "b";
+    String componentKey = "key";
+
     issue.setComponentUuid(oldComponentUuid);
 
-    underTest.setIssueMoved(issue, newComponentUuid, context);
+    underTest.setIssueComponent(issue, newComponentUuid, componentKey, context.date());
 
-    assertThat(issue.changes()).hasSize(1);
-    FieldDiffs fieldDiffs = issue.changes().get(0);
-    assertThat(fieldDiffs.creationDate()).isEqualTo(context.date());
-    assertThat(fieldDiffs.diffs()).hasSize(1);
-    Map.Entry<String, FieldDiffs.Diff> entry = fieldDiffs.diffs().entrySet().iterator().next();
-    assertThat(entry.getKey()).isEqualTo("file");
-    assertThat(entry.getValue().oldValue()).isEqualTo(oldComponentUuid);
-    assertThat(entry.getValue().newValue()).isEqualTo(newComponentUuid);
     assertThat(issue.componentUuid()).isEqualTo(newComponentUuid);
+    assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(context.date(), Calendar.SECOND));
   }

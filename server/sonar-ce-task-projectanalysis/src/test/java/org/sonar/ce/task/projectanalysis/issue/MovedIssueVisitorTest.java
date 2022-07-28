@@ -23,19 +23,15 @@ import java.util.Date;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,8 +50,8 @@ public class MovedIssueVisitorTest {
   @org.junit.Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
-  private MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueFieldsSetter());
+  private final MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
+  private final MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueFieldsSetter());
 
   @Before
   public void setUp() {
@@ -117,12 +113,8 @@ public class MovedIssueVisitorTest {
     verify(issue).setComponentUuid(FILE.getUuid());
     verify(issue).setComponentKey(FILE.getKey());
     verify(issue).setModuleUuidPath(null);
+    verify(issue).setUpdateDate(new Date(ANALYSIS_DATE));
     verify(issue).setChanged(true);
-    ArgumentCaptor<IssueChangeContext> issueChangeContextCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
-    verify(issue).setFieldChange(issueChangeContextCaptor.capture(), eq("file"), eq(originalFile.getUuid()), eq(FILE.getUuid()));
-    assertThat(issueChangeContextCaptor.getValue().date()).isEqualTo(new Date(ANALYSIS_DATE));
-    assertThat(issueChangeContextCaptor.getValue().userUuid()).isNull();
-    assertThat(issueChangeContextCaptor.getValue().scan()).isFalse();
   }
 
   private DefaultIssue mockIssue(String fileUuid) {

@@ -329,15 +329,16 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean setIssueMoved(DefaultIssue issue, String newComponentUuid, IssueChangeContext context) {
+  public void setIssueComponent(DefaultIssue issue, String newComponentUuid, String newComponentKey, Date updateDate) {
     if (!Objects.equals(newComponentUuid, issue.componentUuid())) {
-      issue.setFieldChange(context, FILE, issue.componentUuid(), newComponentUuid);
       issue.setComponentUuid(newComponentUuid);
-      issue.setUpdateDate(context.date());
+      issue.setUpdateDate(updateDate);
       issue.setChanged(true);
-      return true;
     }
-    return false;
+
+    // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
+    issue.setComponentKey(newComponentKey);
+    issue.setModuleUuidPath(null);
   }
 
   private static boolean relevantDateDifference(@Nullable Date left, @Nullable Date right) {

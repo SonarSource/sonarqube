@@ -39,7 +39,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class ChangelogAction implements IssuesWsAction {
-
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
   private final IssueChangeWSSupport issueChangeSupport;

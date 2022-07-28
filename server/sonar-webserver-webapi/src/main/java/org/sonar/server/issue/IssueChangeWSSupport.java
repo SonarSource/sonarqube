@@ -96,7 +96,7 @@ public class IssueChangeWSSupport {
   }
 
   public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load) {
-    return newFormattingContext(dbSession, dtos, load, ImmutableSet.of(), ImmutableSet.of());
+    return newFormattingContext(dbSession, dtos, load, Set.of(), Set.of());
   }
 
   public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load, Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {

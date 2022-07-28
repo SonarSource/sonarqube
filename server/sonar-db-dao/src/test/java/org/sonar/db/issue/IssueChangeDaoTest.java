@@ -48,7 +48,7 @@ public class IssueChangeDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private IssueChangeDao underTest = db.getDbClient().issueChangeDao();
+  private final IssueChangeDao underTest = db.getDbClient().issueChangeDao();
 
   @Test
   public void select_issue_changelog_from_issue_key() {
