@@ -149,7 +149,7 @@
 .page-footer a:active,
 .page-footer a:focus {
   border-bottom-color: var(--lightBlue);
-  color: var(--blue);
+  color: var(--alertIconInfo);
 }
 
 .sidebar-page #footer {
