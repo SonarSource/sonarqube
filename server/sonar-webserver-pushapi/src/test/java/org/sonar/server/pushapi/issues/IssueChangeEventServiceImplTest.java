@@ -209,6 +209,9 @@ public class IssueChangeEventServiceImplTest {
 
     underTest.distributeIssueChangeEvent(issues, projectsByUuid, branchesByProjectUuid);
 
+    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(project.uuid()), 1l, null, 20);
+    assertThat(events).isEmpty();
   }
 
   private void assertNoIssueDistribution(ProjectDto project, BranchDto branch, IssueDto issue, @Nullable String severity,
