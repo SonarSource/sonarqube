@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import { range, times } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../../api/components';
-import Issue from '../../../../components/issue/Issue';
+import IssueMessageBox from '../../../../components/issue/IssueMessageBox';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockSnippetsByComponent,
@@ -148,7 +148,7 @@ it('should render file-level issue correctly', () => {
     }
   });
 
-  expect(wrapper.find(Issue).exists()).toBe(true);
+  expect(wrapper.find(IssueMessageBox).exists()).toBe(true);
 });
 
 it('should expand block', async () => {
@@ -300,9 +300,7 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
       lastSnippetGroup={false}
       loadDuplications={jest.fn()}
       locations={[]}
-      onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
       snippetGroup={snippetGroup}

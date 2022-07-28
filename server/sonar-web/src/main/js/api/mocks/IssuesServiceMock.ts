@@ -28,12 +28,19 @@ import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
 import {
   mockCurrentUser,
+  mockLoggedInUser,
   mockPaging,
   mockRawIssue,
   mockRuleDetails
 } from '../../helpers/testMocks';
 import { BranchParameters } from '../../types/branch-like';
-import { RawFacet, RawIssue, RawIssuesResponse, ReferencedComponent } from '../../types/issues';
+import {
+  IssueType,
+  RawFacet,
+  RawIssue,
+  RawIssuesResponse,
+  ReferencedComponent
+} from '../../types/issues';
 import { Standards } from '../../types/security';
 import {
   Dict,
@@ -44,9 +51,18 @@ import {
 } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
-import { getIssueFlowSnippets, searchIssues } from '../issues';
+import {
+  getIssueFlowSnippets,
+  searchIssues,
+  searchIssueTags,
+  setIssueAssignee,
+  setIssueSeverity,
+  setIssueTags,
+  setIssueTransition,
+  setIssueType
+} from '../issues';
 import { getRuleDetails } from '../rules';
-import { dismissNotice, getCurrentUser } from '../users';
+import { dismissNotice, getCurrentUser, searchUsers } from '../users';
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -144,6 +160,8 @@ export default class IssuesServiceMock {
       },
       {
         issue: mockRawIssue(false, {
+          actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+          transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
           key: 'issue2',
           component: 'project:file.bar',
           message: 'Fix that',
@@ -201,6 +219,13 @@ export default class IssuesServiceMock {
     );
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
     (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
+    (setIssueType as jest.Mock).mockImplementation(this.handleSetIssueType);
+    (setIssueAssignee as jest.Mock).mockImplementation(this.handleSetIssueAssignee);
+    (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
+    (setIssueTransition as jest.Mock).mockImplementation(this.handleSetIssueTransition);
+    (setIssueTags as jest.Mock).mockImplementation(this.handleSetIssueTags);
+    (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
+    (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
   }
 
   async getStandards(): Promise<Standards> {
@@ -334,6 +359,52 @@ export default class IssuesServiceMock {
     }
 
     return Promise.reject();
+  };
+
+  handleSetIssueType = (data: { issue: string; type: IssueType }) => {
+    return this.getActionsResponse({ type: data.type }, data.issue);
+  };
+
+  handleSetIssueSeverity = (data: { issue: string; severity: string }) => {
+    return this.getActionsResponse({ severity: data.severity }, data.issue);
+  };
+
+  handleSetIssueAssignee = (data: { issue: string; assignee?: string }) => {
+    return this.getActionsResponse({ assignee: data.assignee }, data.issue);
+  };
+
+  handleSetIssueTransition = (data: { issue: string; transition: string }) => {
+    const statusMap: { [key: string]: string } = {
+      confirm: 'CONFIRMED',
+      unconfirm: 'REOPENED',
+      resolve: 'RESOLVED'
+    };
+    return this.getActionsResponse({ status: statusMap[data.transition] }, data.issue);
+  };
+
+  handleSetIssueTags = (data: { issue: string; tags: string }) => {
+    const tagsArr = data.tags.split(',');
+    return this.getActionsResponse({ tags: tagsArr }, data.issue);
+  };
+
+  handleSearchUsers = () => {
+    return this.reply({ users: [mockLoggedInUser()] });
+  };
+
+  handleSearchIssueTags = () => {
+    return this.reply(['accessibility', 'android']);
+  };
+
+  getActionsResponse = (overrides: Partial<RawIssue>, issueKey: string) => {
+    const issueDataSelected = this.list.find(l => l.issue.key === issueKey)!;
+
+    issueDataSelected.issue = {
+      ...issueDataSelected?.issue,
+      ...overrides
+    };
+    return this.reply({
+      issue: issueDataSelected.issue
+    });
   };
 
   reply<T>(response: T): Promise<T> {

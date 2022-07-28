@@ -18,39 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import TabViewer from '../../../components/rules/TabViewer';
-import { getRuleUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { Issue, RuleDetails } from '../../../types/types';
+import IssueHeader from './IssueHeader';
 
 interface IssueViewerTabsProps {
+  branchLike?: BranchLike;
   issue: Issue;
   codeTabContent: React.ReactNode;
   ruleDetails: RuleDetails;
+  onIssueChange: (issue: Issue) => void;
 }
 
 export default function IssueViewerTabs(props: IssueViewerTabsProps) {
-  const {
-    ruleDetails,
-    codeTabContent,
-    ruleDetails: { name, key },
-    issue: { ruleDescriptionContextKey, message }
-  } = props;
+  const { ruleDetails, issue, codeTabContent, branchLike } = props;
   return (
     <>
-      <div className="big-padded-top">
-        <h1 className="text-bold">{message}</h1>
-        <div className="spacer-top big-spacer-bottom">
-          <span className="note padded-right">{name}</span>
-          <Link className="small" to={getRuleUrl(key)} target="_blank">
-            {key}
-          </Link>
-        </div>
-      </div>
+      <IssueHeader
+        issue={issue}
+        ruleDetails={ruleDetails}
+        branchLike={branchLike}
+        onIssueChange={props.onIssueChange}
+      />
       <TabViewer
         ruleDetails={ruleDetails}
         extendedDescription={ruleDetails.htmlNote}
-        ruleDescriptionContextKey={ruleDescriptionContextKey}
+        ruleDescriptionContextKey={issue.ruleDescriptionContextKey}
         codeTabContent={codeTabContent}
         scrollInTab={true}
       />

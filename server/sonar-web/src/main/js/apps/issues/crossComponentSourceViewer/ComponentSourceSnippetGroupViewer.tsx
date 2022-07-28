@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import { getSources } from '../../../api/components';
-import Issue from '../../../components/issue/Issue';
-import SecondaryIssue from '../../../components/issue/SecondaryIssue';
+import IssueMessageBox from '../../../components/issue/IssueMessageBox';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -56,14 +55,11 @@ interface Props {
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   isLastOccurenceOfPrimaryComponent: boolean;
   issue: TypeIssue;
-  issuePopup?: { issue: string; name: string };
   issuesByLine: IssuesByLine;
   lastSnippetGroup: boolean;
   loadDuplications: (component: string, line: SourceLine) => void;
   locations: FlowLocation[];
-  onIssueChange: (issue: TypeIssue) => void;
   onIssueSelect: (issueKey: string) => void;
-  onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
   renderDuplicationPopup: (
     component: SourceViewerFile,
@@ -209,13 +205,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const {
-      isLastOccurenceOfPrimaryComponent,
-      issue,
-      issuesByLine,
-      snippetGroup,
-      branchLike
-    } = this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -228,34 +218,15 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
     return (
       issuesForLine.length > 0 && (
-        <div className="issue-list">
-          {issuesForLine.map(issueToDisplay => {
-            if (issueToDisplay.key === issue.key && issueLocations && issueLocations.length) {
-              return (
-                <Issue
-                  branchLike={branchLike}
-                  displayWhyIsThisAnIssue={false}
-                  issue={issueToDisplay}
-                  key={issueToDisplay.key}
-                  onChange={this.props.onIssueChange}
-                  onPopupToggle={this.props.onIssuePopupToggle}
-                  openPopup={
-                    this.props.issuePopup && this.props.issuePopup.issue === issueToDisplay.key
-                      ? this.props.issuePopup.name
-                      : undefined
-                  }
-                  selected={issue.key === issueToDisplay.key}
-                />
-              );
-            }
-            return (
-              <SecondaryIssue
-                key={issueToDisplay.key}
-                issue={issueToDisplay}
-                onClick={this.props.onIssueSelect}
-              />
-            );
-          })}
+        <div>
+          {issuesForLine.map(issueToDisplay => (
+            <IssueMessageBox
+              selected={!!(issueToDisplay.key === issue.key && issueLocations.length > 0)}
+              key={issueToDisplay.key}
+              issue={issueToDisplay}
+              onClick={this.props.onIssueSelect}
+            />
+          ))}
         </div>
       )
     );
@@ -266,7 +237,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       branchLike,
       isLastOccurenceOfPrimaryComponent,
       issue,
-      issuePopup,
       lastSnippetGroup,
       snippetGroup
     } = this.props;
@@ -301,13 +271,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         />
 
         {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
-          <Issue
-            issue={issue}
-            onChange={this.props.onIssueChange}
-            onPopupToggle={this.props.onIssuePopupToggle}
-            openPopup={issuePopup && issuePopup.issue === issue.key ? issuePopup.name : undefined}
-            selected={true}
-          />
+          <IssueMessageBox selected={true} issue={issue} onClick={this.props.onIssueSelect} />
         )}
         {snippetLines.map((snippet, index) => (
           <SnippetViewer

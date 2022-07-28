@@ -43,6 +43,8 @@ interface Comment {
 
 export interface RawIssue {
   actions: string[];
+  transitions?: string[];
+  tags?: string[];
   assignee?: string;
   author?: string;
   comments?: Array<Comment>;

@@ -186,7 +186,7 @@ module.exports = {
 
     // ui elements
     pageMainZIndex: '50',
-    pageSideZIndex: '51',
+    pageSideZIndex: '50',
     pageHeaderZIndex: '55',
 
     globalBannerZIndex: '60',

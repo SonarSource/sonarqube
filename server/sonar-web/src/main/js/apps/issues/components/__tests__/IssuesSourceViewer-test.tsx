@@ -70,7 +70,6 @@ function shallowRender(props: Partial<IssuesSourceViewer['props']> = {}) {
       branchLike={mockMainBranch()}
       issues={[mockIssue()]}
       locationsNavigator={true}
-      onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}
       openIssue={mockIssue()}

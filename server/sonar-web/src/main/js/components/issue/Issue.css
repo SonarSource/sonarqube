@@ -30,15 +30,12 @@
   cursor: initial;
 }
 
-.issue.secondary-issue {
-  background-color: var(--secondIssueBgColor);
-}
-
 .issue.hotspot {
   background-color: var(--hotspotBgColor);
 }
 
-.issue.selected {
+.issue.selected,
+.issue-message-box.selected {
   box-shadow: none;
   outline: none;
   border: 2px solid var(--blue) !important;
@@ -80,7 +77,6 @@
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: center;
-  padding-left: var(--gridSize);
 }
 
 .issue-meta-list {
@@ -254,4 +250,24 @@
 
 .issue .badge-error {
   background-color: var(--badgeRedBackgroundOnIssue);
+}
+
+.issue-message-box {
+  background-color: var(--issueBgColor);
+  border: 2px solid transparent;
+  margin: 10px 0px;
+}
+
+.issue-message-box.secondary-issue {
+  background-color: var(--secondIssueBgColor);
+}
+
+.issue-message-box.secondary-issue:hover {
+  border: 2px dashed var(--blue);
+  outline: 0;
+  cursor: pointer;
+}
+
+.issue-get-perma-link {
+  flex-shrink: 0;
 }

@@ -59,6 +59,7 @@ it('should open issue and navigate', async () => {
   // Select an issue with an advanced rule
   expect(await screen.findByRole('region', { name: 'Fix that' })).toBeInTheDocument();
   await user.click(screen.getByRole('region', { name: 'Fix that' }));
+  expect(screen.getByRole('button', { name: 'issue.tabs.code' })).toBeInTheDocument();
 
   // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
@@ -170,6 +171,172 @@ it('should support OWASP Top 10 version 2021', async () => {
       expect(await screen.findByRole('link', { name: linkName })).toBeInTheDocument();
     })
   );
+});
+
+it('should be able to perform action on issues', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderIssueApp();
+
+  // Select an issue with an advanced rule
+  await user.click(await screen.findByRole('region', { name: 'Fix that' }));
+
+  // changing issue type
+  expect(
+    screen.getByRole('button', {
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+    })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', {
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+    })
+  );
+  expect(screen.getByText('issue.type.BUG')).toBeInTheDocument();
+  expect(screen.getByText('issue.type.VULNERABILITY')).toBeInTheDocument();
+
+  await user.click(screen.getByText('issue.type.VULNERABILITY'));
+  expect(
+    screen.getByRole('button', {
+      name: `issue.type.type_x_click_to_change.issue.type.VULNERABILITY`
+    })
+  ).toBeInTheDocument();
+
+  // changing issue severity
+  expect(screen.getByText('severity.MAJOR')).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`
+    })
+  );
+  expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
+  expect(screen.getByText('severity.INFO')).toBeInTheDocument();
+  await user.click(screen.getByText('severity.MINOR'));
+  expect(
+    screen.getByRole('button', {
+      name: `issue.severity.severity_x_click_to_change.severity.MINOR`
+    })
+  ).toBeInTheDocument();
+
+  // changing issue status
+  expect(screen.getByText('issue.status.OPEN')).toBeInTheDocument();
+
+  await user.click(screen.getByText('issue.status.OPEN'));
+  expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
+  expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
+
+  await user.click(screen.getByText('issue.transition.confirm'));
+  expect(
+    screen.getByRole('button', {
+      name: `issue.transition.status_x_click_to_change.issue.status.CONFIRMED`
+    })
+  ).toBeInTheDocument();
+  await user.keyboard('{Escape}');
+
+  // assigning issue to a different user
+  expect(
+    screen.getByRole('button', {
+      name: `issue.assign.unassigned_click_to_assign`
+    })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: `issue.assign.unassigned_click_to_assign`
+    })
+  );
+  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+
+  await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
+  await user.keyboard('luke');
+  expect(screen.getByText('Skywalker')).toBeInTheDocument();
+  await user.keyboard('{ArrowUp}{enter}');
+  expect(screen.getByText('luke')).toBeInTheDocument();
+
+  // changing tags
+  expect(screen.getByText('issue.no_tag')).toBeInTheDocument();
+  await user.click(screen.getByText('issue.no_tag'));
+  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByText('android')).toBeInTheDocument();
+  expect(screen.getByText('accessibility')).toBeInTheDocument();
+
+  await user.click(screen.getByText('accessibility'));
+  expect(screen.getAllByText('accessibility')).toHaveLength(2); // one in the list of selector and one selected
+
+  await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
+  await user.keyboard('addNewTag');
+  expect(screen.getByText('+')).toBeInTheDocument();
+  expect(screen.getByText('addnewtag')).toBeInTheDocument();
+});
+
+it('should not allow performing actions when user does not have permission', async () => {
+  const user = userEvent.setup();
+  renderIssueApp();
+
+  await user.click(await screen.findByRole('region', { name: 'Fix this' }));
+
+  expect(
+    screen.queryByRole('button', {
+      name: `issue.assign.unassigned_click_to_assign`
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: `issue.comment.add_comment`
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: `issue.transition.status_x_click_to_change.issue.status.OPEN`
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`
+    })
+  ).not.toBeInTheDocument();
+});
+
+it('should open the actions popup using keyboard shortcut', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderIssueApp();
+
+  // Select an issue with an advanced rule
+  await user.click(await screen.findByRole('region', { name: 'Fix that' }));
+
+  // open severity popup on key press 'i'
+  await user.keyboard('i');
+  expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
+  expect(screen.getByText('severity.INFO')).toBeInTheDocument();
+
+  // open status popup on key press 'f'
+  await user.keyboard('f');
+  expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
+  expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
+
+  // open comment popup on key press 'c'
+  await user.keyboard('c');
+  expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
+  await user.click(screen.getByText('cancel'));
+
+  // open tags popup on key press 't'
+  await user.keyboard('t');
+  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByText('android')).toBeInTheDocument();
+  expect(screen.getByText('accessibility')).toBeInTheDocument();
+  // closing tags popup
+  await user.click(screen.getByText('issue.no_tag'));
+
+  // open assign popup on key press 'a'
+  await user.keyboard('a');
+  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
 });
 
 describe('redirects', () => {

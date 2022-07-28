@@ -59,7 +59,6 @@ interface Props {
   issue: Issue;
   issues: Issue[];
   locations: FlowLocation[];
-  onIssueChange: (issue: Issue) => void;
   onIssueSelect: (issueKey: string) => void;
   onLoaded?: () => void;
   onLocationSelect: (index: number) => void;
@@ -71,7 +70,6 @@ interface State {
   duplicatedFiles?: Dict<DuplicatedFile>;
   duplications?: Duplication[];
   duplicationsByLine: { [line: number]: number[] };
-  issuePopup?: { issue: string; name: string };
   loading: boolean;
   notAccessible: boolean;
 }
@@ -145,7 +143,6 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
       if (this.mounted) {
         this.setState({
           components,
-          issuePopup: undefined,
           loading: false
         });
         if (this.props.onLoaded) {
@@ -162,19 +159,6 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
       }
     }
   }
-
-  handleIssuePopupToggle = (issue: string, popupName: string, open?: boolean) => {
-    this.setState((state: State) => {
-      const samePopup =
-        state.issuePopup && state.issuePopup.name === popupName && state.issuePopup.issue === issue;
-      if (open !== false && !samePopup) {
-        return { issuePopup: { issue, name: popupName } };
-      } else if (open !== true && samePopup) {
-        return { issuePopup: undefined };
-      }
-      return null;
-    });
-  };
 
   renderDuplicationPopup = (component: SourceViewerFile, index: number, line: number) => {
     const { duplicatedFiles, duplications } = this.state;
@@ -247,15 +231,12 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
                 duplicationsByLine={duplicationsByLine}
                 highlightedLocationMessage={this.props.highlightedLocationMessage}
                 issue={issue}
-                issuePopup={this.state.issuePopup}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
                 isLastOccurenceOfPrimaryComponent={i === lastOccurenceOfPrimaryComponent}
                 lastSnippetGroup={i === locationsByComponent.length - 1}
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}
-                onIssueChange={this.props.onIssueChange}
                 onIssueSelect={this.props.onIssueSelect}
-                onIssuePopupToggle={this.handleIssuePopupToggle}
                 onLocationSelect={this.props.onLocationSelect}
                 renderDuplicationPopup={this.renderDuplicationPopup}
                 snippetGroup={snippetGroup}

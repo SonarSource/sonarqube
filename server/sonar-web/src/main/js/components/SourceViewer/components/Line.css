@@ -88,7 +88,6 @@
 
 .source-line-code {
   position: relative;
-  padding: 0 10px;
 }
 
 .source-line-code pre {
@@ -97,13 +96,9 @@
   white-space: pre-wrap;
 }
 
-.source-line-code .issue-list {
-  margin-left: -10px;
-  margin-right: -10px;
-}
-
 .source-line-code-inner {
   min-height: 18px;
+  padding: 0 10px;
 }
 
 .source-line-code-inner:before,

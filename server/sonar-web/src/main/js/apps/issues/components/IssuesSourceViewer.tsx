@@ -27,7 +27,6 @@ interface Props {
   branchLike: BranchLike | undefined;
   issues: Issue[];
   locationsNavigator: boolean;
-  onIssueChange: (issue: Issue) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
   openIssue: Issue;
@@ -91,7 +90,6 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
           issue={openIssue}
           issues={this.props.issues}
           locations={locations}
-          onIssueChange={this.props.onIssueChange}
           onIssueSelect={this.props.onIssueSelect}
           onLoaded={this.handleLoaded}
           onLocationSelect={this.props.onLocationSelect}

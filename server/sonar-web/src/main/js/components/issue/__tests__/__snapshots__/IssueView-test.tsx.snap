@@ -43,6 +43,7 @@ exports[`should render hotspots correctly 1`] = `
     togglePopup={[MockFunction]}
   />
   <IssueActionsBar
+    className="padded-left"
     issue={
       Object {
         "actions": Array [],
@@ -138,6 +139,7 @@ exports[`should render issues correctly 1`] = `
     togglePopup={[MockFunction]}
   />
   <IssueActionsBar
+    className="padded-left"
     issue={
       Object {
         "actions": Array [],

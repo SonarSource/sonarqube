@@ -84,17 +84,6 @@ it('Should handle no access rights', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should handle issue popup', () => {
-  const wrapper = shallowRender();
-  // open
-  wrapper.instance().handleIssuePopupToggle('1', 'popup1');
-  expect(wrapper.state('issuePopup')).toEqual({ issue: '1', name: 'popup1' });
-
-  // close
-  wrapper.instance().handleIssuePopupToggle('1', 'popup1');
-  expect(wrapper.state('issuePopup')).toBeUndefined();
-});
-
 it('should handle duplication popup', async () => {
   const files = { b: { key: 'b', name: 'B.tsx', project: 'foo', projectName: 'Foo' } };
   const duplications = [{ blocks: [{ _ref: '1', from: 1, size: 2 }] }];
@@ -134,7 +123,6 @@ function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {})
       })}
       issues={[]}
       locations={[mockFlowLocation({ component: 'project:main.js' })]}
-      onIssueChange={jest.fn()}
       onLoaded={jest.fn()}
       onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}

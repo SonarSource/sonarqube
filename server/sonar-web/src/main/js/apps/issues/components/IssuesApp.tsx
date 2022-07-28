@@ -1099,7 +1099,6 @@ export class App extends React.PureComponent<Props, State> {
                   branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
                   issues={issues}
                   locationsNavigator={this.state.locationsNavigator}
-                  onIssueChange={this.handleIssueChange}
                   onIssueSelect={this.openIssue}
                   onLocationSelect={this.selectLocation}
                   openIssue={openIssue}
@@ -1109,6 +1108,8 @@ export class App extends React.PureComponent<Props, State> {
               }
               issue={openIssue}
               ruleDetails={openRuleDetails}
+              branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+              onIssueChange={this.handleIssueChange}
             />
           ) : (
             <DeferredSpinner loading={loading}>

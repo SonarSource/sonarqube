@@ -106,6 +106,7 @@ export default class IssueView extends React.PureComponent<Props> {
           togglePopup={this.props.togglePopup}
         />
         <IssueActionsBar
+          className="padded-left"
           currentPopup={currentPopup}
           issue={issue}
           onAssign={this.props.onAssign}

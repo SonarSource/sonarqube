@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';
@@ -35,6 +36,7 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
+  className?: string;
 }
 
 interface State {
@@ -86,7 +88,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { issue } = this.props;
+    const { issue, className } = this.props;
     const canAssign = issue.actions.includes('assign');
     const canComment = issue.actions.includes('comment');
     const canSetSeverity = issue.actions.includes('set_severity');
@@ -96,7 +98,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
 
     return (
-      <div className="issue-actions">
+      <div className={classNames(className, 'issue-actions')}>
         <div className="issue-meta-list">
           <div className="issue-meta">
             <IssueType

@@ -17,22 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { colors } from '../../app/theme';
-import { Issue as TypeIssue } from '../../types/types';
+import { Issue } from '../../types/types';
 import IssueTypeIcon from '../icons/IssueTypeIcon';
 import './Issue.css';
 
-export interface SecondaryIssueProps {
-  issue: TypeIssue;
+export interface IssueMessageBoxProps {
+  selected: boolean;
+  issue: Issue;
   onClick: (issueKey: string) => void;
 }
 
-export default function SecondaryIssue(props: SecondaryIssueProps) {
-  const { issue } = props;
+export default function IssueMessageBox(props: IssueMessageBoxProps) {
+  const { issue, selected } = props;
   return (
     <div
-      className="issue display-flex-row display-flex-center padded-right secondary-issue"
+      className={classNames('issue-message-box display-flex-row display-flex-center padded-right', {
+        'selected big-padded-top big-padded-bottom': selected,
+        'secondary-issue padded-top padded-bottom': !selected
+      })}
       key={issue.key}
       onClick={() => props.onClick(issue.key)}
       role="region"
