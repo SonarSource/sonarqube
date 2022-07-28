@@ -201,6 +201,7 @@ exports[`should disable links if no analysis has been done 1`] = `
     <li>
       <a
         className="menu-button"
+        href="#"
         onClick={[Function]}
         role="button"
         tabIndex={0}
@@ -434,6 +435,7 @@ exports[`should work for a branch 1`] = `
     <li>
       <a
         className="menu-button"
+        href="#"
         onClick={[Function]}
         role="button"
         tabIndex={0}
@@ -554,6 +556,7 @@ exports[`should work for a branch 2`] = `
     <li>
       <a
         className="menu-button"
+        href="#"
         onClick={[Function]}
         role="button"
         tabIndex={0}
@@ -862,6 +865,7 @@ exports[`should work for qualifier: APP, false 1`] = `
     <li>
       <a
         className="menu-button"
+        href="#"
         onClick={[Function]}
         role="button"
         tabIndex={0}
@@ -1158,6 +1162,7 @@ exports[`should work for qualifier: TRK, false 1`] = `
     <li>
       <a
         className="menu-button"
+        href="#"
         onClick={[Function]}
         role="button"
         tabIndex={0}

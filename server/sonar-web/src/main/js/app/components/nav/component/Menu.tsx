@@ -354,6 +354,7 @@ export class Menu extends React.PureComponent<Props> {
               e.currentTarget.blur();
               this.props.onToggleProjectInfo();
             }}
+            href="#"
             role="button"
             tabIndex={0}>
             <BulletListIcon className="little-spacer-right" />
