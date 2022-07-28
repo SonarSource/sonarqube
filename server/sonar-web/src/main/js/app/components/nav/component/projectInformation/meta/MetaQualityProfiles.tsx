@@ -91,7 +91,7 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
 
     const inner = (
       <div className="text-ellipsis">
-        <span className="note spacer-right">({languageName})</span>
+        <span className="spacer-right">({languageName})</span>
         {profile.deleted ? (
           profile.name
         ) : (

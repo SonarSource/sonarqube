@@ -19,7 +19,7 @@ exports[`should render correctly 1`] = `
           className="text-ellipsis"
         >
           <span
-            className="note spacer-right"
+            className="spacer-right"
           >
             (
             js
@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
         className="text-ellipsis"
       >
         <span
-          className="note spacer-right"
+          className="spacer-right"
         >
           (
           CSS
@@ -81,7 +81,7 @@ exports[`should render correctly 2`] = `
           className="text-ellipsis"
         >
           <span
-            className="note spacer-right"
+            className="spacer-right"
           >
             (
             js
@@ -102,7 +102,7 @@ exports[`should render correctly 2`] = `
           className="text-ellipsis"
         >
           <span
-            className="note spacer-right"
+            className="spacer-right"
           >
             (
             CSS
