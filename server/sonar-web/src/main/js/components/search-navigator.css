@@ -323,7 +323,7 @@ a.search-navigator-facet:focus,
 
 .search-navigator-facet-header > a:focus,
 .search-navigator-facet-header > a:hover {
-  color: var(--blue);
+  color: var(--darkBlue);
 }
 
 .search-navigator-facet-header > .note {
