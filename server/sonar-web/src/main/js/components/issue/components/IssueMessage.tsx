@@ -88,9 +88,7 @@ export default function IssueMessage(props: IssueMessageProps) {
               }
             ]}>
             <span className="spacer-right badge badge-error">
-              {ruleStatus === RuleStatus.Deprecated
-                ? translate('issue.resolution.DEPRECATED.rule_deprecated')
-                : translate('issue.resolution.REMOVED.rule_removed')}
+              {translate('issue.resolution.badge', ruleStatus)}
             </span>
           </DocumentationTooltip>
         )}

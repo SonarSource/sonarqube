@@ -60,7 +60,7 @@ exports[`should render correctly: is deprecated rule 1`] = `
       <span
         className="spacer-right badge badge-error"
       >
-        issue.resolution.DEPRECATED.rule_deprecated
+        issue.resolution.badge.DEPRECATED
       </span>
     </DocumentationTooltip>
   </div>
@@ -129,7 +129,7 @@ exports[`should render correctly: is removed rule 1`] = `
       <span
         className="spacer-right badge badge-error"
       >
-        issue.resolution.REMOVED.rule_removed
+        issue.resolution.badge.REMOVED
       </span>
     </DocumentationTooltip>
   </div>

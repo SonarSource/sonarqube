@@ -18,18 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 import { deleteIssueComment, editIssueComment, setIssueAssignee } from '../../../api/issues';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
+import Tooltip from '../../../components/controls/Tooltip';
 import LinkIcon from '../../../components/icons/LinkIcon';
+import SonarLintIcon from '../../../components/icons/SonarLintIcon';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
 import IssueChangelog from '../../../components/issue/components/IssueChangelog';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getComponentIssuesUrl, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { RuleStatus } from '../../../types/rules';
 import { Issue, RuleDetails } from '../../../types/types';
 
 interface Props {
@@ -122,10 +127,66 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
       open: issue.key,
       types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined
     });
+    const ruleStatus = issue.ruleStatus as RuleStatus | undefined;
+    const ruleEngine = issue.externalRuleEngine;
+    const manualVulnerability = issue.fromHotspot && issue.type === 'VULNERABILITY';
+    const { quickFixAvailable } = issue;
+
     return (
       <>
         <div className="display-flex-center display-flex-space-between big-padded-top">
-          <h1 className="text-bold">{issue.message}</h1>
+          <h1 className="text-bold spacer-right">
+            {issue.message}
+            {quickFixAvailable && (
+              <Tooltip
+                overlay={
+                  <FormattedMessage
+                    id="issue.quick_fix_available_with_sonarlint"
+                    defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}
+                    values={{
+                      link: (
+                        <a
+                          href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
+                          rel="noopener noreferrer"
+                          target="_blank">
+                          SonarLint
+                        </a>
+                      )
+                    }}
+                  />
+                }
+                mouseLeaveDelay={0.5}>
+                <SonarLintIcon className="it__issues-sonarlint-quick-fix" size={20} />
+              </Tooltip>
+            )}
+          </h1>
+          {(ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
+            <DocumentationTooltip
+              content={translate('rules.status', ruleStatus, 'help')}
+              links={[
+                {
+                  href: '/documentation/user-guide/rules/',
+                  label: translateWithParameters('see_x', translate('rules'))
+                }
+              ]}>
+              <span className="badge spacer-right badge-error">
+                {translate('issue.resolution.badge', ruleStatus)}
+              </span>
+            </DocumentationTooltip>
+          )}
+          {ruleEngine && (
+            <Tooltip
+              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
+              <div className="badge spacer-right text-baseline">{ruleEngine}</div>
+            </Tooltip>
+          )}
+          {manualVulnerability && (
+            <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
+              <div className="badge spacer-right text-baseline">
+                {translate('issue.manual_vulnerability')}
+              </div>
+            </Tooltip>
+          )}
           <div className="issue-meta issue-get-perma-link">
             <Link
               className="js-issue-permalink link-no-underline"
