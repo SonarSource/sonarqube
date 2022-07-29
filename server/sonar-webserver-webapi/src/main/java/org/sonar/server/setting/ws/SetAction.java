@@ -111,13 +111,13 @@ public class SetAction implements SettingsWsAction {
 
     action.createParam(PARAM_KEY)
       .setDescription("Setting key")
-      .setExampleValue("sonar.links.scm")
+      .setExampleValue("sonar.core.serverBaseURL")
       .setRequired(true);
 
     action.createParam(PARAM_VALUE)
       .setMaximumLength(VALUE_MAXIMUM_LENGTH)
       .setDescription("Setting value. To reset a value, please use the reset web service.")
-      .setExampleValue("git@github.com:SonarSource/sonarqube.git");
+      .setExampleValue("http://my-sonarqube-instance.com");
 
     action.createParam(PARAM_VALUES)
       .setDescription("Setting multi value. To set several values, the parameter must be called once for each value.")
