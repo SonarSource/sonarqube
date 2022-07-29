@@ -19,10 +19,9 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { ButtonLink } from '../../components/controls/buttons';
 import Tooltip from '../../components/controls/Tooltip';
 import { RATING_COLORS } from '../../helpers/constants';
-import { translate } from '../../helpers/l10n';
+import { translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import './ColorBoxLegend.css';
 
@@ -37,27 +36,36 @@ const RATINGS = [1, 2, 3, 4, 5];
 export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
   const { className, filters } = props;
   return (
-    <div className={classNames('color-box-legend', className)}>
+    <ul className={classNames('color-box-legend', className)}>
       {RATINGS.map(rating => (
-        <Tooltip key={rating} overlay={translate('component_measures.legend.help')}>
-          <ButtonLink
-            className={classNames('little-padded-bottom', {
-              filtered: filters[rating]
-            })}
-            onClick={() => props.onRatingClick(rating)}
-            type="button">
-            <span
-              className="color-box-legend-rect"
-              style={{ borderColor: RATING_COLORS[rating - 1] }}>
+        <li key={rating}>
+          <Tooltip
+            overlay={translateWithParameters(
+              'component_measures.legend.help_x',
+              formatMeasure(rating, 'RATING')
+            )}>
+            <a
+              aria-checked={!filters[rating]}
+              className={classNames('little-padded-bottom', {
+                filtered: filters[rating]
+              })}
+              href="#"
+              onClick={() => props.onRatingClick(rating)}
+              role="checkbox"
+              tabIndex={0}>
               <span
-                className="color-box-legend-rect-inner"
-                style={{ backgroundColor: RATING_COLORS[rating - 1] }}
-              />
-            </span>
-            {formatMeasure(rating, 'RATING')}
-          </ButtonLink>
-        </Tooltip>
+                className="color-box-legend-rect"
+                style={{ borderColor: RATING_COLORS[rating - 1] }}>
+                <span
+                  className="color-box-legend-rect-inner"
+                  style={{ backgroundColor: RATING_COLORS[rating - 1] }}
+                />
+              </span>
+              {formatMeasure(rating, 'RATING')}
+            </a>
+          </Tooltip>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

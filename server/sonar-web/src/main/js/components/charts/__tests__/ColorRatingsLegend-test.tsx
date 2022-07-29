@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/dom';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import ColorRatingsLegend, { ColorRatingsLegendProps } from '../ColorRatingsLegend';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  renderColorRatingsLegend();
+  expect(screen.getByRole('checkbox', { name: 'A' })).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'B' })).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'C' })).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'D' })).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'E' })).toBeInTheDocument();
 });
 
-it('should callback when a rating is clicked', () => {
+it('should react when a rating is clicked', () => {
   const onRatingClick = jest.fn();
-  const wrapper = shallowRender({ onRatingClick });
+  renderColorRatingsLegend({ onRatingClick });
 
-  wrapper
-    .find(ButtonLink)
-    .at(3)
-    .simulate('click');
-
+  screen.getByRole('checkbox', { name: 'D' }).click();
   expect(onRatingClick).toBeCalledWith(4);
 });
 
-function shallowRender(overrides: Partial<ColorRatingsLegendProps> = {}) {
-  return shallow(
-    <ColorRatingsLegend filters={{ 2: true }} onRatingClick={jest.fn()} {...overrides} />
+function renderColorRatingsLegend(props: Partial<ColorRatingsLegendProps> = {}) {
+  return renderComponent(
+    <ColorRatingsLegend filters={{ 2: true }} onRatingClick={jest.fn()} {...props} />
   );
 }

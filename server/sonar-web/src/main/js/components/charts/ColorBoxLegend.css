@@ -44,12 +44,12 @@
   opacity: 1;
 }
 
-.color-box-legend button {
+.color-box-legend a {
   color: var(--baseFontColor);
   border-bottom: none;
   display: block;
 }
 
-.color-box-legend button.filtered {
+.color-box-legend a.filtered {
   opacity: 0.3;
 }
