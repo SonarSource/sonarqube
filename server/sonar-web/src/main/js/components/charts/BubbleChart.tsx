@@ -27,7 +27,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { translate } from '../../helpers/l10n';
-import { convertToTo, Location } from '../../helpers/urls';
 import Tooltip from '../controls/Tooltip';
 import './BubbleChart.css';
 
@@ -36,7 +35,6 @@ const TICKS_COUNT = 5;
 interface BubbleItem<T> {
   color?: string;
   key?: string;
-  link?: string | Location;
   data?: T;
   size: number;
   tooltip?: React.ReactNode;
@@ -283,7 +281,6 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
           color={item.color}
           data={item.data}
           key={item.key || index}
-          link={item.link}
           onClick={this.props.onBubbleClick}
           r={sizeScale(item.size)}
           scale={1 / transform.k}
@@ -347,7 +344,6 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
 
 interface BubbleProps<T> {
   color?: string;
-  link?: string | Location;
   onClick?: (ref?: T) => void;
   data?: T;
   r: number;
@@ -358,7 +354,7 @@ interface BubbleProps<T> {
 }
 
 function Bubble<T>(props: BubbleProps<T>) {
-  const handleClick = (e: React.MouseEvent<SVGCircleElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (props.onClick) {
       e.stopPropagation();
       e.preventDefault();
@@ -366,23 +362,16 @@ function Bubble<T>(props: BubbleProps<T>) {
     }
   };
 
-  let circle = (
-    <circle
-      className="bubble-chart-bubble"
-      onClick={props.onClick ? handleClick : undefined}
-      r={props.r}
-      style={{ fill: props.color, stroke: props.color }}
-      transform={`translate(${props.x}, ${props.y}) scale(${props.scale})`}
-    />
+  const circle = (
+    <a onClick={handleClick} href="#">
+      <circle
+        className="bubble-chart-bubble"
+        r={props.r}
+        style={{ fill: props.color, stroke: props.color }}
+        transform={`translate(${props.x}, ${props.y}) scale(${props.scale})`}
+      />
+    </a>
   );
 
-  if (props.link && !props.onClick) {
-    circle = <Link to={convertToTo(props.link)}>{circle}</Link>;
-  }
-
-  return (
-    <Tooltip overlay={props.tooltip || undefined}>
-      <g>{circle}</g>
-    </Tooltip>
-  );
+  return <Tooltip overlay={props.tooltip || undefined}>{circle}</Tooltip>;
 }

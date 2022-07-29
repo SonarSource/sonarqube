@@ -59,8 +59,8 @@ it('should display bubbles', () => {
 it('should render bubble links', () => {
   const wrapper = shallowRender({
     items: [
-      { x: 1, y: 10, size: 7, link: 'foo' },
-      { x: 2, y: 30, size: 5, link: 'bar' }
+      { x: 1, y: 10, size: 7 },
+      { x: 2, y: 30, size: 5 }
     ]
   });
   wrapper
@@ -80,7 +80,7 @@ it('should render bubbles with click handlers', () => {
     .dive()
     .find('Bubble')
     .forEach(bubble => {
-      click(bubble.dive().find('circle'));
+      click(bubble.dive().find('a'));
       expect(bubble.dive()).toMatchSnapshot();
     });
   expect(onBubbleClick).toBeCalledTimes(2);
