@@ -48,7 +48,7 @@ public class SonarLintClientsRegistryTest {
 
   private final AsyncContext defaultAsyncContext = mock(AsyncContext.class);
 
-  private final Set<String> exampleKeys = Set.of("project1", "project2", "project3");
+  private final Set<String> exampleProjectUuids = Set.of("project1", "project2", "project3");
   private final Set<String> languageKeys = Set.of("language1", "language2", "language3");
   private final String USER_UUID = "userUuid";
   private final ServletResponse response = mock(ServletResponse.class);
@@ -83,7 +83,7 @@ public class SonarLintClientsRegistryTest {
   public void registering10Clients_10ClientsAreRegistered() {
     for (int i = 0; i < 10; i++) {
       AsyncContext newAsyncContext = mock(AsyncContext.class);
-      SonarLintClient sonarLintClient = new SonarLintClient(newAsyncContext, exampleKeys, languageKeys, USER_UUID);
+      SonarLintClient sonarLintClient = new SonarLintClient(newAsyncContext, exampleProjectUuids, languageKeys, USER_UUID);
       underTest.registerClient(sonarLintClient);
     }
 
@@ -95,7 +95,7 @@ public class SonarLintClientsRegistryTest {
     Set<String> javaLanguageKey = Set.of("java");
     when(defaultAsyncContext.getResponse()).thenReturn(response);
     when(response.getOutputStream()).thenReturn(outputStream);
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleKeys, javaLanguageKey, USER_UUID);
+    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleProjectUuids, javaLanguageKey, USER_UUID);
 
     underTest.registerClient(sonarLintClient);
 
@@ -136,7 +136,7 @@ public class SonarLintClientsRegistryTest {
     Set<String> jsLanguageKey = Set.of("js");
     when(defaultAsyncContext.getResponse()).thenReturn(response);
     when(response.getOutputStream()).thenReturn(outputStream);
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleKeys, jsLanguageKey, USER_UUID);
+    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleProjectUuids, jsLanguageKey, USER_UUID);
 
     underTest.registerClient(sonarLintClient);
 
@@ -163,7 +163,7 @@ public class SonarLintClientsRegistryTest {
     underTest.broadcastMessage(event1);
     underTest.broadcastMessage(event2);
 
-    verify(permissionsValidator, times(1)).validateUserCanReceivePushEventForProjects(anyString(), argument.capture());
+    verify(permissionsValidator, times(1)).validateUserCanReceivePushEventForProjectUuids(anyString(), argument.capture());
     assertThat(argument.getValue()).hasSize(1).contains("projA");
   }
 
@@ -171,7 +171,7 @@ public class SonarLintClientsRegistryTest {
   public void listen_givenUserNotPermittedToReceiveEvent_closeConnection() {
     SonarLintClient sonarLintClient = createSampleSLClient();
     underTest.registerClient(sonarLintClient);
-    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjectUuids(anyString(), anySet());
 
     SonarLintPushEvent event = new SonarLintPushEvent(EVENT_NAME, "data".getBytes(StandardCharsets.UTF_8), "project1", "java");
 
@@ -207,7 +207,7 @@ public class SonarLintClientsRegistryTest {
 
     underTest.broadcastMessage(event);
 
-    verify(permissionsValidator, times(1)).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    verify(permissionsValidator, times(1)).validateUserCanReceivePushEventForProjectUuids(anyString(), anySet());
     verify(sonarLintClient, times(1)).writeAndFlush(anyString());
   }
 
@@ -220,7 +220,7 @@ public class SonarLintClientsRegistryTest {
 
     underTest.broadcastMessage(event);
 
-    verify(permissionsValidator, times(0)).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    verify(permissionsValidator, times(0)).validateUserCanReceivePushEventForProjectUuids(anyString(), anySet());
     verify(sonarLintClient, times(0)).close();
     verify(sonarLintClient, times(0)).writeAndFlush(anyString());
   }
@@ -231,7 +231,7 @@ public class SonarLintClientsRegistryTest {
 
     SonarLintClient sonarLintClient = createSampleSLClient();
     underTest.registerClient(sonarLintClient);
-    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjects(anyString(), anySet());
+    doThrow(new ForbiddenException("Access forbidden")).when(permissionsValidator).validateUserCanReceivePushEventForProjectUuids(anyString(), anySet());
 
     underTest.broadcastMessage(event);
 
@@ -267,7 +267,7 @@ public class SonarLintClientsRegistryTest {
   private SonarLintClient createSampleSLClient() {
     SonarLintClient mock = mock(SonarLintClient.class);
     when(mock.getLanguages()).thenReturn(Set.of("java"));
-    when(mock.getClientProjectKeys()).thenReturn(exampleKeys);
+    when(mock.getClientProjectUuids()).thenReturn(exampleProjectUuids);
     when(mock.getUserUuid()).thenReturn("userUuid");
     return mock;
   }

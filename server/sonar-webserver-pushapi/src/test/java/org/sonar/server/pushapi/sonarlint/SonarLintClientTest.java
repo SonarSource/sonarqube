@@ -58,7 +58,7 @@ public class SonarLintClientTest {
   }
 
   @Test
-  public void equals_twoClientsWithDifferentProjectKeys() {
+  public void equals_twoClientsWithDifferentProjectUuids() {
     SonarLintClient first = new SonarLintClient(firstContext, Set.of("project1", "project2"), Set.of(), USER_UUID);
     SonarLintClient second = new SonarLintClient(firstContext, Set.of("project1"), Set.of(), USER_UUID);
 

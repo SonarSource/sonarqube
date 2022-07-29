@@ -21,7 +21,6 @@ package org.sonar.server.pushapi.sonarlint;
 
 import java.util.List;
 import java.util.Set;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
@@ -43,7 +42,7 @@ public class SonarLintClientPermissionsValidatorTest {
 
   private final static String USER_UUID = "USER_UUID";
 
-  private final Set<String> exampleProjectKeys = Set.of("project1", "project2");
+  private final Set<String> exampleProjectuuids = Set.of("project1", "project2");
   private final List<ProjectDto> projectDtos = List.of(mock(ProjectDto.class), mock(ProjectDto.class));
   private final DbClient dbClient = mock(DbClient.class);
   private final UserSessionFactory userSessionFactory = mock(UserSessionFactory.class);
@@ -59,6 +58,7 @@ public class SonarLintClientPermissionsValidatorTest {
     when(dbClient.projectDao()).thenReturn(projectDao);
     when(userSessionFactory.create(any())).thenReturn(userSession);
     when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(projectDtos);
+    when(projectDao.selectByUuids(any(), any())).thenReturn(projectDtos);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class SonarLintClientPermissionsValidatorTest {
     when(userDao.selectByUuid(any(), any())).thenReturn(userDto);
     when(userSession.isActive()).thenReturn(true);
 
-    assertThatCode(() -> underTest.validateUserCanReceivePushEventForProjects(USER_UUID, exampleProjectKeys))
+    assertThatCode(() -> underTest.validateUserCanReceivePushEventForProjectUuids(USER_UUID, exampleProjectuuids))
       .doesNotThrowAnyException();
   }
 
@@ -78,7 +78,7 @@ public class SonarLintClientPermissionsValidatorTest {
     when(userSession.isActive()).thenReturn(false);
 
     assertThrows(ForbiddenException.class,
-      () -> underTest.validateUserCanReceivePushEventForProjects(USER_UUID, exampleProjectKeys));
+      () -> underTest.validateUserCanReceivePushEventForProjectUuids(USER_UUID, exampleProjectuuids));
   }
 
   @Test
@@ -89,6 +89,6 @@ public class SonarLintClientPermissionsValidatorTest {
     when(userSession.checkProjectPermission(any(), any())).thenThrow(ForbiddenException.class);
 
     assertThrows(ForbiddenException.class,
-      () -> underTest.validateUserCanReceivePushEventForProjects(USER_UUID, exampleProjectKeys));
+      () -> underTest.validateUserCanReceivePushEventForProjectUuids(USER_UUID, exampleProjectuuids));
   }
 }

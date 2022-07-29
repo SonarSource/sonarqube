@@ -28,18 +28,18 @@ public class SonarLintPushEvent {
 
   private final String name;
   private final byte[] data;
-  private final String projectKey;
+  private final String projectUuid;
   private final String language;
 
-  public SonarLintPushEvent(String name, byte[] data, String projectKey, @Nullable String language) {
+  public SonarLintPushEvent(String name, byte[] data, String projectUuid, @Nullable String language) {
     this.name = name;
     this.data = data;
-    this.projectKey = projectKey;
+    this.projectUuid = projectUuid;
     this.language = language;
   }
 
-  public String getProjectKey() {
-    return projectKey;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   @CheckForNull

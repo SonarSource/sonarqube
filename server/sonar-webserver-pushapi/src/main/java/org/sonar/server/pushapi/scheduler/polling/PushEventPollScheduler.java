@@ -23,12 +23,10 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
@@ -37,7 +35,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.pushapi.sonarlint.SonarLintClient;
 import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
@@ -95,16 +92,15 @@ public class PushEventPollScheduler implements Startable {
       lastPullTimestamp = getLastPullTimestamp();
     }
 
-    var projectKeys = getClientsProjectKeys(clients);
+    var projectUuids = getClientsProjectUuids(clients);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      var projectKeysByUuids = getProjectKeysByUuids(dbSession, projectKeys);
-      Deque<PushEventDto> events = getPushEvents(dbSession, projectKeysByUuids.keySet());
+      Deque<PushEventDto> events = getPushEvents(dbSession, projectUuids);
 
       LOG.debug("Received {} push events, attempting to broadcast to {} registered clients.", events.size(),
         clients.size());
 
-      events.forEach(pushEventDto -> mapToSonarLintPushEvent(pushEventDto, projectKeysByUuids)
+      events.forEach(pushEventDto -> mapToSonarLintPushEvent(pushEventDto)
         .ifPresent(clientsRegistry::broadcastMessage));
 
       if (!events.isEmpty()) {
@@ -115,19 +111,14 @@ public class PushEventPollScheduler implements Startable {
     }
   }
 
-  private static Optional<SonarLintPushEvent> mapToSonarLintPushEvent(PushEventDto pushEventDto, Map<String, String> projectKeysByUuids) {
-    var resolvedProjectKey = projectKeysByUuids.get(pushEventDto.getProjectUuid());
-    if (resolvedProjectKey == null) {
-      LOG.debug("Could not find key for project with uuid [{}]", pushEventDto.getProjectUuid());
-      return Optional.empty();
-    }
-    return Optional.of(new SonarLintPushEvent(pushEventDto.getName(), pushEventDto.getPayload(), resolvedProjectKey,
+  private static Optional<SonarLintPushEvent> mapToSonarLintPushEvent(PushEventDto pushEventDto) {
+    return Optional.of(new SonarLintPushEvent(pushEventDto.getName(), pushEventDto.getPayload(), pushEventDto.getProjectUuid(),
       pushEventDto.getLanguage()));
   }
 
-  private static Set<String> getClientsProjectKeys(List<SonarLintClient> clients) {
+  private static Set<String> getClientsProjectUuids(List<SonarLintClient> clients) {
     return clients.stream()
-      .map(SonarLintClient::getClientProjectKeys)
+      .map(SonarLintClient::getClientProjectUuids)
       .flatMap(Collection::stream)
       .collect(Collectors.toSet());
   }
@@ -137,13 +128,6 @@ public class PushEventPollScheduler implements Startable {
       return new LinkedList<>();
     }
     return dbClient.pushEventDao().selectChunkByProjectUuids(dbSession, projectUuids, lastPullTimestamp, lastSeenUuid, getPageSize());
-  }
-
-  @NotNull
-  private Map<String, String> getProjectKeysByUuids(DbSession dbSession, Set<String> projectKeys) {
-    return dbClient.projectDao().selectProjectsByKeys(dbSession, projectKeys)
-      .stream()
-      .collect(Collectors.toMap(ProjectDto::getUuid, ProjectDto::getKey));
   }
 
   public long getInitialDelay() {

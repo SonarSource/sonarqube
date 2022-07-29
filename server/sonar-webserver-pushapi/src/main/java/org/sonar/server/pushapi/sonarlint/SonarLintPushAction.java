@@ -22,6 +22,7 @@ package org.sonar.server.pushapi.sonarlint;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.Request;
@@ -84,7 +85,7 @@ public class SonarLintPushAction extends ServerPushAction {
     var params = new SonarLintPushActionParamsValidator(request);
     params.validateParams();
 
-    permissionsValidator.validateUserCanReceivePushEventForProjects(userSession, params.projectKeys);
+    List<ProjectDto> projectDtos = permissionsValidator.validateUserCanReceivePushEventForProjects(userSession, params.projectKeys);
 
     if (!isServerSideEventsRequest(servletRequest)) {
       servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
@@ -96,7 +97,9 @@ public class SonarLintPushAction extends ServerPushAction {
     AsyncContext asyncContext = servletRequest.startAsync();
     asyncContext.setTimeout(0);
 
-    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages(), userSession.getUuid());
+    Set<String> projectUuids = projectDtos.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
+
+    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
 
     clientsRegistry.registerClient(sonarLintClient);
   }
@@ -111,10 +114,6 @@ public class SonarLintPushAction extends ServerPushAction {
       this.request = request;
       this.projectKeys = parseParam(PROJECT_PARAM_KEY);
       this.languages = parseParam(LANGUAGE_PARAM_KEY);
-    }
-
-    Set<String> getProjectKeys() {
-      return projectKeys;
     }
 
     Set<String> getLanguages() {

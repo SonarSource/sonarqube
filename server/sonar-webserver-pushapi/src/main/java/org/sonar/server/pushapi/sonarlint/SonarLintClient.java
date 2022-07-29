@@ -31,13 +31,13 @@ public class SonarLintClient extends ServerPushClient {
   private static final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
   private final Set<String> languages;
-  private final Set<String> projectKeys;
+  private final Set<String> projectUuids;
 
   private final String userUuid;
 
-  public SonarLintClient(AsyncContext asyncContext, Set<String> projectKeys, Set<String> languages, String userUuid) {
+  public SonarLintClient(AsyncContext asyncContext, Set<String> projectUuids, Set<String> languages, String userUuid) {
     super(scheduledExecutorService, asyncContext);
-    this.projectKeys = projectKeys;
+    this.projectUuids = projectUuids;
     this.languages = languages;
     this.userUuid = userUuid;
   }
@@ -46,8 +46,8 @@ public class SonarLintClient extends ServerPushClient {
     return languages;
   }
 
-  public Set<String> getClientProjectKeys() {
-    return projectKeys;
+  public Set<String> getClientProjectUuids() {
+    return projectUuids;
   }
 
   @Override
@@ -60,13 +60,13 @@ public class SonarLintClient extends ServerPushClient {
     }
     SonarLintClient that = (SonarLintClient) o;
     return languages.equals(that.languages)
-      && projectKeys.equals(that.projectKeys)
+      && projectUuids.equals(that.projectUuids)
       && asyncContext.equals(that.asyncContext);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(languages, projectKeys);
+    return Objects.hash(languages, projectUuids);
   }
 
   public String getUserUuid() {

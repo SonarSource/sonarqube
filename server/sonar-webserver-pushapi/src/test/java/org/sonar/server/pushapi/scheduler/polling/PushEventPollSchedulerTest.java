@@ -89,7 +89,7 @@ public class PushEventPollSchedulerTest {
     var project = db.components().insertPrivateProject();
 
     var sonarLintClient = mock(SonarLintClient.class);
-    when(sonarLintClient.getClientProjectKeys()).thenReturn(Set.of(project.getDbKey()));
+    when(sonarLintClient.getClientProjectUuids()).thenReturn(Set.of(project.uuid()));
     when(clientsRegistry.getClients()).thenReturn(List.of(sonarLintClient));
 
     var underTest = new PushEventPollScheduler(executorService, clientsRegistry, db.getDbClient(), system2, config);
@@ -106,7 +106,7 @@ public class PushEventPollSchedulerTest {
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);
-    when(sonarLintClient.getClientProjectKeys()).thenReturn(Set.of("not-existing-project-key"));
+    when(sonarLintClient.getClientProjectUuids()).thenReturn(Set.of("not-existing-project-uuid"));
     when(clientsRegistry.getClients()).thenReturn(List.of(sonarLintClient));
 
     var underTest = new PushEventPollScheduler(executorService, clientsRegistry, db.getDbClient(), system2, config);
@@ -128,7 +128,7 @@ public class PushEventPollSchedulerTest {
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);
-    when(sonarLintClient.getClientProjectKeys()).thenReturn(Set.of(project.getDbKey()));
+    when(sonarLintClient.getClientProjectUuids()).thenReturn(Set.of(project.uuid()));
     when(clientsRegistry.getClients()).thenReturn(List.of(sonarLintClient));
 
     var underTest = new PushEventPollScheduler(executorService, clientsRegistry, db.getDbClient(), system2, config);
@@ -164,7 +164,7 @@ public class PushEventPollSchedulerTest {
 
     system2.setNow(1L);
     var sonarLintClient = mock(SonarLintClient.class);
-    when(sonarLintClient.getClientProjectKeys()).thenReturn(Set.of(project.getDbKey()));
+    when(sonarLintClient.getClientProjectUuids()).thenReturn(Set.of(project.uuid()));
     when(clientsRegistry.getClients()).thenReturn(List.of(sonarLintClient), emptyList());
 
     var underTest = new PushEventPollScheduler(executorService, clientsRegistry, db.getDbClient(), system2, config);

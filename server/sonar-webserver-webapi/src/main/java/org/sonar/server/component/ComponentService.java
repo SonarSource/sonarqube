@@ -19,11 +19,14 @@
  */
 package org.sonar.server.component;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.project.Project;
@@ -31,12 +34,15 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.user.UserSession;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.checkProjectKey;
 
 @ServerSide
 public class ComponentService {
+  private static final Gson GSON = new GsonBuilder().create();
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
@@ -56,6 +62,23 @@ public class ComponentService {
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     Project newProject = new Project(project.getUuid(), newKey, project.getName(), project.getDescription(), project.getTags());
     projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, project.getKey())));
+    persistEvent(project, newKey);
+  }
+
+  private void persistEvent(ProjectDto project, String newProjectKey) {
+    ProjectKeyChangedEvent event = new ProjectKeyChangedEvent(project.getKey(), newProjectKey);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PushEventDto eventDto = new PushEventDto()
+        .setName("ProjectKeyChanged")
+        .setProjectUuid(project.getUuid())
+        .setPayload(serializeIssueToPushEvent(event));
+      dbClient.pushEventDao().insert(dbSession, eventDto);
+      dbSession.commit();
+    }
+  }
+
+  private static byte[] serializeIssueToPushEvent(ProjectKeyChangedEvent event) {
+    return GSON.toJson(event).getBytes(UTF_8);
   }
 
 }

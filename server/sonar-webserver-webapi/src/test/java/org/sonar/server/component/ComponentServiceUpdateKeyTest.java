@@ -19,6 +19,10 @@
  */
 package org.sonar.server.component;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Deque;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,6 +34,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -80,6 +85,17 @@ public class ComponentServiceUpdateKeyTest {
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isEmpty();
 
     assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+
+    Deque<PushEventDto> pushEvents = db.getDbClient().pushEventDao().selectChunkByProjectUuids(dbSession, Set.of(project.uuid()), 0L, "id", 20);
+
+    assertThat(pushEvents).isNotEmpty();
+
+    Optional<PushEventDto> event = pushEvents.stream().filter(e -> e.getProjectUuid().equals(project.uuid()) && e.getName().equals("ProjectKeyChanged")).findFirst();
+    assertThat(event).isNotEmpty();
+
+    String payload = new String(event.get().getPayload(), StandardCharsets.UTF_8);
+
+    assertThat(payload).isEqualTo("{\"oldProjectKey\":\"sample:root\",\"newProjectKey\":\"sample2:root\"}");
   }
 
   @Test
@@ -116,8 +132,8 @@ public class ComponentServiceUpdateKeyTest {
     String anotherProjectDbKey = anotherProject.getDbKey();
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto,
       anotherProjectDbKey))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Impossible to update key: a component with key \"" + anotherProjectDbKey + "\" already exists.");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Impossible to update key: a component with key \"" + anotherProjectDbKey + "\" already exists.");
   }
 
   @Test

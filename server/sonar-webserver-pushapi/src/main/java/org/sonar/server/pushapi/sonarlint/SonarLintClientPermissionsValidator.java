@@ -42,26 +42,36 @@ public class SonarLintClientPermissionsValidator {
     this.userSessionFactory = userSessionFactory;
   }
 
-  public void validateUserCanReceivePushEventForProjects(UserSession userSession, Set<String> projectKeys) {
+  public List<ProjectDto> validateUserCanReceivePushEventForProjects(UserSession userSession, Set<String> projectKeys) {
     List<ProjectDto> projectDtos;
     try (DbSession dbSession = dbClient.openSession(false)) {
       projectDtos = dbClient.projectDao().selectProjectsByKeys(dbSession, projectKeys);
     }
-    validateUsersDeactivationStatus(userSession);
-    for (ProjectDto projectDto : projectDtos) {
-      userSession.checkProjectPermission(UserRole.USER, projectDto);
-    }
+    validateProjectPermissions(userSession, projectDtos);
+    return projectDtos;
   }
 
-  public void validateUserCanReceivePushEventForProjects(String userUUID, Set<String> projectKeys) {
+  public void validateUserCanReceivePushEventForProjectUuids(String userUuid, Set<String> projectUuids) {
     UserDto userDto;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userDto = dbClient.userDao().selectByUuid(dbSession, userUUID);
+      userDto = dbClient.userDao().selectByUuid(dbSession, userUuid);
     }
     if (userDto == null) {
       throw new ForbiddenException("User does not exist");
     }
-    validateUserCanReceivePushEventForProjects(userSessionFactory.create(userDto), projectKeys);
+    UserSession userSession = userSessionFactory.create(userDto);
+    List<ProjectDto> projectDtos;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      projectDtos = dbClient.projectDao().selectByUuids(dbSession, projectUuids);
+    }
+    validateProjectPermissions(userSession, projectDtos);
+  }
+
+  private static void validateProjectPermissions(UserSession userSession, List<ProjectDto> projectDtos) {
+    validateUsersDeactivationStatus(userSession);
+    for (ProjectDto projectDto : projectDtos) {
+      userSession.checkProjectPermission(UserRole.USER, projectDto);
+    }
   }
 
   private static void validateUsersDeactivationStatus(UserSession userSession) {

@@ -67,10 +67,10 @@ public class SonarLintClientsRegistry {
   public void broadcastMessage(SonarLintPushEvent event) {
     clients.stream().filter(client -> isRelevantEvent(event, client))
       .forEach(c -> {
-        Set<String> clientProjectKeys = new HashSet<>(c.getClientProjectKeys());
-        clientProjectKeys.retainAll(Set.of(event.getProjectKey()));
+        Set<String> clientProjectUuids = new HashSet<>(c.getClientProjectUuids());
+        clientProjectUuids.retainAll(Set.of(event.getProjectUuid()));
         try {
-          sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), clientProjectKeys);
+          sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjectUuids(c.getUserUuid(), clientProjectUuids);
           c.writeAndFlush(event.serialize());
         } catch (ForbiddenException forbiddenException) {
           logClientUnauthenticated(forbiddenException);
@@ -83,7 +83,7 @@ public class SonarLintClientsRegistry {
   }
 
   private static boolean isRelevantEvent(SonarLintPushEvent event, SonarLintClient client) {
-    return client.getClientProjectKeys().contains(event.getProjectKey())
+    return client.getClientProjectUuids().contains(event.getProjectUuid())
       && (!event.getName().equals("RuleSetChanged") || client.getLanguages().contains(event.getLanguage()));
   }
 
