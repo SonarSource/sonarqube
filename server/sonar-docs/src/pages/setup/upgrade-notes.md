@@ -9,10 +9,10 @@ url: /setup/upgrade-notes/
 * If your Microsoft SQL Server requires encryption but you don't want SonarQube to validate the certificate, you will need to add `trustServerCertificate=true` to the JDBC URL connection string.
 * If you are using Microsoft SQL Server with Integrated Authentication, you will need to replace the `mssql-jdbc_auth` dll file on your `PATH` with `mssql-jdbc_auth-10.2.1.x64.dll` from the  [Microsoft SQL JDBC Auth 10.2.1 package](https://github.com/microsoft/mssql-jdbc/releases/tag/v10.2.1). See [Install the Server](/setup/install-server/) for more information.
 
-**Token expiration dates**  
-Tokens can now have an optional expiration date. Expired tokens can no longer be used to interact with the WebAPI or to run an analysis on a project. System administrators using Enterprise Edition and above can now set a maximum lifetime for all newly generated tokens. See [Generating and Using Tokens](/user-guide/user-token/) and [Security](/instance-administration/security/) documentation for more information.
+**Token expiry**  
+New tokens can now have an optional expiration date. Expired tokens cannot be used and must be updated. With [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html), system administrators can set a maximum lifetime for new tokens. See [Security](/instance-administration/security/) documentation for more information. ([SONAR-16565](https://sonarsource.atlassian.net/browse/SONAR-16565), [SONAR-16566](https://sonarsource.atlassian.net/browse/SONAR-16566)).
 
-[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17429)
+[Full release notes](https://sonarsource.atlassian.net/browse/SONAR-16563?jql=project%3D10139%20AND%20fixVersion%3D12631)
 
 ## Release 9.5 Upgrade notes
 **Project analysis token**  
