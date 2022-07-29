@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display two facets 1`] = `
-<div>
+<nav
+  aria-label="secondary"
+>
   <A11ySkipTarget
     anchor="measures_filters"
     label="component_measures.skip_to_filters"
@@ -87,5 +89,5 @@ exports[`should display two facets 1`] = `
     selected="duplicated_lines_density"
     showFullMeasures={true}
   />
-</div>
+</nav>
 `;

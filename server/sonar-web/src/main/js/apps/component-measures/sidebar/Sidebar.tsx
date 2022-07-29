@@ -58,7 +58,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   render() {
     const { showFullMeasures } = this.props;
     return (
-      <div>
+      <nav aria-label={translate('secondary')}>
         <A11ySkipTarget
           anchor="measures_filters"
           label={translate('component_measures.skip_to_filters')}
@@ -80,7 +80,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
             showFullMeasures={showFullMeasures}
           />
         ))}
-      </div>
+      </nav>
     );
   }
 }
