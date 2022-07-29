@@ -21,7 +21,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockRouter } from '../../../../helpers/testMocks';
-import { elementKeydown, keydown } from '../../../../helpers/testUtils';
+import { keydown } from '../../../../helpers/testUtils';
 import { queryToSearch } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
@@ -68,7 +68,7 @@ it('opens selected project on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
+  keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toBeCalledWith({
     pathname: '/dashboard',
     search: queryToSearch({ id: selectedKey })
@@ -87,7 +87,7 @@ it('opens selected portfolio on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
+  keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toBeCalledWith({
     pathname: '/portfolio',
     search: queryToSearch({ id: selectedKey })
@@ -106,7 +106,7 @@ it('opens selected subportfolio on enter', () => {
     selected: selectedKey
   });
 
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.Enter);
+  keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toBeCalledWith({
     pathname: '/portfolio',
     search: queryToSearch({ id: selectedKey })
@@ -128,15 +128,31 @@ it('should open the results when pressing key S and close it when pressing Escap
   expect(form.state().open).toBe(false);
   keydown({ key: KeyboardKeys.KeyS });
   expect(form.state().open).toBe(true);
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.Escape);
+  keydown({ key: KeyboardKeys.Escape });
   expect(form.state().open).toBe(false);
 });
 
+it('should ignore keyboard navigation when closed', () => {
+  const wrapper = shallowRender();
+
+  keydown({ key: KeyboardKeys.DownArrow });
+
+  expect(wrapper.state().selected).toBeUndefined();
+  expect(wrapper.state().open).toBe(false);
+
+  keydown({ key: KeyboardKeys.UpArrow });
+
+  expect(wrapper.state().selected).toBeUndefined();
+  expect(wrapper.state().open).toBe(false);
+
+  keydown({ key: KeyboardKeys.Enter });
+
+  expect(wrapper.state().selected).toBeUndefined();
+  expect(wrapper.state().open).toBe(false);
+});
+
 function shallowRender(props: Partial<Search['props']> = {}) {
-  return shallow<Search>(
-    // @ts-ignore
-    <Search currentUser={{ isLoggedIn: false }} {...props} />
-  );
+  return shallow<Search>(<Search router={mockRouter()} {...props} />);
 }
 
 function component(key: string, qualifier = ComponentQualifier.Project) {
@@ -144,12 +160,12 @@ function component(key: string, qualifier = ComponentQualifier.Project) {
 }
 
 function next(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.DownArrow);
+  keydown({ key: KeyboardKeys.DownArrow });
   expect(form.state().selected).toBe(expected);
 }
 
 function prev(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
-  elementKeydown(form.find('SearchBox'), KeyboardKeys.UpArrow);
+  keydown({ key: KeyboardKeys.UpArrow });
   expect(form.state().selected).toBe(expected);
 }
 

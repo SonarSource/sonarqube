@@ -19,12 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import Tooltip from '../../../components/controls/Tooltip';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import FavoriteIcon from '../../../components/icons/FavoriteIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
-import { Dict } from '../../../types/types';
 import { ComponentResult } from './utils';
 
 interface Props {
@@ -32,65 +30,11 @@ interface Props {
   innerRef: (componentKey: string, node: HTMLElement | null) => void;
   onClose: () => void;
   onSelect: (componentKey: string) => void;
-  projects: Dict<{ name: string }>;
   selected: boolean;
 }
-
-interface State {
-  tooltipVisible: boolean;
-}
-
-const TOOLTIP_DELAY = 1000;
-const MILLISECONDS_PER_SECOND = 1000;
-
-export default class SearchResult extends React.PureComponent<Props, State> {
-  interval?: number;
-  state: State = { tooltipVisible: false };
-
-  componentDidMount() {
-    if (this.props.selected) {
-      this.scheduleTooltip();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (!prevProps.selected && this.props.selected) {
-      this.scheduleTooltip();
-    } else if (prevProps.selected && !this.props.selected) {
-      this.unscheduleTooltip();
-      this.setState({ tooltipVisible: false });
-    }
-  }
-
-  componentWillUnmount() {
-    this.unscheduleTooltip();
-  }
-
-  scheduleTooltip = () => {
-    this.interval = window.setTimeout(() => {
-      this.setState({ tooltipVisible: true });
-    }, TOOLTIP_DELAY);
-  };
-
-  unscheduleTooltip = () => {
-    if (this.interval) {
-      window.clearInterval(this.interval);
-    }
-  };
-
-  handleMouseEnter = () => {
+export default class SearchResult extends React.PureComponent<Props> {
+  doSelect = () => {
     this.props.onSelect(this.props.component.key);
-  };
-
-  renderProject = (component: ComponentResult) => {
-    if (component.project == null) {
-      return null;
-    }
-
-    const project = this.props.projects[component.project];
-    return project ? (
-      <div className="navbar-search-item-right text-muted-2">{project.name}</div>
-    ) : null;
   };
 
   render() {
@@ -105,13 +49,9 @@ export default class SearchResult extends React.PureComponent<Props, State> {
         ref={node => this.props.innerRef(component.key, node)}
         role="option"
         aria-selected={this.props.selected}>
-        <Tooltip
-          mouseEnterDelay={TOOLTIP_DELAY / MILLISECONDS_PER_SECOND}
-          overlay={component.key}
-          placement="left"
-          visible={this.state.tooltipVisible}>
-          <Link data-key={component.key} onClick={this.props.onClose} to={to}>
-            <span className="navbar-search-item-link" onMouseEnter={this.handleMouseEnter}>
+        <Link data-key={component.key} onClick={this.props.onClose} onFocus={this.doSelect} to={to}>
+          <div className="navbar-search-item-link little-padded-top" onMouseEnter={this.doSelect}>
+            <div className="display-flex-center">
               <span className="navbar-search-item-icons little-spacer-right">
                 {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}
                 {!component.isFavorite && component.isRecentlyBrowsed && <ClockIcon size={12} />}
@@ -128,11 +68,11 @@ export default class SearchResult extends React.PureComponent<Props, State> {
               ) : (
                 <span className="navbar-search-item-match">{component.name}</span>
               )}
+            </div>
 
-              {this.renderProject(component)}
-            </span>
-          </Link>
-        </Tooltip>
+            <div className="navbar-search-item-right text-muted-2">{component.key}</div>
+          </div>
+        </Link>
       </li>
     );
   }

@@ -75,10 +75,6 @@
   font-size: var(--mediumFontSize);
 }
 
-.navbar-search-item-link {
-  display: flex !important;
-}
-
 .navbar-search-item-match {
   flex-grow: 5;
   overflow: hidden;
@@ -86,9 +82,9 @@
 }
 
 .navbar-search-item-right {
-  flex-grow: 1;
-  padding-left: 10px;
   text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .navbar-search-item-icons {

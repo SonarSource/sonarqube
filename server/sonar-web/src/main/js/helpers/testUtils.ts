@@ -102,28 +102,6 @@ export function keydown(args: { key?: KeyboardKeys; metaKey?: boolean; ctrlKey?:
   document.dispatchEvent(event);
 }
 
-export function elementKeydown(element: ShallowWrapper, key: KeyboardKeys): void {
-  const event = {
-    currentTarget: { element },
-    nativeEvent: {
-      key,
-      stopImmediatePropagation: () => {
-        /* noop */
-      }
-    },
-    preventDefault() {
-      /*noop*/
-    }
-  };
-
-  if (typeof element.type() === 'string') {
-    // `type()` is string for native dom elements
-    element.simulate('keydown', event);
-  } else {
-    element.prop<Function>('onKeyDown')(event);
-  }
-}
-
 export function resizeWindowTo(width?: number, height?: number) {
   // `document.documentElement.clientHeight/clientWidth` are getters by default,
   // so we need to redefine them. Pass `configurable: true` to allow to redefine

@@ -22,15 +22,6 @@ import * as React from 'react';
 import { ComponentQualifier } from '../../../../types/component';
 import SearchResult from '../SearchResult';
 
-beforeAll(() => {
-  jest.useFakeTimers();
-});
-
-afterAll(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
-
 it('renders selected', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
@@ -43,7 +34,7 @@ it('renders match', () => {
     key: 'foo',
     name: 'foo',
     match: 'f<mark>o</mark>o',
-    qualifier: 'TRK'
+    qualifier: ComponentQualifier.Project
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -54,7 +45,7 @@ it('renders favorite', () => {
     isFavorite: true,
     key: 'foo',
     name: 'foo',
-    qualifier: 'TRK'
+    qualifier: ComponentQualifier.Project
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -65,47 +56,19 @@ it('renders recently browsed', () => {
     isRecentlyBrowsed: true,
     key: 'foo',
     name: 'foo',
-    qualifier: 'TRK'
+    qualifier: ComponentQualifier.Project
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
-});
-
-it('renders projects', () => {
-  const component = {
-    isRecentlyBrowsed: true,
-    key: 'qwe',
-    name: 'qwe',
-    qualifier: ComponentQualifier.Project,
-    project: 'foo'
-  };
-  const wrapper = shallowRender({ component });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('shows tooltip after delay', () => {
-  const wrapper = shallowRender();
-  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
-
-  wrapper.setProps({ selected: true });
-  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
-
-  jest.runAllTimers();
-  wrapper.update();
-  expect(wrapper.find('Tooltip').prop('visible')).toBe(true);
-
-  wrapper.setProps({ selected: false });
-  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
 });
 
 function shallowRender(props: Partial<SearchResult['props']> = {}) {
   return shallow(
     <SearchResult
-      component={{ key: 'foo', name: 'foo', qualifier: 'TRK' }}
+      component={{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }}
       innerRef={jest.fn()}
       onClose={jest.fn()}
       onSelect={jest.fn()}
-      projects={{ foo: { name: 'foo' } }}
       selected={false}
       {...props}
     />

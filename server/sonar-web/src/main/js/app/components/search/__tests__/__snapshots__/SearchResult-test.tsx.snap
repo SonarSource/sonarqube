@@ -6,25 +6,23 @@ exports[`renders favorite 1`] = `
   key="foo"
   role="option"
 >
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="foo"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="foo"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=foo",
-        }
+  <Link
+    data-key="foo"
+    onClick={[MockFunction]}
+    onFocus={[Function]}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "search": "?id=foo",
       }
+    }
+  >
+    <div
+      className="navbar-search-item-link little-padded-top"
+      onMouseEnter={[Function]}
     >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      <div
+        className="display-flex-center"
       >
         <span
           className="navbar-search-item-icons little-spacer-right"
@@ -43,9 +41,14 @@ exports[`renders favorite 1`] = `
         >
           foo
         </span>
-      </span>
-    </Link>
-  </Tooltip>
+      </div>
+      <div
+        className="navbar-search-item-right text-muted-2"
+      >
+        foo
+      </div>
+    </div>
+  </Link>
 </li>
 `;
 
@@ -55,25 +58,23 @@ exports[`renders match 1`] = `
   key="foo"
   role="option"
 >
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="foo"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="foo"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=foo",
-        }
+  <Link
+    data-key="foo"
+    onClick={[MockFunction]}
+    onFocus={[Function]}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "search": "?id=foo",
       }
+    }
+  >
+    <div
+      className="navbar-search-item-link little-padded-top"
+      onMouseEnter={[Function]}
     >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      <div
+        className="display-flex-center"
       >
         <span
           className="navbar-search-item-icons little-spacer-right"
@@ -91,62 +92,14 @@ exports[`renders match 1`] = `
             }
           }
         />
-      </span>
-    </Link>
-  </Tooltip>
-</li>
-`;
-
-exports[`renders projects 1`] = `
-<li
-  aria-selected={false}
-  key="qwe"
-  role="option"
->
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="qwe"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="qwe"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=qwe",
-        }
-      }
-    >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      </div>
+      <div
+        className="navbar-search-item-right text-muted-2"
       >
-        <span
-          className="navbar-search-item-icons little-spacer-right"
-        >
-          <ClockIcon
-            size={12}
-          />
-          <QualifierIcon
-            className="little-spacer-right"
-            qualifier="TRK"
-          />
-        </span>
-        <span
-          className="navbar-search-item-match"
-        >
-          qwe
-        </span>
-        <div
-          className="navbar-search-item-right text-muted-2"
-        >
-          foo
-        </div>
-      </span>
-    </Link>
-  </Tooltip>
+        foo
+      </div>
+    </div>
+  </Link>
 </li>
 `;
 
@@ -156,25 +109,23 @@ exports[`renders recently browsed 1`] = `
   key="foo"
   role="option"
 >
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="foo"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="foo"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=foo",
-        }
+  <Link
+    data-key="foo"
+    onClick={[MockFunction]}
+    onFocus={[Function]}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "search": "?id=foo",
       }
+    }
+  >
+    <div
+      className="navbar-search-item-link little-padded-top"
+      onMouseEnter={[Function]}
     >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      <div
+        className="display-flex-center"
       >
         <span
           className="navbar-search-item-icons little-spacer-right"
@@ -192,9 +143,14 @@ exports[`renders recently browsed 1`] = `
         >
           foo
         </span>
-      </span>
-    </Link>
-  </Tooltip>
+      </div>
+      <div
+        className="navbar-search-item-right text-muted-2"
+      >
+        foo
+      </div>
+    </div>
+  </Link>
 </li>
 `;
 
@@ -204,25 +160,23 @@ exports[`renders selected 1`] = `
   key="foo"
   role="option"
 >
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="foo"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="foo"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=foo",
-        }
+  <Link
+    data-key="foo"
+    onClick={[MockFunction]}
+    onFocus={[Function]}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "search": "?id=foo",
       }
+    }
+  >
+    <div
+      className="navbar-search-item-link little-padded-top"
+      onMouseEnter={[Function]}
     >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      <div
+        className="display-flex-center"
       >
         <span
           className="navbar-search-item-icons little-spacer-right"
@@ -237,9 +191,14 @@ exports[`renders selected 1`] = `
         >
           foo
         </span>
-      </span>
-    </Link>
-  </Tooltip>
+      </div>
+      <div
+        className="navbar-search-item-right text-muted-2"
+      >
+        foo
+      </div>
+    </div>
+  </Link>
 </li>
 `;
 
@@ -250,25 +209,23 @@ exports[`renders selected 2`] = `
   key="foo"
   role="option"
 >
-  <Tooltip
-    mouseEnterDelay={1}
-    overlay="foo"
-    placement="left"
-    visible={false}
-  >
-    <Link
-      data-key="foo"
-      onClick={[MockFunction]}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "search": "?id=foo",
-        }
+  <Link
+    data-key="foo"
+    onClick={[MockFunction]}
+    onFocus={[Function]}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "search": "?id=foo",
       }
+    }
+  >
+    <div
+      className="navbar-search-item-link little-padded-top"
+      onMouseEnter={[Function]}
     >
-      <span
-        className="navbar-search-item-link"
-        onMouseEnter={[Function]}
+      <div
+        className="display-flex-center"
       >
         <span
           className="navbar-search-item-icons little-spacer-right"
@@ -283,8 +240,13 @@ exports[`renders selected 2`] = `
         >
           foo
         </span>
-      </span>
-    </Link>
-  </Tooltip>
+      </div>
+      <div
+        className="navbar-search-item-right text-muted-2"
+      >
+        foo
+      </div>
+    </div>
+  </Link>
 </li>
 `;

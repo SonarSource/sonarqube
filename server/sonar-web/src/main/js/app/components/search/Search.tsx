@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, keyBy, uniqBy } from 'lodash';
+import { debounce, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSuggestions } from '../../../api/components';
@@ -48,7 +48,6 @@ interface State {
   loadingMore?: string;
   more: More;
   open: boolean;
-  projects: Dict<{ name: string }>;
   query: string;
   results: Results;
   selected?: string;
@@ -71,7 +70,6 @@ export class Search extends React.PureComponent<Props, State> {
       loading: false,
       more: {},
       open: false,
-      projects: {},
       query: '',
       results: {},
       shortQuery: false
@@ -80,6 +78,7 @@ export class Search extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keydown', this.handleSKeyDown);
   }
 
@@ -92,6 +91,7 @@ export class Search extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
     document.removeEventListener('keydown', this.handleSKeyDown);
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   focusInput = () => {
@@ -130,7 +130,6 @@ export class Search extends React.PureComponent<Props, State> {
       this.setState({
         more: {},
         open: false,
-        projects: {},
         query: '',
         results: {},
         selected: undefined,
@@ -172,14 +171,13 @@ export class Search extends React.PureComponent<Props, State> {
             more[group.q] = group.more;
           });
           const list = this.getPlainComponentsList(results, more);
-          this.setState(state => ({
+          this.setState({
             loading: false,
             more,
-            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
             results,
             selected: list.length > 0 ? list[0] : undefined,
             shortQuery: query.length > MIN_SEARCH_QUERY_LENGTH && response.warning === 'short_input'
-          }));
+          });
         }
       }, this.stopLoading);
     } else {
@@ -203,7 +201,6 @@ export class Search extends React.PureComponent<Props, State> {
           loading: false,
           loadingMore: undefined,
           more: { ...state.more, [qualifier]: 0 },
-          projects: { ...state.projects, ...keyBy(response.projects, 'key') },
           results: {
             ...state.results,
             [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
@@ -286,26 +283,30 @@ export class Search extends React.PureComponent<Props, State> {
     }
   };
 
-  handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.nativeEvent.key) {
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (!this.state.open) {
+      return;
+    }
+
+    switch (event.key) {
       case KeyboardKeys.Enter:
         event.preventDefault();
-        event.nativeEvent.stopImmediatePropagation();
+        event.stopPropagation();
         this.openSelected();
         break;
       case KeyboardKeys.UpArrow:
         event.preventDefault();
-        event.nativeEvent.stopImmediatePropagation();
+        event.stopPropagation();
         this.selectPrevious();
         break;
       case KeyboardKeys.Escape:
         event.preventDefault();
-        event.nativeEvent.stopImmediatePropagation();
+        event.stopPropagation();
         this.closeSearch();
         break;
       case KeyboardKeys.DownArrow:
         event.preventDefault();
-        event.nativeEvent.stopImmediatePropagation();
+        event.stopPropagation();
         this.selectNext();
         break;
     }
@@ -332,7 +333,6 @@ export class Search extends React.PureComponent<Props, State> {
       key={component.key}
       onClose={this.closeSearch}
       onSelect={this.handleSelect}
-      projects={this.state.projects}
       selected={this.state.selected === component.key}
     />
   );
@@ -354,7 +354,6 @@ export class Search extends React.PureComponent<Props, State> {
           minLength={2}
           onChange={this.handleQueryChange}
           onFocus={this.handleFocus}
-          onKeyDown={this.handleKeyDown}
           placeholder={translate('search.placeholder')}
           value={this.state.query}
         />

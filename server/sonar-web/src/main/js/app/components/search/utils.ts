@@ -38,7 +38,6 @@ export interface ComponentResult {
   key: string;
   match?: string;
   name: string;
-  project?: string;
   qualifier: string;
 }
 
