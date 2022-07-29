@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 
-interface Props {
+export interface FacetItemsListProps {
   children?: React.ReactNode;
   title?: string;
 }
 
-export default function FacetItemsList({ children, title }: Props) {
+export default function FacetItemsList({ children, title }: FacetItemsListProps) {
   return (
     <div className="search-navigator-facet-list">
       {title && <div className="search-navigator-facet-list-title">{title}</div>}

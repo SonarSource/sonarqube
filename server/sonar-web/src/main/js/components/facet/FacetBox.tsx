@@ -20,13 +20,13 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-interface Props {
+export interface FacetBoxProps {
   className?: string;
   children: React.ReactNode;
   property: string;
 }
 
-export default function FacetBox(props: Props) {
+export default function FacetBox(props: FacetBoxProps) {
   return (
     <div
       className={classNames('search-navigator-facet-box', props.className)}
