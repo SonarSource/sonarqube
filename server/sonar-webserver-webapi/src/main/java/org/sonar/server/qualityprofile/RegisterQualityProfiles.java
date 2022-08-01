@@ -21,12 +21,18 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -110,6 +116,9 @@ public class RegisterQualityProfiles implements Startable {
         builtInQualityProfilesNotification.onChange(changedProfiles, startDate, endDate);
       }
       ensureBuiltInDefaultQPContainsRules(dbSession);
+      unsetBuiltInFlagAndRenameQPWhenPluginUninstalled(dbSession);
+
+      dbSession.commit();
     }
     profiler.stopDebug();
   }
@@ -185,15 +194,56 @@ public class RegisterQualityProfiles implements Startable {
         dbClient.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
         dbClient.defaultQProfileDao().insertOrUpdate(dbSession, new DefaultQProfileDto()
           .setQProfileUuid(qualityProfile.getKee())
-          .setLanguage(qp.getLanguage())
-        );
+          .setLanguage(qp.getLanguage()));
 
         LOGGER.info("Default built-in quality profile for language [{}] has been updated from [{}] to [{}] since previous default does not have active rules.",
           qp.getLanguage(),
           qp.getName(),
           rulesProfile.getName());
       });
+  }
 
-    dbSession.commit();
+  public void unsetBuiltInFlagAndRenameQPWhenPluginUninstalled(DbSession dbSession) {
+    var pluginsBuiltInQProfiles = builtInQProfileRepository.get()
+      .stream()
+      .map(BuiltInQProfile::getQProfileName)
+      .collect(Collectors.toSet());
+
+    var languages = pluginsBuiltInQProfiles.stream().map(QProfileName::getLanguage).collect(Collectors.toSet());
+
+    dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithoutActiveRules(dbSession)
+      .forEach(qProfileDto -> {
+        var dbProfileName = QProfileName.createFor(qProfileDto.getLanguage(), qProfileDto.getName());
+
+        // Built-in Quality Profile can be a leftover from plugin which has been removed
+        // Rename Quality Profile and unset built-in flag allowing empty Quality Profile for existing languages to be removed
+        // Quality Profiles for languages not existing anymore are marked as 'REMOVED' and won't be seen in UI
+        if (!pluginsBuiltInQProfiles.contains(dbProfileName) && languages.contains(qProfileDto.getLanguage())) {
+          String oldName = qProfileDto.getName();
+          String newName = generateNewProfileName(qProfileDto);
+          qProfileDto.setName(newName);
+          qProfileDto.setIsBuiltIn(false);
+          dbClient.qualityProfileDao().update(dbSession, qProfileDto);
+
+          LOGGER.info("Quality profile [{}] for language [{}] is no longer built-in and has been renamed to [{}] "
+            + "since it does not have any active rules.",
+            oldName,
+            dbProfileName.getLanguage(),
+            newName);
+        }
+      });
+  }
+
+  /**
+   * Abbreviate Quality Profile name if it will be too long with prefix and append suffix
+   */
+  private String generateNewProfileName(QProfileDto qProfileDto) {
+    var shortName = StringUtils.abbreviate(qProfileDto.getName(), 40);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")
+      .withLocale(Locale.getDefault())
+      .withZone(ZoneId.systemDefault());
+    var now = formatter.format(Instant.ofEpochMilli(system2.now()));
+    String suffix = " (outdated copy since " + now + ")";
+    return shortName + suffix;
   }
 }

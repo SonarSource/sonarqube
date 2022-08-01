@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.builtin;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -28,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
+import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 import static org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.OverriddenParam;
 
@@ -43,7 +43,7 @@ public final class BuiltInQProfile {
   private BuiltInQProfile(Builder builder) {
     this.qProfileName = new QProfileName(builder.language, builder.name);
     this.isDefault = builder.declaredDefault || builder.computedDefault;
-    this.activeRules = ImmutableList.copyOf(builder.activeRules);
+    this.activeRules = unmodifiableList(builder.activeRules);
   }
 
   public String getName() {

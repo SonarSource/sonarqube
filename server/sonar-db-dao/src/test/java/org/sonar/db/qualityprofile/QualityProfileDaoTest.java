@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 
 public class QualityProfileDaoTest {
 
@@ -858,7 +859,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectQProfilesByRuleProfileUuid() {
-    RulesProfileDto ruleProfile1 = QualityProfileTesting.newRuleProfileDto();
+    RulesProfileDto ruleProfile1 = newRuleProfileDto();
     OrgQProfileDto profile1InOrg1 = new OrgQProfileDto().setRulesProfileUuid(ruleProfile1.getUuid()).setUuid(Uuids.create());
     db.getDbClient().qualityProfileDao().insert(db.getSession(), ruleProfile1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1InOrg1);

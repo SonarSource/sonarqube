@@ -155,6 +155,21 @@
       )
   </select>
 
+  <select id="selectBuiltInProfilesWithoutActiveRules" parameterType="map"
+    resultType="org.sonar.db.qualityprofile.QProfileDto">
+    SELECT
+    <include refid="qProfileColumns"/>
+    FROM org_qprofiles oqp
+    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.uuid
+    WHERE
+    rp.is_built_in = ${_true}
+    AND NOT EXISTS (
+    SELECT 1 FROM active_rules ar
+    INNER JOIN rules r ON r.uuid = ar.rule_uuid AND r.status &lt;&gt; 'REMOVED'
+    WHERE profile_uuid = rp.uuid
+    )
+  </select>
+
   <select id="selectDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
