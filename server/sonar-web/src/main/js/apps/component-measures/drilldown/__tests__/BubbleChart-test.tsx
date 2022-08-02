@@ -75,6 +75,7 @@ it('should handle filtering', () => {
 function shallowRender(overrides: Partial<BubbleChart['props']> = {}) {
   return shallow<BubbleChart>(
     <BubbleChart
+      componentKey="foo"
       components={[
         enhanceComponent(
           mockComponentMeasure(true, {

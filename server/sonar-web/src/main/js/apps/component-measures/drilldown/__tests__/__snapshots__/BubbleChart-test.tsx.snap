@@ -43,6 +43,20 @@ exports[`should render correctly: all on x=0 1`] = `
   <div
     className="measure-overview-bubble-chart-content"
   >
+    <div
+      className="text-center small spacer-top spacer-bottom"
+    >
+      <Link
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "search": "?id=foo&metric=vulnerabilities&view=list",
+          }
+        }
+      >
+        component_measures.overview.see_data_as_list
+      </Link>
+    </div>
     <BubbleChart
       displayXGrid={true}
       displayXTicks={true}
@@ -237,6 +251,20 @@ exports[`should render correctly: default 1`] = `
   <div
     className="measure-overview-bubble-chart-content"
   >
+    <div
+      className="text-center small spacer-top spacer-bottom"
+    >
+      <Link
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "search": "?id=foo&metric=vulnerabilities&view=list",
+          }
+        }
+      >
+        component_measures.overview.see_data_as_list
+      </Link>
+    </div>
     <BubbleChart
       displayXGrid={true}
       displayXTicks={true}
@@ -432,6 +460,20 @@ exports[`should render correctly: only showing first 500 files 1`] = `
   <div
     className="measure-overview-bubble-chart-content"
   >
+    <div
+      className="text-center small spacer-top spacer-bottom"
+    >
+      <Link
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "search": "?id=foo&metric=vulnerabilities&view=list",
+          }
+        }
+      >
+        component_measures.overview.see_data_as_list
+      </Link>
+    </div>
     <BubbleChart
       displayXGrid={true}
       displayXTicks={true}

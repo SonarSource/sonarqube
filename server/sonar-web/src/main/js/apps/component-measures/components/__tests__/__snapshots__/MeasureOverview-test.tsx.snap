@@ -70,6 +70,7 @@ exports[`should render correctly: default 1`] = `
       loading={false}
     />
     <BubbleChart
+      componentKey="foo"
       components={Array []}
       domain="Reliability"
       metrics={
@@ -209,6 +210,15 @@ exports[`should render correctly: has leak period 1`] = `
       loading={false}
     />
     <BubbleChart
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
+      componentKey="foo"
       components={Array []}
       domain="Reliability"
       metrics={

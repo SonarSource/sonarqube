@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -30,7 +31,10 @@ import {
 } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasureEnhanced,
   ComponentMeasureIntern,
@@ -49,7 +53,9 @@ import EmptyResult from './EmptyResult';
 const HEIGHT = 500;
 
 interface Props {
+  componentKey: string;
   components: ComponentMeasureEnhanced[];
+  branchLike?: BranchLike;
   domain: string;
   metrics: Dict<Metric>;
   paging?: Paging;
@@ -242,13 +248,24 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     if (this.props.components.length <= 0) {
       return <EmptyResult />;
     }
-    const { domain } = this.props;
+    const { domain, componentKey, branchLike } = this.props;
     const metrics = getBubbleMetrics(domain, this.props.metrics);
 
     return (
       <div className="measure-overview-bubble-chart">
         {this.renderChartHeader(domain, metrics.size, metrics.colors)}
         <div className="measure-overview-bubble-chart-content">
+          <div className="text-center small spacer-top spacer-bottom">
+            <Link
+              to={getComponentDrilldownUrl({
+                componentKey,
+                branchLike,
+                metric: isProjectOverview(domain) ? MetricKey.violations : metrics.size.key,
+                listView: true
+              })}>
+              {translate('component_measures.overview.see_data_as_list')}
+            </Link>
+          </div>
           {this.renderBubbleChart(metrics)}
         </div>
         <div className="measure-overview-bubble-chart-axis x">

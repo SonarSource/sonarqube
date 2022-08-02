@@ -139,6 +139,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
 
     return (
       <BubbleChart
+        componentKey={component.key}
+        branchLike={branchLike}
         components={this.state.components}
         domain={domain}
         metrics={metrics}
