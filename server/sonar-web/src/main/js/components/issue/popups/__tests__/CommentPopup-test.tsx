@@ -80,6 +80,8 @@ function shallowRender(overrides: Partial<CommentPopupProps> = {}) {
       onComment={jest.fn()}
       placeholder="placeholder test"
       toggleComment={jest.fn()}
+      deleteComment={jest.fn()}
+      onEdit={jest.fn()}
       {...overrides}
     />
   );

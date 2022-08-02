@@ -36,7 +36,10 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
+  deleteComment?: (comment: string) => void;
+  onEdit?: (comment: string, text: string) => void;
   className?: string;
+  showCommentsInPopup?: boolean;
 }
 
 interface State {
@@ -88,7 +91,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { issue, className } = this.props;
+    const { issue, className, showCommentsInPopup } = this.props;
     const canAssign = issue.actions.includes('assign');
     const canComment = issue.actions.includes('comment');
     const canSetSeverity = issue.actions.includes('set_severity');
@@ -153,6 +156,10 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               issueKey={issue.key}
               onChange={this.props.onChange}
               toggleComment={this.toggleComment}
+              comments={issue.comments}
+              deleteComment={this.props.deleteComment}
+              onEdit={this.props.onEdit}
+              showCommentsInPopup={showCommentsInPopup}
             />
           )}
         </div>

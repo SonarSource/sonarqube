@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { setIssueAssignee } from '../../../api/issues';
+import { deleteIssueComment, editIssueComment, setIssueAssignee } from '../../../api/issues';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
@@ -63,6 +63,14 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
   handleIssuePopupToggle = (popupName: string, open = true) => {
     const name = open ? popupName : undefined;
     this.setState({ issuePopupName: name });
+  };
+
+  deleteComment = (comment: string) => {
+    updateIssue(this.props.onIssueChange, deleteIssueComment({ comment }));
+  };
+
+  editComment = (comment: string, text: string) => {
+    updateIssue(this.props.onIssueChange, editIssueComment({ comment, text }));
   };
 
   handleAssignement = (login: string) => {
@@ -160,6 +168,9 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           onAssign={this.handleAssignement}
           onChange={this.props.onIssueChange}
           togglePopup={this.handleIssuePopupToggle}
+          deleteComment={this.deleteComment}
+          onEdit={this.editComment}
+          showCommentsInPopup={true}
         />
       </>
     );

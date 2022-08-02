@@ -17,34 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../../helpers/testUtils';
-import IssueCommentAction from '../IssueCommentAction';
+import { IssueComment } from '../../../types/types';
+import CommentTile from './CommentTile';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+interface CommentListProps {
+  comments?: IssueComment[];
+  deleteComment: (comment: string) => void;
+  onEdit: (comment: string, text: string) => void;
+}
 
-it('should open the popup when the button is clicked', () => {
-  const toggleComment = jest.fn();
-  const element = shallowRender({ toggleComment });
-  click(element.find('ButtonLink'));
-  expect(toggleComment.mock.calls.length).toBe(1);
-  element.setProps({ currentPopup: 'comment' });
-  expect(element).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<IssueCommentAction['props']> = {}) {
-  return shallow(
-    <IssueCommentAction
-      commentPlaceholder=""
-      issueKey="issue-key"
-      onChange={jest.fn()}
-      toggleComment={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
-      {...props}
-    />
+export default function CommentList(props: CommentListProps) {
+  const { comments } = props;
+  // sorting comment i.e showing newest on top
+  const sortedComments = comments?.sort(
+    (com1, com2) =>
+      new Date(com2.createdAt || '').getTime() - new Date(com1.createdAt || '').getTime()
+  );
+  return (
+    <div className="issue-comment-list-wrapper">
+      {sortedComments?.map(c => (
+        <CommentTile
+          comment={c}
+          key={c.key}
+          handleDelete={props.deleteComment}
+          onEdit={props.onEdit}
+        />
+      ))}
+    </div>
   );
 }

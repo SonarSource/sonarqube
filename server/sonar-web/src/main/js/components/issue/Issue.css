@@ -271,3 +271,12 @@
 .issue-get-perma-link {
   flex-shrink: 0;
 }
+
+.issue-comment-list-wrapper {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.issue-comment-tile {
+  background-color: var(--barBackgroundColor);
+}

@@ -254,6 +254,47 @@ it('should be able to perform action on issues', async () => {
   await user.keyboard('{ArrowUp}{enter}');
   expect(screen.getByText('luke')).toBeInTheDocument();
 
+  // adding comment to the issue
+  expect(
+    screen.getByRole('button', {
+      name: `issue.comment.add_comment`
+    })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', {
+      name: `issue.comment.add_comment`
+    })
+  );
+  expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
+  await user.keyboard('comment');
+  await user.click(screen.getByText('issue.comment.submit'));
+  expect(screen.getByText('comment')).toBeInTheDocument();
+
+  // editing the comment
+  expect(screen.getByRole('button', { name: 'issue.comment.edit' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+  await user.keyboard('New ');
+  await user.click(screen.getByText('save'));
+  expect(screen.getByText('New comment')).toBeInTheDocument();
+
+  // deleting the comment
+  expect(screen.getByRole('button', { name: 'issue.comment.delete' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'issue.comment.delete' }));
+  expect(screen.queryByText('New comment')).not.toBeInTheDocument();
+
+  // adding comment using keyboard
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard('comment');
+  await user.keyboard('{Control>}{enter}{/Control}');
+  expect(screen.getByText('comment')).toBeInTheDocument();
+
+  // editing the comment using keyboard
+  await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+  await user.keyboard('New ');
+  await user.keyboard('{Control>}{enter}{/Control}');
+  expect(screen.getByText('New comment')).toBeInTheDocument();
+
   // changing tags
   expect(screen.getByText('issue.no_tag')).toBeInTheDocument();
   await user.click(screen.getByText('issue.no_tag'));

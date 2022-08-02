@@ -25,14 +25,19 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { IssueComment } from '../../../types/types';
 import FormattingTips from '../../common/FormattingTips';
+import CommentList from './CommentList';
 
 export interface CommentPopupProps {
   comment?: Pick<IssueComment, 'markdown'>;
   onComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
+  deleteComment?: (comment: string) => void;
+  onEdit?: (comment: string, text: string) => void;
   placeholder: string;
   placement?: PopupPlacement;
   autoTriggered?: boolean;
+  comments?: IssueComment[];
+  showCommentsInPopup?: boolean;
 }
 
 interface State {
@@ -54,6 +59,7 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps,
   handleCommentClick = () => {
     if (this.state.textComment.trim().length > 0) {
       this.props.onComment(this.state.textComment);
+      this.setState({ textComment: '' });
     }
   };
 
@@ -78,10 +84,18 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps,
   };
 
   render() {
-    const { comment, autoTriggered } = this.props;
+    const { comment, autoTriggered, comments, showCommentsInPopup } = this.props;
+
     return (
       <DropdownOverlay placement={this.props.placement}>
         <div className="issue-comment-bubble-popup">
+          {showCommentsInPopup && this.props.deleteComment && this.props.onEdit && (
+            <CommentList
+              comments={comments}
+              deleteComment={this.props.deleteComment}
+              onEdit={this.props.onEdit}
+            />
+          )}
           <div className="issue-comment-form-text">
             <textarea
               autoFocus={true}
@@ -102,7 +116,7 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps,
                 {!comment && translate('issue.comment.submit')}
               </Button>
               <ResetButtonLink className="js-issue-comment-cancel" onClick={this.handleCancelClick}>
-                {autoTriggered ? translate('skip') : translate('cancel')}
+                {autoTriggered && !showCommentsInPopup ? translate('skip') : translate('cancel')}
               </ResetButtonLink>
             </div>
             <div className="issue-comment-form-tips">

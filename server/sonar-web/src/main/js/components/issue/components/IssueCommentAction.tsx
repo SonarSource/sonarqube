@@ -22,7 +22,7 @@ import { addIssueComment } from '../../../api/issues';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import { translate } from '../../../helpers/l10n';
-import { Issue } from '../../../types/types';
+import { Issue, IssueComment } from '../../../types/types';
 import { updateIssue } from '../actions';
 import CommentPopup from '../popups/CommentPopup';
 
@@ -33,12 +33,19 @@ interface Props {
   issueKey: string;
   onChange: (issue: Issue) => void;
   toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
+  deleteComment?: (comment: string) => void;
+  onEdit?: (comment: string, text: string) => void;
+  comments?: IssueComment[];
+  showCommentsInPopup?: boolean;
 }
 
 export default class IssueCommentAction extends React.PureComponent<Props> {
   addComment = (text: string) => {
+    const { showCommentsInPopup } = this.props;
     updateIssue(this.props.onChange, addIssueComment({ issue: this.props.issueKey, text }));
-    this.props.toggleComment(false);
+    if (!showCommentsInPopup) {
+      this.props.toggleComment(false);
+    }
   };
 
   handleCommentClick = () => {
@@ -50,6 +57,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
   };
 
   render() {
+    const { comments, showCommentsInPopup } = this.props;
     return (
       <div className="issue-meta dropdown">
         <Toggler
@@ -62,6 +70,10 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
               onComment={this.addComment}
               placeholder={this.props.commentPlaceholder}
               toggleComment={this.props.toggleComment}
+              comments={comments}
+              deleteComment={this.props.deleteComment}
+              onEdit={this.props.onEdit}
+              showCommentsInPopup={showCommentsInPopup}
             />
           }>
           <ButtonLink
@@ -69,7 +81,12 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
             aria-label={translate('issue.comment.add_comment')}
             className="issue-action js-issue-comment"
             onClick={this.handleCommentClick}>
-            <span className="issue-meta-label">{translate('issue.comment.formlink')}</span>
+            <span className="issue-meta-label">
+              {showCommentsInPopup && comments && comments.length > 0 && (
+                <span className="little-spacer-right">{comments.length}</span>
+              )}
+              {translate('issue.comment.formlink')}
+            </span>
           </ButtonLink>
         </Toggler>
       </div>

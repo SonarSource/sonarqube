@@ -52,6 +52,9 @@ import {
 import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
 import {
+  addIssueComment,
+  deleteIssueComment,
+  editIssueComment,
   getIssueFlowSnippets,
   searchIssues,
   searchIssueTags,
@@ -224,6 +227,9 @@ export default class IssuesServiceMock {
     (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
     (setIssueTransition as jest.Mock).mockImplementation(this.handleSetIssueTransition);
     (setIssueTags as jest.Mock).mockImplementation(this.handleSetIssueTags);
+    (addIssueComment as jest.Mock).mockImplementation(this.handleAddComment);
+    (editIssueComment as jest.Mock).mockImplementation(this.handleEditComment);
+    (deleteIssueComment as jest.Mock).mockImplementation(this.handleDeleteComment);
     (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
     (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
   }
@@ -385,6 +391,54 @@ export default class IssuesServiceMock {
   handleSetIssueTags = (data: { issue: string; tags: string }) => {
     const tagsArr = data.tags.split(',');
     return this.getActionsResponse({ tags: tagsArr }, data.issue);
+  };
+
+  handleAddComment = (data: { issue: string; text: string }) => {
+    // For comment its little more complex to get comment Id
+    return this.getActionsResponse(
+      {
+        comments: [
+          {
+            createdAt: '2022-07-28T11:30:04+0200',
+            htmlText: data.text,
+            key: '1234',
+            login: 'admin',
+            markdown: data.text,
+            updatable: true
+          }
+        ]
+      },
+      data.issue
+    );
+  };
+
+  handleEditComment = (data: { comment: string; text: string }) => {
+    // For comment its little more complex to get comment Id
+    return this.getActionsResponse(
+      {
+        comments: [
+          {
+            createdAt: '2022-07-28T11:30:04+0200',
+            htmlText: data.text,
+            key: '1234',
+            login: 'admin',
+            markdown: data.text,
+            updatable: true
+          }
+        ]
+      },
+      'issue2'
+    );
+  };
+
+  handleDeleteComment = () => {
+    // For comment its little more complex to get comment Id
+    return this.getActionsResponse(
+      {
+        comments: []
+      },
+      'issue2'
+    );
   };
 
   handleSearchUsers = () => {

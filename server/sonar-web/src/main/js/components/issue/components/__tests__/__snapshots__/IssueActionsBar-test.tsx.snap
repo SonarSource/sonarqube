@@ -182,8 +182,10 @@ exports[`should render commentable correctly 1`] = `
     <IssueCommentAction
       commentAutoTriggered={false}
       commentPlaceholder=""
+      deleteComment={[MockFunction]}
       issueKey="AVsae-CQS-9G3txfbFN2"
       onChange={[MockFunction]}
+      onEdit={[MockFunction]}
       toggleComment={[Function]}
     />
   </div>
