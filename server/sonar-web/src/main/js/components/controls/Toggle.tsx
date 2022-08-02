@@ -25,6 +25,7 @@ import { Button } from './buttons';
 import './Toggle.css';
 
 interface Props {
+  ariaLabel?: string;
   disabled?: boolean;
   name?: string;
   onChange?: (value: boolean) => void;
@@ -45,13 +46,15 @@ export default class Toggle extends React.PureComponent<Props> {
   };
 
   render() {
-    const { disabled, name } = this.props;
+    const { ariaLabel, disabled, name } = this.props;
     const value = this.getValue();
     const className = classNames('boolean-toggle', { 'boolean-toggle-on': value });
 
     return (
       <Button className={className} disabled={disabled} name={name} onClick={this.handleClick}>
-        <div aria-label={translate(value ? 'on' : 'off')} className="boolean-toggle-handle">
+        <div
+          aria-label={ariaLabel ?? translate(value ? 'on' : 'off')}
+          className="boolean-toggle-handle">
           <CheckIcon size={12} />
         </div>
       </Button>

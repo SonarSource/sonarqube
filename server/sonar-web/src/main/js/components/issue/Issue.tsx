@@ -21,6 +21,7 @@ import * as React from 'react';
 import { setIssueAssignee } from '../../api/issues';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
+import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
 import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
 import { updateIssue } from './actions';
@@ -69,7 +70,7 @@ export default class Issue extends React.PureComponent<Props> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (isInput(event) || isShortcut(event)) {
+    if (!getKeyboardShortcutEnabled() || isInput(event) || isShortcut(event)) {
       return true;
     } else if (event.key === KeyboardKeys.KeyF) {
       event.preventDefault();

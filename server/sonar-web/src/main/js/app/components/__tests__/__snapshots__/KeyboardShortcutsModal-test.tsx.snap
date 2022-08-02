@@ -9,11 +9,17 @@ exports[`should render correctly: visible 1`] = `
   size="medium"
 >
   <div
-    className="modal-head"
+    className="modal-head display-flex-space-between"
   >
     <h2>
       keyboard_shortcuts.title
     </h2>
+    <Link
+      onClick={[Function]}
+      to="/account"
+    >
+      keyboard_shortcuts.disable_link
+    </Link>
   </div>
   <div
     className="modal-body modal-container markdown display-flex-start shortcuts-modal"

@@ -22,6 +22,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
 import { LoggedInUser } from '../../../types/users';
+import { Preferences } from './Preferences';
 import UserExternalIdentity from './UserExternalIdentity';
 
 export interface ProfileProps {
@@ -39,6 +40,7 @@ export function Profile({ currentUser }: ProfileProps) {
         {renderUserGroups()}
         {renderScmAccounts()}
       </div>
+      <Preferences />
     </div>
   );
 

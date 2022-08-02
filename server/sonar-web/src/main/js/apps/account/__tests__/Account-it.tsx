@@ -25,6 +25,7 @@ import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import { mockUserToken } from '../../../helpers/mocks/token';
+import { setKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../types/permissions';
@@ -34,6 +35,11 @@ import routes from '../routes';
 
 jest.mock('../../../api/user-tokens');
 jest.mock('../../../api/notifications');
+
+jest.mock('../../../helpers/preferences', () => ({
+  getKeyboardShortcutEnabled: jest.fn().mockResolvedValue(true),
+  setKeyboardShortcutEnabled: jest.fn()
+}));
 
 jest.mock('../../../helpers/dates', () => {
   return {
@@ -222,6 +228,20 @@ describe('profile page', () => {
     expect(
       await screen.findByText(`${loggedInUser.externalProvider}: ${loggedInUser.externalIdentity}`)
     ).toBeInTheDocument();
+  });
+
+  it('should allow toggling keyboard shortcuts', async () => {
+    const user = userEvent.setup();
+    renderAccountApp(mockLoggedInUser());
+
+    const toggle = screen.getByRole('button', {
+      name: 'my_account.preferences.keyboard_shortcuts.enabled'
+    });
+    expect(toggle).toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(setKeyboardShortcutEnabled).toBeCalledWith(false);
   });
 });
 

@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';
+import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
 
 type Shortcuts = Array<{
   category: string;
@@ -132,6 +134,10 @@ export default function KeyboardShortcutsModal() {
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!getKeyboardShortcutEnabled()) {
+        return true;
+      }
+
       if (isInput(event)) {
         return true;
       }
@@ -156,8 +162,16 @@ export default function KeyboardShortcutsModal() {
 
   return (
     <Modal contentLabel={title} onRequestClose={() => setDisplay(false)} size="medium">
-      <div className="modal-head">
+      <div className="modal-head display-flex-space-between">
         <h2>{title}</h2>
+        <Link
+          to="/account"
+          onClick={() => {
+            setDisplay(false);
+            return true;
+          }}>
+          {translate('keyboard_shortcuts.disable_link')}
+        </Link>
       </div>
 
       <div className="modal-body modal-container markdown display-flex-start shortcuts-modal">

@@ -30,6 +30,7 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
@@ -273,7 +274,7 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   handleSKeyDown = (event: KeyboardEvent) => {
-    if (isInput(event) || isShortcut(event)) {
+    if (!getKeyboardShortcutEnabled() || isInput(event) || isShortcut(event)) {
       return true;
     }
     if (event.key === KeyboardKeys.KeyS) {
