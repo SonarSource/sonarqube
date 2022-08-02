@@ -146,11 +146,8 @@ public class AppLogging {
     helper.enableJulChangePropagation(ctx);
 
     configureConsole(ctx);
-    if (helper.isAllLogsToConsoleEnabled(appSettings.getProps()) || !appSettings.getProps().valueAsBoolean("sonar.wrapped", false)) {
-      configureWithLogbackWritingToFile(ctx);
-    } else {
-      configureWithWrapperWritingToFile(ctx);
-    }
+    configureWithLogbackWritingToFile(ctx);
+
     helper.apply(
       LogLevelConfig.newBuilder(helper.getRootLoggerName())
         .rootLevelFor(ProcessId.APP)
@@ -198,29 +195,6 @@ public class AppLogging {
     startupLogger.setAdditive(false);
     startupLogger.addAppender(fileAppender);
     startupLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, encoder));
-  }
-
-  /**
-   * SQ has been started by the wrapper (ie. with sonar.sh) therefor, APP's System.out (and System.err) are written to
-   * sonar.log by the wrapper.
-   */
-  private void configureWithWrapperWritingToFile(LoggerContext ctx) {
-    // configure all logs (ie. root logger) to be written to console with formatting
-    // in practice, this will be only APP's own logs as logs from sub processes are written to LOGGER_GOBBLER and
-    // LOGGER_GOBBLER is configured below to be detached from root
-    // logs are written to the console because we want them to be in sonar.log and the wrapper will write any log
-    // from APP's System.out and System.err to sonar.log
-    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
-    rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
-
-    // in regular configuration, sub processes are not copying their logs to their System.out, so, the only logs to be
-    // expected in LOGGER_GOBBLER are those before logback is setup in subprocesses or when JVM crashes
-    // so, they must be printed to App's System.out as is (as they are already formatted) and the wrapper will write
-    // them to sonar.log
-    // logger is configured to be non additive as we don't want these logs written to sonar.log and duplicated in the
-    // console with an incorrect formatting
-    configureGobbler(ctx);
   }
 
   /**

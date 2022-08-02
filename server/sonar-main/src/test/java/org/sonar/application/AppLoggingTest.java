@@ -74,34 +74,24 @@ public class AppLoggingTest {
   }
 
   @Test
-  public void no_writing_to_sonar_log_file_when_running_from_sonar_script() {
-    emulateRunFromSonarScript();
-
-    LoggerContext ctx = underTest.configure();
-
-    ctx.getLoggerList().forEach(AppLoggingTest::verifyNoFileAppender);
-  }
-
-  @Test
   public void root_logger_only_writes_to_console_with_formatting_when_running_from_sonar_script() {
-    emulateRunFromSonarScript();
-
     LoggerContext ctx = underTest.configure();
 
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("APP_CONSOLE");
+    var consoleAppender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("APP_CONSOLE");
     verifyAppFormattedLogEncoder(consoleAppender.getEncoder());
-    assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(1);
+    var rollingFileAppender = rootLogger.getAppender("file_sonar");
+    assertThat(rollingFileAppender).isNotNull();
+    assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(2);
   }
 
   @Test
   public void gobbler_logger_writes_to_console_without_formatting_when_running_from_sonar_script() {
-    emulateRunFromSonarScript();
-
     LoggerContext ctx = underTest.configure();
 
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     verifyGobblerConsoleAppender(gobblerLogger);
+
     assertThat(gobblerLogger.iteratorForAppenders()).toIterable().hasSize(1);
   }
 
@@ -264,10 +254,6 @@ public class AppLoggingTest {
     Encoder<ILoggingEvent> encoder = appender.getEncoder();
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
     assertThat(((LayoutWrappingEncoder)encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
-  }
-
-  private void emulateRunFromSonarScript() {
-    settings.getProps().set("sonar.wrapped", "true");
   }
 
   private void emulateRunFromCommandLine(boolean withAllLogsPrintedToConsole) {

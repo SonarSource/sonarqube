@@ -45,20 +45,6 @@ To control log rolling, use the `sonar.log.rollingPolicy`
 
 `sonar.log.maxFiles` is the maximum number of files to keep. This property is ignored if `sonar.log.rollingPolicy=none`.
 
-#### **Wrapper Config**
-
-If Sonarqube was started using the SonarQube wrapper (for example, by using the provided start and stop scripts), the log rotation of the main Process (sonar.log) needs to be defined in the `wrapper.conf`.  
-By Default, the wrapper will rotate the `sonar.log` file each day if there is new content to be logged.  
-
-The log rotation in the wrapper can be fine-tuned with the following properties:
-
-* **`wrapper.logfile.maxsize=value[m for mb, k for kb]`**
-* **`wrapper.logfile.maxfiles=value`**
-* **`wrapper.logfile.rollmode=DATE|SIZE`**
-
-`wrapper.logfile.maxsize` and `wrapper.logfile.maxfiles` are only considered if `wrapper.logfile.rollmode` is set to `SIZE`.  
-For `wrapper.logfile.rollmode=DATE` to work properly, the file defined with the property `wrapper.logfile` needs to include a "YYYYMMDD" Token.
-
 ### UI Access to Logs and Log Levels
 
 The System Info page gives you the ability to download your instance's current log files (log files rotate on a regular basis), and to tune the log level via controls at the top of the page. Changes made here are temporary, and last only until the next time the instance is restarted, at which point the level will be reset to the more permanent value set in _$SONARQUBE-HOME/conf/sonar.properties_. Regardless, if you change your log level _from_ `INFO`, but sure to change it back as soon as is practical; log files can get very large very quickly at lower log levels.
