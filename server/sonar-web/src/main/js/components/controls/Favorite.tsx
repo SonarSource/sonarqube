@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { addFavorite, removeFavorite } from '../../api/favorites';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import FavoriteIcon from '../icons/FavoriteIcon';
 import { ButtonLink } from './buttons';
 import Tooltip from './Tooltip';
@@ -28,6 +28,7 @@ import Tooltip from './Tooltip';
 interface Props {
   className?: string;
   component: string;
+  componentName?: string;
   favorite: boolean;
   qualifier: string;
   handleFavorite?: (component: string, isFavorite: boolean) => void;
@@ -82,22 +83,21 @@ export default class Favorite extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { className, qualifier } = this.props;
+    const { className, componentName, qualifier } = this.props;
     const { favorite } = this.state;
 
-    const tooltip = favorite
-      ? translate('favorite.current', qualifier)
-      : translate('favorite.check', qualifier);
-    const ariaLabel = translate('favorite.action', favorite ? 'remove' : 'add');
+    const actionName = favorite ? 'remove' : 'add';
+    const tooltip = componentName
+      ? translateWithParameters(`favorite.action.${qualifier}.${actionName}_x`, componentName)
+      : translate('favorite.action', qualifier, actionName);
 
     return (
       <Tooltip overlay={tooltip}>
         <ButtonLink
-          aria-label={ariaLabel}
           innerRef={node => (this.buttonNode = node)}
           className={classNames('favorite-link', 'link-no-underline', className)}
           onClick={this.toggleFavorite}>
-          <FavoriteIcon favorite={favorite} />
+          <FavoriteIcon aria-label={tooltip} favorite={favorite} />
         </ButtonLink>
       </Tooltip>
     );

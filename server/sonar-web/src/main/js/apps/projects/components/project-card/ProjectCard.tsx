@@ -70,6 +70,7 @@ function renderFirstLine(project: Props['project'], handleFavorite: Props['handl
           <Favorite
             className="spacer-right"
             component={key}
+            componentName={name}
             favorite={isFavorite}
             handleFavorite={handleFavorite}
             qualifier={qualifier}
