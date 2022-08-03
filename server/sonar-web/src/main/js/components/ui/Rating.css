@@ -32,7 +32,7 @@
 }
 
 .rating-muted {
-  background-color: #bdbdbd !important;
+  background-color: var(--gray71) !important;
   color: #fff !important;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35) !important;
 }
@@ -89,10 +89,11 @@ a .rating-E {
 }
 
 .rating-small {
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
   margin-top: -1px;
   margin-bottom: -1px;
-  font-size: var(--smallFontSize);
+  font-size: var(--mediumFontSize);
+  font-weight: bold;
 }

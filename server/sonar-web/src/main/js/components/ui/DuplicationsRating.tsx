@@ -25,7 +25,7 @@ import './DuplicationsRating.css';
 interface Props {
   muted?: boolean;
   size?: 'small' | 'normal' | 'big' | 'huge';
-  value: number | null | undefined;
+  value?: number;
 }
 
 export default function DuplicationsRating({ muted = false, size = 'normal', value }: Props) {

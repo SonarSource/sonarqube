@@ -21,14 +21,17 @@ import * as React from 'react';
 import { colors } from '../../app/theme';
 import DonutChart from '../../components/charts/DonutChart';
 
-const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
+const SIZE_TO_WIDTH_MAPPING = { small: 20, normal: 24, big: 40, huge: 60 };
+const SIZE_TO_THICKNESS_MAPPING = { small: 3, normal: 3, big: 3, huge: 4 };
 
-const SIZE_TO_THICKNESS_MAPPING = { small: 2, normal: 3, big: 3, huge: 4 };
+const FULL_PERCENT = 100;
+
+type SIZE = 'small' | 'normal' | 'big' | 'huge';
 
 export interface CoverageRatingProps {
   muted?: boolean;
-  size?: 'small' | 'normal' | 'big' | 'huge';
-  value: number | string | null | undefined;
+  size?: SIZE;
+  value?: number | string;
 }
 
 export default function CoverageRating({
@@ -36,16 +39,16 @@ export default function CoverageRating({
   size = 'normal',
   value
 }: CoverageRatingProps) {
-  let data = [{ value: 100, fill: '#ccc ' }];
+  let data = [{ value: FULL_PERCENT, fill: colors.gray71 }];
   let padAngle = 0;
 
   if (value != null) {
     const numberValue = Number(value);
     data = [
       { value: numberValue, fill: muted ? colors.gray71 : colors.green },
-      { value: 100 - numberValue, fill: muted ? colors.barBackgroundColor : colors.lineCoverageRed }
+      { value: FULL_PERCENT - numberValue, fill: muted ? 'transparent' : colors.lineCoverageRed }
     ];
-    if (numberValue !== 0 && numberValue < 100) {
+    if (numberValue !== 0 && numberValue < FULL_PERCENT) {
       padAngle = 0.1; // Same for all sizes, because it scales automatically
     }
   }

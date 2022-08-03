@@ -27,7 +27,9 @@ exports[`renders 1`] = `
 `;
 
 exports[`renders 2`] = `
-<span>
+<div
+  className="display-flex-center"
+>
   <DuplicationsRating
     muted={true}
     size="small"
@@ -38,11 +40,13 @@ exports[`renders 2`] = `
   >
     3% - 5%
   </span>
-</span>
+</div>
 `;
 
 exports[`renders 3`] = `
-<span>
+<div
+  className="display-flex-center"
+>
   <span
     className="spacer-left"
   >
@@ -52,5 +56,5 @@ exports[`renders 3`] = `
       no_data
     </span>
   </span>
-</span>
+</div>
 `;

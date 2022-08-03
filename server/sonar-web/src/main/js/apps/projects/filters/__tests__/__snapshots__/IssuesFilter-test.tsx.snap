@@ -30,5 +30,10 @@ exports[`renders 2`] = `
     small={true}
     value={2}
   />
+  <span
+    className="spacer-left"
+  >
+    projects.facets.rating_x.B
+  </span>
 </span>
 `;

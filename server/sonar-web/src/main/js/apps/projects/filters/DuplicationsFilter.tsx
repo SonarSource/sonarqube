@@ -65,7 +65,7 @@ function getFacetValueForOption(facet: Facet, option: number) {
 
 function renderOption(option: number, selected: boolean) {
   return (
-    <span>
+    <div className="display-flex-center">
       {option < 6 && (
         <DuplicationsRating
           muted={!selected}
@@ -80,6 +80,6 @@ function renderOption(option: number, selected: boolean) {
           <span className="big-spacer-left">{translate('no_data')}</span>
         )}
       </span>
-    </span>
+    </div>
   );
 }

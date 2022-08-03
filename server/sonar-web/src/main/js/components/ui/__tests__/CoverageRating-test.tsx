@@ -32,7 +32,7 @@ it('should render with muted style', () => {
       .prop('data')
   ).toEqual([
     { fill: '#b4b4b4', value: 25 },
-    { fill: '#f3f3f3', value: 75 }
+    { fill: 'transparent', value: 75 }
   ]);
 });
 
@@ -41,7 +41,7 @@ it('should render with small size', () => {
     shallowRender({ size: 'small' })
       .find('DonutChart')
       .props()
-  ).toMatchObject({ height: 16, padAngle: 0.1, thickness: 2, width: 16 });
+  ).toMatchObject({ height: 20, padAngle: 0.1, thickness: 3, width: 20 });
 });
 
 it('should correctly handle padAngle for 0% and 100% coverage', () => {

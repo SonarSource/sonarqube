@@ -45,10 +45,11 @@
   height: var(--smallControlHeight);
   line-height: var(--smallControlHeight);
   font-size: var(--smallFontSize);
+  font-weight: bold;
 }
 
 .level-muted {
-  background-color: #bdbdbd !important;
+  background-color: var(--gray60) !important;
 }
 
 a > .level {

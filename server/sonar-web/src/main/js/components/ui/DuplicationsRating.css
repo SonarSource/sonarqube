@@ -31,9 +31,9 @@
 }
 
 .duplications-rating-small {
-  width: 16px;
-  height: 16px;
-  border-width: 2px;
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
 }
 
 .duplications-rating-big {
@@ -50,11 +50,11 @@
 }
 
 .duplications-rating-muted {
-  border-color: #bdbdbd !important;
+  border-color: var(--gray71) !important;
 }
 
 .duplications-rating-muted:after {
-  background-color: #bdbdbd !important;
+  background-color: var(--gray71) !important;
 }
 
 .duplications-rating:after {

@@ -78,7 +78,7 @@
 .projects-facet-bar-inner {
   min-width: 1px;
   height: 10px;
-  background-color: var(--gray71);
+  background-color: var(--gray60);
   transition: width 0.3s ease;
 }
 

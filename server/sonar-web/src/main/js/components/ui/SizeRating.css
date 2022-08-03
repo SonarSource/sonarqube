@@ -27,19 +27,19 @@
   background-color: var(--blue);
   color: #fff;
   font-size: var(--smallFontSize);
+  font-weight: bold;
   text-align: center;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .size-rating-small {
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
   margin-top: -1px;
   margin-bottom: -1px;
-  font-size: 10px;
 }
 
 .size-rating-muted {
-  background-color: #bdbdbd;
+  background-color: var(--gray71);
 }

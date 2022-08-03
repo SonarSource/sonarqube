@@ -62,9 +62,9 @@ function getFacetValueForOption(facet: Facet, option: number) {
 
 function renderOption(option: number, selected: boolean) {
   return (
-    <span>
+    <div className="display-flex-center">
       <SizeRating muted={!selected} small={true} value={getSizeRatingAverageValue(option)} />
       <span className="spacer-left">{getSizeRatingLabel(option)}</span>
-    </span>
+    </div>
   );
 }
