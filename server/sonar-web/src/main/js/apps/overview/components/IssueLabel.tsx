@@ -22,7 +22,7 @@ import { Link } from 'react-router-dom';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -41,8 +41,8 @@ export interface IssueLabelProps {
 
 export function IssueLabel(props: IssueLabelProps) {
   const { branchLike, component, helpTooltip, measures, type, useDiffMetric = false } = props;
-  const metric = getIssueMetricKey(type, useDiffMetric);
-  const measure = findMeasure(measures, metric);
+  const metricKey = getIssueMetricKey(type, useDiffMetric);
+  const measure = findMeasure(measures, metricKey);
   const iconClass = getIssueIconClass(type);
 
   let value;
@@ -57,23 +57,29 @@ export function IssueLabel(props: IssueLabelProps) {
     inNewCodePeriod: useDiffMetric ? 'true' : 'false'
   };
 
+  const url =
+    type === IssueType.SecurityHotspot
+      ? getComponentSecurityHotspotsUrl(component.key, params)
+      : getComponentIssuesUrl(component.key, params);
+
   return (
     <>
       {value === undefined ? (
         <span aria-label={translate('no_data')} className="overview-measures-empty-value" />
       ) : (
         <Link
+          aria-label={translateWithParameters(
+            'overview.see_list_of_x_y_issues',
+            value,
+            localizeMetric(metricKey)
+          )}
           className="overview-measures-value text-light"
-          to={
-            type === IssueType.SecurityHotspot
-              ? getComponentSecurityHotspotsUrl(component.key, params)
-              : getComponentIssuesUrl(component.key, params)
-          }>
+          to={url}>
           {formatMeasure(value, 'SHORT_INT')}
         </Link>
       )}
       {React.createElement(iconClass, { className: 'big-spacer-left little-spacer-right' })}
-      {localizeMetric(metric)}
+      {localizeMetric(metricKey)}
       {helpTooltip && <HelpTooltip className="little-spacer-left" overlay={helpTooltip} />}
     </>
   );

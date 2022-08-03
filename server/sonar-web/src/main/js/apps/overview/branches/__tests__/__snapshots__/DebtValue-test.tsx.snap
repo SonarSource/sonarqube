@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <Fragment>
   <DrilldownLink
+    ariaLabel="overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.Sqale_index"
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
@@ -28,6 +29,7 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <Fragment>
   <DrilldownLink
+    ariaLabel="overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.New_technical_debt"
     branchLike={
       Object {
         "analysisDate": "2018-01-01",

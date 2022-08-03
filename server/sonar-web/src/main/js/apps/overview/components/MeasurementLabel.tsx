@@ -21,8 +21,8 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { translate } from '../../../helpers/l10n';
-import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import {
@@ -51,34 +51,34 @@ export default class MeasurementLabel extends React.Component<Props> {
 
     if (!measure) {
       return translate(labelKey);
-    } else {
-      const value = useDiffMetric ? getLeakValue(measure) : measure.value;
-
-      return (
-        <FormattedMessage
-          defaultMessage={translate(expandedLabelKey)}
-          id={expandedLabelKey}
-          values={{
-            count: (
-              <DrilldownLink
-                branchLike={branchLike}
-                className="big"
-                component={component.key}
-                metric={linesMetric}>
-                {formatMeasure(value, 'SHORT_INT')}
-              </DrilldownLink>
-            )
-          }}
-        />
-      );
     }
+
+    const value = useDiffMetric ? getLeakValue(measure) : measure.value;
+
+    return (
+      <FormattedMessage
+        defaultMessage={translate(expandedLabelKey)}
+        id={expandedLabelKey}
+        values={{
+          count: (
+            <DrilldownLink
+              branchLike={branchLike}
+              className="big"
+              component={component.key}
+              metric={linesMetric}>
+              {formatMeasure(value, 'SHORT_INT')}
+            </DrilldownLink>
+          )
+        }}
+      />
+    );
   };
 
   render() {
     const { branchLike, centered, component, measures, type, useDiffMetric = false } = this.props;
     const iconClass = getMeasurementIconClass(type);
-    const metric = getMeasurementMetricKey(type, useDiffMetric);
-    const measure = findMeasure(measures, metric);
+    const metricKey = getMeasurementMetricKey(type, useDiffMetric);
+    const measure = findMeasure(measures, metricKey);
 
     let value;
     if (measure) {
@@ -95,13 +95,22 @@ export default class MeasurementLabel extends React.Component<Props> {
     }
 
     const icon = React.createElement(iconClass, { size: 'big', value: Number(value) });
+    const formattedValue = formatMeasure(value, 'PERCENT', {
+      decimals: 2,
+      omitExtraDecimalZeros: true
+    });
     const link = (
       <DrilldownLink
+        ariaLabel={translateWithParameters(
+          'overview.see_more_details_on_x_of_y',
+          formattedValue,
+          localizeMetric(metricKey)
+        )}
         branchLike={branchLike}
         className="overview-measures-value text-light"
         component={component.key}
-        metric={metric}>
-        {formatMeasure(value, 'PERCENT', { decimals: 2, omitExtraDecimalZeros: true })}
+        metric={metricKey}>
+        {formattedValue}
       </DrilldownLink>
     );
     const label = this.getLabelText();

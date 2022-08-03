@@ -17,6 +17,7 @@ exports[`should render correctly for coverage 1`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -60,6 +61,7 @@ exports[`should render correctly for coverage 2`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -127,6 +129,7 @@ exports[`should render correctly for coverage 3`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.new_coverage.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -194,6 +197,7 @@ exports[`should render correctly for duplications 1`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -237,6 +241,7 @@ exports[`should render correctly for duplications 2`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -304,6 +309,7 @@ exports[`should render correctly for duplications 3`] = `
   >
     <span>
       <DrilldownLink
+        ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.new_duplicated_lines_density.name"
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -370,6 +376,7 @@ exports[`should render correctly when centered 1`] = `
       />
     </span>
     <DrilldownLink
+      ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
       branchLike={
         Object {
           "analysisDate": "2018-01-01",

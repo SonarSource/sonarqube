@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
-import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
+import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
@@ -37,12 +37,17 @@ export function DrilldownMeasureValue(props: DrilldownMeasureValueProps) {
   const measure = findMeasure(measures, metric);
 
   let content;
-  if (!measure) {
+  if (!measure || measure.value === undefined) {
     content = <span className="overview-measures-value text-light">-</span>;
   } else {
     content = (
       <span>
         <DrilldownLink
+          ariaLabel={translateWithParameters(
+            'overview.see_more_details_on_x_y',
+            measure.value,
+            localizeMetric(metric)
+          )}
           branchLike={branchLike}
           className="overview-measures-value text-light"
           component={component.key}

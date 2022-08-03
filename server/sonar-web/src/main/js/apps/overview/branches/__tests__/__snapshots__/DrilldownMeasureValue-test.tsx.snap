@@ -6,6 +6,7 @@ exports[`should render correctly: default 1`] = `
 >
   <span>
     <DrilldownLink
+      ariaLabel="overview.see_more_details_on_x_y.1.0.metric.tests.name"
       branchLike={
         Object {
           "analysisDate": "2018-01-01",

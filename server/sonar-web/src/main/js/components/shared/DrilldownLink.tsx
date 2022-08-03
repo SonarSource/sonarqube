@@ -22,57 +22,59 @@ import { Link } from 'react-router-dom';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
+import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
 
 const ISSUE_MEASURES = [
-  'violations',
-  'new_violations',
-  'blocker_violations',
-  'critical_violations',
-  'major_violations',
-  'minor_violations',
-  'info_violations',
-  'new_blocker_violations',
-  'new_critical_violations',
-  'new_major_violations',
-  'new_minor_violations',
-  'new_info_violations',
-  'open_issues',
-  'reopened_issues',
-  'confirmed_issues',
-  'false_positive_issues',
-  'code_smells',
-  'new_code_smells',
-  'bugs',
-  'new_bugs',
-  'vulnerabilities',
-  'new_vulnerabilities'
+  MetricKey.violations,
+  MetricKey.new_violations,
+  MetricKey.blocker_violations,
+  MetricKey.critical_violations,
+  MetricKey.major_violations,
+  MetricKey.minor_violations,
+  MetricKey.info_violations,
+  MetricKey.new_blocker_violations,
+  MetricKey.new_critical_violations,
+  MetricKey.new_major_violations,
+  MetricKey.new_minor_violations,
+  MetricKey.new_info_violations,
+  MetricKey.open_issues,
+  MetricKey.reopened_issues,
+  MetricKey.confirmed_issues,
+  MetricKey.false_positive_issues,
+  MetricKey.code_smells,
+  MetricKey.new_code_smells,
+  MetricKey.bugs,
+  MetricKey.new_bugs,
+  MetricKey.vulnerabilities,
+  MetricKey.new_vulnerabilities
 ];
 
 const issueParamsPerMetric: Dict<Dict<string>> = {
-  blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
-  new_blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
-  critical_violations: { resolved: 'false', severities: 'CRITICAL' },
-  new_critical_violations: { resolved: 'false', severities: 'CRITICAL' },
-  major_violations: { resolved: 'false', severities: 'MAJOR' },
-  new_major_violations: { resolved: 'false', severities: 'MAJOR' },
-  minor_violations: { resolved: 'false', severities: 'MINOR' },
-  new_minor_violations: { resolved: 'false', severities: 'MINOR' },
-  info_violations: { resolved: 'false', severities: 'INFO' },
-  new_info_violations: { resolved: 'false', severities: 'INFO' },
-  open_issues: { resolved: 'false', statuses: 'OPEN' },
-  reopened_issues: { resolved: 'false', statuses: 'REOPENED' },
-  confirmed_issues: { resolved: 'false', statuses: 'CONFIRMED' },
-  false_positive_issues: { resolutions: 'FALSE-POSITIVE' },
-  code_smells: { resolved: 'false', types: 'CODE_SMELL' },
-  new_code_smells: { resolved: 'false', types: 'CODE_SMELL' },
-  bugs: { resolved: 'false', types: 'BUG' },
-  new_bugs: { resolved: 'false', types: 'BUG' },
-  vulnerabilities: { resolved: 'false', types: 'VULNERABILITY' },
-  new_vulnerabilities: { resolved: 'false', types: 'VULNERABILITY' }
+  [MetricKey.blocker_violations]: { resolved: 'false', severities: 'BLOCKER' },
+  [MetricKey.new_blocker_violations]: { resolved: 'false', severities: 'BLOCKER' },
+  [MetricKey.critical_violations]: { resolved: 'false', severities: 'CRITICAL' },
+  [MetricKey.new_critical_violations]: { resolved: 'false', severities: 'CRITICAL' },
+  [MetricKey.major_violations]: { resolved: 'false', severities: 'MAJOR' },
+  [MetricKey.new_major_violations]: { resolved: 'false', severities: 'MAJOR' },
+  [MetricKey.minor_violations]: { resolved: 'false', severities: 'MINOR' },
+  [MetricKey.new_minor_violations]: { resolved: 'false', severities: 'MINOR' },
+  [MetricKey.info_violations]: { resolved: 'false', severities: 'INFO' },
+  [MetricKey.new_info_violations]: { resolved: 'false', severities: 'INFO' },
+  [MetricKey.open_issues]: { resolved: 'false', statuses: 'OPEN' },
+  [MetricKey.reopened_issues]: { resolved: 'false', statuses: 'REOPENED' },
+  [MetricKey.confirmed_issues]: { resolved: 'false', statuses: 'CONFIRMED' },
+  [MetricKey.false_positive_issues]: { resolutions: 'FALSE-POSITIVE' },
+  [MetricKey.code_smells]: { resolved: 'false', types: 'CODE_SMELL' },
+  [MetricKey.new_code_smells]: { resolved: 'false', types: 'CODE_SMELL' },
+  [MetricKey.bugs]: { resolved: 'false', types: 'BUG' },
+  [MetricKey.new_bugs]: { resolved: 'false', types: 'BUG' },
+  [MetricKey.vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' },
+  [MetricKey.new_vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' }
 };
 
 interface Props {
+  ariaLabel?: string;
   branchLike?: BranchLike;
   children?: React.ReactNode;
   className?: string;
@@ -83,7 +85,7 @@ interface Props {
 
 export default class DrilldownLink extends React.PureComponent<Props> {
   isIssueMeasure = () => {
-    return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
+    return ISSUE_MEASURES.indexOf(this.props.metric as MetricKey) !== -1;
   };
 
   propsToIssueParams = () => {
@@ -99,14 +101,16 @@ export default class DrilldownLink extends React.PureComponent<Props> {
   };
 
   renderIssuesLink = () => {
-    const url = getComponentIssuesUrl(this.props.component, {
+    const { ariaLabel, className, component, children, branchLike } = this.props;
+
+    const url = getComponentIssuesUrl(component, {
       ...this.propsToIssueParams(),
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(branchLike)
     });
 
     return (
-      <Link className={this.props.className} to={url}>
-        {this.props.children}
+      <Link aria-label={ariaLabel} className={className} to={url}>
+        {children}
       </Link>
     );
   };
@@ -115,16 +119,17 @@ export default class DrilldownLink extends React.PureComponent<Props> {
     if (this.isIssueMeasure()) {
       return this.renderIssuesLink();
     }
+    const { ariaLabel, className, metric, component, children, branchLike } = this.props;
 
     const url = getComponentDrilldownUrl({
-      componentKey: this.props.component,
-      metric: this.props.metric,
-      branchLike: this.props.branchLike,
+      componentKey: component,
+      metric,
+      branchLike,
       listView: true
     });
     return (
-      <Link className={this.props.className} to={url}>
-        {this.props.children}
+      <Link aria-label={ariaLabel} className={className} to={url}>
+        {children}
       </Link>
     );
   }
