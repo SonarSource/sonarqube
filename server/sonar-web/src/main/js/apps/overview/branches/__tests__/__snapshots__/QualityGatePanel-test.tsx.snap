@@ -5,11 +5,15 @@ exports[`should render correctly for applications 1`] = `
   className="overview-panel"
   data-test="overview__quality-gate-panel"
 >
-  <h2
-    className="overview-panel-title display-inline-flex-center"
+  <div
+    className="display-flex-center spacer-bottom"
   >
-    overview.quality_gate
-     
+    <h2
+      className="overview-panel-title null-spacer-bottom"
+    >
+      overview.quality_gate
+       
+    </h2>
     <HelpTooltip
       className="little-spacer-left"
       overlay={
@@ -20,7 +24,7 @@ exports[`should render correctly for applications 1`] = `
         </div>
       }
     />
-  </h2>
+  </div>
   <div
     className="overview-panel-content"
   >
@@ -265,11 +269,15 @@ exports[`should render correctly for applications 2`] = `
   className="overview-panel"
   data-test="overview__quality-gate-panel"
 >
-  <h2
-    className="overview-panel-title display-inline-flex-center"
+  <div
+    className="display-flex-center spacer-bottom"
   >
-    overview.quality_gate
-     
+    <h2
+      className="overview-panel-title null-spacer-bottom"
+    >
+      overview.quality_gate
+       
+    </h2>
     <HelpTooltip
       className="little-spacer-left"
       overlay={
@@ -280,7 +288,7 @@ exports[`should render correctly for applications 2`] = `
         </div>
       }
     />
-  </h2>
+  </div>
   <div
     className="overview-panel-content"
   >
@@ -432,11 +440,15 @@ exports[`should render correctly for projects 1`] = `
   className="overview-panel"
   data-test="overview__quality-gate-panel"
 >
-  <h2
-    className="overview-panel-title display-inline-flex-center"
+  <div
+    className="display-flex-center spacer-bottom"
   >
-    overview.quality_gate
-     
+    <h2
+      className="overview-panel-title null-spacer-bottom"
+    >
+      overview.quality_gate
+       
+    </h2>
     <HelpTooltip
       className="little-spacer-left"
       overlay={
@@ -447,7 +459,7 @@ exports[`should render correctly for projects 1`] = `
         </div>
       }
     />
-  </h2>
+  </div>
   <div
     className="overview-panel-content"
   >
@@ -565,11 +577,15 @@ exports[`should render correctly for projects 2`] = `
   className="overview-panel"
   data-test="overview__quality-gate-panel"
 >
-  <h2
-    className="overview-panel-title display-inline-flex-center"
+  <div
+    className="display-flex-center spacer-bottom"
   >
-    overview.quality_gate
-     
+    <h2
+      className="overview-panel-title null-spacer-bottom"
+    >
+      overview.quality_gate
+       
+    </h2>
     <HelpTooltip
       className="little-spacer-left"
       overlay={
@@ -580,7 +596,7 @@ exports[`should render correctly for projects 2`] = `
         </div>
       }
     />
-  </h2>
+  </div>
   <div
     className="overview-panel-content"
   >
@@ -610,11 +626,15 @@ exports[`should render correctly for projects 3`] = `
   className="overview-panel"
   data-test="overview__quality-gate-panel"
 >
-  <h2
-    className="overview-panel-title display-inline-flex-center"
+  <div
+    className="display-flex-center spacer-bottom"
   >
-    overview.quality_gate
-     
+    <h2
+      className="overview-panel-title null-spacer-bottom"
+    >
+      overview.quality_gate
+       
+    </h2>
     <HelpTooltip
       className="little-spacer-left"
       overlay={
@@ -625,7 +645,7 @@ exports[`should render correctly for projects 3`] = `
         </div>
       }
     />
-  </h2>
+  </div>
   <Alert
     className="big-spacer-bottom"
     display="inline"

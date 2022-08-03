@@ -57,8 +57,10 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
   return (
     <div className="overview-panel" data-test="overview__quality-gate-panel">
-      <h2 className="overview-panel-title display-inline-flex-center">
-        {translate('overview.quality_gate')}{' '}
+      <div className="display-flex-center spacer-bottom">
+        <h2 className="overview-panel-title null-spacer-bottom">
+          {translate('overview.quality_gate')}{' '}
+        </h2>
         <HelpTooltip
           className="little-spacer-left"
           overlay={
@@ -67,8 +69,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
             </div>
           }
         />
-      </h2>
-
+      </div>
       {showIgnoredConditionWarning && (
         <Alert className="big-spacer-bottom" display="inline" variant="info">
           <span className="text-middle">
