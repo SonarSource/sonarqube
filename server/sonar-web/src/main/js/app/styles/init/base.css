@@ -24,6 +24,10 @@
   padding: 0;
 }
 
+*:focus-visible {
+  outline: 2px dotted var(--blue);
+}
+
 html,
 body {
   background-color: var(--barBackgroundColor);
