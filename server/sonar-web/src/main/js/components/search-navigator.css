@@ -185,7 +185,7 @@ a.search-navigator-facet:focus,
 }
 
 .search-navigator-facet.active {
-  background-color: var(--lightBlue);
+  background-color: var(--veryLightBlue);
   text-decoration: none;
 }
 
@@ -263,7 +263,7 @@ a.search-navigator-facet:focus,
 .search-navigator-facet-highlight-under-container
   .search-navigator-facet.active
   ~ .search-navigator-facet {
-  background-color: var(--lightBlue);
+  background-color: var(--veryLightBlue);
   text-decoration: none;
 }
 
