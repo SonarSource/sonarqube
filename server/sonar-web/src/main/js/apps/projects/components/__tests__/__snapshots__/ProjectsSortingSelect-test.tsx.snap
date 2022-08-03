@@ -70,6 +70,7 @@ exports[`should handle the descending sort direction 1`] = `
     }
   />
   <Tooltip
+    mouseLeaveDelay={1}
     overlay="projects.sort_descending"
   >
     <ButtonIcon
@@ -163,6 +164,7 @@ exports[`should render correctly for leak view 1`] = `
     }
   />
   <Tooltip
+    mouseLeaveDelay={1}
     overlay="projects.sort_ascending"
   >
     <ButtonIcon
@@ -256,6 +258,7 @@ exports[`should render correctly for overall view 1`] = `
     }
   />
   <Tooltip
+    mouseLeaveDelay={1}
     overlay="projects.sort_ascending"
   >
     <ButtonIcon
