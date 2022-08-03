@@ -61,7 +61,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
   }
 
   return (
-    <div
+    <ul
       className="overview-quality-gate-conditions-list"
       id="overview-quality-gate-conditions-list">
       {renderConditions.map(condition => (
@@ -73,17 +73,19 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
         />
       ))}
       {renderCollapsed && (
-        <ButtonLink
-          className="overview-quality-gate-conditions-list-collapse"
-          onClick={() => toggleCollapsed(!collapsed)}>
-          {translateWithParameters(
-            'overview.X_more_failed_conditions',
-            sortedConditions.length - MAX_CONDITIONS
-          )}
-          <ChevronDownIcon className="little-spacer-left" />
-        </ButtonLink>
+        <li>
+          <ButtonLink
+            className="overview-quality-gate-conditions-list-collapse"
+            onClick={() => toggleCollapsed(!collapsed)}>
+            {translateWithParameters(
+              'overview.X_more_failed_conditions',
+              sortedConditions.length - MAX_CONDITIONS
+            )}
+            <ChevronDownIcon className="little-spacer-left" />
+          </ButtonLink>
+        </li>
       )}
-    </div>
+    </ul>
   );
 }
 

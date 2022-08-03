@@ -108,19 +108,23 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true)
     };
 
-    return METRICS_TO_URL_MAPPING[metricKey] ? (
-      <Link className={className} to={METRICS_TO_URL_MAPPING[metricKey]()}>
-        {children}
-      </Link>
-    ) : (
-      <DrilldownLink
-        branchLike={branchLike}
-        className={className}
-        component={component.key}
-        metric={condition.measure.metric.key}
-        inNewCodePeriod={condition.period != null}>
-        {children}
-      </DrilldownLink>
+    return (
+      <li>
+        {METRICS_TO_URL_MAPPING[metricKey] ? (
+          <Link className={className} to={METRICS_TO_URL_MAPPING[metricKey]()}>
+            {children}
+          </Link>
+        ) : (
+          <DrilldownLink
+            branchLike={branchLike}
+            className={className}
+            component={component.key}
+            metric={condition.measure.metric.key}
+            inNewCodePeriod={condition.period != null}>
+            {children}
+          </DrilldownLink>
+        )}
+      </li>
     );
   }
 
