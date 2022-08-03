@@ -29,7 +29,8 @@ import {
 import ActivityLink from '../../../components/common/ActivityLink';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Analysis as AnalysisType, Component, Metric } from '../../../types/types';
@@ -63,12 +64,8 @@ export function ActivityPanel(props: ActivityPanelProps) {
     metrics
   } = props;
 
-  const series = generateSeries(
-    measuresHistory,
-    graph,
-    metrics,
-    getDisplayedHistoryMetrics(graph, [])
-  );
+  const displayedMetrics = getDisplayedHistoryMetrics(graph, []);
+  const series = generateSeries(measuresHistory, graph, metrics, displayedMetrics);
   const graphs = splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
   let shownLeakPeriodDate;
   if (leakPeriodDate !== undefined) {
@@ -93,17 +90,25 @@ export function ActivityPanel(props: ActivityPanelProps) {
       <div className="overview-panel-content">
         <div className="display-flex-row">
           <div className="display-flex-column flex-1">
-            <div aria-hidden={true} className="overview-panel-padded display-flex-column flex-1">
+            <div className="overview-panel-padded display-flex-column flex-1">
               <GraphsHeader graph={graph} metrics={metrics} updateGraph={props.onGraphChange} />
-              <GraphsHistory
-                analyses={[]}
-                graph={graph}
-                graphs={graphs}
-                leakPeriodDate={shownLeakPeriodDate}
-                loading={Boolean(loading)}
-                measuresHistory={measuresHistory}
-                series={series}
-              />
+              <div
+                aria-label={translateWithParameters(
+                  'overview.activity.graph_shows_data_for_x',
+                  displayedMetrics.map(metricKey => localizeMetric(metricKey)).join(', ')
+                )}>
+                <div aria-hidden={true}>
+                  <GraphsHistory
+                    analyses={[]}
+                    graph={graph}
+                    graphs={graphs}
+                    leakPeriodDate={shownLeakPeriodDate}
+                    loading={Boolean(loading)}
+                    measuresHistory={measuresHistory}
+                    series={series}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="overview-panel-padded bordered-top text-right">
