@@ -49,6 +49,7 @@ export default function SizeFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />
@@ -67,4 +68,8 @@ function renderOption(option: number, selected: boolean) {
       <span className="spacer-left">{getSizeRatingLabel(option)}</span>
     </div>
   );
+}
+
+function renderAccessibleLabel(option: number) {
+  return translate('projects.facets.size.label', option.toString());
 }

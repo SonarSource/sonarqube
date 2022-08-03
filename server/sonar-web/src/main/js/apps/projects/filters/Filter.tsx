@@ -31,6 +31,7 @@ interface Props {
   className?: string;
   onQueryChange: (change: RawQuery) => void;
   options: Option[];
+  renderAccessibleLabel: (option: Option) => string;
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;
 
   value?: Option | Option[];
@@ -126,7 +127,13 @@ export default class Filter extends React.PureComponent<Props> {
       option > value;
 
     return (
-      <a className={className} data-key={option} href="#" key={option} onClick={this.handleClick}>
+      <a
+        aria-label={this.props.renderAccessibleLabel(option)}
+        className={className}
+        data-key={option}
+        href="#"
+        key={option}
+        onClick={this.handleClick}>
         <span className="facet-name">
           {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
         </span>

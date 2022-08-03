@@ -20,7 +20,7 @@
 import { difference, sortBy } from 'lodash';
 import * as React from 'react';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
@@ -52,6 +52,15 @@ export class LanguagesFilter extends React.Component<Props> {
   getSortedOptions = (facet: Facet = {}) =>
     sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
 
+  renderAccessibleLabel = (option: string) => {
+    const { languages } = this.props;
+    return translateWithParameters(
+      'projects.facets.label_text_x',
+      translate('projects.facets.languages'),
+      languages[option]?.name || option
+    );
+  };
+
   renderOption = (option: string) => (
     <SearchableFilterOption option={this.props.languages[option]} optionKey={option} />
   );
@@ -75,6 +84,7 @@ export class LanguagesFilter extends React.Component<Props> {
         onQueryChange={this.props.onQueryChange}
         options={this.getSortedOptions(this.props.facet)}
         property={property}
+        renderAccessibleLabel={this.renderAccessibleLabel}
         renderOption={this.renderOption}
         value={this.props.value}
       />

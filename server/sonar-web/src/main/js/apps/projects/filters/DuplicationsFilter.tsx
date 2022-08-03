@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   getDuplicationsRatingAverageValue,
   getDuplicationsRatingLabel
@@ -38,6 +38,8 @@ export interface Props {
   value?: any;
 }
 
+const NO_DATA_OPTION = 6;
+
 export default function DuplicationsFilter(props: Props) {
   const { property = 'duplications' } = props;
   return (
@@ -52,6 +54,7 @@ export default function DuplicationsFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5, 6]}
       property={property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />
@@ -63,10 +66,19 @@ function getFacetValueForOption(facet: Facet, option: number) {
   return facet[map[option - 1]];
 }
 
+function renderAccessibleLabel(option: number) {
+  return option < NO_DATA_OPTION
+    ? translate('projects.facets.duplication.label', option.toString())
+    : translateWithParameters(
+        'projects.facets.label_no_data_x',
+        translate('metric_domain.Duplications')
+      );
+}
+
 function renderOption(option: number, selected: boolean) {
   return (
     <div className="display-flex-center">
-      {option < 6 && (
+      {option < NO_DATA_OPTION && (
         <DuplicationsRating
           muted={!selected}
           size="small"
@@ -74,7 +86,7 @@ function renderOption(option: number, selected: boolean) {
         />
       )}
       <span className="spacer-left">
-        {option < 6 ? (
+        {option < NO_DATA_OPTION ? (
           getDuplicationsRatingLabel(option)
         ) : (
           <span className="big-spacer-left">{translate('no_data')}</span>

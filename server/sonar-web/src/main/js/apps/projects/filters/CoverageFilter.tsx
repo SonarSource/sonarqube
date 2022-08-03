@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import CoverageRating from '../../../components/ui/CoverageRating';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getCoverageRatingAverageValue, getCoverageRatingLabel } from '../../../helpers/ratings';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
@@ -34,6 +34,8 @@ export interface Props {
   property?: string;
   value?: any;
 }
+
+const NO_DATA_OPTION = 6;
 
 export default function CoverageFilter(props: Props) {
   const { property = 'coverage' } = props;
@@ -50,6 +52,7 @@ export default function CoverageFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5, 6]}
       property={property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />
@@ -61,10 +64,19 @@ function getFacetValueForOption(facet: Facet, option: number): number {
   return facet[map[option - 1]];
 }
 
+function renderAccessibleLabel(option: number) {
+  return option < NO_DATA_OPTION
+    ? translate('projects.facets.coverage.label', option.toString())
+    : translateWithParameters(
+        'projects.facets.label_no_data_x',
+        translate('metric_domain.Coverage')
+      );
+}
+
 function renderOption(option: number, selected: boolean) {
   return (
     <div className="display-flex-center">
-      {option < 6 && (
+      {option < NO_DATA_OPTION && (
         <CoverageRating
           muted={!selected}
           size="small"
@@ -72,7 +84,7 @@ function renderOption(option: number, selected: boolean) {
         />
       )}
       <span className="spacer-left">
-        {option < 6 ? (
+        {option < NO_DATA_OPTION ? (
           getCoverageRatingLabel(option)
         ) : (
           <span className="big-spacer-left">{translate('no_data')}</span>

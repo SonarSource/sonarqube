@@ -20,7 +20,7 @@
 import { debounce, difference, size, sortBy } from 'lodash';
 import * as React from 'react';
 import { searchProjectTags } from '../../../api/components';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
@@ -44,6 +44,14 @@ interface State {
 }
 
 const LIST_SIZE = 10;
+
+function renderAccessibleLabel(option: string) {
+  return translateWithParameters(
+    'projects.facets.label_text_x',
+    translate('projects.facets.tags'),
+    option
+  );
+}
 
 export default class TagsFilter extends React.PureComponent<Props, State> {
   mounted = false;
@@ -119,6 +127,7 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
         onQueryChange={this.props.onQueryChange}
         options={this.getSortedOptions(this.props.facet)}
         property={property}
+        renderAccessibleLabel={renderAccessibleLabel}
         renderOption={this.renderOption}
         value={this.props.value}
       />

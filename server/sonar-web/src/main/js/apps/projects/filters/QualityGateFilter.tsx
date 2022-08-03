@@ -20,7 +20,7 @@
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Level from '../../../components/ui/Level';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
@@ -31,6 +31,13 @@ export interface Props {
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
   value?: any;
+}
+
+function renderAccessibleLabel(option: string) {
+  return translateWithParameters(
+    'projects.facets.qualitygate_label_x',
+    translate('metric.level', option)
+  );
 }
 
 export default function QualityGateFilter(props: Props) {
@@ -46,6 +53,7 @@ export default function QualityGateFilter(props: Props) {
       options={options}
       property="gate"
       renderOption={renderOption}
+      renderAccessibleLabel={renderAccessibleLabel}
       value={props.value}
     />
   );

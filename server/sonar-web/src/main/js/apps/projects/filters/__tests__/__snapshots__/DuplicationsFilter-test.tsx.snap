@@ -22,6 +22,7 @@ exports[`renders 1`] = `
     ]
   }
   property="duplications"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

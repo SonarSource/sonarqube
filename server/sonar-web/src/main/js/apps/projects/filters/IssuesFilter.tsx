@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import Rating from '../../../components/ui/Rating';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
@@ -37,6 +38,27 @@ interface Props {
 }
 
 export default function IssuesFilter(props: Props) {
+  const { name } = props;
+
+  const renderAccessibleLabel = React.useCallback(
+    (option: number) => {
+      if (option === 1) {
+        return translateWithParameters(
+          'projects.facets.rating_label_single_x',
+          translate('metric_domain', name),
+          formatMeasure(option, 'RATING')
+        );
+      }
+
+      return translateWithParameters(
+        'projects.facets.rating_label_multi_x',
+        translate('metric_domain', name),
+        formatMeasure(option, 'RATING')
+      );
+    },
+    [name]
+  );
+
   return (
     <Filter
       className={props.className}
@@ -51,6 +73,7 @@ export default function IssuesFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={props.property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />

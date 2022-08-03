@@ -9,6 +9,7 @@ exports[`highlights under 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet"
       data-key={1}
       href="#"
@@ -25,6 +26,7 @@ exports[`highlights under 1`] = `
       className="search-navigator-facet-highlight-under-container"
     >
       <a
+        aria-label="2"
         className="facet search-navigator-facet projects-facet"
         data-key={2}
         href="#"
@@ -38,6 +40,7 @@ exports[`highlights under 1`] = `
         </span>
       </a>
       <a
+        aria-label="3"
         className="facet search-navigator-facet projects-facet"
         data-key={3}
         href="#"
@@ -64,6 +67,7 @@ exports[`hightlights under selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet"
       data-key={1}
       href="#"
@@ -80,6 +84,7 @@ exports[`hightlights under selected 1`] = `
       className="search-navigator-facet-highlight-under-container"
     >
       <a
+        aria-label="2"
         className="facet search-navigator-facet projects-facet active"
         data-key={2}
         href="#"
@@ -93,6 +98,7 @@ exports[`hightlights under selected 1`] = `
         </span>
       </a>
       <a
+        aria-label="3"
         className="facet search-navigator-facet projects-facet"
         data-key={3}
         href="#"
@@ -119,6 +125,7 @@ exports[`renders 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet"
       data-key={1}
       href="#"
@@ -132,6 +139,7 @@ exports[`renders 1`] = `
       </span>
     </a>
     <a
+      aria-label="2"
       className="facet search-navigator-facet projects-facet"
       data-key={2}
       href="#"
@@ -145,6 +153,7 @@ exports[`renders 1`] = `
       </span>
     </a>
     <a
+      aria-label="3"
       className="facet search-navigator-facet projects-facet"
       data-key={3}
       href="#"
@@ -170,6 +179,7 @@ exports[`renders facet bar chart 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="a"
       className="facet search-navigator-facet projects-facet"
       data-key="a"
       href="#"
@@ -200,6 +210,7 @@ exports[`renders facet bar chart 1`] = `
       </span>
     </a>
     <a
+      aria-label="b"
       className="facet search-navigator-facet projects-facet"
       data-key="b"
       href="#"
@@ -230,6 +241,7 @@ exports[`renders facet bar chart 1`] = `
       </span>
     </a>
     <a
+      aria-label="c"
       className="facet search-navigator-facet projects-facet"
       data-key="c"
       href="#"
@@ -273,6 +285,7 @@ exports[`renders header and footer 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet"
       data-key={1}
       href="#"
@@ -286,6 +299,7 @@ exports[`renders header and footer 1`] = `
       </span>
     </a>
     <a
+      aria-label="2"
       className="facet search-navigator-facet projects-facet"
       data-key={2}
       href="#"
@@ -299,6 +313,7 @@ exports[`renders header and footer 1`] = `
       </span>
     </a>
     <a
+      aria-label="3"
       className="facet search-navigator-facet projects-facet"
       data-key={3}
       href="#"
@@ -325,6 +340,7 @@ exports[`renders multiple selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet active"
       data-key={1}
       href="#"
@@ -338,6 +354,7 @@ exports[`renders multiple selected 1`] = `
       </span>
     </a>
     <a
+      aria-label="2"
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
       href="#"
@@ -351,6 +368,7 @@ exports[`renders multiple selected 1`] = `
       </span>
     </a>
     <a
+      aria-label="3"
       className="facet search-navigator-facet projects-facet"
       data-key={3}
       href="#"
@@ -389,6 +407,7 @@ exports[`renders selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="1"
       className="facet search-navigator-facet projects-facet"
       data-key={1}
       href="#"
@@ -402,6 +421,7 @@ exports[`renders selected 1`] = `
       </span>
     </a>
     <a
+      aria-label="2"
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
       href="#"
@@ -415,6 +435,7 @@ exports[`renders selected 1`] = `
       </span>
     </a>
     <a
+      aria-label="3"
       className="facet search-navigator-facet projects-facet"
       data-key={3}
       href="#"

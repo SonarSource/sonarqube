@@ -47,6 +47,7 @@ export default function NewLinesFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />
@@ -60,4 +61,8 @@ function getFacetValueForOption(facet: Facet, option: number) {
 
 function renderOption(option: number) {
   return <span>{getSizeRatingLabel(option)}</span>;
+}
+
+function renderAccessibleLabel(option: number) {
+  return translate('projects.facets.new_lines.label', option.toString());
 }

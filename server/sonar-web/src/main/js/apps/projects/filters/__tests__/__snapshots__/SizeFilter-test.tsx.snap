@@ -20,6 +20,7 @@ exports[`renders 1`] = `
     ]
   }
   property="size"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

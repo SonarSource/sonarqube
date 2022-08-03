@@ -22,6 +22,7 @@ exports[`renders 1`] = `
     ]
   }
   property="coverage"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

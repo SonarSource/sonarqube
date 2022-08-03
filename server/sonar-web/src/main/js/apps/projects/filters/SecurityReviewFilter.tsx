@@ -20,7 +20,8 @@
 import * as React from 'react';
 import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
 import Rating from '../../../components/ui/Rating';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
@@ -65,9 +66,26 @@ export default function SecurityReviewFilter(props: Props) {
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={props.value}
     />
+  );
+}
+
+function renderAccessibleLabel(option: number) {
+  if (option === 1) {
+    return translateWithParameters(
+      'projects.facets.rating_label_single_x',
+      translate('metric_domain.SecurityReview'),
+      formatMeasure(option, 'RATING')
+    );
+  }
+
+  return translateWithParameters(
+    'projects.facets.rating_label_multi_x',
+    translate('metric_domain.SecurityReview'),
+    formatMeasure(option, 'RATING')
   );
 }
 

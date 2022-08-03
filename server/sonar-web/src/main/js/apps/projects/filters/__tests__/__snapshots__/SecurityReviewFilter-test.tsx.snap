@@ -30,6 +30,7 @@ exports[`renders 1`] = `
     ]
   }
   property="security_review"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

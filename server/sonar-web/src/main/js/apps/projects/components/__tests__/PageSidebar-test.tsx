@@ -17,55 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { CurrentUserContext } from '../../../../app/components/current-user/CurrentUserContext';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { CurrentUser } from '../../../../types/users';
 import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 
-it('should render correctly', () => {
-  const sidebar = shallowRender({
-    query: { size: '3' },
-    view: 'overall'
+it('should render the right facets for overview', () => {
+  renderPageSidebar({
+    query: { size: '3' }
   });
 
-  expect(sidebar).toMatchSnapshot();
+  expect(screen.getByRole('heading', { level: 3, name: 'metric_domain.Size' })).toBeInTheDocument();
+
+  expect(
+    screen.getByRole('heading', { level: 3, name: 'projects.facets.qualifier' })
+  ).toBeInTheDocument();
+
+  expect(
+    screen.queryByRole('heading', { level: 3, name: 'projects.facets.new_lines' })
+  ).not.toBeInTheDocument();
 });
 
-it('should render correctly with no applications', () => {
-  const sidebar = shallowRender({
+it('should not show the qualifier facet with no applications', () => {
+  renderPageSidebar({
     applicationsEnabled: false,
-    query: { size: '3' },
-    view: 'overall'
+    query: { size: '3' }
   });
 
-  expect(sidebar).toMatchSnapshot();
+  expect(
+    screen.queryByRole('heading', { level: 3, name: 'projects.facets.qualifier' })
+  ).not.toBeInTheDocument();
 });
 
-it('should render `leak` view correctly', () => {
-  const sidebar = shallowRender({
+it('should show "new lines" instead of "size" when in `leak` view', () => {
+  renderPageSidebar({
     query: { view: 'leak' },
     view: 'leak'
   });
-  expect(sidebar).toMatchSnapshot();
+
+  expect(
+    screen.queryByRole('heading', { level: 3, name: 'metric_domain.Size' })
+  ).not.toBeInTheDocument();
+
+  expect(
+    screen.getByRole('heading', { level: 3, name: 'projects.facets.new_lines' })
+  ).toBeInTheDocument();
 });
 
-it('should render `leak` view correctly with no applications', () => {
-  const sidebar = shallowRender({
-    applicationsEnabled: false,
-    query: { view: 'leak' },
-    view: 'leak'
-  });
-  expect(sidebar).toMatchSnapshot();
-});
-
-function shallowRender(overrides: Partial<PageSidebarProps> = {}) {
-  return shallow(
-    <PageSidebar
-      applicationsEnabled={true}
-      onClearAll={jest.fn()}
-      onQueryChange={jest.fn()}
-      query={{ view: 'overall' }}
-      view="overall"
-      {...overrides}
-    />
-  );
+function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUser?: CurrentUser) {
+  return renderComponent(
+    <CurrentUserContext.Provider
+      value={{
+        currentUser: currentUser ?? mockCurrentUser(),
+        updateCurrentUserHomepage: jest.fn(),
+        updateDismissedNotices: jest.fn()
+      }}>
+      <PageSidebar
+        applicationsEnabled={true}
+        onClearAll={jest.fn()}
+        onQueryChange={jest.fn()}
+        query={{ view: 'overall' }}
+        view="overall"
+        {...overrides}
+      />
+    </CurrentUserContext.Provider>
+  ).container;
 }

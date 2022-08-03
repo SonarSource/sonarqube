@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
@@ -46,9 +46,18 @@ export default function QualifierFilter(props: QualifierFilterProps) {
       onQueryChange={props.onQueryChange}
       options={options}
       property="qualifier"
+      renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
       value={value}
     />
+  );
+}
+
+function renderAccessibleLabel(option: string) {
+  return translateWithParameters(
+    'projects.facets.label_text_x',
+    translate('projects.facets.qualifier'),
+    translate('qualifier', option)
   );
 }
 

@@ -67,6 +67,7 @@ function shallowRender(overrides: Partial<Filter['props']> = {}) {
       options={[1, 2, 3]}
       property="foo"
       renderOption={option => option}
+      renderAccessibleLabel={option => option.toString()}
       {...overrides}
     />
   );

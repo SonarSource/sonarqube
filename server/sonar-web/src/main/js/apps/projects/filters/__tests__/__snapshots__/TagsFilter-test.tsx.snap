@@ -86,6 +86,7 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
     ]
   }
   property="tags"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
   value={
     Array [
@@ -137,6 +138,7 @@ exports[`should render the tags facet with the selected tags 1`] = `
     ]
   }
   property="tags"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
   value={
     Array [
@@ -159,6 +161,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.tags.lang"
       className="facet search-navigator-facet projects-facet active"
       data-key="lang"
       href="#"
@@ -179,6 +182,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
       </span>
     </a>
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.tags.sonar"
       className="facet search-navigator-facet projects-facet active"
       data-key="sonar"
       href="#"
@@ -199,6 +203,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
       </span>
     </a>
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.tags.csharp"
       className="facet search-navigator-facet projects-facet"
       data-key="csharp"
       href="#"
@@ -276,6 +281,7 @@ exports[`should render the tags without the ones in the facet 1`] = `
     ]
   }
   property="tags"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;
@@ -333,6 +339,7 @@ exports[`should render the tags without the ones in the facet 2`] = `
     ]
   }
   property="tags"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

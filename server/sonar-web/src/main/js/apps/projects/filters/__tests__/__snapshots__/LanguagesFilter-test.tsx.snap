@@ -53,6 +53,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
     ]
   }
   property="languages"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
   value={
     Array [
@@ -75,6 +76,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.languages.Java"
       className="facet search-navigator-facet projects-facet active"
       data-key="java"
       href="#"
@@ -101,6 +103,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
       </span>
     </a>
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.languages.C#"
       className="facet search-navigator-facet projects-facet active"
       data-key="cs"
       href="#"
@@ -127,6 +130,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
       </span>
     </a>
     <a
+      aria-label="projects.facets.label_text_x.projects.facets.languages.JavaScript"
       className="facet search-navigator-facet projects-facet"
       data-key="js"
       href="#"
@@ -234,6 +238,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
     ]
   }
   property="languages"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;

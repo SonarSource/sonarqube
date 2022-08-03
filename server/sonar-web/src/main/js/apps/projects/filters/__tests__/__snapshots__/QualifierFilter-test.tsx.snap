@@ -15,6 +15,7 @@ exports[`renders 1`] = `
     ]
   }
   property="qualifier"
+  renderAccessibleLabel={[Function]}
   renderOption={[Function]}
 />
 `;
