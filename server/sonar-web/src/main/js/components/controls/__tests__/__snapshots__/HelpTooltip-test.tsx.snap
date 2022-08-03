@@ -32,7 +32,7 @@ exports[`should render properly: default 1`] = `
       className="display-inline-flex-center"
     >
       <HelpIcon
-        fill="#b4b4b4"
+        fill="#888"
         size={12}
       />
     </span>

@@ -56,7 +56,7 @@ export default function HelpTooltip({
         overlay={props.overlay}
         placement={props.placement}>
         <span className="display-inline-flex-center">
-          {props.children || <HelpIcon fill={colors.gray71} size={size} />}
+          {props.children || <HelpIcon fill={colors.gray60} size={size} />}
         </span>
       </Tooltip>
     </div>
