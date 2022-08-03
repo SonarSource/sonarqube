@@ -136,7 +136,8 @@ If you use an external configuration, such as a script or Windows Service to con
 - For Linux it depends how you implemented the service
 - For Windows you can update your service by running:
 ```
-sc config SonarQube binPath= "\"$NEW_SONAR_HOME\bin\windows-x86-64\wrapper.exe\" -s \"$NEW_SONAR_HOME\conf\wrapper.conf\""
+> sc delete SonarQube
+> $NEW_SONAR_HOME\bin\windows-x86-64\SonarService.exe install
 ```
 
 ### Rebuilding indexes

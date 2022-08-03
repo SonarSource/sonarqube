@@ -159,10 +159,18 @@ You can now browse SonarQube at _http://localhost:9000_ (the default System admi
 
 If there are multiple versions of Java installed on your server, you may need to explicitly define which version of Java is used.
 
+#### Linux / macOS
 To change the Java JVM used by SonarQube, edit _$SONARQUBE-HOME/bin/{platform_OS}/sonar.sh_ and update the following line:
 
 ```
 JAVA_CMD="java"
+```
+
+#### Windows
+To change the Java JVM used by SonarQube, edit > _$SONARQUBE-HOME\bin\windows-x86-64\SonarService.xml_ and update the following line:
+
+```
+<executable>java</executable>
 ```
 
 ### Advanced Installation Features
