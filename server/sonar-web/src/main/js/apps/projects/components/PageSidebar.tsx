@@ -60,7 +60,7 @@ export default function PageSidebar(props: PageSidebarProps) {
   const facetProps = { onQueryChange, maxFacetValue };
 
   return (
-    <div>
+    <div className="huge-spacer-bottom huge-padded-bottom">
       <FavoriteFilter />
 
       <div className="projects-facets-header clearfix">

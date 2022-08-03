@@ -32,25 +32,29 @@ interface Props {
   query: Dict<any>;
 }
 
-export default class SearchableFilterFooter extends React.PureComponent<Props> {
-  handleOptionChange = ({ value }: { value: string }) => {
-    const urlOptions = (this.props.query[this.props.property] || []).concat(value).join(',');
-    this.props.onQueryChange({ [this.props.property]: urlOptions });
+export default function SearchableFilterFooter(props: Props) {
+  const { property, query } = props;
+
+  const handleOptionChange = ({ value }: { value: string }) => {
+    if (value) {
+      const urlOptions = (query[property] || []).concat(value).join(',');
+      props.onQueryChange({ [property]: urlOptions });
+    }
   };
 
-  render() {
-    return (
-      <div className="search-navigator-facet-footer projects-facet-footer">
-        <Select
-          className="input-super-large"
-          isLoading={this.props.isLoading}
-          onChange={this.handleOptionChange}
-          onInputChange={this.props.onInputChange}
-          onMenuOpen={this.props.onOpen}
-          options={this.props.options}
-          placeholder={translate('search_verb')}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className="search-navigator-facet-footer projects-facet-footer">
+      <Select
+        aria-label={translate('projects.facets.search', property)}
+        className="input-super-large"
+        controlShouldRenderValue={false}
+        isLoading={props.isLoading}
+        onChange={handleOptionChange}
+        onInputChange={props.onInputChange}
+        onMenuOpen={props.onOpen}
+        options={props.options}
+        placeholder={translate('search_verb')}
+      />
+    </div>
+  );
 }

@@ -216,6 +216,10 @@ th.hide-overflow {
   padding-top: 40px;
 }
 
+.huge-padded-bottom {
+  padding-bottom: 40px;
+}
+
 td.little-spacer-left {
   padding-left: 4px !important;
 }
