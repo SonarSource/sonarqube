@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 public class ComputeLocationHashesVisitorTest {
   private static final String EXAMPLE_LINE_OF_CODE_FORMAT = "int example = line + of + code + %d; ";
   private static final String LINE_IN_THE_MAIN_FILE = "String string = 'line-in-the-main-file';";
+  private static final String ANOTHER_LINE_IN_THE_MAIN_FILE = "String string = 'another-line-in-the-main-file';";
   private static final String LINE_IN_ANOTHER_FILE = "String string = 'line-in-the-another-file';";
 
   private static final RuleKey RULE_KEY = RuleKey.of("javasecurity", "S001");
@@ -215,6 +216,35 @@ public class ComputeLocationHashesVisitorTest {
     assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='line-in-the-another-file';"));
   }
 
+  @Test
+  public void calculates_hash_for_multiple_locations_in_same_file() {
+    DefaultIssue issue = createIssue()
+      .setComponentUuid(FILE_1.getUuid())
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
+        .addFlow(DbIssues.Flow.newBuilder()
+          .addLocation(DbIssues.Location.newBuilder()
+            .setComponentId(FILE_1.getUuid())
+            .setTextRange(createRange(1, 0, 1, LINE_IN_THE_MAIN_FILE.length()))
+            .build())
+          .addLocation(DbIssues.Location.newBuilder()
+            // component id can be empty if location is in the same file
+            .setTextRange(createRange(2, 0, 2, ANOTHER_LINE_IN_THE_MAIN_FILE.length()))
+            .build())
+          .build())
+        .build());
+
+    when(sourceLinesRepository.readLines(FILE_1)).thenReturn(manyLinesIterator(LINE_IN_THE_MAIN_FILE, ANOTHER_LINE_IN_THE_MAIN_FILE));
+
+    underTest.onIssue(FILE_1, issue);
+    underTest.afterComponent(FILE_1);
+
+    DbIssues.Locations locations = issue.getLocations();
+
+    assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='line-in-the-main-file';"));
+    assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEqualTo(DigestUtils.md5Hex("Stringstring='another-line-in-the-main-file';"));
+  }
+
   private DbCommons.TextRange createRange(int startLine, int startOffset, int endLine, int endOffset) {
     return DbCommons.TextRange.newBuilder()
       .setStartLine(startLine).setStartOffset(startOffset)
@@ -238,6 +268,10 @@ public class ComputeLocationHashesVisitorTest {
 
   private CloseableIterator<String> newOneLineIterator(String lineContent) {
     return CloseableIterator.from(List.of(lineContent).iterator());
+  }
+
+  private CloseableIterator<String> manyLinesIterator(String... lines) {
+    return CloseableIterator.from(List.of(lines).iterator());
   }
 
   private static class MutableConfiguration implements Configuration {

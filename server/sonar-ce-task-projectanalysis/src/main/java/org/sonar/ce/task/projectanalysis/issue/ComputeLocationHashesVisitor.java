@@ -34,6 +34,8 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.TaintChecker;
 
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+
 /**
  * This visitor will update the locations field of issues, by filling the hashes for all locations.
  * It only applies to issues that are taint vulnerabilities and that are new or were changed.
@@ -75,7 +77,7 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
       }
 
       DbIssues.Locations.Builder primaryLocationBuilder = ((DbIssues.Locations) issue.getLocations()).toBuilder();
-      boolean hasTextRange = addLocations(component, locationsByComponent, primaryLocationBuilder);
+      boolean hasTextRange = addLocations(component, issue, locationsByComponent, primaryLocationBuilder);
 
       // If any location was added (because it had a text range), we'll need to update the issue at the end with the new object containing the hashes
       if (hasTextRange) {
@@ -95,7 +97,7 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
     issues.clear();
   }
 
-  private boolean addLocations(Component component, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
+  private boolean addLocations(Component component, DefaultIssue issue, Map<Component, List<Location>> locationsByComponent, DbIssues.Locations.Builder primaryLocationBuilder) {
     boolean hasTextRange = false;
 
     // Add primary location
@@ -110,7 +112,8 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
       for (DbIssues.Location.Builder locationBuilder : flowBuilder.getLocationBuilderList()) {
         if (locationBuilder.hasTextRange()) {
           hasTextRange = true;
-          Component locationComponent = treeRootHolder.getComponentByUuid(locationBuilder.getComponentId());
+          var componentUuid = defaultIfEmpty(locationBuilder.getComponentId(), issue.componentUuid());
+          Component locationComponent = treeRootHolder.getComponentByUuid(componentUuid);
           locationsByComponent.computeIfAbsent(locationComponent, c -> new LinkedList<>()).add(new SecondaryLocation(locationBuilder));
         }
       }
