@@ -402,6 +402,49 @@ it('should open the actions popup using keyboard shortcut', async () => {
   expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
 });
 
+it('should show code tabs when any secondary location is selected', async () => {
+  const user = userEvent.setup();
+  renderIssueApp();
+
+  await user.click(await screen.findByRole('region', { name: 'Fix this' }));
+  expect(screen.getByText('location 1')).toBeInTheDocument();
+  expect(screen.getByText('location 2')).toBeInTheDocument();
+
+  // Select the "why is this an issue" tab
+  await user.click(
+    screen.getByRole('button', { name: 'coding_rules.description_section.title.root_cause' })
+  );
+  expect(
+    screen.queryByRole('row', {
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+    })
+  ).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('link', { name: '1 location 1' }));
+  expect(
+    screen.getByRole('row', {
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+    })
+  ).toBeInTheDocument();
+
+  // selecting the same selected hotspot location should also navigate back to code page
+  await user.click(
+    screen.getByRole('button', { name: 'coding_rules.description_section.title.root_cause' })
+  );
+  expect(
+    screen.queryByRole('row', {
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+    })
+  ).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('link', { name: '1 location 1' }));
+  expect(
+    screen.getByRole('row', {
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+    })
+  ).toBeInTheDocument();
+});
+
 describe('redirects', () => {
   it('should work for hotspots', () => {
     renderProjectIssuesApp(`project/issues?types=${IssueType.SecurityHotspot}`);

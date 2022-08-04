@@ -122,6 +122,7 @@ export default class IssuesServiceMock {
               locations: [
                 {
                   component: 'project:file.foo',
+                  msg: 'location 1',
                   textRange: {
                     startLine: 1,
                     endLine: 1,
@@ -135,6 +136,7 @@ export default class IssuesServiceMock {
               locations: [
                 {
                   component: 'project:file.bar',
+                  msg: 'location 2',
                   textRange: {
                     startLine: 20,
                     endLine: 20,

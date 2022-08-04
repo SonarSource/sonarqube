@@ -40,24 +40,6 @@ export function disableLocationsNavigator() {
   return { locationsNavigator: false };
 }
 
-export function selectLocation(nextIndex: number) {
-  return (state: Pick<State, 'selectedLocationIndex' | 'openIssue'>) => {
-    const { selectedLocationIndex: index, openIssue } = state;
-    if (openIssue) {
-      if (index === nextIndex) {
-        // disable locations when selecting (clicking) the same location
-        return {
-          locationsNavigator: false,
-          selectedLocationIndex: undefined
-        };
-      } else {
-        return { locationsNavigator: true, selectedLocationIndex: nextIndex };
-      }
-    }
-    return null;
-  };
-}
-
 export function selectNextLocation(
   state: Pick<State, 'selectedFlowIndex' | 'selectedLocationIndex' | 'openIssue'>
 ) {

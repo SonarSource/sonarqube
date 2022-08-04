@@ -41,6 +41,16 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
   activeMarkerNode?: HTMLElement | null;
   symbols?: NodeListOf<HTMLElement>;
 
+  componentDidMount() {
+    if (this.activeMarkerNode) {
+      this.activeMarkerNode.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.highlightedLocationMessage &&

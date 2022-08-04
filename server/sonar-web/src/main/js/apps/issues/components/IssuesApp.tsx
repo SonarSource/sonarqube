@@ -797,7 +797,19 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   selectLocation = (index: number) => {
-    this.setState(actions.selectLocation(index));
+    const { selectedLocationIndex } = this.state;
+    if (index === selectedLocationIndex) {
+      this.setState({ selectedLocationIndex: undefined }, () => {
+        this.setState({ selectedLocationIndex: index });
+      });
+    } else {
+      this.setState(({ openIssue }) => {
+        if (openIssue) {
+          return { locationsNavigator: true, selectedLocationIndex: index };
+        }
+        return null;
+      });
+    }
   };
 
   selectNextLocation = () => {

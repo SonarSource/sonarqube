@@ -94,7 +94,12 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
       prevProps.codeTabContent !== codeTabContent ||
       prevProps.currentUser !== currentUser
     ) {
-      this.setState(pState => this.computeState(pState, prevProps.ruleDetails !== ruleDetails));
+      this.setState(pState =>
+        this.computeState(
+          pState,
+          prevProps.ruleDetails !== ruleDetails || prevProps.codeTabContent !== codeTabContent
+        )
+      );
     }
 
     if (selectedTab?.key === TabKeys.MoreInfo) {

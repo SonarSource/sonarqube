@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockIssue } from '../../../helpers/testMocks';
-import { enableLocationsNavigator, selectFlow, selectLocation } from '../actions';
+import { enableLocationsNavigator, selectFlow } from '../actions';
 import { State } from '../components/IssuesApp';
 
 describe('selectFlow', () => {
@@ -95,25 +95,5 @@ describe('enableLocationsNavigator', () => {
 
   it('should do nothing if there is no open issue', () => {
     expect(enableLocationsNavigator({} as State)).toBeNull();
-  });
-});
-
-describe('selectLocation', () => {
-  it('should select location and enable locations navigator', () => {
-    expect(selectLocation(5)({ openIssue: mockIssue() })).toEqual({
-      locationsNavigator: true,
-      selectedLocationIndex: 5
-    });
-  });
-
-  it('should deselect location when clicked again', () => {
-    expect(selectLocation(5)({ openIssue: mockIssue(), selectedLocationIndex: 5 })).toEqual({
-      locationsNavigator: false,
-      selectedLocationIndex: undefined
-    });
-  });
-
-  it('should ignore if no open issue', () => {
-    expect(selectLocation(5)({ openIssue: undefined })).toBeNull();
   });
 });
