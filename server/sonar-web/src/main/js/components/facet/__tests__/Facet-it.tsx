@@ -31,31 +31,31 @@ it('should render and function correctly', () => {
   renderFacet(undefined, undefined, undefined, { onClick: onFacetClick });
 
   // Start closed.
-  let facetHeader = screen.getByRole('link', { name: 'foo', expanded: false });
+  let facetHeader = screen.getByRole('button', { name: 'foo', expanded: false });
   expect(facetHeader).toBeInTheDocument();
   expect(screen.queryByText('Foo/Bar')).not.toBeInTheDocument();
 
   // Expand.
   facetHeader.click();
-  facetHeader = screen.getByRole('link', { name: 'foo', expanded: true });
+  facetHeader = screen.getByRole('button', { name: 'foo', expanded: true });
   expect(facetHeader).toBeInTheDocument();
   expect(screen.getByText('Foo/Bar')).toBeInTheDocument();
 
   // Interact with facets.
-  const facet1 = screen.getByRole('link', { name: 'Foo/Bar 10' });
+  const facet1 = screen.getByRole('button', { name: 'Foo/Bar 10' });
   expect(facet1).toHaveClass('active');
   facet1.click();
   expect(onFacetClick).toBeCalledWith('bar', false);
 
-  const facet2 = screen.getByRole('link', { name: 'Foo/Baz' });
+  const facet2 = screen.getByRole('button', { name: 'Foo/Baz' });
   expect(facet2).not.toHaveClass('active');
 
-  expect(screen.queryByRole('link', { name: 'Foo/Bat' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Foo/Bat' })).not.toBeInTheDocument();
   expect(screen.getByText('Foo/Bat')).toBeInTheDocument();
 
   // Collapse again.
   facetHeader.click();
-  expect(screen.getByRole('link', { name: 'foo', expanded: false })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'foo', expanded: false })).toBeInTheDocument();
   expect(screen.queryByText('Foo/Bar')).not.toBeInTheDocument();
 });
 
@@ -75,7 +75,7 @@ it('should correctly render a header with value data', () => {
 
 it('should correctly render a disabled header', () => {
   renderFacet(undefined, { onClick: undefined });
-  expect(screen.queryByRole('link', { name: 'foo' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'foo' })).not.toBeInTheDocument();
 });
 
 it('should correctly render a facet item list with title', () => {

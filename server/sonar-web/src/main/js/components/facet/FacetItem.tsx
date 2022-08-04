@@ -40,9 +40,8 @@ export default class FacetItem extends React.PureComponent<Props> {
     loading: false
   };
 
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    event.currentTarget.blur();
     this.props.onClick(this.props.value, event.ctrlKey || event.metaKey);
   };
 
@@ -56,7 +55,7 @@ export default class FacetItem extends React.PureComponent<Props> {
 
   render() {
     const { name } = this.props;
-    const className = classNames('search-navigator-facet', this.props.className, {
+    const className = classNames('search-navigator-facet button-link', this.props.className, {
       active: this.props.active,
       'search-navigator-facet-half': this.props.halfWidth
     });
@@ -67,15 +66,16 @@ export default class FacetItem extends React.PureComponent<Props> {
         {this.renderValue()}
       </span>
     ) : (
-      <a
+      <button
         className={className}
         data-facet={this.props.value}
-        href="#"
         onClick={this.handleClick}
-        title={this.props.tooltip}>
+        tabIndex={0}
+        title={this.props.tooltip}
+        type="button">
         <span className="facet-name">{name}</span>
         {this.renderValue()}
-      </a>
+      </button>
     );
   }
 }

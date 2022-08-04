@@ -30,6 +30,10 @@
   margin-right: -4px;
 }
 
+button.search-navigator-facet {
+  text-align: start;
+}
+
 .search-navigator-facet .leak-box {
   height: var(--controlHeight);
   line-height: var(--controlHeight);

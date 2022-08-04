@@ -102,17 +102,17 @@
   transition: none;
 }
 
-a.search-navigator-facet {
+button.search-navigator-facet {
   opacity: 1;
   cursor: pointer;
 }
 
-a.search-navigator-facet .facet-name {
+button.search-navigator-facet .facet-name {
   color: var(--baseFontColor);
 }
 
-a.search-navigator-facet:hover,
-a.search-navigator-facet:focus,
+button.search-navigator-facet:hover,
+button.search-navigator-facet:focus,
 .search-navigator-facet.active {
   border-color: var(--blue);
 }
@@ -309,20 +309,20 @@ a.search-navigator-facet:focus,
 .search-navigator-facet-header {
   display: block;
   flex-shrink: 0;
-  padding: 8px 0;
+  padding: 8px 1px;
   color: var(--baseFontColor);
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.search-navigator-facet-header > a {
+.search-navigator-facet-header > button {
   border-bottom: none;
   color: var(--baseFontColor);
 }
 
-.search-navigator-facet-header > a:focus,
-.search-navigator-facet-header > a:hover {
+.search-navigator-facet-header > button:focus,
+.search-navigator-facet-header > button:hover {
   color: var(--darkBlue);
 }
 

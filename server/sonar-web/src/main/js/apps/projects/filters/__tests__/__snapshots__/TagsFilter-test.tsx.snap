@@ -160,13 +160,14 @@ exports[`should render the tags facet with the selected tags 2`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.tags.lang"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key="lang"
-      href="#"
       key="lang"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -180,14 +181,15 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         4
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.tags.sonar"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key="sonar"
-      href="#"
       key="sonar"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -201,14 +203,15 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         3
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.tags.csharp"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key="csharp"
-      href="#"
       key="csharp"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -222,7 +225,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         1
       </span>
-    </a>
+    </button>
   </div>
   <SearchableFilterFooter
     isLoading={false}

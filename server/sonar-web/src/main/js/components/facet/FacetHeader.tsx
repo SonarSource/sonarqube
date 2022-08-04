@@ -36,7 +36,7 @@ interface Props {
 }
 
 export default class FacetHeader extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+  handleClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.nativeEvent.preventDefault();
     if (this.props.onClick) {
@@ -73,10 +73,15 @@ export default class FacetHeader extends React.PureComponent<Props> {
       <div className="search-navigator-facet-header-wrapper display-flex-center">
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
-            <a href="#" onClick={this.handleClick} aria-expanded={this.props.open}>
+            <button
+              className="button-link"
+              type="button"
+              onClick={this.handleClick}
+              aria-expanded={this.props.open}
+              tabIndex={0}>
               <OpenCloseIcon className="little-spacer-right" open={this.props.open} />
               {this.props.name}
-            </a>
+            </button>
             {this.renderHelper()}
           </span>
         ) : (

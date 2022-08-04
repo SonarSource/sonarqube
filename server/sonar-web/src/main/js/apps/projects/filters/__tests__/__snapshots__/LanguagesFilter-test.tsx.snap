@@ -75,13 +75,14 @@ exports[`should render the languages facet with the selected languages 2`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.languages.Java"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key="java"
-      href="#"
       key="java"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -101,14 +102,15 @@ exports[`should render the languages facet with the selected languages 2`] = `
       >
         39
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.languages.C#"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key="cs"
-      href="#"
       key="cs"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -128,14 +130,15 @@ exports[`should render the languages facet with the selected languages 2`] = `
       >
         4
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="projects.facets.label_text_x.projects.facets.languages.JavaScript"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key="js"
-      href="#"
       key="js"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -155,7 +158,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
       >
         1
       </span>
-    </a>
+    </button>
   </div>
   <SearchableFilterFooter
     onQueryChange={[MockFunction]}

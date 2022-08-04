@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockEvent } from '../../../../helpers/testUtils';
 import Filter from '../Filter';
 
 it('renders', () => {
@@ -58,6 +59,69 @@ it('renders facet bar chart', () => {
       options: ['a', 'b', 'c']
     })
   ).toMatchSnapshot();
+});
+
+it('should handle click when value is single', () => {
+  const onQueryChange = jest.fn();
+  const wrapper = shallowRender({ onQueryChange, value: 'option1' });
+
+  // select
+  wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option2' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: 'option2' });
+
+  onQueryChange.mockClear();
+
+  // deselect
+  wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option1' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: null });
+});
+
+it('should handle click when value is array', () => {
+  const onQueryChange = jest.fn();
+  const wrapper = shallowRender({ onQueryChange, value: ['option1', 'option2'] });
+
+  // select one
+  wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option2' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: 'option2' });
+
+  onQueryChange.mockClear();
+
+  // select other
+  wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option3' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: 'option3' });
+
+  onQueryChange.mockClear();
+
+  // select additional
+  wrapper
+    .instance()
+    .handleClick(mockEvent({ ctrlKey: true, currentTarget: { dataset: { key: 'option3' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: 'option1,option2,option3' });
+
+  onQueryChange.mockClear();
+
+  // deselect one
+  wrapper
+    .instance()
+    .handleClick(mockEvent({ metaKey: true, currentTarget: { dataset: { key: 'option2' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: 'option1' });
+});
+
+it('should handle click when value is array with one value', () => {
+  const onQueryChange = jest.fn();
+  const wrapper = shallowRender({ onQueryChange, value: ['option1'] });
+
+  // deselect one
+  wrapper
+    .instance()
+    .handleClick(mockEvent({ ctrlKey: true, currentTarget: { dataset: { key: 'option1' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: null });
+
+  onQueryChange.mockClear();
+
+  // deselect one
+  wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option1' } } }));
+  expect(onQueryChange).toBeCalledWith({ foo: null });
 });
 
 function shallowRender(overrides: Partial<Filter['props']> = {}) {

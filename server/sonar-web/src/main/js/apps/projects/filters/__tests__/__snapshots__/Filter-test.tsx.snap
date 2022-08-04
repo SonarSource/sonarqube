@@ -8,51 +8,54 @@ exports[`highlights under 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
+    </button>
     <div
       className="search-navigator-facet-highlight-under-container"
     >
-      <a
+      <button
         aria-label="2"
-        className="facet search-navigator-facet projects-facet"
+        className="facet search-navigator-facet projects-facet button-link"
         data-key={2}
-        href="#"
         key="2"
         onClick={[Function]}
+        tabIndex={0}
+        type="button"
       >
         <span
           className="facet-name"
         >
           2
         </span>
-      </a>
-      <a
+      </button>
+      <button
         aria-label="3"
-        className="facet search-navigator-facet projects-facet"
+        className="facet search-navigator-facet projects-facet button-link"
         data-key={3}
-        href="#"
         key="3"
         onClick={[Function]}
+        tabIndex={0}
+        type="button"
       >
         <span
           className="facet-name"
         >
           3
         </span>
-      </a>
+      </button>
     </div>
   </div>
 </div>
@@ -66,51 +69,54 @@ exports[`hightlights under selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
+    </button>
     <div
       className="search-navigator-facet-highlight-under-container"
     >
-      <a
+      <button
         aria-label="2"
-        className="facet search-navigator-facet projects-facet active"
+        className="facet search-navigator-facet projects-facet button-link active"
         data-key={2}
-        href="#"
         key="2"
         onClick={[Function]}
+        tabIndex={0}
+        type="button"
       >
         <span
           className="facet-name"
         >
           2
         </span>
-      </a>
-      <a
+      </button>
+      <button
         aria-label="3"
-        className="facet search-navigator-facet projects-facet"
+        className="facet search-navigator-facet projects-facet button-link"
         data-key={3}
-        href="#"
         key="3"
         onClick={[Function]}
+        tabIndex={0}
+        type="button"
       >
         <span
           className="facet-name"
         >
           3
         </span>
-      </a>
+      </button>
     </div>
   </div>
 </div>
@@ -124,48 +130,51 @@ exports[`renders 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="2"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={2}
-      href="#"
       key="2"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="3"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
-      href="#"
       key="3"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </a>
+    </button>
   </div>
 </div>
 `;
@@ -178,13 +187,14 @@ exports[`renders facet bar chart 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="a"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key="a"
-      href="#"
       key="a"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -208,14 +218,15 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="b"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key="b"
-      href="#"
       key="b"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -239,14 +250,15 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="c"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key="c"
-      href="#"
       key="c"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
@@ -270,7 +282,7 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </a>
+    </button>
   </div>
 </div>
 `;
@@ -284,48 +296,51 @@ exports[`renders header and footer 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="2"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={2}
-      href="#"
       key="2"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="3"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
-      href="#"
       key="3"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </a>
+    </button>
   </div>
   <footer />
 </div>
@@ -339,48 +354,51 @@ exports[`renders multiple selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="2"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key={2}
-      href="#"
       key="2"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="3"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
-      href="#"
       key="3"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </a>
+    </button>
   </div>
 </div>
 `;
@@ -406,48 +424,51 @@ exports[`renders selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <a
+    <button
       aria-label="1"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
-      href="#"
       key="1"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="2"
-      className="facet search-navigator-facet projects-facet active"
+      className="facet search-navigator-facet projects-facet button-link active"
       data-key={2}
-      href="#"
       key="2"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </a>
-    <a
+    </button>
+    <button
       aria-label="3"
-      className="facet search-navigator-facet projects-facet"
+      className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
-      href="#"
       key="3"
       onClick={[Function]}
+      tabIndex={0}
+      type="button"
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </a>
+    </button>
   </div>
 </div>
 `;

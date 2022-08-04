@@ -239,7 +239,7 @@ it('should have all type facet', async () => {
       'issue.type.VULNERABILITY',
       'issue.type.CODE_SMELL',
       'issue.type.SECURITY_HOTSPOT'
-    ].forEach(name => expect(screen.getByRole('link', { name })).toBeInTheDocument());
+    ].forEach(name => expect(screen.getByRole('button', { name })).toBeInTheDocument());
   });
 });
 
@@ -249,7 +249,7 @@ it('select the correct quality profile for bulk change base on language search',
   renderCodingRulesApp(mockLoggedInUser());
   const selectQP = handler.allQualityProfile('js')[0];
 
-  await user.click(await screen.findByRole('link', { name: 'JavaScript' }));
+  await user.click(await screen.findByRole('button', { name: 'JavaScript' }));
   await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
   const dialog = screen.getByRole('dialog', {
@@ -266,7 +266,7 @@ it('no quality profile for bulk cahnge base on language search', async () => {
   handler.setIsAdmin();
   renderCodingRulesApp(mockLoggedInUser());
 
-  await user.click(await screen.findByRole('link', { name: 'C' }));
+  await user.click(await screen.findByRole('button', { name: 'C' }));
   await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
   const dialog = screen.getByRole('dialog', {

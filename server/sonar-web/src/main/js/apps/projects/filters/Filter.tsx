@@ -66,25 +66,36 @@ export default class Filter extends React.PureComponent<Props> {
     );
   }
 
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  getUrlOptionForSingleValue = (option: string) => {
+    return this.isSelected(option) ? null : option;
+  };
+
+  getUrlOptionForMultiValue = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    option: string,
+    value: Option[]
+  ) => {
+    if (event.ctrlKey || event.metaKey) {
+      if (this.isSelected(option)) {
+        return value.length > 1 ? value.filter(val => val !== option).join(',') : null;
+      }
+
+      return value.concat(option).join(',');
+    }
+
+    return this.isSelected(option) && value.length < 2 ? null : option;
+  };
+
+  handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    event.currentTarget.blur();
 
     const { property, value } = this.props;
     const { key: option } = event.currentTarget.dataset;
-    let urlOption;
 
     if (option) {
-      if (Array.isArray(value) && (event.ctrlKey || event.metaKey)) {
-        if (this.isSelected(option)) {
-          urlOption = value.length > 1 ? value.filter(val => val !== option).join(',') : null;
-        } else {
-          urlOption = value.concat(option).join(',');
-        }
-      } else {
-        urlOption =
-          this.isSelected(option) && (!Array.isArray(value) || value.length < 2) ? null : option;
-      }
+      const urlOption = Array.isArray(value)
+        ? this.getUrlOptionForMultiValue(event, option, value)
+        : this.getUrlOptionForSingleValue(option);
 
       this.props.onQueryChange({ [property]: urlOption });
     }
@@ -110,6 +121,7 @@ export default class Filter extends React.PureComponent<Props> {
       'facet',
       'search-navigator-facet',
       'projects-facet',
+      'button-link',
       {
         active: this.isSelected(option),
         'search-navigator-facet-half': this.props.halfWidth
@@ -127,11 +139,12 @@ export default class Filter extends React.PureComponent<Props> {
       option > value;
 
     return (
-      <a
+      <button
         aria-label={this.props.renderAccessibleLabel(option)}
         className={className}
         data-key={option}
-        href="#"
+        type="button"
+        tabIndex={0}
         key={option}
         onClick={this.handleClick}>
         <span className="facet-name">
@@ -143,7 +156,7 @@ export default class Filter extends React.PureComponent<Props> {
             {this.renderOptionBar(facetValue)}
           </span>
         )}
-      </a>
+      </button>
     );
   }
 

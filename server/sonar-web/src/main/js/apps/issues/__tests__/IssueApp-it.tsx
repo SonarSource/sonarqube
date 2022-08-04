@@ -158,8 +158,8 @@ it('should be able to navigate to other issue located in the same file', async (
 it('should support OWASP Top 10 version 2021', async () => {
   const user = userEvent.setup();
   renderIssueApp();
-  await user.click(await screen.findByRole('link', { name: 'issues.facet.standards' }));
-  const owaspTop102021 = screen.getByRole('link', { name: 'issues.facet.owaspTop10_2021' });
+  await user.click(await screen.findByRole('button', { name: 'issues.facet.standards' }));
+  const owaspTop102021 = screen.getByRole('button', { name: 'issues.facet.owaspTop10_2021' });
   expect(owaspTop102021).toBeInTheDocument();
 
   await user.click(owaspTop102021);
@@ -168,7 +168,7 @@ it('should support OWASP Top 10 version 2021', async () => {
       const standard = await handler.getStandards();
       /* eslint-disable-next-line testing-library/render-result-naming-convention */
       const linkName = renderOwaspTop102021Category(standard, val);
-      expect(await screen.findByRole('link', { name: linkName })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: linkName })).toBeInTheDocument();
     })
   );
 });
@@ -415,7 +415,7 @@ describe('redirects', () => {
     );
 
     expect(
-      await screen.findByRole('link', { name: `issue.type.${IssueType.CodeSmell}` })
+      await screen.findByRole('button', { name: `issue.type.${IssueType.CodeSmell}` })
     ).toBeInTheDocument();
   });
 });
