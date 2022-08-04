@@ -17,71 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { KeyboardKeys } from '../../../../helpers/keycodes';
-import { click, mockEvent } from '../../../../helpers/testUtils';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import CommentPopup, { CommentPopupProps } from '../CommentPopup';
 
-it('should render the comment popup correctly without existing comment', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should render the comment popup correctly when changing a comment', () => {
-  expect(shallowRender({ comment: { markdown: '*test*' } })).toMatchSnapshot();
-});
-
-it('should render not allow to send comment with only spaces', () => {
+it('should trigger comment change', async () => {
+  const user = userEvent.setup();
   const onComment = jest.fn();
-  const wrapper = shallowRender({ onComment });
-  click(wrapper.find('.js-issue-comment-submit'));
-  expect(onComment.mock.calls.length).toBe(0);
-  wrapper.setState({ textComment: 'mycomment' });
-  click(wrapper.find('.js-issue-comment-submit'));
-  expect(onComment.mock.calls.length).toBe(1);
-});
+  const toggleComment = jest.fn();
+  shallowRender({ onComment, toggleComment });
 
-it('should render the alternative cancel button label', () => {
-  const wrapper = shallowRender({ autoTriggered: true });
-  expect(
-    wrapper
-      .find('.js-issue-comment-cancel')
-      .childAt(0)
-      .text()
-  ).toBe('skip');
-});
+  expect(await screen.findByRole('textbox')).toHaveFocus();
+  await user.keyboard('test');
+  await user.keyboard('{Control>}{Enter}{/Control}');
+  expect(onComment).toHaveBeenCalledWith('test');
 
-it('should handle ctrl+enter', () => {
-  const onComment = jest.fn();
-  const wrapper = shallowRender({ comment: { markdown: 'yes' }, onComment });
-
-  wrapper
-    .instance()
-    .handleKeyboard(mockEvent({ ctrlKey: true, nativeEvent: { key: KeyboardKeys.Enter } }));
-
-  expect(onComment).toBeCalled();
-});
-
-it('should stopPropagation for arrow keys events', () => {
-  const wrapper = shallowRender();
-
-  const event = mockEvent({
-    nativeEvent: { key: KeyboardKeys.UpArrow },
-    stopPropagation: jest.fn()
-  });
-  wrapper.instance().handleKeyboard(event);
-
-  expect(event.stopPropagation).toBeCalled();
+  await user.click(screen.getByRole('button', { name: 'issue.comment.add_comment.cancel' }));
+  expect(toggleComment).toHaveBeenCalledWith(false);
 });
 
 function shallowRender(overrides: Partial<CommentPopupProps> = {}) {
-  return shallow<CommentPopup>(
+  return renderComponent(
     <CommentPopup
       onComment={jest.fn()}
       placeholder="placeholder test"
       toggleComment={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
       {...overrides}
     />
   );

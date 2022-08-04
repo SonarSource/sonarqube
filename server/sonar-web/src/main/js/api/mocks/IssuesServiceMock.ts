@@ -88,6 +88,7 @@ export default class IssuesServiceMock {
   list: IssueData[];
 
   constructor() {
+    // Comment should have their own store as we can test better CRUD operation
     this.sourceViewerFiles = [
       mockSourceViewerFile('file.foo', 'project'),
       mockSourceViewerFile('file.bar', 'project')
@@ -383,9 +384,30 @@ export default class IssuesServiceMock {
     const statusMap: { [key: string]: string } = {
       confirm: 'CONFIRMED',
       unconfirm: 'REOPENED',
-      resolve: 'RESOLVED'
+      resolve: 'RESOLVED',
+      wontfix: 'RESOLVED',
+      falsepositive: 'RESOLVED'
     };
-    return this.getActionsResponse({ status: statusMap[data.transition] }, data.issue);
+    const transitionMap: Dict<string[]> = {
+      REOPENED: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      OPEN: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+      CONFIRMED: ['resolve', 'unconfirm', 'falsepositive', 'wontfix'],
+      RESOLVED: ['reopen']
+    };
+
+    const resolutionMap: Dict<string> = {
+      wontfix: 'WONTFIX',
+      falsepositive: 'FALSE-POSITIVE'
+    };
+
+    return this.getActionsResponse(
+      {
+        status: statusMap[data.transition],
+        transitions: transitionMap[statusMap[data.transition]],
+        resolution: resolutionMap[data.transition]
+      },
+      data.issue
+    );
   };
 
   handleSetIssueTags = (data: { issue: string; tags: string }) => {
@@ -456,6 +478,7 @@ export default class IssuesServiceMock {
       ...issueDataSelected?.issue,
       ...overrides
     };
+
     return this.reply({
       issue: issueDataSelected.issue
     });

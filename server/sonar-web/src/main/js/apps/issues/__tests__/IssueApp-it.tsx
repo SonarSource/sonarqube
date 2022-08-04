@@ -232,7 +232,15 @@ it('should be able to perform action on issues', async () => {
       name: `issue.transition.status_x_click_to_change.issue.status.CONFIRMED`
     })
   ).toBeInTheDocument();
-  await user.keyboard('{Escape}');
+
+  // As won't fix
+  await user.click(screen.getByText('issue.status.CONFIRMED'));
+  await user.click(screen.getByText('issue.transition.wontfix'));
+  // Comment should open and close
+  expect(screen.getByRole('button', { name: 'issue.comment.submit' })).toBeInTheDocument();
+  await user.keyboard('test');
+  await user.click(screen.getByRole('button', { name: 'issue.comment.submit' }));
+  expect(screen.queryByRole('button', { name: 'issue.comment.submit' })).not.toBeInTheDocument();
 
   // assigning issue to a different user
   expect(
@@ -271,6 +279,13 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('issue.comment.submit'));
   expect(screen.getByText('comment')).toBeInTheDocument();
 
+  // Cancel editing the comment
+  expect(screen.getByRole('button', { name: 'issue.comment.edit' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+  await user.keyboard('New ');
+  await user.click(screen.getByRole('button', { name: 'issue.comment.edit.cancel' }));
+  expect(screen.queryByText('New comment')).not.toBeInTheDocument();
+
   // editing the comment
   expect(screen.getByRole('button', { name: 'issue.comment.edit' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
@@ -303,7 +318,12 @@ it('should be able to perform action on issues', async () => {
   expect(screen.getByText('accessibility')).toBeInTheDocument();
 
   await user.click(screen.getByText('accessibility'));
-  expect(screen.getAllByText('accessibility')).toHaveLength(2); // one in the list of selector and one selected
+  await user.click(screen.getByText('android'));
+  expect(screen.getByTitle('accessibility, android')).toBeInTheDocument();
+
+  // Unslect
+  await user.click(screen.getByText('accessibility'));
+  expect(screen.getByTitle('android')).toBeInTheDocument();
 
   await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
   await user.keyboard('addNewTag');
@@ -327,11 +347,13 @@ it('should not allow performing actions when user does not have permission', asy
       name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
     })
   ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', {
+
+  await user.click(
+    screen.getByRole('button', {
       name: `issue.comment.add_comment`
     })
-  ).not.toBeInTheDocument();
+  );
+  expect(screen.queryByRole('button', { name: 'issue.comment.submit' })).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
       name: `issue.transition.status_x_click_to_change.issue.status.OPEN`

@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../../helpers/testUtils';
 import IssueTransition from '../IssueTransition';
 
 const issue: IssueTransition['props']['issue'] = {
@@ -37,34 +36,6 @@ it('should render without the action when there is no transitions', () => {
       issue: { fromHotspot: false, key: 'foo1234', transitions: [], status: 'CLOSED', type: 'BUG' }
     })
   ).toMatchSnapshot();
-});
-
-it('should render with the action', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should render with a resolution', () => {
-  expect(
-    shallowRender({
-      issue: {
-        fromHotspot: false,
-        key: 'foo1234',
-        transitions: ['reopen'],
-        status: 'RESOLVED',
-        resolution: 'FIXED',
-        type: 'BUG'
-      }
-    })
-  ).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const togglePopup = jest.fn();
-  const element = shallowRender({ togglePopup });
-  click(element.find('ButtonLink'));
-  expect(togglePopup.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<IssueTransition['props']> = {}) {

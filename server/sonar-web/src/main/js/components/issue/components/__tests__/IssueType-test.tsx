@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../../helpers/testUtils';
 import { Issue } from '../../../../types/types';
 import IssueType from '../IssueType';
 
@@ -27,19 +26,6 @@ const issue: Pick<Issue, 'type'> = { type: 'BUG' };
 
 it('should render without the action when the correct rights are missing', () => {
   expect(shallowRender({ canSetType: false })).toMatchSnapshot();
-});
-
-it('should render with the action', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const togglePopup = jest.fn();
-  const element = shallowRender({ togglePopup });
-  click(element.find('ButtonLink'));
-  expect(togglePopup.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<IssueType['props']> = {}) {

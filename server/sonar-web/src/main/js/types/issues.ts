@@ -57,6 +57,7 @@ export interface RawIssue {
   line?: number;
   project: string;
   rule: string;
+  resolution?: string;
   message?: string;
   severity: string;
   status: string;

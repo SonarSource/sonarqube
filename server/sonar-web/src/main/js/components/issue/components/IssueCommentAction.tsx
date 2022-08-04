@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { addIssueComment } from '../../../api/issues';
+import { addIssueComment, deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import { translate } from '../../../helpers/l10n';
 import { Issue, IssueComment } from '../../../types/types';
 import { updateIssue } from '../actions';
 import CommentPopup from '../popups/CommentPopup';
+import CommentListPopup from '../popups/CommentsListPopup';
 
 interface Props {
+  canComment: boolean;
   commentAutoTriggered?: boolean;
   commentPlaceholder: string;
   currentPopup?: string;
   issueKey: string;
   onChange: (issue: Issue) => void;
   toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
-  deleteComment?: (comment: string) => void;
-  onEdit?: (comment: string, text: string) => void;
   comments?: IssueComment[];
   showCommentsInPopup?: boolean;
 }
@@ -48,6 +48,14 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
     }
   };
 
+  handleEditComment = (comment: string, text: string) => {
+    updateIssue(this.props.onChange, editIssueComment({ comment, text }));
+  };
+
+  handleDeleteComment = (comment: string) => {
+    updateIssue(this.props.onChange, deleteIssueComment({ comment }));
+  };
+
   handleCommentClick = () => {
     this.props.toggleComment();
   };
@@ -57,7 +65,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
   };
 
   render() {
-    const { comments, showCommentsInPopup } = this.props;
+    const { comments, showCommentsInPopup, canComment } = this.props;
     return (
       <div className="issue-meta dropdown">
         <Toggler
@@ -65,16 +73,25 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
           onRequestClose={this.handleClose}
           open={this.props.currentPopup === 'comment'}
           overlay={
-            <CommentPopup
-              autoTriggered={this.props.commentAutoTriggered}
-              onComment={this.addComment}
-              placeholder={this.props.commentPlaceholder}
-              toggleComment={this.props.toggleComment}
-              comments={comments}
-              deleteComment={this.props.deleteComment}
-              onEdit={this.props.onEdit}
-              showCommentsInPopup={showCommentsInPopup}
-            />
+            showCommentsInPopup ? (
+              <CommentListPopup
+                comments={comments}
+                deleteComment={this.handleDeleteComment}
+                onAddComment={this.addComment}
+                onEdit={this.handleEditComment}
+                placeholder={this.props.commentPlaceholder}
+                toggleComment={this.props.toggleComment}
+                autoTriggered={this.props.commentAutoTriggered}
+                canComment={canComment}
+              />
+            ) : (
+              <CommentPopup
+                autoTriggered={this.props.commentAutoTriggered}
+                onComment={this.addComment}
+                placeholder={this.props.commentPlaceholder}
+                toggleComment={this.props.toggleComment}
+              />
+            )
           }>
           <ButtonLink
             aria-expanded={this.props.currentPopup === 'comment'}

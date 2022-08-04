@@ -36,8 +36,6 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
-  deleteComment?: (comment: string) => void;
-  onEdit?: (comment: string, text: string) => void;
   className?: string;
   showCommentsInPopup?: boolean;
 }
@@ -148,7 +146,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               </span>
             </div>
           )}
-          {canComment && (
+          {(canComment || showCommentsInPopup) && (
             <IssueCommentAction
               commentAutoTriggered={this.state.commentAutoTriggered}
               commentPlaceholder={this.state.commentPlaceholder}
@@ -157,8 +155,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               onChange={this.props.onChange}
               toggleComment={this.toggleComment}
               comments={issue.comments}
-              deleteComment={this.props.deleteComment}
-              onEdit={this.props.onEdit}
+              canComment={canComment}
               showCommentsInPopup={showCommentsInPopup}
             />
           )}

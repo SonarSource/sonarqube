@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
-import { deleteIssueComment, editIssueComment, setIssueAssignee } from '../../../api/issues';
+import { setIssueAssignee } from '../../../api/issues';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import LinkIcon from '../../../components/icons/LinkIcon';
@@ -65,17 +65,21 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
   }
 
-  handleIssuePopupToggle = (popupName: string, open = true) => {
-    const name = open ? popupName : undefined;
-    this.setState({ issuePopupName: name });
-  };
+  handleIssuePopupToggle = (popupName: string, open?: boolean) => {
+    const openPopupState = { issuePopupName: popupName };
 
-  deleteComment = (comment: string) => {
-    updateIssue(this.props.onIssueChange, deleteIssueComment({ comment }));
-  };
+    const closePopupState = { issuePopupName: undefined };
 
-  editComment = (comment: string, text: string) => {
-    updateIssue(this.props.onIssueChange, editIssueComment({ comment, text }));
+    this.setState(({ issuePopupName }) => {
+      if (open) {
+        return openPopupState;
+      } else if (open === false) {
+        return closePopupState;
+      }
+
+      // toggle popup
+      return issuePopupName === popupName ? closePopupState : openPopupState;
+    });
   };
 
   handleAssignement = (login: string) => {
@@ -229,8 +233,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           onAssign={this.handleAssignement}
           onChange={this.props.onIssueChange}
           togglePopup={this.handleIssuePopupToggle}
-          deleteComment={this.deleteComment}
-          onEdit={this.editComment}
           showCommentsInPopup={true}
         />
       </>

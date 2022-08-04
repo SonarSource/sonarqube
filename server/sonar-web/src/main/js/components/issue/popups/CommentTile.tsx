@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
-import { Button, DeleteButton, EditButton, ResetButtonLink } from '../../controls/buttons';
+import { DeleteButton, EditButton } from '../../controls/buttons';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import Avatar from '../../ui/Avatar';
+import CommentForm from './CommentForm';
 
 interface CommentTileProps {
   comment: IssueComment;
@@ -34,46 +34,31 @@ interface CommentTileProps {
 
 interface CommentTileState {
   showEditArea: boolean;
-  editedComment: string;
 }
 
 export default class CommentTile extends React.PureComponent<CommentTileProps, CommentTileState> {
   state = {
-    showEditArea: false,
-    editedComment: ''
+    showEditArea: false
   };
 
   handleEditClick = () => {
-    const { comment } = this.props;
     const { showEditArea } = this.state;
-    const editedComment = !showEditArea ? comment.markdown : '';
-    this.setState({ showEditArea: !showEditArea, editedComment });
+    this.setState({ showEditArea: !showEditArea });
   };
 
-  handleSaveClick = () => {
+  handleSaveClick = (editedComment: string) => {
     const { comment } = this.props;
-    const { editedComment } = this.state;
     this.props.onEdit(comment.key, editedComment);
-    this.setState({ showEditArea: false, editedComment: '' });
+    this.setState({ showEditArea: false });
   };
 
   handleCancelClick = () => {
     this.setState({ showEditArea: false });
   };
 
-  handleEditCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ editedComment: event.target.value });
-  };
-
-  handleKeyboard = (event: React.KeyboardEvent) => {
-    if (event.nativeEvent.key === KeyboardKeys.Enter && (event.metaKey || event.ctrlKey)) {
-      this.handleSaveClick();
-    }
-  };
-
   render() {
     const { comment } = this.props;
-    const { showEditArea, editedComment } = this.state;
+    const { showEditArea } = this.state;
     const author = comment.authorName || comment.author;
     const displayName =
       comment.authorActive === false && author
@@ -103,31 +88,13 @@ export default class CommentTile extends React.PureComponent<CommentTileProps, C
             />
           )}
           {showEditArea && (
-            <div className="edit-form flex-1">
-              <div className="issue-comment-form-text">
-                <textarea
-                  autoFocus={true}
-                  onChange={this.handleEditCommentChange}
-                  onKeyDown={this.handleKeyboard}
-                  rows={2}
-                  value={editedComment}
-                />
-              </div>
-              <div className="issue-comment-form-footer">
-                <div className="issue-comment-form-actions little-padded-left">
-                  <Button
-                    className="js-issue-comment-submit little-spacer-right"
-                    disabled={editedComment.trim().length < 1}
-                    onClick={this.handleSaveClick}>
-                    {translate('save')}
-                  </Button>
-                  <ResetButtonLink
-                    className="js-issue-comment-cancel"
-                    onClick={this.handleCancelClick}>
-                    {translate('cancel')}
-                  </ResetButtonLink>
-                </div>
-              </div>
+            <div className="flex-1">
+              <CommentForm
+                onCancel={this.handleCancelClick}
+                onSaveComment={this.handleSaveClick}
+                showFormatHelp={false}
+                comment={comment.markdown}
+              />
             </div>
           )}
           {comment.updatable && (

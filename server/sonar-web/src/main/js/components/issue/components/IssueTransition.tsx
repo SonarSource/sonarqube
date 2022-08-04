@@ -42,7 +42,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
       this.props.onChange,
       setIssueTransition({ issue: this.props.issue.key, transition })
     );
-    this.toggleSetTransition();
+    this.toggleSetTransition(false);
   };
 
   toggleSetTransition = (open?: boolean) => {

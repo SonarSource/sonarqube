@@ -32,8 +32,6 @@ it('should render issue correctly', () => {
       onAssign={jest.fn()}
       onChange={jest.fn()}
       togglePopup={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -46,8 +44,6 @@ it('should render security hotspot correctly', () => {
       onAssign={jest.fn()}
       onChange={jest.fn()}
       togglePopup={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -60,8 +56,6 @@ it('should render commentable correctly', () => {
       onAssign={jest.fn()}
       onChange={jest.fn()}
       togglePopup={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -74,8 +68,6 @@ it('should render effort correctly', () => {
       onAssign={jest.fn()}
       onChange={jest.fn()}
       togglePopup={jest.fn()}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -92,8 +84,6 @@ describe('callback', () => {
       onAssign={jest.fn()}
       onChange={onChangeMock}
       togglePopup={togglePopupMock}
-      deleteComment={jest.fn()}
-      onEdit={jest.fn()}
     />
   );
 

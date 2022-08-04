@@ -22,35 +22,55 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { IssueComment } from '../../../types/types';
 import CommentForm from './CommentForm';
+import CommentList from './CommentList';
 
-export interface CommentPopupProps {
-  comment?: Pick<IssueComment, 'markdown'>;
-  onComment: (text: string) => void;
+export interface Props {
+  onAddComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
+  deleteComment: (comment: string) => void;
+  onEdit: (comment: string, text: string) => void;
   placeholder: string;
   placement?: PopupPlacement;
   autoTriggered?: boolean;
+  comments?: IssueComment[];
+  canComment: boolean;
 }
 
-export default class CommentPopup extends React.PureComponent<CommentPopupProps> {
+export default class CommentListPopup extends React.PureComponent<Props, {}> {
+  handleCommentClick = (comment: string) => {
+    const { autoTriggered } = this.props;
+
+    this.props.onAddComment(comment);
+
+    if (autoTriggered) {
+      this.props.toggleComment(false);
+    }
+  };
+
   handleCancelClick = () => {
     this.props.toggleComment(false);
   };
 
   render() {
-    const { comment, autoTriggered } = this.props;
+    const { comments, placeholder, autoTriggered, canComment } = this.props;
 
     return (
       <DropdownOverlay placement={this.props.placement}>
         <div className="issue-comment-bubble-popup">
-          <CommentForm
-            placeholder={this.props.placeholder}
-            onCancel={this.handleCancelClick}
-            onSaveComment={this.props.onComment}
-            showFormatHelp={true}
-            comment={comment?.markdown}
-            autoTriggered={autoTriggered}
+          <CommentList
+            comments={comments}
+            deleteComment={this.props.deleteComment}
+            onEdit={this.props.onEdit}
           />
+          {canComment && (
+            <CommentForm
+              autoTriggered={autoTriggered}
+              placeholder={placeholder}
+              onCancel={this.handleCancelClick}
+              onSaveComment={this.handleCommentClick}
+              showFormatHelp={true}
+            />
+          )}
         </div>
       </DropdownOverlay>
     );
