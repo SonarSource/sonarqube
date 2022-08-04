@@ -1,60 +1,9 @@
 #! /bin/sh
 
-#
-# Copyright (c) 1999, 2006 Tanuki Software Inc.
-#
-# Java Service Wrapper sh script.  Suitable for starting and stopping
-#  wrapped Java applications on UNIX platforms.
-#
+APP_NAME="SonarQube"
 
-#-----------------------------------------------------------------------------
-# These settings can be modified to fit the needs of your application
-
-# Default values for the Application variables, below. 
-# 
-# NOTE: The build for specific applications may override this during the resource-copying
-# phase, to fill in a concrete name and avoid the use of the defaults specified here.
-DEF_APP_NAME="SonarQube"
-DEF_APP_LONG_NAME="SonarQube"
-
-# Application
-APP_NAME="${DEF_APP_NAME}"
-APP_LONG_NAME="${DEF_APP_LONG_NAME}"
-
-# Wrapper
-WRAPPER_CMD="./wrapper"
-WRAPPER_CONF="../../conf/wrapper.conf"
-SHUTDOWNER_LIB_DIR="../../lib"
-
-# Priority at which to run the wrapper.  See "man nice" for valid priorities.
-#  nice is only used if a priority is specified.
-PRIORITY=
-
-# Location of the pid file.
-PIDDIR="."
-
-# If uncommented, causes the Wrapper to be shutdown using an anchor file.
-#  When launched with the 'start' command, it will also ignore all INT and
-#  TERM signals.
-#IGNORE_SIGNALS=true
-
-# If specified, the Wrapper will be run as the specified user.
-# IMPORTANT - Make sure that the user has the required privileges to write
-#  the PID file and wrapper.log files.  Failure to be able to write the log
-#  file will cause the Wrapper to exit without any way to write out an error
-#  message.
-# NOTE - This will set the user which is used to run the Wrapper as well as
-#  the JVM and is not useful in situations where a privileged resource or
-#  port needs to be allocated prior to the user being changed.
-#RUN_AS_USER=
-
-# The following two lines are used by the chkconfig command. Change as is
-#  appropriate for your application.  They should remain commented.
-# chkconfig: 2345 20 80
-# description: Test Wrapper Sample Application
-
-# Do not modify anything beyond this point
-#-----------------------------------------------------------------------------
+# Java command location
+JAVA_CMD="java"
 
 # Get the fully qualified path to the script
 case $0 in
@@ -104,40 +53,24 @@ done
 
 # Change the current directory to the location of the script
 cd "`dirname "$REALPATH"`"
-REALDIR=`pwd`
 
-# If the PIDDIR is relative, set its value relative to the full REALPATH to avoid problems if
-#  the working directory is later changed.
-FIRST_CHAR=`echo $PIDDIR | cut -c1,1`
-if [ "$FIRST_CHAR" != "/" ]
-then
-    PIDDIR=$REALDIR/$PIDDIR
-fi
-# Same test for WRAPPER_CMD
-FIRST_CHAR=`echo $WRAPPER_CMD | cut -c1,1`
-if [ "$FIRST_CHAR" != "/" ]
-then
-    WRAPPER_CMD=$REALDIR/$WRAPPER_CMD
-fi
-# Same test for WRAPPER_CONF
-FIRST_CHAR=`echo $WRAPPER_CONF | cut -c1,1`
-if [ "$FIRST_CHAR" != "/" ]
-then
-    WRAPPER_CONF=$REALDIR/$WRAPPER_CONF
-fi
-# Same test for SHUTDOWNER_LIB_DIR
-FIRST_CHAR=`echo $SHUTDOWNER_LIB_DIR | cut -c1,1`
-if [ "$FIRST_CHAR" != "/" ]
-then
-    SHUTDOWNER_LIB_DIR=$REALDIR/$SHUTDOWNER_LIB_DIR
-fi
+LIB_DIR="../../lib"
 
-# Process ID
-ANCHORFILE="$PIDDIR/$APP_NAME.anchor"
-PIDFILE="$PIDDIR/$APP_NAME.pid"
-LOCKDIR="/var/lock/subsys"
-LOCKFILE="$LOCKDIR/$APP_NAME"
-pid=""
+HAZELCAST_ADDITIONAL="--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED \
+--add-opens=java.base/java.lang=ALL-UNNAMED \
+--add-opens=java.base/java.nio=ALL-UNNAMED \
+--add-opens=java.base/sun.nio.ch=ALL-UNNAMED \
+--add-opens=java.management/sun.management=ALL-UNNAMED \
+--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED"
+
+# Sonar app launching process memory setting
+XMS="-Xms8m"
+XMX="-Xmx32m"
+
+COMMAND_LINE="$JAVA_CMD $XMS $XMX $HAZELCAST_ADDITIONAL -jar $LIB_DIR/sonar-application-@sqversion@.jar"
+
+# Location of the pid file.
+PIDFILE="./$APP_NAME.pid"
 
 # Resolve the location of the 'ps' command
 PSEXE="/usr/bin/ps"
@@ -152,222 +85,6 @@ then
     fi
 fi
 
-# Resolve the os
-DIST_OS=`uname -s | tr [:upper:] [:lower:] | tr -d [:blank:]`
-case "$DIST_OS" in
-    'sunos')
-        DIST_OS="solaris"
-        ;;
-    'hp-ux' | 'hp-ux64')
-        DIST_OS="hpux"
-        ;;
-    'darwin')
-        DIST_OS="macosx"
-        ;;
-    'unix_sv')
-        DIST_OS="unixware"
-        ;;
-esac
-
-# Resolve the architecture
-DIST_ARCH=`uname -p | tr [:upper:] [:lower:] | tr -d [:blank:]`
-if [ "$DIST_ARCH" = "unknown" ]
-then
-    DIST_ARCH=`uname -m | tr [:upper:] [:lower:] | tr -d [:blank:]`
-fi
-case "$DIST_ARCH" in
-    'amd64' | 'athlon' | 'ia32' | 'ia64' | 'i386' | 'i486' | 'i586' | 'i686' | 'x86_64')
-        DIST_ARCH="x86"
-        ;;
-    'ip27')
-        DIST_ARCH="mips"
-        ;;
-    'power' | 'powerpc' | 'power_pc' | 'ppc64')
-        DIST_ARCH="ppc"
-        ;;
-    'pa_risc' | 'pa-risc')
-        DIST_ARCH="parisc"
-        ;;
-    'sun4u' | 'sparcv9')
-        DIST_ARCH="sparc"
-        ;;
-    '9000/800')
-        DIST_ARCH="parisc"
-        ;;
-esac
-
-outputFile() {
-    if [ -f "$1" ]
-    then
-        echo "  $1 (Found but not executable.)";
-    else
-        echo "  $1"
-    fi
-}
-
-# Decide on the wrapper binary to use.
-# If a 32-bit wrapper binary exists then it will work on 32 or 64 bit
-#  platforms, if the 64-bit binary exists then the distribution most
-#  likely wants to use long names.  Otherwise, look for the default.
-# For macosx, we also want to look for universal binaries.
-WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
-if [ -x "$WRAPPER_TEST_CMD" ]
-then
-    WRAPPER_CMD="$WRAPPER_TEST_CMD"
-else
-    if [ "$DIST_OS" = "macosx" ]
-    then
-        WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-universal-32"
-        if [ -x "$WRAPPER_TEST_CMD" ]
-        then
-            WRAPPER_CMD="$WRAPPER_TEST_CMD"
-        else
-            WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-            if [ -x "$WRAPPER_TEST_CMD" ]
-            then
-                WRAPPER_CMD="$WRAPPER_TEST_CMD"
-            else
-                WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-universal-64"
-                if [ -x "$WRAPPER_TEST_CMD" ]
-                then
-                    WRAPPER_CMD="$WRAPPER_TEST_CMD"
-                else
-                    if [ ! -x "$WRAPPER_CMD" ]
-                    then
-                        echo "Unable to locate any of the following binaries:"
-                        outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
-                        outputFile "$WRAPPER_CMD-$DIST_OS-universal-32"
-                        outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-                        outputFile "$WRAPPER_CMD-$DIST_OS-universal-64"
-                        outputFile "$WRAPPER_CMD"
-                        exit 1
-                    fi
-                fi
-            fi
-        fi
-    else
-        WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-        if [ -x "$WRAPPER_TEST_CMD" ]
-        then
-            WRAPPER_CMD="$WRAPPER_TEST_CMD"
-        else
-            if [ ! -x "$WRAPPER_CMD" ]
-            then
-                echo "Unable to locate any of the following binaries:"
-                outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
-                outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-                outputFile "$WRAPPER_CMD"
-                exit 1
-            fi
-        fi
-    fi
-fi
-
-# Build the nice clause
-if [ "X$PRIORITY" = "X" ]
-then
-    CMDNICE=""
-else
-    CMDNICE="nice -$PRIORITY"
-fi
-
-CMDJAVA="java"
-# read java command from wrapper.conf as first uncommented line containing "wrapper.java.command="
-grep "wrapper.java.command=" "$WRAPPER_CONF" | grep -v "^#" | while read -r line; do
-  CMDJAVA="${line#*=}"
-  break
-done
-
-# Build the anchor file clause.
-if [ "X$IGNORE_SIGNALS" = "X" ]
-then
-   ANCHORPROP=
-   IGNOREPROP=
-else
-   ANCHORPROP=wrapper.anchorfile=\"$ANCHORFILE\"
-   IGNOREPROP=wrapper.ignore_signals=TRUE
-fi
-
-# Build the lock file clause.  Only create a lock file if the lock directory exists on this platform.
-LOCKPROP=
-if [ -d $LOCKDIR ]
-then
-    if [ -w $LOCKDIR ]
-    then
-        LOCKPROP=wrapper.lockfile=\"$LOCKFILE\"
-    fi
-fi
-
-checkUser() {
-    # $1 touchLock flag
-    # $2 command
-
-    # Check the configured user.  If necessary rerun this script as the desired user.
-    if [ "X$RUN_AS_USER" != "X" ]
-    then
-        # Resolve the location of the 'id' command
-        IDEXE="/usr/xpg4/bin/id"
-        if [ ! -x "$IDEXE" ]
-        then
-            IDEXE="/usr/bin/id"
-            if [ ! -x "$IDEXE" ]
-            then
-                echo "Unable to locate 'id'."
-                echo "Please report this message along with the location of the command on your system."
-                exit 1
-            fi
-        fi
-    
-        if [ "`$IDEXE -u -n`" = "$RUN_AS_USER" ]
-        then
-            # Already running as the configured user.  Avoid password prompts by not calling su.
-            RUN_AS_USER=""
-        fi
-    fi
-    if [ "X$RUN_AS_USER" != "X" ]
-    then
-        # If LOCKPROP and $RUN_AS_USER are defined then the new user will most likely not be
-        # able to create the lock file.  The Wrapper will be able to update this file once it
-        # is created but will not be able to delete it on shutdown.  If $2 is defined then
-        # the lock file should be created for the current command
-        if [ "X$LOCKPROP" != "X" ]
-        then
-            if [ "X$1" != "X" ]
-            then
-                # Resolve the primary group 
-                RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
-                if [ "X$RUN_AS_GROUP" = "X" ]
-                then
-                    RUN_AS_GROUP=$RUN_AS_USER
-                fi
-                touch $LOCKFILE
-                chown $RUN_AS_USER:$RUN_AS_GROUP $LOCKFILE
-            fi
-        fi
-
-        # Still want to change users, recurse.  This means that the user will only be
-        #  prompted for a password once. Variables shifted by 1
-        su -m $RUN_AS_USER -c "\"$REALPATH\" $2"
-        RETVAL=$?
-
-        # Now that we are the original user again, we may need to clean up the lock file.
-        if [ "X$LOCKPROP" != "X" ]
-        then
-            getpid
-            if [ "X$pid" = "X" ]
-            then
-                # Wrapper is not running so make sure the lock file is deleted.
-                if [ -f "$LOCKFILE" ]
-                then
-                    rm "$LOCKFILE"
-                fi
-            fi
-        fi
-
-        exit $RETVAL
-    fi
-}
-
 getpid() {
     if [ -f "$PIDFILE" ]
     then
@@ -381,14 +98,7 @@ getpid() {
                 #  common is during system startup after an unclean shutdown.
                 # The ps statement below looks for the specific wrapper command running as
                 #  the pid.  If it is not found then the pid file is considered to be stale.
-                case "$DIST_OS" in
-                    'macosx')
-                        pidtest=`$PSEXE -ww -p $pid -o command | grep "$WRAPPER_CMD" | tail -1`
-                        ;;
-                    *)
-                        pidtest=`$PSEXE -p $pid -o args | grep "$WRAPPER_CMD" | tail -1`
-                        ;;
-                esac
+                pidtest=`$PSEXE -p $pid | grep "sonar-application-@sqversion@.jar" | tail -1`
                 if [ "X$pidtest" = "X" ]
                 then
                     # This is a stale pid file.
@@ -415,40 +125,38 @@ testpid() {
 }
 
 console() {
-    echo "Running $APP_LONG_NAME..."
+    echo "Running $APP_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
-        # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=$APP_NAME wrapper.pidfile=\"$PIDFILE\" $ANCHORPROP $LOCKPROP"
-        eval $COMMAND_LINE
+        echo $$ > $PIDFILE
+        exec $COMMAND_LINE -Dsonar.log.console=true
     else
-        echo "$APP_LONG_NAME is already running."
+        echo "$APP_NAME is already running."
         exit 1
     fi
 }
- 
+
 start() {
-    echo "Starting $APP_LONG_NAME..."
+    echo "Starting $APP_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
-        # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=$APP_NAME wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
-        eval $COMMAND_LINE
+        exec nohup $COMMAND_LINE >../../logs/nohup.log 2>&1 &
+        echo $! > $PIDFILE
     else
-        echo "$APP_LONG_NAME is already running."
+        echo "$APP_NAME is already running."
         exit 1
     fi
     getpid
     if [ "X$pid" != "X" ]
     then
-        echo "Started $APP_LONG_NAME."
+        echo "Started $APP_NAME."
     else
-        echo "Failed to start $APP_LONG_NAME."
-    fi    
+        echo "Failed to start $APP_NAME."
+    fi
 }
- 
+
 waitforstop() {
     # We can not predict how long it will take for the wrapper to
     #  actually stop as it depends on settings in wrapper.conf.
@@ -463,7 +171,7 @@ waitforstop() {
         then
             CNT=`expr $CNT + 1`
         else
-            echo "Waiting for $APP_LONG_NAME to exit..."
+            echo "Waiting for $APP_NAME to exit..."
             CNT=0
         fi
         TOTCNT=`expr $TOTCNT + 1`
@@ -477,38 +185,26 @@ waitforstop() {
     testpid
     if [ "X$pid" != "X" ]
     then
-        echo "Failed to stop $APP_LONG_NAME."
+        echo "Failed to stop $APP_NAME."
         exit 1
     else
-        echo "Stopped $APP_LONG_NAME."
+        echo "Stopped $APP_NAME."
     fi
 }
 
 stopit() {
-    echo "Gracefully stopping $APP_LONG_NAME..."
+    echo "Gracefully stopping $APP_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
-        echo "$APP_LONG_NAME was not running."
+        echo "$APP_NAME was not running."
     else
-        if [ "X$IGNORE_SIGNALS" = "X" ]
+        kill $pid
+        if [ $? -ne 0 ]
         then
-            # Running so try to stop it.
-            kill $pid
-            if [ $? -ne 0 ]
-            then
-                # An explanation for the failure should have been given
-                echo "Unable to stop $APP_LONG_NAME."
-                exit 1
-            fi
-        else
-            rm -f "$ANCHORFILE"
-            if [ -f "$ANCHORFILE" ]
-            then
-                # An explanation for the failure should have been given
-                echo "Unable to stop $APP_LONG_NAME."
-                exit 1
-            fi
+            # An explanation for the failure should have been given
+            echo "Unable to stop $APP_NAME."
+            exit 1
         fi
 
         waitforstop
@@ -518,19 +214,19 @@ stopit() {
 forcestopit() {
     getpid
     if [ "X$pid" = "X" ]
-            then
-        echo "$APP_LONG_NAME not running"
+    then
+        echo "$APP_NAME not running"
         exit 1
-            fi
+    fi
 
-        testpid
-        if [ "X$pid" != "X" ]
-        then
+    testpid
+    if [ "X$pid" != "X" ]
+    then
       # start shutdowner from SQ installation directory
       cd "../.."
 
-      echo "Force stopping $APP_LONG_NAME..."
-      ${CMDJAVA} -classpath "${SHUTDOWNER_LIB_DIR}/*" "org.sonar.application.Shutdowner"
+      echo "Force stopping $APP_NAME..."
+      ${JAVA_CMD} -jar "lib/sonar-shutdowner-@sqversion@.jar"
 
       waitforstop
     fi
@@ -540,30 +236,30 @@ status() {
     getpid
     if [ "X$pid" = "X" ]
     then
-        echo "$APP_LONG_NAME is not running."
+        echo "$APP_NAME is not running."
         exit 1
     else
-        echo "$APP_LONG_NAME is running ($pid)."
+        echo "$APP_NAME is running ($pid)."
         exit 0
     fi
 }
 
 dump() {
-    echo "Dumping $APP_LONG_NAME..."
+    echo "Dumping $APP_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
-        echo "$APP_LONG_NAME was not running."
+        echo "$APP_NAME was not running."
 
     else
         kill -3 $pid
 
         if [ $? -ne 0 ]
         then
-            echo "Failed to dump $APP_LONG_NAME."
+            echo "Failed to dump $APP_NAME."
             exit 1
         else
-            echo "Dumped $APP_LONG_NAME."
+            echo "Dumped $APP_NAME."
         fi
     fi
 }
@@ -571,38 +267,31 @@ dump() {
 case "$1" in
 
     'console')
-        checkUser touchlock $1
         console
         ;;
 
     'start')
-        checkUser touchlock $1
         start
         ;;
 
     'stop')
-        checkUser "" $1
         stopit
         ;;
 
     'force-stop')
-        checkUser "" $1
         forcestopit
         ;;
 
     'restart')
-        checkUser touchlock $1
         stopit
         start
         ;;
 
     'status')
-        checkUser "" $1
         status
         ;;
 
     'dump')
-        checkUser "" $1
         dump
         ;;
 

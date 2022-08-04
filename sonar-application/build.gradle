@@ -17,7 +17,6 @@ sonarqube {
 
 configurations {
   zip
-  jsw
   scanner
   web
   shutdowner
@@ -37,7 +36,7 @@ configurations {
     extendsFrom bundledPlugin
     transitive = true
   }
-  appLicenses.extendsFrom(compile, web, scanner, jsw, jdbc_mssql, jdbc_postgresql, jdbc_h2)
+  appLicenses.extendsFrom(compile, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2)
   cyclonedx
 }
 
@@ -66,7 +65,6 @@ dependencies {
 
     compileOnly 'com.google.code.findbugs:jsr305'
 
-    jsw 'tanukisoft:wrapper:3.2.3'
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
     cyclonedx project(path: ':sonar-scanner-engine-shaded')
     web project(':server:sonar-web')
@@ -144,6 +142,8 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
       exclude 'conf/sonar.properties'
       exclude 'conf/wrapper.conf'
       exclude 'elasticsearch-patch'
+      exclude 'bin/linux-x86-64/sonar.sh'
+      exclude 'bin/macosx-universal-64/sonar.sh'
     }
   }
 
@@ -222,8 +222,16 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
             'webJavaOpts'          : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError'
     ])
   }
-  into("${archiveDir}/conf/") {
-    from file('src/main/assembly/conf/wrapper.conf')
+
+  into("${archiveDir}/bin/linux-x86-64/") {
+    from file('src/main/assembly/bin/linux-x86-64/sonar.sh')
+    filter(ReplaceTokens, tokens: [
+            'sqversion': version
+    ])
+  }
+
+  into("${archiveDir}/bin/macosx-universal-64/") {
+    from file('src/main/assembly/bin/macosx-universal-64/sonar.sh')
     filter(ReplaceTokens, tokens: [
             'sqversion': version
     ])
@@ -239,9 +247,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
   }
   into("${archiveDir}/lib/extensions/") {
     from configurations.bundledPlugin
-  }
-  into("${archiveDir}/lib/jsw/") {
-    from configurations.jsw
   }
   into("${archiveDir}/lib/scanner/") {
     from configurations.scanner
@@ -315,7 +320,7 @@ artifactoryPublish.skip = false
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
 cyclonedxBom {
-  includeConfigs += ["runtimeClasspath", "jsw", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
+  includeConfigs += ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
                      "cyclonedx"]
   outputs.file bomFile
   outputs.upToDateWhen { false }
