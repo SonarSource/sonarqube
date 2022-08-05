@@ -67,7 +67,7 @@ public class ComputeLocationHashesVisitor extends IssueVisitor {
   }
 
   @Override
-  public void afterComponent(Component component) {
+  public void beforeCaching(Component component) {
     Map<Component, List<Location>> locationsByComponent = new HashMap<>();
     List<LocationToSet> locationsToSet = new LinkedList<>();
 

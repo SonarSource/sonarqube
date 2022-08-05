@@ -47,4 +47,10 @@ public class IssueVisitors {
       visitor.afterComponent(component);
     }
   }
+
+  public void beforeCaching(Component component) {
+    for (IssueVisitor visitor : visitors) {
+      visitor.beforeCaching(component);
+    }
+  }
 }

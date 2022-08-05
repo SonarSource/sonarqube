@@ -88,7 +88,7 @@ public class ComputeLocationHashesVisitorTest {
 
     underTest.beforeComponent(FILE_1);
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     DbIssues.Locations locations = issue.getLocations();
     assertThat(locations.getChecksum()).isEmpty();
@@ -102,7 +102,7 @@ public class ComputeLocationHashesVisitorTest {
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 0, 3, EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)).build());
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     DbIssues.Locations locations = issue.getLocations();
     assertThat(locations.getChecksum()).isEmpty();
@@ -115,7 +115,7 @@ public class ComputeLocationHashesVisitorTest {
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 0, 3, EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)).build());
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     assertLocationHashIsMadeOf(issue, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
   }
@@ -128,10 +128,10 @@ public class ComputeLocationHashesVisitorTest {
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 0, 1, LINE_IN_ANOTHER_FILE.length())).build());
 
     underTest.onIssue(FILE_1, issue1);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     underTest.onIssue(FILE_2, issue2);
-    underTest.afterComponent(FILE_2);
+    underTest.beforeCaching(FILE_2);
 
     assertLocationHashIsMadeOf(issue1, "intexample=line+of+code+1;intexample=line+of+code+2;intexample=line+of+code+3;");
     assertLocationHashIsMadeOf(issue2, "Stringstring='line-in-the-another-file';");
@@ -143,7 +143,7 @@ public class ComputeLocationHashesVisitorTest {
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 13, 1, EXAMPLE_LINE_OF_CODE_FORMAT.length() - 1)).build());
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     assertLocationHashIsMadeOf(issue, "line+of+code+1;");
   }
@@ -154,7 +154,7 @@ public class ComputeLocationHashesVisitorTest {
       .setLocations(DbIssues.Locations.newBuilder().setTextRange(createRange(1, 13, 3, 11)).build());
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     assertLocationHashIsMadeOf(issue, "line+of+code+1;intexample=line+of+code+2;intexample");
   }
@@ -178,7 +178,7 @@ public class ComputeLocationHashesVisitorTest {
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(LINE_IN_THE_MAIN_FILE));
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     verify(sourceLinesRepository).readLines(FILE_1);
     verifyNoMoreInteractions(sourceLinesRepository);
@@ -208,7 +208,7 @@ public class ComputeLocationHashesVisitorTest {
     when(sourceLinesRepository.readLines(FILE_2)).thenReturn(newOneLineIterator(LINE_IN_ANOTHER_FILE));
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     DbIssues.Locations locations = issue.getLocations();
 
@@ -237,7 +237,7 @@ public class ComputeLocationHashesVisitorTest {
     when(sourceLinesRepository.readLines(FILE_1)).thenReturn(manyLinesIterator(LINE_IN_THE_MAIN_FILE, ANOTHER_LINE_IN_THE_MAIN_FILE));
 
     underTest.onIssue(FILE_1, issue);
-    underTest.afterComponent(FILE_1);
+    underTest.beforeCaching(FILE_1);
 
     DbIssues.Locations locations = issue.getLocations();
 

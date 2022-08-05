@@ -44,6 +44,13 @@ public abstract class IssueVisitor {
 
   }
 
+  /**
+   * This method is called on a component before issues are persisted to cache.
+   */
+  public void beforeCaching(Component component) {
+
+  }
+
   public void afterComponent(Component component) {
 
   }
