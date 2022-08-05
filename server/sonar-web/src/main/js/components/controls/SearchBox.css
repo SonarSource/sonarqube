@@ -77,7 +77,7 @@
   position: absolute;
   top: 4px;
   left: 4px;
-  color: var(--gray60);
+  color: var(--gray52);
   transition: color 0.3s ease;
 }
 

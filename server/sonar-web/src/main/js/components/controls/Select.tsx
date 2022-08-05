@@ -40,7 +40,7 @@ import { colors, others, sizes, zIndexes } from '../../app/theme';
 import { ClearButton } from './buttons';
 
 const ArrowSpan = styled.span`
-  border-color: #999 transparent transparent;
+  border-color: ${colors.gray52} transparent transparent;
   border-style: solid;
   border-width: 4px 4px 2px;
   display: inline-block;
