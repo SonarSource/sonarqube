@@ -63,7 +63,7 @@ export class HomePageSelect extends React.PureComponent<Props> {
   };
 
   render() {
-    const { currentPage, currentUser } = this.props;
+    const { className, currentPage, currentUser } = this.props;
 
     if (!isLoggedIn(currentUser)) {
       return null;
@@ -81,13 +81,14 @@ export class HomePageSelect extends React.PureComponent<Props> {
         {isDefault ? (
           <span
             aria-label={tooltip}
-            className={classNames('display-inline-block', this.props.className)}>
+            className={classNames('display-inline-block', className)}
+            role="img">
             <HomeIcon filled={isChecked} />
           </span>
         ) : (
           <ButtonLink
             aria-label={tooltip}
-            className={classNames('link-no-underline', 'set-homepage-link', this.props.className)}
+            className={classNames('link-no-underline', 'set-homepage-link', className)}
             onClick={isChecked ? this.handleReset : this.handleClick}
             innerRef={node => (this.buttonNode = node)}>
             <HomeIcon filled={isChecked} />
