@@ -81,6 +81,7 @@ public class FileSourceDto extends FileHashesDto {
     return this;
   }
 
+  @Override
   public FileSourceDto setFileUuid(String fileUuid) {
     this.fileUuid = fileUuid;
     return this;
@@ -89,6 +90,7 @@ public class FileSourceDto extends FileHashesDto {
   /**
    * MD5 of column BINARY_DATA. Used to know to detect data changes and need for update.
    */
+  @Override
   public FileSourceDto setDataHash(String s) {
     this.dataHash = s;
     return this;
@@ -211,6 +213,7 @@ public class FileSourceDto extends FileHashesDto {
   /**
    * Hash of file content. Value is computed by batch.
    */
+  @Override
   public FileSourceDto setSrcHash(@Nullable String srcHash) {
     this.srcHash = srcHash;
     return this;
@@ -230,6 +233,7 @@ public class FileSourceDto extends FileHashesDto {
     return this;
   }
 
+  @Override
   public FileSourceDto setRevision(@Nullable String revision) {
     this.revision = revision;
     return this;
