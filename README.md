@@ -1,3 +1,9 @@
+sonarqube9.4 metric new_lines has a bug ,when I scan my project new_lines=18,655, but after I  increase 147 lines ，I scan again new_lines=18803,
+Normally it would be 147。
+![image](https://user-images.githubusercontent.com/4475925/183040463-5c59cb10-f02d-4a43-bddf-bee58c10aaf0.png)
+![image](https://user-images.githubusercontent.com/4475925/183041099-b7e6a003-ea1a-4bbd-8fd0-00bd204e4f55.png)
+
+
 SonarQube [![Build Status](https://app.travis-ci.com/SonarSource/sonarqube.svg?branch=master)](https://app.travis-ci.com/SonarSource/sonarqube) [![Quality Gate Status](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=sonarqube&metric=alert_status&token=d95182127dd5583f57578d769b511660601a8547)](https://next.sonarqube.com/sonarqube/dashboard?id=sonarqube)
 =========
 
