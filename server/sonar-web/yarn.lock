@@ -2314,6 +2314,7 @@ __metadata:
     enzyme-adapter-react-16: 1.15.6
     enzyme-to-json: 3.6.2
     esbuild: 0.14.31
+    esbuild-plugin-alias: 0.2.1
     esbuild-plugin-postcss2: 0.1.1
     eslint: 7.17.0
     eslint-config-sonarqube: 1.0.1
@@ -4498,6 +4499,13 @@ __metadata:
   version: 0.14.31
   resolution: "esbuild-openbsd-64@npm:0.14.31"
   conditions: os=openbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-plugin-alias@npm:0.2.1":
+  version: 0.2.1
+  resolution: "esbuild-plugin-alias@npm:0.2.1"
+  checksum: afe2d2c8b5f09d5321cb8d9c0825e8a9f6e03c2d50df92f953a291d4620cc29eddb3da9e33b238f6d8f77738e0277bdcb831f127399449fecf78fb84c04e5da9
   languageName: node
   linkType: hard
 
