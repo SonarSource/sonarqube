@@ -42,6 +42,7 @@ module.exports = {
     gray71: '#b4b4b4',
     gray67: '#aaa',
     gray60: '#888',
+    gray52: '#525252',
     gray40: '#404040',
 
     transparentWhite: 'rgba(255,255,255,0.62)',
@@ -62,6 +63,7 @@ module.exports = {
     educationPrinciplesBorderColor: '#B0BDF9',
 
     favoriteColor: '#e77213',
+    homepageColor: '#D86C13',
 
     // table
     rowHoverHighlight: '#ecf6fe',

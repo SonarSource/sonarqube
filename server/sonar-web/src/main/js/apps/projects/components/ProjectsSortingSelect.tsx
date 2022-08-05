@@ -112,7 +112,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
                 : translate('projects.sort_ascending')
             }
             className="js-projects-sorting-invert spacer-left"
-            color={colors.gray60}
+            color={colors.gray52}
             onClick={this.handleDescToggle}>
             {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
           </ButtonIcon>
