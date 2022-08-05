@@ -170,6 +170,7 @@ exports[`renders 1`] = `
           }
         />
         <ListFooter
+          accessibleLoadMoreLabel="projects.show_more"
           count={1}
           loadMore={[Function]}
           loading={false}
