@@ -154,7 +154,7 @@ message Issue {
   optional string pullRequest = 32;
 
   optional string externalRuleEngine = 33;
-  optional bool fromHotspot = 34;
+  reserved 34; //drop fromHotspot
   optional string scope = 35;
 
   optional bool quickFixAvailable = 36;
