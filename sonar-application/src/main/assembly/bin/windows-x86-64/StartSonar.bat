@@ -24,8 +24,10 @@ set JAVA_EXE="java"
 
 
 rem DO NOT EDIT THE FOLLOWING SECTIONS
+set REALPATH=%~dp0
 call :check_if_sonar_is_running FAIL || goto:eof
 
+echo Starting SonarQube...
 %JAVA_EXE% -Xms8m -Xmx32m^
      -Djava.awt.headless=true^
      --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED^
@@ -34,11 +36,18 @@ call :check_if_sonar_is_running FAIL || goto:eof
      --add-opens=java.base/sun.nio.ch=ALL-UNNAMED^
      --add-opens=java.management/sun.management=ALL-UNNAMED^
      --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED^
-     -cp "..\..\lib\sonar-application-@sqversion@.jar" "org.sonar.application.App"
+     -cp "%REALPATH%..\..\lib\sonar-application-@sqversion@.jar" "org.sonar.application.App"
 
 goto:eof
 
 :check_if_sonar_is_running
+set "SQ_SERVICE="
+for /f  %%i in ('%REALPATH%/SonarService.exe status') do set "SQ_SERVICE=%%i"
+if [%SQ_SERVICE%]==[Started] (
+    echo ERROR: SonarQube is already running as a service.
+    exit /b 1
+)
+
 set "SQ_PROCESS="
 where jps >nul 2>nul
 if %errorlevel% equ 0 (
