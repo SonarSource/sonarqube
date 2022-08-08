@@ -32,7 +32,6 @@
   font-size: var(--baseFontSize);
   font-weight: 400;
   text-align: center;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .level-small {
@@ -49,7 +48,7 @@
 }
 
 .level-muted {
-  background-color: var(--gray60) !important;
+  background-color: var(--disabledQualityGate) !important;
 }
 
 a > .level {
@@ -63,7 +62,7 @@ a > .level:hover {
 }
 
 .level-OK {
-  background-color: var(--green);
+  background-color: var(--qualityGatePassedBackground);
 }
 
 .level-WARN {
@@ -75,9 +74,9 @@ a > .level:hover {
 }
 
 .level-NONE {
-  background-color: var(--gray71);
+  background-color: var(--disabledQualityGate);
 }
 
 .level-NOT_COMPUTED {
-  background-color: var(--gray40);
+  background-color: var(--disabledQualityGate);
 }

@@ -107,7 +107,7 @@
 }
 
 .overview-quality-gate-badge-large.success {
-  background: var(--green);
+  background: var(--qualityGatePassedBackground);
   height: 160px;
 }
 

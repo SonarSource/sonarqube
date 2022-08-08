@@ -24,12 +24,11 @@
   height: var(--controlHeight);
   line-height: var(--controlHeight);
   border-radius: var(--controlHeight);
-  background-color: var(--blue);
+  background-color: var(--sizeRatingBackground);
   color: #fff;
   font-size: var(--smallFontSize);
   font-weight: bold;
   text-align: center;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .size-rating-small {

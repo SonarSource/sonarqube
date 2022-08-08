@@ -45,6 +45,11 @@ module.exports = {
     gray52: '#525252',
     gray40: '#404040',
 
+    disabledQualityGate: '#757575',
+    qualityGatePassedBackground: '#008900',
+
+    sizeRatingBackground: '#297BAE',
+
     transparentWhite: 'rgba(255,255,255,0.62)',
     transparentGray: 'rgba(200, 200, 200, 0.5)',
     transparentBlack: 'rgba(0, 0, 0, 0.25)',
