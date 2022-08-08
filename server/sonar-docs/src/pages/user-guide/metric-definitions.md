@@ -175,7 +175,9 @@ Number of new Security Hotspots on New Code.
 
 **Security Review Rating** (`security_review_rating`)
 
-The Security Review Rating is a letter grade based on the percentage of Reviewed (Fixed or Safe) Security Hotspots.	
+**Note:** Security Hotspots are considered Reviewed if they are marked as _Acknowledged_, _Fixed_ or _Safe_.
+
+The Security Review Rating is a letter grade based on the percentage of Reviewed Security Hotspots.	
 
 A = >= 80%  
 B = >= 70% and <80%  
@@ -189,14 +191,14 @@ Security Review Rating for New Code.
 
 **Security Hotspots Reviewed** (`security_hotspots_reviewed`)
 
-Percentage of Reviewed (Fixed or Safe) Security Hotspots.
+Percentage of Reviewed Security Hotspots.
 
 Ratio Formula: 
-`Number of Reviewed (Fixed or Safe) Hotspots x 100 / (To_Review Hotspots + Reviewed Hotspots)`
+`Number of Reviewed Hotspots x 100 / (To_Review Hotspots + Reviewed Hotspots)`
 
 **New Security Hotspots Reviewed**
 
-Percentage of Reviewed Security Hotspots (Fixed or Safe) on New Code.
+Percentage of Reviewed Security Hotspots on New Code.
 
 ---
 ## Size

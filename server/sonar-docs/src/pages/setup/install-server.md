@@ -321,7 +321,7 @@ In our official Docker images you can find the systems truststore in `$JAVA_HOME
 * bind mount an existing truststore containing your certificates to `$JAVA_HOME/lib/security/cacerts`
 
 [[collapse]]
-| example: 
+| ## Example
 | 
 | ```bash
 | docker run -d --name sonarqube -v /path/to/your/cacerts.truststore:/usr/lib/jvm/java-11-openjdk/lib/security/cacerts:ro -p 9000:9000 sonarqube 
