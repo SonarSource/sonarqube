@@ -30,14 +30,24 @@ public class TokenGeneratorImpl implements TokenGenerator {
 
   @Override
   public String generate(TokenType tokenType) {
-    SecureRandom random = new SecureRandom();
-    byte[] randomBytes = new byte[20];
-    random.nextBytes(randomBytes);
-    return buildIdentifiablePartOfToken(tokenType) + Hex.encodeHexString(randomBytes);
+    String rawToken = generateRawToken();
+    return buildIdentifiablePartOfToken(tokenType) + rawToken;
   }
 
   private static String buildIdentifiablePartOfToken(TokenType tokenType) {
     return SONARQUBE_TOKEN_PREFIX + tokenType.getIdentifier() + "_";
+  }
+
+  @Override
+  public String generateProjectBadgeToken() {
+    return generateRawToken();
+  }
+
+  private static String generateRawToken() {
+    SecureRandom random = new SecureRandom();
+    byte[] randomBytes = new byte[20];
+    random.nextBytes(randomBytes);
+    return Hex.encodeHexString(randomBytes);
   }
 
   @Override

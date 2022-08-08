@@ -41,6 +41,8 @@ public class DbVersion96 implements DbVersion {
       .add(6510, "Create table 'push_events'", CreatePushEventsTable.class)
       .add(6511, "Create index 'idx_push_even_crea_uuid_proj' on 'push_events'", CreateIndexForPushEvents.class)
       .add(6512, "Add column 'language' to 'push_events'", AddLanguageColumnToPushEventsTable.class)
+      .add(6513, "Delete duplicated rows in 'project_badge_token'", DeleteDuplicatedProjectBadgeTokens.class)
+      .add(6514, "Add unique index on 'project_uuid' in 'project_badge_token'", CreateIndexForProjectBadgeTokens.class)
     ;
   }
 }

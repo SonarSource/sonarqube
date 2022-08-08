@@ -26,10 +26,10 @@ import org.mockito.Mockito;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.db.user.TokenType;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -74,7 +74,7 @@ public class TokenActionTest {
   public void should_generate_token() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
+    when(tokenGenerator.generateProjectBadgeToken()).thenReturn("generated_token");
 
     TestResponse response = ws.newRequest().setParam("project", project.getKey()).execute();
 
@@ -85,7 +85,7 @@ public class TokenActionTest {
   public void should_reuse_generated_token() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    when(tokenGenerator.generate(TokenType.USER_TOKEN)).thenReturn("generated_token");
+    when(tokenGenerator.generateProjectBadgeToken()).thenReturn("generated_token");
 
     // first call, generating the token
     TestResponse firstResponse = ws.newRequest().setParam("project", project.getKey()).execute();

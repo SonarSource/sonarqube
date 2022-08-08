@@ -61,6 +61,13 @@ public class TokenGeneratorImplTest {
   }
 
   @Test
+  public void generateProjectBadgeToken_nullToken_shouldNotHavePrefix() {
+    String token = underTest.generateProjectBadgeToken();
+
+    assertThat(token).matches(".{40}");
+  }
+
+  @Test
   public void token_does_not_contain_colon() {
     assertThat(underTest.generate(TokenType.USER_TOKEN)).doesNotContain(":");
   }

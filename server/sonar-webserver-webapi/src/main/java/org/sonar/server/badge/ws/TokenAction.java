@@ -27,11 +27,10 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectBadgeTokenDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.db.user.TokenType;
 import org.sonarqube.ws.ProjectBadgeToken.TokenWsResponse;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -80,8 +79,8 @@ public class TokenAction implements ProjectBadgesWsAction {
       ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
 
       if (projectBadgeTokenDto == null) {
-        projectBadgeTokenDto = dbClient.projectBadgeTokenDao().insert(dbSession, tokenGenerator.generate(TokenType.USER_TOKEN),
-          projectDto, userSession.getUuid(), userSession.getLogin());
+        String token = tokenGenerator.generateProjectBadgeToken();
+        projectBadgeTokenDto = dbClient.projectBadgeTokenDao().insert(dbSession, token, projectDto, userSession.getUuid(), userSession.getLogin());
         dbSession.commit();
       }
 

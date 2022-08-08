@@ -29,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.db.user.TokenType;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -73,7 +72,7 @@ public class TokenRenewAction implements ProjectBadgesWsAction {
 
       ProjectDto projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey).orElseThrow(() -> new IllegalArgumentException("project not found"));
       userSession.checkProjectPermission(UserRole.ADMIN, projectDto);
-      String newGeneratedToken = tokenGenerator.generate(TokenType.USER_TOKEN);
+      String newGeneratedToken = tokenGenerator.generateProjectBadgeToken();
       dbClient.projectBadgeTokenDao().upsert(dbSession, newGeneratedToken, projectDto, userSession.getUuid(), userSession.getLogin());
       dbSession.commit();
     }
