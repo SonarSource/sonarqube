@@ -92,6 +92,27 @@ public class CreateActionTest {
   }
 
   @Test
+  public void fail_if_invalid_project_name() {
+    userSession.addPermission(PROVISION_PROJECTS);
+
+    var createRequestBRANCHinKey = CreateRequest.builder()
+      .setProjectKey("test:BRANCH:test")
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> call(createRequestBRANCHinKey))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid project key. Project key must not contain following phrases [:PULLREQUEST:, :BRANCH:]");
+
+    var createRequestPRinKey = CreateRequest.builder()
+      .setProjectKey("test:PULLREQUEST:test")
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> call(createRequestPRinKey))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid project key. Project key must not contain following phrases [:PULLREQUEST:, :BRANCH:]");
+  }
+
+  @Test
   public void create_project() {
     userSession.addPermission(PROVISION_PROJECTS);
 

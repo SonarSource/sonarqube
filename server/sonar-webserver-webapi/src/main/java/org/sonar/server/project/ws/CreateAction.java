@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -99,7 +100,16 @@ public class CreateAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     CreateRequest createRequest = toCreateRequest(request);
+    validate(createRequest);
     writeProtobuf(doHandle(createRequest), request, response);
+  }
+
+  private static void validate(CreateRequest createRequest) {
+    Set<String> forbiddenNamePhrases = Set.of(":BRANCH:", ":PULLREQUEST:");
+    if (forbiddenNamePhrases.stream().anyMatch(createRequest.getProjectKey()::contains)) {
+      throw new IllegalArgumentException(String.format("Invalid project key. Project key must not contain following phrases [%s]",
+        String.join(", ", forbiddenNamePhrases)));
+    }
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {

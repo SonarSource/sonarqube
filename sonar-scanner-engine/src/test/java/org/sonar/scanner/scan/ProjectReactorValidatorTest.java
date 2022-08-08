@@ -87,13 +87,30 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void failg_when_invalid_key() {
+  public void fail_when_invalid_key() {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
     assertThatThrownBy(() -> underTest.validate(reactor))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("\"foo$bar\" is not a valid project key. Allowed characters are alphanumeric,"
         + " '-', '_', '.' and ':', with at least one non-digit.");
+  }
+
+  @Test
+  public void fail_when_key_contains_invalid_phrases() {
+    ProjectReactor reactorWithBranchInKey = createProjectReactor("test:BRANCH:test");
+
+    assertThatThrownBy(() -> underTest.validate(reactorWithBranchInKey))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContainingAll("\"test:BRANCH:test\" is not a valid project key. "
+        + "Project key must not contain following phrases", ":BRANCH:", ":PULLREQUEST:");
+
+    ProjectReactor reactorWithPRinKey = createProjectReactor("test:PULLREQUEST:test");
+
+    assertThatThrownBy(() -> underTest.validate(reactorWithPRinKey))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContainingAll("\"test:PULLREQUEST:test\" is not a valid project key. "
+        + "Project key must not contain following phrases", ":BRANCH:", ":PULLREQUEST:");
   }
 
   @Test
