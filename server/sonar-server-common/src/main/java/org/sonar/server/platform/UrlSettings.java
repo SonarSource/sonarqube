@@ -26,6 +26,7 @@ import org.sonar.api.server.ServerSide;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.stripEnd;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.process.ProcessProperties.Property.WEB_CONTEXT;
 import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
@@ -43,9 +44,7 @@ public class UrlSettings {
 
   public UrlSettings(Configuration config) {
     this.config = config;
-    this.contextPath = config.get(WEB_CONTEXT.getKey()).orElse("")
-      // Remove trailing slashes
-      .replaceFirst("(\\/+)$", "");
+    this.contextPath = stripEnd(config.get(WEB_CONTEXT.getKey()).orElse(""), "/");
   }
 
   public String getBaseUrl() {

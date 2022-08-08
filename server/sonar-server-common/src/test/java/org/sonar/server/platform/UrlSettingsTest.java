@@ -35,8 +35,7 @@ public class UrlSettingsTest {
   private static final String PORT_PORPERTY = "sonar.web.port";
   private static final String CONTEXT_PROPERTY = "sonar.web.context";
 
-
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
+  private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
 
   @Test
   public void use_default_context_path() {
