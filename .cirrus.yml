@@ -106,7 +106,7 @@ yarn_cache_template: &YARN_CACHE_TEMPLATE
 gradle_cache_template: &GRADLE_CACHE_TEMPLATE
   gradle_cache:
     folder: "~/.gradle/caches"
-    fingerprint_script:  find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) -exec cat {} +
+    fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) -exec cat {} +
 
 eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
   eslint_report_cache:
@@ -321,8 +321,8 @@ qa_bb_cloud_task:
     QA_CATEGORY: BITBUCKET_CLOUD
     BBC_CLIENT_ID: ENCRYPTED[f1c2c57d5f02885345b3db5776a3b28f5dbcc89723809f73ad05ada903ece9584f1dfe61b026c10eabd72c75d1258bac]
     BBC_CLIENT_SECRET: ENCRYPTED[39cc89ce4695c243fd688e687879bd473a60882fd30ba8613d6697e5d2b04e2017c68cae3a9a7ed9704f69c52bf229ee]
-    BBC_READ_REPOS_APP_PASSWORD: ENCRYPTED[d33b02d02987e188b5cec2a14f6ddd04d1fcac39ed5d6ced08891fc562ebb6721c9fbf307c0eba81df78c83f75b3c27c]
-    BBC_USERNAME: ENCRYPTED[f0af9be9d2fbaa55fbf69e4fce706ebc9131e0dc22cf8bce5d7ab2e0c2b57aff3ddbf6b3b77166e803a6000276256cea]
+    BBC_READ_REPOS_APP_PASSWORD: ENCRYPTED[35e0b64a4abbff0a061d58d0ad892bbaf5a6912784ac18167df788ee5c8188e98b98dd1b76e31fba090092b8b36d5317]
+    BBC_USERNAME: ENCRYPTED[75707b0448dabae3f028533a412df424da16bf9fe239474a6678f4f0af9ec9cd9571f6d37fa44dadfd99a76c5584b70c]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   on_failure:
