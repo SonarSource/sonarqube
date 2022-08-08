@@ -9,11 +9,13 @@ exports[`highlights under 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -27,11 +29,13 @@ exports[`highlights under 1`] = `
       className="search-navigator-facet-highlight-under-container"
     >
       <button
+        aria-checked={false}
         aria-label="2"
         className="facet search-navigator-facet projects-facet button-link"
         data-key={2}
         key="2"
         onClick={[Function]}
+        role="checkbox"
         tabIndex={0}
         type="button"
       >
@@ -42,11 +46,13 @@ exports[`highlights under 1`] = `
         </span>
       </button>
       <button
+        aria-checked={false}
         aria-label="3"
         className="facet search-navigator-facet projects-facet button-link"
         data-key={3}
         key="3"
         onClick={[Function]}
+        role="checkbox"
         tabIndex={0}
         type="button"
       >
@@ -70,11 +76,13 @@ exports[`hightlights under selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -88,11 +96,13 @@ exports[`hightlights under selected 1`] = `
       className="search-navigator-facet-highlight-under-container"
     >
       <button
+        aria-checked={true}
         aria-label="2"
         className="facet search-navigator-facet projects-facet button-link active"
         data-key={2}
         key="2"
         onClick={[Function]}
+        role="checkbox"
         tabIndex={0}
         type="button"
       >
@@ -103,11 +113,13 @@ exports[`hightlights under selected 1`] = `
         </span>
       </button>
       <button
+        aria-checked={true}
         aria-label="3"
         className="facet search-navigator-facet projects-facet button-link"
         data-key={3}
         key="3"
         onClick={[Function]}
+        role="checkbox"
         tabIndex={0}
         type="button"
       >
@@ -131,11 +143,13 @@ exports[`renders 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -146,11 +160,13 @@ exports[`renders 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="2"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={2}
       key="2"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -161,11 +177,13 @@ exports[`renders 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="3"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
       key="3"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -188,11 +206,13 @@ exports[`renders facet bar chart 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="a"
       className="facet search-navigator-facet projects-facet button-link"
       data-key="a"
       key="a"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -220,11 +240,13 @@ exports[`renders facet bar chart 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="b"
       className="facet search-navigator-facet projects-facet button-link"
       data-key="b"
       key="b"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -252,11 +274,13 @@ exports[`renders facet bar chart 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="c"
       className="facet search-navigator-facet projects-facet button-link"
       data-key="c"
       key="c"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -297,11 +321,13 @@ exports[`renders header and footer 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -312,11 +338,13 @@ exports[`renders header and footer 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="2"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={2}
       key="2"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -327,11 +355,13 @@ exports[`renders header and footer 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="3"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
       key="3"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -355,11 +385,13 @@ exports[`renders multiple selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={true}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link active"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -370,11 +402,13 @@ exports[`renders multiple selected 1`] = `
       </span>
     </button>
     <button
+      aria-checked={true}
       aria-label="2"
       className="facet search-navigator-facet projects-facet button-link active"
       data-key={2}
       key="2"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -385,11 +419,13 @@ exports[`renders multiple selected 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="3"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
       key="3"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -425,11 +461,13 @@ exports[`renders selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={false}
       aria-label="1"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={1}
       key="1"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -440,11 +478,13 @@ exports[`renders selected 1`] = `
       </span>
     </button>
     <button
+      aria-checked={true}
       aria-label="2"
       className="facet search-navigator-facet projects-facet button-link active"
       data-key={2}
       key="2"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -455,11 +495,13 @@ exports[`renders selected 1`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="3"
       className="facet search-navigator-facet projects-facet button-link"
       data-key={3}
       key="3"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >

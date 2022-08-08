@@ -76,11 +76,13 @@ exports[`should render the languages facet with the selected languages 2`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <button
+      aria-checked={true}
       aria-label="projects.facets.label_text_x.projects.facets.languages.Java"
       className="facet search-navigator-facet projects-facet button-link active"
       data-key="java"
       key="java"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -104,11 +106,13 @@ exports[`should render the languages facet with the selected languages 2`] = `
       </span>
     </button>
     <button
+      aria-checked={true}
       aria-label="projects.facets.label_text_x.projects.facets.languages.C#"
       className="facet search-navigator-facet projects-facet button-link active"
       data-key="cs"
       key="cs"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >
@@ -132,11 +136,13 @@ exports[`should render the languages facet with the selected languages 2`] = `
       </span>
     </button>
     <button
+      aria-checked={false}
       aria-label="projects.facets.label_text_x.projects.facets.languages.JavaScript"
       className="facet search-navigator-facet projects-facet button-link"
       data-key="js"
       key="js"
       onClick={[Function]}
+      role="checkbox"
       tabIndex={0}
       type="button"
     >

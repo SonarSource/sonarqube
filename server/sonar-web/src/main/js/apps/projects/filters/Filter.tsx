@@ -146,7 +146,9 @@ export default class Filter extends React.PureComponent<Props> {
         type="button"
         tabIndex={0}
         key={option}
-        onClick={this.handleClick}>
+        onClick={this.handleClick}
+        role="checkbox"
+        aria-checked={this.isSelected(option) || isUnderSelectedOption}>
         <span className="facet-name">
           {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
         </span>
