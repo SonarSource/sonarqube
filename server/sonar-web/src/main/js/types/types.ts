@@ -276,7 +276,6 @@ export interface Issue {
   quickFixAvailable?: boolean;
   key: string;
   flows: FlowLocation[][];
-  fromHotspot: boolean;
   line?: number;
   message: string;
   project: string;

@@ -6,7 +6,6 @@ exports[`should render correctly: default 1`] = `
 >
   <IssueMessage
     engine="foo"
-    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     ruleKey="javascript:S1067"
   />
@@ -32,7 +31,6 @@ exports[`should render correctly: default 1`] = `
               "creationDate": "2017-03-01T09:36:01+0100",
               "externalRuleEngine": "foo",
               "flows": Array [],
-              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -97,7 +95,6 @@ exports[`should render correctly: with filter 1`] = `
 >
   <IssueMessage
     engine="foo"
-    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     ruleKey="javascript:S1067"
   />
@@ -123,7 +120,6 @@ exports[`should render correctly: with filter 1`] = `
               "creationDate": "2017-03-01T09:36:01+0100",
               "externalRuleEngine": "foo",
               "flows": Array [],
-              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -192,7 +188,6 @@ exports[`should render correctly: with filter 1`] = `
               "creationDate": "2017-03-01T09:36:01+0100",
               "externalRuleEngine": "foo",
               "flows": Array [],
-              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -228,7 +223,6 @@ exports[`should render correctly: with multi locations 1`] = `
   className="issue-row"
 >
   <IssueMessage
-    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     ruleKey="javascript:S1067"
   />
@@ -303,7 +297,6 @@ exports[`should render correctly: with multi locations 1`] = `
                   },
                 ],
               ],
-              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -397,7 +390,6 @@ exports[`should render correctly: with multi locations and link 1`] = `
   className="issue-row"
 >
   <IssueMessage
-    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     ruleKey="javascript:S1067"
   />
@@ -472,7 +464,6 @@ exports[`should render correctly: with multi locations and link 1`] = `
                   },
                 ],
               ],
-              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",

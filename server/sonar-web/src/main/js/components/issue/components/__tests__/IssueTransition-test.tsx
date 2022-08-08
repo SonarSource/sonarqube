@@ -22,7 +22,6 @@ import * as React from 'react';
 import IssueTransition from '../IssueTransition';
 
 const issue: IssueTransition['props']['issue'] = {
-  fromHotspot: false,
   key: 'foo1234',
   transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
   status: 'OPEN',
@@ -33,7 +32,7 @@ it('should render without the action when there is no transitions', () => {
   expect(
     shallowRender({
       hasTransitions: false,
-      issue: { fromHotspot: false, key: 'foo1234', transitions: [], status: 'CLOSED', type: 'BUG' }
+      issue: { key: 'foo1234', transitions: [], status: 'CLOSED', type: 'BUG' }
     })
   ).toMatchSnapshot();
 });

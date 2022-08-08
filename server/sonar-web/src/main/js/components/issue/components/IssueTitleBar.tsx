@@ -77,7 +77,6 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
         engine={issue.externalRuleEngine}
         quickFixAvailable={issue.quickFixAvailable}
         displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
         message={issue.message}
         ruleKey={issue.rule}
         ruleStatus={issue.ruleStatus as RuleStatus | undefined}

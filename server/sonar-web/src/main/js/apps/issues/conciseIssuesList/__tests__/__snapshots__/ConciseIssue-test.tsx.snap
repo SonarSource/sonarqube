@@ -15,7 +15,6 @@ exports[`should render 1`] = `
         "componentUuid": "",
         "creationDate": "",
         "flows": Array [],
-        "fromHotspot": false,
         "key": "",
         "message": "",
         "project": "",

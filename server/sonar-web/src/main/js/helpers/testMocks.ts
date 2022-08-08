@@ -373,7 +373,6 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     componentUuid: 'foo1234',
     creationDate: '2017-03-01T09:36:01+0100',
     flows: [],
-    fromHotspot: false,
     key: 'AVsae-CQS-9G3txfbFN2',
     line: 25,
     message: 'Reduce the number of conditional operators (4) used in the expression',

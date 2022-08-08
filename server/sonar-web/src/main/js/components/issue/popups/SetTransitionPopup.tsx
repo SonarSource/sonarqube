@@ -20,25 +20,21 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import { hasMessage, translate } from '../../../helpers/l10n';
-import { IssueType } from '../../../types/types';
+import { translate } from '../../../helpers/l10n';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 
 export interface Props {
-  fromHotspot: boolean;
   onSelect: (transition: string) => void;
   transitions: string[];
-  type: IssueType;
 }
 
-export default function SetTransitionPopup({ fromHotspot, onSelect, transitions, type }: Props) {
-  const isManualVulnerability = fromHotspot && type === 'VULNERABILITY';
+export default function SetTransitionPopup({ onSelect, transitions }: Props) {
   return (
     <DropdownOverlay>
       <SelectList currentItem={transitions[0]} items={transitions} onSelect={onSelect}>
         {transitions.map(transition => {
-          const [name, description] = translateTransition(transition, isManualVulnerability);
+          const [name, description] = translateTransition(transition);
           return (
             <SelectListItem item={transition} key={transition} title={description}>
               {name}
@@ -50,28 +46,20 @@ export default function SetTransitionPopup({ fromHotspot, onSelect, transitions,
   );
 }
 
-function translateTransition(transition: string, isManualVulnerability: boolean) {
-  return isManualVulnerability && hasMessage('vulnerability.transition', transition)
-    ? [
-        translate('vulnerability.transition', transition),
-        translate('vulnerability.transition', transition, 'description')
-      ]
-    : [
-        translate('issue.transition', transition),
-        <FormattedMessage
-          key="description"
-          defaultMessage={translate('issue.transition', transition, 'description')}
-          id={`issue.transition.${transition}.description`}
-          values={{
-            community_plug_link: (
-              <a
-                href="https://community.sonarsource.com/"
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('issue.transition.community_plug_link')}
-              </a>
-            )
-          }}
-        />
-      ];
+function translateTransition(transition: string) {
+  return [
+    translate('issue.transition', transition),
+    <FormattedMessage
+      key="description"
+      defaultMessage={translate('issue.transition', transition, 'description')}
+      id={`issue.transition.${transition}.description`}
+      values={{
+        community_plug_link: (
+          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+            {translate('issue.transition.community_plug_link')}
+          </a>
+        )
+      }}
+    />
+  ];
 }

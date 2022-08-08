@@ -31,7 +31,7 @@ import SetTransitionPopup from '../popups/SetTransitionPopup';
 interface Props {
   hasTransitions: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'fromHotspot' | 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
+  issue: Pick<Issue, 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
@@ -63,12 +63,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.hasTransitions}
             overlay={
-              <SetTransitionPopup
-                fromHotspot={issue.fromHotspot}
-                onSelect={this.setTransition}
-                transitions={issue.transitions}
-                type={issue.type}
-              />
+              <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
             }>
             <ButtonLink
               aria-label={translateWithParameters(

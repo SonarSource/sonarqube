@@ -31,7 +31,6 @@ export interface IssueMessageProps {
   engine?: string;
   quickFixAvailable?: boolean;
   displayWhyIsThisAnIssue?: boolean;
-  manualVulnerability: boolean;
   message: string;
   ruleKey: string;
   ruleStatus?: RuleStatus;
@@ -41,7 +40,6 @@ export default function IssueMessage(props: IssueMessageProps) {
   const {
     engine,
     quickFixAvailable,
-    manualVulnerability,
     message,
     ruleKey,
     ruleStatus,
@@ -95,13 +93,6 @@ export default function IssueMessage(props: IssueMessageProps) {
         {ruleEngine && (
           <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
             <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-          </Tooltip>
-        )}
-        {manualVulnerability && (
-          <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-            <div className="badge spacer-right text-baseline">
-              {translate('issue.manual_vulnerability')}
-            </div>
           </Tooltip>
         )}
       </div>

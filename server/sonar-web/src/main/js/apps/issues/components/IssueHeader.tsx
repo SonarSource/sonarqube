@@ -133,7 +133,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     });
     const ruleStatus = issue.ruleStatus as RuleStatus | undefined;
     const ruleEngine = issue.externalRuleEngine;
-    const manualVulnerability = issue.fromHotspot && issue.type === 'VULNERABILITY';
     const { quickFixAvailable } = issue;
 
     return (
@@ -182,13 +181,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
             <Tooltip
               overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
               <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-            </Tooltip>
-          )}
-          {manualVulnerability && (
-            <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-              <div className="badge spacer-right text-baseline">
-                {translate('issue.manual_vulnerability')}
-              </div>
             </Tooltip>
           )}
           <div className="issue-meta issue-get-perma-link">

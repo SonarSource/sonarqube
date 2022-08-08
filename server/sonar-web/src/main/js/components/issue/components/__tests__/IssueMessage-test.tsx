@@ -36,7 +36,6 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
   expect(shallowRender({ quickFixAvailable: true })).toMatchSnapshot('with quick fix');
-  expect(shallowRender({ manualVulnerability: true })).toMatchSnapshot('is manual vulnerability');
   expect(shallowRender({ ruleStatus: RuleStatus.Deprecated })).toMatchSnapshot(
     'is deprecated rule'
   );
@@ -61,7 +60,6 @@ it('should open why is this an issue workspace', () => {
 function shallowRender(props: Partial<IssueMessageProps> = {}) {
   return shallow<IssueMessageProps>(
     <IssueMessage
-      manualVulnerability={false}
       message="Reduce the number of conditional operators (4) used in the expression"
       displayWhyIsThisAnIssue={true}
       ruleKey="javascript:S1067"

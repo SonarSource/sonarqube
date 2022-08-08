@@ -45,8 +45,7 @@ jest.mock('../../../../api/issues', () => ({
         comments: [],
         creationDate: '2016-08-15T15:25:38+0200',
         updateDate: '2018-10-25T10:23:08+0200',
-        type: 'SECURITY_HOTSPOT',
-        fromHotspot: true
+        type: 'SECURITY_HOTSPOT'
       }
     ],
     components: [
