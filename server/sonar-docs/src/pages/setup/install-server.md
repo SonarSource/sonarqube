@@ -101,7 +101,7 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 
 ## Installing SonarQube from the ZIP file
 
-First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
+First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](https://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
 
 SonarQube cannot be run as `root` on Unix-based systems, so create a dedicated user account for SonarQube if necessary.
 
