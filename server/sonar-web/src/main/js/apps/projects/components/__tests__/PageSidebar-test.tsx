@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { CurrentUserContext } from '../../../../app/components/current-user/CurrentUserContext';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
@@ -65,6 +66,25 @@ it('should show "new lines" instead of "size" when in `leak` view', () => {
   expect(
     screen.getByRole('heading', { level: 3, name: 'projects.facets.new_lines' })
   ).toBeInTheDocument();
+});
+
+it('should allow to clear all filters', async () => {
+  const user = userEvent.setup();
+  const onClearAll = jest.fn();
+  renderPageSidebar({
+    onClearAll,
+    applicationsEnabled: false,
+    query: { size: '3', reliability: '2' }
+  });
+
+  const clearAllButton = screen.getByRole('button', { name: 'clear_all_filters' });
+  expect(clearAllButton).toBeInTheDocument();
+
+  await user.click(clearAllButton);
+
+  expect(onClearAll).toBeCalled();
+
+  expect(screen.getByRole('heading', { level: 2, name: 'filters' })).toHaveFocus();
 });
 
 function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUser?: CurrentUser) {

@@ -53,20 +53,31 @@ export interface PageSidebarProps {
 }
 
 export default function PageSidebar(props: PageSidebarProps) {
-  const { applicationsEnabled, facets, onQueryChange, query, view } = props;
+  const { applicationsEnabled, facets, onClearAll, onQueryChange, query, view } = props;
   const isFiltered = hasFilterParams(query);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { onQueryChange, maxFacetValue };
+
+  const heading = React.useRef<HTMLHeadingElement>(null);
+
+  const clearAll = React.useCallback(() => {
+    onClearAll();
+    if (heading.current) {
+      heading.current.focus();
+    }
+  }, [onClearAll, heading]);
 
   return (
     <div className="huge-spacer-bottom huge-padded-bottom">
       <FavoriteFilter />
 
       <div className="projects-facets-header clearfix">
-        {isFiltered && <ClearAll onClearAll={props.onClearAll} />}
+        {isFiltered && <ClearAll onClearAll={clearAll} />}
 
-        <h2 className="h3">{translate('filters')}</h2>
+        <h2 className="h3" tabIndex={-1} ref={heading}>
+          {translate('filters')}
+        </h2>
       </div>
       <QualityGateFilter {...facetProps} facet={getFacet(facets, 'gate')} value={query.gate} />
       {!isLeakView && (
