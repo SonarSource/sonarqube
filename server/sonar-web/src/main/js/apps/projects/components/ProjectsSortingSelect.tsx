@@ -45,6 +45,8 @@ export interface Option {
 }
 
 export default class ProjectsSortingSelect extends React.PureComponent<Props> {
+  sortOrderButtonNode: HTMLElement | null = null;
+
   getSorting = () => {
     const options = this.getOptions();
     const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
@@ -65,6 +67,9 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
   handleDescToggle = () => {
     const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
     this.props.onChange(sortValue, !sortDesc);
+    if (this.sortOrderButtonNode) {
+      this.sortOrderButtonNode.focus();
+    }
   };
 
   handleSortChange = (option: Option) => {
@@ -113,7 +118,10 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
             }
             className="js-projects-sorting-invert spacer-left"
             color={colors.gray52}
-            onClick={this.handleDescToggle}>
+            onClick={this.handleDescToggle}
+            innerRef={sortButtonRef => {
+              this.sortOrderButtonNode = sortButtonRef;
+            }}>
             {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
           </ButtonIcon>
         </Tooltip>

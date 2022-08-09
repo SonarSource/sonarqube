@@ -79,6 +79,14 @@ it('reverses sorting', () => {
   const wrapper = shallowRender({ selectedSort: '-size', onChange });
   click(wrapper.find('ButtonIcon'));
   expect(onChange).toBeCalledWith('size', false);
+
+  const node = document.createElement('div');
+  node.focus = jest.fn();
+  wrapper.instance().sortOrderButtonNode = node;
+
+  click(wrapper.find('ButtonIcon'));
+
+  expect(node.focus).toBeCalled();
 });
 
 function shallowRender(overrides: Partial<ProjectsSortingSelect['props']> = {}) {
