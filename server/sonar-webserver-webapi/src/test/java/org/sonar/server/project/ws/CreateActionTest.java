@@ -101,7 +101,8 @@ public class CreateActionTest {
       .build();
     assertThatThrownBy(() -> call(createRequestBRANCHinKey))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Invalid project key. Project key must not contain following phrases [:PULLREQUEST:, :BRANCH:]");
+      .hasMessageContainingAll("Invalid project key. Project key must not contain following phrases",
+        ":PULLREQUEST:", ":BRANCH:");
 
     var createRequestPRinKey = CreateRequest.builder()
       .setProjectKey("test:PULLREQUEST:test")
@@ -109,7 +110,8 @@ public class CreateActionTest {
       .build();
     assertThatThrownBy(() -> call(createRequestPRinKey))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Invalid project key. Project key must not contain following phrases [:PULLREQUEST:, :BRANCH:]");
+      .hasMessageContainingAll("Invalid project key. Project key must not contain following phrases",
+        ":PULLREQUEST:", ":BRANCH:");
   }
 
   @Test
