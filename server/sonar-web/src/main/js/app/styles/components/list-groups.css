@@ -76,6 +76,8 @@ a.list-group-item {
 .list-group-item-heading {
   margin-top: 5px;
   margin-bottom: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .list-group-item-heading:after {

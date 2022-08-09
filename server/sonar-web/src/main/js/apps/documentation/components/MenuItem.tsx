@@ -36,12 +36,16 @@ export function MenuItem({ depth = 0, node, splat }: Props) {
 
   const active = testPathAgainstUrl(node.url, splat);
   const maxDepth = Math.min(depth, 3);
+  const title = node.navTitle || node.title;
+
   return (
     <Link
       className={classNames('list-group-item', { active, [`depth-${maxDepth}`]: depth > 0 })}
       key={node.url}
       to={'/documentation' + node.url}>
-      <h3 className="list-group-item-heading">{node.navTitle || node.title}</h3>
+      <h3 className="list-group-item-heading" title={title}>
+        {title}
+      </h3>
     </Link>
   );
 }
