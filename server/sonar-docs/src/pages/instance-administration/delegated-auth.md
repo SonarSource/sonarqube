@@ -47,7 +47,7 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 | ## In the Keycloak server, create a new SAML client
 | Create a new client
 |
-| 1. **Client ID**: Something like "sonarqube" 
+| 1. **Client ID**: Something like "sonarqube", it must not contain whitespace.
 | 1. **Client Protocol**: *saml*
 | 1. **Client SAML Endpoint**: Can be left empty
 |
@@ -58,8 +58,8 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 |     1. **Encrypt Assertions**: ON if the responses from the IdP have to be encrypted.
 |     1. **Valid Redirect URIs**: "<Your SonarQube URL>/oauth2/callback/saml" (e.g., https://sonarqube.mycompany.com/oauth2/callback/saml).
 | 1. Under *Keys*
-|     1. **Signing Key**: Import the service provider private key and certificate if the signature of the requests is enabled on the SonarQube side.
-|     1. **Encryption Key**: Import the service provider certificate. It has to be the same as the signing key if both functionalities are active.
+|     1. (Optional) **Signing Key**: Add the service provider private key and the certificate if the signature of the requests is enabled on the SonarQube side (Keycloak generated keys can be used). This private key will have to be provided in PKCS8 format in SonarQube.
+|     1. (Optional) **Encryption Key**: Add the service provider certificate if you want to activate the encryption of Keycloak responses. If request signature is used, you must use the same certificate for the encryption.
 | 1. In **Client Scopes > Default Client Scopes**, remove "role_list" from "Assigned Default Client Scopes" (to prevent the error `com.onelogin.saml2.exception.ValidationError: Found an Attribute element with duplicated Name` during authentication)
 | 1. Under *Mappers*, create a mapper for each user attribute: 
 |     1. Create a mapper for the login:
@@ -94,18 +94,20 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 | ## In SonarQube, Configure SAML authentication
 | Go to **[Administration > Configuration > General Settings > Security > SAML](/#sonarqube-admin#/admin/settings?category=security)**
 | * **Enabled**: *true*
-| * **Application ID**: value of the "Client ID" you set in Keycloak (for example "sonarqube")
-| * **Provider ID**: the value of the `EntityDescriptor > entityID` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube")
-| * **SAML login url** value of `SingleSignOnService > Location` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
-| * **Identity provider certificate**: value you get from **Realm Settings > Keys**; click on the *Certificate* button
+| * **Application ID**: The value of the "Client ID" you set in Keycloak (for example "sonarqube")
+| * **Provider ID**: The value of the `EntityDescriptor > entityID` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube")
+| * **SAML login url**: The value of `SingleSignOnService > Location` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
+| * **Identity provider certificate**: The value you get from **Realm Settings > Keys > RS256**; click on the *Certificate* button
 | * **SAML user login attribute**: "login" (or whatever you configured above when doing the mapping)
 | * **SAML user name attribute**: "name" (or whatever you configured above when doing the mapping)
 | * (Optional) **SAML user email attribute**: "email" (or whatever you configured above when doing the mapping)
 | * (Optional) **SAML group attribute** "groups" (or whatever you configured above when doing the mapping)
-| * **Sign requests**: set to true to activate the signature of the SAML requests. It needs both the service provider private key and certificate to be set.
-| * **Service provider private key**: the service provider private key shared with the identity provider, used for both request signature and response encryption. It has to be in PKCS8 format. 
-| * **Service provider certificate**: the service provider certificate shared with the identity provider in order to activate the requests signature. 
+| * **Sign requests**: Set to true to activate the signature of the SAML requests. It needs both the service provider private key and certificate to be set.
+| * **Service provider private key**: The service provider private key shared with the identity provider. This key is required for both request signature and response encryption, which can be activated individually. The key should be provided for SonarQube in PKCS8 format without password protection. 
+| * **Service provider certificate**: The service provider certificate shared with the identity provider in order to activate the requests signature. 
 | 
+| You can find [here](https://manpages.ubuntu.com/manpages/focal/man1/pkcs8.1ssl.html) some instructions to convert different key formats.
+|
 | In the login form, the new button "Log in with SAML" allows users to connect with their SAML account.
 
 ### SAML and reverse proxy configuration
