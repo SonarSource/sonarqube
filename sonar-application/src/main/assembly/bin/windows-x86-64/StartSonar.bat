@@ -19,12 +19,13 @@
 @echo off
 setlocal
 
-rem Path to the Java executable
-set JAVA_EXE="java"
-
-
 rem DO NOT EDIT THE FOLLOWING SECTIONS
+
 set REALPATH=%~dp0
+
+set JAVA_EXE=
+call "%REALPATH%lib\find_java.bat" set_java_exe FAIL || goto:eof
+
 call :check_if_sonar_is_running FAIL || goto:eof
 
 echo Starting SonarQube...
@@ -41,28 +42,28 @@ echo Starting SonarQube...
 goto:eof
 
 :check_if_sonar_is_running
-set "SQ_SERVICE="
-for /f  %%i in ('%REALPATH%/SonarService.exe status') do set "SQ_SERVICE=%%i"
-if [%SQ_SERVICE%]==[Started] (
-    echo ERROR: SonarQube is already running as a service.
-    exit /b 1
-)
+    set "SQ_SERVICE="
+    for /f  %%i in ('%REALPATH%SonarService.bat status ^>nul 2^>nul') do set "SQ_SERVICE=%%i"
+    if [%SQ_SERVICE%]==[Started] (
+        echo ERROR: SonarQube is already running as a service.
+        exit /b 1
+    )
 
-set "SQ_PROCESS="
-where jps >nul 2>nul
-if %errorlevel% equ 0 (
-    rem give priority to jps command if present
-    for /f "tokens=1" %%i in ('jps -l ^| findstr "org.sonar.application.App"') do set "SQ_PROCESS=%%i"
-) else (
-    rem fallback to wmic command
-    for /f "tokens=2" %%i in ('wmic process where "name='java.exe' and commandline like '%%org.sonar.application.App%%'" get name^, processid 2^>nul ^| findstr "java"') do set "SQ_PROCESS=%%i"
-)
+    set "SQ_PROCESS="
+    where jps >nul 2>nul
+    if %errorlevel% equ 0 (
+        rem give priority to jps command if present
+        for /f "tokens=1" %%i in ('jps -l ^| findstr "org.sonar.application.App"') do set "SQ_PROCESS=%%i"
+    ) else (
+        rem fallback to wmic command
+        for /f "tokens=2" %%i in ('wmic process where "name='java.exe' and commandline like '%%org.sonar.application.App%%'" get name^, processid 2^>nul ^| findstr "java"') do set "SQ_PROCESS=%%i"
+    )
 
-if not [%SQ_PROCESS%]==[] (
-    echo ERROR: Another instance of the SonarQube application is already running with PID %SQ_PROCESS%
-    exit /b 1
-)
-goto:eof
+    if not [%SQ_PROCESS%]==[] (
+        echo ERROR: Another instance of the SonarQube application is already running with PID %SQ_PROCESS%
+        exit /b 1
+    )
+    goto:eof
 
 endlocal
 

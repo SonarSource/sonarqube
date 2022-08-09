@@ -141,7 +141,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
     from(file('src/main/assembly')) {
       exclude 'conf/sonar.properties'
       exclude 'conf/wrapper.conf'
-      exclude 'bin/windows-x86-64/SonarService.xml'
+      exclude 'bin/windows-x86-64/lib/SonarServiceWrapper.xml'
       exclude 'bin/windows-x86-64/StartSonar.bat'
       exclude 'elasticsearch-patch'
       exclude 'bin/linux-x86-64/sonar.sh'
@@ -240,8 +240,14 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
   }
 
   into("${archiveDir}/bin/windows-x86-64/") {
-    from file('src/main/assembly/bin/windows-x86-64/SonarService.xml')
     from file('src/main/assembly/bin/windows-x86-64/StartSonar.bat')
+    filter(ReplaceTokens, tokens: [
+            'sqversion': version
+    ])
+  }
+
+  into("${archiveDir}/bin/windows-x86-64/lib/") {
+    from file('src/main/assembly/bin/windows-x86-64/lib/SonarServiceWrapper.xml')
     filter(ReplaceTokens, tokens: [
             'sqversion': version
     ])

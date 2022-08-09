@@ -8,25 +8,25 @@ url: /setup/operate-server/
 ### Install or Uninstall SonarQube as a Service
 
 ```
-> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe install
-> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe uninstall
+> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat install
+> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat uninstall
 ```
 
 ### Start or Stop the Service
 
 ```
-> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe start
+> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat start
 ```
-**Note:** By default, the service will use the Java executable available on the Windows PATH. This setting can be changed in `%SONAR_HOME%\bin\windows-x86-64\SonarService.xml`, by updating the `<executable>`.
+**Note:** By default, the service will use the Java executable available on the Windows PATH. This setting can be changed by setting the environmental variable SONAR_JAVA_PATH. See more in [Adjusting the Java Installation](https://docs.sonarqube.org/latest/setup/install-server/).
 ```
-> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe stop
+> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat stop
 ```
-**Note:** `> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe stop` does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. You'll need to kill all SonarQube processes manually to force a stop.
+**Note:** `> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat stop` does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. You'll need to kill all SonarQube processes manually to force a stop.
 
 ### Service Status
 Check if the SonarQube service is running
 ```
-> %SONAR_HOME%\bin\windows-x86-64\SonarService.exe status
+> %SONAR_HOME%\bin\windows-x86-64\SonarService.bat status
 ```
 
 ## Running SonarQube Manually on Linux

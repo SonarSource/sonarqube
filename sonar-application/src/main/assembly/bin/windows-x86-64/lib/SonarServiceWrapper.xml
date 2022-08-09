@@ -1,0 +1,45 @@
+<!--
+  ~ SonarQube
+  ~ Copyright (C) 2009-2022 SonarSource SA
+  ~ mailto:info AT sonarsource DOT com
+  ~
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<service>
+  <!-- Path to the Java executable -->
+  <executable>%JAVA_EXE%</executable>
+
+  <!-- DO NOT EDIT THE FOLLOWING SECTIONS -->
+  <arguments>
+    -Xms8m -Xmx32m
+    -Djava.awt.headless=true
+    --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED
+    --add-opens=java.base/java.lang=ALL-UNNAMED
+    --add-opens=java.base/java.nio=ALL-UNNAMED
+    --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+    --add-opens=java.management/sun.management=ALL-UNNAMED
+    --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
+    -cp "..\..\..\lib\sonar-application-@sqversion@.jar" "org.sonar.application.App"
+  </arguments>
+
+  <id>SonarQube</id>
+  <name>SonarQube</name>
+  <description>SonarQube</description>
+
+  <logpath>../../../logs</logpath>
+  <log mode="none"/>
+
+</service>

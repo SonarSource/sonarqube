@@ -137,7 +137,7 @@ If you use an external configuration, such as a script or Windows Service to con
 - For Windows you can update your service by running:
 ```
 > sc delete SonarQube
-> $NEW_SONAR_HOME\bin\windows-x86-64\SonarService.exe install
+> $NEW_SONAR_HOME\bin\windows-x86-64\SonarService.bat install
 ```
 
 ### Rebuilding indexes
