@@ -31,13 +31,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 
 public class OAuthRestClient {
 
-  public static final String REL_NEXT = "rel=\"next\"";
   private static final int DEFAULT_PAGE_SIZE = 100;
+  private static final Pattern NEXT_LINK_PATTERN = Pattern.compile("<([^<]+)>; rel=\"next\"");
 
   private OAuthRestClient() {
     // Only static method
@@ -85,24 +87,16 @@ public class OAuthRestClient {
   }
 
   private static Optional<String> readNextEndPoint(Response response) {
-    Optional<String> linksHeader = response.getHeaders().entrySet().stream()
+    String link = response.getHeaders().entrySet().stream()
       .filter(e -> "Link".equalsIgnoreCase(e.getKey()))
       .map(Map.Entry::getValue)
-      .findAny();
+      .findAny().orElse("");
 
-    if (linksHeader.isEmpty()) {
+    Matcher nextLinkMatcher = NEXT_LINK_PATTERN.matcher(link);
+    if (!nextLinkMatcher.find()) {
       return Optional.empty();
     }
-
-    String[] links = linksHeader.get().split(",");
-    for (String link : links) {
-      String trimmedLink = link.trim();
-      if (trimmedLink.contains(REL_NEXT) && trimmedLink.contains("<") && trimmedLink.contains(">")) {
-        String nextUrl = trimmedLink.substring(trimmedLink.indexOf("<") + 1, trimmedLink.indexOf(">"));
-        return Optional.of(nextUrl);
-      }
-    }
-    return Optional.empty();
+    return Optional.of(nextLinkMatcher.group(1));
   }
 
   private static IllegalStateException unexpectedResponseCode(String requestUrl, Response response) throws IOException {
