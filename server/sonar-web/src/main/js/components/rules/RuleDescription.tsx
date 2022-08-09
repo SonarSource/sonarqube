@@ -171,6 +171,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           markdown: isDefault,
           'rule-desc': !isDefault
         })}
+        ref={node => {
+          node?.scrollIntoView();
+        }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: sanitizeString(sections[0].content)
