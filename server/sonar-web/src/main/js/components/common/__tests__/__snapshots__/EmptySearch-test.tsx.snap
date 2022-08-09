@@ -2,6 +2,7 @@
 
 exports[`renders 1`] = `
 <div
+  aria-live="assertive"
   className="empty-search"
 >
   <h3>

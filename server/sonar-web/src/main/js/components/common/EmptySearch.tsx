@@ -23,7 +23,7 @@ import './EmptySearch.css';
 
 export default function EmptySearch() {
   return (
-    <div className="empty-search">
+    <div aria-live="assertive" className="empty-search">
       <h3>{translate('no_results_search')}</h3>
       <p className="big-spacer-top">{translate('no_results_search.2')}</p>
     </div>

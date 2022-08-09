@@ -28,7 +28,7 @@ import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {
   return (
-    <div className="empty-search">
+    <div aria-live="assertive" className="empty-search">
       <h3>{translate('no_results_search.favorites')}</h3>
       <p className="big-spacer-top">
         <FormattedMessage
