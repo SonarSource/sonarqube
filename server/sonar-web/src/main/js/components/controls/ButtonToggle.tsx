@@ -48,6 +48,7 @@ export default function ButtonToggle(props: ButtonToggleProps) {
           <Button
             onClick={() => option.value !== value && props.onCheck(option.value)}
             disabled={disabled}
+            aria-current={option.value === value}
             data-value={option.value}
             className={classNames({ selected: option.value === value })}>
             {option.label}
