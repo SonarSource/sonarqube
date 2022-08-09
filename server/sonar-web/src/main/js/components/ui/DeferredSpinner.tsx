@@ -22,6 +22,7 @@ import * as React from 'react';
 import './DeferredSpinner.css';
 
 interface Props {
+  ariaLabel?: string;
   children?: React.ReactNode;
   className?: string;
   customSpinner?: JSX.Element;
@@ -74,17 +75,27 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { ariaLabel, children, className, customSpinner, placeholder } = this.props;
     if (this.state.showSpinner) {
       return (
-        this.props.customSpinner || (
-          <i className={classNames('deferred-spinner', this.props.className)} />
+        customSpinner || (
+          <i
+            className={classNames('deferred-spinner', className)}
+            aria-live={ariaLabel ? 'polite' : undefined}
+            aria-label={ariaLabel}
+          />
         )
       );
     }
     return (
-      this.props.children ||
-      (this.props.placeholder ? (
-        <i className={classNames('deferred-spinner-placeholder', this.props.className)} />
+      children ||
+      (placeholder ? (
+        <i
+          data-testid="deferred-spinner-placeholder"
+          className={classNames('deferred-spinner-placeholder', className)}
+          aria-live={ariaLabel ? 'polite' : undefined}
+          aria-label={ariaLabel}
+        />
       ) : null)
     );
   }

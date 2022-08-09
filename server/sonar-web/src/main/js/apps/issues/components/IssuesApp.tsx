@@ -1124,7 +1124,7 @@ export class App extends React.PureComponent<Props, State> {
               onIssueChange={this.handleIssueChange}
             />
           ) : (
-            <DeferredSpinner loading={loading}>
+            <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
               {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
                 <Alert className="big-spacer-bottom" variant="warning">
                   <FormattedMessage

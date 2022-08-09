@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import DeferredSpinner from '../DeferredSpinner';
 
@@ -25,56 +25,54 @@ beforeAll(() => {
   jest.useFakeTimers();
 });
 
-afterAll(() => {
+afterEach(() => {
   jest.runOnlyPendingTimers();
+});
+
+afterAll(() => {
   jest.useRealTimers();
 });
 
-it('renders spinner after timeout', () => {
-  const spinner = mount(<DeferredSpinner />);
-  expect(spinner).toMatchSnapshot();
-  jest.runAllTimers();
-  spinner.update();
-  expect(spinner).toMatchSnapshot();
-});
-
-it('add custom className', () => {
-  const spinner = mount(<DeferredSpinner className="foo" />);
-  jest.runAllTimers();
-  spinner.update();
-  expect(spinner).toMatchSnapshot();
-});
-
 it('renders children before timeout', () => {
-  const spinner = mount(
-    <DeferredSpinner>
-      <div>foo</div>
-    </DeferredSpinner>
-  );
-  expect(spinner).toMatchSnapshot();
+  renderDeferredSpinner({ children: <a href="#">foo</a> });
+  expect(screen.getByRole('link')).toBeInTheDocument();
   jest.runAllTimers();
-  spinner.update();
-  expect(spinner).toMatchSnapshot();
+  expect(screen.queryByRole('link')).not.toBeInTheDocument();
 });
 
-it('is controlled by loading prop', () => {
-  const spinner = mount(
-    <DeferredSpinner loading={false}>
-      <div>foo</div>
-    </DeferredSpinner>
-  );
-  expect(spinner).toMatchSnapshot();
-  spinner.setProps({ loading: true });
-  expect(spinner).toMatchSnapshot();
+it('renders spinner after timeout', () => {
+  renderDeferredSpinner();
+  expect(screen.queryByLabelText('loading')).not.toBeInTheDocument();
   jest.runAllTimers();
-  spinner.update();
-  expect(spinner).toMatchSnapshot();
-  spinner.setProps({ loading: false });
-  spinner.update();
-  expect(spinner).toMatchSnapshot();
+  expect(screen.getByLabelText('loading')).toBeInTheDocument();
 });
 
 it('renders a placeholder while waiting', () => {
-  const spinner = mount(<DeferredSpinner placeholder={true} />);
-  expect(spinner).toMatchSnapshot();
+  renderDeferredSpinner({ placeholder: true });
+  expect(screen.getByTestId('deferred-spinner-placeholder')).toBeInTheDocument();
 });
+
+it('allows setting a custom class name', () => {
+  renderDeferredSpinner({ className: 'foo' });
+  jest.runAllTimers();
+  expect(screen.getByLabelText('loading')).toHaveClass('foo');
+});
+
+it('can be controlled by the loading prop', () => {
+  const { rerender } = renderDeferredSpinner({ loading: true });
+  jest.runAllTimers();
+  expect(screen.getByLabelText('loading')).toBeInTheDocument();
+
+  rerender(prepareDeferredSpinner({ loading: false }));
+  expect(screen.queryByLabelText('loading')).not.toBeInTheDocument();
+});
+
+function renderDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
+  // We don't use our renderComponent() helper here, as we have some tests that
+  // require changes in props.
+  return render(prepareDeferredSpinner(props));
+}
+
+function prepareDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
+  return <DeferredSpinner ariaLabel="loading" {...props} />;
+}

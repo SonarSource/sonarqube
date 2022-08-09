@@ -37,6 +37,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
@@ -241,7 +242,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       </div>
       <div className="modal-body">
         <div className="text-center">
-          <i className="spinner spacer" />
+          <DeferredSpinner
+            timeout={0}
+            className="spacer"
+            ariaLabel={translate('issues.loading_issues')}
+          />
         </div>
       </div>
       <div className="modal-foot">
