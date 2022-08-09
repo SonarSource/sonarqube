@@ -21,14 +21,16 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import './MultipleSelectionHint.css';
 
-interface Props {
+export interface MultipleSelectionHintProps {
   options: number;
   values: number;
 }
 
-export default function MultipleSelectionHint({ options, values }: Props) {
+const MAX_OPTIONS = 2;
+
+export default function MultipleSelectionHint({ options, values }: MultipleSelectionHintProps) {
   // do not render if nothing is selected or there are less than 2 possible options
-  if (values === 0 || options < 2) {
+  if (values === 0 || options < MAX_OPTIONS) {
     return null;
   }
 
