@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { ButtonLink } from '../../../components/controls/buttons';
 import LocationsList from '../../../components/locations/LocationsList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Issue } from '../../../types/types';
@@ -37,6 +38,9 @@ interface Props {
   selectedLocationIndex: number | undefined;
 }
 
+const MAX_LOCATIONS_SCROLL = 15;
+const SCROLL_TOP_OFFSET = 250;
+
 export default class ConciseIssueBox extends React.PureComponent<Props> {
   messageElement?: HTMLElement | null;
   rootElement?: HTMLElement | null;
@@ -53,8 +57,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     }
   }
 
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleClick = () => {
     this.props.onClick(this.props.issue.key);
   };
 
@@ -64,7 +67,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
 
     const locations = flows.length > 0 ? flows[selectedFlowIndex || 0] : secondaryLocations;
 
-    if (!locations || locations.length < 15) {
+    if (!locations || locations.length < MAX_LOCATIONS_SCROLL) {
       // if there are no locations, or there are just few
       // then ensuse that the whole box is visible
       if (this.rootElement) {
@@ -72,20 +75,12 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
       }
     } else if (this.messageElement) {
       // otherwise scroll until the the message element is located on top
-      this.props.scroll(this.messageElement, window.innerHeight - 250);
+      this.props.scroll(this.messageElement, window.innerHeight - SCROLL_TOP_OFFSET);
     }
   };
 
   render() {
     const { issue, selected, selectedFlowIndex, selectedLocationIndex } = this.props;
-
-    const clickAttributesMain = selected
-      ? {}
-      : { onClick: this.handleClick, role: 'listitem', tabIndex: 0 };
-
-    const clickAttributesTitle = selected
-      ? { onClick: this.handleClick, role: 'listitem', tabIndex: 0 }
-      : {};
 
     const locations = getLocations(issue, selectedFlowIndex);
 
@@ -96,13 +91,14 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
       <div
         className={classNames('concise-issue-box', 'clearfix', { selected })}
         ref={node => (this.rootElement = node)}
-        {...clickAttributesMain}>
-        <div
-          className="concise-issue-box-message"
-          {...clickAttributesTitle}
-          ref={node => (this.messageElement = node)}>
+        onClick={selected ? undefined : this.handleClick}>
+        <ButtonLink
+          className="concise-issue-box-message link-no-underline"
+          aria-current={selected}
+          innerRef={node => (this.messageElement = node)}
+          onClick={this.handleClick}>
           {issue.message}
-        </div>
+        </ButtonLink>
         <div className="concise-issue-box-attributes">
           <TypeHelper className="display-block little-spacer-right" type={issue.type} />
           <ConciseIssueLocations

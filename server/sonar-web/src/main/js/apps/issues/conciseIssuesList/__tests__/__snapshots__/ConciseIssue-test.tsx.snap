@@ -1,39 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<div>
-  <ConciseIssueComponent
-    path="src/file.js"
-  />
-  <ConciseIssueBox
-    issue={
-      Object {
-        "actions": Array [],
-        "component": "",
-        "componentLongName": "src/file.js",
-        "componentQualifier": "",
-        "componentUuid": "",
-        "creationDate": "",
-        "flows": Array [],
-        "key": "",
-        "message": "",
-        "project": "",
-        "projectKey": "",
-        "projectName": "",
-        "rule": "",
-        "ruleName": "",
-        "secondaryLocations": Array [],
-        "severity": "",
-        "status": "",
-        "transitions": Array [],
-        "type": "BUG",
+<Fragment>
+  <li>
+    <ConciseIssueComponent
+      path="src/file.js"
+    />
+  </li>
+  <li>
+    <ConciseIssueBox
+      issue={
+        Object {
+          "actions": Array [],
+          "component": "",
+          "componentLongName": "src/file.js",
+          "componentQualifier": "",
+          "componentUuid": "",
+          "creationDate": "",
+          "flows": Array [],
+          "key": "",
+          "message": "",
+          "project": "",
+          "projectKey": "",
+          "projectName": "",
+          "rule": "",
+          "ruleName": "",
+          "secondaryLocations": Array [],
+          "severity": "",
+          "status": "",
+          "transitions": Array [],
+          "type": "BUG",
+        }
       }
-    }
-    onClick={[MockFunction]}
-    onFlowSelect={[MockFunction]}
-    onLocationSelect={[MockFunction]}
-    scroll={[MockFunction]}
-    selected={false}
-  />
-</div>
+      onClick={[MockFunction]}
+      onFlowSelect={[MockFunction]}
+      onLocationSelect={[MockFunction]}
+      scroll={[MockFunction]}
+      selected={false}
+    />
+  </li>
+</Fragment>
 `;

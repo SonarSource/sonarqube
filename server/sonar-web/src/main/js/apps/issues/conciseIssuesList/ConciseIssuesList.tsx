@@ -22,7 +22,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import { Issue } from '../../../types/types';
 import ConciseIssue from './ConciseIssue';
 
-interface Props {
+export interface ConciseIssuesListProps {
   issues: Issue[];
   onFlowSelect: (index: number) => void;
   onIssueSelect: (issueKey: string) => void;
@@ -32,32 +32,37 @@ interface Props {
   selectedLocationIndex: number | undefined;
 }
 
-export default class ConciseIssuesList extends React.PureComponent<Props> {
-  handleScroll = (element: Element, bottomOffset = 100) => {
-    const scrollableElement = document.querySelector('.layout-page-side');
-    if (element && scrollableElement) {
-      scrollToElement(element, { topOffset: 150, bottomOffset, parent: scrollableElement });
-    }
-  };
+const DEFAULT_BOTTOM_OFFSET = 100;
 
-  render() {
-    return (
-      <div>
-        {this.props.issues.map((issue, index) => (
-          <ConciseIssue
-            issue={issue}
-            key={issue.key}
-            onFlowSelect={this.props.onFlowSelect}
-            onLocationSelect={this.props.onLocationSelect}
-            onSelect={this.props.onIssueSelect}
-            previousIssue={index > 0 ? this.props.issues[index - 1] : undefined}
-            scroll={this.handleScroll}
-            selected={issue.key === this.props.selected}
-            selectedFlowIndex={this.props.selectedFlowIndex}
-            selectedLocationIndex={this.props.selectedLocationIndex}
-          />
-        ))}
-      </div>
-    );
-  }
+export default function ConciseIssuesList(props: ConciseIssuesListProps) {
+  const { issues, selected, selectedFlowIndex, selectedLocationIndex } = props;
+
+  const handleScroll = React.useCallback(
+    (element: Element, bottomOffset = DEFAULT_BOTTOM_OFFSET) => {
+      const scrollableElement = document.querySelector('.layout-page-side');
+      if (element && scrollableElement) {
+        scrollToElement(element, { topOffset: 150, bottomOffset, parent: scrollableElement });
+      }
+    },
+    []
+  );
+
+  return (
+    <ul>
+      {issues.map((issue, index) => (
+        <ConciseIssue
+          issue={issue}
+          key={issue.key}
+          onFlowSelect={props.onFlowSelect}
+          onLocationSelect={props.onLocationSelect}
+          onSelect={props.onIssueSelect}
+          previousIssue={index > 0 ? issues[index - 1] : undefined}
+          scroll={handleScroll}
+          selected={issue.key === selected}
+          selectedFlowIndex={selectedFlowIndex}
+          selectedLocationIndex={selectedLocationIndex}
+        />
+      ))}
+    </ul>
+  );
 }

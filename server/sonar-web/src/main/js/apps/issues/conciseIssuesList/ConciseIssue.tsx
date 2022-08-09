@@ -22,38 +22,42 @@ import { Issue } from '../../../types/types';
 import ConciseIssueBox from './ConciseIssueBox';
 import ConciseIssueComponent from './ConciseIssueComponent';
 
-interface Props {
+export interface ConciseIssueProps {
   issue: Issue;
   onFlowSelect: (index: number) => void;
   onLocationSelect: (index: number) => void;
   onSelect: (issueKey: string) => void;
   previousIssue: Issue | undefined;
-  scroll: (element: Element) => void;
+  scroll: (element: Element, bottomOffset?: number) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
 }
 
-export default class ConciseIssue extends React.PureComponent<Props> {
-  render() {
-    const { issue, previousIssue, selected } = this.props;
+export default function ConciseIssue(props: ConciseIssueProps) {
+  const { issue, previousIssue, selected, selectedFlowIndex, selectedLocationIndex } = props;
 
-    const displayComponent = !previousIssue || previousIssue.component !== issue.component;
+  const displayComponent = !previousIssue || previousIssue.component !== issue.component;
 
-    return (
-      <div>
-        {displayComponent && <ConciseIssueComponent path={issue.componentLongName} />}
+  return (
+    <>
+      {displayComponent && (
+        <li>
+          <ConciseIssueComponent path={issue.componentLongName} />
+        </li>
+      )}
+      <li>
         <ConciseIssueBox
           issue={issue}
-          onClick={this.props.onSelect}
-          onFlowSelect={this.props.onFlowSelect}
-          onLocationSelect={this.props.onLocationSelect}
-          scroll={this.props.scroll}
+          onClick={props.onSelect}
+          onFlowSelect={props.onFlowSelect}
+          onLocationSelect={props.onLocationSelect}
+          scroll={props.scroll}
           selected={selected}
-          selectedFlowIndex={selected ? this.props.selectedFlowIndex : undefined}
-          selectedLocationIndex={selected ? this.props.selectedLocationIndex : undefined}
+          selectedFlowIndex={selected ? selectedFlowIndex : undefined}
+          selectedLocationIndex={selected ? selectedLocationIndex : undefined}
         />
-      </div>
-    );
-  }
+      </li>
+    </>
+  );
 }

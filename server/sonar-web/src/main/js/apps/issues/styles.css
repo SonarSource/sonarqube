@@ -82,18 +82,15 @@
   cursor: default;
 }
 
-.concise-issue-box-message {
+.concise-issue-box-message,
+.concise-issue-box-message:focus,
+.concise-issue-box-message:hover,
+.concise-issue-box-message:active {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: bold;
-}
-
-.concise-issue-box-message:focus {
-  outline: none;
-}
-
-.concise-issue-box.selected .concise-issue-box-message {
-  cursor: pointer;
+  color: inherit;
 }
 
 .concise-issue-box-attributes {

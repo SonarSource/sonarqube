@@ -2,16 +2,17 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="concise-issue-box clearfix selected"
+  className="concise-issue-box clearfix"
+  onClick={[Function]}
 >
-  <div
-    className="concise-issue-box-message"
+  <ButtonLink
+    aria-current={false}
+    className="concise-issue-box-message link-no-underline"
+    innerRef={[Function]}
     onClick={[Function]}
-    role="listitem"
-    tabIndex={0}
   >
     Reduce the number of conditional operators (4) used in the expression
-  </div>
+  </ButtonLink>
   <div
     className="concise-issue-box-attributes"
   >
@@ -54,13 +55,6 @@ exports[`should render correctly 1`] = `
       selectedFlowIndex={0}
     />
   </div>
-  <LocationsList
-    isCrossFile={false}
-    locations={Array []}
-    onLocationSelect={[MockFunction]}
-    scroll={[MockFunction]}
-    selectedLocationIndex={0}
-  />
 </div>
 `;
 
@@ -68,14 +62,14 @@ exports[`should render correctly 2`] = `
 <div
   className="concise-issue-box clearfix selected"
 >
-  <div
-    className="concise-issue-box-message"
+  <ButtonLink
+    aria-current={true}
+    className="concise-issue-box-message link-no-underline"
+    innerRef={[Function]}
     onClick={[Function]}
-    role="listitem"
-    tabIndex={0}
   >
     Reduce the number of conditional operators (4) used in the expression
-  </div>
+  </ButtonLink>
   <div
     className="concise-issue-box-attributes"
   >

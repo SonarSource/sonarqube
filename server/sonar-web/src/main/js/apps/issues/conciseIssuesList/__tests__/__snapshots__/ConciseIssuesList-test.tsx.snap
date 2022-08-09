@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<div>
+<ul>
   <ConciseIssue
     issue={
       Object {
@@ -33,5 +33,5 @@ exports[`should render 1`] = `
     scroll={[Function]}
     selected={false}
   />
-</div>
+</ul>
 `;

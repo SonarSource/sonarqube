@@ -25,14 +25,15 @@ import ConciseIssueBox from '../ConciseIssueBox';
 
 it('should render correctly', async () => {
   const onClick = jest.fn();
-  const wrapper = shallowRender({ onClick });
+  const issue = mockIssue();
+  const wrapper = shallowRender({ onClick, issue });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  const issue = mockIssue(true);
-  expect(shallowRender({ issue })).toMatchSnapshot();
-  click(wrapper.find('.concise-issue-box-message'));
+  click(wrapper.find('.concise-issue-box'));
   expect(onClick).toBeCalledWith(issue.key);
+
+  expect(shallowRender({ issue: mockIssue(true), selected: true })).toMatchSnapshot();
 });
 
 const shallowRender = (props: Partial<ConciseIssueBox['props']> = {}) => {
@@ -43,7 +44,7 @@ const shallowRender = (props: Partial<ConciseIssueBox['props']> = {}) => {
       onFlowSelect={jest.fn()}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
-      selected={true}
+      selected={false}
       selectedFlowIndex={0}
       selectedLocationIndex={0}
       {...props}
