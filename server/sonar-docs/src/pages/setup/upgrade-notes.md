@@ -12,6 +12,10 @@ url: /setup/upgrade-notes/
 **Token expiry**  
 New tokens can now have an optional expiration date. Expired tokens cannot be used and must be updated. With [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html), system administrators can set a maximum lifetime for new tokens. See [Security](/instance-administration/security/) documentation for more information. ([SONAR-16565](https://sonarsource.atlassian.net/browse/SONAR-16565), [SONAR-16566](https://sonarsource.atlassian.net/browse/SONAR-16566)).
 
+**Running SonarQube as a Service and Java version selection**
+* To install, uninstall, start or stop SonarQube as a service on Windows, now you should use `%SONAR_HOME%\bin\windows-x86-64\SonarService.bat install`. See [Operating the Server](/setup/operate-server/) and [Upgrade Guide](/setup/upgrading/) for more information.
+* If there are multiple versions of Java installed on your server, to select specific Java version to be used, set the environment variable `SONAR_JAVA_PATH`. Read more [here](/setup/install-server/).
+
 [Full release notes](https://sonarsource.atlassian.net/browse/SONAR-16563?jql=project%3D10139%20AND%20fixVersion%3D12631)
 
 ## Release 9.5 Upgrade notes
