@@ -92,7 +92,11 @@ export default function IssueSourceViewerHeader(props: Props) {
             </div>
 
             <div className="spacer-right">
-              <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
+              <ClipboardIconButton
+                className="button-link link-no-underline"
+                copyValue={path}
+                aria-label={translate('source_viewer.click_to_copy_filepath')}
+              />
             </div>
           </>
         )}

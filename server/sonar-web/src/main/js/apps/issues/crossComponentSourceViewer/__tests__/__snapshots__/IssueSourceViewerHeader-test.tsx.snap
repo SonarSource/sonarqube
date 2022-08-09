@@ -45,6 +45,7 @@ exports[`should render correctly 1`] = `
       className="spacer-right"
     >
       <ClipboardIconButton
+        aria-label="source_viewer.click_to_copy_filepath"
         className="button-link link-no-underline"
         copyValue="foo/bar.ts"
       />
@@ -122,6 +123,7 @@ exports[`should render correctly: no link to project 1`] = `
       className="spacer-right"
     >
       <ClipboardIconButton
+        aria-label="source_viewer.click_to_copy_filepath"
         className="button-link link-no-underline"
         copyValue="foo/bar.ts"
       />
@@ -188,6 +190,7 @@ exports[`should render correctly: no project name 1`] = `
       className="spacer-right"
     >
       <ClipboardIconButton
+        aria-label="source_viewer.click_to_copy_filepath"
         className="button-link link-no-underline"
         copyValue="foo/bar.ts"
       />
