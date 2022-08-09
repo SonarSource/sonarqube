@@ -23,7 +23,7 @@ import { Issue } from '../../../types/types';
 import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
 import { getLocations, getSelectedLocation } from '../utils';
 
-interface Props {
+export interface IssuesSourceViewerProps {
   branchLike: BranchLike | undefined;
   issues: Issue[];
   locationsNavigator: boolean;
@@ -34,68 +34,39 @@ interface Props {
   selectedLocationIndex: number | undefined;
 }
 
-export default class IssuesSourceViewer extends React.PureComponent<Props> {
-  node?: HTMLElement | null;
+export default function IssuesSourceViewer(props: IssuesSourceViewerProps) {
+  const {
+    openIssue,
+    selectedFlowIndex,
+    selectedLocationIndex,
+    locationsNavigator,
+    branchLike,
+    issues
+  } = props;
 
-  componentDidUpdate(prevProps: Props) {
-    const { openIssue, selectedLocationIndex } = this.props;
+  const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
+    loc.index = index;
+    return loc;
+  });
+  const selectedLocation = getSelectedLocation(openIssue, selectedFlowIndex, selectedLocationIndex);
 
-    // Scroll back to the issue when the selected location is set to -1
-    const shouldScrollBackToIssue =
-      selectedLocationIndex === -1 && selectedLocationIndex !== prevProps.selectedLocationIndex;
-    if (
-      prevProps.openIssue.component === openIssue.component &&
-      (prevProps.openIssue !== openIssue || shouldScrollBackToIssue)
-    ) {
-      this.scrollToIssue();
-    }
-  }
-
-  scrollToIssue = () => {
-    if (this.node) {
-      const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      }
-    }
-  };
-
-  handleLoaded = () => {
-    this.scrollToIssue();
-  };
-
-  render() {
-    const { openIssue, selectedFlowIndex, selectedLocationIndex } = this.props;
-
-    const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
-      loc.index = index;
-      return loc;
-    });
-    const selectedLocation = getSelectedLocation(
-      openIssue,
-      selectedFlowIndex,
-      selectedLocationIndex
-    );
-
-    const highlightedLocationMessage =
-      this.props.locationsNavigator && selectedLocationIndex !== undefined
-        ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
-        : undefined;
-
-    return (
-      <div ref={node => (this.node = node)}>
-        <CrossComponentSourceViewer
-          branchLike={this.props.branchLike}
-          highlightedLocationMessage={highlightedLocationMessage}
-          issue={openIssue}
-          issues={this.props.issues}
-          locations={locations}
-          onIssueSelect={this.props.onIssueSelect}
-          onLoaded={this.handleLoaded}
-          onLocationSelect={this.props.onLocationSelect}
-          selectedFlowIndex={selectedFlowIndex}
-        />
-      </div>
-    );
-  }
+  const highlightedLocationMessage =
+    locationsNavigator && selectedLocationIndex !== undefined
+      ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
+      : undefined;
+  return (
+    <div>
+      <CrossComponentSourceViewer
+        branchLike={branchLike}
+        highlightedLocationMessage={highlightedLocationMessage}
+        issue={openIssue}
+        issues={issues}
+        locations={locations}
+        onIssueSelect={props.onIssueSelect}
+        onLocationSelect={props.onLocationSelect}
+        selectedFlowIndex={selectedFlowIndex}
+        selectedLocationIndex={selectedLocationIndex}
+      />
+    </div>
+  );
 }

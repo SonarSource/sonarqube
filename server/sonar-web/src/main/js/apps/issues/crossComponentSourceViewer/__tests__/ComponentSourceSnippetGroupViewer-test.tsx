@@ -294,6 +294,7 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       highlightedLocationMessage={{ index: 0, text: '' }}
+      selectedLocationIndex={0}
       isLastOccurenceOfPrimaryComponent={true}
       issue={mockIssue()}
       issuesByLine={{}}

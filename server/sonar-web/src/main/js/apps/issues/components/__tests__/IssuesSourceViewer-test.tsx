@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
-import IssuesSourceViewer from '../IssuesSourceViewer';
+import IssuesSourceViewer, { IssuesSourceViewerProps } from '../IssuesSourceViewer';
 
 it('should render SourceViewer correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
@@ -64,7 +64,7 @@ it('should render CrossComponentSourceViewer correctly', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<IssuesSourceViewer['props']> = {}) {
+function shallowRender(props: Partial<IssuesSourceViewerProps> = {}) {
   return shallow(
     <IssuesSourceViewer
       branchLike={mockMainBranch()}

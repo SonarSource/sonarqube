@@ -4,7 +4,6 @@ exports[`should render hotspots correctly 1`] = `
 <div
   aria-label="Reduce the number of conditional operators (4) used in the expression"
   className="issue hotspot selected"
-  data-issue="AVsae-CQS-9G3txfbFN2"
   onClick={[Function]}
   role="region"
 >
@@ -84,7 +83,6 @@ exports[`should render issues correctly 1`] = `
 <div
   aria-label="Reduce the number of conditional operators (4) used in the expression"
   className="issue selected"
-  data-issue="AVsae-CQS-9G3txfbFN2"
   onClick={[Function]}
   role="region"
 >

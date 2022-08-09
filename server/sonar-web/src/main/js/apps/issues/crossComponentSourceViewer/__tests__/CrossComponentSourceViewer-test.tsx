@@ -116,6 +116,7 @@ function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {})
     <CrossComponentSourceViewer
       branchLike={undefined}
       highlightedLocationMessage={undefined}
+      selectedLocationIndex={undefined}
       issue={mockIssue(true, {
         key: '1',
         component: 'project:main.js',
@@ -123,7 +124,6 @@ function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {})
       })}
       issues={[]}
       locations={[mockFlowLocation({ component: 'project:main.js' })]}
-      onLoaded={jest.fn()}
       onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}
       selectedFlowIndex={0}

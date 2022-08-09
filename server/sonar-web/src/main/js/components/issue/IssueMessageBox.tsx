@@ -28,26 +28,56 @@ export interface IssueMessageBoxProps {
   selected: boolean;
   issue: Issue;
   onClick: (issueKey: string) => void;
+  selectedLocationIndex?: number;
 }
 
-export default function IssueMessageBox(props: IssueMessageBoxProps) {
-  const { issue, selected } = props;
-  return (
-    <div
-      className={classNames('issue-message-box display-flex-row display-flex-center padded-right', {
-        'selected big-padded-top big-padded-bottom': selected,
-        'secondary-issue padded-top padded-bottom': !selected
-      })}
-      key={issue.key}
-      onClick={() => props.onClick(issue.key)}
-      role="region"
-      aria-label={issue.message}>
-      <IssueTypeIcon
-        className="big-spacer-right spacer-left"
-        fill={colors.baseFontColor}
-        query={issue.type}
-      />
-      {issue.message}
-    </div>
-  );
+export default class IssueMessageBox extends React.Component<IssueMessageBoxProps> {
+  messageBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
+
+  componentDidMount() {
+    if (this.props.selected && this.messageBoxRef.current) {
+      this.messageBoxRef.current.scrollIntoView({
+        block: 'center'
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: IssueMessageBoxProps) {
+    if (
+      this.messageBoxRef.current &&
+      ((prevProps.selected !== this.props.selected && this.props.selected) ||
+        (prevProps.selectedLocationIndex !== this.props.selectedLocationIndex &&
+          this.props.selectedLocationIndex === -1))
+    ) {
+      this.messageBoxRef.current.scrollIntoView({
+        block: 'center'
+      });
+    }
+  }
+
+  render() {
+    const { issue, selected } = this.props;
+    return (
+      <div
+        className={classNames(
+          'issue-message-box display-flex-row display-flex-center padded-right',
+          {
+            'selected big-padded-top big-padded-bottom': selected,
+            'secondary-issue padded-top padded-bottom': !selected
+          }
+        )}
+        key={issue.key}
+        onClick={() => this.props.onClick(issue.key)}
+        role="region"
+        ref={this.messageBoxRef}
+        aria-label={issue.message}>
+        <IssueTypeIcon
+          className="big-spacer-right spacer-left"
+          fill={colors.baseFontColor}
+          query={issue.type}
+        />
+        {issue.message}
+      </div>
+    );
+  }
 }

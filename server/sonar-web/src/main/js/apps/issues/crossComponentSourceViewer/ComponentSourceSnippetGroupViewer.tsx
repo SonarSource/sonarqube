@@ -67,6 +67,7 @@ interface Props {
     line: number
   ) => React.ReactNode;
   snippetGroup: SnippetGroup;
+  selectedLocationIndex: number | undefined;
 }
 
 interface State {
@@ -205,7 +206,13 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
+    const {
+      isLastOccurenceOfPrimaryComponent,
+      issue,
+      issuesByLine,
+      snippetGroup,
+      selectedLocationIndex
+    } = this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -225,6 +232,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               key={issueToDisplay.key}
               issue={issueToDisplay}
               onClick={this.props.onIssueSelect}
+              selectedLocationIndex={selectedLocationIndex}
             />
           ))}
         </div>
@@ -238,7 +246,8 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       isLastOccurenceOfPrimaryComponent,
       issue,
       lastSnippetGroup,
-      snippetGroup
+      snippetGroup,
+      selectedLocationIndex
     } = this.props;
     const { additionalLines, loading, snippets } = this.state;
     const locations =
@@ -271,7 +280,12 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         />
 
         {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
-          <IssueMessageBox selected={true} issue={issue} onClick={this.props.onIssueSelect} />
+          <IssueMessageBox
+            selected={true}
+            issue={issue}
+            onClick={this.props.onIssueSelect}
+            selectedLocationIndex={selectedLocationIndex}
+          />
         )}
         {snippetLines.map((snippet, index) => (
           <SnippetViewer

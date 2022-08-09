@@ -91,7 +91,6 @@ export default class IssueView extends React.PureComponent<Props> {
     return (
       <div
         className={issueClass}
-        data-issue={issue.key}
         onClick={this.handleClick}
         role="region"
         aria-label={issue.message}>

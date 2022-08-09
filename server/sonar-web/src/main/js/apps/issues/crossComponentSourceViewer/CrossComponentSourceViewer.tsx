@@ -60,9 +60,9 @@ interface Props {
   issues: Issue[];
   locations: FlowLocation[];
   onIssueSelect: (issueKey: string) => void;
-  onLoaded?: () => void;
   onLocationSelect: (index: number) => void;
   selectedFlowIndex: number | undefined;
+  selectedLocationIndex: number | undefined;
 }
 
 interface State {
@@ -145,9 +145,6 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
           components,
           loading: false
         });
-        if (this.props.onLoaded) {
-          this.props.onLoaded();
-        }
       }
     } catch (response) {
       const rsp = response as Response;
@@ -187,6 +184,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
 
   render() {
     const { loading, notAccessible } = this.state;
+    const { selectedLocationIndex } = this.props;
 
     if (loading) {
       return (
@@ -240,6 +238,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
                 onLocationSelect={this.props.onLocationSelect}
                 renderDuplicationPopup={this.renderDuplicationPopup}
                 snippetGroup={snippetGroup}
+                selectedLocationIndex={selectedLocationIndex}
               />
             </SourceViewerContext.Provider>
           );

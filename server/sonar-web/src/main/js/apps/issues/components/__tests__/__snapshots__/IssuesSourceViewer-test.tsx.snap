@@ -209,7 +209,6 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
       ]
     }
     onIssueSelect={[MockFunction]}
-    onLoaded={[Function]}
     onLocationSelect={[MockFunction]}
   />
 </div>
@@ -444,7 +443,6 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
       ]
     }
     onIssueSelect={[MockFunction]}
-    onLoaded={[Function]}
     onLocationSelect={[MockFunction]}
   />
 </div>
@@ -525,7 +523,6 @@ exports[`should render SourceViewer correctly: default 1`] = `
     }
     locations={Array []}
     onIssueSelect={[MockFunction]}
-    onLoaded={[Function]}
     onLocationSelect={[MockFunction]}
   />
 </div>
@@ -720,7 +717,6 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
       ]
     }
     onIssueSelect={[MockFunction]}
-    onLoaded={[Function]}
     onLocationSelect={[MockFunction]}
   />
 </div>
