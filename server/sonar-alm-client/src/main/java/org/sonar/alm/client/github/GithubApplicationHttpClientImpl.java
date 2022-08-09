@@ -50,7 +50,7 @@ import static java.util.Optional.ofNullable;
 public class GithubApplicationHttpClientImpl implements GithubApplicationHttpClient {
 
   private static final Logger LOG = Loggers.get(GithubApplicationHttpClientImpl.class);
-  private static final Pattern NEXT_LINK_PATTERN = Pattern.compile(".*<(.*)>; rel=\"next\"");
+  private static final Pattern NEXT_LINK_PATTERN = Pattern.compile("<([^<]+)>; rel=\"next\"");
   private static final String GITHUB_API_VERSION_JSON = "application/vnd.github.v3+json";
   private static final String ANTIOPE_PREVIEW_JSON = "application/vnd.github.antiope-preview+json";
   private static final String MACHINE_MAN_PREVIEW_JSON = "application/vnd.github.machine-man-preview+json";
