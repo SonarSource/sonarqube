@@ -21,12 +21,12 @@ import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
+import RuleTabViewer from '../../../components/rules/RuleTabViewer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { RuleDetails } from '../../../types/types';
 import { RuleDescriptionSections } from '../rule';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
-import RuleTabViewer from './RuleTabViewer';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -203,6 +203,10 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         ? ruleDetails.descriptionSections[0]
         : undefined;
 
+    const introductionSection = ruleDetails.descriptionSections?.find(
+      section => section.key === RuleDescriptionSections.INTRODUCTION
+    )?.content;
+
     return (
       <div className="js-rule-description">
         {defaultSection && (
@@ -214,7 +218,18 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
           />
         )}
 
-        {hasDescriptionSection && !defaultSection && <RuleTabViewer ruleDetails={ruleDetails} />}
+        {hasDescriptionSection && !defaultSection && (
+          <>
+            {introductionSection && (
+              <div
+                className="rule-desc"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: sanitizeString(introductionSection) }}
+              />
+            )}
+            <RuleTabViewer ruleDetails={ruleDetails} />
+          </>
+        )}
 
         {ruleDetails.isExternal && (
           <div className="coding-rules-detail-description rule-desc markdown">

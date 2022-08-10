@@ -32,7 +32,7 @@ import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 import './style.css';
 
-interface TabViewerProps extends CurrentUserContextInterface {
+interface RuleTabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;
   extendedDescription?: string;
   ruleDescriptionContextKey?: string;
@@ -63,14 +63,14 @@ export enum TabKeys {
 
 const DEBOUNCE_FOR_SCROLL = 250;
 
-export class TabViewer extends React.PureComponent<TabViewerProps, State> {
+export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State> {
   state: State = {
     tabs: []
   };
 
   educationPrinciplesRef: React.RefObject<HTMLDivElement>;
 
-  constructor(props: TabViewerProps) {
+  constructor(props: RuleTabViewerProps) {
     super(props);
     this.educationPrinciplesRef = React.createRef();
     this.checkIfEducationPrinciplesAreVisible = debounce(
@@ -84,7 +84,7 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
     this.attachScrollEvent();
   }
 
-  componentDidUpdate(prevProps: TabViewerProps, prevState: State) {
+  componentDidUpdate(prevProps: RuleTabViewerProps, prevState: State) {
     const { ruleDetails, codeTabContent, ruleDescriptionContextKey, currentUser } = this.props;
     const { selectedTab } = this.state;
 
@@ -325,4 +325,4 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
   }
 }
 
-export default withCurrentUserContext(TabViewer);
+export default withCurrentUserContext(RuleTabViewer);

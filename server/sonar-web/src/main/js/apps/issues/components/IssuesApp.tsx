@@ -41,6 +41,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import RuleTabViewer from '../../../components/rules/RuleTabViewer';
 import '../../../components/search-navigator.css';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -96,9 +97,9 @@ import {
   STANDARDS
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
+import IssueHeader from './IssueHeader';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
-import IssueTabViewer from './IssueTabViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
@@ -1105,24 +1106,32 @@ export class App extends React.PureComponent<Props, State> {
       <div className="layout-page-main-inner">
         <DeferredSpinner loading={loadingRule}>
           {openIssue && openRuleDetails ? (
-            <IssueTabViewer
-              codeTabContent={
-                <IssuesSourceViewer
-                  branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                  issues={issues}
-                  locationsNavigator={this.state.locationsNavigator}
-                  onIssueSelect={this.openIssue}
-                  onLocationSelect={this.selectLocation}
-                  openIssue={openIssue}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={this.state.selectedLocationIndex}
-                />
-              }
-              issue={openIssue}
-              ruleDetails={openRuleDetails}
-              branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-              onIssueChange={this.handleIssueChange}
-            />
+            <>
+              <IssueHeader
+                issue={openIssue}
+                ruleDetails={openRuleDetails}
+                branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                onIssueChange={this.handleIssueChange}
+              />
+              <RuleTabViewer
+                ruleDetails={openRuleDetails}
+                extendedDescription={openRuleDetails.htmlNote}
+                ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                codeTabContent={
+                  <IssuesSourceViewer
+                    branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                    issues={issues}
+                    locationsNavigator={this.state.locationsNavigator}
+                    onIssueSelect={this.openIssue}
+                    onLocationSelect={this.selectLocation}
+                    openIssue={openIssue}
+                    selectedFlowIndex={this.state.selectedFlowIndex}
+                    selectedLocationIndex={this.state.selectedLocationIndex}
+                  />
+                }
+                scrollInTab={true}
+              />
+            </>
           ) : (
             <DeferredSpinner loading={loading} ariaLabel={translate('issues.loading_issues')}>
               {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
