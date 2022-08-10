@@ -4,109 +4,107 @@ exports[`should render correctly 1`] = `
 <Dropdown
   className="display-inline-block"
   overlay={
-    <React.Fragment>
-      <ul
-        className="menu"
+    <ul
+      className="menu"
+    >
+      <li
+        className="menu-header"
       >
-        <li
-          className="menu-header"
+        coding_rules.filter_similar_rules
+      </li>
+      <li>
+        <a
+          data-test="coding-rules__similar-language"
+          href="#"
+          onClick={[Function]}
         >
-          coding_rules.filter_similar_rules
-        </li>
-        <li>
-          <a
-            data-test="coding-rules__similar-language"
-            href="#"
-            onClick={[Function]}
+          JavaScript
+        </a>
+      </li>
+      <li>
+        <a
+          className="display-flex-center"
+          data-test="coding-rules__similar-type"
+          href="#"
+          onClick={[Function]}
+        >
+          <IssueTypeIcon
+            query="CODE_SMELL"
+          />
+          <span
+            className="little-spacer-left"
           >
-            JavaScript
-          </a>
-        </li>
-        <li>
-          <a
+            issue.type.CODE_SMELL
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          data-test="coding-rules__similar-severity"
+          href="#"
+          onClick={[Function]}
+        >
+          <SeverityHelper
             className="display-flex-center"
-            data-test="coding-rules__similar-type"
-            href="#"
-            onClick={[Function]}
+            severity="MAJOR"
+          />
+        </a>
+      </li>
+      <li
+        className="divider"
+      />
+      <li>
+        <a
+          data-tag="x"
+          data-test="coding-rules__similar-tag"
+          href="#"
+          onClick={[Function]}
+        >
+          <TagsIcon
+            className="little-spacer-right text-middle"
+          />
+          <span
+            className="text-middle"
           >
-            <IssueTypeIcon
-              query="CODE_SMELL"
-            />
-            <span
-              className="little-spacer-left"
-            >
-              issue.type.CODE_SMELL
-            </span>
-          </a>
-        </li>
-        <li>
-          <a
-            data-test="coding-rules__similar-severity"
-            href="#"
-            onClick={[Function]}
+            x
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          data-tag="a"
+          data-test="coding-rules__similar-tag"
+          href="#"
+          onClick={[Function]}
+        >
+          <TagsIcon
+            className="little-spacer-right text-middle"
+          />
+          <span
+            className="text-middle"
           >
-            <SeverityHelper
-              className="display-flex-center"
-              severity="MAJOR"
-            />
-          </a>
-        </li>
-        <li
-          className="divider"
-        />
-        <li>
-          <a
-            data-tag="x"
-            data-test="coding-rules__similar-tag"
-            href="#"
-            onClick={[Function]}
+            a
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          data-tag="b"
+          data-test="coding-rules__similar-tag"
+          href="#"
+          onClick={[Function]}
+        >
+          <TagsIcon
+            className="little-spacer-right text-middle"
+          />
+          <span
+            className="text-middle"
           >
-            <TagsIcon
-              className="icon-half-transparent little-spacer-right text-middle"
-            />
-            <span
-              className="text-middle"
-            >
-              x
-            </span>
-          </a>
-        </li>
-        <li>
-          <a
-            data-tag="a"
-            data-test="coding-rules__similar-tag"
-            href="#"
-            onClick={[Function]}
-          >
-            <TagsIcon
-              className="icon-half-transparent little-spacer-right text-middle"
-            />
-            <span
-              className="text-middle"
-            >
-              a
-            </span>
-          </a>
-        </li>
-        <li>
-          <a
-            data-tag="b"
-            data-test="coding-rules__similar-tag"
-            href="#"
-            onClick={[Function]}
-          >
-            <TagsIcon
-              className="icon-half-transparent little-spacer-right text-middle"
-            />
-            <span
-              className="text-middle"
-            >
-              b
-            </span>
-          </a>
-        </li>
-      </ul>
-    </React.Fragment>
+            b
+          </span>
+        </a>
+      </li>
+    </ul>
   }
 >
   <a
@@ -114,12 +112,8 @@ exports[`should render correctly 1`] = `
     href="#"
     title="coding_rules.filter_similar_rules"
   >
-    <FilterIcon
-      className="icon-half-transparent"
-    />
-    <DropdownIcon
-      className="icon-half-transparent"
-    />
+    <FilterIcon />
+    <DropdownIcon />
   </a>
 </Dropdown>
 `;

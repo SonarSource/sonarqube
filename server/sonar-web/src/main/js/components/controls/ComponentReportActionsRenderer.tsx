@@ -91,7 +91,7 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
           'component_report.report',
           translate('qualifier', component.qualifier)
         )}
-        <DropdownIcon className="spacer-left icon-half-transparent" />
+        <DropdownIcon className="spacer-left" />
       </Button>
     </Dropdown>
   ) : (

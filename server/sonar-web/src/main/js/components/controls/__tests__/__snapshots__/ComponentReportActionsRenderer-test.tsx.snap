@@ -34,7 +34,7 @@ exports[`should render correctly: can subscribe, not subscribed 1`] = `
   >
     component_report.report.qualifier.VW
     <DropdownIcon
-      className="spacer-left icon-half-transparent"
+      className="spacer-left"
     />
   </Button>
 </Dropdown>
@@ -74,7 +74,7 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
   >
     component_report.report.qualifier.VW
     <DropdownIcon
-      className="spacer-left icon-half-transparent"
+      className="spacer-left"
     />
   </Button>
 </Dropdown>
@@ -124,7 +124,7 @@ exports[`should render correctly: current user without email 1`] = `
   >
     component_report.report.qualifier.VW
     <DropdownIcon
-      className="spacer-left icon-half-transparent"
+      className="spacer-left"
     />
   </Button>
 </Dropdown>
@@ -164,7 +164,7 @@ exports[`should render correctly: not a portfolio 1`] = `
   >
     component_report.report.qualifier.TRK
     <DropdownIcon
-      className="spacer-left icon-half-transparent"
+      className="spacer-left"
     />
   </Button>
 </Dropdown>

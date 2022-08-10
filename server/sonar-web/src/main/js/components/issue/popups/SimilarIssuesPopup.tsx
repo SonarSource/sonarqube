@@ -118,7 +118,7 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
           {issue.tags != null &&
             issue.tags.map(tag => (
               <SelectListItem item={`tag###${tag}`} key={`tag###${tag}`}>
-                <TagsIcon className="icon-half-transparent little-spacer-right text-middle" />
+                <TagsIcon className="little-spacer-right text-middle" />
                 <span className="text-middle">{tag}</span>
               </SelectListItem>
             ))}

@@ -62,8 +62,8 @@ export default class SimilarIssuesFilter extends React.PureComponent<Props> {
             className="issue-action issue-action-with-options js-issue-filter"
             onClick={this.togglePopup}
             title={translate('issue.filter_similar_issues')}>
-            <FilterIcon className="icon-half-transparent" />
-            <DropdownIcon className="icon-half-transparent" />
+            <FilterIcon />
+            <DropdownIcon />
           </ButtonLink>
         </Toggler>
       </div>

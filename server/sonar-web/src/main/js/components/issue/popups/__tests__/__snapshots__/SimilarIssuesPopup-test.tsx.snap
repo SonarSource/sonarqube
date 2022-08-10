@@ -78,7 +78,7 @@ exports[`should render correctly 1`] = `
       key="tag###test-tag"
     >
       <TagsIcon
-        className="icon-half-transparent little-spacer-right text-middle"
+        className="little-spacer-right text-middle"
       />
       <span
         className="text-middle"

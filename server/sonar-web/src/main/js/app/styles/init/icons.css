@@ -28,10 +28,6 @@ a[class*=' icon-'] {
   border-bottom: none;
 }
 
-.icon-half-transparent {
-  opacity: 0.5;
-}
-
 /*
  * Colors
  */
