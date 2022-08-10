@@ -42,12 +42,25 @@ export default function ListFooter(props: ListFooterProps) {
     accessibleLoadMoreLabel,
     className,
     count,
+    loadMore,
     loading,
     needReload,
     total,
     pageSize,
     ready = true
   } = props;
+
+  const rootNode = React.useRef<HTMLDivElement>(null);
+
+  const onLoadMore = React.useCallback(() => {
+    if (loadMore) {
+      loadMore();
+    }
+
+    if (rootNode.current) {
+      rootNode.current.focus();
+    }
+  }, [loadMore, rootNode]);
 
   let hasMore = false;
   if (total !== undefined) {
@@ -70,15 +83,21 @@ export default function ListFooter(props: ListFooterProps) {
         className="spacer-left"
         disabled={loading}
         data-test="show-more"
-        onClick={props.loadMore}>
+        onClick={onLoadMore}>
         {translate('show_more')}
       </Button>
     );
   }
 
   return (
-    <footer
-      className={classNames('spacer-top note text-center', { 'new-loading': !ready }, className)}>
+    <div
+      tabIndex={-1}
+      ref={rootNode}
+      className={classNames(
+        'list-footer spacer-top note text-center',
+        { 'new-loading': !ready },
+        className
+      )}>
       {total !== undefined
         ? translateWithParameters(
             'x_of_y_shown',
@@ -88,6 +107,6 @@ export default function ListFooter(props: ListFooterProps) {
         : translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
       {button}
       {loading && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
-    </footer>
+    </div>
   );
 }

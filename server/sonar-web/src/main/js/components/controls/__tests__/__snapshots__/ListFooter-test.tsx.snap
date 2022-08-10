@@ -1,73 +1,79 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: default 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.3.5
   <Button
     className="spacer-left"
     data-test="show-more"
-    onClick={[MockFunction]}
+    onClick={[Function]}
   >
     show_more
   </Button>
-</footer>
+</div>
 `;
 
 exports[`should render correctly: empty if everything is loaded 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.5.5
-</footer>
+</div>
 `;
 
 exports[`should render correctly: empty if no loadMore nor reload props 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.3.5
-</footer>
+</div>
 `;
 
 exports[`should render correctly: force show load more button if count % pageSize is 0, and total is undefined 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_show.60
   <Button
     className="spacer-left"
     data-test="show-more"
-    onClick={[MockFunction]}
+    onClick={[Function]}
   >
     show_more
   </Button>
-</footer>
+</div>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.3.5
   <Button
     className="spacer-left"
     data-test="show-more"
     disabled={true}
-    onClick={[MockFunction]}
+    onClick={[Function]}
   >
     show_more
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
   />
-</footer>
+</div>
 `;
 
 exports[`should render correctly: reload 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.3.5
   <Button
@@ -77,12 +83,13 @@ exports[`should render correctly: reload 1`] = `
   >
     reload
   </Button>
-</footer>
+</div>
 `;
 
 exports[`should render correctly: reload, loading 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_of_y_shown.3.5
   <Button
@@ -96,13 +103,14 @@ exports[`should render correctly: reload, loading 1`] = `
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
   />
-</footer>
+</div>
 `;
 
 exports[`should render correctly: total undefined 1`] = `
-<footer
-  className="spacer-top note text-center"
+<div
+  className="list-footer spacer-top note text-center"
+  tabIndex={-1}
 >
   x_show.3
-</footer>
+</div>
 `;
