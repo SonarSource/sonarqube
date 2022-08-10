@@ -24,7 +24,7 @@
   width: 14px;
   height: 14px;
   margin: 1px;
-  border: 1px solid var(--gray80);
+  border: 1px solid var(--gray60);
   border-radius: 12px;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
