@@ -45,12 +45,14 @@ public class IssueTrackingDelegator {
   public TrackingResult track(Component component, Input<DefaultIssue> rawInput) {
     if (analysisMetadataHolder.isPullRequest()) {
       return standardResult(pullRequestTracker.track(component, rawInput));
-    } else if (isFirstAnalysisSecondaryBranch()) {
+    }
+
+    if (isFirstAnalysisSecondaryBranch()) {
       Tracking<DefaultIssue, DefaultIssue> tracking = referenceBranchTracker.track(component, rawInput);
       return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), empty(), tracking.getUnmatchedRaws());
-    } else {
-      return standardResult(tracker.track(component, rawInput));
     }
+
+    return standardResult(tracker.track(component, rawInput));
   }
 
   private static TrackingResult standardResult(Tracking<DefaultIssue, DefaultIssue> tracking) {

@@ -93,6 +93,11 @@ public class ComponentImpl implements Component {
   }
 
   @Override
+  public String getOldName() {
+    return this.getFileAttributes().getOldName();
+  }
+
+  @Override
   public String getShortName() {
     return this.shortName;
   }
@@ -159,6 +164,7 @@ public class ComponentImpl implements Component {
     private String uuid;
     private String key;
     private String name;
+    private String oldName;
     private String shortName;
     private String description;
     private FileAttributes fileAttributes;

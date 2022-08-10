@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -38,7 +39,7 @@ import org.sonar.api.utils.PathUtils;
  */
 @Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
-  private static AtomicInteger intGenerator = new AtomicInteger(0);
+  private static final AtomicInteger intGenerator = new AtomicInteger(0);
 
   private final String projectRelativePath;
   private final String moduleRelativePath;
@@ -47,17 +48,23 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Type type;
   private final Path absolutePath;
   private final SensorStrategy sensorStrategy;
+  private final String oldFilePath;
 
   /**
    * Testing purposes only!
    */
   public DefaultIndexedFile(String projectKey, Path baseDir, String relativePath, @Nullable String language) {
     this(baseDir.resolve(relativePath), projectKey, relativePath, relativePath, Type.MAIN, language, intGenerator.getAndIncrement(),
-      new SensorStrategy());
+      new SensorStrategy(), null);
   }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
     SensorStrategy sensorStrategy) {
+    this(absolutePath, projectKey, projectRelativePath, moduleRelativePath, type, language, batchId, sensorStrategy, null);
+  }
+
+  public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
+    SensorStrategy sensorStrategy, @Nullable String oldFilePath) {
     super(batchId);
     this.projectKey = projectKey;
     this.projectRelativePath = PathUtils.sanitize(projectRelativePath);
@@ -66,6 +73,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.language = language;
     this.sensorStrategy = sensorStrategy;
     this.absolutePath = absolutePath;
+    this.oldFilePath = oldFilePath;
   }
 
   @Override
@@ -96,6 +104,15 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     return absolutePath;
   }
 
+  @CheckForNull
+  public String oldPath() {
+    return oldFilePath;
+  }
+
+  public boolean isMovedFile() {
+    return Objects.nonNull(this.oldPath());
+  }
+
   @Override
   public InputStream inputStream() throws IOException {
     return Files.newInputStream(path());
@@ -117,7 +134,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
    */
   @Override
   public String key() {
-    return new StringBuilder().append(projectKey).append(":").append(projectRelativePath).toString();
+    return String.join(":", projectKey, projectRelativePath);
   }
 
   @Override

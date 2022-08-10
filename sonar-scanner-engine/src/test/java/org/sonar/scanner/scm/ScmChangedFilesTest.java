@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
+import org.sonar.scm.git.ChangedFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,9 +34,11 @@ public class ScmChangedFilesTest {
 
   @Test
   public void testGetter() {
-    Collection<Path> files = Collections.singletonList(Paths.get("files"));
+    Path filePath = Paths.get("files");
+    ChangedFile file = new ChangedFile(filePath.toString(), filePath);
+    Collection<ChangedFile> files = Collections.singletonList(file);
     scmChangedFiles = new ScmChangedFiles(files);
-    assertThat(scmChangedFiles.get()).containsOnly(Paths.get("files"));
+    assertThat(scmChangedFiles.get()).containsOnly(file);
   }
 
   @Test
@@ -50,7 +53,8 @@ public class ScmChangedFilesTest {
 
   @Test
   public void testConfirm() {
-    Collection<Path> files = Collections.singletonList(Paths.get("files"));
+    Path filePath = Paths.get("files");
+    Collection<ChangedFile> files = Collections.singletonList(new ChangedFile(filePath.toString(), filePath));
     scmChangedFiles = new ScmChangedFiles(files);
     assertThat(scmChangedFiles.isValid()).isTrue();
     assertThat(scmChangedFiles.isChanged(Paths.get("files"))).isTrue();

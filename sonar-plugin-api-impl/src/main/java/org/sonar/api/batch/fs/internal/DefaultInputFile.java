@@ -177,6 +177,15 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return indexedFile.absolutePath();
   }
 
+  @CheckForNull
+  public String oldPath() {
+    return indexedFile.oldPath();
+  }
+  
+  public boolean isMovedFile() {
+    return indexedFile.isMovedFile();
+  }
+
   @Override
   public File file() {
     return indexedFile.file();

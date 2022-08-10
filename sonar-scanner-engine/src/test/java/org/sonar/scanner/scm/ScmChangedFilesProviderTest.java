@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scm.git.ChangedFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -130,7 +131,9 @@ public class ScmChangedFilesProviderTest {
     when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile").toAbsolutePath()));
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
 
-    assertThat(scmChangedFiles.get()).containsOnly(Paths.get("changedFile").toAbsolutePath());
+    Path filePath = Paths.get("changedFile").toAbsolutePath();
+    ChangedFile changedFile = new ChangedFile(filePath.toString(), filePath);
+    assertThat(scmChangedFiles.get()).containsOnly(changedFile);
     verify(scmProvider).branchChangedFiles("target", rootBaseDir);
   }
 

@@ -43,6 +43,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.scan.ScanProperties;
+import org.sonar.scanner.scm.ScmChangedFiles;
 import org.sonar.scanner.util.ProgressReport;
 
 import static java.lang.String.format;
@@ -66,6 +67,7 @@ public class FileIndexer {
   private final InputComponentStore componentStore;
   private final SensorStrategy sensorStrategy;
   private final LanguageDetection langDetection;
+  private final ScmChangedFiles scmChangedFiles;
 
   private boolean warnInclusionsAlreadyLogged;
   private boolean warnExclusionsAlreadyLogged;
@@ -75,7 +77,7 @@ public class FileIndexer {
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
-    InputFileFilter[] filters) {
+    InputFileFilter[] filters, ScmChangedFiles scmChangedFiles) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -88,6 +90,7 @@ public class FileIndexer {
     this.properties = properties;
     this.filters = filters;
     this.projectExclusionFilters = projectExclusionFilters;
+    this.scmChangedFiles = scmChangedFiles;
   }
 
   void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
@@ -124,10 +127,18 @@ public class FileIndexer {
       return;
     }
 
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(realAbsoluteFile, project.key(),
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(
+      realAbsoluteFile,
+      project.key(),
       projectRelativePath.toString(),
       moduleRelativePath.toString(),
-      type, language != null ? language.key() : null, scannerComponentIdGenerator.getAsInt(), sensorStrategy);
+      type,
+      language != null ? language.key() : null,
+      scannerComponentIdGenerator.getAsInt(),
+      sensorStrategy,
+      scmChangedFiles.getFileOldPath(realAbsoluteFile)
+    );
+
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()));
     if (language != null && language.isPublishAllFiles()) {
         inputFile.setPublished(true);

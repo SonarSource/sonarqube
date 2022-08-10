@@ -97,6 +97,11 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
+    if (analysisMetadataHolder.isPullRequest()) {
+      LOG.debug("Currently within Pull Request scope. Do nothing.");
+      return;
+    }
+
     // do nothing if no files in db (first analysis)
     if (analysisMetadataHolder.isFirstAnalysis()) {
       LOG.debug("First analysis. Do nothing.");

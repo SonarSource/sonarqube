@@ -59,10 +59,13 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
   public Input<DefaultIssue> create(Component component) {
     if (component.getType() == Component.Type.PROJECT) {
       return new ProjectTrackerBaseLazyInput(analysisMetadataHolder, componentsWithUnprocessedIssues, dbClient, issueUpdater, issuesLoader, reportModulesPath, component);
-    } else if (component.getType() == Component.Type.DIRECTORY) {
+    }
+
+    if (component.getType() == Component.Type.DIRECTORY) {
       // Folders have no issues
       return new EmptyTrackerBaseLazyInput(dbClient, component);
     }
+
     return new FileTrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orElse(null));
   }
 

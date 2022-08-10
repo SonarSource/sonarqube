@@ -24,6 +24,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 
 /**
  * The attributes specific to a Component of type {@link Component.Type#FILE}.
@@ -35,17 +38,19 @@ public class FileAttributes {
   private final String languageKey;
   private final boolean markedAsUnchanged;
   private final int lines;
+  private String oldName;
 
   public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
-    this(unitTest, languageKey, lines, false);
+    this(unitTest, languageKey, lines, false, null);
   }
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines, boolean markedAsUnchanged) {
+  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines, boolean markedAsUnchanged, @Nullable String oldName) {
     this.unitTest = unitTest;
     this.languageKey = languageKey;
     this.markedAsUnchanged = markedAsUnchanged;
     checkArgument(lines > 0, "Number of lines must be greater than zero");
     this.lines = lines;
+    this.oldName = formatOldName(oldName);
   }
 
   public boolean isMarkedAsUnchanged() {
@@ -59,6 +64,11 @@ public class FileAttributes {
   @CheckForNull
   public String getLanguageKey() {
     return languageKey;
+  }
+
+  @CheckForNull
+  public String getOldName() {
+    return oldName;
   }
 
   /**
@@ -75,6 +85,11 @@ public class FileAttributes {
       ", unitTest=" + unitTest +
       ", lines=" + lines +
       ", markedAsUnchanged=" + markedAsUnchanged +
+      ", oldName=" + oldName +
       '}';
+  }
+
+  private String formatOldName(@Nullable String name) {
+    return abbreviate(trimToNull(name), MAX_COMPONENT_NAME_LENGTH);
   }
 }

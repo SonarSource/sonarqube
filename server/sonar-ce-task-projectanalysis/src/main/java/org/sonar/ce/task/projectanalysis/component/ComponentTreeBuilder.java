@@ -335,7 +335,9 @@ public class ComponentTreeBuilder {
       component.getIsTest(),
       lang != null ? lang.intern() : null,
       component.getLines(),
-      component.getMarkedAsUnchanged());
+      component.getMarkedAsUnchanged(),
+      component.getOldRelativeFilePath()
+    );
   }
 
   private static class Node {

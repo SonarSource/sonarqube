@@ -21,14 +21,17 @@ package org.sonar.scanner.scm;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scm.git.ChangedFile;
+import org.sonar.scm.git.GitScmProvider;
 import org.springframework.context.annotation.Bean;
 
 public class ScmChangedFilesProvider {
@@ -38,25 +41,36 @@ public class ScmChangedFilesProvider {
   @Bean("ScmChangedFiles")
   public ScmChangedFiles provide(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
     Path rootBaseDir = project.getBaseDir();
-    Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
-    validatePaths(changedFiles);
+    Collection<ChangedFile> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
+
+    if (changedFiles != null) {
+      validatePaths(getFilePaths(changedFiles));
+    }
+
     return new ScmChangedFiles(changedFiles);
   }
 
-  private static void validatePaths(@javax.annotation.Nullable Collection<Path> paths) {
-    if (paths != null && paths.stream().anyMatch(p -> !p.isAbsolute())) {
+  private static void validatePaths(Set<Path> changedFilePaths) {
+    if (changedFilePaths != null && changedFilePaths.stream().anyMatch(p -> !p.isAbsolute())) {
       throw new IllegalStateException("SCM provider returned a changed file with a relative path but paths must be absolute. Please fix the provider.");
     }
   }
 
+  private static Set<Path> getFilePaths(Collection<ChangedFile> changedFiles) {
+    return changedFiles
+      .stream()
+      .map(ChangedFile::getAbsolutFilePath)
+      .collect(Collectors.toSet());
+  }
+
   @CheckForNull
-  private static Collection<Path> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
+  private static Collection<ChangedFile> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
     final String targetBranchName = branchConfiguration.targetBranchName();
     if (branchConfiguration.isPullRequest() && targetBranchName != null) {
-      ScmProvider scmProvider = scmConfiguration.provider();
+      GitScmProvider scmProvider = (GitScmProvider) scmConfiguration.provider();
       if (scmProvider != null) {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        Collection<Path> changedFiles = scmProvider.branchChangedFiles(targetBranchName, rootBaseDir);
+        Collection<ChangedFile> changedFiles = scmProvider.branchModifiedFiles(targetBranchName, rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
           LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), ScannerUtils.pluralize("file", changedFiles.size()));

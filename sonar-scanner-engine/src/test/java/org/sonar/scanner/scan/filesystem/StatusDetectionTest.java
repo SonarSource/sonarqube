@@ -19,9 +19,11 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,6 +33,7 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.scm.ScmChangedFiles;
+import org.sonar.scm.git.ChangedFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,9 +64,10 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_confirm() {
-    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
-    StatusDetection statusDetection = new StatusDetection(projectRepositories, changedFiles);
+    Path filePath = Paths.get("module", "src", "Foo.java");
+    ScmChangedFiles changedFiles = new ScmChangedFiles(List.of(new ChangedFile(filePath.toString(), filePath)));
 
+    StatusDetection statusDetection = new StatusDetection(projectRepositories, changedFiles);
     assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
   }
 

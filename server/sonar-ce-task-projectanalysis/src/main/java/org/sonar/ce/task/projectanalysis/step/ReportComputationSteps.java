@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
+import org.sonar.ce.task.projectanalysis.filemove.PullRequestFileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.language.HandleUnanalyzedLanguagesStep;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationChecksStep;
 import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
@@ -54,6 +55,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     LoadQualityGateStep.class,
     LoadPeriodsStep.class,
     FileMoveDetectionStep.class,
+    PullRequestFileMoveDetectionStep.class,
 
     // load duplications related stuff
     LoadDuplicationsFromReportStep.class,

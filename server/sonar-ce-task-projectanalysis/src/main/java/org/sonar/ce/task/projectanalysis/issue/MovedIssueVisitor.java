@@ -55,7 +55,7 @@ public class MovedIssueVisitor extends IssueVisitor {
       "Issue %s doesn't belong to file %s registered as original file of current file %s",
       issue, originalFile.getUuid(), component);
 
-    // changes the issue's component uuid, and set issue as changed to enforce it is persisted to DB
+    // changes the issue's component uuid, and set issue as changed, to enforce it is persisted to DB
     issueUpdater.setIssueComponent(issue, component.getUuid(), component.getKey(), new Date(analysisMetadataHolder.getAnalysisDate()));
   }
 }

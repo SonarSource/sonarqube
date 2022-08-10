@@ -21,17 +21,21 @@ package org.sonar.scanner.scm;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.scm.git.ChangedFile;
 
 @Immutable
 public class ScmChangedFiles {
   @Nullable
-  private final Collection<Path> fileCollection;
+  private final Collection<ChangedFile> changedFiles;
 
-  public ScmChangedFiles(@Nullable Collection<Path> changedFiles) {
-    this.fileCollection = changedFiles;
+  public ScmChangedFiles(@Nullable Collection<ChangedFile> changedFiles) {
+    this.changedFiles = changedFiles;
   }
 
   public boolean isChanged(Path file) {
@@ -39,15 +43,33 @@ public class ScmChangedFiles {
       throw new IllegalStateException("Scm didn't provide valid data");
     }
 
-    return fileCollection.contains(file);
+    return this.findFile(file).isPresent();
   }
 
   public boolean isValid() {
-    return fileCollection != null;
+    return changedFiles != null;
   }
 
   @CheckForNull
-  Collection<Path> get() {
-    return fileCollection;
+  public Collection<ChangedFile> get() {
+    return changedFiles;
+  }
+
+  @CheckForNull
+  public String getFileOldPath(Path absoluteFilePath) {
+    return this.findFile(absoluteFilePath)
+      .filter(ChangedFile::isMoved)
+      .map(ChangedFile::getOldFilePath)
+      .orElse(null);
+  }
+
+  private Optional<ChangedFile> findFile(Path absoluteFilePath) {
+    Predicate<ChangedFile> isTargetFile = file -> file.getAbsolutFilePath().equals(absoluteFilePath);
+
+    return Optional.ofNullable(this.get())
+      .orElseGet(List::of)
+      .stream()
+      .filter(isTargetFile)
+      .findFirst();
   }
 }

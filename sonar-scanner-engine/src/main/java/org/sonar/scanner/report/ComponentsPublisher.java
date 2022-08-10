@@ -68,6 +68,10 @@ public class ComponentsPublisher implements ReportPublisherStep {
       fileBuilder.setStatus(convert(file.status()));
       fileBuilder.setMarkedAsUnchanged(file.isMarkedAsUnchanged());
 
+      if (file.isMovedFile()) {
+        fileBuilder.setOldRelativeFilePath(file.oldPath());
+      }
+
       String lang = getLanguageKey(file);
       if (lang != null) {
         fileBuilder.setLanguage(lang);

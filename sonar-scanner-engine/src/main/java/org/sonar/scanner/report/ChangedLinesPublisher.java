@@ -39,6 +39,7 @@ import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scm.git.GitScmProvider;
 
 import static java.util.Optional.empty;
 
@@ -89,7 +90,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
     Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
       .collect(Collectors.toMap(DefaultInputFile::path, f -> f));
 
-    Map<Path, Set<Integer>> pathSetMap = provider.branchChangedLines(targetScmBranch, rootBaseDir, changedFiles.keySet());
+    Map<Path, Set<Integer>> pathSetMap = ((GitScmProvider) provider).branchChangedLines(targetScmBranch, rootBaseDir, changedFiles); // TODO: Extend ScmProvider abstract
     int count = 0;
 
     if (pathSetMap == null) {
