@@ -57,6 +57,7 @@ interface State {
   selectedProject?: BasicSelectOption;
   newTokenExpiration: TokenExpiration;
   tokenExpirationOptions: { value: TokenExpiration; label: string }[];
+  tokenTypeOptions: Array<{ label: string; value: TokenType }>;
 }
 
 export class TokensForm extends React.PureComponent<Props, State> {
@@ -69,21 +70,28 @@ export class TokensForm extends React.PureComponent<Props, State> {
     tokens: [],
     projects: [],
     newTokenExpiration: TokenExpiration.OneMonth,
-    tokenExpirationOptions: EXPIRATION_OPTIONS
+    tokenExpirationOptions: EXPIRATION_OPTIONS,
+    tokenTypeOptions: []
   };
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchTokens();
-    this.fetchTokenSettings();
-    if (this.props.displayTokenTypeInput) {
-      this.fetchProjects();
-    }
+    this.loadData();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  loadData = async () => {
+    this.fetchTokens();
+    this.fetchTokenSettings();
+
+    if (this.props.displayTokenTypeInput) {
+      const projects = await this.fetchProjects();
+      this.constructTokenTypeOptions(projects);
+    }
+  };
 
   fetchTokens = () => {
     this.setState({ loading: true });
@@ -111,10 +119,42 @@ export class TokensForm extends React.PureComponent<Props, State> {
   fetchProjects = async () => {
     const { projects: projectArray } = await getScannableProjects();
     const projects = projectArray.map(project => ({ label: project.name, value: project.key }));
+
     this.setState({
       projects,
       selectedProject: projects.length === 1 ? projects[0] : undefined
     });
+
+    return projects;
+  };
+
+  constructTokenTypeOptions = (projects: BasicSelectOption[]) => {
+    const { currentUser } = this.props;
+
+    const tokenTypeOptions = [
+      { label: translate('users.tokens', TokenType.User), value: TokenType.User }
+    ];
+    if (hasGlobalPermission(currentUser, Permissions.Scan)) {
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.Global),
+        value: TokenType.Global
+      });
+    }
+    if (!isEmpty(projects)) {
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.Project),
+        value: TokenType.Project
+      });
+    }
+
+    if (tokenTypeOptions.length === 1) {
+      this.setState({
+        newTokenType: tokenTypeOptions[0].value,
+        tokenTypeOptions
+      });
+    } else {
+      this.setState({ tokenTypeOptions });
+    }
   };
 
   updateTokensCount = () => {
@@ -130,6 +170,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
       newTokenName,
       newTokenType = TokenType.User,
       selectedProject,
+      tokenTypeOptions,
       newTokenExpiration
     } = this.state;
     this.setState({ generating: true });
@@ -167,7 +208,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
             newToken,
             newTokenName: '',
             selectedProject: undefined,
-            newTokenType: undefined,
+            newTokenType: tokenTypeOptions.length === 1 ? tokenTypeOptions[0].value : undefined,
             newTokenExpiration: TokenExpiration.OneMonth,
             tokens
           };
@@ -230,25 +271,10 @@ export class TokensForm extends React.PureComponent<Props, State> {
       projects,
       selectedProject,
       newTokenExpiration,
-      tokenExpirationOptions
+      tokenExpirationOptions,
+      tokenTypeOptions
     } = this.state;
-    const { displayTokenTypeInput, currentUser } = this.props;
-
-    const tokenTypeOptions = [
-      { label: translate('users.tokens', TokenType.User), value: TokenType.User }
-    ];
-    if (hasGlobalPermission(currentUser, Permissions.Scan)) {
-      tokenTypeOptions.unshift({
-        label: translate('users.tokens', TokenType.Global),
-        value: TokenType.Global
-      });
-    }
-    if (!isEmpty(projects)) {
-      tokenTypeOptions.unshift({
-        label: translate('users.tokens', TokenType.Project),
-        value: TokenType.Project
-      });
-    }
+    const { displayTokenTypeInput } = this.props;
 
     return (
       <form autoComplete="off" className="display-flex-center" onSubmit={this.handleGenerateToken}>
@@ -280,11 +306,7 @@ export class TokensForm extends React.PureComponent<Props, State> {
                 onChange={this.handleNewTokenTypeChange}
                 options={tokenTypeOptions}
                 placeholder={translate('users.tokens.select_type')}
-                value={
-                  tokenTypeOptions.length === 1
-                    ? tokenTypeOptions[0]
-                    : tokenTypeOptions.find(option => option.value === newTokenType) || null
-                }
+                value={tokenTypeOptions.find(option => option.value === newTokenType)}
               />
             </div>
             {newTokenType === TokenType.Project && (
