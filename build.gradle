@@ -166,7 +166,7 @@ subprojects {
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.6.0.4844'
       dependency 'org.sonarsource.config:sonar-config-plugin:1.2.0.267'
       dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.40.0.48530'
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.40.0.48530'
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.43.0.51858'
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.7.0.2865'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.6.0.3106'
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.1.1.1157'
