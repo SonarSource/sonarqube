@@ -164,12 +164,12 @@ It is possible to overwrite the default Java executable by setting the environme
 
 #### Linux / MacOS
 ```
-SONAR_JAVA_PATH="path/to/java_home/bin/java"
+export SONAR_JAVA_PATH="path/to/java_home/bin/java"
 ```
 
 #### Windows
 ```
-SONAR_JAVA_PATH="C:\Program Files\java_home\bin\java.exe"
+setx SONAR_JAVA_PATH "C:\Program Files\java_home\bin\java.exe"
 ```
 
 ### Advanced Installation Features
