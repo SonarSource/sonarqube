@@ -159,30 +159,30 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
                   />
                 }
                 mouseLeaveDelay={0.5}>
-                <SonarLintIcon className="it__issues-sonarlint-quick-fix" size={20} />
+                <SonarLintIcon className="it__issues-sonarlint-quick-fix spacer-left" size={20} />
+              </Tooltip>
+            )}
+            {(ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
+              <DocumentationTooltip
+                content={translate('rules.status', ruleStatus, 'help')}
+                links={[
+                  {
+                    href: '/documentation/user-guide/rules/',
+                    label: translateWithParameters('see_x', translate('rules'))
+                  }
+                ]}>
+                <span className="badge spacer-left badge-error">
+                  {translate('issue.resolution.badge', ruleStatus)}
+                </span>
+              </DocumentationTooltip>
+            )}
+            {ruleEngine && (
+              <Tooltip
+                overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
+                <div className="badge spacer-left text-baseline">{ruleEngine}</div>
               </Tooltip>
             )}
           </h1>
-          {(ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
-            <DocumentationTooltip
-              content={translate('rules.status', ruleStatus, 'help')}
-              links={[
-                {
-                  href: '/documentation/user-guide/rules/',
-                  label: translateWithParameters('see_x', translate('rules'))
-                }
-              ]}>
-              <span className="badge spacer-right badge-error">
-                {translate('issue.resolution.badge', ruleStatus)}
-              </span>
-            </DocumentationTooltip>
-          )}
-          {ruleEngine && (
-            <Tooltip
-              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-              <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-            </Tooltip>
-          )}
           <div className="issue-meta issue-get-perma-link">
             <Link
               className="js-issue-permalink link-no-underline"
@@ -220,6 +220,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           </div>
         </div>
         <IssueActionsBar
+          className="issue-header-actions"
           currentPopup={issuePopupName}
           issue={issue}
           onAssign={this.handleAssignement}

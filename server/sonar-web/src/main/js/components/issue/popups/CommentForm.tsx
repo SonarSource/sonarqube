@@ -30,10 +30,11 @@ export interface CommentFormProps {
   placeholder?: string;
   showFormatHelp: boolean;
   autoTriggered?: boolean;
+  showCancelButton: boolean;
 }
 
 export default function CommentForm(props: CommentFormProps) {
-  const { comment, placeholder, showFormatHelp, autoTriggered } = props;
+  const { comment, placeholder, showFormatHelp, autoTriggered, showCancelButton } = props;
   const [editComment, setEditComment] = React.useState(comment || '');
 
   return (
@@ -41,6 +42,7 @@ export default function CommentForm(props: CommentFormProps) {
       <div className="issue-comment-form-text">
         <textarea
           autoFocus={true}
+          style={{ resize: 'vertical' }}
           placeholder={placeholder}
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
             setEditComment(event.target.value)
@@ -63,7 +65,7 @@ export default function CommentForm(props: CommentFormProps) {
         )}
         <div className="issue-comment-form-actions">
           <Button
-            className="js-issue-comment-submit little-spacer-right"
+            className="js-issue-comment-submit"
             disabled={editComment.trim().length < 1}
             onClick={() => {
               props.onSaveComment(editComment);
@@ -71,16 +73,18 @@ export default function CommentForm(props: CommentFormProps) {
             }}>
             {comment ? translate('save') : translate('issue.comment.submit')}
           </Button>
-          <ResetButtonLink
-            className="js-issue-comment-cancel"
-            aria-label={
-              comment
-                ? translate('issue.comment.edit.cancel')
-                : translate('issue.comment.add_comment.cancel')
-            }
-            onClick={() => props.onCancel()}>
-            {autoTriggered ? translate('skip') : translate('cancel')}
-          </ResetButtonLink>
+          {showCancelButton && (
+            <ResetButtonLink
+              className="js-issue-comment-cancel little-spacer-left"
+              aria-label={
+                comment
+                  ? translate('issue.comment.edit.cancel')
+                  : translate('issue.comment.add_comment.cancel')
+              }
+              onClick={() => props.onCancel()}>
+              {autoTriggered ? translate('skip') : translate('cancel')}
+            </ResetButtonLink>
+          )}
         </div>
       </div>
     </>

@@ -94,6 +94,10 @@
   margin-left: var(--gridSize);
 }
 
+.issue-header-actions .issue-meta + .issue-meta {
+  margin-left: calc(var(--gridSize) * 2);
+}
+
 .issue-meta-label {
   display: inline-block;
   vertical-align: top;
@@ -274,7 +278,7 @@
 
 .issue-comment-list-wrapper {
   max-height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .issue-comment-tile {

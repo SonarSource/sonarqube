@@ -44,6 +44,7 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps>
       <DropdownOverlay placement={this.props.placement}>
         <div className="issue-comment-bubble-popup">
           <CommentForm
+            showCancelButton={true}
             placeholder={this.props.placeholder}
             onCancel={this.handleCancelClick}
             onSaveComment={this.props.onComment}

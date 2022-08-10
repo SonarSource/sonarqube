@@ -69,7 +69,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
     return (
       <div className="issue-meta dropdown">
         <Toggler
-          closeOnClickOutside={false}
+          closeOnClickOutside={!!showCommentsInPopup}
           onRequestClose={this.handleClose}
           open={this.props.currentPopup === 'comment'}
           overlay={
@@ -99,10 +99,12 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
             className="issue-action js-issue-comment"
             onClick={this.handleCommentClick}>
             <span className="issue-meta-label">
-              {showCommentsInPopup && comments && comments.length > 0 && (
-                <span className="little-spacer-right">{comments.length}</span>
+              {showCommentsInPopup && comments && (
+                <span>
+                  {comments.length} {translate('issue.comment.formlink.plural')}
+                </span>
               )}
-              {translate('issue.comment.formlink')}
+              {!showCommentsInPopup && translate('issue.comment.formlink')}
             </span>
           </ButtonLink>
         </Toggler>

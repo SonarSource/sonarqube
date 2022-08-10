@@ -64,6 +64,7 @@ export default class CommentListPopup extends React.PureComponent<Props, {}> {
           />
           {canComment && (
             <CommentForm
+              showCancelButton={false}
               autoTriggered={autoTriggered}
               placeholder={placeholder}
               onCancel={this.handleCancelClick}

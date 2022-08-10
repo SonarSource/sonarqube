@@ -90,6 +90,7 @@ export default class CommentTile extends React.PureComponent<CommentTileProps, C
           {showEditArea && (
             <div className="flex-1">
               <CommentForm
+                showCancelButton={true}
                 onCancel={this.handleCancelClick}
                 onSaveComment={this.handleSaveClick}
                 showFormatHelp={false}

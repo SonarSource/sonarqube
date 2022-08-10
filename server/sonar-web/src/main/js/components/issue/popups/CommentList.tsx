@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 import { IssueComment } from '../../../types/types';
 import CommentTile from './CommentTile';
 
@@ -29,13 +30,19 @@ interface CommentListProps {
 
 export default function CommentList(props: CommentListProps) {
   const { comments } = props;
+  if (!comments || comments.length === 0) {
+    return (
+      <div className="note spacer-top spacer-bottom">{translate('issue.comment.empty.list')}</div>
+    );
+  }
+
   // sorting comment i.e showing newest on top
-  const sortedComments = comments?.sort(
+  const sortedComments = [...comments]?.sort(
     (com1, com2) =>
       new Date(com2.createdAt || '').getTime() - new Date(com1.createdAt || '').getTime()
   );
   return (
-    <div className="issue-comment-list-wrapper">
+    <div className="issue-comment-list-wrapper spacer-bottom">
       {sortedComments?.map(c => (
         <CommentTile
           comment={c}

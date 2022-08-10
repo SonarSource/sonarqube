@@ -309,6 +309,7 @@ it('should be able to perform action on issues', async () => {
   await user.keyboard('New ');
   await user.keyboard('{Control>}{enter}{/Control}');
   expect(screen.getByText('New comment')).toBeInTheDocument();
+  await user.keyboard('{Escape}');
 
   // changing tags
   expect(screen.getByText('issue.no_tag')).toBeInTheDocument();
@@ -387,7 +388,7 @@ it('should open the actions popup using keyboard shortcut', async () => {
   // open comment popup on key press 'c'
   await user.keyboard('c');
   expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
-  await user.click(screen.getByText('cancel'));
+  await user.keyboard('{Escape}');
 
   // open tags popup on key press 't'
   await user.keyboard('t');
