@@ -33,7 +33,7 @@ module.exports = {
     veryLightGreen: '#f5f9fc',
     yellow: '#eabe06',
     orange: '#ed7d20',
-    red: '#d4333f',
+    red: '#D02F3A',
     purple: '#9139d4',
     white: '#ffffff',
 
@@ -75,7 +75,7 @@ module.exports = {
 
     // fonts
     baseFontColor: '#333',
-    secondFontColor: '#666',
+    secondFontColor: '#656565',
 
     // forms
     mandatoryFieldColor: '#a4030f',

@@ -106,7 +106,7 @@ foo"
       <span
         style={
           Object {
-            "color": "#666",
+            "color": "#656565",
           }
         }
       >

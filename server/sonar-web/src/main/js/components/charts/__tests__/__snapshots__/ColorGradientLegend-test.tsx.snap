@@ -33,7 +33,7 @@ exports[`should render properly 1`] = `
       <stop
         key="4"
         offset={1}
-        stopColor="#d4333f"
+        stopColor="#D02F3A"
       />
     </linearGradient>
     <pattern

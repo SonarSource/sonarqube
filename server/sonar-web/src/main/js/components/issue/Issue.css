@@ -284,3 +284,13 @@
 .issue-comment-tile {
   background-color: var(--barBackgroundColor);
 }
+
+.issue .button-link {
+  color: var(--veryDarkBlue);
+}
+
+.issue .button-link:hover,
+.issue .button-link:focus,
+.issue .button-link:active {
+  color: var(--darkBlue);
+}

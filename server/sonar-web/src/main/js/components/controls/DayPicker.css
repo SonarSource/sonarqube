@@ -56,7 +56,6 @@
   padding: var(--gridSize);
   font-size: var(--smallFontSize);
   text-align: center;
-  color: var(--gray60);
 }
 
 .DayPicker-Weekday abbr[title] {
@@ -104,16 +103,6 @@
 .DayPicker-Day--disabled {
   color: var(--gray80);
   cursor: not-allowed;
-}
-
-/* Example modifiers */
-
-.DayPicker-Day--sunday {
-  background-color: #f7f8f8;
-}
-
-.DayPicker-Day--sunday:not(.DayPicker-Day--today) {
-  color: #dce0e0;
 }
 
 .DayPicker-Day--selected:not(.DayPicker-Day--disabled):not(.DayPicker-Day--outside) {
