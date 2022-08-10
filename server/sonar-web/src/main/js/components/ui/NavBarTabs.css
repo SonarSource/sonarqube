@@ -29,7 +29,8 @@
   margin-left: 20px;
 }
 
-.navbar-tabs > li > a {
+.navbar-tabs > li > a,
+.navbar-tabs > li > button.button-link {
   display: block;
   height: var(--controlHeight);
   line-height: 16px;
@@ -42,6 +43,9 @@
 
 .navbar-tabs > li > a.active,
 .navbar-tabs > li > a:hover,
-.navbar-tabs > li > a:focus {
+.navbar-tabs > li > a:focus,
+.navbar-tabs > li > button.button-link.active,
+.navbar-tabs > li > button.button-link:hover,
+.navbar-tabs > li > button.button-link:focus {
   border-bottom-color: var(--blue);
 }

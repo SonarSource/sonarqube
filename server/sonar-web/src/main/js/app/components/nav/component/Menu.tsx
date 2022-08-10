@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
+import { ButtonLink } from '../../../../components/controls/buttons';
 import Dropdown from '../../../../components/controls/Dropdown';
 import Tooltip from '../../../../components/controls/Tooltip';
 import BulletListIcon from '../../../../components/icons/BulletListIcon';
@@ -65,15 +66,15 @@ interface Props {
 type Query = BranchParameters & { id: string };
 
 export class Menu extends React.PureComponent<Props> {
-  projectInfoLink = React.createRef<HTMLAnchorElement>();
+  projectInfoLink: HTMLElement | null = null;
 
   componentDidUpdate(prevProps: Props) {
     if (
       prevProps.projectInfoDisplayed &&
       !this.props.projectInfoDisplayed &&
-      this.projectInfoLink.current
+      this.projectInfoLink
     ) {
-      this.projectInfoLink.current.focus();
+      this.projectInfoLink.focus();
     }
   }
 
@@ -302,19 +303,17 @@ export class Menu extends React.PureComponent<Props> {
         overlay={<ul className="menu">{adminLinks}</ul>}
         tagName="li">
         {({ onToggleClick, open }) => (
-          <a
+          <ButtonLink
             aria-expanded={open}
             aria-haspopup="menu"
-            role="button"
             className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
-            href="#"
             id="component-navigation-admin"
             onClick={onToggleClick}>
             {hasMessage('layout.settings', component.qualifier)
               ? translate('layout.settings', component.qualifier)
               : translate('layout.settings')}
             <DropdownIcon className="little-spacer-left" />
-          </a>
+          </ButtonLink>
         )}
       </Dropdown>
     );
@@ -360,20 +359,15 @@ export class Menu extends React.PureComponent<Props> {
     return (
       (isProject || isApplication) && (
         <li>
-          <a
+          <ButtonLink
             className="menu-button"
-            onClick={(e: React.SyntheticEvent<HTMLAnchorElement>) => {
-              e.preventDefault();
-              e.currentTarget.blur();
-              this.props.onToggleProjectInfo();
-            }}
-            href="#"
-            role="button"
-            tabIndex={0}
-            ref={this.projectInfoLink}>
+            onClick={this.props.onToggleProjectInfo}
+            innerRef={node => {
+              this.projectInfoLink = node;
+            }}>
             <BulletListIcon className="little-spacer-right" />
             {label}
-          </a>
+          </ButtonLink>
         </li>
       )
     );
@@ -610,17 +604,15 @@ export class Menu extends React.PureComponent<Props> {
         }
         tagName="li">
         {({ onToggleClick, open }) => (
-          <a
+          <ButtonLink
             aria-expanded={open}
             aria-haspopup="menu"
-            role="button"
             className={classNames('dropdown-toggle', { active: open })}
-            href="#"
             id="component-navigation-more"
             onClick={onToggleClick}>
             {translate('more')}
             <DropdownIcon className="little-spacer-left" />
-          </a>
+          </ButtonLink>
         )}
       </Dropdown>
     );

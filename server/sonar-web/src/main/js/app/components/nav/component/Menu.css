@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.navbar-tabs > li > a.menu-button {
-  color: var(--darkBlue);
+.navbar-tabs > li > .menu-button {
+  color: var(--darkBlue) !important;
 }
 
-.navbar-tabs > li > a.menu-button:hover {
-  color: var(--blue);
-  border-bottom-color: transparent;
+.navbar-tabs > li > .menu-button:hover {
+  color: var(--blue) !important;
+  border-bottom-color: transparent !important;
 }
 
-.navbar-tabs > li > a.disabled-link,
-.navbar-tabs > li > a.disabled-link:hover {
+.navbar-tabs > li > .disabled-link,
+.navbar-tabs > li > .disabled-link:hover {
   color: var(--gray71);
   cursor: default;
   border-bottom-color: transparent;
