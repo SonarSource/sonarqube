@@ -20,14 +20,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link, To } from 'react-router-dom';
-import { translate } from '../../helpers/l10n';
 import DropdownIcon from '../icons/DropdownIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import { PopupPlacement } from '../ui/popups';
 import { Button } from './buttons';
-import { ClipboardBase } from './clipboard';
 import Dropdown from './Dropdown';
-import Tooltip from './Tooltip';
 
 export interface ActionsDropdownProps {
   className?: string;
@@ -60,8 +57,6 @@ export default function ActionsDropdown(props: ActionsDropdownProps) {
 interface ItemProps {
   className?: string;
   children: React.ReactNode;
-  /** used to pass a string to copy to clipboard */
-  copyValue?: string;
   destructive?: boolean;
   /** used to pass a name of downloaded file */
   download?: string;
@@ -103,22 +98,6 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
             {this.props.children}
           </Link>
         </li>
-      );
-    }
-
-    if (this.props.copyValue) {
-      return (
-        <ClipboardBase>
-          {({ setCopyButton, copySuccess }) => (
-            <Tooltip overlay={translate('copied_action')} visible={copySuccess}>
-              <li data-clipboard-text={this.props.copyValue} ref={setCopyButton}>
-                <a className={className} href="#" id={this.props.id} onClick={this.handleClick}>
-                  {this.props.children}
-                </a>
-              </li>
-            </Tooltip>
-          )}
-        </ClipboardBase>
       );
     }
 

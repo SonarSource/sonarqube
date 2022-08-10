@@ -25,6 +25,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
+import { ButtonPlain } from '../../controls/buttons';
 
 export interface LineDuplicationBlockProps {
   blocksLoaded: boolean;
@@ -43,11 +44,11 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
     'source-line-duplicated': duplicated
   });
 
+  const tooltip = dropdownOpen ? undefined : translate('source_viewer.tooltip.duplicated_block');
+
   return duplicated ? (
     <td className={className} data-index={index} data-line-number={line.line}>
-      <Tooltip
-        overlay={dropdownOpen ? undefined : translate('source_viewer.tooltip.duplicated_block')}
-        placement="right">
+      <Tooltip overlay={tooltip} placement="right">
         <div>
           <Toggler
             onRequestClose={() => setDropdownOpen(false)}
@@ -57,7 +58,7 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
                 {props.renderDuplicationPopup(index, line.line)}
               </DropdownOverlay>
             }>
-            <div
+            <ButtonPlain
               aria-label={translate('source_viewer.tooltip.duplicated_block')}
               className="source-line-bar"
               onClick={() => {
@@ -66,8 +67,6 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
                   props.onClick(line);
                 }
               }}
-              role="button"
-              tabIndex={0}
             />
           </Toggler>
         </div>

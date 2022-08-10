@@ -186,7 +186,9 @@
   display: block;
 }
 
-.source-line-scm [role='button'] {
+.source-line-scm button {
+  display: block;
+  width: 100%;
   height: 18px;
 }
 

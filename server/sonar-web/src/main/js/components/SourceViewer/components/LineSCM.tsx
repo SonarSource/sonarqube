@@ -22,6 +22,7 @@ import Dropdown from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
+import { ButtonPlain } from '../../controls/buttons';
 import SCMPopup from './SCMPopup';
 
 export interface LineSCMProps {
@@ -49,9 +50,7 @@ export function LineSCM({ line, previousLine }: LineSCMProps) {
     return (
       <td className="source-meta source-line-scm" data-line-number={line.line}>
         <Dropdown overlay={<SCMPopup line={line} />} overlayPlacement={PopupPlacement.RightTop}>
-          <div aria-label={ariaLabel} role="button">
-            {cell}
-          </div>
+          <ButtonPlain aria-label={ariaLabel}>{cell}</ButtonPlain>
         </Dropdown>
       </td>
     );

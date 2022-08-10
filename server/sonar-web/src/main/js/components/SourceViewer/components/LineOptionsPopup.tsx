@@ -23,7 +23,7 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getPathUrlAsString } from '../../../helpers/urls';
 import { SourceLine } from '../../../types/types';
-import { ActionsDropdownItem } from '../../controls/ActionsDropdown';
+import { ClipboardButton } from '../../controls/clipboard';
 import { SourceViewerContext } from '../SourceViewerContext';
 
 export interface LineOptionsPopupProps {
@@ -43,11 +43,14 @@ export function LineOptionsPopup({ firstLineNumber, line }: LineOptionsPopupProp
             className="big-spacer-left"
             noPadding={true}
             placement={isAtTop ? PopupPlacement.BottomLeft : PopupPlacement.TopLeft}>
-            <ul className="padded source-viewer-bubble-popup nowrap">
-              <ActionsDropdownItem copyValue={codeUrl}>
+            <div className="padded source-viewer-bubble-popup nowrap">
+              <ClipboardButton
+                className="button-link"
+                copyValue={codeUrl}
+                aria-label={translate('component_viewer.copy_permalink')}>
                 {translate('component_viewer.copy_permalink')}
-              </ActionsDropdownItem>
-            </ul>
+              </ClipboardButton>
+            </div>
           </DropdownOverlay>
         );
       }}

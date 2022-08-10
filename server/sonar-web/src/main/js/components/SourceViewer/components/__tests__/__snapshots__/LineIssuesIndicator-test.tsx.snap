@@ -5,11 +5,9 @@ exports[`should render correctly: default 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <span
+  <ButtonPlain
     aria-label="source_viewer.issues_on_line.show"
-    onClick={[Function]}
-    role="button"
-    tabIndex={0}
+    onClick={[MockFunction]}
   >
     <Tooltip
       overlay="source_viewer.issues_on_line.multiple_issues"
@@ -23,7 +21,7 @@ exports[`should render correctly: default 1`] = `
     >
       2
     </span>
-  </span>
+  </ButtonPlain>
 </td>
 `;
 
@@ -32,11 +30,9 @@ exports[`should render correctly: multiple issues, same type 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <span
+  <ButtonPlain
     aria-label="source_viewer.issues_on_line.show"
-    onClick={[Function]}
-    role="button"
-    tabIndex={0}
+    onClick={[MockFunction]}
   >
     <Tooltip
       overlay="source_viewer.issues_on_line.X_issues_of_type_Y.2.issue.type.VULNERABILITY.plural"
@@ -50,7 +46,7 @@ exports[`should render correctly: multiple issues, same type 1`] = `
     >
       2
     </span>
-  </span>
+  </ButtonPlain>
 </td>
 `;
 
@@ -66,11 +62,9 @@ exports[`should render correctly: single issue 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <span
+  <ButtonPlain
     aria-label="source_viewer.issues_on_line.show"
-    onClick={[Function]}
-    role="button"
-    tabIndex={0}
+    onClick={[MockFunction]}
   >
     <Tooltip
       overlay="source_viewer.issues_on_line.issue_of_type_X.issue.type.VULNERABILITY"
@@ -79,6 +73,6 @@ exports[`should render correctly: single issue 1`] = `
         type="VULNERABILITY"
       />
     </Tooltip>
-  </span>
+  </ButtonPlain>
 </td>
 `;

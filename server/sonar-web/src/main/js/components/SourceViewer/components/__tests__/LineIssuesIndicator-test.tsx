@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
+import { ButtonPlain } from '../../../controls/buttons';
 import { LineIssuesIndicator, LineIssuesIndicatorProps } from '../LineIssuesIndicator';
 
 it('should render correctly', () => {
@@ -43,7 +44,7 @@ it('should correctly handle click', () => {
   const onClick = jest.fn();
   const wrapper = shallowRender({ onClick });
 
-  click(wrapper.find('span[role="button"]'));
+  click(wrapper.find(ButtonPlain));
   expect(onClick).toHaveBeenCalled();
 });
 

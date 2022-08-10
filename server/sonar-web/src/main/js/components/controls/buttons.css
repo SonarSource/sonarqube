@@ -118,6 +118,29 @@
 
 /* #endregion */
 
+/* #region .button-plain */
+.button-plain {
+  display: inline-flex;
+  height: auto;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  border-bottom: 0;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+.button-plain:hover {
+  color: var(--blue);
+  background-color: transparent;
+}
+
+/* #endregion */
+
 /* #region .button-link */
 .button-link {
   display: inline-flex;

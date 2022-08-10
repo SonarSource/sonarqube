@@ -21,6 +21,7 @@ import * as React from 'react';
 import Toggler from '../../../components/controls/Toggler';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
+import { ButtonPlain } from '../../controls/buttons';
 import LineOptionsPopup from './LineOptionsPopup';
 
 export interface LineNumberProps {
@@ -42,15 +43,13 @@ export function LineNumber({ displayOptions, firstLineNumber, line }: LineNumber
           onRequestClose={() => setOpen(false)}
           open={isOpen}
           overlay={<LineOptionsPopup firstLineNumber={firstLineNumber} line={line} />}>
-          <span
+          <ButtonPlain
             aria-expanded={isOpen}
             aria-haspopup={true}
             aria-label={translateWithParameters('source_viewer.line_X', lineNumber)}
-            onClick={() => setOpen(true)}
-            role="button"
-            tabIndex={0}>
+            onClick={() => setOpen(true)}>
             {lineNumber}
-          </span>
+          </ButtonPlain>
         </Toggler>
       ) : (
         lineNumber

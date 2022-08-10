@@ -54,7 +54,7 @@ it('should show a permalink on line number', async () => {
     })
   );
   await user.click(
-    rowScreen.getByRole('link', {
+    rowScreen.getByRole('button', {
       name: 'component_viewer.copy_permalink'
     })
   );
@@ -89,7 +89,7 @@ it('should show a permalink on line number', async () => {
   );
 
   expect(
-    lowerRowScreen.getByRole('link', {
+    lowerRowScreen.getByRole('button', {
       name: 'component_viewer.copy_permalink'
     })
   ).toBeInTheDocument();

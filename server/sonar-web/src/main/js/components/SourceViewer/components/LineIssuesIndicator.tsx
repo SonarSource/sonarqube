@@ -25,6 +25,7 @@ import IssueIcon from '../../../components/icons/IssueIcon';
 import { sortByType } from '../../../helpers/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue, SourceLine } from '../../../types/types';
+import { ButtonPlain } from '../../controls/buttons';
 
 export interface LineIssuesIndicatorProps {
   issues: Issue[];
@@ -65,20 +66,14 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
 
   return (
     <td className={className} data-line-number={line.line}>
-      <span
+      <ButtonPlain
         aria-label={translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show')}
-        onClick={(e: React.MouseEvent<HTMLElement>) => {
-          e.preventDefault();
-          e.currentTarget.blur();
-          props.onClick();
-        }}
-        role="button"
-        tabIndex={0}>
+        onClick={props.onClick}>
         <Tooltip overlay={tooltipContent}>
           <IssueIcon type={mostImportantIssue.type} />
         </Tooltip>
         {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-      </span>
+      </ButtonPlain>
     </td>
   );
 }
