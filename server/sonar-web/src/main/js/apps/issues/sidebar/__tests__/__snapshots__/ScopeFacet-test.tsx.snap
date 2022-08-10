@@ -27,6 +27,7 @@ exports[`should render correctly: active facet 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="FIL"
           />
@@ -47,6 +48,7 @@ exports[`should render correctly: active facet 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="UTS"
           />
@@ -103,6 +105,7 @@ exports[`should render correctly: disabled facet 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="FIL"
           />
@@ -124,6 +127,7 @@ exports[`should render correctly: disabled facet 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="UTS"
           />
@@ -165,6 +169,7 @@ exports[`should render correctly: open 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="FIL"
           />
@@ -185,6 +190,7 @@ exports[`should render correctly: open 1`] = `
           className="display-flex-center"
         >
           <QualifierIcon
+            aria-hidden={true}
             className="little-spacer-right"
             qualifier="UTS"
           />

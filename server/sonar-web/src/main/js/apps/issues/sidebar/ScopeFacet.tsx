@@ -67,7 +67,11 @@ export default function ScopeFacet(props: ScopeFacetProps) {
                   key={scope}
                   name={
                     <span className="display-flex-center">
-                      <QualifierIcon className="little-spacer-right" qualifier={qualifier} />{' '}
+                      <QualifierIcon
+                        className="little-spacer-right"
+                        qualifier={qualifier}
+                        aria-hidden={true}
+                      />{' '}
                       {translate('issue.scope', scope)}
                     </span>
                   }

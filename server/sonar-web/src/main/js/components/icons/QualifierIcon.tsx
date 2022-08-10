@@ -34,22 +34,26 @@ const qualifierIcons: Dict<(props: IconProps) => React.ReactElement> = {
   vw: PortfolioIcon
 };
 
-interface QualifierIconProps {
+interface QualifierIconProps extends IconProps {
   className?: string;
   fill?: string;
   qualifier: string | null | undefined;
 }
 
-export default function QualifierIcon(props: QualifierIconProps) {
-  if (!props.qualifier) {
+export default function QualifierIcon({
+  qualifier,
+  className,
+  fill,
+  ...props
+}: QualifierIconProps) {
+  if (!qualifier) {
     return null;
   }
 
-  const qualifier = props.qualifier.toLowerCase();
-  const FoundIcon = qualifierIcons[qualifier];
-  const ariaLabel = props.qualifier != null ? translate(`qualifier.${props.qualifier}`) : undefined;
+  const FoundIcon = qualifierIcons[qualifier.toLowerCase()];
+  const ariaLabel = qualifier != null ? translate(`qualifier.${qualifier}`) : undefined;
   return FoundIcon ? (
-    <FoundIcon className={props.className} fill={props.fill} ariaLabel={ariaLabel} />
+    <FoundIcon className={className} fill={fill} ariaLabel={ariaLabel} {...props} />
   ) : null;
 }
 
