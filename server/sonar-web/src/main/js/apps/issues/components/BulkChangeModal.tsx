@@ -528,7 +528,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal contentLabel="modal" onRequestClose={this.props.onClose} size="small">
+      <Modal onRequestClose={this.props.onClose} size="small">
         {this.state.loading ? this.renderLoading() : this.renderForm()}
       </Modal>
     );

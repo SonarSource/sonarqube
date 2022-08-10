@@ -2,7 +2,6 @@
 
 exports[`should display error message when no issues available 1`] = `
 <Modal
-  contentLabel="modal"
   onRequestClose={[Function]}
   size="small"
 >
@@ -51,7 +50,6 @@ exports[`should display error message when no issues available 1`] = `
 
 exports[`should display form when issues are present 1`] = `
 <Modal
-  contentLabel="modal"
   onRequestClose={[Function]}
   size="small"
 >

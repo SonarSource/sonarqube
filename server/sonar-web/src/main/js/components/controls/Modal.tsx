@@ -57,7 +57,7 @@ interface Props extends ModalProps {
   shouldCloseOnEsc?: boolean;
 
   /* String indicating how the content container should be announced to screenreaders. */
-  contentLabel: string;
+  contentLabel?: string;
 }
 
 export default function Modal(props: Props) {
