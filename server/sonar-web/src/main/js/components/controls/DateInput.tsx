@@ -28,7 +28,12 @@ import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
 import CalendarIcon from '../../components/icons/CalendarIcon';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
-import { getShortMonthName, getShortWeekDayName, getWeekDayName } from '../../helpers/l10n';
+import {
+  getShortMonthName,
+  getShortWeekDayName,
+  getWeekDayName,
+  translate
+} from '../../helpers/l10n';
 import './DayPicker.css';
 import Select from './Select';
 import './styles.css';
@@ -172,6 +177,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
           <CalendarIcon className="date-input-control-icon" fill="" />
           {value !== undefined && (
             <ClearButton
+              aria-label={translate('reset_verb')}
               className="button-tiny date-input-control-reset"
               iconProps={{ size: 12 }}
               onClick={this.handleResetClick}
