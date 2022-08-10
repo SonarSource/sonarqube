@@ -168,7 +168,7 @@ it('should support OWASP Top 10 version 2021', async () => {
       const standard = await handler.getStandards();
       /* eslint-disable-next-line testing-library/render-result-naming-convention */
       const linkName = renderOwaspTop102021Category(standard, val);
-      expect(await screen.findByRole('button', { name: linkName })).toBeInTheDocument();
+      expect(await screen.findByRole('checkbox', { name: linkName })).toBeInTheDocument();
     })
   );
 });
@@ -459,7 +459,7 @@ describe('redirects', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: `issue.type.${IssueType.CodeSmell}` })
+      await screen.findByRole('checkbox', { name: `issue.type.${IssueType.CodeSmell}` })
     ).toBeInTheDocument();
   });
 });

@@ -74,7 +74,6 @@ exports[`should render sub-facets 1`] = `
     <FacetItemsList>
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         key="sql-injection"
         loading={false}
@@ -120,7 +119,6 @@ exports[`should render sub-facets 1`] = `
     <FacetItemsList>
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         key="a1"
         loading={false}
@@ -132,7 +130,6 @@ exports[`should render sub-facets 1`] = `
       />
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         key="a3"
         loading={false}
@@ -166,7 +163,6 @@ exports[`should render sub-facets 1`] = `
     <FacetItemsList>
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         key="foo"
         loading={false}
@@ -178,7 +174,6 @@ exports[`should render sub-facets 1`] = `
       />
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         key="risky-resource"
         loading={false}

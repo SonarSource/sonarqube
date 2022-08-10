@@ -15,7 +15,6 @@ exports[`should render correctly 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={true}
       key="OPEN"
       loading={false}
@@ -31,7 +30,6 @@ exports[`should render correctly 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={true}
       key="CONFIRMED"
       loading={false}
@@ -47,7 +45,6 @@ exports[`should render correctly 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={true}
       key="REOPENED"
       loading={false}
@@ -63,7 +60,6 @@ exports[`should render correctly 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={true}
       key="RESOLVED"
       loading={false}
@@ -79,7 +75,6 @@ exports[`should render correctly 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={true}
       key="CLOSED"
       loading={false}

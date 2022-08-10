@@ -14,7 +14,6 @@ exports[`should display facet item list 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="Reliability"
       loading={false}
@@ -46,7 +45,6 @@ exports[`should display facet item list 1`] = `
     </span>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="new_bugs"
       loading={false}
@@ -95,7 +93,6 @@ exports[`should display facet item list 1`] = `
     </span>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="bugs"
       loading={false}
@@ -155,7 +152,6 @@ exports[`should display facet item list with bugs selected 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="Reliability"
       loading={false}
@@ -187,7 +183,6 @@ exports[`should display facet item list with bugs selected 1`] = `
     </span>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="new_bugs"
       loading={false}
@@ -236,7 +231,6 @@ exports[`should display facet item list with bugs selected 1`] = `
     </span>
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="bugs"
       loading={false}
@@ -292,7 +286,6 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="Reliability"
       loading={false}
@@ -324,7 +317,6 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
     </span>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="bugs"
       loading={false}
@@ -375,7 +367,6 @@ exports[`should not display subtitles of new measures if there is none, even on 
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="Reliability"
       loading={false}
@@ -407,7 +398,6 @@ exports[`should not display subtitles of new measures if there is none, even on 
     </span>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="new_bugs"
       loading={false}

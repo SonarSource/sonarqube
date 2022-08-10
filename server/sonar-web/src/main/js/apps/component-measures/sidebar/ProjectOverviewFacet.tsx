@@ -36,7 +36,6 @@ export default function ProjectOverviewFacet({ value, selected, onChange }: Prop
       <FacetItemsList>
         <FacetItem
           active={value === selected}
-          disabled={false}
           key={value}
           name={<strong id={`measure-overview-${value}-name`}>{facetName}</strong>}
           onClick={onChange}

@@ -60,7 +60,6 @@ exports[`should display all selected items 1`] = `
   <FacetItemsList>
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="a"
       loading={false}
@@ -72,7 +71,6 @@ exports[`should display all selected items 1`] = `
     />
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="b"
       loading={false}
@@ -91,7 +89,6 @@ exports[`should display all selected items 1`] = `
   <FacetItemsList>
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="c"
       loading={false}
@@ -145,7 +142,6 @@ exports[`should render 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="a"
       loading={false}
@@ -157,7 +153,6 @@ exports[`should render 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="b"
       loading={false}
@@ -169,7 +164,6 @@ exports[`should render 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="c"
       loading={false}
@@ -223,7 +217,6 @@ exports[`should search 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="d"
       loading={false}
@@ -235,7 +228,6 @@ exports[`should search 1`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="e"
       loading={false}
@@ -291,7 +283,6 @@ exports[`should search 2`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="d"
       loading={false}
@@ -303,7 +294,6 @@ exports[`should search 2`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="e"
       loading={false}
@@ -315,7 +305,6 @@ exports[`should search 2`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="f"
       loading={false}
@@ -371,7 +360,6 @@ exports[`should search 3`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="a"
       loading={false}
@@ -383,7 +371,6 @@ exports[`should search 3`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="b"
       loading={false}
@@ -395,7 +382,6 @@ exports[`should search 3`] = `
     />
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="c"
       loading={false}

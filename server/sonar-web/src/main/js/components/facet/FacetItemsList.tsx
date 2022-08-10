@@ -26,8 +26,12 @@ export interface FacetItemsListProps {
 
 export default function FacetItemsList({ children, title }: FacetItemsListProps) {
   return (
-    <div className="search-navigator-facet-list">
-      {title && <div className="search-navigator-facet-list-title">{title}</div>}
+    <div className="search-navigator-facet-list" role="list">
+      {title && (
+        <div className="search-navigator-facet-list-title" role="presentation">
+          {title}
+        </div>
+      )}
       {children}
     </div>
   );

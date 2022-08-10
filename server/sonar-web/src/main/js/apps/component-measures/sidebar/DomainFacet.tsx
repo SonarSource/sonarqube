@@ -108,7 +108,6 @@ export default class DomainFacet extends React.PureComponent<Props> {
       ) : (
         <FacetItem
           active={item.metric.key === selected}
-          disabled={false}
           key={item.metric.key}
           name={
             <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
@@ -132,7 +131,6 @@ export default class DomainFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={domain.name === selected}
-        disabled={false}
         key={domain.name}
         name={
           <span id={`measure-overview-${domain.name}-name`}>

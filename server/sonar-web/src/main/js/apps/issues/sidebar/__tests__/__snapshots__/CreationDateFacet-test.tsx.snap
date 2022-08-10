@@ -35,7 +35,6 @@ exports[`should render correctly for createdInLast month 1`] = `
     >
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -45,7 +44,6 @@ exports[`should render correctly for createdInLast month 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -55,7 +53,6 @@ exports[`should render correctly for createdInLast month 1`] = `
       />
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -65,7 +62,6 @@ exports[`should render correctly for createdInLast month 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"
@@ -113,7 +109,6 @@ exports[`should render correctly for createdInLast week 1`] = `
     >
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -123,7 +118,6 @@ exports[`should render correctly for createdInLast week 1`] = `
       />
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -133,7 +127,6 @@ exports[`should render correctly for createdInLast week 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -143,7 +136,6 @@ exports[`should render correctly for createdInLast week 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"
@@ -191,7 +183,6 @@ exports[`should render correctly for createdInLast year 1`] = `
     >
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -201,7 +192,6 @@ exports[`should render correctly for createdInLast year 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -211,7 +201,6 @@ exports[`should render correctly for createdInLast year 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -221,7 +210,6 @@ exports[`should render correctly for createdInLast year 1`] = `
       />
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"
@@ -265,7 +253,6 @@ exports[`should render correctly: clear 1`] = `
     >
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -275,7 +262,6 @@ exports[`should render correctly: clear 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -285,7 +271,6 @@ exports[`should render correctly: clear 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -295,7 +280,6 @@ exports[`should render correctly: clear 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"
@@ -448,7 +432,6 @@ exports[`should render correctly: portfolio 1`] = `
     >
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -458,7 +441,6 @@ exports[`should render correctly: portfolio 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -468,7 +450,6 @@ exports[`should render correctly: portfolio 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -478,7 +459,6 @@ exports[`should render correctly: portfolio 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"
@@ -522,7 +502,6 @@ exports[`should render correctly: project 1`] = `
     >
       <FacetItem
         active={true}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.all"
@@ -532,7 +511,6 @@ exports[`should render correctly: project 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_week"
@@ -542,7 +520,6 @@ exports[`should render correctly: project 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_month"
@@ -552,7 +529,6 @@ exports[`should render correctly: project 1`] = `
       />
       <FacetItem
         active={false}
-        disabled={false}
         halfWidth={false}
         loading={false}
         name="issues.facet.createdAt.last_year"

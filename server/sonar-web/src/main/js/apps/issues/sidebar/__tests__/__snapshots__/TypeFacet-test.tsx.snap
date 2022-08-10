@@ -20,7 +20,6 @@ exports[`should render open by default 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={false}
       halfWidth={false}
       key="BUG"
       loading={false}
@@ -42,7 +41,6 @@ exports[`should render open by default 1`] = `
     />
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="VULNERABILITY"
       loading={false}
@@ -64,7 +62,6 @@ exports[`should render open by default 1`] = `
     />
     <FacetItem
       active={true}
-      disabled={false}
       halfWidth={false}
       key="CODE_SMELL"
       loading={false}

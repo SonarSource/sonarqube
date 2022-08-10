@@ -209,6 +209,7 @@ button.search-navigator-facet:focus,
 }
 
 .search-navigator-facet-half {
+  display: inline-flex;
   width: 45%;
 }
 

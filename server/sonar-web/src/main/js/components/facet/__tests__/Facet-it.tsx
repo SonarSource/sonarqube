@@ -42,16 +42,13 @@ it('should render and function correctly', () => {
   expect(screen.getByText('Foo/Bar')).toBeInTheDocument();
 
   // Interact with facets.
-  const facet1 = screen.getByRole('button', { name: 'Foo/Bar 10' });
+  const facet1 = screen.getByRole('checkbox', { name: 'Foo/Bar 10' });
   expect(facet1).toHaveClass('active');
   facet1.click();
   expect(onFacetClick).toBeCalledWith('bar', false);
 
-  const facet2 = screen.getByRole('button', { name: 'Foo/Baz' });
+  const facet2 = screen.getByRole('checkbox', { name: 'Foo/Baz' });
   expect(facet2).not.toHaveClass('active');
-
-  expect(screen.queryByRole('button', { name: 'Foo/Bat' })).not.toBeInTheDocument();
-  expect(screen.getByText('Foo/Bat')).toBeInTheDocument();
 
   // Collapse again.
   facetHeader.click();
@@ -75,7 +72,7 @@ it('should correctly render a header with value data', () => {
 
 it('should correctly render a disabled header', () => {
   renderFacet(undefined, { onClick: undefined });
-  expect(screen.queryByRole('button', { name: 'foo' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('checkbox', { name: 'foo' })).not.toBeInTheDocument();
 });
 
 it('should correctly render a facet item list with title', () => {
@@ -117,14 +114,6 @@ function renderFacet(
               name="Foo/Baz"
               onClick={jest.fn()}
               value="baz"
-              {...facetItemProps}
-            />
-            <FacetItem
-              halfWidth={true}
-              name="Foo/Bat"
-              onClick={jest.fn()}
-              value="bat"
-              disabled={true}
               {...facetItemProps}
             />
           </FacetItemsList>

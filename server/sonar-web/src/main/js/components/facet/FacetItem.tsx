@@ -23,7 +23,6 @@ import * as React from 'react';
 export interface Props {
   active?: boolean;
   className?: string;
-  disabled?: boolean;
   halfWidth?: boolean;
   name: React.ReactNode;
   onClick: (x: string, multiple?: boolean) => void;
@@ -35,7 +34,6 @@ export interface Props {
 
 export default class FacetItem extends React.PureComponent<Props> {
   static defaultProps = {
-    disabled: false,
     halfWidth: false,
     loading: false
   };
@@ -54,28 +52,26 @@ export default class FacetItem extends React.PureComponent<Props> {
   }
 
   render() {
-    const { name } = this.props;
+    const { name, halfWidth, active, value, tooltip } = this.props;
     const className = classNames('search-navigator-facet button-link', this.props.className, {
-      active: this.props.active,
-      'search-navigator-facet-half': this.props.halfWidth
+      active
     });
 
-    return this.props.disabled ? (
-      <span className={className} data-facet={this.props.value} title={this.props.tooltip}>
-        <span className="facet-name">{name}</span>
-        {this.renderValue()}
+    return (
+      <span role="listitem" className={classNames({ 'search-navigator-facet-half': halfWidth })}>
+        <button
+          aria-checked={active}
+          className={className}
+          data-facet={value}
+          onClick={this.handleClick}
+          tabIndex={0}
+          title={tooltip}
+          role="checkbox"
+          type="button">
+          <span className="facet-name">{name}</span>
+          {this.renderValue()}
+        </button>
       </span>
-    ) : (
-      <button
-        className={className}
-        data-facet={this.props.value}
-        onClick={this.handleClick}
-        tabIndex={0}
-        title={this.props.tooltip}
-        type="button">
-        <span className="facet-name">{name}</span>
-        {this.renderValue()}
-      </button>
     );
   }
 }
