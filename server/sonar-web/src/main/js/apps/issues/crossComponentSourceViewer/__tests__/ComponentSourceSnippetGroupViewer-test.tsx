@@ -148,7 +148,13 @@ it('should render file-level issue correctly', () => {
     }
   });
 
-  expect(wrapper.find(IssueMessageBox).exists()).toBe(true);
+  expect(
+    wrapper
+      .find('ContextConsumer')
+      .dive()
+      .find(IssueMessageBox)
+      .exists()
+  ).toBe(true);
 });
 
 it('should expand block', async () => {
@@ -294,7 +300,6 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       highlightedLocationMessage={{ index: 0, text: '' }}
-      selectedLocationIndex={0}
       isLastOccurenceOfPrimaryComponent={true}
       issue={mockIssue()}
       issuesByLine={{}}

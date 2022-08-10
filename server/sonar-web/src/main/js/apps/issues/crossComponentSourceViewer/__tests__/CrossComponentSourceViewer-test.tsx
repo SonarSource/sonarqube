@@ -116,7 +116,6 @@ function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {})
     <CrossComponentSourceViewer
       branchLike={undefined}
       highlightedLocationMessage={undefined}
-      selectedLocationIndex={undefined}
       issue={mockIssue(true, {
         key: '1',
         component: 'project:main.js',

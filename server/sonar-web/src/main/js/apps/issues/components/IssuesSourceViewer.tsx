@@ -22,6 +22,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
 import { getLocations, getSelectedLocation } from '../utils';
+import { IssueSourceViewerScrollContext } from './IssueSourceViewerScrollContext';
 
 export interface IssuesSourceViewerProps {
   branchLike: BranchLike | undefined;
@@ -34,39 +35,96 @@ export interface IssuesSourceViewerProps {
   selectedLocationIndex: number | undefined;
 }
 
-export default function IssuesSourceViewer(props: IssuesSourceViewerProps) {
-  const {
-    openIssue,
-    selectedFlowIndex,
-    selectedLocationIndex,
-    locationsNavigator,
-    branchLike,
-    issues
-  } = props;
+export default class IssuesSourceViewer extends React.PureComponent<IssuesSourceViewerProps> {
+  primaryLocationRef?: HTMLElement;
+  selectedSecondaryLocationRef?: HTMLElement;
 
-  const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
-    loc.index = index;
-    return loc;
-  });
-  const selectedLocation = getSelectedLocation(openIssue, selectedFlowIndex, selectedLocationIndex);
+  componentDidUpdate() {
+    if (this.props.selectedLocationIndex === -1) {
+      this.refreshScroll();
+    }
+  }
 
-  const highlightedLocationMessage =
-    locationsNavigator && selectedLocationIndex !== undefined
-      ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
-      : undefined;
-  return (
-    <div>
-      <CrossComponentSourceViewer
-        branchLike={branchLike}
-        highlightedLocationMessage={highlightedLocationMessage}
-        issue={openIssue}
-        issues={issues}
-        locations={locations}
-        onIssueSelect={props.onIssueSelect}
-        onLocationSelect={props.onLocationSelect}
-        selectedFlowIndex={selectedFlowIndex}
-        selectedLocationIndex={selectedLocationIndex}
-      />
-    </div>
-  );
+  registerPrimaryLocationRef = (ref: HTMLElement) => {
+    this.primaryLocationRef = ref;
+
+    if (ref) {
+      this.refreshScroll();
+    }
+  };
+
+  registerSelectedSecondaryLocationRef = (ref: HTMLElement) => {
+    this.selectedSecondaryLocationRef = ref;
+
+    if (ref) {
+      this.refreshScroll();
+    }
+  };
+
+  refreshScroll() {
+    const { selectedLocationIndex } = this.props;
+
+    if (
+      selectedLocationIndex !== undefined &&
+      selectedLocationIndex !== -1 &&
+      this.selectedSecondaryLocationRef
+    ) {
+      this.selectedSecondaryLocationRef.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+    } else if (this.primaryLocationRef) {
+      this.primaryLocationRef.scrollIntoView({
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+  }
+
+  render() {
+    const {
+      openIssue,
+      selectedFlowIndex,
+      selectedLocationIndex,
+      locationsNavigator,
+      branchLike,
+      issues
+    } = this.props;
+
+    const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
+      loc.index = index;
+      return loc;
+    });
+
+    const selectedLocation = getSelectedLocation(
+      openIssue,
+      selectedFlowIndex,
+      selectedLocationIndex
+    );
+
+    const highlightedLocationMessage =
+      locationsNavigator && selectedLocationIndex !== undefined
+        ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
+        : undefined;
+
+    return (
+      <IssueSourceViewerScrollContext.Provider
+        value={{
+          registerPrimaryLocationRef: this.registerPrimaryLocationRef,
+          registerSelectedSecondaryLocationRef: this.registerSelectedSecondaryLocationRef
+        }}>
+        <CrossComponentSourceViewer
+          branchLike={branchLike}
+          highlightedLocationMessage={highlightedLocationMessage}
+          issue={openIssue}
+          issues={issues}
+          locations={locations}
+          onIssueSelect={this.props.onIssueSelect}
+          onLocationSelect={this.props.onLocationSelect}
+          selectedFlowIndex={selectedFlowIndex}
+        />
+      </IssueSourceViewerScrollContext.Provider>
+    );
+  }
 }

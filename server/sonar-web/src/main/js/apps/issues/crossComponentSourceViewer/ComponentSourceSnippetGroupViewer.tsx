@@ -37,6 +37,7 @@ import {
   SourceLine,
   SourceViewerFile
 } from '../../../types/types';
+import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
 import IssueSourceViewerHeader from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
 import {
@@ -67,7 +68,6 @@ interface Props {
     line: number
   ) => React.ReactNode;
   snippetGroup: SnippetGroup;
-  selectedLocationIndex: number | undefined;
 }
 
 interface State {
@@ -206,13 +206,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const {
-      isLastOccurenceOfPrimaryComponent,
-      issue,
-      issuesByLine,
-      snippetGroup,
-      selectedLocationIndex
-    } = this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -226,15 +220,21 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     return (
       issuesForLine.length > 0 && (
         <div>
-          {issuesForLine.map(issueToDisplay => (
-            <IssueMessageBox
-              selected={!!(issueToDisplay.key === issue.key && issueLocations.length > 0)}
-              key={issueToDisplay.key}
-              issue={issueToDisplay}
-              onClick={this.props.onIssueSelect}
-              selectedLocationIndex={selectedLocationIndex}
-            />
-          ))}
+          {issuesForLine.map(issueToDisplay => {
+            const isSelectedIssue = issueToDisplay.key === issue.key;
+            return (
+              <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
+                {ctx => (
+                  <IssueMessageBox
+                    selected={!!(isSelectedIssue && issueLocations.length > 0)}
+                    issue={issueToDisplay}
+                    onClick={this.props.onIssueSelect}
+                    ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
+                  />
+                )}
+              </IssueSourceViewerScrollContext.Consumer>
+            );
+          })}
         </div>
       )
     );
@@ -246,8 +246,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       isLastOccurenceOfPrimaryComponent,
       issue,
       lastSnippetGroup,
-      snippetGroup,
-      selectedLocationIndex
+      snippetGroup
     } = this.props;
     const { additionalLines, loading, snippets } = this.state;
     const locations =
@@ -280,12 +279,16 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         />
 
         {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
-          <IssueMessageBox
-            selected={true}
-            issue={issue}
-            onClick={this.props.onIssueSelect}
-            selectedLocationIndex={selectedLocationIndex}
-          />
+          <IssueSourceViewerScrollContext.Consumer>
+            {ctx => (
+              <IssueMessageBox
+                selected={true}
+                issue={issue}
+                onClick={this.props.onIssueSelect}
+                ref={ctx?.registerPrimaryLocationRef}
+              />
+            )}
+          </IssueSourceViewerScrollContext.Consumer>
         )}
         {snippetLines.map((snippet, index) => (
           <SnippetViewer

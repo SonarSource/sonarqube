@@ -236,6 +236,7 @@ export function allLocationsEmpty(
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
 }
 
+// TODO: drop as it's useless now
 export function scrollToIssue(issue: string, smooth = true) {
   const element = document.querySelector(`[data-issue="${issue}"]`);
   if (element) {

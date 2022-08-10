@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/IssueSourceViewerScrollContext';
 import { LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
@@ -38,34 +39,7 @@ interface Props {
 }
 
 export default class LineCode extends React.PureComponent<React.PropsWithChildren<Props>> {
-  activeMarkerNode?: HTMLElement | null;
   symbols?: NodeListOf<HTMLElement>;
-
-  componentDidMount() {
-    if (this.activeMarkerNode) {
-      this.activeMarkerNode.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'center'
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.highlightedLocationMessage &&
-      (!prevProps.highlightedLocationMessage ||
-        prevProps.highlightedLocationMessage.index !==
-          this.props.highlightedLocationMessage.index) &&
-      this.activeMarkerNode
-    ) {
-      this.activeMarkerNode.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'center'
-      });
-    }
-  }
 
   nodeNodeRef = (el: HTMLElement | null) => {
     if (el) {
@@ -105,7 +79,6 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
   renderMarker(index: number, message: string | undefined, selected: boolean, leading: boolean) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
-    const ref = selected ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
 
     return (
       <Tooltip key={`marker-${index}`} overlay={message} placement="top">
@@ -114,7 +87,13 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
           onClick={onClick}
           selected={selected}
           aria-label={message ? `${index + 1}-${message}` : index + 1}>
-          <span ref={ref}>{index + 1}</span>
+          <IssueSourceViewerScrollContext.Consumer>
+            {ctx => (
+              <span ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}>
+                {index + 1}
+              </span>
+            )}
+          </IssueSourceViewerScrollContext.Consumer>
         </LocationIndex>
       </Tooltip>
     );

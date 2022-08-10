@@ -89,7 +89,6 @@ import {
   parseQuery,
   Query,
   saveMyIssues,
-  scrollToIssue,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -227,13 +226,6 @@ export class App extends React.PureComponent<Props, State> {
     ) {
       this.fetchFirstIssues();
       this.setState({ checkAll: false });
-    } else if (
-      !this.state.openIssue &&
-      (prevState.selected !== this.state.selected || prevState.openIssue)
-    ) {
-      // if user simply selected another issue
-      // or if user went from the source code back to the list of issues
-      this.scrollToSelectedIssue();
     } else if (openIssue && openIssue.key !== this.state.selected) {
       this.setState({
         locationsNavigator: false,
@@ -391,14 +383,11 @@ export class App extends React.PureComponent<Props, State> {
     };
     if (this.state.openIssue) {
       if (path.query.open && path.query.open === this.state.openIssue.key) {
-        this.setState(
-          {
-            locationsNavigator: false,
-            selectedFlowIndex: undefined,
-            selectedLocationIndex: undefined
-          },
-          this.scrollToSelectedIssue
-        );
+        this.setState({
+          locationsNavigator: false,
+          selectedFlowIndex: undefined,
+          selectedLocationIndex: undefined
+        });
       } else {
         this.props.router.replace(path);
       }
@@ -426,13 +415,6 @@ export class App extends React.PureComponent<Props, State> {
     const { selected } = this.state;
     if (selected) {
       this.openIssue(selected);
-    }
-  };
-
-  scrollToSelectedIssue = (smooth = true) => {
-    const { selected } = this.state;
-    if (selected) {
-      scrollToIssue(selected, smooth);
     }
   };
 

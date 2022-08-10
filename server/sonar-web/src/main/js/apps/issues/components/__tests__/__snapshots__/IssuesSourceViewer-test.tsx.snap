@@ -1,7 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render CrossComponentSourceViewer correctly 1`] = `
-<div>
+<ContextProvider
+  value={
+    Object {
+      "registerPrimaryLocationRef": [Function],
+      "registerSelectedSecondaryLocationRef": [Function],
+    }
+  }
+>
   <CrossComponentSourceViewer
     branchLike={
       Object {
@@ -211,11 +218,18 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
     onIssueSelect={[MockFunction]}
     onLocationSelect={[MockFunction]}
   />
-</div>
+</ContextProvider>
 `;
 
 exports[`should render SourceViewer correctly: all secondary locations on same line 1`] = `
-<div>
+<ContextProvider
+  value={
+    Object {
+      "registerPrimaryLocationRef": [Function],
+      "registerSelectedSecondaryLocationRef": [Function],
+    }
+  }
+>
   <CrossComponentSourceViewer
     branchLike={
       Object {
@@ -445,11 +459,18 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
     onIssueSelect={[MockFunction]}
     onLocationSelect={[MockFunction]}
   />
-</div>
+</ContextProvider>
 `;
 
 exports[`should render SourceViewer correctly: default 1`] = `
-<div>
+<ContextProvider
+  value={
+    Object {
+      "registerPrimaryLocationRef": [Function],
+      "registerSelectedSecondaryLocationRef": [Function],
+    }
+  }
+>
   <CrossComponentSourceViewer
     branchLike={
       Object {
@@ -525,11 +546,18 @@ exports[`should render SourceViewer correctly: default 1`] = `
     onIssueSelect={[MockFunction]}
     onLocationSelect={[MockFunction]}
   />
-</div>
+</ContextProvider>
 `;
 
 exports[`should render SourceViewer correctly: single secondary location 1`] = `
-<div>
+<ContextProvider
+  value={
+    Object {
+      "registerPrimaryLocationRef": [Function],
+      "registerSelectedSecondaryLocationRef": [Function],
+    }
+  }
+>
   <CrossComponentSourceViewer
     branchLike={
       Object {
@@ -719,5 +747,5 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
     onIssueSelect={[MockFunction]}
     onLocationSelect={[MockFunction]}
   />
-</div>
+</ContextProvider>
 `;

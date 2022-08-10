@@ -119,7 +119,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
     this.detachScrollEvent();
   }
 
-  computeState = (prevState: State, resetSelectedTab: boolean = false) => {
+  computeState = (prevState: State, resetSelectedTab = false) => {
     const {
       ruleDetails,
       currentUser: { isLoggedIn, dismissedNotices }

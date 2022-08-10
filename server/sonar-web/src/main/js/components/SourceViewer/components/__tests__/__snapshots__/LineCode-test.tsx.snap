@@ -117,9 +117,9 @@ exports[`render code: with secondary location 1`] = `
           onClick={[Function]}
           selected={false}
         >
-          <span>
-            2
-          </span>
+          <ContextConsumer>
+            <Component />
+          </ContextConsumer>
         </LocationIndex>
       </Tooltip>
       <span
