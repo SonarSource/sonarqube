@@ -132,3 +132,17 @@ Likelihood: **What is the probability that an attacker will be able to exploit t
 
 ### Security Hotspots
 Security Hotspots are not assigned severities as it is unknown whether there is truly an underlying vulnerability until they are reviewed.
+
+## What might change after a software update
+
+Sonar developers continually re-evaluate our rules to provide the best results. This process is evident in each release and means some rule-specific properties may change after an upgrade, even in a custom Quality Profile. This is normal and expected, and is no cause for alarm. The following are rule-specific properties that may change in an upgrade:
+
+- **Type:** Type (Bug, Vulnerability, Code Smell) updates happen on occasion. When a rule type is updated, its value will update automatically in every profile that uses it. Although the rule will be updated, issues previously raised by the rule will not be updated. For example, if a rule transitioned from Bug to Code Smell, the existing issues will retain their original Bug type, and new issues will get the new type, Code Smell.
+
+- **Severity:** Changes to a rule's default severity will automatically be applied in Quality Profiles where the default severity was used. Although the rule will be updated, existing issues raised by the rule will not be updated. Note that it is possible to override a rule's default severity in a profile, and your custom override should remain intact in your Quality Profile after the upgrade.
+
+- **Tags:** Two types of tags may be attached to a rule: the default tags that come out of the box, and the custom tags added by administrators. When the default tags attached to a rule are updated in SonarQube, those changes will happen automatically. Custom tags associated with a rule will not change.
+
+- **Key:** Can change but this is uncommon. Typically this happens in the rare case that, for whatever reason, a key that was non-normal and needs to be normalized. When the key of a rule is changed, related issues are updated as well, so that they remain related to the re-keyed rule.
+
+- **Status:** Status does not affect the operation of a rule and has no impact on its issues. There are three possible rule statuses: Beta, Ready, and Deprecated. Sometimes, rules are first issued in Beta status and then moved to Ready. Most rules are in Ready status; ready to be used in production. When Sonar developers realize that a rule no longer makes sense, they first deprecate the rule, then eventually drop it.

@@ -130,6 +130,8 @@ In normal PostgreSQL operation, tuples that are deleted or obsoleted by an updat
 
 When upgrading SonarQube, you should also make sure you’re using the latest versions of the SonarQube scanners to take advantage of features and fixes on the scanner side. Please check the documentation pages of the scanners you use for the most recent version compatible with SonarQube and your build tools.
 
+See also this section for [what might change after a software update](/user-guide/rules/#header-9).
+
 ### SonarQube as a Linux or Windows service
 
 If you use an external configuration, such as a script or Windows Service to control your server, you'll need to update it to point to `$NEW_SONAR_HOME`.
