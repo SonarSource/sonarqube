@@ -22,7 +22,7 @@
   border: 1px solid var(--blue);
   background-color: var(--issueBgColor);
   border-left: 4px solid;
-  margin: 10px -10px;
+  margin: 10px 0px;
 }
 
 .hotspot-primary-location.hotspot-risk-exposure-HIGH {
