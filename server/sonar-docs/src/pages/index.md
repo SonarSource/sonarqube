@@ -3,80 +3,63 @@ title: SonarQube Documentation
 url: /
 ---
 
-Welcome to the SonarQube documentation! 
+[SonarQube](http://www.sonarqube.org/), is a self-managed, automatic code review tool that systematically helps you deliver Clean Code. As a core element of our [Sonar solution](https://www.sonarsource.com/), SonarQube integrates into your existing workflow and detects issues in your code to help you perform continuous code inspections of your projects. The tool analyses [30+ different programming languages](https://rules.sonarsource.com/) and integrates into your [CI pipeline](/analysis/ci-integration-overview/) and [DevOps platform](/analysis/github-integration/) to ensure that your code meets high-quality standards.
 
-[SonarQube](https://www.sonarqube.org/)® is an automatic code review tool to detect bugs, vulnerabilities, and code smells in your code. It can integrate with your existing workflow to enable continuous code inspection across your project branches and pull requests.
 
-If you want to try out SonarQube, check out the [Try out SonarQube](/setup/get-started-2-minutes/) page for instructions on installing a local instance and analyzing a project.
+## Writing Clean Code
 
-If you're ready to set up a production instance, check out the [Install the Server](/setup/install-server/) documentation.
+Writing Clean Code is essential to maintaining a healthy codebase. We define Clean Code as code that meets a certain defined standard, i.e. code that is reliable, secure, maintainable, readable, and modular, in addition to having other key attributes. This applies to all code: source code, test code, Infrastructure as Code, glue code, scripts, etc.
 
-Otherwise, you can also find an overview and common scenarios below or navigate through and search the full documentation in the left pane.
+Sonar's [Clean as You Code](/user-guide/clean-as-you-code/) approach eliminates many of the pitfalls that arise from reviewing code at a late stage in the development process. The Clean as You Code approach uses your [Quality Gate](/user-guide/quality-gates/) to alert/inform you when there’s something to fix or review in your [New Code (code that has been added or changed](/project-administration/new-code-period/)), allowing you to maintain high standards and focus on code quality.
 
-## Overview
 
-![SonarQube Instance Components](/images/dev-cycle.png)
+## Developing with Sonar
 
-In a typical development process:  
+![Development Cycle](/images/dev-cycle.png)
 
-1. Developers develop and merge code in an IDE (preferably using [SonarLint](https://www.sonarlint.org/) to receive immediate feedback in the editor) and check-in their code to their DevOps Platform.
-1. An organization’s continuous integration (CI) tool checks out, builds, and runs unit tests, and an integrated SonarQube scanner analyzes the results.
-1. The scanner posts the results to the SonarQube server which provides feedback to developers through the SonarQube interface, email, in-IDE notifications (through SonarLint), and decoration on pull or merge requests (when using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and above).
+The Sonar solution performs checks at every stage of the development process:
 
-## Installing, monitoring, and upgrading
+* [SonarLint](https://www.sonarlint.org/) provides immediate feedback in your IDE as you write code so you can find and fix issues before a commit.
+* SonarQube’s [PR analysis](/analysis/pull-request/) fits into your CI/CD workflows with SonarQube’s PR analysis & use of Quality Gates.
+* [Quality Gates](/user-guide/quality-gates/) keep code with issues from being released to production, a key tool in helping you incorporate the Clean as You Code methodology.
+* The [Clean as You Code](/user-guide/clean-as-you-code/) approach helps you focus on submitting new, Clean Code for production, knowing that your existing code will be improved over time.
 
-See the [installing](/setup/install-server/) and [upgrading](/setup/upgrading/) pages for setting up your production instance.
+Learn more about the [types of issues](/user-guide/issues/) that SonarQube detects.
 
-When your instance is up and running, see the [Monitoring](/instance-administration/monitoring/) documentation for information on keeping your instance running smoothly.
+Organizations start off with a default set of rules and metrics called the [Sonar Way Quality Profile](/instance-administration/quality-profiles/). This can be customized per project to satisfy different technical requirements. Issues raised in the analysis are compared against the conditions defined in the Quality Profile to establish your Quality Gate.
 
-If you're using SonarQube Data Center Edition, see the [Configure & Operate a Cluster](/setup/operate-cluster/) documentation for more information on running your instance as a cluster.
+A [Quality Gate](/user-guide/quality-gates/) is an indicator of code quality that can be configured to give a go/no-go signal on the current release-worthiness of the code. It indicates whether your code is clean and can move forward.
 
-## Setting up analysis
+* A passing (green) Quality Gate means the code meets your standard and is ready to be merged.
+* A failing (red) Quality Gate means there are issues to address.
 
-Analyzing your code starts with installing and configuring a SonarQube scanner. The scanner can either run on your build or as part of your continuous integration (CI) pipeline performing a scan whenever your build process is triggered. For more information, see [Analyzing Source Code](/analysis/overview/). 
+SonarQube provides feedback through its UI, email, and in decorations on pull or merge requests (in commercial editions) to notify your team that there are issues to address. Feedback can also be obtained in SonarLint supported IDEs when running in [Connected Mode](/user-guide/connected-mode/). SonarQube also provides in-depth guidance on the issues telling you why each issue is a problem and how to fix it, adding a valuable layer of education for developers of all experience levels. Developers can then address issues effectively, so code is only promoted when the code is clean and passes the Quality Gate.
 
-### Analyzing branches
 
-Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze your branches in SonarQube, and ensure that your code quality is consistent all the way down to the branch level in your projects. For more information, see [Branch Analysis](/branches/overview/).
+## Getting Started
 
-### Analyzing pull requests
+Now that you've heard about how [SonarQube](https://www.sonarqube.org/) can help you write Clean Code, you are ready to [try out SonarQube](/setup/get-started-2-minutes/) for yourself. You can run a local non-production instance of SonarQube and initial project analysis. Installing a local instance gets you up and running quickly, so you can experience SonarQube firsthand. Then, when you're ready to set up SonarQube in production, you'll need to [Install the Server](/setup/install-server/) before configuring your first code analysis.
 
-Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can integrate SonarQube to be part of your pull or merge request process. Issuing a pull request can trigger a branch analysis and add pull request decoration to see your branch analysis directly in your DevOps Platforms's interface in addition to the SonarQube interface. For more information, see the [Pull Request Analysis Overview](/analysis/pull-request/).
+The [Analyzing Source Code](https://docs.sonarqube.org/latest/analysis/overview/) section explains how to set up all flavors of analysis, including how to analyze your project’s branches and pull requests.
 
-## Writing Clean and Safe Code
 
-SonarQube gives you the tools you need to write clean and safe code:
+## More Getting Started Resources
 
-- [SonarLint](https://www.sonarlint.org/) – SonarLint is a companion product that works in your editor giving immediate feedback so you can catch and fix issues before they get to the repository.
-- [Quality Gate](/user-guide/quality-gates/) – The Quality Gate lets you know if your project is ready for production. 
-- [Clean as You Code](/user-guide/clean-as-you-code/) – Clean as You Code is an approach to code quality that eliminates a lot of the challenges that come with traditional approaches. As a developer, you focus on maintaining high standards and taking responsibility specifically in the New Code you're working on.
-- [Issues](/user-guide/issues/) – SonarQube raises issues whenever a piece of your code breaks a coding rule, whether it's an error that will break your code (bug), a point in your code open to attack (vulnerability), or a maintainability issue (code smell).
-- [Security Hotspots](/user-guide/security-hotspots/) – SonarQube highlights security-sensitive pieces of code that need to be reviewed. Upon review, you'll either find there is no threat or you need to apply a fix to secure the code.
- 
-## Administering a Project
+* [How to set up and upgrade](/setup/overview/)
+* [How to administer a project](/project-administration/project-existence/)
+* [How to administer an instance](/instance-administration/quality-profiles/)
+* [How to set up portfolios](/project-administration/managing-portfolios/)
 
-If you have the **Create Projects** permission (a global administrator can set permissions at **Administration > Security > Global Permissions**), you can create and administer projects. See [Project Settings](/project-administration/project-settings/) for general information on setting up projects. 
 
-A project is automatically added on the first analysis. However, you can provision projects (set up permissions, Quality Profiles, etc.) before running the first analysis. See [Project Existence](/project-administration/project-existence/) for more information on provisioning a project and handling provisioned projects.
+## Learn More
 
-You also want to make sure SonarQube's results are relevant. To do this you need to [Narrowing the Focus](/project-administration/narrowing-the-focus/) or configure what to analyze for each project.
+Check out the entire suite of Sonar Products: [SonarQube](https://www.sonarsource.com/products/sonarqube/), [SonarCloud](https://www.sonarsource.com/products/sonarcloud/), and [SonarLint](https://www.sonarsource.com/products/sonarlint/).
 
-You can also set up [Webhooks](/project-administration/webhooks/) to notify external services when a project analysis is complete.
-
-## Administering an Instance
-
-If you're a global administrator, you can set up authentication, administrator access, and authorization. See [Security](/instance-administration/security/) for more information.
-
-You can also set up email [notifications](/instance-administration/notifications/) that developers can subscribe to that are sent at the end of each analysis. 
-
-When you run new analyses on your projects, some data is cleaned out of the database to save space and improve performance. See [Housekeeping](/instance-administration/housekeeping/) for information on what data is cleaned and how to change these settings.
-
-Starting in [Enterprise Edition](https://www.sonarqube.org/enterprise-edition/), you can set up [Portfolios](/user-guide/portfolios/) to get a high-level overview on the releasability of a group of projects.  
 
 ## Staying Connected
 
-Use the following links to get help and keep up with SonarQube:
+Use the following links to get help and support:
 
-- [Get help in the community](https://www.sonarqube.org/community/)
-- [Source code](https://github.com/SonarSource)
-- [Issue tracker](https://jira.sonarsource.com/)
+* [Get help in the community](https://www.sonarqube.org/community/)
+* [Source code](https://github.com/SonarSource)
+* [Issue tracker](https://jira.sonarsource.com/)
