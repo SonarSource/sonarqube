@@ -313,7 +313,10 @@ export class TabViewer extends React.PureComponent<TabViewerProps, State> {
                 maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial'
               }}
               className="bordered display-flex-column">
-              <div className="overflow-y-auto spacer">{tabContent}</div>
+              {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
+              <div className="overflow-y-auto spacer" key={selectedTab.key}>
+                {tabContent}
+              </div>
             </div>
           )}
         </ScreenPositionHelper>
