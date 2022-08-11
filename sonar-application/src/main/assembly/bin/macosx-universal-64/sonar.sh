@@ -2,8 +2,24 @@
 
 APP_NAME="SonarQube"
 
-# Java command location
-JAVA_CMD="java"
+# By default, java from the PATH is used, except if SONAR_JAVA_PATH env variable is set
+findjava() {
+  if [ -z "${SONAR_JAVA_PATH}" ]; then
+    if ! command -v java 2>&1; then
+      echo "Java not found. Please make sure that the environmental variable SONAR_JAVA_PATH points to a Java executable"
+      exit 1
+    fi
+    JAVA_CMD=java
+  else
+    if ! [ -x "${SONAR_JAVA_PATH}" ] || ! [ -f "${SONAR_JAVA_PATH}" ]; then
+      echo "File '${SONAR_JAVA_PATH}' is not executable. Please make sure that the environmental variable SONAR_JAVA_PATH points to a Java executable"
+      exit 1
+    fi
+    JAVA_CMD="${SONAR_JAVA_PATH}"
+  fi
+}
+
+findjava
 
 # Get the fully qualified path to the script
 case $0 in
