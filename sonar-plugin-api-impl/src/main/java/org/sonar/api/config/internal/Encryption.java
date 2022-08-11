@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
  * @since 3.0
  */
 public final class Encryption {
+  private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("^\\{([^{^}]*)}(.*)$");
 
   private static final String BASE64_ALGORITHM = "b64";
   private static final String AES_ECB_ALGORITHM = "aes";
@@ -39,7 +40,6 @@ public final class Encryption {
   private final AesGCMCipher aesGCMCipher;
 
   private final Map<String, Cipher> ciphers;
-  private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   public Encryption(@Nullable String pathToSecretKey) {
     aesECBCipher = new AesECBCipher(pathToSecretKey);

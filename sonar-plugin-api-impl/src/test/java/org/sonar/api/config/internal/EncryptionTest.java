@@ -91,6 +91,16 @@ public class EncryptionTest {
     assertThat(encryption.decrypt("foo")).isEqualTo("foo");
   }
 
+  @Test
+  public void should_notDecryptText_whenBadBraceSyntax(){
+    Encryption encryption = new Encryption(null);
+    assertThat(encryption.decrypt("}xxx{Zm9v")).isEqualTo("}xxx{Zm9v");
+    assertThat(encryption.decrypt("}dcd}59LK")).isEqualTo("}dcd}59LK");
+    assertThat(encryption.decrypt("}rrrRg6")).isEqualTo("}rrrRg6");
+    assertThat(encryption.decrypt("{closedjdk")).isEqualTo("{closedjdk");
+
+  }
+
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
     return new File(resource.toURI()).getCanonicalPath();
