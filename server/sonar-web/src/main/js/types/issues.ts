@@ -64,6 +64,8 @@ export interface RawIssue {
   textRange?: TextRange;
   type: IssueType;
   ruleDescriptionContextKey?: string;
+  ruleStatus?: string;
+  quickFixAvailable?: boolean;
 }
 
 export interface IssueResponse {

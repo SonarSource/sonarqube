@@ -214,6 +214,35 @@ export default class IssuesServiceMock {
           ],
           'component.key'
         )
+      },
+      {
+        issue: mockRawIssue(false, {
+          actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+          transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+          key: 'issue4',
+          component: 'project:file.bar',
+          message: 'Issue with tags',
+          rule: 'external_eslint_repo:no-div-regex',
+          textRange: {
+            startLine: 25,
+            endLine: 25,
+            startOffset: 0,
+            endOffset: 1
+          },
+          ruleDescriptionContextKey: 'spring',
+          ruleStatus: 'DEPRECATED',
+          quickFixAvailable: true
+        }),
+        snippets: keyBy(
+          [
+            mockSnippetsByComponent(
+              'file.bar',
+              'project',
+              times(40, i => i + 20)
+            )
+          ],
+          'component.key'
+        )
       }
     ];
     (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);

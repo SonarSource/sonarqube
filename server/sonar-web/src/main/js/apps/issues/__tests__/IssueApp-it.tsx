@@ -446,6 +446,21 @@ it('should show code tabs when any secondary location is selected', async () => 
   ).toBeInTheDocument();
 });
 
+it('should show issue tags if applicable', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderIssueApp();
+
+  // Select an issue with an advanced rule
+  await user.click(await screen.findByRole('region', { name: 'Issue with tags' }));
+
+  expect(
+    screen.getByRole('heading', {
+      name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED'
+    })
+  ).toBeInTheDocument();
+});
+
 describe('redirects', () => {
   it('should work for hotspots', () => {
     renderProjectIssuesApp(`project/issues?types=${IssueType.SecurityHotspot}`);

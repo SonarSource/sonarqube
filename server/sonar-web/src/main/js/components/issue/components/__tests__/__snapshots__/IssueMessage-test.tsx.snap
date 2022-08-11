@@ -10,6 +10,7 @@ exports[`should render correctly: default 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
+    <IssueMessageTags />
   </div>
   <ButtonLink
     aria-label="issue.why_this_issue.long"
@@ -31,6 +32,7 @@ exports[`should render correctly: hide why is it an issue 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
+    <IssueMessageTags />
   </div>
 </Fragment>
 `;
@@ -45,24 +47,9 @@ exports[`should render correctly: is deprecated rule 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
-    <DocumentationTooltip
-      className="spacer-left"
-      content="rules.status.DEPRECATED.help"
-      links={
-        Array [
-          Object {
-            "href": "/documentation/user-guide/rules/",
-            "label": "see_x.rules",
-          },
-        ]
-      }
-    >
-      <span
-        className="spacer-right badge badge-error"
-      >
-        issue.resolution.badge.DEPRECATED
-      </span>
-    </DocumentationTooltip>
+    <IssueMessageTags
+      ruleStatus="DEPRECATED"
+    />
   </div>
   <ButtonLink
     aria-label="issue.why_this_issue.long"
@@ -84,24 +71,9 @@ exports[`should render correctly: is removed rule 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
-    <DocumentationTooltip
-      className="spacer-left"
-      content="rules.status.REMOVED.help"
-      links={
-        Array [
-          Object {
-            "href": "/documentation/user-guide/rules/",
-            "label": "see_x.rules",
-          },
-        ]
-      }
-    >
-      <span
-        className="spacer-right badge badge-error"
-      >
-        issue.resolution.badge.REMOVED
-      </span>
-    </DocumentationTooltip>
+    <IssueMessageTags
+      ruleStatus="REMOVED"
+    />
   </div>
   <ButtonLink
     aria-label="issue.why_this_issue.long"
@@ -123,15 +95,9 @@ exports[`should render correctly: with engine info 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
-    <Tooltip
-      overlay="issue.from_external_rule_engine.js"
-    >
-      <div
-        className="badge spacer-right text-baseline"
-      >
-        js
-      </div>
-    </Tooltip>
+    <IssueMessageTags
+      engine="js"
+    />
   </div>
   <ButtonLink
     aria-label="issue.why_this_issue.long"
@@ -153,31 +119,9 @@ exports[`should render correctly: with quick fix 1`] = `
     >
       Reduce the number of conditional operators (4) used in the expression
     </span>
-    <Tooltip
-      mouseLeaveDelay={0.5}
-      overlay={
-        <FormattedMessage
-          defaultMessage="issue.quick_fix_available_with_sonarlint"
-          id="issue.quick_fix_available_with_sonarlint"
-          values={
-            Object {
-              "link": <a
-                href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                SonarLint
-              </a>,
-            }
-          }
-        />
-      }
-    >
-      <SonarLintIcon
-        className="it__issues-sonarlint-quick-fix spacer-right"
-        size={15}
-      />
-    </Tooltip>
+    <IssueMessageTags
+      quickFixAvailable={true}
+    />
   </div>
   <ButtonLink
     aria-label="issue.why_this_issue.long"

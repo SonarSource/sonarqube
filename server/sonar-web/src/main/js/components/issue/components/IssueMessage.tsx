@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { ButtonLink } from '../../../components/controls/buttons';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { RuleStatus } from '../../../types/rules';
-import DocumentationTooltip from '../../common/DocumentationTooltip';
-import SonarLintIcon from '../../icons/SonarLintIcon';
 import { WorkspaceContext } from '../../workspace/context';
+import IssueMessageTags from './IssueMessageTags';
 
 export interface IssueMessageProps {
   engine?: string;
@@ -46,55 +43,17 @@ export default function IssueMessage(props: IssueMessageProps) {
     displayWhyIsThisAnIssue
   } = props;
 
-  const { externalRulesRepoNames, openRule } = React.useContext(WorkspaceContext);
-  const ruleEngine = (engine && externalRulesRepoNames && externalRulesRepoNames[engine]) || engine;
+  const { openRule } = React.useContext(WorkspaceContext);
 
   return (
     <>
       <div className="display-inline-flex-center issue-message break-word">
         <span className="spacer-right">{message}</span>
-        {quickFixAvailable && (
-          <Tooltip
-            overlay={
-              <FormattedMessage
-                id="issue.quick_fix_available_with_sonarlint"
-                defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}
-                values={{
-                  link: (
-                    <a
-                      href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
-                      rel="noopener noreferrer"
-                      target="_blank">
-                      SonarLint
-                    </a>
-                  )
-                }}
-              />
-            }
-            mouseLeaveDelay={0.5}>
-            <SonarLintIcon className="it__issues-sonarlint-quick-fix spacer-right" size={15} />
-          </Tooltip>
-        )}
-        {ruleStatus && (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
-          <DocumentationTooltip
-            className="spacer-left"
-            content={translate('rules.status', ruleStatus, 'help')}
-            links={[
-              {
-                href: '/documentation/user-guide/rules/',
-                label: translateWithParameters('see_x', translate('rules'))
-              }
-            ]}>
-            <span className="spacer-right badge badge-error">
-              {translate('issue.resolution.badge', ruleStatus)}
-            </span>
-          </DocumentationTooltip>
-        )}
-        {ruleEngine && (
-          <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-            <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-          </Tooltip>
-        )}
+        <IssueMessageTags
+          engine={engine}
+          quickFixAvailable={quickFixAvailable}
+          ruleStatus={ruleStatus}
+        />
       </div>
       {displayWhyIsThisAnIssue && (
         <ButtonLink
