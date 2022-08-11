@@ -299,6 +299,7 @@ exports[`should render correctly 1`] = `
     >
       <Styled(button)
         active={true}
+        aria-current={true}
         key="0"
         onClick={[Function]}
         type="button"
@@ -509,6 +510,7 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
+          aria-current={true}
           className="emotion-1"
           onClick={[Function]}
           type="button"
@@ -715,6 +717,7 @@ exports[`should render correctly 1`] = `
       </Styled(button)>
       <Styled(button)
         active={false}
+        aria-current={false}
         key="1"
         onClick={[Function]}
         type="button"
@@ -929,6 +932,7 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
+          aria-current={false}
           className="emotion-3"
           onClick={[Function]}
           type="button"
@@ -1135,6 +1139,7 @@ exports[`should render correctly 1`] = `
       </Styled(button)>
       <Styled(button)
         active={false}
+        aria-current={false}
         key="2"
         onClick={[Function]}
         type="button"
@@ -1349,6 +1354,7 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
+          aria-current={false}
           className="emotion-3"
           onClick={[Function]}
           type="button"

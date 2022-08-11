@@ -84,6 +84,7 @@ export default function BoxedTabs<K>(props: BoxedTabsProps<K>) {
       {tabs.map(({ key, label }, i) => (
         <StyledTab
           active={selected === key}
+          aria-current={selected === key}
           // eslint-disable-next-line react/no-array-index-key
           key={i}
           onClick={() => selected !== key && props.onSelect(key)}
