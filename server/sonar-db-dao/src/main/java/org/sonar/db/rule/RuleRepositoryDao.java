@@ -21,15 +21,20 @@ package org.sonar.db.rule;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class RuleRepositoryDao implements Dao {
+
+  private static final String PERCENT_SIGN = "%";
 
   private final System2 system2;
 
@@ -49,12 +54,9 @@ public class RuleRepositoryDao implements Dao {
     return dbSession.getMapper(RuleRepositoryMapper.class).selectAllKeys();
   }
 
-  /**
-   * @return a non-null list ordered by key (as implemented by database, order may
-   * depend on case sensitivity)
-   */
-  public List<RuleRepositoryDto> selectByLanguage(DbSession dbSession, String language) {
-    return dbSession.getMapper(RuleRepositoryMapper.class).selectByLanguage(language);
+  public List<RuleRepositoryDto> selectByQueryAndLanguage(DbSession dbSession, @Nullable String query, @Nullable String language){
+    String queryUpgraded = toLowerCaseAndSurroundWithPercentSigns(query);
+    return dbSession.getMapper(RuleRepositoryMapper.class).selectByQueryAndLanguage(queryUpgraded,language);
   }
 
   public void insert(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
@@ -76,4 +78,9 @@ public class RuleRepositoryDao implements Dao {
     checkArgument(keys.size() < DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "too many rule repositories: %s", keys.size());
     dbSession.getMapper(RuleRepositoryMapper.class).deleteIfKeyNotIn(keys);
   }
+
+  private static String toLowerCaseAndSurroundWithPercentSigns(@Nullable String query) {
+    return isBlank(query) ? PERCENT_SIGN : (PERCENT_SIGN + query.toLowerCase(Locale.ENGLISH) + PERCENT_SIGN);
+  }
+
 }

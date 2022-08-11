@@ -123,17 +123,33 @@ public class RuleRepositoryDaoTest {
   }
 
   @Test
-  public void selectByLanguage() {
+  public void selectByQueryAndLanguage_shouldMatchOnlyOnKeeOrName(){
     DbSession dbSession = dbTester.getSession();
-    RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
+    RuleRepositoryDto dto1 = new RuleRepositoryDto("a_findbugs", "java", "Findbugs");
+    RuleRepositoryDto dto2 = new RuleRepositoryDto("jdk", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
-    underTest.insert(dbSession, asList(dto1, dto2, dto3));
+    underTest.insert(dbSession, asList(dto1,dto2,dto3));
 
-    assertThat(underTest.selectByLanguage(dbSession, "java")).extracting(RuleRepositoryDto::getKey)
-      // ordered by key
-      .containsExactly("findbugs", "java");
+    List<RuleRepositoryDto> ruleRepositoryDtos = underTest.selectByQueryAndLanguage(dbSession, "%a%",null);
+
+    assertThat(ruleRepositoryDtos).extracting(RuleRepositoryDto::getName)
+      .containsExactlyInAnyOrder("Java","Findbugs");
   }
+
+  @Test
+  public void selectByQueryAndLanguage_whenSeveralRepoMatchingForDifferentLanguages_matchOnlyTheRepoOfTheChosenLanguage(){
+    DbSession dbSession = dbTester.getSession();
+    RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugsa");
+    RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
+    RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-bug", "cobol", "Cobol Lint");
+    underTest.insert(dbSession, asList(dto1,dto2,dto3));
+
+    List<RuleRepositoryDto> ruleRepositoryDtos = underTest.selectByQueryAndLanguage(dbSession, "%bug%", "java");
+
+    assertThat(ruleRepositoryDtos).extracting(RuleRepositoryDto::getKey)
+      .containsExactly("findbugs");
+  }
+
 
   @Test
   public void selectAllKeys() {
@@ -147,13 +163,32 @@ public class RuleRepositoryDaoTest {
   }
 
   @Test
-  public void selectByLanguage_returns_empty_list_if_no_results() {
+  public void selectByQueryAndLanguage_returnsEmptyList_when_thereIsNoResults() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     underTest.insert(dbSession, asList(dto1));
 
-    assertThat(underTest.selectByLanguage(dbSession, "missing")).isEmpty();
+    assertThat(underTest.selectByQueryAndLanguage(dbSession, "missing", null)).isEmpty();
   }
+
+  @Test
+  public void selectByQueryAndLanguage_shouldBeCaseInsensitive(){
+    DbSession dbSession = dbTester.getSession();
+    RuleRepositoryDto dto1 = new RuleRepositoryDto("FINDBUGS", "java", "repoFB");
+    RuleRepositoryDto dto2 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
+    RuleRepositoryDto dto3 = new RuleRepositoryDto("openjdk", "java", "JaVa");
+    underTest.insert(dbSession, asList(dto1,dto2,dto3));
+
+    assertThat(underTest.selectByQueryAndLanguage(dbSession,"bug", null))
+      .extracting(RuleRepositoryDto::getKey).contains("FINDBUGS");
+    assertThat(underTest.selectByQueryAndLanguage(dbSession,"COBOL", null))
+      .extracting(RuleRepositoryDto::getKey).contains("cobol-lint");
+    assertThat(underTest.selectByQueryAndLanguage(dbSession,"jAvA", null))
+      .extracting(RuleRepositoryDto::getKey).contains("openjdk");
+
+  }
+
+
 
   private long selectCreatedAtByKey(DbSession dbSession, String key) {
     return (long) dbTester.selectFirst(dbSession, "select created_at as \"created_at\" from rule_repositories where kee='" + key + "'")

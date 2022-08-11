@@ -18,10 +18,15 @@
     from rule_repositories
   </select>
 
-  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleRepositoryDto">
+  <select id="selectByQueryAndLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleRepositoryDto">
     select <include refid="sqlColumns"/>
     from rule_repositories
-    where language = #{language}
+    where
+    ( lower(kee) like #{query}
+    or lower(name) like #{query} )
+    <if test="language != null and language != ''">
+      and language = #{language}
+    </if>
     order by kee
   </select>
 

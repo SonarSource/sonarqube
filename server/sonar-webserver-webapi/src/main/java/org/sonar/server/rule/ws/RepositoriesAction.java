@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,12 +28,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleRepositoryDto;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @since 5.1
@@ -42,7 +39,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 public class RepositoriesAction implements RulesWsAction {
 
   private static final String LANGUAGE = "language";
-  private static final String MATCH_ALL = ".*";
 
   private final DbClient dbClient;
 
@@ -86,19 +82,12 @@ public class RepositoriesAction implements RulesWsAction {
   }
 
   private Collection<RuleRepositoryDto> listMatchingRepositories(@Nullable String query, @Nullable String languageKey) {
-    Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + Pattern.quote(query) + MATCH_ALL, Pattern.CASE_INSENSITIVE);
-
-    return selectFromDb(languageKey).stream()
-      .filter(r -> pattern.matcher(r.getKey()).matches() || pattern.matcher(r.getName()).matches())
-      .collect(MoreCollectors.toList());
+    return selectFromDb(languageKey,  query);
   }
 
-  private Collection<RuleRepositoryDto> selectFromDb(@Nullable String language) {
+  private Collection<RuleRepositoryDto> selectFromDb(@Nullable String language, @Nullable  String query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (isEmpty(language)) {
-        return dbClient.ruleRepositoryDao().selectAll(dbSession);
-      }
-      return dbClient.ruleRepositoryDao().selectByLanguage(dbSession, language);
+      return dbClient.ruleRepositoryDao().selectByQueryAndLanguage(dbSession, query, language);
     }
   }
 }

@@ -66,6 +66,19 @@ public class RepositoriesActionTest {
   }
 
   @Test
+  public void filter_repository_by_query(){
+    newRequest().setParam("q", "xo").execute().assertJson(this.getClass(),"repositories_xoo.json");
+    newRequest().setParam("q","w").execute().assertJson(this.getClass(),"repositories_common.json");
+  }
+
+
+  @Test
+  public void filter_repository_by_query_and_language(){
+    newRequest().setParam("q","ava").setParam("language","ws").execute().assertJson(this.getClass(),"repositories_java.json");
+    newRequest().setParam("q","w").setParam("language","ws").execute().assertJson(this.getClass(),"repositories_common.json");
+  }
+
+  @Test
   public void do_not_consider_query_as_regexp_when_filtering_repositories_by_name() {
     // invalid regexp : do not fail. Query is not a regexp.
     newRequest().setParam("q", "[").execute().assertJson(EMPTY_JSON_RESPONSE);

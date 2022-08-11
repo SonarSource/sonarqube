@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface RuleRepositoryMapper {
@@ -31,7 +32,7 @@ public interface RuleRepositoryMapper {
 
   Set<String> selectAllKeys();
 
-  List<RuleRepositoryDto> selectByLanguage(@Param("language") String language);
+  List<RuleRepositoryDto> selectByQueryAndLanguage(@Param("query") String query,@Param("language") @Nullable String language);
 
   @CheckForNull
   RuleRepositoryDto selectByKey(@Param("key") String key);
