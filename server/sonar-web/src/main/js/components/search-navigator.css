@@ -84,7 +84,8 @@
   color: var(--secondFontColor);
 }
 
-.search-navigator-facet {
+.search-navigator-facet,
+button.search-navigator-facet {
   position: relative;
   display: inline-flex;
   justify-content: space-between;
@@ -320,6 +321,7 @@ button.search-navigator-facet:focus,
 .search-navigator-facet-header > button {
   border-bottom: none;
   color: var(--baseFontColor);
+  cursor: pointer;
 }
 
 .search-navigator-facet-header > button:focus,
