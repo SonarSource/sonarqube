@@ -23,7 +23,7 @@ You can upgrade your SonarQube instance using the ZIP file, Docker image, or Hel
 | 
 | 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONAR_HOME`
 | 2. If you're using third-party plugins, Manually install plugins that are compatible with your version of SonarQube. Use the [Plugin Version Matrix](/instance-administration/plugin-version-matrix/) to ensure that the versions you install are compatible with your server version. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors. Analysis of all languages provided by your edition is available by default without plugins.
-| 3. Update the contents of `sonar.properties` and `wrapper.conf` files (in `$NEW_SONAR_HOME/conf`) with the settings of the related files in the `$OLD_SONAR_HOME/conf` directory (web server URL, database, ldap settings, etc.). Do not copy-paste the old files.
+| 3. Update the contents of `sonar.properties` file (in `$NEW_SONAR_HOME/conf`) with the settings in the `$OLD_SONAR_HOME/conf` directory (web server URL, database, ldap settings, etc.). Do not copy-paste the old files.
 | If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONAR_HOME/extensions/jdbc-driver/oracle`
 | 4. Stop your old SonarQube Server
 | 5. Start your new SonarQube Server
