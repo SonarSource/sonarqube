@@ -91,6 +91,8 @@
   text-overflow: ellipsis;
   font-weight: bold;
   color: inherit;
+  text-align: left;
+  max-width: 100%;
 }
 
 .concise-issue-box-attributes {
