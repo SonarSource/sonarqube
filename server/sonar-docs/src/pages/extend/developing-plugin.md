@@ -6,14 +6,14 @@ url: /extend/developing-plugin/
 ## Building your plugin
 
 ### Prerequisites
-To build a plugin, you need Java 8 and Maven 3.1 (or greater). Gradle can also be used thanks to https://github.com/iwarapter/gradle-sonar-packaging-plugin. Note that this Gradle plugin is not officially supported by SonarSource.
+To build a plugin, you need Java 8 and Maven 3.1 (or greater). Gradle can also be used thanks to the [gradle-sonar-packaging-plugin](https://github.com/iwarapter/gradle-sonar-packaging-plugin) (note that this plugin is not officially supported by SonarSource).
 
 ### Sonar Plugin API
 The `sonar-plugin-api` is a Java API that is used to develop plugins for SonarQube, SonarCloud and SonarLint.
 
 [[warning]]
 | The API used to be part of SonarQube and released with it, but it is a separate component since v9.5, with its own releases. You can find it here:  [sonar-plugin-api](https://github.com/SonarSource/sonar-plugin-api).
-*The groupId was relocated from `org.sonarsource.sonarqube` to `org.sonarsource.api.plugin`*. 
+*The groupId was relocated from `org.sonarsource.sonarqube` to `org.sonarsource.api.plugin`*.
 
 These are the new coordinates of the dependency:
 ```
@@ -108,7 +108,7 @@ mvnDebug sonar:sonar
 ### Advanced Build Properties
 Plugin properties are defined in the file `META-INF/MANIFEST.MF` of the plugin .jar file.
 
-Most of them are defined through the `<configuration>` section of the [sonar-packaging-maven-plugin](https://jira.sonarsource.com/browse/PACKMP). Some are taken from standard pom nodes Effective values are listed at the end of the build log:
+Most of them are defined through the `<configuration>` section of the [sonar-packaging-maven-plugin](https://mvnrepository.com/artifact/org.sonarsource.sonar-packaging-maven-plugin/sonar-packaging-maven-plugin). Some are taken from standard pom nodes Effective values are listed at the end of the build log:
 ```
 [INFO] --- sonar-packaging-maven-plugin:1.15:sonar-plugin (default-sonar-plugin) @ sonar-widget-lab-plugin ---
 [INFO] -------------------------------------------------------
@@ -225,7 +225,7 @@ pom.xml
 </project>
 ```
 ### Lifecycle
-A plugin extension exists only in its associated technical stacks. A scanner sensor is for example instantiated and executed only in a scanner runtime, but not in the web server nor in Compute Engine. The stack is defined by the annotations [@ScannerSide](http://javadocs.sonarsource.org/latest/apidocs/org/sonar/api/batch/ScannerSide.html), [@ServerSide](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/server/ServerSide.html) (for web server) and [@ComputeEngineSide](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/ce/ComputeEngineSide.html). 
+A plugin extension exists only in its associated technical stacks. A scanner sensor is for example instantiated and executed only in a scanner runtime, but not in the web server nor in Compute Engine. The stack is defined by the annotations [@ScannerSide](https://javadocs.sonarsource.org/latest/org/sonar/api/batch/ScannerSide.html), [@ServerSide](https://javadocs.sonarsource.org/latest/org/sonar/api/server/ServerSide.html) (for web server) and [@ComputeEngineSide](https://javadocs.sonarsource.org/latest/org/sonar/api/ce/ComputeEngineSide.html).
 
 An extension can call core components or another extension of the same stack. These dependencies are defined by constructor injection:
 
@@ -292,7 +292,7 @@ Technically the libraries are packaged in the directory META-INF/lib of the gene
 | The command `mvn dependency:tree` gives the list of all dependencies, including transitive ones.
 
 ### Configuration
-The core component [`org.sonar.api.config.Configuration`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/config/Configuration.html) provides access to configuration. It deals with default values and decryption of values. It is available in all stacks (scanner, web server, Compute Engine). As recommended earlier, it must not be called from constructors.
+The core component [`org.sonar.api.config.Configuration`](http://javadocs.sonarsource.org/latest/org/sonar/api/config/Configuration.html) provides access to configuration. It deals with default values and decryption of values. It is available in all stacks (scanner, web server, Compute Engine). As recommended earlier, it must not be called from constructors.
 
 MyExtension.java
 ```
@@ -349,7 +349,7 @@ public class ExamplePlugin implements Plugin {
 [[info]]
 | Values of the properties suffixed with `.secured` are not available to be read by any users. `.secured` is needed for passwords, for instance.
 
-The annotation [`@org.sonar.api.Property`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/Property.html) can also be used on an extension to declare a property, but org.sonar.api.config.PropertyDefinition is preferred.
+The annotation [`@org.sonar.api.Property`](https://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/Property.html) can also be used on an extension to declare a property, but org.sonar.api.config.PropertyDefinition is preferred.
 ```
 @Properties(
     @Property(key="sonar.my.property", name="My Property", defaultValue="42")
@@ -367,7 +367,7 @@ public class ExamplePlugin implements Plugin {
 ```
 
 ### Logging
-The class [`org.sonar.api.utils.log.Logger`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/utils/log/Logger.html) is used to log messages to scanner output, web server logs/sonar.log, or Compute Engine logs (available from administration web console). It's convenient for unit testing (see class [`LogTester`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/utils/log/LogTester.html)).
+The class [`org.sonar.api.utils.log.Logger`](https://javadocs.sonarsource.org/latest/org/sonar/api/utils/log/Logger.html) is used to log messages to scanner output, web server logs/sonar.log, or Compute Engine logs (available from administration web console). It's convenient for unit testing (see class [`LogTester`](https://javadocs.sonarsource.org/latest/org/sonar/api/utils/log/LogTester.html)).
 ```
 import org.sonar.api.utils.log.*;
 public class MyClass {
@@ -378,7 +378,7 @@ public class MyClass {
   }
 }
 ```
-Internally [SLF4J](http://www.slf4j.org/) is used as a facade of various logging frameworks (log4j, commons-log, logback, java.util.logging). That allows all these frameworks to work at runtime, such as when they are required for a 3rd party library. SLF4J loggers can also be used instead of org.sonar.api.utils.log.Logger. Read the [SLF4J manual](http://www.slf4j.org/manual.html) for more details.
+Internally [SLF4J](https://www.slf4j.org/) is used as a facade of various logging frameworks (log4j, commons-log, logback, java.util.logging). That allows all these frameworks to work at runtime, such as when they are required for a 3rd party library. SLF4J loggers can also be used instead of org.sonar.api.utils.log.Logger. Read the [SLF4J manual](https://www.slf4j.org/manual.html) for more details.
 
 As an exception, plugins must not package logging libraries. Dependencies like SLF4J or log4j must be declared with scope "provided".
 
@@ -388,7 +388,7 @@ The common use case is to write a language plugin that will allow some other plu
 Plugins are loaded in isolated classloaders. It means a plugin can't access another plugin's classes. There is an exception for package names following pattern `org.sonar.plugins.<pluginKey>.api`. For example all classes in a plugin with the key myplugin that are located in `org.sonar.plugins.myplugin.api` are visible to other plugins.
 
 ### Serving Static Resources
-If you need to serve static resources from your plugin such as images or JavaScript files, place them in a directory under `resources` named `static` (`myplugin/src/main/resources/static`). At runtime they'll be available from `http://{server}/static/{pluginKey}/{file}`. 
+If you need to serve static resources from your plugin such as images or JavaScript files, place them in a directory under `resources` named `static` (`myplugin/src/main/resources/static`). At runtime they'll be available from `https://{server}/static/{pluginKey}/{file}`. 
 
 
 ## Versioning and API Deprecation
