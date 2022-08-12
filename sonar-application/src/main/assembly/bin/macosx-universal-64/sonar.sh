@@ -174,9 +174,6 @@ start() {
 }
 
 waitforstop() {
-    # We can not predict how long it will take for the wrapper to
-    #  actually stop as it depends on settings in wrapper.conf.
-    #  Loop until it does.
     savepid=$pid
     CNT=0
     TOTCNT=0

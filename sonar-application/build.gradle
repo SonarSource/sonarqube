@@ -140,7 +140,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
     }
     from(file('src/main/assembly')) {
       exclude 'conf/sonar.properties'
-      exclude 'conf/wrapper.conf'
       exclude 'bin/windows-x86-64/lib/SonarServiceWrapper.xml'
       exclude 'bin/windows-x86-64/StartSonar.bat'
       exclude 'elasticsearch-patch'
