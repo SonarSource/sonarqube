@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.server.component.ws.FilterParser.Criterion;
@@ -75,6 +76,36 @@ public class FilterParserTest {
       .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValues, Criterion::getValue)
       .containsOnly(
         tuple("ncloc", IN, asList("80", "90"), null));
+  }
+
+  @Test
+  public void parse_filter_having_value_containing_operator_characters() {
+    List<Criterion> criterion = FilterParser.parse("languages IN (java, python, <null>)");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValues, Criterion::getValue)
+      .containsOnly(
+        tuple("languages", IN, asList("java", "python", "<null>"), null));
+  }
+
+  @Test
+  public void parse_filter_having_value_containing_non_alphanumeric_characters() {
+    List<Criterion> criterion = FilterParser.parse("q = \"+*ç%&/()\"");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
+      .containsOnly(
+        tuple("q", EQ, "+*ç%&/()"));
+  }
+
+  @Test
+  public void parse_filter_having_in_empty_list() {
+    List<Criterion> criterion = FilterParser.parse("languages IN ()");
+
+    assertThat(criterion)
+      .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValues, Criterion::getValue)
+      .containsOnly(
+        tuple("languages", IN, Collections.emptyList(), null));
   }
 
   @Test
