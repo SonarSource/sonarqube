@@ -486,15 +486,6 @@ promote_task:
   script:
     - ./private/cirrus/cirrus-promote.sh
 
-deploy_docs_task:
-  depends_on: promote
-  skip: true
-  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-  script:
-    - ./private/cirrus/cirrus-trigger-deploy-docs.sh
-
 package_docker_task:
   depends_on: promote
   only_if: $CIRRUS_BRANCH == 'master'
