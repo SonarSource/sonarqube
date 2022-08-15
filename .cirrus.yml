@@ -282,7 +282,7 @@ qa_task:
       - QA_CATEGORY: Branch
       - QA_CATEGORY: Upgrade
   script:
-    - ./private/cirrus/cirrus-qa.sh postgres106
+    - ./private/cirrus/cirrus-qa.sh postgres
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
@@ -306,7 +306,7 @@ task: #bitbucket
       bitbucket_background_script: ./private/cirrus/cirrus-start-bitbucket.sh LATEST
   wait_for_bitbucket_to_boot_script: secs=3600; endTime=$(( $(date +%s) + secs )); while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7990/bitbucket/status)" != "200" ]] || [ $(date +%s) -gt $endTime ]; do sleep 5; done
   script:
-    - ./private/cirrus/cirrus-qa.sh postgres106
+    - ./private/cirrus/cirrus-qa.sh postgres
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
@@ -340,7 +340,7 @@ qa_ha_task:
   env:
     QA_CATEGORY: HA
   script:
-    - ./private/cirrus/cirrus-qa.sh postgres106
+    - ./private/cirrus/cirrus-qa.sh postgres
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
@@ -502,7 +502,7 @@ package_docker_task:
   package_script:
     - ./private/cirrus/cirrus-package-docker.sh
 
-sql_mssql2017_task:
+sql_mssql_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
@@ -519,11 +519,11 @@ sql_mssql2017_task:
           ACCEPT_EULA: Y
           SA_PASSWORD: sonarqube!1
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh mssql2017
+    - ./private/cirrus/cirrus-db-unit-test.sh mssql
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
-sql_postgres106_task:
+sql_postgres_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
@@ -532,7 +532,7 @@ sql_postgres106_task:
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh postgres106
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
@@ -547,7 +547,7 @@ sql_postgres96_task:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
         image: postgres:9.6
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh postgres96
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
@@ -564,7 +564,7 @@ sql_oracle12_task:
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
-upgd_mssql2019_task:
+upgd_mssql_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
@@ -584,7 +584,7 @@ upgd_mssql2019_task:
   env:
     QA_CATEGORY: Upgrade
   script:
-    - ./private/cirrus/cirrus-qa.sh mssql2017
+    - ./private/cirrus/cirrus-qa.sh mssql
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
