@@ -29,24 +29,22 @@ env:
 
 auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
 
-only_nightly_depending_on_build_template: &ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
+  skip: $CIRRUS_BRANCH =~ 'public_.*'
+
+build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
+
+nightly_task_template: &NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == "branch-nightly-build"
 
-only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
-  depends_on: build
+except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
+  only_if: $CIRRUS_BRANCH != "branch-nightly-build"
+
+database_related_nightly_task_template: &DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == "branch-nightly-build" ||
     changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java')
-
-only_default_branches_template: &ONLY_DEFAULT_BRANCHES_TEMPLATE
-  only_if: $CIRRUS_BRANCH != "public_master"
-
-only_default_depending_on_build_template: &ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
-  depends_on: build
-  only_if: $CIRRUS_BRANCH != "public_master"
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -77,20 +75,21 @@ postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
 
-reports_junit_on_failure_template: &REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  jest_junit_cleanup_script: >
-    find . -type f -wholename "**/build/test-results/test-jest/junit.xml" -exec
-    xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
-  reports_artifacts:
-    path: "**/build/reports/**/*"
-  junit_artifacts:
-    path: "**/build/test-results/**/*.xml"
-    format: junit
-
-screenshots_on_failure_template: &REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
-  <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  screenshots_artifacts:
-    path: "**/build/screenshots/**/*"
+default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
+  on_failure:
+    jest_junit_cleanup_script: >
+      find . -type f -wholename "**/build/test-results/test-jest/junit.xml" -exec
+      xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
+    junit_artifacts:
+      path: "**/build/test-results/**/*.xml"
+      format: junit
+    reports_artifacts:
+      path: "**/build/reports/**/*"
+    screenshots_artifacts:
+      path: "**/build/screenshots/**/*"
+  always:
+    profile_artifacts:
+      path: "**/build/reports/profile/**/*"
 
 yarn_cache_template: &YARN_CACHE_TEMPLATE
   yarn_cache:
@@ -135,18 +134,8 @@ junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
       - "**/test-results/test"
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
-custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
-  clone_script: |
-    git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
-    git fetch origin $CIRRUS_CHANGE_IN_REPO --depth=1
-    git reset --hard $CIRRUS_CHANGE_IN_REPO
-
-profile_artifacts_template: &PROFILE_ARTIFACTS_TEMPLATE
-  profile_artifacts:
-    path: "**/build/reports/profile/**/*"
-
 build_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
@@ -162,14 +151,10 @@ build_task:
     folder: sonar-application/build/elasticsearch-**.tar.gz
   script:
     - ./private/cirrus/cirrus-build.sh
-  on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_lint-report-ci_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
@@ -180,13 +165,10 @@ yarn_lint-report-ci_task:
     memory: 6Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_validate-ci_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
@@ -197,13 +179,10 @@ yarn_validate-ci_task:
     memory: 20Gb
   script:
     - ./private/cirrus/cirrus-yarn-validate-ci.sh
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 junit_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
   timeout_in: 90m
@@ -213,18 +192,16 @@ junit_task:
     memory: 20Gb
   script:
     - ./private/cirrus/cirrus-junit.sh
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 validate_task:
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
-  only_if: $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "branch-nightly-build"
   depends_on:
     - yarn_validate-ci
     - yarn_lint-report-ci
@@ -239,11 +216,10 @@ validate_task:
     CIRRUS_CLONE_DEPTH: 0
   script:
     - ./private/cirrus/cirrus-validate.sh
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_check-ci_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
@@ -254,11 +230,11 @@ yarn_check-ci_task:
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_task:
-  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -283,11 +259,12 @@ qa_task:
       - QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 task: #bitbucket
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -307,11 +284,12 @@ task: #bitbucket
   wait_for_bitbucket_to_boot_script: secs=3600; endTime=$(( $(date +%s) + secs )); while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7990/bitbucket/status)" != "200" ]] || [ $(date +%s) -gt $endTime ]; do sleep 5; done
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_bb_cloud_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -325,11 +303,12 @@ qa_bb_cloud_task:
     BBC_USERNAME: ENCRYPTED[75707b0448dabae3f028533a412df424da16bf9fe239474a6678f4f0af9ec9cd9571f6d37fa44dadfd99a76c5584b70c]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_ha_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -341,11 +320,11 @@ qa_ha_task:
     QA_CATEGORY: HA
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 docker_gitlab_container_build_task:
-  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   gce_instance:
     image_project: sonarqube-team
     image_family: docker-builder
@@ -365,7 +344,8 @@ docker_gitlab_container_build_task:
 
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
     - build
@@ -389,15 +369,13 @@ qa_gitlab_task:
     QA_CATEGORY: GITLAB
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_gitlab_cloud_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  depends_on:
-    - build
-    - docker_gitlab_container_build
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -411,12 +389,13 @@ qa_gitlab_cloud_task:
     GITLAB_ADMIN_PASSWORD: ENCRYPTED[78e94b179d425e87d8f8b9ccaa1d117d8ffaec71eaee8ca7a3e36d1a885b85a61695f55031ab786af04d2181e3eadeb2]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 # Azure QA is executed in a dedicated task in order to not slow down the pipeline.
 qa_azure_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -429,12 +408,13 @@ qa_azure_task:
     AZURE_FULL_ACCESS_TOKEN: ENCRYPTED[58779d6588e2e10d1b6f98fcc58a46957f8ef3a18e29d79abc6aa8d69ea55c23d8708e1f1af626464d309b1c7c087985]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -454,12 +434,13 @@ qa_saml_task:
     QA_CATEGORY: SAML
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 # LDAP QA is executed in a dedicated task in order to not slow down the pipeline, as a LDAP server and SonarQube server are re-started on each test.
 qa_ldap_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -469,11 +450,11 @@ qa_ldap_task:
     QA_CATEGORY: LDAP
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  on_failure:
-    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 promote_task:
-  only_if: $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "branch-nightly-build"
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   depends_on:
     - build
     - validate
@@ -487,6 +468,7 @@ promote_task:
     - ./private/cirrus/cirrus-promote.sh
 
 package_docker_task:
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   depends_on: promote
   only_if: $CIRRUS_BRANCH == 'master'
   gce_instance:
@@ -496,14 +478,19 @@ package_docker_task:
     disk: 10
     cpu: 4
     memory: 8G
-  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
+  clone_script: |
+    git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
+    git fetch origin $CIRRUS_CHANGE_IN_REPO --depth=1
+    git reset --hard $CIRRUS_CHANGE_IN_REPO
   install_tooling_script:
     - ./private/cirrus/cirrus-tooling-for-package-docker.sh
   package_script:
     - ./private/cirrus/cirrus-package-docker.sh
 
 sql_mssql_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -520,11 +507,12 @@ sql_mssql_task:
           SA_PASSWORD: sonarqube!1
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh mssql
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 sql_postgres_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -533,12 +521,13 @@ sql_postgres_task:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 # this is the oldest compatible version of PostgreSQL
 sql_postgres96_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -548,11 +537,12 @@ sql_postgres96_task:
         image: postgres:9.6
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 sql_oracle12_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -561,11 +551,12 @@ sql_oracle12_task:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh oracle12
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 upgd_mssql_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -585,11 +576,12 @@ upgd_mssql_task:
     QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh mssql
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 upgd_oracle12_task:
-  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -598,15 +590,14 @@ upgd_oracle12_task:
     additional_containers:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-    matrix:
-      QA_CATEGORY: Upgrade
+    QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh oracle12
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 ws_scan_task:
-  depends_on: build
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == 'master' ||
     ($CIRRUS_BRANCH =~ 'branch.*' && $CIRRUS_BRANCH != 'branch-nightly-build')
