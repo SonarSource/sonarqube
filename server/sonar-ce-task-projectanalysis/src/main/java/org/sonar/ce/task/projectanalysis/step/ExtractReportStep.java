@@ -45,6 +45,7 @@ import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
  */
 public class ExtractReportStep implements ComputationStep {
 
+  static final long REPORT_SIZE_THRESHOLD_IN_BYTES = 2_000_000_000;
   private static final Logger LOGGER = Loggers.get(ExtractReportStep.class);
 
   private final DbClient dbClient;
@@ -68,7 +69,7 @@ public class ExtractReportStep implements ComputationStep {
         File unzippedDir = tempFolder.newDir();
         try (DbInputStream reportStream = opt.get();
              InputStream zipStream = new BufferedInputStream(reportStream)) {
-          ZipUtils.unzip(zipStream, unzippedDir);
+          ZipUtils.unzip(zipStream, unzippedDir, REPORT_SIZE_THRESHOLD_IN_BYTES);
         } catch (IOException e) {
           throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
         }

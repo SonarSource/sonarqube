@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -89,6 +90,21 @@ public class ExtractReportStepTest {
     assertThat(new File(unzippedDir, "metadata.pb")).hasContent("{metadata}");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).anyMatch(log -> log.matches("Analysis report is \\d+ bytes uncompressed"));
+  }
+
+  @Test
+  public void unzip_report_should_fail_if_unzip_size_exceed_threshold() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    URL zipBombFile = getClass().getResource("/org/sonar/ce/task/projectanalysis/step/ExtractReportStepTest/zip-bomb.zip");
+    try (InputStream input = zipBombFile.openStream()) {
+      dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), TASK_UUID, input);
+    }
+    dbTester.getSession().commit();
+    dbTester.getSession().close();
+
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Decompression failed because unzipped size reached threshold: 2000000000 bytes");
   }
 
   private File generateReport() throws IOException {
