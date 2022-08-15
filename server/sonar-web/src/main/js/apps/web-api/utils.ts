@@ -81,7 +81,7 @@ export const serializeQuery = memoize(
 );
 
 export function parseVersion(version: string) {
-  const match = /(\d+)\.(\d+)/.exec(version);
+  const match = /(\d{1,5})\.(\d{1,5})/.exec(version);
   if (match) {
     return { major: Number(match[1]), minor: Number(match[2]) };
   } else {

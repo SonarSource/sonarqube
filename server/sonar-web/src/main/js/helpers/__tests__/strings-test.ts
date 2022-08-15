@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { decodeJwt, latinize, slugify } from '../strings';
+import { decodeJwt, latinize } from '../strings';
 
 describe('#decodeJwt', () => {
   it('should correctly decode a jwt token', () => {
@@ -47,13 +47,5 @@ describe('#latinize', () => {
       'aeiouwyaeiouwyaeiouwyaeiouwyoaeiucgklnsz'
     );
     expect(latinize('ASDFGhjklQWERTz')).toBe('ASDFGhjklQWERTz');
-  });
-});
-
-describe('#slugify', () => {
-  it('should transform text into a slug', () => {
-    expect(slugify('Luke Sky&Walker')).toBe('luke-sky-and-walker');
-    expect(slugify('tèst_:-ng><@')).toBe('test-ng');
-    expect(slugify('my-valid-slug-1')).toBe('my-valid-slug-1');
   });
 });

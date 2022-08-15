@@ -17,35 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parse } from 'date-fns';
-import { ParsableDate } from '../types/dates';
 
-function pad(number: number) {
-  if (number < 10) {
-    return '0' + number.toString();
-  }
-  return number;
-}
+import { parseVersion } from '../utils';
 
-export function parseDate(rawDate: ParsableDate): Date {
-  return parse(rawDate);
-}
-
-export function toShortNotSoISOString(rawDate: ParsableDate): string {
-  const date = parseDate(rawDate);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-export function toNotSoISOString(rawDate: ParsableDate): string {
-  const date = parseDate(rawDate);
-  const dateWithoutZone = date.toISOString().split('.')[0];
-  return dateWithoutZone + '+0000';
-}
-
-export function isValidDate(date: Date): boolean {
-  return !isNaN(date.getTime());
-}
-
-export function now() {
-  return new Date();
-}
+it('should test parseVersion is working as expected', () => {
+  expect(parseVersion('foo')).toBeUndefined();
+  expect(parseVersion('9.6')).toEqual({ major: 9, minor: 6 });
+  expect(parseVersion('9.6.2')).toEqual({ major: 9, minor: 6 });
+  expect(parseVersion('9.6.alpha')).toEqual({ major: 9, minor: 6 });
+  expect(parseVersion('9')).toBeUndefined();
+});
