@@ -233,10 +233,7 @@ subprojects {
       dependency 'com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11'
       dependency 'com.oracle.database.jdbc:ojdbc8:21.5.0.0'
       dependency 'org.aspectj:aspectjtools:1.9.9.1'
-      // upgrade okhttp3 dependency kotlin to get rid of not exploitable CVE-2020-29582
-      dependency 'org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0'
-      dependency 'org.jetbrains.kotlin:kotlin-stdlib:1.7.0'
-      dependencySet(group: 'com.squareup.okhttp3', version: '4.9.3') {
+      dependencySet(group: 'com.squareup.okhttp3', version: '4.10.0') {
         entry 'okhttp'
         entry 'mockwebserver'
       }
