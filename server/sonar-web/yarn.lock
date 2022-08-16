@@ -2347,7 +2347,7 @@ __metadata:
     d3-shape: 1.3.7
     d3-zoom: 1.8.3
     date-fns: 1.30.1
-    dompurify: 2.3.6
+    dompurify: 2.3.10
     enzyme: 3.11.0
     enzyme-adapter-react-16: 1.15.6
     enzyme-to-json: 3.6.2
@@ -4098,10 +4098,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:2.3.6":
-  version: 2.3.6
-  resolution: "dompurify@npm:2.3.6"
-  checksum: 4b2bbf6bc68ebd776aec4a533cef74a5ae30391eed528f3df748af71da318afdc298b6f40449bef093b7454ffd2ae82656636560474de5a3b34316b762c85b12
+"dompurify@npm:2.3.10":
+  version: 2.3.10
+  resolution: "dompurify@npm:2.3.10"
+  checksum: ee343876b4c065e82d194818c66af76a6d2290264c7db583ad71761c11781fd626f0245f9f4670175d5707c4b8fcfb89adae80bed0418a9426a47ee7f36b0ffc
   languageName: node
   linkType: hard
 
