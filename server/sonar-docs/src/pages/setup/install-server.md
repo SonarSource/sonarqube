@@ -85,7 +85,8 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 |If there are two SonarQube schemas on the same Oracle instance, especially if they are for two different versions, SonarQube gets confused and picks the first it finds. To avoid this issue:
 |
 |- Either privileges associated to the SonarQube Oracle user should be decreased
-|- Or a trigger should be defined on the Oracle side to automatically alter the SonarQube Oracle user session when establishing a new connection:
+|- Or a trigger should be defined on the Oracle side to automatically alter the SonarQube Oracle user session when establishing a new connection: 
+| `ALTER SESSION SET current_schema="MY_SONARQUBE_SCHEMA"`
 |
 |[[warning]]
 || Oracle JDBC driver versions 12.1.0.1 and 12.1.0.2 have major bugs, and are not recommended for use with the SonarQube ([see more details](https://groups.google.com/forum/#!msg/sonarqube/Ahqt1iarqJg/u0BVRJZnBQAJ)).
