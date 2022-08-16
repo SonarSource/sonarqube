@@ -215,7 +215,7 @@ subprojects {
       dependency 'io.prometheus:simpleclient_common:0.15.0'
       dependency 'io.prometheus:simpleclient_servlet:0.15.0'
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      dependency 'com.google.code.gson:gson:2.9.0'
+      dependency 'com.google.code.gson:gson:2.9.1'
       dependency('com.google.guava:guava:31.1-jre') {
         exclude 'com.google.errorprone:error_prone_annotations'
         exclude 'com.google.guava:listenablefuture'
