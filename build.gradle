@@ -291,10 +291,10 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.4') {
+      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.5') {
         exclude 'org.apache.logging.log4j:log4j-core'
       }
-      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.4'
+      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.5'
       dependency 'org.elasticsearch:mocksocket:1.2'
       dependency 'org.codelibs.elasticsearch.module:analysis-common:7.17.1'
       dependency 'org.codelibs.elasticsearch.module:reindex:7.17.1'
