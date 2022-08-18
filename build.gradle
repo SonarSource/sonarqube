@@ -1,16 +1,16 @@
 import groovy.json.JsonOutput
 
 plugins {
-  // Ordered alphabeticly
+  // Ordered alphabetically
   id 'com.github.hierynomus.license' version '0.15.0'
   id "com.github.hierynomus.license-report" version "0.15.0" apply false
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.19' apply false
   id 'com.jfrog.artifactory' version '4.24.23'
-  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.sonarqube' version '3.4.0.2513'
   id "de.undercouch.download" version "5.0.1" apply false
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id "org.cyclonedx.bom" version "1.6.1" apply false
+  id 'org.sonarqube' version '3.4.0.2513'
 }
 
 if (!JavaVersion.current().java11Compatible) {
@@ -230,7 +230,9 @@ subprojects {
       }
       dependency 'com.hazelcast:hazelcast-kubernetes:2.2.3'
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7
-      dependency 'com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11'
+      dependency('com.microsoft.sqlserver:mssql-jdbc:11.2.0.jre11') {
+        exclude 'com.fasterxml.jackson.core:jackson-databind'
+      }
       dependency 'com.oracle.database.jdbc:ojdbc8:21.6.0.0.1'
       dependency 'org.aspectj:aspectjtools:1.9.9.1'
       dependencySet(group: 'com.squareup.okhttp3', version: '4.10.0') {
