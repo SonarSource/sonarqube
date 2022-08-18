@@ -2389,7 +2389,7 @@ __metadata:
     react-modal: 3.14.4
     react-router-dom: 6.3.0
     react-select: 4.3.1
-    react-select-event: 5.4.0
+    react-select-event: 5.5.1
     react-virtualized: 9.22.3
     regenerator-runtime: 0.13.9
     rehype-raw: 4.0.2
@@ -9176,12 +9176,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select-event@npm:5.4.0":
-  version: 5.4.0
-  resolution: "react-select-event@npm:5.4.0"
+"react-select-event@npm:5.5.1":
+  version: 5.5.1
+  resolution: "react-select-event@npm:5.5.1"
   dependencies:
     "@testing-library/dom": ">=7"
-  checksum: 244b1bdff5374b56a7d8156859a10dfd3191573ac419a8f91a64283cde48517df83c90f2df1891fc74bceb548d21ace9a9cb87e252bf2f83f78e305ea577af53
+  checksum: af0e43927eab54545b699c817480cb38cebb0432ea743c869d06e426bc5ccc8788d4e2da4741b63022c20282b87a1620cd1dcc79051c442ff291e41b604e02ca
   languageName: node
   linkType: hard
 
