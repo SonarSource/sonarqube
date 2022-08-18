@@ -16,7 +16,7 @@ New tokens can now have an optional expiration date. Expired tokens cannot be us
 * To install, uninstall, start or stop SonarQube as a service on Windows, now you should use `%SONAR_HOME%\bin\windows-x86-64\SonarService.bat install`. See [Operating the Server](/setup/operate-server/) and [Upgrade Guide](/setup/upgrading/) for more information.
 * If there are multiple versions of Java installed on your server, to select specific Java version to be used, set the environment variable `SONAR_JAVA_PATH`. Read more [here](/setup/install-server/).
 
-[Full release notes](https://sonarsource.atlassian.net/browse/SONAR-16563?jql=project%3D10139%20AND%20fixVersion%3D12631)
+[Full release notes](https://sonarsource.atlassian.net/issues/?jql=project%20%3D%2010139%20AND%20fixVersion%20%3D%2012633)
 
 ## Release 9.5 Upgrade notes
 **Project analysis token**  
