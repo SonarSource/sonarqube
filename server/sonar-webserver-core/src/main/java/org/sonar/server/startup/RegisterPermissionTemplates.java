@@ -31,7 +31,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -98,8 +97,6 @@ public class RegisterPermissionTemplates implements Startable {
     Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
-      insertGroupPermission(dbSession, template, GlobalPermission.APPLICATION_CREATOR.getKey(), admins.get());
-      insertGroupPermission(dbSession, template, GlobalPermission.PORTFOLIO_CREATOR.getKey(), admins.get());
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }

@@ -31,7 +31,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
@@ -61,10 +60,8 @@ public class RegisterPermissionTemplatesTest {
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
-    assertThat(groupPermissions).hasSize(7);
+    assertThat(groupPermissions).hasSize(5);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, GlobalPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, GlobalPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
