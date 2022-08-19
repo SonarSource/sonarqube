@@ -96,6 +96,16 @@ public class DumbRule implements Rule {
   }
 
   @Override
+  public String getDefaultRuleDescription() {
+    return null;
+  }
+
+  @Override
+  public String getSeverity() {
+    return null;
+  }
+
+  @Override
   public boolean isExternal() {
     return isExternal;
   }

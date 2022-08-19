@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.analysis.TestBranch;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.protobuf.DbCommons;
@@ -54,7 +55,8 @@ public class PushEventFactoryTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setBranch(new TestBranch("develop"));
 
-  private final PushEventFactory underTest = new PushEventFactory(treeRootHolder, analysisMetadataHolder, taintChecker);
+  private final FlowGenerator flowGenerator = new FlowGenerator(treeRootHolder);
+  private final PushEventFactory underTest = new PushEventFactory(treeRootHolder, analysisMetadataHolder, taintChecker, flowGenerator);
 
   @Before
   public void setUp() {

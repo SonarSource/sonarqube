@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.pushevent;
+package org.sonar.ce.task.projectanalysis.locations.flow;
+
+import java.util.Objects;
 
 public class TextRange {
   private int startLine;
@@ -69,4 +71,23 @@ public class TextRange {
   public void setHash(String hash) {
     this.hash = hash;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TextRange textRange = (TextRange) o;
+    return getStartLine() == textRange.getStartLine() && getStartLineOffset() == textRange.getStartLineOffset() && getEndLine() == textRange.getEndLine()
+      && getEndLineOffset() == textRange.getEndLineOffset() && Objects.equals(getHash(), textRange.getHash());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getStartLine(), getStartLineOffset(), getEndLine(), getEndLineOffset(), getHash());
+  }
+
 }

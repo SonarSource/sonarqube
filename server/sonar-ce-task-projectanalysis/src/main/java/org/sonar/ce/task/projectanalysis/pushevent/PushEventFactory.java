@@ -21,8 +21,6 @@ package org.sonar.ce.task.projectanalysis.pushevent;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +28,9 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
+import org.sonar.ce.task.projectanalysis.locations.flow.Location;
+import org.sonar.ce.task.projectanalysis.locations.flow.TextRange;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -38,7 +39,6 @@ import org.sonar.server.issue.TaintChecker;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElse;
 
 @ComputeEngineSide
 public class PushEventFactory {
@@ -47,12 +47,14 @@ public class PushEventFactory {
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TaintChecker taintChecker;
+  private final FlowGenerator flowGenerator;
 
   public PushEventFactory(TreeRootHolder treeRootHolder,
-    AnalysisMetadataHolder analysisMetadataHolder, TaintChecker taintChecker) {
+    AnalysisMetadataHolder analysisMetadataHolder, TaintChecker taintChecker, FlowGenerator flowGenerator) {
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.taintChecker = taintChecker;
+    this.flowGenerator = flowGenerator;
   }
 
   public Optional<PushEventDto> raiseEventOnIssue(DefaultIssue currentIssue) {
@@ -110,25 +112,7 @@ public class PushEventFactory {
     mainLocation.setTextRange(mainLocationTextRange);
     event.setMainLocation(mainLocation);
 
-    List<Flow> flows = new LinkedList<>();
-    for (DbIssues.Flow sourceFlow : issueLocations.getFlowList()) {
-      Flow flow = new Flow();
-      List<Location> locations = new LinkedList<>();
-      for (DbIssues.Location sourceLocation : sourceFlow.getLocationList()) {
-        Location location = new Location();
-        var locationComponent = treeRootHolder.getComponentByUuid(sourceLocation.getComponentId());
-        location.setFilePath(requireNonNullElse(locationComponent, component).getName());
-        location.setMessage(sourceLocation.getMsg());
-
-        TextRange textRange = getTextRange(sourceLocation.getTextRange(), sourceLocation.getChecksum());
-        location.setTextRange(textRange);
-
-        locations.add(location);
-      }
-      flow.setLocations(locations);
-      flows.add(flow);
-    }
-    event.setFlows(flows);
+    event.setFlows(flowGenerator.convertFlows(component.getName(), issueLocations));
     return event;
   }
 

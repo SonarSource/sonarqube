@@ -58,4 +58,8 @@ public interface Rule {
 
   @CheckForNull
   String getPluginKey();
+
+  String getDefaultRuleDescription();
+
+  String getSeverity();
 }

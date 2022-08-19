@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.MoreObjects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.collect.Sets.union;
@@ -47,6 +49,8 @@ public class RuleImpl implements Rule {
   private final String pluginKey;
   private final boolean isExternal;
   private final boolean isAdHoc;
+  private final String defaultRuleDescription;
+  private final String severity;
 
   public RuleImpl(RuleDto dto) {
     this.uuid = dto.getUuid();
@@ -60,6 +64,14 @@ public class RuleImpl implements Rule {
     this.pluginKey = dto.getPluginKey();
     this.isExternal = dto.isExternal();
     this.isAdHoc = dto.isAdHoc();
+    this.defaultRuleDescription = getNonNullDefaultRuleDescription(dto);
+    this.severity = Optional.ofNullable(dto.getSeverityString()).orElse(dto.getAdHocSeverity());
+  }
+
+  private static String getNonNullDefaultRuleDescription(RuleDto dto) {
+    return Optional.ofNullable(dto.getDefaultRuleDescriptionSection())
+      .map(RuleDescriptionSectionDto::getContent)
+      .orElse("");
   }
 
   @Override
@@ -107,6 +119,15 @@ public class RuleImpl implements Rule {
   @Override
   public String getPluginKey() {
     return pluginKey;
+  }
+
+  public String getDefaultRuleDescription() {
+    return defaultRuleDescription;
+  }
+
+  @Override
+  public String getSeverity() {
+    return severity;
   }
 
   @Override

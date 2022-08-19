@@ -211,5 +211,15 @@ public class RuleRepositoryImpl implements RuleRepository {
     public String getPluginKey() {
       return null;
     }
+
+    @Override
+    public String getDefaultRuleDescription() {
+      return addHocRule.getDescription();
+    }
+
+    @Override
+    public String getSeverity() {
+      return addHocRule.getSeverity();
+    }
   }
 }

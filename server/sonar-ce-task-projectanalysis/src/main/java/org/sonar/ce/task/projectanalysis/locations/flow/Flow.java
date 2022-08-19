@@ -17,38 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.pushevent;
+package org.sonar.ce.task.projectanalysis.locations.flow;
 
-public class Location {
-  private String filePath;
-  private String message;
-  private TextRange textRange;
+import java.util.List;
 
-  public Location() {
+public class Flow {
+  private List<Location> locations;
+
+  public Flow() {
     // nothing to do
   }
 
-  public String getFilePath() {
-    return filePath;
+  public List<Location> getLocations() {
+    return locations;
   }
 
-  public void setFilePath(String filePath) {
-    this.filePath = filePath;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public TextRange getTextRange() {
-    return textRange;
-  }
-
-  public void setTextRange(TextRange textRange) {
-    this.textRange = textRange;
+  public void setLocations(List<Location> locations) {
+    this.locations = locations;
   }
 }

@@ -55,10 +55,10 @@ import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvide
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
-import org.sonar.ce.task.projectanalysis.issue.ComputeLocationHashesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.ComponentsWithUnprocessedIssues;
+import org.sonar.ce.task.projectanalysis.issue.ComputeLocationHashesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.DebtCalculator;
 import org.sonar.ce.task.projectanalysis.issue.DefaultAssignee;
 import org.sonar.ce.task.projectanalysis.issue.EffortAggregator;
@@ -105,6 +105,7 @@ import org.sonar.ce.task.projectanalysis.issue.commonrule.SkippedTestRule;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.TestErrorRule;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersHolderImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersVisitor;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryImpl;
@@ -256,6 +257,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ComponentIssuesRepositoryImpl.class,
       IssueFilter.class,
 
+      FlowGenerator.class,
       // push events
       PushEventFactory.class,
 
