@@ -47,7 +47,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 @ServerSide
 public class TelemetryDaemon implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
-  private static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1_000;
+  private static final int ONE_DAY = 24 * 60 * 60 * 1_000;
   private static final String I_PROP_LAST_PING = "telemetry.lastPing";
   private static final String I_PROP_OPT_OUT = "telemetry.optOut";
   private static final String LOCK_NAME = "TelemetryStat";
@@ -128,7 +128,7 @@ public class TelemetryDaemon implements Startable {
         long now = system2.now();
         if (shouldUploadStatistics(now)) {
           uploadStatistics();
-          internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
+          internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
         }
       } catch (Exception e) {
         LOG.debug("Error while checking SonarQube statistics: {}", e);
@@ -158,11 +158,7 @@ public class TelemetryDaemon implements Startable {
 
   private boolean shouldUploadStatistics(long now) {
     Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
-    return !lastPing.isPresent() || now - lastPing.get() >= SEVEN_DAYS;
-  }
-
-  private static long startOfDay(long now) {
-    return parseDate(formatDate(new Date(now))).getTime();
+    return !lastPing.isPresent() || now - lastPing.get() >= ONE_DAY;
   }
 
   private int frequency() {

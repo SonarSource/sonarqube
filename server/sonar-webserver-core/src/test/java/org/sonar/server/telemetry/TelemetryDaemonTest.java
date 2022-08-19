@@ -124,9 +124,9 @@ public class TelemetryDaemonTest {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     long now = system2.now();
-    long sixDaysAgo = now - (ONE_DAY * 6L);
-    long sevenDaysAgo = now - (ONE_DAY * 7L);
-    internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
+    long twentyHoursAgo = now - (ONE_HOUR * 20L);
+    long oneDayAgo = now - ONE_DAY;
+    internalProperties.write("telemetry.lastPing", String.valueOf(twentyHoursAgo));
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     when(dataLoader.load()).thenReturn(SOME_TELEMETRY_DATA);
     mockDataJsonWriterDoingSomething();
@@ -136,36 +136,36 @@ public class TelemetryDaemonTest {
     verify(dataJsonWriter, after(2_000).never()).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
     verify(client, never()).upload(anyString());
 
-    internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
+    internalProperties.write("telemetry.lastPing", String.valueOf(oneDayAgo));
 
     verify(client, timeout(2_000)).upload(anyString());
     verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
   }
 
   @Test
-  public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() throws IOException {
+  public void do_not_send_data_if_last_ping_earlier_than_one_day_ago() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long now = system2.now();
-    long sixDaysAgo = now - (ONE_DAY * 6L);
+    long twentyHoursAgo = now - (ONE_HOUR * 20L);
     mockDataJsonWriterDoingSomething();
 
-    internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
+    internalProperties.write("telemetry.lastPing", String.valueOf(twentyHoursAgo));
     underTest.start();
 
     verify(client, after(2_000).never()).upload(anyString());
   }
 
   @Test
-  public void send_data_if_last_ping_is_one_week_ago() throws IOException {
+  public void send_data_if_last_ping_is_over_one_day_ago() throws IOException {
     initTelemetrySettingsToDefaultValues();
     when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long today = parseDate("2017-08-01").getTime();
-    system2.setNow(today + 15 * ONE_HOUR);
-    long sevenDaysAgo = today - (ONE_DAY * 7L);
-    internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
+    system2.setNow(today);
+    long oneDayAgo = today - ONE_DAY - ONE_HOUR;
+    internalProperties.write("telemetry.lastPing", String.valueOf(oneDayAgo));
     reset(internalProperties);
     mockDataJsonWriterDoingSomething();
 

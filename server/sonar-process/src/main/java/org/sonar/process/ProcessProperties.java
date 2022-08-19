@@ -167,7 +167,7 @@ public class ProcessProperties {
 
     SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
     SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),
-    SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "21600"),
+    SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "10800"),
 
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
