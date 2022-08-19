@@ -25,7 +25,6 @@ import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.health.Health;
 import org.sonar.server.telemetry.TelemetryDataJsonWriter;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 
 public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
   private static final String[] ORDERED_SECTION_NAMES = {
@@ -37,11 +36,9 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
     "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties",
     "Search State", "Search Indexes"};
 
-  private final TelemetryDataLoader telemetry;
   private final TelemetryDataJsonWriter dataJsonWriter;
 
-  AbstractSystemInfoWriter(TelemetryDataLoader telemetry, TelemetryDataJsonWriter dataJsonWriter) {
-    this.telemetry = telemetry;
+  AbstractSystemInfoWriter(TelemetryDataJsonWriter dataJsonWriter) {
     this.dataJsonWriter = dataJsonWriter;
   }
 
@@ -87,8 +84,4 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
     json.name("Health Causes").beginArray().values(health.getCauses()).endArray();
   }
 
-  protected void writeTelemetry(JsonWriter json) {
-    json.name("Statistics");
-    dataJsonWriter.writeTelemetryData(json, telemetry.load());
-  }
 }

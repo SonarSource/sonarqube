@@ -37,8 +37,8 @@ public class ClusterSystemInfoWriter extends AbstractSystemInfoWriter {
   private final HealthChecker healthChecker;
 
   public ClusterSystemInfoWriter(GlobalInfoLoader globalInfoLoader, AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader,
-    HealthChecker healthChecker, TelemetryDataLoader telemetry, TelemetryDataJsonWriter dataJsonWriter) {
-    super(telemetry, dataJsonWriter);
+    HealthChecker healthChecker, TelemetryDataJsonWriter dataJsonWriter) {
+    super(dataJsonWriter);
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
     this.searchNodesInfoLoader = searchNodesInfoLoader;
@@ -52,7 +52,6 @@ public class ClusterSystemInfoWriter extends AbstractSystemInfoWriter {
     writeGlobalSections(json);
     writeApplicationNodes(json, clusterHealth);
     writeSearchNodes(json, clusterHealth);
-    writeTelemetry(json);
   }
 
   private void writeGlobalSections(JsonWriter json) {

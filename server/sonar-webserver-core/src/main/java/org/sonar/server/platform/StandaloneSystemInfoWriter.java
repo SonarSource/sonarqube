@@ -37,9 +37,9 @@ public class StandaloneSystemInfoWriter extends AbstractSystemInfoWriter {
   private final HealthChecker healthChecker;
   private final SystemInfoSection[] systemInfoSections;
 
-  public StandaloneSystemInfoWriter(TelemetryDataLoader telemetry, CeHttpClient ceHttpClient, HealthChecker healthChecker,
+  public StandaloneSystemInfoWriter(CeHttpClient ceHttpClient, HealthChecker healthChecker,
     TelemetryDataJsonWriter dataJsonWriter, SystemInfoSection... systemInfoSections) {
-    super(telemetry, dataJsonWriter);
+    super(dataJsonWriter);
     this.ceHttpClient = ceHttpClient;
     this.healthChecker = healthChecker;
     this.systemInfoSections = systemInfoSections;
@@ -56,7 +56,6 @@ public class StandaloneSystemInfoWriter extends AbstractSystemInfoWriter {
       .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
 
     writeSections(sections, json);
-    writeTelemetry(json);
   }
 
   private void writeHealth(JsonWriter json) {
