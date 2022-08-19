@@ -19,8 +19,8 @@
   -->
 
 <service>
-  <!-- Path to the Java executable -->
-  <executable>%JAVA_EXE%</executable>
+  <!-- Path to the Java executable. To be replaced by SonarService.bat script -->
+  <executable>JAVA_EXE</executable>
 
   <!-- DO NOT EDIT THE FOLLOWING SECTIONS -->
   <arguments>

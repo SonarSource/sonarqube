@@ -4,7 +4,6 @@ url: /setup/operate-server/
 ---
 
 ## Running SonarQube as a Service on Windows
-
 ### Install or Uninstall SonarQube as a Service
 
 ```
