@@ -64,20 +64,20 @@ public class QGChangeEventListenersImplTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private QGChangeEventListener listener1 = mock(QGChangeEventListener.class);
-  private QGChangeEventListener listener2 = mock(QGChangeEventListener.class);
-  private QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
-  private List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
+  private final QGChangeEventListener listener1 = mock(QGChangeEventListener.class);
+  private final QGChangeEventListener listener2 = mock(QGChangeEventListener.class);
+  private final QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
+  private final List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
 
-  private String project1Uuid = RandomStringUtils.randomAlphabetic(6);
-  private BranchDto project1 = newBranchDto(project1Uuid);
-  private DefaultIssue component1Issue = newDefaultIssue(project1Uuid);
-  private List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);
-  private QGChangeEvent component1QGChangeEvent = newQGChangeEvent(project1);
+  private final String project1Uuid = RandomStringUtils.randomAlphabetic(6);
+  private final BranchDto project1 = newBranchDto(project1Uuid);
+  private final DefaultIssue component1Issue = newDefaultIssue(project1Uuid);
+  private final List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);
+  private final QGChangeEvent component1QGChangeEvent = newQGChangeEvent(project1);
 
-  private InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+  private final InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
-  private QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
+  private final QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
@@ -149,9 +149,9 @@ public class QGChangeEventListenersImplTest {
     List<String> traceLogs = logTester.logs(LoggerLevel.TRACE);
     assertThat(traceLogs).hasSize(3)
       .containsOnly(
-        "calling onChange() on listener " + listener1.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...",
-        "calling onChange() on listener " + listener2.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...",
-        "calling onChange() on listener " + listener3.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...");
+        "calling onChange() on listener " + listener1.getClass().getName() + " for events " + component1QGChangeEvent + "...",
+        "calling onChange() on listener " + listener2.getClass().getName() + " for events " + component1QGChangeEvent + "...",
+        "calling onChange() on listener " + listener3.getClass().getName() + " for events " + component1QGChangeEvent + "...");
   }
 
   @Test
@@ -250,6 +250,28 @@ public class QGChangeEventListenersImplTest {
     ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
 
     assertThat(changedIssue.isNotClosed()).isFalse();
+  }
+
+  @Test
+  public void isVulnerability_returns_true_if_issue_is_of_type_vulnerability() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_OPEN);
+    defaultIssue.setType(RuleType.VULNERABILITY);
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.isVulnerability()).isTrue();
+  }
+
+  @Test
+  public void isVulnerability_returns_false_if_issue_is_not_of_type_vulnerability() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_OPEN);
+    defaultIssue.setType(RuleType.BUG);
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.isVulnerability()).isFalse();
   }
 
   @Test

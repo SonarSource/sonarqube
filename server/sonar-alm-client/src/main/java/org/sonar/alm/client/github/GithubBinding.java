@@ -22,7 +22,7 @@ package org.sonar.alm.client.github;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-import static org.sonar.alm.client.github.GithubApplicationClient.*;
+import static org.sonar.alm.client.github.GithubApplicationClient.Repository;
 
 public class GithubBinding {
 
@@ -152,6 +152,94 @@ public class GithubBinding {
     public Repository toRepository() {
       return new Repository(this.id, this.name, this.isPrivate, this.fullName,
         this.htmlUrl, this.defaultBranch);
+    }
+  }
+
+  public static class GsonGithubCodeScanningAlert {
+    @SerializedName("number")
+    long id;
+    @SerializedName("state")
+    GithubCodeScanningAlertState state;
+    @SerializedName("dismissed_reason")
+    String dismissedReason;
+    @SerializedName("dismissed_comment")
+    String dismissedComment;
+    @SerializedName("most_recent_instance")
+    GithubCodeScanningAlertInstance mostRecentInstance;
+
+    public GsonGithubCodeScanningAlert() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public long getId() {
+      return id;
+    }
+
+    public GithubCodeScanningAlertState getState() {
+      return state;
+    }
+
+    public String getDismissedReason() {
+      return dismissedReason;
+    }
+
+    public String getDismissedComment() {
+      return dismissedComment;
+    }
+
+    public GithubCodeScanningAlertInstance getInstance() {
+      return mostRecentInstance;
+    }
+
+    public String getMessageText() {
+      return getInstance().getMessageText();
+    }
+  }
+
+  public static class GithubCodeScanningAlertInstance {
+    @SerializedName("state")
+    GithubCodeScanningAlertState state;
+    @SerializedName("message")
+    Message message;
+
+    public GithubCodeScanningAlertInstance() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Message getMessage() {
+      return message;
+    }
+
+    public String getMessageText() {
+      return getMessage().getText();
+    }
+  }
+
+  public enum GithubCodeScanningAlertState {
+    @SerializedName("open")
+    OPEN,
+    @SerializedName("fixed")
+    FIXED,
+    @SerializedName("dismissed")
+    DISMISSED;
+  }
+
+  public static class Message {
+    @SerializedName("text")
+    String text;
+
+    public Message() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public String getText() {
+      return text;
     }
   }
 }

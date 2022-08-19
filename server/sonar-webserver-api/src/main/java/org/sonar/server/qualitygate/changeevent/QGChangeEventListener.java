@@ -24,6 +24,8 @@ import java.util.Set;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
+
 @ServerSide
 public interface QGChangeEventListener {
   /**
@@ -46,6 +48,10 @@ public interface QGChangeEventListener {
 
     default boolean isNotClosed() {
       return !Status.CLOSED_STATUSES.contains(getStatus());
+    }
+
+    default boolean isVulnerability() {
+      return getType() == VULNERABILITY;
     }
   }
 
