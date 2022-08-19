@@ -25,6 +25,7 @@ import Measure from '../../../../components/measure/Measure';
 import CoverageRating from '../../../../components/ui/CoverageRating';
 import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
 import Rating from '../../../../components/ui/Rating';
+import { parseDate } from '../../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { ComponentQualifier } from '../../../../types/component';
@@ -166,7 +167,7 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   }
 
   const newCodeTimespan = newCodeStartingDate
-    ? differenceInMilliseconds(Date.now(), newCodeStartingDate)
+    ? differenceInMilliseconds(Date.now(), parseDate(newCodeStartingDate))
     : 0;
 
   const measureList = [

@@ -19,6 +19,7 @@
  */
 import { differenceInMilliseconds, isAfter, isBefore } from 'date-fns';
 import { cloneDeep, groupBy, sortBy } from 'lodash';
+import { parseDate } from '../../helpers/dates';
 import { mockTask } from '../../helpers/mocks/tasks';
 import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
@@ -100,9 +101,11 @@ export default class ComputeEngineServiceMock {
         (data.component && task.componentKey !== data.component) ||
         (data.status && !data.status.split(',').includes(task.status)) ||
         (data.type && task.type !== data.type) ||
-        (data.minSubmittedAt && isBefore(task.submittedAt, data.minSubmittedAt)) ||
+        (data.minSubmittedAt &&
+          isBefore(parseDate(task.submittedAt), parseDate(data.minSubmittedAt))) ||
         (data.maxExecutedAt &&
-          (!task.executedAt || isAfter(task.executedAt, data.maxExecutedAt))) ||
+          (!task.executedAt ||
+            isAfter(parseDate(task.executedAt), parseDate(data.maxExecutedAt)))) ||
         (data.q &&
           !task.id.includes(data.q) &&
           !task.componentName?.includes(data.q) &&
@@ -148,7 +151,7 @@ export default class ComputeEngineServiceMock {
               case TaskStatuses.Pending:
                 stats.pendingTime = Math.max(
                   stats.pendingTime,
-                  differenceInMilliseconds(task.submittedAt, Date.now())
+                  differenceInMilliseconds(parseDate(task.submittedAt), Date.now())
                 );
                 stats.pending += 1;
                 break;

@@ -24,13 +24,15 @@ import {
   differenceInYears
 } from 'date-fns';
 import { FormattedRelativeTime } from 'react-intl';
+import { parseDate } from '../../helpers/dates';
 import { ParsableDate } from '../../types/dates';
 
 const UPDATE_INTERVAL_IN_SECONDS = 10;
 
 export function getRelativeTimeProps(
-  date: ParsableDate
+  parsableDate: ParsableDate
 ): Pick<FormattedRelativeTime['props'], 'unit' | 'value' | 'updateIntervalInSeconds'> {
+  const date = parseDate(parsableDate);
   const y = differenceInYears(date, Date.now());
 
   if (Math.abs(y) > 0) {

@@ -45,7 +45,7 @@ export default function DateFromNow(props: DateFromNowProps) {
     return <>{originalChildren(translate('never'))}</>;
   }
 
-  if (hourPrecision && differenceInHours(Date.now(), date) < 1) {
+  if (hourPrecision && differenceInHours(Date.now(), parseDate(date)) < 1) {
     children = () => originalChildren(translate('less_than_1_hour_ago'));
   }
 
