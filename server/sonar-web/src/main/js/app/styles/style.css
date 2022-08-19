@@ -150,12 +150,33 @@
 }
 
 .rule-desc pre,
-.markdown pre {
-  padding: 10px;
-  border-top: 1px solid var(--barBorderColor);
-  border-bottom: 1px solid var(--barBorderColor);
-  line-height: 18px;
-  overflow: auto;
+.markdown pre,
+.code-difference {
+  background-color: var(--codeBackground);
+  border-radius: 8px;
+  border: 1px solid var(--codeBorder);
+  padding: calc(2 * var(--gridSize));
+}
+
+.code-difference pre {
+  padding: 0;
+  border: none;
+}
+
+.code-difference .code-added {
+  background-color: var(--codeAdded);
+  padding-left: calc(2 * var(--gridSize));
+  margin-left: calc(-2 * var(--gridSize));
+  margin-right: calc(-2 * var(--gridSize));
+  border-radius: 0;
+}
+
+.code-difference .code-removed {
+  background-color: var(--codeRemoved);
+  padding-left: calc(2 * var(--gridSize));
+  margin-left: calc(-2 * var(--gridSize));
+  margin-right: calc(-2 * var(--gridSize));
+  border-radius: 0;
 }
 
 .rule-desc code,

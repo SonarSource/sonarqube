@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
+import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
 import ButtonToggle from '../controls/ButtonToggle';
@@ -123,7 +124,10 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           className={classNames(className, {
             markdown: isDefault,
             'rule-desc': !isDefault
-          })}>
+          })}
+          ref={node => {
+            applyCodeDifferences(node);
+          }}>
           <div className="rules-context-description">
             <h2 className="rule-contexts-title">
               {translate('coding_rules.description_context.title')}
@@ -171,6 +175,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           markdown: isDefault,
           'rule-desc': !isDefault
         })}
+        ref={node => {
+          applyCodeDifferences(node);
+        }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: sanitizeString(sections[0].content)

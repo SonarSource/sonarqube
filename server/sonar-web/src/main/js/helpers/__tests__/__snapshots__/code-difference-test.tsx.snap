@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should apply diff view correctly: differenciatedCode 1`] = `
+HTMLCollection [
+  <div
+    class="code-difference"
+  >
+    <pre>
+      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+{
+    String data        = request.getParameter("input");
+    PrintWriter writer = response.getWriter();
+
+
+    </pre>
+    <pre
+      class="code-removed"
+    >
+          writer.print(data); // Noncompliant
+
+    </pre>
+    <pre>
+      }
+
+    </pre>
+  </div>,
+  <div
+    class="code-difference"
+  >
+    <pre
+      class="code-added"
+    >
+      import org.owasp.encoder.Encode;
+
+
+    </pre>
+    <pre>
+      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+{
+    String data        = request.getParameter("input");
+    PrintWriter writer = response.getWriter();
+
+
+    </pre>
+    <pre
+      class="code-added"
+    >
+          writer.print(Encode.forHtml(data));
+
+    </pre>
+    <pre>
+      }
+
+    </pre>
+  </div>,
+]
+`;

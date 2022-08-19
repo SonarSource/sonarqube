@@ -131,7 +131,10 @@ module.exports = {
     github: '#e1e4e8',
 
     // code/pre
-    codeBackground: '#e6e6e6',
+    codeBackground: '#f5f5f5',
+    codeBorder: '#e6e6e6',
+    codeAdded: '#dff0d8',
+    codeRemoved: '#f2dede',
 
     //promotion
     darkBackground: '#292929',
