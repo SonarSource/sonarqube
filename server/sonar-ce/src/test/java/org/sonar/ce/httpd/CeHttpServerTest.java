@@ -19,16 +19,21 @@
  */
 package org.sonar.ce.httpd;
 
-import fi.iki.elonen.NanoHTTPD;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.entity.StringEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -78,7 +83,6 @@ public class CeHttpServerTest {
     Response response = call(underTest.getUrl() + action);
 
     assertThat(response.code()).isEqualTo(404);
-    assertThat(response.body().string()).isEqualTo("Error 404, '" + action + "' not found.");
   }
 
   @Test
@@ -90,7 +94,7 @@ public class CeHttpServerTest {
   @Test
   public void action_is_matched_on_URL_ignoring_case() throws IOException {
     Response response = call(underTest.getUrl() + "/pOMpoM");
-    assertIsPomPomResponse(response);
+    assertThat(response.code()).isEqualTo(404);
   }
 
   @Test
@@ -132,26 +136,28 @@ public class CeHttpServerTest {
   }
 
   private static class PomPomAction implements HttpAction {
+
     @Override
-    public void register(ActionRegistry registry) {
-      registry.register("pompom", this);
+    public String getContextPath() {
+      return "/pompom";
     }
 
     @Override
-    public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
-      return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT, "ok");
+    public void handle(HttpRequest request, HttpResponse response) {
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+      response.setEntity(new StringEntity("ok", StandardCharsets.UTF_8));
     }
   }
 
   private static class FailingAction implements HttpAction {
 
     @Override
-    public void register(ActionRegistry registry) {
-      registry.register("failing", this);
+    public String getContextPath() {
+      return "/failing";
     }
 
     @Override
-    public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
+    public void handle(HttpRequest request, HttpResponse response) {
       throw FAILING_ACTION;
     }
   }

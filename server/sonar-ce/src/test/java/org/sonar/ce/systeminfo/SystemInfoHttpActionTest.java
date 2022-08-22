@@ -19,23 +19,19 @@
  */
 package org.sonar.ce.systeminfo;
 
-import fi.iki.elonen.NanoHTTPD;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.ce.httpd.HttpAction;
+import org.sonar.ce.httpd.CeHttpUtils;
 import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static fi.iki.elonen.NanoHTTPD.Method.GET;
-import static fi.iki.elonen.NanoHTTPD.Method.POST;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.METHOD_NOT_ALLOWED;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.OK;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 
 public class SystemInfoHttpActionTest {
   private SystemInfoSection stateProvider1 = new JvmStateSection("state1");
@@ -48,28 +44,17 @@ public class SystemInfoHttpActionTest {
   }
 
   @Test
-  public void register_to_path_systemInfo() {
-    HttpAction.ActionRegistry actionRegistry = mock(HttpAction.ActionRegistry.class);
-
-    underTest.register(actionRegistry);
-
-    verify(actionRegistry).register("systemInfo", underTest);
-  }
-
-  @Test
-  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_GET() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST));
-    assertThat(response.getStatus()).isEqualTo(METHOD_NOT_ALLOWED);
+  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_GET() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForPostWithoutResponseBody(underTest, List.of(), List.of(), HttpStatus.SC_METHOD_NOT_ALLOWED);
   }
 
   @Test
   public void serves_data_from_SystemInfoSections() throws Exception {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(GET));
-    assertThat(response.getStatus()).isEqualTo(OK);
-    ProtobufSystemInfo.SystemInfo systemInfo = ProtobufSystemInfo.SystemInfo.parseFrom(response.getData());
+    byte[] responsePayload = CeHttpUtils.testHandlerForGetWithResponseBody(underTest, HttpStatus.SC_OK);
+
+    ProtobufSystemInfo.SystemInfo systemInfo = ProtobufSystemInfo.SystemInfo.parseFrom(responsePayload);
     assertThat(systemInfo.getSectionsCount()).isEqualTo(2);
     assertThat(systemInfo.getSections(0).getName()).isEqualTo("state1");
     assertThat(systemInfo.getSections(1).getName()).isEqualTo("state2");
   }
-
 }

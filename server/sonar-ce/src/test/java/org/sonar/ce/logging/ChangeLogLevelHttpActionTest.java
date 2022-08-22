@@ -19,92 +19,71 @@
  */
 package org.sonar.ce.logging;
 
-import com.google.common.collect.ImmutableMap;
-import fi.iki.elonen.NanoHTTPD;
 import java.io.IOException;
-import org.apache.commons.io.IOUtils;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.httpd.HttpAction;
+import org.sonar.ce.httpd.CeHttpUtils;
 import org.sonar.server.log.ServerLogging;
 
-import static fi.iki.elonen.NanoHTTPD.Method.GET;
-import static fi.iki.elonen.NanoHTTPD.Method.POST;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.BAD_REQUEST;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.METHOD_NOT_ALLOWED;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 
 public class ChangeLogLevelHttpActionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging);
 
   @Test
-  public void register_to_path_changeLogLevel() {
-    HttpAction.ActionRegistry actionRegistry = mock(HttpAction.ActionRegistry.class);
-
-    underTest.register(actionRegistry);
-
-    verify(actionRegistry).register("changeLogLevel", underTest);
+  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_POST() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForGetWithoutResponseBody(underTest, HttpStatus.SC_METHOD_NOT_ALLOWED);
   }
 
   @Test
-  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_POST() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(GET));
-    assertThat(response.getStatus()).isEqualTo(METHOD_NOT_ALLOWED);
+  public void serves_BAD_REQUEST_error_when_parameter_level_is_missing() throws IOException, HttpException {
+    byte[] responseBody = CeHttpUtils.testHandlerForPostWithResponseBody(underTest, List.of(), List.of(), HttpStatus.SC_BAD_REQUEST);
+    assertThat(new String(responseBody, StandardCharsets.UTF_8)).isEqualTo("Parameter 'level' is missing");
   }
 
   @Test
-  public void serves_BAD_REQUEST_error_when_parameter_level_is_missing() throws IOException {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST));
-
-    assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
-    assertThat(IOUtils.toString(response.getData())).isEqualTo("Parameter 'level' is missing");
+  public void serves_BAD_REQUEST_error_when_value_of_parameter_level_is_not_LEVEL_in_uppercase() throws IOException, HttpException {
+    byte[] responseBody = CeHttpUtils.testHandlerForPostWithResponseBody(
+      underTest, List.of(new BasicNameValuePair("level", "info")), List.of(), HttpStatus.SC_BAD_REQUEST);
+    assertThat(new String(responseBody, StandardCharsets.UTF_8)).isEqualTo("Value 'info' for parameter 'level' is invalid");
   }
 
   @Test
-  public void serves_BAD_REQUEST_error_when_value_of_parameter_level_is_not_LEVEL_in_uppercase() throws IOException {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "info")));
-
-    assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
-    assertThat(IOUtils.toString(response.getData())).isEqualTo("Value 'info' for parameter 'level' is invalid");
-  }
-
-  @Test
-  public void changes_server_logging_if_level_is_ERROR() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "ERROR")));
-
-    assertThat(response.getStatus()).isEqualTo(OK);
+  public void changes_server_logging_if_level_is_ERROR() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForPostWithoutResponseBody(
+      underTest, List.of(new BasicNameValuePair("level", "ERROR")), List.of(), HttpStatus.SC_OK);
 
     verify(serverLogging).changeLevel(LoggerLevel.ERROR);
   }
 
   @Test
-  public void changes_server_logging_if_level_is_INFO() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "INFO")));
-
-    assertThat(response.getStatus()).isEqualTo(OK);
+  public void changes_server_logging_if_level_is_INFO() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForPostWithoutResponseBody(
+      underTest, List.of(new BasicNameValuePair("level", "INFO")), List.of(), HttpStatus.SC_OK);
 
     verify(serverLogging).changeLevel(LoggerLevel.INFO);
   }
 
   @Test
-  public void changes_server_logging_if_level_is_DEBUG() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "DEBUG")));
-
-    assertThat(response.getStatus()).isEqualTo(OK);
+  public void changes_server_logging_if_level_is_DEBUG() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForPostWithoutResponseBody(
+      underTest, List.of(new BasicNameValuePair("level", "DEBUG")), List.of(), HttpStatus.SC_OK);
 
     verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
   }
 
   @Test
-  public void changes_server_logging_if_level_is_TRACE() {
-    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST, ImmutableMap.of("level", "TRACE")));
-
-    assertThat(response.getStatus()).isEqualTo(OK);
+  public void changes_server_logging_if_level_is_TRACE() throws HttpException, IOException {
+    CeHttpUtils.testHandlerForPostWithoutResponseBody(
+      underTest, List.of(new BasicNameValuePair("level", "TRACE")), List.of(), HttpStatus.SC_OK);
 
     verify(serverLogging).changeLevel(LoggerLevel.TRACE);
   }

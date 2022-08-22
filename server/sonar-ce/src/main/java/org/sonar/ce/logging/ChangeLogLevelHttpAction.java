@@ -19,22 +19,29 @@
  */
 package org.sonar.ce.logging;
 
-import fi.iki.elonen.NanoHTTPD;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.httpd.HttpAction;
 import org.sonar.server.log.ServerLogging;
 
-import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.BAD_REQUEST;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.METHOD_NOT_ALLOWED;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.OK;
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static java.lang.String.format;
 
 public class ChangeLogLevelHttpAction implements HttpAction {
 
-  private static final String PATH = "changeLogLevel";
+  private static final String PATH = "/changeLogLevel";
   private static final String PARAM_LEVEL = "level";
 
   private final ServerLogging logging;
@@ -44,27 +51,49 @@ public class ChangeLogLevelHttpAction implements HttpAction {
   }
 
   @Override
-  public void register(ActionRegistry registry) {
-    registry.register(PATH, this);
+  public String getContextPath() {
+    return PATH;
   }
 
   @Override
-  public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
-    if (session.getMethod() != NanoHTTPD.Method.POST) {
-      return newFixedLengthResponse(METHOD_NOT_ALLOWED, MIME_PLAINTEXT, null);
+  public void handle(HttpRequest request, HttpResponse response) {
+    if (!"POST".equals(request.getRequestLine().getMethod())) {
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_METHOD_NOT_ALLOWED);
+      return;
     }
 
-    String levelStr = session.getParms().get(PARAM_LEVEL);
-    if (levelStr == null || levelStr.isEmpty()) {
-      return newFixedLengthResponse(BAD_REQUEST, MIME_PLAINTEXT, format("Parameter '%s' is missing", PARAM_LEVEL));
+    HttpEntityEnclosingRequest postRequest = (HttpEntityEnclosingRequest) request;
+    final URI requestUri;
+    try {
+      requestUri = new URI(postRequest.getRequestLine().getUri());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("the request URI can't be syntactically invalid", e);
     }
+
+    List<NameValuePair> requestParams = URLEncodedUtils.parse(requestUri, StandardCharsets.UTF_8);
+    Optional<String> levelRequested = requestParams.stream()
+      .filter(nvp -> PARAM_LEVEL.equals(nvp.getName()))
+      .map(NameValuePair::getValue)
+      .findFirst();
+
+    final String levelStr;
+    if (levelRequested.isEmpty()) {
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_BAD_REQUEST);
+      response.setEntity(new StringEntity(format("Parameter '%s' is missing", PARAM_LEVEL), StandardCharsets.UTF_8));
+      return;
+    } else {
+      levelStr = levelRequested.get();
+    }
+
     try {
       LoggerLevel level = LoggerLevel.valueOf(levelStr);
       logging.changeLevel(level);
-      return newFixedLengthResponse(OK, MIME_PLAINTEXT, null);
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
     } catch (IllegalArgumentException e) {
       Loggers.get(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '" + PARAM_LEVEL + "' is invalid: {}", levelStr, e);
-      return newFixedLengthResponse(BAD_REQUEST, MIME_PLAINTEXT, format("Value '%s' for parameter '%s' is invalid", levelStr, PARAM_LEVEL));
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_BAD_REQUEST);
+      response.setEntity(
+        new StringEntity(format("Value '%s' for parameter '%s' is invalid", levelStr, PARAM_LEVEL), StandardCharsets.UTF_8));
     }
   }
 }

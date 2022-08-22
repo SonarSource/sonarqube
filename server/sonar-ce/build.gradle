@@ -14,7 +14,6 @@ dependencies {
   compile 'com.hazelcast:hazelcast-kubernetes'
   compile 'commons-io:commons-io'
   compile 'org.apache.commons:commons-dbcp2'
-  compile 'org.nanohttpd:nanohttpd'
   compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')

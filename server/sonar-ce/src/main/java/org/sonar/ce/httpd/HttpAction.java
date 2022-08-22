@@ -19,33 +19,32 @@
  */
 package org.sonar.ce.httpd;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandler;
 
 /**
- * a Http action of the CE's HTTP server handles a request for a specified path.
- *
- * <p>
- * Method {@link #register(ActionRegistry)} of the action will be called right before the HTTP server is started (server
- * is started by the ioc container). It's the action's responsibility to call the method
- * {@link ActionRegistry#register(ActionRegistry)} to register itself for a given path.
- * </p>
- * <p>
- * Method {@link #serve(IHTTPSession)} will be called each time a request matching the path the action registered itself
- * for.
- * </p>
+ * A Http action of the CE's HTTP server handles a request for a specified path.
  */
-public interface HttpAction {
-  void register(ActionRegistry registry);
+public interface HttpAction extends HttpRequestHandler {
+  /**
+   * Provides a context path to be registered on.
+   * It must not be empty and start with a '/'.
+   * @return the context path as a String
+   */
+  String getContextPath();
 
-  Response serve(IHTTPSession session);
+  void handle(HttpRequest request, HttpResponse response);
 
-  interface ActionRegistry {
-    /**
-     * @throws NullPointerException if {@code path} of {@code action} is {@code null}
-     * @throws IllegalArgumentException if {@code path} is empty or starts with {@code /}
-     * @throws IllegalStateException if an action is already registered for the specified path (case is ignored)
-     */
-    void register(String path, HttpAction action);
+  default void handle(HttpRequest request, HttpResponse response, HttpContext context)
+    throws HttpException {
+    try {
+      this.handle(request, response);
+      // catch Throwable because we want to respond a clean 500 to client even on Error
+    } catch (Throwable t) {
+      throw new HttpException(t.getMessage(), t);
+    }
   }
 }

@@ -19,20 +19,22 @@
  */
 package org.sonar.ce.systeminfo;
 
-import fi.iki.elonen.NanoHTTPD;
-import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.sonar.ce.httpd.HttpAction;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
-
 public class SystemInfoHttpAction implements HttpAction {
 
-  private static final String PATH = "systemInfo";
+  private static final String PATH = "/systemInfo";
   private static final String PROTOBUF_MIME_TYPE = "application/x-protobuf";
 
   private final List<SystemInfoSection> sectionProviders;
@@ -42,22 +44,24 @@ public class SystemInfoHttpAction implements HttpAction {
   }
 
   @Override
-  public void register(ActionRegistry registry) {
-    registry.register(PATH, this);
+  public String getContextPath() {
+    return PATH;
   }
-
   @Override
-  public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
-    if (session.getMethod() != NanoHTTPD.Method.GET) {
-      return newFixedLengthResponse(METHOD_NOT_ALLOWED, MIME_PLAINTEXT, null);
+  public void handle(HttpRequest request, HttpResponse response) {
+    if (!"GET".equals(request.getRequestLine().getMethod())) {
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_METHOD_NOT_ALLOWED);
+      response.setEntity(new StringEntity("Only GET is allowed", StandardCharsets.UTF_8));
+      return;
     }
-
     ProtobufSystemInfo.SystemInfo.Builder infoBuilder = ProtobufSystemInfo.SystemInfo.newBuilder();
-    for (SystemInfoSection sectionProvider : sectionProviders) {
-      ProtobufSystemInfo.Section section = sectionProvider.toProtobuf();
-      infoBuilder.addSections(section);
-    }
+
+    sectionProviders.stream()
+      .map(SystemInfoSection::toProtobuf)
+      .forEach(infoBuilder::addSections);
+
     byte[] bytes = infoBuilder.build().toByteArray();
-    return newFixedLengthResponse(OK, PROTOBUF_MIME_TYPE, new ByteArrayInputStream(bytes), bytes.length);
+    response.setEntity(new ByteArrayEntity(bytes, ContentType.create(PROTOBUF_MIME_TYPE)));
+    response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
   }
 }

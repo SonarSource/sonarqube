@@ -19,27 +19,24 @@
  */
 package org.sonar.ce.httpd;
 
-import fi.iki.elonen.NanoHTTPD;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
-import org.sonar.api.Startable;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.INTERNAL_ERROR;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.NOT_FOUND;
 import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
@@ -48,35 +45,35 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
  * It listens on loopback address only, so it does not need to be secure (no HTTPS, no authentication).
  */
 public class CeHttpServer implements Startable {
-
   private final Properties processProps;
   private final List<HttpAction> actions;
-  private final ActionRegistryImpl actionRegistry;
-  private final CeNanoHttpd nanoHttpd;
+  private HttpServer httpServer;
 
   public CeHttpServer(Properties processProps, List<HttpAction> actions) {
     this.processProps = processProps;
     this.actions = actions;
-    this.actionRegistry = new ActionRegistryImpl();
-    this.nanoHttpd = new CeNanoHttpd(InetAddress.getLoopbackAddress().getHostAddress(), 0, actionRegistry);
   }
 
   @Override
   public void start() {
     try {
-      registerActions();
-      nanoHttpd.start();
-      registerHttpUrl();
+      this.httpServer = buildHttpServer();
+      httpServer.start();
+      registerServerUrl();
     } catch (IOException e) {
       throw new IllegalStateException("Can not start local HTTP server for System Info monitoring", e);
     }
   }
 
-  private void registerActions() {
-    actions.forEach(action -> action.register(this.actionRegistry));
+  private HttpServer buildHttpServer() {
+    ServerBootstrap serverBootstrap = ServerBootstrap.bootstrap();
+    serverBootstrap.setLocalAddress(InetAddress.getLoopbackAddress());
+    actions.forEach(httpAction -> serverBootstrap.registerHandler(httpAction.getContextPath(), httpAction));
+    serverBootstrap.registerHandler("/*", new NotFoundHttpRequestHandler());
+    return serverBootstrap.create();
   }
 
-  private void registerHttpUrl() {
+  private void registerServerUrl() {
     int processNumber = parseInt(processProps.getProperty(PROPERTY_PROCESS_INDEX));
     File shareDir = new File(processProps.getProperty(PROPERTY_SHARED_PATH));
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
@@ -88,55 +85,18 @@ public class CeHttpServer implements Startable {
 
   @Override
   public void stop() {
-    nanoHttpd.stop();
+    this.httpServer.stop();
   }
 
   // visible for testing
   String getUrl() {
-    return "http://" + nanoHttpd.getHostname() + ":" + nanoHttpd.getListeningPort();
+    return "http://" + this.httpServer.getInetAddress().getHostAddress() + ":" + this.httpServer.getLocalPort();
   }
 
-  private static class CeNanoHttpd extends NanoHTTPD {
-    private final ActionRegistryImpl actionRegistry;
-
-    CeNanoHttpd(String hostname, int port, ActionRegistryImpl actionRegistry) {
-      super(hostname, port);
-      this.actionRegistry = actionRegistry;
-    }
-
+  private static class NotFoundHttpRequestHandler implements HttpRequestHandler {
     @Override
-    public Response serve(IHTTPSession session) {
-      return actionRegistry.getAction(session)
-        .map(action -> serveFromAction(session, action))
-        .orElseGet(() -> newFixedLengthResponse(NOT_FOUND, MIME_PLAINTEXT, format("Error 404, '%s' not found.", session.getUri())));
-    }
-
-    private static Response serveFromAction(IHTTPSession session, HttpAction action) {
-      try {
-        return action.serve(session);
-      } catch (Exception e) {
-        return newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
-      }
-    }
-  }
-
-  private static final class ActionRegistryImpl implements HttpAction.ActionRegistry {
-    private final Map<String, HttpAction> actionsByPath = new HashMap<>();
-
-    @Override
-    public void register(String path, HttpAction action) {
-      requireNonNull(path, "path can't be null");
-      requireNonNull(action, "action can't be null");
-      checkArgument(!path.isEmpty(), "path can't be empty");
-      checkArgument(!path.startsWith("/"), "path must not start with '/'");
-      String fixedPath = path.toLowerCase(Locale.ENGLISH);
-      HttpAction existingAction = actionsByPath.put(fixedPath, action);
-      checkState(existingAction == null, "Action '%s' already registered for path '%s'", existingAction, fixedPath);
-    }
-
-    Optional<HttpAction> getAction(NanoHTTPD.IHTTPSession session) {
-      String path = session.getUri().substring(1).toLowerCase(Locale.ENGLISH);
-      return Optional.ofNullable(actionsByPath.get(path));
+    public void handle(HttpRequest request, HttpResponse response, HttpContext context) {
+      response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_NOT_FOUND);
     }
   }
 }
