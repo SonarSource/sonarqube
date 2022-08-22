@@ -7,7 +7,7 @@ SonarQube's integration with Azure DevOps allows you to maintain code quality an
 With this integration, you'll be able to:
 
 - **Import your Azure DevOps repositories** - Import your Azure DevOps repositories into SonarQube to easily set up SonarQube projects. 
-- **Analyze projects with Azure Pipelines** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
+- **Analyze projects with Azure Pipelines** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), the SonarQube Extension running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
 - **Report your Quality Gate status to your pull requests** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
 
 ## Prerequisites
@@ -43,7 +43,7 @@ After saving your personal access token, you'll see a list of your Azure DevOps 
 For information on analyzing your projects with Azure Pipelines, see the **Analyzing projects with Azure Pipelines** section below.
 
 ## Analyzing projects with Azure Pipelines
-SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
+The SonarQube Extension running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
 
 [[info]]
 | Automatic branch detection is only available when using Git.

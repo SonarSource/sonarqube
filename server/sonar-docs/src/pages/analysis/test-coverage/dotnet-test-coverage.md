@@ -26,12 +26,11 @@ For information on the generic format, see [Generic Test Data](/analysis/generic
 ## Adding coverage to your build process
 
 The .NET scanner comes in four variants depending on which version of .NET and which CI you are using
-(_.NET Framework_, _.NET Core_, _.NET tool_ and _SonarScanner for Azure DevOps_).
+(_.NET Framework_, _.NET Core_, _.NET tool_ and _SonarQube Extension for Azure DevOps_).
 The setup is slightly different for each variant
 (see the [SonarScanner for .NET](/analysis/scan/sonarscanner-for-msbuild/)
-and [SonarScanner for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)
-sections for details),
-but the essential steps are the same.
+and [SonarQube Extension for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)
+sections for details), but the essential steps are the same.
 
 The analysis is always split into two parts in your build process;
 the begin step and the end step.
@@ -172,11 +171,11 @@ If you use the .NET Framework or .NET Core scanner, the commands will be a bit d
 See [SonarScanner for .NET](/analysis/scan/sonarscanner-for-msbuild/) for details.
 
 
-## SonarScanner for Azure DevOps
+## Extension for Azure Devops 
 
-Using the SonarScanner for Azure DevOps and Visual Studio Code Coverage with a C# project,  your `azure-pipelines.yml` would look something like the example below.
+Using the Extension for Azure Devops and Visual Studio Code Coverage with a C# project,  your `azure-pipelines.yml` would look something like the example below.
 
-Note that with the SonarScanner for Azure DevOps extension, the scanner `begin` step is handled by the `SonarQubePrepare` task and the scanner `end` step is handled by the `SonarQubeAnalyze` task.
+Note that with the Extension for Azure Devops  extension, the scanner `begin` step is handled by the `SonarQubePrepare` task and the scanner `end` step is handled by the `SonarQubeAnalyze` task.
 
 Also note that because our build is running on Windows (we specify `vmImage: windows-latest`), we do not need to explicitly specify the path to the coverage report (there is no `sonar.cs.vscoveragexml.reportsPaths=coverage.xml`) nor do you need to run `codecoverage.exe` to convert the report to XML.
 

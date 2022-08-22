@@ -1,5 +1,5 @@
 ---
-title: SonarScanner for Jenkins
+title: Jenkins Extension for SonarQube
 url: /analysis/scan/sonarscanner-for-jenkins/
 ---
 
@@ -23,7 +23,7 @@ Then you can trigger SonarQube analysis from Jenkins using standard Jenkins Buil
 Once the job is complete, the plugin will detect that a SonarQube analysis was made during the build and display a badge and a widget on the job page with a link to the SonarQube dashboard as well as quality gate status.
 
 ## Installation
-1. [Install the SonarScanner for Jenkins via the Jenkins Update Center](https://plugins.jenkins.io/sonar).
+1. [Install the Jenkins Extension for SonarQube via the Jenkins Update Center](https://plugins.jenkins.io/sonar).
 1. Configure your SonarQube server(s):
    1. Log into Jenkins as an administrator and go to **Manage Jenkins > Configure System**.
    1. Scroll down to the SonarQube configuration section, click **Add SonarQube**, and add the values you're prompted for.
