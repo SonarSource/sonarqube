@@ -90,7 +90,7 @@ project(":project2") {
 ```
 
 ## Task dependencies
-All tasks that produce output that should be included in the SonarQube analysis need to be executed before the `sonarqube` task runs. Typically, these are compile tasks, test tasks, and code coverage tasks. 
+All tasks that produce output that should be included in the SonarQube analysis need to be executed before the `sonarqube` task runs. Typically, these are compile tasks, test tasks, and [code coverage](/analysis/coverage/) tasks. 
 
 Starting with v3.0 of the SonarScanner for Gradle, task dependencies are no longer added automatically. Instead, the SonarScanner plugin enforces the correct order of tasks with `mustRunAfter`. You need to be either manually run the tasks that produce output before `sonarqube`, or you can add a dependency to the build script: 
 
@@ -208,4 +208,3 @@ Let's take a closer look at the `sonarqube.properties` `{}` block. As we have al
 Entries in the properties map can be read and written with the usual Groovy syntax. To facilitate their manipulation, values still have their “idiomatic” type (File, List, etc.). After the sonarProperties block has been evaluated, values are converted to Strings as follows: Collection values are (recursively) converted to comma-separated Strings, and all other values are converted by calling their `toString()` methods.
 
 Because the `sonarProperties` block is evaluated lazily, properties of Gradle's object model can be safely referenced from within the block, without having to fear that they have not yet been set.
-

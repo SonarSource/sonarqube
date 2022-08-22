@@ -64,7 +64,7 @@ To specify the version of sonar-maven-plugin instead of using the latest:
 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar
 ```
 
-To get coverage information, you'll need to generate the coverage report before the analysis. 
+To get coverage information, you'll need to generate the coverage report before the analysis and specify the location of the resulting report in an analysis parameter. See [Test Coverage](/analysis/coverage/)for details.
 
 ## Configuring Analysis
 Most analysis properties will be read from your project. If you would like override the default values of specify additional parameters, configure the parameter names found on the [Analysis Parameters](/analysis/analysis-parameters/) page in the `<properties>` section of your pom.xml like this:
