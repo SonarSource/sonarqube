@@ -1,0 +1,45 @@
+<p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
+    by meeting the loop’s end condition or via a <code>break</code>, every loop should have an end condition.</p>
+<h3>Known Limitations</h3>
+<ul>
+    <li> False positives: when <code>yield</code> is used - <a href="https://github.com/SonarSource/SonarJS/issues/674">Issue #674</a>. </li>
+    <li> False positives: when an exception is raised by a function invoked within the loop. </li>
+    <li> False negatives: when a loop condition is based on an element of an array or object. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre class="diff-id-1 diff-noncompliant">for (;;) {  // Noncompliant; end condition omitted
+  // ...
+}
+
+var j = 0;
+while (true) { // Noncompliant; constant end condition
+  j++;
+}
+
+var k;
+var b = true;
+while (b) { // Noncompliant; constant end condition
+  k++;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre class="diff-id-1 diff-noncompliant">while (true) { // break will potentially allow leaving the loop
+  if (someCondition) {
+    break;
+  }
+}
+
+var k;
+var b = true;
+while (b) {
+  k++;
+  b = k &lt; 10;
+}
+
+outer:
+while(true) {
+  while(true) {
+    break outer;
+  }
+}
+</pre>

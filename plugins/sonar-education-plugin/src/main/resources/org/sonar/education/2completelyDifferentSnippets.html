@@ -1,0 +1,23 @@
+Example with 2 completely different code snippets
+
+<h2>Noncompliant Code Example</h2>
+<pre class="diff-id-1 diff-noncompliant">
+while (true) { // Noncompliant; constant end condition
+  j++;
+}
+
+var k;
+var b = true;
+while (b) { // Noncompliant; constant end condition
+  k++;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre class="diff-id-1 diff-compliant">while (true) { // break will potentially allow leaving the loop
+var x = 3;
+for(let i=2; i<4; i++) {
+    console.log("Hello there");
+}
+alert('Click here');
+thisIsNiceFunction();
+</pre>

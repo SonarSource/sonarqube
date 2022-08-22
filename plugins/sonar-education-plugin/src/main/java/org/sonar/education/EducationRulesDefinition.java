@@ -19,24 +19,30 @@
  */
 package org.sonar.education;
 
+import java.nio.charset.StandardCharsets;
+import org.sonar.api.internal.apachecommons.io.IOUtils;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.education.sensors.EducationPrinciplesSensor;
 import org.sonar.education.sensors.EducationWithContextsSensor;
 import org.sonar.education.sensors.EducationWithDetectedContextSensor;
 
-import static org.sonar.education.sensors.EducationWithSingleContextSensor.EDUCATION_WITH_SINGLE_CONTEXT_RULE_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.INTRODUCTION_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
+import static org.sonar.education.sensors.EducationWith2LinkedCodeSnippetsSensor.EDUCATION_WITH_2_LINKED_CODE_SNIPPETS_RULE_KEY;
+import static org.sonar.education.sensors.EducationWith4LinkedCodeSnippetsSensor.EDUCATION_WITH_4_LINKED_CODE_SNIPPETS_RULE_KEY;
+import static org.sonar.education.sensors.EducationWithSingleContextSensor.EDUCATION_WITH_SINGLE_CONTEXT_RULE_KEY;
 
 public class EducationRulesDefinition implements RulesDefinition {
 
   public static final String EDUCATION_RULE_REPOSITORY_KEY = "edu";
   public static final String EDUCATION_KEY = "education";
 
+  private static final String[] ALL_SECTIONS = {INTRODUCTION_SECTION_KEY, ROOT_CAUSE_SECTION_KEY, ASSESS_THE_PROBLEM_SECTION_KEY,
+    RESOURCES_SECTION_KEY, HOW_TO_FIX_SECTION_KEY};
   private static final String IGNORED_FAKE_SECTION = "fake_section_to_be_ignored";
 
   public static final String[] CONTEXTS = {"spring", "hibernate", "apache-commons", "vaadin", "mybatis"};
@@ -55,6 +61,10 @@ public class EducationRulesDefinition implements RulesDefinition {
     createRuleWithDescriptionSectionsAndMultipleContexts(repo);
     createRuleWithDescriptionSectionsAndMultipleContextsIncludingOneDetected(repo);
 
+    createRuleWith2LinkedCodeSnippetsInTwoSections(repo);
+
+    createRuleWith4LinkedCodeSnippetsInOneSection(repo);
+
     repo.done();
   }
 
@@ -66,7 +76,7 @@ public class EducationRulesDefinition implements RulesDefinition {
 
     ruleWithSingleContext
       .setHtmlDescription(String.format("This rule contains description sections. To trigger an issue using this rule you need to " +
-          "scan any text file with a line containing %s key word. This rule also contains 2 education principles - %s and %s",
+        "scan any text file with a line containing %s key word. This rule also contains 2 education principles - %s and %s",
         ruleKey, educationPrinciples[0], educationPrinciples[1]))
       .addEducationPrincipleKeys(educationPrinciples);
 
@@ -77,7 +87,7 @@ public class EducationRulesDefinition implements RulesDefinition {
   private void createRuleWithDescriptionSectionsAndSingleContext(NewRepository repo) {
     String ruleKey = EDUCATION_WITH_SINGLE_CONTEXT_RULE_KEY;
     NewRule ruleWithSingleContext = repo.createRule(ruleKey).setName("Rule with description sections and single " +
-        "contexts for 'how to fix'")
+      "contexts for 'how to fix'")
       .addTags(EDUCATION_KEY);
 
     ruleWithSingleContext
@@ -96,7 +106,7 @@ public class EducationRulesDefinition implements RulesDefinition {
 
     ruleWithMultipleContexts
       .setHtmlDescription(String.format("This rule contains description sections and multiple contexts for 'how to fix' section. To trigger " +
-          "an issue using this rule you need to scan any text file with a line containing %s keyword.",
+        "an issue using this rule you need to scan any text file with a line containing %s keyword.",
         EducationWithContextsSensor.EDUCATION_WITH_CONTEXTS_RULE_KEY));
 
     addNonContextualizedDescriptionSections(ruleWithMultipleContexts);
@@ -113,7 +123,7 @@ public class EducationRulesDefinition implements RulesDefinition {
 
     ruleWithMultipleContexts
       .setHtmlDescription(String.format("This rule contains description sections and multiple contexts (including one detected) for " +
-          "'how to fix' section. To trigger an issue using this rule you need to scan any text file with a line containing %s keyword.",
+        "'how to fix' section. To trigger an issue using this rule you need to scan any text file with a line containing %s keyword.",
         EducationWithDetectedContextSensor.EDUCATION_WITH_DETECTED_CONTEXT_RULE_KEY));
 
     addNonContextualizedDescriptionSections(ruleWithMultipleContexts);
@@ -121,6 +131,46 @@ public class EducationRulesDefinition implements RulesDefinition {
     for (String context : CONTEXTS) {
       ruleWithMultipleContexts.addDescriptionSection(descriptionHowToFixSectionWithContext(context));
     }
+  }
+
+
+  private void createRuleWith2LinkedCodeSnippetsInTwoSections(NewRepository repo) {
+    String ruleKey = EDUCATION_WITH_2_LINKED_CODE_SNIPPETS_RULE_KEY;
+    NewRule rule2CodeSnippetsIn2Sections = repo.createRule(ruleKey).setName("Rule with description sections and code snippets " +
+        "linked to each other in 2 different sections in order to display diff between them.")
+      .addTags(EDUCATION_KEY);
+
+    rule2CodeSnippetsIn2Sections
+      .setHtmlDescription(String.format("This rule contains description sections and 2 linked code snippets in 2 sections. To " +
+          "trigger an issue using this rule you need to scan any text file with a line containing %s key word.", ruleKey));
+
+    String completelyDifferentSnippetsHtml = readResource("2completelyDifferentSnippets.html");
+    String codeSnippetsHtml = readResource("2codeSnippets.html");
+
+    rule2CodeSnippetsIn2Sections.addDescriptionSection(descriptionSection(INTRODUCTION_SECTION_KEY))
+      .addDescriptionSection(descriptionSection(ROOT_CAUSE_SECTION_KEY, completelyDifferentSnippetsHtml))
+      .addDescriptionSection(descriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY))
+      .addDescriptionSection(descriptionSection(HOW_TO_FIX_SECTION_KEY, codeSnippetsHtml))
+      .addDescriptionSection(descriptionSection(RESOURCES_SECTION_KEY));
+  }
+
+  private void createRuleWith4LinkedCodeSnippetsInOneSection(NewRepository repo) {
+    String ruleKey = EDUCATION_WITH_4_LINKED_CODE_SNIPPETS_RULE_KEY;
+    NewRule rule2CodeSnippetsInTheSameSection = repo.createRule(ruleKey).setName("Rule with description sections and code snippets " +
+        "linked to each other in the same section in order to display diff between them.")
+      .addTags(EDUCATION_KEY);
+
+    rule2CodeSnippetsInTheSameSection
+      .setHtmlDescription(String.format("This rule contains description sections and 4 linked code snippets in the same section. To " +
+        "trigger an issue using this rule you need to scan any text file with a line containing %s key word.", ruleKey));
+
+    String codeSnippetsHtml = readResource("4codeSnippets.html");
+
+    rule2CodeSnippetsInTheSameSection.addDescriptionSection(descriptionSection(INTRODUCTION_SECTION_KEY))
+      .addDescriptionSection(descriptionSection(ROOT_CAUSE_SECTION_KEY, codeSnippetsHtml))
+      .addDescriptionSection(descriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY))
+      .addDescriptionSection(descriptionSection(HOW_TO_FIX_SECTION_KEY))
+      .addDescriptionSection(descriptionSection(RESOURCES_SECTION_KEY));
   }
 
   private static void addNonContextualizedDescriptionSections(NewRule newRule) {
@@ -141,9 +191,21 @@ public class EducationRulesDefinition implements RulesDefinition {
   }
 
   private static RuleDescriptionSection descriptionSection(String sectionKey) {
+    return descriptionSection(sectionKey, HTML_LOREM_IPSUM);
+  }
+
+  private static RuleDescriptionSection descriptionSection(String sectionKey, String htmlContent) {
     return RuleDescriptionSection.builder()
       .sectionKey(sectionKey)
-      .htmlContent(String.format("%s: %s", sectionKey, HTML_LOREM_IPSUM))
+      .htmlContent(htmlContent)
       .build();
+  }
+
+  private String readResource(String file) {
+    try {
+      return IOUtils.toString(getClass().getResource(file), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }
