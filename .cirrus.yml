@@ -26,24 +26,28 @@ env:
   # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
   # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
   CIRRUS_CLONE_DEPTH: 50
+  BRANCH_MAIN: 'master'
+  BRANCH_NIGHTLY: 'branch-nightly-build'
+  BRANCH_PATTERN_MAINTENANCE: 'branch-.*'
+  BRANCH_PATTERN_PUBLIC: 'public_.*'
 
-auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
+auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
 skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
-  skip: $CIRRUS_BRANCH =~ 'public_.*'
+  skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
 
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
 
 nightly_task_template: &NIGHTLY_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY
 
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH != "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH != $BRANCH_NIGHTLY
 
 database_related_nightly_task_template: &DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_BRANCH == "branch-nightly-build" ||
+    $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java')
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
@@ -464,7 +468,7 @@ promote_task:
 package_docker_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   depends_on: promote
-  only_if: $CIRRUS_BRANCH == 'master'
+  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
   gce_instance:
     image_project: sonarqube-team
     image_family: docker-builder
@@ -593,8 +597,8 @@ ws_scan_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   only_if: >-
-    $CIRRUS_BRANCH == 'master' ||
-    ($CIRRUS_BRANCH =~ 'branch.*' && $CIRRUS_BRANCH != 'branch-nightly-build')
+    $CIRRUS_BRANCH == $BRANCH_MAIN ||
+    ($CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE && $CIRRUS_BRANCH != $BRANCH_NIGHTLY)
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
