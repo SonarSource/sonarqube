@@ -745,10 +745,10 @@ public class RegisterRulesTest {
   public void update_several_rule_descriptions() {
     system.setNow(DATE1.getTime());
 
-    RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "CTX_1");
-    RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 content", "CTX_2");
-    RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "section2 content", "CTX_1");
-    RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 ctx2 content", "CTX_2");
+    RuleDescriptionSection section1context1 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx1 content", "ctx_1");
+    RuleDescriptionSection section1context2 = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 content", "ctx_2");
+    RuleDescriptionSection section2context1 = createRuleDescriptionSection(RESOURCES_SECTION_KEY, "section2 content", "ctx_1");
+    RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 ctx2 content", "ctx_2");
     RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "section3 content", null);
     RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "section4 content", null);
     execute(context -> {
@@ -765,10 +765,10 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    RuleDescriptionSection section1context2updated = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 updated content", "CTX_2");
+    RuleDescriptionSection section1context2updated = createRuleDescriptionSection(HOW_TO_FIX_SECTION_KEY, "section1 ctx2 updated content", "ctx_2");
     RuleDescriptionSection section2updatedWithoutContext = createRuleDescriptionSection(RESOURCES_SECTION_KEY, section2context1.getHtmlContent(), null);
-    RuleDescriptionSection section4updatedWithContext1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_1");
-    RuleDescriptionSection section4updatedWithContext2 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "CTX_2");
+    RuleDescriptionSection section4updatedWithContext1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "ctx_1");
+    RuleDescriptionSection section4updatedWithContext2 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "ctx_2");
     system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");

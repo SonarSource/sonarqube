@@ -45,7 +45,7 @@ public class EducationRulesDefinition implements RulesDefinition {
     RESOURCES_SECTION_KEY, HOW_TO_FIX_SECTION_KEY};
   private static final String IGNORED_FAKE_SECTION = "fake_section_to_be_ignored";
 
-  public static final String[] CONTEXTS = {"spring", "hibernate", "apache-commons", "vaadin", "mybatis"};
+  public static final String[] CONTEXTS = {"spring", "hibernate", "apache_commons", "vaadin", "mybatis"};
 
   private static final String HTML_LOREM_IPSUM = "<a href=\"https://google.com\">Lorem</a> ipsum dolor sit amet, consectetur adipiscing " +
     "elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " +

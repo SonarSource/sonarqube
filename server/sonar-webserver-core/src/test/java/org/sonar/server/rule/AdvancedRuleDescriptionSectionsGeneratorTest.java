@@ -52,14 +52,14 @@ public class AdvancedRuleDescriptionSectionsGeneratorTest {
   private static final RuleDescriptionSection SECTION_1 = new RuleDescriptionSectionBuilder().sectionKey(HOW_TO_FIX_SECTION_KEY).htmlContent(HTML_CONTENT).build();
   private static final RuleDescriptionSection SECTION_2 = new RuleDescriptionSectionBuilder().sectionKey(ROOT_CAUSE_SECTION_KEY).htmlContent(HTML_CONTENT + "2").build();
 
-  private static final Context CONTEXT_1 = new Context("CTX_1", "ctx 1 display name");
+  private static final Context CONTEXT_1 = new Context("ctx_1", "ctx 1 display name");
   private static final RuleDescriptionSection SECTION_3_WITH_CTX_1 = new RuleDescriptionSectionBuilder()
     .sectionKey(RESOURCES_SECTION_KEY)
     .htmlContent(HTML_CONTENT)
     .context(CONTEXT_1)
     .build();
 
-  private static final Context CONTEXT_2 = new Context("CTX_2", "ctx 2 display name");
+  private static final Context CONTEXT_2 = new Context("ctx_2", "ctx 2 display name");
   private static final RuleDescriptionSection SECTION_3_WITH_CTX_2 = new RuleDescriptionSectionBuilder()
     .sectionKey(RESOURCES_SECTION_KEY)
     .htmlContent(HTML_CONTENT + "2")

@@ -67,6 +67,6 @@ public class AddTagsActionTest {
       underTest.execute(properties, context);
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Entry 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+      .hasMessage("Entry 'th ag' is invalid. For Rule tags the entry has to match the regexp ^[a-z0-9\\+#\\-\\.]+$");
   }
 }

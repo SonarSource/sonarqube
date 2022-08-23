@@ -50,8 +50,8 @@ import static org.sonar.server.rule.RuleDescriptionGeneratorTestData.aRuleOfType
 @RunWith(Parameterized.class)
 public class RuleDescriptionSectionsGeneratorsTest {
 
-  private static final String KEY_1 = "KEY";
-  private static final String KEY_2 = "KEY_2";
+  private static final String KEY_1 = "key";
+  private static final String KEY_2 = "key_2";
   private static final String UUID_1 = "uuid1";
   private static final String UUID_2 = "uuid2";
 

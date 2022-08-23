@@ -48,7 +48,7 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
  */
 public class XooRulesDefinition implements RulesDefinition {
 
-  public static final String[] AVAILABLE_CONTEXTS = {"JavaScript", "JQuery", "Express.js", "React", "Axios"};
+  public static final String[] AVAILABLE_CONTEXTS = {"javascript", "jquery", "express_js", "react", "axios"};
 
   public static final String XOO_REPOSITORY = "xoo";
   public static final String XOO2_REPOSITORY = "xoo2";
@@ -95,7 +95,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
       .setActivatedByDefault(true)
-      .addDescriptionSection(howToFixSectionWithContext("singleContext"));
+      .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hasTag, "Search for a given tag in Xoo files");
 
     hasTag
@@ -262,7 +262,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setName("Find security hotspots, how_to_fix with single context")
       .setType(RuleType.SECURITY_HOTSPOT)
       .setActivatedByDefault(false)
-      .addDescriptionSection(howToFixSectionWithContext("singleContext"));
+      .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hotspotWithSingleContext, "Search for Security Hotspots with single context in Xoo files");
 
     repo.done();

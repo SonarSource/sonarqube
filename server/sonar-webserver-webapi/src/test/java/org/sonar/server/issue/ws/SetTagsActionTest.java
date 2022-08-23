@@ -175,7 +175,7 @@ public class SetTagsActionTest {
 
     assertThatThrownBy(() -> call(issueDto.getKey(), "pol op"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Entries 'pol op' are invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+      .hasMessage("Entries 'pol op' are invalid. For Rule tags the entry has to match the regexp ^[a-z0-9\\+#\\-\\.]+$");
   }
 
   @Test
