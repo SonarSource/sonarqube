@@ -7,7 +7,7 @@
     <li> False negatives: when a loop condition is based on an element of an array or object. </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
-<pre class="diff-id-1 diff-noncompliant">for (;;) {  // Noncompliant; end condition omitted
+<pre data-diff-id="example-1" data-diff-type="noncompliant">for (;;) {  // Noncompliant; end condition omitted
   // ...
 }
 
@@ -23,7 +23,7 @@ while (b) { // Noncompliant; constant end condition
 }
 </pre>
 <h2>Compliant Solution</h2>
-<pre class="diff-id-1 diff-noncompliant">while (true) { // break will potentially allow leaving the loop
+<pre data-diff-id="example-1" data-diff-type="compliant">while (true) { // break will potentially allow leaving the loop
   if (someCondition) {
     break;
   }
