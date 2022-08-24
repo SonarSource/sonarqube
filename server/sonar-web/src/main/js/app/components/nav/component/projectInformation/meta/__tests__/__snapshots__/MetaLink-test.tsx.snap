@@ -3,7 +3,7 @@
 exports[`should match snapshot: dangerous link, collapsed 1`] = `
 <li>
   <a
-    className="link-with-icon"
+    className="link-no-underline"
     onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
@@ -21,7 +21,7 @@ exports[`should match snapshot: dangerous link, collapsed 1`] = `
 exports[`should match snapshot: dangerous link, expanded 1`] = `
 <li>
   <a
-    className="link-with-icon"
+    className="link-no-underline"
     onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
@@ -54,7 +54,7 @@ exports[`should match snapshot: dangerous link, expanded 1`] = `
 exports[`should match snapshot: default 1`] = `
 <li>
   <a
-    className="link-with-icon"
+    className="link-no-underline"
     href="http://example.com"
     rel="nofollow noreferrer noopener"
     target="_blank"
@@ -72,7 +72,7 @@ exports[`should match snapshot: default 1`] = `
 exports[`should match snapshot: icon only 1`] = `
 <li>
   <a
-    className="link-with-icon"
+    className="link-no-underline"
     href="http://example.com"
     rel="nofollow noreferrer noopener"
     target="_blank"

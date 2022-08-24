@@ -136,10 +136,23 @@ module.exports = {
     codeAdded: '#dff0d8',
     codeRemoved: '#f2dede',
 
-    //promotion
+    // promotion
     darkBackground: '#292929',
     darkBackgroundSeparator: '#413b3b',
-    darkBackgroundFontColor: '#f6f8fa'
+    darkBackgroundFontColor: '#f6f8fa',
+
+    // new color palette
+    // some of these colors duplicate what we have above, but this will make it
+    // easier to align with the UX designers on what colors to use where.
+    primary: '#236a97',
+    primary40: 'rgba(35, 107, 151, 0.4)',
+
+    info500: '#0271B9',
+
+    neutral600: '#666666',
+    neutral800: '#333333',
+
+    black38: 'rgba(0, 0, 0, 0.38)'
   },
 
   sizes: {

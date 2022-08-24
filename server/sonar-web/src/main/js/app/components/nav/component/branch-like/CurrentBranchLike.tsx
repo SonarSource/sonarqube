@@ -57,11 +57,11 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
   const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;
 
   const additionalIcon = () => {
-    const plusIcon = <PlusCircleIcon fill={colors.blue} size={12} />;
-
     if (branchesEnabled && hasManyBranches) {
       return <DropdownIcon />;
     }
+
+    const plusIcon = <PlusCircleIcon fill={colors.info500} size={12} />;
 
     if (isApplication) {
       if (!hasManyBranches && canAdminComponent) {
@@ -144,7 +144,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
 
   return (
     <span className="display-flex-center flex-shrink text-ellipsis">
-      <BranchLikeIcon branchLike={currentBranchLike} />
+      <BranchLikeIcon branchLike={currentBranchLike} fill={colors.info500} />
       <span
         className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
         title={displayName}>

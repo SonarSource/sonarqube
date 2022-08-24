@@ -1,14 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<header
+<div
   className="page-header quality-profile-header"
 >
   <div
     className="note spacer-bottom"
   >
     <NavLink
-      className="text-muted"
       end={true}
       to="/profiles"
     >
@@ -16,7 +15,6 @@ exports[`should render correctly 1`] = `
     </NavLink>
      / 
     <Link
-      className="text-muted"
       to={
         Object {
           "pathname": "/profiles",
@@ -31,7 +29,6 @@ exports[`should render correctly 1`] = `
     className="page-title"
   >
     <ProfileLink
-      className="link-base-color"
       language="js"
       name="name"
     >
@@ -102,18 +99,17 @@ exports[`should render correctly 1`] = `
       </li>
     </ul>
   </div>
-</header>
+</div>
 `;
 
 exports[`should render correctly: for default profile 1`] = `
-<header
+<div
   className="page-header quality-profile-header"
 >
   <div
     className="note spacer-bottom"
   >
     <NavLink
-      className="text-muted"
       end={true}
       to="/profiles"
     >
@@ -121,7 +117,6 @@ exports[`should render correctly: for default profile 1`] = `
     </NavLink>
      / 
     <Link
-      className="text-muted"
       to={
         Object {
           "pathname": "/profiles",
@@ -136,7 +131,6 @@ exports[`should render correctly: for default profile 1`] = `
     className="page-title"
   >
     <ProfileLink
-      className="link-base-color"
       language="js"
       name="name"
     >
@@ -216,5 +210,5 @@ exports[`should render correctly: for default profile 1`] = `
       </li>
     </ul>
   </div>
-</header>
+</div>
 `;

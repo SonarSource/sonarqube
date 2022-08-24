@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <span
-  className="big-spacer-left flex-0 branch-like-navigation-toggler-container"
+  className="big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center"
 >
   <Memo(CurrentBranchLike)
     branchesEnabled={false}
@@ -43,7 +43,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render the menu trigger if branches are enabled 1`] = `
 <span
-  className="big-spacer-left flex-0 branch-like-navigation-toggler-container dropdown"
+  className="big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center dropdown"
 >
   <Toggler
     onRequestClose={[Function]}
@@ -149,9 +149,10 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
       />
     }
   >
-    <a
-      className="link-base-color link-no-underline"
-      href="#"
+    <ButtonPlain
+      aria-expanded={false}
+      aria-haspopup="menu"
+      className="branch-like-navigation-toggler"
       onClick={[Function]}
     >
       <Memo(CurrentBranchLike)
@@ -188,7 +189,7 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
         }
         hasManyBranches={true}
       />
-    </a>
+    </ButtonPlain>
   </Toggler>
 </span>
 `;

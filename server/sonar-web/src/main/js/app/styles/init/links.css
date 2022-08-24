@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 a {
-  border-bottom: 1px solid var(--lightBlue);
-  color: var(--darkBlue);
+  border-bottom: 1px solid var(--primary40);
+  color: var(--primary);
   cursor: pointer;
   outline: none;
   text-decoration: none;
@@ -29,91 +29,13 @@ a {
 a:hover,
 a:active,
 a:focus {
-  color: var(--blue);
-}
-
-.link-base-color {
-  border-bottom: 1px solid #d0d0d0 !important;
-  color: var(--baseFontColor) !important;
-}
-
-.link-base-color:hover,
-.link-base-color:active,
-.link-base-color:focus {
-  color: var(--blue) !important;
-}
-
-.link-base-color:hover {
-  border-bottom-color: var(--lightBlue) !important;
-}
-
-.link-base-color:active,
-.link-base-color:focus {
-  border-bottom-color: var(--lightBlue) !important;
+  border-bottom-color: var(--primary);
 }
 
 .link-no-underline {
-  border-bottom: none !important;
+  border-bottom-color: transparent !important;
 }
 
-.link-underline {
-  border-bottom: 1px solid var(--lightBlue) !important;
-}
-
-.link-with-icon {
-  border-bottom: none;
-}
-
-.link-with-icon > span:last-child {
-  border-bottom: 1px solid var(--lightBlue);
-}
-
-.link-checkbox {
-  color: inherit;
-  border-bottom: none;
-}
-
-.link-checkbox.disabled,
-.link-checkbox.disabled:hover,
-.link-checkbox.disabled label {
-  color: var(--secondFontColor);
-  cursor: not-allowed;
-}
-
-.link-checkbox:hover,
-.link-checkbox:active,
-.link-checkbox:focus {
-  color: inherit;
-}
-
-.link-checkbox-control {
-  display: inline-block;
-  padding: 4px 0 5px;
-  line-height: 16px;
-}
-
-a.active-link,
-.link-active {
-  border-bottom: none;
-  cursor: default;
-}
-
-a.text-muted {
-  border-bottom: 1px solid #dddddd;
-  color: var(--secondFontColor);
-}
-
-a.text-muted:hover,
-a.text-muted:active,
-a.text-muted:focus {
-  color: #5e5e5e;
-}
-
-a.text-muted:focus {
-  outline: 1px dotted var(--blue);
-}
-
-a.set-homepage-link:focus,
-a.favorite-link:focus {
-  outline: 1px dotted var(--blue);
+.link-no-underline:hover {
+  border-bottom-color: var(--primary) !important;
 }

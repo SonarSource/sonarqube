@@ -36,9 +36,7 @@ export default function TemplateHeader(props: Props) {
   return (
     <header className="page-header" id="project-permissions-header">
       <div className="note spacer-bottom">
-        <Link className="text-muted" to={PERMISSION_TEMPLATES_PATH}>
-          {translate('permission_templates.page')}
-        </Link>
+        <Link to={PERMISSION_TEMPLATES_PATH}>{translate('permission_templates.page')}</Link>
       </div>
 
       <h1 className="page-title">{template.name}</h1>

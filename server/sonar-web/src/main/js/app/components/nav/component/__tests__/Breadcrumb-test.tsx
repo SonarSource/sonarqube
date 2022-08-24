@@ -32,8 +32,21 @@ it('should render correctly', () => {
 });
 
 it('should render correctly when not on a main branch', () => {
-  renderBreadcrumb({ currentBranchLike: mockBranch() });
-  expect(screen.getByRole('link', { name: 'Child portfolio' })).toBeInTheDocument();
+  renderBreadcrumb({
+    component: mockComponent({
+      breadcrumbs: [
+        {
+          key: 'project',
+          name: 'My Project',
+          qualifier: ComponentQualifier.Project
+        }
+      ]
+    }),
+    currentBranchLike: mockBranch()
+  });
+  expect(
+    screen.getByRole('link', { name: `qualifier.${ComponentQualifier.Project} My Project` })
+  ).toBeInTheDocument();
 });
 
 function renderBreadcrumb(props: Partial<BreadcrumbProps> = {}) {

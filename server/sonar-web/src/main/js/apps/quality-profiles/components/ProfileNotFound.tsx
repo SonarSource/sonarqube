@@ -26,7 +26,7 @@ export default function ProfileNotFound() {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <NavLink end={true} className="text-muted" to={PROFILE_PATH}>
+        <NavLink end={true} to={PROFILE_PATH}>
           {translate('quality_profiles.page')}
         </NavLink>
       </div>

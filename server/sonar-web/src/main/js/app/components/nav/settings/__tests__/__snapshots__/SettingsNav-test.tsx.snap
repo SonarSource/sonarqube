@@ -29,13 +29,13 @@ exports[`should render correctly when governance is active 1`] = `
   height={72}
   id="context-navigation"
 >
-  <header
+  <div
     className="navbar-context-header"
   >
     <h1>
       layout.settings
     </h1>
-  </header>
+  </div>
   <NavBarTabs>
     <Dropdown
       overlay={
@@ -182,13 +182,13 @@ exports[`should work with extensions 1`] = `
   height={72}
   id="context-navigation"
 >
-  <header
+  <div
     className="navbar-context-header"
   >
     <h1>
       layout.settings
     </h1>
-  </header>
+  </div>
   <NavBarTabs>
     <Dropdown
       overlay={

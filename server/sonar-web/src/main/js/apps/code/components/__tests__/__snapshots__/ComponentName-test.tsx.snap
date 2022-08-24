@@ -10,6 +10,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="APP"
     />
      
@@ -28,6 +29,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="SVW"
     />
      
@@ -46,6 +48,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="TRK"
     />
      
@@ -64,6 +67,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="TRK"
     />
      
@@ -82,6 +86,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="VW"
     />
      
@@ -99,6 +104,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#ed7d20"
       qualifier="DIR"
     />
      
@@ -129,6 +135,7 @@ foo"
 >
   <span>
     <QualifierIcon
+      fill="#ed7d20"
       qualifier="DIR"
     />
      
@@ -146,6 +153,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -162,7 +170,7 @@ exports[`#ComponentName should render correctly for files 2`] = `
 foo:src/index.tsx"
 >
   <Link
-    className="link-with-icon"
+    className="display-inline-flex-center link-no-underline"
     to={
       Object {
         "pathname": "/code",
@@ -171,9 +179,10 @@ foo:src/index.tsx"
     }
   >
     <QualifierIcon
+      className="little-spacer-right"
+      fill="#236a97"
       qualifier="FIL"
     />
-     
     <span>
       index.tsx
     </span>
@@ -190,6 +199,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -207,6 +217,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -224,6 +235,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -241,6 +253,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -258,6 +271,7 @@ foo:src/index.tsx"
 >
   <span>
     <QualifierIcon
+      fill="#333333"
       qualifier="FIL"
     />
      
@@ -276,7 +290,7 @@ foo
 foo"
 >
   <Link
-    className="link-with-icon"
+    className="display-inline-flex-center link-no-underline"
     to={
       Object {
         "pathname": "/dashboard",
@@ -285,9 +299,10 @@ foo"
     }
   >
     <QualifierIcon
+      className="little-spacer-right"
+      fill="#236a97"
       qualifier="TRK"
     />
-     
     <span>
       Foo
     </span>
@@ -308,7 +323,7 @@ foo
 foo"
   >
     <Link
-      className="link-with-icon"
+      className="display-inline-flex-center link-no-underline"
       to={
         Object {
           "pathname": "/dashboard",
@@ -317,9 +332,10 @@ foo"
       }
     >
       <QualifierIcon
+        className="little-spacer-right"
+        fill="#236a97"
         qualifier="TRK"
       />
-       
       <span>
         Foo
       </span>
@@ -351,7 +367,7 @@ exports[`#ComponentName should render correctly for refs 3`] = `
 foo"
   >
     <Link
-      className="link-with-icon"
+      className="display-inline-flex-center link-no-underline"
       to={
         Object {
           "pathname": "/dashboard",
@@ -360,9 +376,10 @@ foo"
       }
     >
       <QualifierIcon
+        className="little-spacer-right"
+        fill="#236a97"
         qualifier="TRK"
       />
-       
       <span>
         Foo
       </span>

@@ -54,6 +54,7 @@ export interface ComponentNavProps {
 }
 
 const ALERT_HEIGHT = 30;
+const BRANCHLIKE_TOGGLE_ADDED_HEIGHT = 6;
 
 export default function ComponentNav(props: ComponentNavProps) {
   const {
@@ -109,6 +110,10 @@ export default function ComponentNav(props: ComponentNavProps) {
     contextNavHeight += ALERT_HEIGHT;
   }
 
+  if (branchLikes.length) {
+    contextNavHeight += BRANCHLIKE_TOGGLE_ADDED_HEIGHT;
+  }
+
   return (
     <ContextNavBar
       height={contextNavHeight}
@@ -149,7 +154,7 @@ export default function ComponentNav(props: ComponentNavProps) {
       <InfoDrawer
         displayed={displayProjectInfo}
         onClose={() => setDisplayProjectInfo(false)}
-        top={globalNavHeightRaw + contextNavHeightRaw}>
+        top={globalNavHeightRaw + contextNavHeight}>
         <ProjectInformation
           branchLike={currentBranchLike}
           component={component}

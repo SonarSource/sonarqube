@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { ButtonPlain } from '../../../../../components/controls/buttons';
 import Toggler from '../../../../../components/controls/Toggler';
 import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { AppState } from '../../../../../types/appstate';
@@ -65,9 +66,12 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
 
   return (
     <span
-      className={classNames('big-spacer-left flex-0 branch-like-navigation-toggler-container', {
-        dropdown: isMenuEnabled
-      })}>
+      className={classNames(
+        'big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center',
+        {
+          dropdown: isMenuEnabled
+        }
+      )}>
       {isMenuEnabled ? (
         <Toggler
           onRequestClose={() => setIsMenuOpen(false)}
@@ -81,12 +85,13 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
               onClose={() => setIsMenuOpen(false)}
             />
           }>
-          <a
-            className="link-base-color link-no-underline"
-            href="#"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <ButtonPlain
+            className={classNames('branch-like-navigation-toggler', { open: isMenuOpen })}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-haspopup="menu">
             {currentBranchLikeElement}
-          </a>
+          </ButtonPlain>
         </Toggler>
       ) : (
         currentBranchLikeElement

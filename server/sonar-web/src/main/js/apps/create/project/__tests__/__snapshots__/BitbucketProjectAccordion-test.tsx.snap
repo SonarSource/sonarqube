@@ -96,7 +96,7 @@ exports[`should render correctly: disable options 1`] = `
   >
     <Radio
       checked={false}
-      className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden disabled text-muted link-no-underline"
+      className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden disabled"
       key="1"
       onCheck={[Function]}
       value="1"

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SubmitButton } from '../../../components/controls/buttons';
+import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -59,8 +59,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
       .then(this.stopLoading, this.stopLoading);
   };
 
-  handleMoreOptionsClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleMoreOptionsClick = () => {
     this.setState({ collapsed: false });
   };
 
@@ -74,12 +73,12 @@ export default class LoginForm extends React.PureComponent<Props, State> {
     if (this.state.collapsed) {
       return (
         <div className="text-center">
-          <a
-            className="small text-muted js-more-options"
-            href="#"
+          <ButtonLink
+            aria-expanded={false}
+            className="small js-more-options"
             onClick={this.handleMoreOptionsClick}>
             {translate('login.more_options')}
-          </a>
+          </ButtonLink>
         </div>
       );
     }

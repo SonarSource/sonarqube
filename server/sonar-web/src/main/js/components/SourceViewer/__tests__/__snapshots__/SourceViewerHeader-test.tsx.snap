@@ -14,7 +14,7 @@ exports[`should render correctly for a regular file 1`] = `
         className="component-name-parent"
       >
         <a
-          className="link-with-icon"
+          className="link-no-underline"
           href="/dashboard?id=project"
         >
           <QualifierIcon
@@ -129,7 +129,7 @@ exports[`should render correctly for a unit test 1`] = `
         className="component-name-parent"
       >
         <a
-          className="link-with-icon"
+          className="link-no-underline"
           href="/dashboard?id=my-project"
         >
           <QualifierIcon
@@ -262,7 +262,7 @@ exports[`should render correctly if issue details are passed 1`] = `
         className="component-name-parent"
       >
         <a
-          className="link-with-icon"
+          className="link-no-underline"
           href="/dashboard?id=project"
         >
           <QualifierIcon

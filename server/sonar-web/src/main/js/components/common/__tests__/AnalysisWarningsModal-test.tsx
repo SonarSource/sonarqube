@@ -22,7 +22,8 @@ import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
 import { mockCurrentUser } from '../../../helpers/testMocks';
-import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
+import { ButtonLink } from '../../controls/buttons';
 import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({
@@ -67,11 +68,14 @@ it('should correctly handle dismissing warnings', async () => {
     warnings: [mockTaskWarning({ key: 'bar', dismissable: true })]
   });
 
-  const click = wrapper.find('ButtonLink.link-base-color').props().onClick;
+  const { onClick } = wrapper
+    .find(ButtonLink)
+    .at(0)
+    .props();
 
-  expect(click).toBeDefined();
-
-  click!(mockEvent());
+  if (onClick) {
+    onClick();
+  }
 
   await waitAndUpdate(wrapper);
 

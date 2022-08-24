@@ -19,7 +19,7 @@ exports[`should render correctly: default 1`] = `
         values={
           Object {
             "link": <a
-              className="link-with-icon"
+              className="link-no-underline"
               href="http://www.example.com/_usersSettings/tokens"
               rel="noopener noreferrer"
               target="_blank"
@@ -95,7 +95,7 @@ exports[`should render correctly: submitting 1`] = `
         values={
           Object {
             "link": <a
-              className="link-with-icon"
+              className="link-no-underline"
               href="http://www.example.com/_usersSettings/tokens"
               rel="noopener noreferrer"
               target="_blank"
@@ -171,7 +171,7 @@ exports[`should render correctly: validation failed 1`] = `
         values={
           Object {
             "link": <a
-              className="link-with-icon"
+              className="link-no-underline"
               href="http://www.example.com/_usersSettings/tokens"
               rel="noopener noreferrer"
               target="_blank"

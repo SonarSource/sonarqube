@@ -21,13 +21,12 @@ exports[`should show less 1`] = `
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.15
-  <a
-    className="spacer-left text-muted"
-    href="#"
+  <ButtonLink
+    className="spacer-left"
     onClick={[Function]}
   >
     show_less
-  </a>
+  </ButtonLink>
 </footer>
 `;
 
@@ -36,12 +35,11 @@ exports[`should show more 1`] = `
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.3
-  <a
-    className="spacer-left text-muted"
-    href="#"
+  <ButtonLink
+    className="spacer-left"
     onClick={[Function]}
   >
     show_more
-  </a>
+  </ButtonLink>
 </footer>
 `;

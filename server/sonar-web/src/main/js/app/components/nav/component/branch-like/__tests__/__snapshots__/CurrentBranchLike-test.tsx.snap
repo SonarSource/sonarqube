@@ -13,6 +13,7 @@ exports[`applications should render correctly when there are many branchlikes 1`
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -37,6 +38,7 @@ exports[`applications should render correctly when there is only one branch and 
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -60,6 +62,7 @@ exports[`applications should render correctly when there is only one branch and 
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -90,7 +93,7 @@ exports[`applications should render correctly when there is only one branch and 
     }
   >
     <PlusCircleIcon
-      fill="#4b9fd5"
+      fill="#0271B9"
       size={12}
     />
   </HelpTooltip>
@@ -110,6 +113,7 @@ exports[`projects should render correctly when branches support is disabled: alm
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -131,7 +135,7 @@ exports[`projects should render correctly when branches support is disabled: alm
     title="branch_like_navigation.no_branch_support.title.mr"
   >
     <PlusCircleIcon
-      fill="#4b9fd5"
+      fill="#0271B9"
       size={12}
     />
   </DocumentationTooltip>
@@ -151,6 +155,7 @@ exports[`projects should render correctly when branches support is disabled: alm
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -172,7 +177,7 @@ exports[`projects should render correctly when branches support is disabled: alm
     title="branch_like_navigation.no_branch_support.title.pr"
   >
     <PlusCircleIcon
-      fill="#4b9fd5"
+      fill="#0271B9"
       size={12}
     />
   </DocumentationTooltip>
@@ -192,6 +197,7 @@ exports[`projects should render correctly when branches support is disabled: def
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -213,7 +219,7 @@ exports[`projects should render correctly when branches support is disabled: def
     title="branch_like_navigation.no_branch_support.title"
   >
     <PlusCircleIcon
-      fill="#4b9fd5"
+      fill="#0271B9"
       size={12}
     />
   </DocumentationTooltip>
@@ -233,6 +239,7 @@ exports[`projects should render correctly when there are many branchlikes 1`] = 
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -257,6 +264,7 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
         "name": "master",
       }
     }
+    fill="#0271B9"
   />
   <span
     className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
@@ -287,7 +295,7 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
     title="branch_like_navigation.only_one_branch.title"
   >
     <PlusCircleIcon
-      fill="#4b9fd5"
+      fill="#0271B9"
       size={12}
     />
   </DocumentationTooltip>

@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ButtonPlain } from '../../../../../../components/controls/buttons';
 import Toggler from '../../../../../../components/controls/Toggler';
 import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
@@ -40,10 +41,10 @@ it('should properly toggle menu opening when clicking the anchor', () => {
   const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
   expect(wrapper.find(Toggler).props().open).toBe(false);
 
-  click(wrapper.find('a'));
+  click(wrapper.find(ButtonPlain));
   expect(wrapper.find(Toggler).props().open).toBe(true);
 
-  click(wrapper.find('a'));
+  click(wrapper.find(ButtonPlain));
   expect(wrapper.find(Toggler).props().open).toBe(false);
 });
 
@@ -51,7 +52,7 @@ it('should properly close menu when toggler asks for', () => {
   const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
   expect(wrapper.find(Toggler).props().open).toBe(false);
 
-  click(wrapper.find('a'));
+  click(wrapper.find(ButtonPlain));
   expect(wrapper.find(Toggler).props().open).toBe(true);
 
   wrapper

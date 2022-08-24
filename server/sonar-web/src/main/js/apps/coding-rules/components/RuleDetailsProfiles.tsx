@@ -73,7 +73,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
         {(activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
           <>
             <RuleInheritanceIcon className="text-middle" inheritance={activation.inherit} />
-            <Link className="link-base-color little-spacer-left text-middle" to={profilePath}>
+            <Link className="little-spacer-left text-middle" to={profilePath}>
               {profile.parentName}
             </Link>
           </>

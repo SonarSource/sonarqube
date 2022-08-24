@@ -78,7 +78,7 @@ exports[`renders correctly: with links 1`] = `
           className="little-spacer-bottom"
         >
           <Link
-            className="display-inline-flex-center link-with-icon"
+            className="display-inline-flex-center"
             rel="noopener noreferrer"
             target="_blank"
             to="http://link.tosome.place"
@@ -97,7 +97,7 @@ exports[`renders correctly: with links 1`] = `
           className="little-spacer-bottom"
         >
           <Link
-            className="display-inline-flex-center link-with-icon"
+            className="display-inline-flex-center"
             rel="noopener noreferrer"
             target="_blank"
             to="/documentation/guide"

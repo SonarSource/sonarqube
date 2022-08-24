@@ -53,7 +53,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
 
         <td className="nowrap hide-overflow project-row-text-cell">
           <Link
-            className="link-with-icon"
+            className="link-no-underline"
             to={getComponentOverviewUrl(project.key, project.qualifier)}>
             <QualifierIcon className="little-spacer-right" qualifier={project.qualifier} />
 

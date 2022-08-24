@@ -17,7 +17,7 @@ exports[`renders 1`] = `
     className="nowrap hide-overflow project-row-text-cell"
   >
     <Link
-      className="link-with-icon"
+      className="link-no-underline"
       to={
         Object {
           "pathname": "/dashboard",
@@ -109,7 +109,7 @@ exports[`renders: portfolio 1`] = `
     className="nowrap hide-overflow project-row-text-cell"
   >
     <Link
-      className="link-with-icon"
+      className="link-no-underline"
       to={
         Object {
           "pathname": "/portfolio",
@@ -201,7 +201,7 @@ exports[`renders: with lastAnalysisDate 1`] = `
     className="nowrap hide-overflow project-row-text-cell"
   >
     <Link
-      className="link-with-icon"
+      className="link-no-underline"
       to={
         Object {
           "pathname": "/dashboard",

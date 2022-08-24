@@ -43,7 +43,7 @@ export function Header(props: HeaderProps) {
   return (
     <>
       <Helmet title={component.name} />
-      <header className="display-flex-center flex-shrink">
+      <div className="display-flex-center flex-shrink">
         <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
         {isLoggedIn(currentUser) && (
           <Favorite
@@ -64,7 +64,7 @@ export function Header(props: HeaderProps) {
             <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
           </>
         )}
-      </header>
+      </div>
     </>
   );
 }

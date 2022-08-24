@@ -66,7 +66,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
                     </Link>
                   ) : (
                     <Link
-                      className="display-inline-flex-center link-with-icon"
+                      className="display-inline-flex-center"
                       to={href}
                       rel="noopener noreferrer"
                       target="_blank">

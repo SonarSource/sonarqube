@@ -17,6 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.branch-like-navigation-toggler {
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.branch-like-navigation-toggler:hover {
+  border-color: var(--black38);
+  color: inherit !important;
+}
+
+.branch-like-navigation-toggler:active,
+.branch-like-navigation-toggler.open {
+  border-color: var(--primary);
+}
+
+.branch-like-navigation-toggler-container {
+  height: 26px;
+}
+
 .branch-like-navigation-toggler-container .popup {
   min-width: 430px;
   max-width: 650px;

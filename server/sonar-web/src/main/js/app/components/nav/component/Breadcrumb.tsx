@@ -25,6 +25,7 @@ import { isMainBranch } from '../../../../helpers/branch-like';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
 import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
+import { colors } from '../../../theme';
 
 export interface BreadcrumbProps {
   component: Component;
@@ -37,32 +38,62 @@ export function Breadcrumb(props: BreadcrumbProps) {
     currentBranchLike
   } = props;
   const lastBreadcrumbElement = last(breadcrumbs);
-  const isNoMainBranch = currentBranchLike && !isMainBranch(currentBranchLike);
+  const isNotMainBranch = currentBranchLike && !isMainBranch(currentBranchLike);
 
   return (
     <div className="big flex-shrink display-flex-center">
       {breadcrumbs.map((breadcrumbElement, i) => {
         const isFirst = i === 0;
         const isNotLast = i < breadcrumbs.length - 1;
+        const isLast = !isNotLast;
+        const showQualifierIcon = isFirst && lastBreadcrumbElement;
+
+        const name =
+          isNotMainBranch || isNotLast ? (
+            <>
+              {showQualifierIcon && !isNotMainBranch && (
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier={lastBreadcrumbElement.qualifier}
+                  fill={colors.neutral800}
+                />
+              )}
+              <Link
+                className="link-no-underline"
+                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
+                {showQualifierIcon && isNotMainBranch && (
+                  <QualifierIcon
+                    className="spacer-right"
+                    qualifier={lastBreadcrumbElement.qualifier}
+                    fill={colors.primary}
+                  />
+                )}
+                {breadcrumbElement.name}
+              </Link>
+            </>
+          ) : (
+            <>
+              {showQualifierIcon && (
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier={lastBreadcrumbElement.qualifier}
+                  fill={colors.neutral800}
+                />
+              )}
+              {breadcrumbElement.name}
+            </>
+          );
 
         return (
           <span className="flex-shrink display-flex-center" key={breadcrumbElement.key}>
-            {isFirst && lastBreadcrumbElement && (
-              <QualifierIcon className="spacer-right" qualifier={lastBreadcrumbElement.qualifier} />
-            )}
-            {isNoMainBranch || isNotLast ? (
-              <h1>
-                <Link
-                  className="link-no-underline text-ellipsis"
-                  title={breadcrumbElement.name}
-                  to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
-                  {breadcrumbElement.name}
-                </Link>
+            {isLast ? (
+              <h1 className="text-ellipsis" title={breadcrumbElement.name}>
+                {name}
               </h1>
             ) : (
-              <h1 className="text-ellipsis" title={breadcrumbElement.name}>
-                {breadcrumbElement.name}
-              </h1>
+              <span className="text-ellipsis" title={breadcrumbElement.name}>
+                {name}
+              </span>
             )}
             {isNotLast && <span className="slash-separator" />}
           </span>

@@ -13,7 +13,7 @@ exports[`should render correctly 1`] = `
       className="spacer-right"
     >
       <a
-        className="link-with-icon"
+        className="link-no-underline"
         href="/dashboard?id=my-project"
       >
         <QualifierIcon
@@ -241,7 +241,7 @@ exports[`should render correctly: project root 1`] = `
       className="spacer-right"
     >
       <a
-        className="link-with-icon"
+        className="link-no-underline"
         href="/dashboard?id=my-project"
       >
         <QualifierIcon

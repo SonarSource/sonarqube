@@ -145,7 +145,6 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
                   {dismissable && currentUser.isLoggedIn && (
                     <div className="spacer-top display-flex-inline">
                       <ButtonLink
-                        className="link-base-color"
                         disabled={Boolean(dismissedWarning)}
                         onClick={() => {
                           this.handleDismissMessage(key);

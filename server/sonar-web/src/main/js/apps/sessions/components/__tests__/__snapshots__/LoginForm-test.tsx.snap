@@ -4,13 +4,13 @@ exports[`expands more options 1`] = `
 <div
   className="text-center"
 >
-  <a
-    className="small text-muted js-more-options"
-    href="#"
+  <ButtonLink
+    aria-expanded={false}
+    className="small js-more-options"
     onClick={[Function]}
   >
     login.more_options
-  </a>
+  </ButtonLink>
 </div>
 `;
 

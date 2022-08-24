@@ -43,6 +43,8 @@ interface Props {
   systemStatus: SysStatus;
 }
 
+const ALERT_HEIGHT = 30;
+
 export class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
     extensions: []
@@ -249,12 +251,12 @@ export class SettingsNav extends React.PureComponent<Props> {
 
     return (
       <ContextNavBar
-        height={notifComponent ? contextNavHeight + 30 : contextNavHeight}
+        height={notifComponent ? contextNavHeight + ALERT_HEIGHT : contextNavHeight}
         id="context-navigation"
         notif={notifComponent}>
-        <header className="navbar-context-header">
+        <div className="navbar-context-header">
           <h1>{translate('layout.settings')}</h1>
-        </header>
+        </div>
 
         <NavBarTabs>
           {this.renderConfigurationTab()}

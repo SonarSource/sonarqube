@@ -73,7 +73,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
             values={{
               link: url ? (
                 <a
-                  className="link-with-icon"
+                  className="link-no-underline"
                   href={getAzurePatUrl(url)}
                   rel="noopener noreferrer"
                   target="_blank">

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { ButtonLink } from '../controls/buttons';
 
 interface Props {
   count: number;
@@ -29,15 +30,11 @@ interface Props {
 }
 
 export default class ListStyleFacetFooter extends React.PureComponent<Props> {
-  handleShowMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleShowMoreClick = () => {
     this.props.showMore();
   };
 
-  handleShowLessClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleShowLessClick = () => {
     if (this.props.showLess) {
       this.props.showLess();
     }
@@ -53,15 +50,15 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
         {translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
 
         {hasMore && (
-          <a className="spacer-left text-muted" href="#" onClick={this.handleShowMoreClick}>
+          <ButtonLink className="spacer-left" onClick={this.handleShowMoreClick}>
             {translate('show_more')}
-          </a>
+          </ButtonLink>
         )}
 
         {this.props.showLess && allShown && (
-          <a className="spacer-left text-muted" href="#" onClick={this.handleShowLessClick}>
+          <ButtonLink className="spacer-left" onClick={this.handleShowLessClick}>
             {translate('show_less')}
-          </a>
+          </ButtonLink>
         )}
       </footer>
     );

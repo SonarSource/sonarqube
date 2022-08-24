@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-right"
   >
     <Link
-      className="small text-muted"
+      className="small"
       to={
         Object {
           "pathname": "/coding_rules",
@@ -72,7 +72,7 @@ exports[`should render correctly if there is 0 rules 1`] = `
     className="thin nowrap text-right"
   >
     <span
-      className="note text-muted"
+      className="note"
     >
       0
     </span>

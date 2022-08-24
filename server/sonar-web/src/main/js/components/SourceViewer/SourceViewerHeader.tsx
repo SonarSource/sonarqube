@@ -129,9 +129,9 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
           <div className="component-name">
             <div className="component-name-parent">
               <a
-                className="link-with-icon"
+                className="link-no-underline"
                 href={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}>
-                <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
+                <QualifierIcon qualifier={ComponentQualifier.Project} /> <span>{projectName}</span>
               </a>
             </div>
 

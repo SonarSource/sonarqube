@@ -36,7 +36,6 @@ exports[`should render correctly: default 1`] = `
         key="org.sonarsource.xml:xml"
       >
         <Link
-          className="link-with-icon"
           to={
             Object {
               "pathname": "/dashboard",
@@ -136,7 +135,6 @@ exports[`should render correctly: no active rules, but associated projects 1`] =
         key="org.sonarsource.xml:xml"
       >
         <Link
-          className="link-with-icon"
           to={
             Object {
               "pathname": "/dashboard",
@@ -221,7 +219,6 @@ exports[`should render correctly: no rights 1`] = `
         key="org.sonarsource.xml:xml"
       >
         <Link
-          className="link-with-icon"
           to={
             Object {
               "pathname": "/dashboard",

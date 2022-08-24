@@ -132,16 +132,19 @@ function renderNameWithIcon(
       : undefined;
     return (
       <Link
-        className="link-with-icon"
+        className="display-inline-flex-center link-no-underline"
         to={getComponentOverviewUrl(
           component.refKey || component.key,
           component.qualifier,
-          {
-            branch
-          },
+          { branch },
           codeType
         )}>
-        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier={component.qualifier}
+          fill={colors.primary}
+        />
+        <span>{name}</span>
       </Link>
     );
   } else if (canBrowse) {
@@ -150,14 +153,27 @@ function renderNameWithIcon(
       Object.assign(query, { selected: component.key });
     }
     return (
-      <Link className="link-with-icon" to={{ pathname: '/code', search: queryToSearch(query) }}>
-        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
+      <Link
+        className="display-inline-flex-center link-no-underline"
+        to={{ pathname: '/code', search: queryToSearch(query) }}>
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier={component.qualifier}
+          fill={colors.primary}
+        />
+        <span>{name}</span>
       </Link>
     );
   }
   return (
     <span>
-      <QualifierIcon qualifier={component.qualifier} /> {name}
+      <QualifierIcon
+        qualifier={component.qualifier}
+        fill={
+          component.qualifier === ComponentQualifier.Directory ? colors.orange : colors.neutral800
+        }
+      />{' '}
+      {name}
     </span>
   );
 }

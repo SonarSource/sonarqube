@@ -38,19 +38,17 @@ export default class ProfileHeader extends React.PureComponent<Props> {
     const { profile } = this.props;
 
     return (
-      <header className="page-header quality-profile-header">
+      <div className="page-header quality-profile-header">
         <div className="note spacer-bottom">
-          <NavLink end={true} className="text-muted" to={PROFILE_PATH}>
+          <NavLink end={true} to={PROFILE_PATH}>
             {translate('quality_profiles.page')}
           </NavLink>
           {' / '}
-          <Link className="text-muted" to={getProfilesForLanguagePath(profile.language)}>
-            {profile.languageName}
-          </Link>
+          <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
         </div>
 
         <h1 className="page-title">
-          <ProfileLink className="link-base-color" language={profile.language} name={profile.name}>
+          <ProfileLink language={profile.language} name={profile.name}>
             <span>{profile.name}</span>
           </ProfileLink>
           {profile.isDefault && (
@@ -91,7 +89,7 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             {translate('quality_profiles.built_in.description')}
           </div>
         )}
-      </header>
+      </div>
     );
   }
 }

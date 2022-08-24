@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../helpers/testUtils';
+import { ButtonLink } from '../../controls/buttons';
 import ListStyleFacetFooter from '../ListStyleFacetFooter';
 
 it('should not render "show more"', () => {
@@ -34,7 +35,7 @@ it('should show more', () => {
     <ListStyleFacetFooter count={3} showLess={undefined} showMore={showMore} total={15} />
   );
   expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('a'));
+  click(wrapper.find(ButtonLink));
   expect(showMore).toBeCalled();
 });
 
@@ -44,7 +45,7 @@ it('should show less', () => {
     <ListStyleFacetFooter count={15} showLess={showLess} showMore={jest.fn()} total={15} />
   );
   expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('a'));
+  click(wrapper.find(ButtonLink));
   expect(showLess).toBeCalled();
 });
 

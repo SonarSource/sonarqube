@@ -56,7 +56,7 @@ export default class MetaLink extends React.PureComponent<Props, State> {
     return (
       <li>
         <a
-          className="link-with-icon"
+          className="link-no-underline"
           href={isValid ? link.url : undefined}
           onClick={isValid ? undefined : this.handleClick}
           rel="nofollow noreferrer noopener"

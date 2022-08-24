@@ -119,11 +119,8 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
         <ul>
           {sortedProfiles.map(profile => (
             <li className="spacer-top" key={profile.key}>
-              <div className="text-ellipsis">
-                <ProfileLink
-                  className="link-no-underline"
-                  language={profile.language}
-                  name={profile.name}>
+              <div className="text-ellipsis little-spacer-bottom">
+                <ProfileLink language={profile.language} name={profile.name}>
                   {profile.name}
                 </ProfileLink>
               </div>
@@ -131,7 +128,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 {profile.languageName}
                 {', '}
                 <Link
-                  className="text-muted"
+                  className="link-no-underline"
                   to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}>
                   {translateWithParameters(
                     'quality_profile.x_rules',

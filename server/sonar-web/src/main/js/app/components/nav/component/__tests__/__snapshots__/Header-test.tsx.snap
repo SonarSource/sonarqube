@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     prioritizeSeoTags={false}
     title="MyProject"
   />
-  <header
+  <div
     className="display-flex-center flex-shrink"
   >
     <Breadcrumb
@@ -156,6 +156,6 @@ exports[`should render correctly 1`] = `
         }
       }
     />
-  </header>
+  </div>
 </Fragment>
 `;

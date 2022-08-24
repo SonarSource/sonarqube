@@ -119,9 +119,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                   className={classNames(
                     'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
                     {
-                      disabled: disableRepositories,
-                      'text-muted': disableRepositories,
-                      'link-no-underline': disableRepositories
+                      disabled: disableRepositories
                     }
                   )}
                   key={repo.id}

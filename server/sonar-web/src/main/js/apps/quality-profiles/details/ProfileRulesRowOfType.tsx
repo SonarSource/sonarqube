@@ -63,11 +63,11 @@ export default function ProfileRulesRowOfType(props: Props) {
       <td className="thin nowrap text-right">
         {inactiveCount != null &&
           (inactiveCount > 0 ? (
-            <Link className="small text-muted" to={inactiveRulesUrl}>
+            <Link className="small" to={inactiveRulesUrl}>
               {formatMeasure(inactiveCount, 'SHORT_INT', null)}
             </Link>
           ) : (
-            <span className="note text-muted">0</span>
+            <span className="note">0</span>
           ))}
       </td>
     </tr>

@@ -147,7 +147,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         <ul>
           {projects.map(project => (
             <li className="spacer-top js-profile-project" data-key={project.key} key={project.key}>
-              <Link className="link-with-icon" to={getProjectUrl(project.key)}>
+              <Link to={getProjectUrl(project.key)}>
                 <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
               </Link>
             </li>

@@ -36,6 +36,7 @@
 
 .code-breadcrumbs > li {
   padding: 5px 5px 3px;
+  display: flex;
 }
 
 .code-breadcrumbs > li:first-child {
@@ -44,7 +45,7 @@
 
 .code-breadcrumbs > li::after {
   position: relative;
-  top: -1px;
+  top: 1px;
   padding-left: 10px;
   color: var(--secondFontColor);
   font-size: 11px;

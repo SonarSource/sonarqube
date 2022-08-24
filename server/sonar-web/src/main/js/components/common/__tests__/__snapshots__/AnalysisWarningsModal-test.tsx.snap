@@ -254,7 +254,6 @@ exports[`should render correctly: with dismissable warnings 1`] = `
             className="spacer-top display-flex-inline"
           >
             <ButtonLink
-              className="link-base-color"
               disabled={false}
               onClick={[Function]}
             >

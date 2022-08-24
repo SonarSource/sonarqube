@@ -74,7 +74,7 @@ export default function IssueSourceViewerHeader(props: Props) {
           <div className="spacer-right">
             {linkToProject ? (
               <a
-                className="link-with-icon"
+                className="link-no-underline"
                 href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
                 {projectNameLabel}
               </a>
