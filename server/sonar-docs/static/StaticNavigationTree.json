@@ -2,7 +2,10 @@
   "/setup/get-started-2-minutes/",
   {
     "title": "Requirements",
-    "children": ["/requirements/requirements/", "/requirements/hardware-recommendations/"]
+    "children": [
+      "/requirements/requirements/",
+      "/requirements/hardware-recommendations/"
+    ]
   },
   {
     "title": "Setup and Upgrade",
@@ -11,18 +14,27 @@
       "/setup/install-server/",
       {
         "title": "Configure and Operate a Server",
-        "children": ["/setup/operate-server/", "/setup/environment-variables/"]
+        "children": [
+          "/setup/operate-server/",
+          "/setup/environment-variables/"
+        ]
       },
       "/setup/install-plugin/",
       "/setup/install-cluster/",
       "/setup/operate-cluster/",
       {
         "title": "Deploy on Kubernetes",
-        "children": ["/setup/sonarqube-on-kubernetes/", "/setup/sonarqube-cluster-on-kubernetes/"]
+        "children": [
+          "/setup/sonarqube-on-kubernetes/",
+          "/setup/sonarqube-cluster-on-kubernetes/"
+        ]
       },
       {
         "title": "Upgrade the Server",
-        "children": ["/setup/before-you-upgrade/", "/setup/upgrading/"]
+        "children": [
+          "/setup/before-you-upgrade/",
+          "/setup/upgrading/"
+        ]
       },
       "/setup/upgrade-notes/",
       "/setup/troubleshooting/"
@@ -88,17 +100,23 @@
           "/analysis/generic-test/",
           "/analysis/test-coverage/test-coverage-parameters/",
           "/analysis/test-coverage/test-execution-parameters/"
-        ] 
+        ]
       },
       {
         "title": "Importing External Issues",
-        "children": ["/analysis/external-issues/", "/analysis/generic-issue/"]
+        "children": [
+          "/analysis/external-issues/",
+          "/analysis/generic-issue/"
+        ]
       },
       "/analysis/background-tasks/",
       "/analysis/pull-request/",
       {
         "title": "Branches",
-        "children": ["/branches/overview/", "/branches/branches-faq/"]
+        "children": [
+          "/branches/overview/",
+          "/branches/branches-faq/"
+        ]
       },
       {
         "title": "CI Integration",
@@ -120,7 +138,10 @@
       "/analysis/gitlab-integration/",
       {
         "title": "Bitbucket Integration",
-        "children": ["/analysis/bitbucket-integration/", "/analysis/bitbucket-cloud-integration/"]
+        "children": [
+          "/analysis/bitbucket-integration/",
+          "/analysis/bitbucket-cloud-integration/"
+        ]
       },
       "/analysis/azuredevops-integration/"
     ]
@@ -143,7 +164,10 @@
       },
       {
         "title": "User Account",
-        "children": ["/user-guide/user-account/", "/user-guide/user-token/"]
+        "children": [
+          "/user-guide/user-account/",
+          "/user-guide/user-token/"
+        ]
       },
       "/user-guide/issues/",
       "/user-guide/security-hotspots/",
@@ -174,7 +198,15 @@
     "children": [
       "/instance-administration/quality-profiles/",
       "/instance-administration/security/",
-      "/instance-administration/delegated-auth/",
+      {
+        "title": "Authentication",
+        "children": [
+          "/instance-administration/authentication/overview/",
+          "/instance-administration/authentication/http-header/",
+          "/instance-administration/authentication/ldap/",
+          "/instance-administration/authentication/saml/"
+        ]
+      },
       "/instance-administration/look-and-feel/",
       "/instance-administration/marketplace/",
       "/instance-administration/plugin-version-matrix/",

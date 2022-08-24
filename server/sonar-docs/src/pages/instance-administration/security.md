@@ -9,7 +9,7 @@ SonarQube comes with a number of global security features:
 
 * on-board authentication and authorization mechanisms
 * the ability to force users to authenticate before they can see any part of a SonarQube instance
-* the ability to delegate to authentication (for more see [Delegating Authentication](/instance-administration/delegated-auth/))
+* the ability to delegate to authentication (for more see [Authentication](/instance-administration/authentication/overview/))
 
 Additionally, you can configure at a group or user level who can:
 * see that a project even exists
