@@ -40,6 +40,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -128,7 +129,7 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
     try (okhttp3.Response response = client.newCall(newPostRequest(appUrl, token, endPoint, body)).execute()) {
       int responseCode = response.code();
-      if (responseCode == HTTP_OK || responseCode == HTTP_CREATED) {
+      if (responseCode == HTTP_OK || responseCode == HTTP_CREATED || responseCode == HTTP_ACCEPTED) {
         return new ResponseImpl(responseCode, readContent(response.body()).orElse(null));
       } else if (responseCode == HTTP_NO_CONTENT) {
         return new ResponseImpl(responseCode, null);

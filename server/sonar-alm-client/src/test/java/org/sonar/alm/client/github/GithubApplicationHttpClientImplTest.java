@@ -235,17 +235,9 @@ public class GithubApplicationHttpClientImplTest {
   }
 
   @Test
-  public void post_returns_body_as_response_if_code_is_200() throws IOException {
-    server.enqueue(new MockResponse().setResponseCode(200).setBody(randomBody));
-
-    Response response = underTest.post(appUrl, accessToken, randomEndPoint);
-
-    assertThat(response.getContent()).contains(randomBody);
-  }
-
-  @Test
-  public void post_returns_body_as_response_if_code_is_201() throws IOException {
-    server.enqueue(new MockResponse().setResponseCode(201).setBody(randomBody));
+  @DataProvider({"200", "201", "202"})
+  public void post_returns_body_as_response_if_success(int code) throws IOException {
+    server.enqueue(new MockResponse().setResponseCode(code).setBody(randomBody));
 
     Response response = underTest.post(appUrl, accessToken, randomEndPoint);
 
