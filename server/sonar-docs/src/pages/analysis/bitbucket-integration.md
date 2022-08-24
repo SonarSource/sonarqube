@@ -27,7 +27,7 @@ To set up the import of BitBucket Server repositories:
 1. Add a personal access token for importing repositories
 
 ### Setting your global DevOps Platform Integration settings
-To set your global DevOps Platform Integration settings, navigate to **Administration > DevOps Platform Integrations**, select the **Bitbucket** tab, and select **Bitbucket Server** as the variant you want to configure. From here, specify the following settings:
+To set your global DevOps Platform Integration settings, navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations**, select the **Bitbucket** tab, and select **Bitbucket Server** as the variant you want to configure. From here, specify the following settings:
 
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Server configuration at the project level. Use something succinct and easily recognizable.
 - **Bitbucket Server URL** – your instances URL. For example, `https://bitbucket-server.your-company.com`.

@@ -82,7 +82,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getAlmIntegrationComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: false
+    displayTab: true
   },
   {
     key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,

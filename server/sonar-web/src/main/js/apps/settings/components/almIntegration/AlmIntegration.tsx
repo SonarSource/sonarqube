@@ -34,13 +34,11 @@ import {
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
 import { AppState } from '../../../../types/appstate';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
 interface Props {
   appState: AppState;
-  definitions: ExtendedSettingDefinition[];
   location: Location;
   router: Router;
 }
@@ -212,8 +210,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      appState: { branchesEnabled, multipleAlmEnabled },
-      definitions: settingsDefinitions
+      appState: { branchesEnabled, multipleAlmEnabled }
     } = this.props;
     const {
       currentAlmTab,
@@ -242,7 +239,6 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
         loadingAlmDefinitions={loadingAlmDefinitions}
         loadingProjectCount={loadingProjectCount}
         projectCount={projectCount}
-        settingsDefinitions={settingsDefinitions}
       />
     );
   }

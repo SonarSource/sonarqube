@@ -22,6 +22,5 @@ exports[`should render correctly 1`] = `
   onCreate={[Function]}
   onDelete={[MockFunction]}
   onEdit={[Function]}
-  settingsDefinitions={Array []}
 />
 `;

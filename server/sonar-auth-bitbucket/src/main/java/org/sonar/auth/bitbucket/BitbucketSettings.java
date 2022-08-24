@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
@@ -40,6 +39,7 @@ public class BitbucketSettings {
   public static final String WORKSPACE_ALLOWED_LIST = "sonar.auth.bitbucket.workspaces";
   public static final String DEFAULT_API_URL = "https://api.bitbucket.org/";
   public static final String DEFAULT_WEB_URL = "https://bitbucket.org/";
+  public static final String CATEGORY = "authentication";
   public static final String SUBCATEGORY = "bitbucket";
 
   private final Configuration config;
@@ -83,7 +83,7 @@ public class BitbucketSettings {
       PropertyDefinition.builder(ENABLED)
         .name("Enabled")
         .description("Enable Bitbucket users to login. Value is ignored if consumer key and secret are not defined.")
-        .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
+        .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
         .defaultValue(String.valueOf(false))
@@ -92,21 +92,21 @@ public class BitbucketSettings {
       PropertyDefinition.builder(CONSUMER_KEY)
         .name("OAuth consumer key")
         .description("Consumer key provided by Bitbucket when registering the consumer.")
-        .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
+        .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(2)
         .build(),
       PropertyDefinition.builder(CONSUMER_SECRET)
         .name("OAuth consumer secret")
         .description("Consumer secret provided by Bitbucket when registering the consumer.")
-        .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
+        .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(3)
         .build(),
       PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)
         .name("Allow users to sign-up")
         .description("Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate.")
-        .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
+        .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
         .defaultValue(String.valueOf(true))
@@ -115,7 +115,7 @@ public class BitbucketSettings {
       PropertyDefinition.builder(WORKSPACE_ALLOWED_LIST)
         .name("Workspaces")
         .description("Only members of at least one of these workspace will be able to authenticate. Keep empty to disable workspace restriction. You can use either the workspace name, or the workspace slug (ex: https://bitbucket.org/{workspace-slug}).")
-        .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
+        .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .multiValues(true)
         .index(5)

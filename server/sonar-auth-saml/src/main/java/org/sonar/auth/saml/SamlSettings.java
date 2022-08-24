@@ -50,7 +50,7 @@ public class SamlSettings {
   public static final String SERVICE_PROVIDER_CERTIFICATE = "sonar.auth.saml.sp.certificate.secured";
   public static final String SERVICE_PROVIDER_PRIVATE_KEY = "sonar.auth.saml.sp.privateKey.secured";
 
-  public static final String CATEGORY = "security";
+  public static final String CATEGORY = "authentication";
   public static final String SUBCATEGORY = "saml";
 
   private final Configuration configuration;

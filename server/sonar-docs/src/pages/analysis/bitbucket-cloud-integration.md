@@ -34,7 +34,7 @@ SonarQube uses a dedicated [OAuth consumer](https://support.atlassian.com/bitbuc
 - **Permissions** – Grant **Read** access for the **Pull requests** permission.
 
 ### Setting your global DevOps Platform Integration settings
-To set your global DevOps Platform Integration settings, navigate to **Administration > DevOps Platform Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
+To set your global DevOps Platform Integration settings, navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
 
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Cloud configuration at the project level. Use something succinct and easily recognizable.
 - **Workspace ID** – The workspace ID is part of your bitbucket cloud URL `https://bitbucket.org/{WORKSPACE-ID}/{repository-slug}`
@@ -315,7 +315,7 @@ Create or update your OAuth consumer in your Bitbucket Cloud workspace settings 
 | If you're using the same OAuth consumer for authentication and importing projects/reporting status to pull requests, make sure that the **This is a private consumer** box is checked and **Read** access for the **Pull requests** permission is granted. 
 
 ### Setting your authentication settings in SonarQube
-To set your global authentication settings, navigate to **Administration > DevOps Platform Integrations** and select the **Bitbucket** tab. Scroll down to the **Bitbucket Authentication** section and update the following settings:
+To set your global authentication settings, navigate to **Administration > Configuration > General Settings > Authentication > Bitbucket Cloud Authentication** and update the following settings:
 
 - **Enabled** - set to true.
 - **OAuth consumer key** - enter the **Key** from your OAuth consumer page in Bitbucket.

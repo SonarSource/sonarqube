@@ -21,7 +21,6 @@ package org.sonar.auth.gitlab;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
@@ -39,7 +38,7 @@ public class GitLabSettings {
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
 
-  private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
+  private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "gitlab";
 
   private final Configuration configuration;

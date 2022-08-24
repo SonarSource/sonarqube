@@ -351,7 +351,7 @@ To allow users to log in with GitHub credentials, use the GitHub App that you cr
 
 To update your global SonarQube settings:
 
-Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitHub > GitHub Authentication** and update the following:
+Navigate to **Administration > Configuration > General Settings > Authentication > GitHub Authentication** and update the following:
 
 1. **Enabled** – set the switch to `true`.
 1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
@@ -367,7 +367,7 @@ If you want to use a dedicated app for GitHub authentication, you can create a G
 
 After creating your app, update your global SonarQube settings: 
 
-Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitHub > GitHub Authentication** and update the following:
+Navigate to **Administration > Configuration > General Settings > Authentication > GitHub Authentication** and update the following:
 
 1. **Enabled** – set the switch to `true`.
 1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.

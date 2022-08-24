@@ -86,7 +86,6 @@ function shallowRender(props: Partial<AlmTab['props']> = {}) {
       onCheck={jest.fn()}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}
-      settingsDefinitions={[]}
       {...props}
     />
   );

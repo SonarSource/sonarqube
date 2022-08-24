@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
 import { Button } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -28,10 +31,7 @@ import {
   AlmSettingsBindingStatus,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
-import { ALM_INTEGRATION_CATEGORY } from '../../constants';
-import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm from './AlmBindingDefinitionForm';
 import { AlmTabs } from './AlmIntegration';
@@ -53,8 +53,13 @@ export interface AlmTabRendererProps {
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
   afterSubmit: (config: AlmBindingDefinitionBase) => void;
-  settingsDefinitions: ExtendedSettingDefinition[];
 }
+
+const AUTHENTICATION_AVAILABLE_PLATFORMS = [
+  AlmKeys.GitHub,
+  AlmKeys.GitLab,
+  AlmKeys.BitbucketServer
+];
 
 export default function AlmTabRenderer(props: AlmTabRendererProps) {
   const {
@@ -66,8 +71,7 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
     editedDefinition,
     loadingAlmDefinitions,
     loadingProjectCount,
-    multipleAlmEnabled,
-    settingsDefinitions
+    multipleAlmEnabled
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
@@ -115,16 +119,24 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
           )}
         </DeferredSpinner>
       </div>
-
-      <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
-
-      <div className="big-padded">
-        <CategoryDefinitionsList
-          category={ALM_INTEGRATION_CATEGORY}
-          definitions={settingsDefinitions}
-          subCategory={almTab}
-        />
-      </div>
+      {AUTHENTICATION_AVAILABLE_PLATFORMS.includes(almTab) && (
+        <Alert variant="info" className="spacer">
+          <FormattedMessage
+            id="settings.almintegration.tabs.authentication-moved"
+            defaultMessage={translate('settings.almintegration.tabs.authentication_moved')}
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/admin/settings?category=authentication'
+                  }}>
+                  {translate('property.category.authentication')}
+                </Link>
+              )
+            }}
+          />
+        </Alert>
+      )}
     </div>
   );
 }

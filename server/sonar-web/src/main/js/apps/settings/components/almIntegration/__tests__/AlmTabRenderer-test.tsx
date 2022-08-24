@@ -104,7 +104,6 @@ function shallowRender(props: Partial<AlmTabRendererProps> = {}) {
       onDelete={jest.fn()}
       onEdit={jest.fn()}
       afterSubmit={jest.fn()}
-      settingsDefinitions={[]}
       {...props}
     />
   );
