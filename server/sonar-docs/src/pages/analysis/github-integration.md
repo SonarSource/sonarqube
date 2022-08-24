@@ -38,7 +38,7 @@ Specify the following settings in your app:
 - **GitHub App Name** – Your app's name.
 - **Homepage URL** – You can use any URL, such as `https://www.sonarqube.org/`.
 - **User authorization callback URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
-- **Webhook URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
+- **Webhook URL** – To improve security, webhooks, by default, are not allowed to point to the SonarQube server since version 8.9LTS, therefore we recommend that you disable the feature. You should clear the **Webhook Active** checkbox to silence a forthcoming deprecation warning, and clear the **Webhook URL** and **Webhook secret** fields when creating your Github app.
 - Grant access for the following **Repository permissions**:
 
   | Permission          | Access       |
