@@ -73,6 +73,11 @@
   align-items: stretch;
 }
 
+.tabbed-definitions .settings-definition {
+  margin: 0 -16px;
+  padding: 10px 16px;
+}
+
 .settings-definition-changed {
   border-top: 1px solid var(--alertBorderWarning);
   border-bottom: 1px solid var(--alertBorderWarning);

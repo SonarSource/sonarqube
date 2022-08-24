@@ -118,3 +118,33 @@ exports[`should render additional categories component correctly 5`] = `
   }
 />
 `;
+
+exports[`should render additional categories component correctly 6`] = `
+<Authentication
+  categories={Array []}
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  definitions={Array []}
+  selectedCategory="TEST"
+/>
+`;

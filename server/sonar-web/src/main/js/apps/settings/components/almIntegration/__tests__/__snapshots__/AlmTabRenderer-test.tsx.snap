@@ -551,7 +551,8 @@ exports[`should render correctly with validation: pass the correct key for bitbu
           "link": <Link
             to={
               Object {
-                "pathname": "/admin/settings?category=authentication",
+                "pathname": "/admin/settings",
+                "search": "category=authentication&tab=bitbucket",
               }
             }
           >

@@ -20,6 +20,7 @@
 import { Dict } from '../../types/types';
 
 export const ALM_INTEGRATION_CATEGORY = 'almintegration';
+export const AUTHENTICATION_CATEGORY = 'authentication';
 export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
 export const LANGUAGES_CATEGORY = 'languages';
 export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';

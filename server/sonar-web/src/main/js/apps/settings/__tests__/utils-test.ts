@@ -100,7 +100,7 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.gitlab.name',
         pathname: '/admin/settings',
-        search: '?category=foo+category&alm=gitlab'
+        search: '?category=foo+category&tab=gitlab'
       }
     ],
     [
@@ -109,7 +109,16 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.github.token',
         pathname: '/admin/settings',
-        search: '?category=foo+category&alm=github'
+        search: '?category=foo+category&tab=github'
+      }
+    ],
+    [
+      mockDefinition({ key: 'sonar.auth.bitbucket.token' }),
+      undefined,
+      {
+        hash: '#sonar.auth.bitbucket.token',
+        pathname: '/admin/settings',
+        search: '?category=foo+category&tab=bitbucket'
       }
     ],
     [

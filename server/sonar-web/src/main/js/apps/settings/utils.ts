@@ -225,9 +225,11 @@ export function buildSettingLink(
   const query: Dict<string> = {};
 
   if (key.startsWith('sonar.auth.gitlab')) {
-    query.alm = 'gitlab';
+    query.tab = 'gitlab';
   } else if (key.startsWith('sonar.auth.github')) {
-    query.alm = 'github';
+    query.tab = 'github';
+  } else if (key.startsWith('sonar.auth.bitbucket')) {
+    query.tab = 'bitbucket';
   } else if (key.startsWith('sonar.almintegration')) {
     query.alm = key.split('.').pop() || '';
   }

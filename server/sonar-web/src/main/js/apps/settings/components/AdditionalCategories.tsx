@@ -24,12 +24,14 @@ import { Component } from '../../../types/types';
 import {
   ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
+  AUTHENTICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY
 } from '../constants';
 import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
+import Authentication from './authentication/Authentication';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
@@ -92,6 +94,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableForProject: true,
     displayTab: true,
     requiresBranchesEnabled: true
+  },
+  {
+    key: AUTHENTICATION_CATEGORY,
+    name: translate('property.category.authentication'),
+    renderComponent: getAuthenticationComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: false
   }
 ];
 
@@ -109,6 +119,10 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
 
 function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
   return <AlmIntegration {...props} />;
+}
+
+function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
+  return <Authentication {...props} />;
 }
 
 function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {

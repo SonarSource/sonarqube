@@ -128,7 +128,8 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
               link: (
                 <Link
                   to={{
-                    pathname: '/admin/settings?category=authentication'
+                    pathname: '/admin/settings',
+                    search: `category=authentication&tab=${almTab}`
                   }}>
                   {translate('property.category.authentication')}
                 </Link>
