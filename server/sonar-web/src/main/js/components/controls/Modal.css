@@ -128,7 +128,8 @@
 }
 
 .modal-field label,
-.modal-validation-field label {
+.modal-validation-field label,
+.modal-field legend {
   display: block;
   font-weight: bold;
   padding-bottom: calc(var(--gridSize) / 2);

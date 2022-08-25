@@ -419,20 +419,22 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     return (
       <div className="modal-field">
-        <label>{translate('issue.transition')}</label>
-        {transitions.map(transition => (
-          <span
-            className="bulk-change-radio-button display-flex-center display-flex-space-between"
-            key={transition.transition}>
-            <Radio
-              checked={this.state.transition === transition.transition}
-              onCheck={this.handleRadioTransitionChange}
-              value={transition.transition}>
-              {translate('issue.transition', transition.transition)}
-            </Radio>
-            {this.renderAffected(transition.count)}
-          </span>
-        ))}
+        <fieldset>
+          <legend>{translate('issue.transition')}</legend>
+          {transitions.map(transition => (
+            <span
+              className="bulk-change-radio-button display-flex-center display-flex-space-between"
+              key={transition.transition}>
+              <Radio
+                checked={this.state.transition === transition.transition}
+                onCheck={this.handleRadioTransitionChange}
+                value={transition.transition}>
+                {translate('issue.transition', transition.transition)}
+              </Radio>
+              {this.renderAffected(transition.count)}
+            </span>
+          ))}
+        </fieldset>
       </div>
     );
   };
