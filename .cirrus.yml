@@ -156,7 +156,7 @@ build_task:
     - ./private/cirrus/cirrus-build.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-yarn_lint-report-ci_task:
+yarn_lint_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -169,7 +169,20 @@ yarn_lint-report-ci_task:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-yarn_validate-ci_task:
+yarn_check_task:
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 5
+    memory: 6Gb
+  script: |
+    ./private/cirrus/cirrus-env.sh YARN
+    gradle yarn_check-ci --profile
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+yarn_validate_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -203,8 +216,8 @@ validate_task:
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
   depends_on:
-    - yarn_validate-ci
-    - yarn_lint-report-ci
+    - yarn_validate
+    - yarn_lint
     - junit
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -215,19 +228,6 @@ validate_task:
     CIRRUS_CLONE_DEPTH: 0
   script:
     - ./private/cirrus/cirrus-validate.sh
-  <<: *DEFAULT_ARTIFACTS_TEMPLATE
-
-yarn_check-ci_task:
-  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  <<: *YARN_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 6Gb
-  script: |
-    ./private/cirrus/cirrus-env.sh YARN
-    gradle yarn_check-ci --profile
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_task:
