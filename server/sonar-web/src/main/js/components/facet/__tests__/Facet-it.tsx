@@ -66,7 +66,7 @@ it('should correctly render a header with helper text', async () => {
 it('should correctly render a header with value data', () => {
   renderFacet(undefined, { values: ['value 1'] });
   expect(screen.getByText('value 1')).toBeInTheDocument();
-  screen.getByRole('button', { name: 'clear' }).click();
+  screen.getByRole('button', { name: 'clear_x_filter.foo' }).click();
   expect(screen.queryByText('value 1')).not.toBeInTheDocument();
 });
 

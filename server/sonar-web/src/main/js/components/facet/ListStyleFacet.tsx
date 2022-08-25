@@ -22,7 +22,6 @@ import { sortBy, without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../components/controls/ListFooter';
 import SearchBox from '../../components/controls/SearchBox';
-import Tooltip from '../../components/controls/Tooltip';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
@@ -395,11 +394,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         property={this.props.property}>
         <FacetHeader
           fetching={this.props.fetching}
-          name={
-            <Tooltip overlay={disabled ? this.props.disabledHelper : undefined}>
-              <span>{this.props.facetHeader}</span>
-            </Tooltip>
-          }
+          name={this.props.facetHeader}
+          disabled={disabled}
+          disabledHelper={this.props.disabledHelper}
           onClear={this.handleClear}
           onClick={disabled ? undefined : this.handleHeaderClick}
           open={this.props.open && !disabled}

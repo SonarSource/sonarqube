@@ -23,12 +23,15 @@ import HelpTooltip from '../../components/controls/HelpTooltip';
 import OpenCloseIcon from '../../components/icons/OpenCloseIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import Tooltip from '../controls/Tooltip';
 
 interface Props {
   children?: React.ReactNode;
   fetching?: boolean;
   helper?: string;
-  name: React.ReactNode;
+  disabled?: boolean;
+  disabledHelper?: string;
+  name: string;
   onClear?: () => void;
   onClick?: () => void;
   open: boolean;
@@ -66,9 +69,15 @@ export default class FacetHeader extends React.PureComponent<Props> {
   }
 
   render() {
-    const showClearButton =
-      this.props.values != null && this.props.values.length > 0 && this.props.onClear != null;
-
+    const { disabled, values, disabledHelper, name, open, children, fetching } = this.props;
+    const showClearButton = values != null && values.length > 0 && this.props.onClear != null;
+    const header = disabled ? (
+      <Tooltip overlay={disabledHelper}>
+        <span>{name}</span>
+      </Tooltip>
+    ) : (
+      name
+    );
     return (
       <div className="search-navigator-facet-header-wrapper display-flex-center">
         {this.props.onClick ? (
@@ -77,27 +86,27 @@ export default class FacetHeader extends React.PureComponent<Props> {
               className="button-link"
               type="button"
               onClick={this.handleClick}
-              aria-expanded={this.props.open}
+              aria-expanded={open}
               tabIndex={0}>
-              <OpenCloseIcon className="little-spacer-right" open={this.props.open} />
-              {this.props.name}
+              <OpenCloseIcon className="little-spacer-right" open={open} />
+              {header}
             </button>
             {this.renderHelper()}
           </span>
         ) : (
           <span className="search-navigator-facet-header display-flex-center">
-            {this.props.name}
+            {header}
             {this.renderHelper()}
           </span>
         )}
 
-        {this.props.children}
+        {children}
 
         <span className="search-navigator-facet-header-value spacer-left spacer-right ">
           {this.renderValueIndicator()}
         </span>
 
-        {this.props.fetching && (
+        {fetching && (
           <span className="little-spacer-right">
             <DeferredSpinner />
           </span>
@@ -106,6 +115,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
         {showClearButton && (
           <Button
             className="search-navigator-facet-header-button button-small button-red"
+            aria-label={translateWithParameters('clear_x_filter', name)}
             onClick={this.props.onClear}>
             {translate('clear')}
           </Button>

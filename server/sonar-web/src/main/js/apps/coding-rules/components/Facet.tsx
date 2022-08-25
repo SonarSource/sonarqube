@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -110,11 +109,9 @@ export default class Facet extends React.PureComponent<Props> {
         className={classNames({ 'search-navigator-facet-box-forbidden': disabled })}
         property={this.props.property}>
         <FacetHeader
-          name={
-            <Tooltip overlay={disabled ? this.props.disabledHelper : undefined}>
-              <span>{translate('coding_rules.facet', this.props.property)}</span>
-            </Tooltip>
-          }
+          name={translate('coding_rules.facet', this.props.property)}
+          disabled={disabled}
+          disabledHelper={this.props.disabledHelper}
           onClear={this.handleClear}
           onClick={disabled ? undefined : this.handleHeaderClick}
           open={this.props.open && !disabled}

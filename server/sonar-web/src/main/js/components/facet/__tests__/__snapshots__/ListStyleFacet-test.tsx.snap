@@ -6,16 +6,10 @@ exports[`should be disabled 1`] = `
   property="foo"
 >
   <FacetHeader
+    disabled={true}
+    disabledHelper="Disabled helper description"
     fetching={false}
-    name={
-      <Tooltip
-        overlay="Disabled helper description"
-      >
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     open={false}
     values={Array []}
@@ -30,13 +24,7 @@ exports[`should display all selected items 1`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -118,13 +106,7 @@ exports[`should render 1`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -193,13 +175,7 @@ exports[`should search 1`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -259,13 +235,7 @@ exports[`should search 2`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -336,13 +306,7 @@ exports[`should search 3`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -411,13 +375,7 @@ exports[`should search 4`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -451,13 +409,7 @@ exports[`should search 5`] = `
 >
   <FacetHeader
     fetching={false}
-    name={
-      <Tooltip>
-        <span>
-          facet header
-        </span>
-      </Tooltip>
-    }
+    name="facet header"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
