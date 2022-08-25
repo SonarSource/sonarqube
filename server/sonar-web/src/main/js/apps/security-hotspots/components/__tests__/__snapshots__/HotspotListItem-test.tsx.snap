@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<a
+<ButtonPlain
+  aria-current={false}
   className="hotspot-item"
-  href="#"
   onClick={[Function]}
 >
   <div
@@ -26,19 +26,18 @@ exports[`should render correctly 1`] = `
       </bdi>
     </div>
   </div>
-</a>
+</ButtonPlain>
 `;
 
 exports[`should render correctly 2`] = `
-<a
+<ButtonPlain
+  aria-current={true}
   className="hotspot-item highlight"
-  href="#"
   onClick={[Function]}
 >
   <div
     className="little-spacer-left text-bold cursor-pointer"
     onClick={[Function]}
-    role="button"
   >
     '3' is a magic number.
   </div>
@@ -63,5 +62,5 @@ exports[`should render correctly 2`] = `
     onLocationSelect={[Function]}
     scroll={[MockFunction]}
   />
-</a>
+</ButtonPlain>
 `;

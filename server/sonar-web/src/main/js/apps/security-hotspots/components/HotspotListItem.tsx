@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { ButtonPlain } from '../../../components/controls/buttons';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import LocationsList from '../../../components/locations/LocationsList';
 import { ComponentQualifier } from '../../../types/component';
@@ -40,14 +41,15 @@ export default function HotspotListItem(props: HotspotListItemProps) {
   const path = getFilePath(hotspot.component, hotspot.project);
 
   return (
-    <a
+    <ButtonPlain
+      aria-current={selected}
       className={classNames('hotspot-item', { highlight: selected })}
-      href="#"
       onClick={() => !selected && props.onClick(hotspot)}>
+      {/* This is not a real interaction it is only for scrolling */
+      /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={classNames('little-spacer-left text-bold', { 'cursor-pointer': selected })}
-        onClick={selected ? () => props.onLocationClick() : undefined}
-        role={selected ? 'button' : undefined}>
+        onClick={selected ? () => props.onLocationClick() : undefined}>
         {hotspot.message}
       </div>
       <div className="display-flex-center big-spacer-top">
@@ -67,6 +69,6 @@ export default function HotspotListItem(props: HotspotListItemProps) {
           scroll={props.onScroll}
         />
       )}
-    </a>
+    </ButtonPlain>
   );
 }
