@@ -360,7 +360,7 @@ export class Menu extends React.PureComponent<Props> {
       (isProject || isApplication) && (
         <li>
           <ButtonLink
-            className="menu-button"
+            className="show-project-info-button"
             onClick={this.props.onToggleProjectInfo}
             innerRef={node => {
               this.projectInfoLink = node;

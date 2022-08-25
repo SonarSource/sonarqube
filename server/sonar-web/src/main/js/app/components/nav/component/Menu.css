@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.navbar-tabs > li > .menu-button {
-  color: var(--darkBlue) !important;
-}
-
-.navbar-tabs > li > .menu-button:hover {
-  color: var(--blue) !important;
-  border-bottom-color: transparent !important;
+.navbar-tabs > li > .show-project-info-button {
+  color: var(--primary) !important;
+  border-bottom-width: 1px;
 }
 
 .navbar-tabs > li > .disabled-link,
