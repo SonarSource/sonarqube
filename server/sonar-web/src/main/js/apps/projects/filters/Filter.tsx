@@ -115,15 +115,16 @@ export default class Filter extends React.PureComponent<Props> {
     );
   }
 
-  renderOption(option: Option) {
+  renderOption(option: Option, highlightable = false, lastHighlightable = false) {
     const { facet, getFacetValueForOption = defaultGetFacetValueForOption, value } = this.props;
+    const active = this.isSelected(option);
     const className = classNames(
       'facet',
       'search-navigator-facet',
       'projects-facet',
       'button-link',
       {
-        active: this.isSelected(option),
+        active,
         'search-navigator-facet-half': this.props.halfWidth
       },
       this.props.optionClassName
@@ -139,26 +140,33 @@ export default class Filter extends React.PureComponent<Props> {
       option > value;
 
     return (
-      <button
-        aria-label={this.props.renderAccessibleLabel(option)}
-        className={className}
-        data-key={option}
-        type="button"
-        tabIndex={0}
+      <li
         key={option}
-        onClick={this.handleClick}
-        role="checkbox"
-        aria-checked={this.isSelected(option) || isUnderSelectedOption}>
-        <span className="facet-name">
-          {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
-        </span>
-        {facetValue != null && (
-          <span className="facet-stat">
-            {formatMeasure(facetValue, 'SHORT_INT')}
-            {this.renderOptionBar(facetValue)}
+        className={classNames({
+          'search-navigator-facet-worse-than-highlight': highlightable,
+          last: lastHighlightable,
+          active
+        })}>
+        <button
+          aria-label={this.props.renderAccessibleLabel(option)}
+          className={className}
+          data-key={option}
+          type="button"
+          tabIndex={0}
+          onClick={this.handleClick}
+          role="checkbox"
+          aria-checked={this.isSelected(option) || isUnderSelectedOption}>
+          <span className="facet-name">
+            {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
           </span>
-        )}
-      </button>
+          {facetValue != null && (
+            <span className="facet-stat">
+              {formatMeasure(facetValue, 'SHORT_INT')}
+              {this.renderOptionBar(facetValue)}
+            </span>
+          )}
+        </button>
+      </li>
     );
   }
 
@@ -171,24 +179,26 @@ export default class Filter extends React.PureComponent<Props> {
         const insideHighlight = options.slice(highlightUnder, max);
         const afterHighlight = options.slice(max);
         return (
-          <div className="search-navigator-facet-list projects-facet-list">
+          <ul className="search-navigator-facet-list projects-facet-list">
             {beforeHighlight.map(option => this.renderOption(option))}
-            <div className="search-navigator-facet-highlight-under-container">
-              {insideHighlight.map(option => this.renderOption(option))}
-            </div>
+            {insideHighlight.map((option, i) =>
+              this.renderOption(option, true, i === insideHighlight.length - 1)
+            )}
             {afterHighlight.map(option => this.renderOption(option))}
-          </div>
-        );
-      } else {
-        return (
-          <div className="search-navigator-facet-list projects-facet-list">
-            {options.map(option => this.renderOption(option))}
-          </div>
+          </ul>
         );
       }
-    } else {
-      return <div className="search-navigator-facet-empty">{translate('no_results')}</div>;
+      return (
+        <ul className="search-navigator-facet-list projects-facet-list">
+          {options.map(option => this.renderOption(option))}
+        </ul>
+      );
     }
+    return (
+      <div className="search-navigator-facet-empty">
+        <em>{translate('projects.facets.no_available_filters_clear_others')}</em>
+      </div>
+    );
   };
 
   render() {

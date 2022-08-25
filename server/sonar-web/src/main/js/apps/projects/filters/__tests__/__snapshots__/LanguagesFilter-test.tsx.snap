@@ -72,100 +72,112 @@ exports[`should render the languages facet with the selected languages 2`] = `
   <FilterHeader
     name="projects.facets.languages"
   />
-  <div
+  <ul
     className="search-navigator-facet-list projects-facet-list"
   >
-    <button
-      aria-checked={true}
-      aria-label="projects.facets.label_text_x.projects.facets.languages.Java"
-      className="facet search-navigator-facet projects-facet button-link active"
-      data-key="java"
+    <li
+      className="active"
       key="java"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={true}
+        aria-label="projects.facets.label_text_x.projects.facets.languages.Java"
+        className="facet search-navigator-facet projects-facet button-link active"
+        data-key="java"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          option={
-            Object {
-              "key": "java",
-              "name": "Java",
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            option={
+              Object {
+                "key": "java",
+                "name": "Java",
+              }
             }
-          }
-          optionKey="java"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        39
-      </span>
-    </button>
-    <button
-      aria-checked={true}
-      aria-label="projects.facets.label_text_x.projects.facets.languages.C#"
-      className="facet search-navigator-facet projects-facet button-link active"
-      data-key="cs"
+            optionKey="java"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          39
+        </span>
+      </button>
+    </li>
+    <li
+      className="active"
       key="cs"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={true}
+        aria-label="projects.facets.label_text_x.projects.facets.languages.C#"
+        className="facet search-navigator-facet projects-facet button-link active"
+        data-key="cs"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          option={
-            Object {
-              "key": "cs",
-              "name": "C#",
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            option={
+              Object {
+                "key": "cs",
+                "name": "C#",
+              }
             }
-          }
-          optionKey="cs"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        4
-      </span>
-    </button>
-    <button
-      aria-checked={false}
-      aria-label="projects.facets.label_text_x.projects.facets.languages.JavaScript"
-      className="facet search-navigator-facet projects-facet button-link"
-      data-key="js"
+            optionKey="cs"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          4
+        </span>
+      </button>
+    </li>
+    <li
+      className=""
       key="js"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={false}
+        aria-label="projects.facets.label_text_x.projects.facets.languages.JavaScript"
+        className="facet search-navigator-facet projects-facet button-link"
+        data-key="js"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          option={
-            Object {
-              "key": "js",
-              "name": "JavaScript",
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            option={
+              Object {
+                "key": "js",
+                "name": "JavaScript",
+              }
             }
-          }
-          optionKey="js"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        1
-      </span>
-    </button>
-  </div>
+            optionKey="js"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          1
+        </span>
+      </button>
+    </li>
+  </ul>
   <SearchableFilterFooter
     onQueryChange={[MockFunction]}
     options={

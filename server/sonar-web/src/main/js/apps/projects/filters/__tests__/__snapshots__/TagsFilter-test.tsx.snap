@@ -157,82 +157,94 @@ exports[`should render the tags facet with the selected tags 2`] = `
   <FilterHeader
     name="projects.facets.tags"
   />
-  <div
+  <ul
     className="search-navigator-facet-list projects-facet-list"
   >
-    <button
-      aria-checked={true}
-      aria-label="projects.facets.label_text_x.projects.facets.tags.lang"
-      className="facet search-navigator-facet projects-facet button-link active"
-      data-key="lang"
+    <li
+      className="active"
       key="lang"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={true}
+        aria-label="projects.facets.label_text_x.projects.facets.tags.lang"
+        className="facet search-navigator-facet projects-facet button-link active"
+        data-key="lang"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          optionKey="lang"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        4
-      </span>
-    </button>
-    <button
-      aria-checked={true}
-      aria-label="projects.facets.label_text_x.projects.facets.tags.sonar"
-      className="facet search-navigator-facet projects-facet button-link active"
-      data-key="sonar"
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            optionKey="lang"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          4
+        </span>
+      </button>
+    </li>
+    <li
+      className="active"
       key="sonar"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={true}
+        aria-label="projects.facets.label_text_x.projects.facets.tags.sonar"
+        className="facet search-navigator-facet projects-facet button-link active"
+        data-key="sonar"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          optionKey="sonar"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        3
-      </span>
-    </button>
-    <button
-      aria-checked={false}
-      aria-label="projects.facets.label_text_x.projects.facets.tags.csharp"
-      className="facet search-navigator-facet projects-facet button-link"
-      data-key="csharp"
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            optionKey="sonar"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          3
+        </span>
+      </button>
+    </li>
+    <li
+      className=""
       key="csharp"
-      onClick={[Function]}
-      role="checkbox"
-      tabIndex={0}
-      type="button"
     >
-      <span
-        className="facet-name"
+      <button
+        aria-checked={false}
+        aria-label="projects.facets.label_text_x.projects.facets.tags.csharp"
+        className="facet search-navigator-facet projects-facet button-link"
+        data-key="csharp"
+        onClick={[Function]}
+        role="checkbox"
+        tabIndex={0}
+        type="button"
       >
-        <SearchableFilterOption
-          optionKey="csharp"
-        />
-      </span>
-      <span
-        className="facet-stat"
-      >
-        1
-      </span>
-    </button>
-  </div>
+        <span
+          className="facet-name"
+        >
+          <SearchableFilterOption
+            optionKey="csharp"
+          />
+        </span>
+        <span
+          className="facet-stat"
+        >
+          1
+        </span>
+      </button>
+    </li>
+  </ul>
   <SearchableFilterFooter
     isLoading={false}
     onInputChange={[Function]}
