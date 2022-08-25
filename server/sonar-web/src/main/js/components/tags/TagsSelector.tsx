@@ -36,6 +36,7 @@ export default function TagsSelector(props: Props) {
     <MultiSelect
       elements={props.tags}
       listSize={props.listSize}
+      legend={translate('select_tags')}
       onSearch={props.onSearch}
       onSelect={props.onSelect}
       onUnselect={props.onUnselect}

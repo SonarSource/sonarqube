@@ -55,7 +55,9 @@ it('should render with the focus inside the search input', () => {
    */
   const container = document.createElement('div');
   document.body.appendChild(container);
-  const multiselect = mount(<MultiSelect {...props} />, { attachTo: container });
+  const multiselect = mount(<MultiSelect legend="multi select" {...props} />, {
+    attachTo: container
+  });
 
   expect(multiselect.find('input').getDOMNode()).toBe(document.activeElement);
 
@@ -94,6 +96,7 @@ function shallowRender(overrides: Partial<MultiSelectProps> = {}) {
     <MultiSelect
       selectedElements={['bar']}
       elements={[]}
+      legend="multi select"
       onSearch={() => Promise.resolve()}
       onSelect={jest.fn()}
       onUnselect={jest.fn()}

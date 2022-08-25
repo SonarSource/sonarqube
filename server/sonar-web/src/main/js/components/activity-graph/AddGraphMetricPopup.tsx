@@ -69,10 +69,11 @@ export default function AddGraphMetricPopup({
         elements={elements}
         filterSelected={props.filterSelected}
         footerNode={footerNode}
+        legend={translate('project_activity.graphs.custom.select_metric')}
         onSearch={props.onSearch}
         onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
         onUnselect={props.onUnselect}
-        placeholder={translate('search.search_for_tags')}
+        placeholder={translate('search.search_for_metrics')}
         renderLabel={props.renderLabel}
         selectedElements={props.selectedElements}
       />

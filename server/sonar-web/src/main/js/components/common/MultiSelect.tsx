@@ -29,6 +29,7 @@ import MultiSelectOption from './MultiSelectOption';
 export interface MultiSelectProps {
   allowNewElements?: boolean;
   allowSelection?: boolean;
+  legend: string;
   elements: string[];
   // eslint-disable-next-line react/no-unused-prop-types
   filterSelected?: (query: string, selectedElements: string[]) => string[];
@@ -258,7 +259,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
   };
 
   render() {
-    const { allowSelection = true, allowNewElements = true, footerNode = '' } = this.props;
+    const { legend, allowSelection = true, allowNewElements = true, footerNode = '' } = this.props;
     const { renderLabel } = this.props as PropsWithDefault;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
@@ -283,46 +284,48 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
             value={query}
           />
         </div>
-        <ul className={listClasses}>
-          {selectedElements.length > 0 &&
-            selectedElements.map(element => (
+        <fieldset aria-label={legend}>
+          <ul className={listClasses}>
+            {selectedElements.length > 0 &&
+              selectedElements.map(element => (
+                <MultiSelectOption
+                  active={activeElement === element}
+                  element={element}
+                  key={element}
+                  onHover={this.handleElementHover}
+                  onSelectChange={this.handleSelectChange}
+                  renderLabel={renderLabel}
+                  selected={true}
+                />
+              ))}
+            {unselectedElements.length > 0 &&
+              unselectedElements.map(element => (
+                <MultiSelectOption
+                  active={activeElement === element}
+                  disabled={!allowSelection}
+                  element={element}
+                  key={element}
+                  onHover={this.handleElementHover}
+                  onSelectChange={this.handleSelectChange}
+                  renderLabel={renderLabel}
+                />
+              ))}
+            {showNewElement && (
               <MultiSelectOption
-                active={activeElement === element}
-                element={element}
-                key={element}
+                active={activeElement === query}
+                custom={true}
+                element={query}
+                key={query}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
                 renderLabel={renderLabel}
-                selected={true}
               />
-            ))}
-          {unselectedElements.length > 0 &&
-            unselectedElements.map(element => (
-              <MultiSelectOption
-                active={activeElement === element}
-                disabled={!allowSelection}
-                element={element}
-                key={element}
-                onHover={this.handleElementHover}
-                onSelectChange={this.handleSelectChange}
-                renderLabel={renderLabel}
-              />
-            ))}
-          {showNewElement && (
-            <MultiSelectOption
-              active={activeElement === query}
-              custom={true}
-              element={query}
-              key={query}
-              onHover={this.handleElementHover}
-              onSelectChange={this.handleSelectChange}
-              renderLabel={renderLabel}
-            />
-          )}
-          {!showNewElement && selectedElements.length < 1 && unselectedElements.length < 1 && (
-            <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
-          )}
-        </ul>
+            )}
+            {!showNewElement && selectedElements.length < 1 && unselectedElements.length < 1 && (
+              <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
+            )}
+          </ul>
+        </fieldset>
         {footerNode}
       </div>
     );

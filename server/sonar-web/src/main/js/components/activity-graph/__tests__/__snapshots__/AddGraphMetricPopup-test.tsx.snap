@@ -10,11 +10,12 @@ exports[`should render correctly 1`] = `
     elements={Array []}
     filterSelected={[MockFunction]}
     footerNode=""
+    legend="project_activity.graphs.custom.select_metric"
     listSize={0}
     onSearch={[MockFunction]}
     onSelect={[Function]}
     onUnselect={[MockFunction]}
-    placeholder="search.search_for_tags"
+    placeholder="search.search_for_metrics"
     renderLabel={[Function]}
     selectedElements={Array []}
     validateSearchInput={[Function]}
@@ -39,11 +40,12 @@ exports[`should render correctly whith 6+ selected elements 1`] = `
         project_activity.graphs.custom.add_metric_info
       </Alert>
     }
+    legend="project_activity.graphs.custom.select_metric"
     listSize={0}
     onSearch={[MockFunction]}
     onSelect={[Function]}
     onUnselect={[MockFunction]}
-    placeholder="search.search_for_tags"
+    placeholder="search.search_for_metrics"
     renderLabel={[Function]}
     selectedElements={
       Array [
@@ -77,11 +79,12 @@ exports[`should render correctly with type filter 1`] = `
         project_activity.graphs.custom.type_x_message.metric.type.filter1, metric.type.filter2
       </Alert>
     }
+    legend="project_activity.graphs.custom.select_metric"
     listSize={0}
     onSearch={[MockFunction]}
     onSelect={[Function]}
     onUnselect={[MockFunction]}
-    placeholder="search.search_for_tags"
+    placeholder="search.search_for_metrics"
     renderLabel={[Function]}
     selectedElements={Array []}
     validateSearchInput={[Function]}

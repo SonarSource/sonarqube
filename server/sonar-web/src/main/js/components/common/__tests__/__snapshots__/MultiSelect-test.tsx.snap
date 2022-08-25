@@ -16,19 +16,23 @@ exports[`should render multiselect with selected elements 1`] = `
       value=""
     />
   </div>
-  <ul
-    className="menu menu-vertically-limited spacer-top with-top-separator"
+  <fieldset
+    aria-label="multi select"
   >
-    <MultiSelectOption
-      active={true}
-      element="bar"
-      key="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-      selected={true}
-    />
-  </ul>
+    <ul
+      className="menu menu-vertically-limited spacer-top with-top-separator"
+    >
+      <MultiSelectOption
+        active={true}
+        element="bar"
+        key="bar"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+        selected={true}
+      />
+    </ul>
+  </fieldset>
 </div>
 `;
 
@@ -48,37 +52,41 @@ exports[`should render multiselect with selected elements 2`] = `
       value=""
     />
   </div>
-  <ul
-    className="menu menu-vertically-limited spacer-top with-top-separator"
+  <fieldset
+    aria-label="multi select"
   >
-    <MultiSelectOption
-      active={true}
-      element="bar"
-      key="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-      selected={true}
-    />
-    <MultiSelectOption
-      active={false}
-      disabled={false}
-      element="foo"
-      key="foo"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-    <MultiSelectOption
-      active={false}
-      disabled={false}
-      element="baz"
-      key="baz"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-  </ul>
+    <ul
+      className="menu menu-vertically-limited spacer-top with-top-separator"
+    >
+      <MultiSelectOption
+        active={true}
+        element="bar"
+        key="bar"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+        selected={true}
+      />
+      <MultiSelectOption
+        active={false}
+        disabled={false}
+        element="foo"
+        key="foo"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+      <MultiSelectOption
+        active={false}
+        disabled={false}
+        element="baz"
+        key="baz"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+    </ul>
+  </fieldset>
 </div>
 `;
 
@@ -98,37 +106,41 @@ exports[`should render multiselect with selected elements 3`] = `
       value=""
     />
   </div>
-  <ul
-    className="menu menu-vertically-limited spacer-top with-top-separator"
+  <fieldset
+    aria-label="multi select"
   >
-    <MultiSelectOption
-      active={false}
-      element="bar"
-      key="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-      selected={true}
-    />
-    <MultiSelectOption
-      active={false}
-      disabled={false}
-      element="foo"
-      key="foo"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-    <MultiSelectOption
-      active={true}
-      disabled={false}
-      element="baz"
-      key="baz"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-  </ul>
+    <ul
+      className="menu menu-vertically-limited spacer-top with-top-separator"
+    >
+      <MultiSelectOption
+        active={false}
+        element="bar"
+        key="bar"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+        selected={true}
+      />
+      <MultiSelectOption
+        active={false}
+        disabled={false}
+        element="foo"
+        key="foo"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+      <MultiSelectOption
+        active={true}
+        disabled={false}
+        element="baz"
+        key="baz"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+    </ul>
+  </fieldset>
 </div>
 `;
 
@@ -148,45 +160,49 @@ exports[`should render multiselect with selected elements 4`] = `
       value="test"
     />
   </div>
-  <ul
-    className="menu menu-vertically-limited spacer-top with-top-separator"
+  <fieldset
+    aria-label="multi select"
   >
-    <MultiSelectOption
-      active={false}
-      element="bar"
-      key="bar"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-      selected={true}
-    />
-    <MultiSelectOption
-      active={false}
-      disabled={false}
-      element="foo"
-      key="foo"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-    <MultiSelectOption
-      active={true}
-      disabled={false}
-      element="baz"
-      key="baz"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-    <MultiSelectOption
-      active={false}
-      custom={true}
-      element="test"
-      key="test"
-      onHover={[Function]}
-      onSelectChange={[Function]}
-      renderLabel={[Function]}
-    />
-  </ul>
+    <ul
+      className="menu menu-vertically-limited spacer-top with-top-separator"
+    >
+      <MultiSelectOption
+        active={false}
+        element="bar"
+        key="bar"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+        selected={true}
+      />
+      <MultiSelectOption
+        active={false}
+        disabled={false}
+        element="foo"
+        key="foo"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+      <MultiSelectOption
+        active={true}
+        disabled={false}
+        element="baz"
+        key="baz"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+      <MultiSelectOption
+        active={false}
+        custom={true}
+        element="test"
+        key="test"
+        onHover={[Function]}
+        onSelectChange={[Function]}
+        renderLabel={[Function]}
+      />
+    </ul>
+  </fieldset>
 </div>
 `;
