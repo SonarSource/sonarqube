@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { rawSizes } from '../../../app/theme';
 import { Button } from '../../../components/controls/buttons';
 import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import Link from '../../common/Link';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 

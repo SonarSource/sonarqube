@@ -2,7 +2,7 @@
 
 exports[`should render correctly for bugs 1`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.bugs.name"
     className="overview-measures-value text-light"
     to={
@@ -14,7 +14,7 @@ exports[`should render correctly for bugs 1`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <BugIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -24,7 +24,7 @@ exports[`should render correctly for bugs 1`] = `
 
 exports[`should render correctly for bugs 2`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_bugs.name"
     className="overview-measures-value text-light"
     to={
@@ -36,7 +36,7 @@ exports[`should render correctly for bugs 2`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <BugIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -46,7 +46,7 @@ exports[`should render correctly for bugs 2`] = `
 
 exports[`should render correctly for code smells 1`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.code_smells.name"
     className="overview-measures-value text-light"
     to={
@@ -58,7 +58,7 @@ exports[`should render correctly for code smells 1`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <CodeSmellIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -68,7 +68,7 @@ exports[`should render correctly for code smells 1`] = `
 
 exports[`should render correctly for code smells 2`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_code_smells.name"
     className="overview-measures-value text-light"
     to={
@@ -80,7 +80,7 @@ exports[`should render correctly for code smells 2`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <CodeSmellIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -90,7 +90,7 @@ exports[`should render correctly for code smells 2`] = `
 
 exports[`should render correctly for hotspots 1`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.security_hotspots.name"
     className="overview-measures-value text-light"
     to={
@@ -102,7 +102,7 @@ exports[`should render correctly for hotspots 1`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <SecurityHotspotIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -116,7 +116,7 @@ exports[`should render correctly for hotspots 1`] = `
 
 exports[`should render correctly for hotspots 2`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_security_hotspots.name"
     className="overview-measures-value text-light"
     to={
@@ -128,7 +128,7 @@ exports[`should render correctly for hotspots 2`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <SecurityHotspotIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -142,7 +142,7 @@ exports[`should render correctly for hotspots 2`] = `
 
 exports[`should render correctly for vulnerabilities 1`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.vulnerabilities.name"
     className="overview-measures-value text-light"
     to={
@@ -154,7 +154,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <VulnerabilityIcon
     className="big-spacer-left little-spacer-right"
   />
@@ -164,7 +164,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
 
 exports[`should render correctly for vulnerabilities 2`] = `
 <Fragment>
-  <Link
+  <ForwardRef(Link)
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_vulnerabilities.name"
     className="overview-measures-value text-light"
     to={
@@ -176,7 +176,7 @@ exports[`should render correctly for vulnerabilities 2`] = `
     }
   >
     1
-  </Link>
+  </ForwardRef(Link)>
   <VulnerabilityIcon
     className="big-spacer-left little-spacer-right"
   />

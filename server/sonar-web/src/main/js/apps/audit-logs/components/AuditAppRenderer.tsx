@@ -21,7 +21,7 @@ import { subDays } from 'date-fns';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import Radio from '../../../components/controls/Radio';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';

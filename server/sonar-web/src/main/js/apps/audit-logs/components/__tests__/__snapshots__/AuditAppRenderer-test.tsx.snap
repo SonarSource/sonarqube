@@ -34,7 +34,7 @@ exports[`should render correctly for Monthly housekeeping policy 1`] = `
       values={
         Object {
           "housekeeping": "audit_logs.housekeeping_policy.Monthly",
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "hash": "#auditLogs",
@@ -44,7 +44,7 @@ exports[`should render correctly for Monthly housekeeping policy 1`] = `
             }
           >
             audit_logs.page.description.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -156,7 +156,7 @@ exports[`should render correctly for Trimestrial housekeeping policy 1`] = `
       values={
         Object {
           "housekeeping": "audit_logs.housekeeping_policy.Trimestrial",
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "hash": "#auditLogs",
@@ -166,7 +166,7 @@ exports[`should render correctly for Trimestrial housekeeping policy 1`] = `
             }
           >
             audit_logs.page.description.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -290,7 +290,7 @@ exports[`should render correctly for Weekly housekeeping policy 1`] = `
       values={
         Object {
           "housekeeping": "audit_logs.housekeeping_policy.Weekly",
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "hash": "#auditLogs",
@@ -300,7 +300,7 @@ exports[`should render correctly for Weekly housekeeping policy 1`] = `
             }
           >
             audit_logs.page.description.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -400,7 +400,7 @@ exports[`should render correctly for Yearly housekeeping policy 1`] = `
       values={
         Object {
           "housekeeping": "audit_logs.housekeeping_policy.Yearly",
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "hash": "#auditLogs",
@@ -410,7 +410,7 @@ exports[`should render correctly for Yearly housekeeping policy 1`] = `
             }
           >
             audit_logs.page.description.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

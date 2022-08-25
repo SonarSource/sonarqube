@@ -24,9 +24,9 @@ import { event, select } from 'd3-selection';
 import { zoom, ZoomBehavior, zoomIdentity } from 'd3-zoom';
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { translate } from '../../helpers/l10n';
+import Link from '../common/Link';
 import Tooltip from '../controls/Tooltip';
 import './BubbleChart.css';
 

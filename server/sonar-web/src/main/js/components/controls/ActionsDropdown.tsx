@@ -19,7 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link, To } from 'react-router-dom';
+import { To } from 'react-router-dom';
+import Link from '../common/Link';
 import DropdownIcon from '../icons/DropdownIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import { PopupPlacement } from '../ui/popups';

@@ -126,12 +126,12 @@ exports[`should render correctly: task failed 1`] = `
       variant="error"
     >
       project_dump.failed_export
-      <a
+      <ForwardRef(Link)
         className="spacer-left"
-        href="/project/background_tasks?id=key&status=FAILED&taskType=PROJECT_EXPORT"
+        to="/project/background_tasks?id=key&status=FAILED&taskType=PROJECT_EXPORT"
       >
         project_dump.see_details
-      </a>
+      </ForwardRef(Link)>
     </Alert>
     <div>
       <div

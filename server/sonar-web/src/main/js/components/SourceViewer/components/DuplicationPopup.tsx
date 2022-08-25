@@ -19,7 +19,7 @@
  */
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest } from '../../../helpers/branch-like';

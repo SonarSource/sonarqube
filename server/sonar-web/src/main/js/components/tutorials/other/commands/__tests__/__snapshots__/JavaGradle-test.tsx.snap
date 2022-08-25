@@ -28,12 +28,12 @@ exports[`renders correctly 1`] = `
         id="onboarding.analysis.java.gradle.latest_version"
         values={
           Object {
-            "link": <Link
+            "link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/scan/sonarscanner-for-gradle/"
             >
               here
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />
@@ -62,12 +62,12 @@ exports[`renders correctly 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner-for-gradle/"
           >
             onboarding.analysis.java.gradle.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

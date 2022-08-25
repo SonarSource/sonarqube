@@ -16,27 +16,21 @@ exports[`should render documentation anchor 1`] = `
 `;
 
 exports[`should render documentation link 1`] = `
-<Link
+<ForwardRef(Link)
   to="/documentation/foo/bar"
 >
   link text
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should render simple link 1`] = `
-<Fragment>
-  <a
-    href="http://sample.com"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-    link text
-  </a>
-  <DetachIcon
-    className="text-muted little-spacer-left little-spacer-right text-baseline"
-    size={12}
-  />
-</Fragment>
+<ForwardRef(Link)
+  size={12}
+  target="_blank"
+  to="http://sample.com"
+>
+  link text
+</ForwardRef(Link)>
 `;
 
 exports[`should render sonarqube admin link on sonarqube for admin 1`] = `
@@ -49,12 +43,12 @@ exports[`should render sonarqube admin link on sonarqube for admin 1`] = `
 `;
 
 exports[`should render sonarqube admin link on sonarqube for admin 2`] = `
-<Link
+<ForwardRef(Link)
   target="_blank"
   to="/foo/bar"
 >
   link text
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should render sonarqube link on sonarqube 1`] = `
@@ -66,10 +60,10 @@ exports[`should render sonarqube link on sonarqube 1`] = `
 `;
 
 exports[`should render sonarqube link on sonarqube 2`] = `
-<Link
+<ForwardRef(Link)
   target="_blank"
   to="/foo/bar"
 >
   link text
-</Link>
+</ForwardRef(Link)>
 `;

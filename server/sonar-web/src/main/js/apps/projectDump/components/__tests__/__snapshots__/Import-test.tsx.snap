@@ -41,7 +41,7 @@ exports[`should render correctly: failed 1`] = `
       variant="error"
     >
       project_dump.failed_import
-      <Link
+      <ForwardRef(Link)
         className="spacer-left"
         to={
           Object {
@@ -52,7 +52,7 @@ exports[`should render correctly: failed 1`] = `
         }
       >
         project_dump.see_details
-      </Link>
+      </ForwardRef(Link)>
     </Alert>
     <div>
       <div

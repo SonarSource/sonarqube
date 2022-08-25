@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { Button, DeleteButton } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
@@ -35,6 +34,7 @@ import {
 import { TokenExpiration, TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
+import Link from '../../common/Link';
 import Select from '../../controls/Select';
 import { getUniqueTokenName } from '../utils';
 

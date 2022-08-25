@@ -47,7 +47,7 @@ exports[`should render correctly: built-in profile 1`] = `
         <Tooltip
           overlay="quality_profiles.deprecated_rules"
         >
-          <Link
+          <ForwardRef(Link)
             className="badge badge-error"
             to={
               Object {
@@ -57,10 +57,10 @@ exports[`should render correctly: built-in profile 1`] = `
             }
           >
             2
-          </Link>
+          </ForwardRef(Link)>
         </Tooltip>
       </span>
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/coding_rules",
@@ -69,7 +69,7 @@ exports[`should render correctly: built-in profile 1`] = `
         }
       >
         10
-      </Link>
+      </ForwardRef(Link)>
     </div>
   </td>
   <td
@@ -146,7 +146,7 @@ exports[`should render correctly: default 1`] = `
     className="quality-profiles-table-rules thin nowrap text-middle text-right"
   >
     <div>
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/coding_rules",
@@ -155,7 +155,7 @@ exports[`should render correctly: default 1`] = `
         }
       >
         10
-      </Link>
+      </ForwardRef(Link)>
     </div>
   </td>
   <td
@@ -244,7 +244,7 @@ exports[`should render correctly: default profile 1`] = `
         <Tooltip
           overlay="quality_profiles.deprecated_rules"
         >
-          <Link
+          <ForwardRef(Link)
             className="badge badge-error"
             to={
               Object {
@@ -254,10 +254,10 @@ exports[`should render correctly: default profile 1`] = `
             }
           >
             2
-          </Link>
+          </ForwardRef(Link)>
         </Tooltip>
       </span>
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/coding_rules",
@@ -266,7 +266,7 @@ exports[`should render correctly: default profile 1`] = `
         }
       >
         10
-      </Link>
+      </ForwardRef(Link)>
     </div>
   </td>
   <td
@@ -349,7 +349,7 @@ exports[`should render correctly: with deprecated rules 1`] = `
         <Tooltip
           overlay="quality_profiles.deprecated_rules"
         >
-          <Link
+          <ForwardRef(Link)
             className="badge badge-error"
             to={
               Object {
@@ -359,10 +359,10 @@ exports[`should render correctly: with deprecated rules 1`] = `
             }
           >
             10
-          </Link>
+          </ForwardRef(Link)>
         </Tooltip>
       </span>
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/coding_rules",
@@ -371,7 +371,7 @@ exports[`should render correctly: with deprecated rules 1`] = `
         }
       >
         10
-      </Link>
+      </ForwardRef(Link)>
     </div>
   </td>
   <td

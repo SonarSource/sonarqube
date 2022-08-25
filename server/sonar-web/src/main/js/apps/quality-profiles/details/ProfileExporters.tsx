@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
+import Link from '../../../components/common/Link';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -56,9 +57,9 @@ export default class ProfileExporters extends React.PureComponent<Props> {
                 className={index > 0 ? 'spacer-top' : undefined}
                 data-key={exporter.key}
                 key={exporter.key}>
-                <a href={this.getExportUrl(exporter)} rel="noopener noreferrer" target="_blank">
+                <Link to={this.getExportUrl(exporter)} target="_blank">
                   {exporter.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

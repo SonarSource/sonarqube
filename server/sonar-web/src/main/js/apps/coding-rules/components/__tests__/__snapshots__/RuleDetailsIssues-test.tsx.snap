@@ -15,7 +15,7 @@ exports[`should fetch issues and render 1`] = `
         className="little-spacer-left"
       >
         (
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/issues",
@@ -24,7 +24,7 @@ exports[`should fetch issues and render 1`] = `
           }
         >
           18
-        </Link>
+        </ForwardRef(Link)>
         )
       </span>
     </h2>
@@ -51,7 +51,7 @@ exports[`should fetch issues and render 1`] = `
           <td
             className="coding-rules-detail-list-parameters"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/issues",
@@ -60,7 +60,7 @@ exports[`should fetch issues and render 1`] = `
               }
             >
               13
-            </Link>
+            </ForwardRef(Link)>
           </td>
         </tr>
         <tr
@@ -74,7 +74,7 @@ exports[`should fetch issues and render 1`] = `
           <td
             className="coding-rules-detail-list-parameters"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/issues",
@@ -83,7 +83,7 @@ exports[`should fetch issues and render 1`] = `
               }
             >
               5
-            </Link>
+            </ForwardRef(Link)>
           </td>
         </tr>
       </tbody>

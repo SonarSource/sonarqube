@@ -33,12 +33,12 @@ exports[`should render correctly for "linux" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -103,12 +103,12 @@ exports[`should render correctly for "mac" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -173,12 +173,12 @@ exports[`should render correctly for "win" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -243,12 +243,12 @@ exports[`should render correctly for cfamily 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -313,12 +313,12 @@ exports[`should render correctly for remote execution 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

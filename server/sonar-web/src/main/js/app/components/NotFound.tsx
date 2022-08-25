@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import Link from '../../components/common/Link';
 import { translate } from '../../helpers/l10n';
 import SimpleContainer from './SimpleContainer';
 

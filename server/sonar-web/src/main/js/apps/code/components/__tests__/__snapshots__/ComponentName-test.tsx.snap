@@ -169,7 +169,7 @@ exports[`#ComponentName should render correctly for files 2`] = `
 
 foo:src/index.tsx"
 >
-  <Link
+  <ForwardRef(Link)
     className="display-inline-flex-center link-no-underline"
     to={
       Object {
@@ -186,7 +186,7 @@ foo:src/index.tsx"
     <span>
       index.tsx
     </span>
-  </Link>
+  </ForwardRef(Link)>
 </span>
 `;
 
@@ -289,7 +289,7 @@ foo
 
 foo"
 >
-  <Link
+  <ForwardRef(Link)
     className="display-inline-flex-center link-no-underline"
     to={
       Object {
@@ -306,7 +306,7 @@ foo"
     <span>
       Foo
     </span>
-  </Link>
+  </ForwardRef(Link)>
 </span>
 `;
 
@@ -322,7 +322,7 @@ foo
 
 foo"
   >
-    <Link
+    <ForwardRef(Link)
       className="display-inline-flex-center link-no-underline"
       to={
         Object {
@@ -339,7 +339,7 @@ foo"
       <span>
         Foo
       </span>
-    </Link>
+    </ForwardRef(Link)>
   </span>
   <span
     className="text-ellipsis spacer-left"
@@ -366,7 +366,7 @@ exports[`#ComponentName should render correctly for refs 3`] = `
 
 foo"
   >
-    <Link
+    <ForwardRef(Link)
       className="display-inline-flex-center link-no-underline"
       to={
         Object {
@@ -383,7 +383,7 @@ foo"
       <span>
         Foo
       </span>
-    </Link>
+    </ForwardRef(Link)>
   </span>
   <span
     className="spacer-left badge flex-1"

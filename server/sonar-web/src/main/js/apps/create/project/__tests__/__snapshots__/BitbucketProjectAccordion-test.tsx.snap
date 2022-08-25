@@ -59,7 +59,7 @@ exports[`should render correctly: default 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -68,7 +68,7 @@ exports[`should render correctly: default 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>
@@ -126,7 +126,7 @@ exports[`should render correctly: disable options 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -135,7 +135,7 @@ exports[`should render correctly: disable options 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>
@@ -193,7 +193,7 @@ exports[`should render correctly: no click handler 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -202,7 +202,7 @@ exports[`should render correctly: no click handler 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>
@@ -260,7 +260,7 @@ exports[`should render correctly: no project info 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -269,7 +269,7 @@ exports[`should render correctly: no project info 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>
@@ -303,7 +303,7 @@ exports[`should render correctly: no repos 1`] = `
         id="onboarding.create_project.no_bbs_repos"
         values={
           Object {
-            "link": <Link
+            "link": <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/projects/create",
@@ -312,7 +312,7 @@ exports[`should render correctly: no repos 1`] = `
               }
             >
               onboarding.create_project.update_your_token
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />
@@ -367,7 +367,7 @@ exports[`should render correctly: not showing all repos 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -376,7 +376,7 @@ exports[`should render correctly: not showing all repos 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>
@@ -439,7 +439,7 @@ exports[`should render correctly: selected repo 1`] = `
           <strong
             title="Bar"
           >
-            <Link
+            <ForwardRef(Link)
               to={
                 Object {
                   "pathname": "/dashboard",
@@ -448,7 +448,7 @@ exports[`should render correctly: selected repo 1`] = `
               }
             >
               Bar
-            </Link>
+            </ForwardRef(Link)>
           </strong>
         </div>
         <em>

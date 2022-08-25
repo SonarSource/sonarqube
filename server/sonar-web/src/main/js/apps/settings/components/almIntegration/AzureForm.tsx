@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, AzureBindingDefinition } from '../../../../types/alm-settings';
@@ -72,12 +72,11 @@ export default function AzureForm(props: AzureFormProps) {
             id="settings.almintegration.form.personal_access_token.azure.help"
             values={{
               pat: (
-                <a
-                  href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
-                  rel="noopener noreferrer"
+                <Link
+                  to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
                   target="_blank">
                   {translate('settings.almintegration.form.personal_access_token.azure.help.url')}
-                </a>
+                </Link>
               ),
               permission: <strong>{'Code > Read & Write'}</strong>,
               doc_link: (

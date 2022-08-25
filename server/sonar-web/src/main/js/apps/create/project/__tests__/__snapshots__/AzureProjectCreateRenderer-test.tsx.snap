@@ -164,7 +164,7 @@ exports[`should render correctly: setting missing url, admin 1`] = `
       values={
         Object {
           "alm": "onboarding.alm.azure",
-          "url": <Link
+          "url": <ForwardRef(Link)
             to={
               Object {
                 "pathname": "/admin/settings",
@@ -173,7 +173,7 @@ exports[`should render correctly: setting missing url, admin 1`] = `
             }
           >
             settings.page
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

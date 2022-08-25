@@ -44,11 +44,11 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <Link
+      <ForwardRef(Link)
         to="/documentation"
       >
         footer.documentation
-      </Link>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -64,11 +64,11 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <Link
+      <ForwardRef(Link)
         to="/web_api"
       >
         footer.web_api
-      </Link>
+      </ForwardRef(Link)>
     </li>
   </ul>
 </div>
@@ -108,11 +108,11 @@ exports[`should not render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <Link
+      <ForwardRef(Link)
         to="/documentation"
       >
         footer.documentation
-      </Link>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -173,11 +173,11 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <Link
+      <ForwardRef(Link)
         to="/documentation"
       >
         footer.documentation
-      </Link>
+      </ForwardRef(Link)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -193,11 +193,11 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <Link
+      <ForwardRef(Link)
         to="/web_api"
       >
         footer.web_api
-      </Link>
+      </ForwardRef(Link)>
     </li>
   </ul>
 </div>

@@ -33,7 +33,7 @@ exports[`tooltip should render correctly: default 1`] = `
   <p>
     project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
   </p>
-  <Link
+  <ForwardRef(Link)
     to={
       Object {
         "pathname": "/profiles/show",
@@ -42,7 +42,7 @@ exports[`tooltip should render correctly: default 1`] = `
     }
   >
     project_quality_profile.add_language_modal.go_to_profile
-  </Link>
+  </ForwardRef(Link)>
 </React.Fragment>
 `;
 

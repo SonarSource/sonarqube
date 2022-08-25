@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { deactivateRule } from '../../../../api/quality-profiles';
+import Link from '../../../../components/common/Link';
 import { mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import RuleListItem from '../RuleListItem';

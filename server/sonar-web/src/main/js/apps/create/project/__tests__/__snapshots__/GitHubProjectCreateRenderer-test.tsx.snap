@@ -111,11 +111,11 @@ exports[`should render correctly: error for admin 1`] = `
           id="onboarding.create_project.github.warning.message_admin"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to="/admin/settings?category=almintegration"
               >
                 onboarding.create_project.github.warning.message_admin.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -371,7 +371,7 @@ exports[`should render correctly: repositories 1`] = `
           <div
             className="display-flex-center max-width-100"
           >
-            <Link
+            <ForwardRef(Link)
               className="display-flex-center max-width-60"
               to={
                 Object {
@@ -389,7 +389,7 @@ exports[`should render correctly: repositories 1`] = `
               >
                 repository 1
               </span>
-            </Link>
+            </ForwardRef(Link)>
             <em
               className="display-flex-center small big-spacer-left flex-0"
             >

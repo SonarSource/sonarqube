@@ -10,7 +10,7 @@ exports[`should render correctly: show prompt to configure CI 1`] = `
     id="overview.project.next_steps.set_up_ci"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/tutorials",
@@ -19,7 +19,7 @@ exports[`should render correctly: show prompt to configure CI 1`] = `
           }
         >
           overview.project.next_steps.links.set_up_ci
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />
@@ -36,7 +36,7 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
     id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
     values={
       Object {
-        "link_ci": <Link
+        "link_ci": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/tutorials",
@@ -45,8 +45,8 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
           }
         >
           overview.project.next_steps.links.set_up_ci
-        </Link>,
-        "link_project_settings": <Link
+        </ForwardRef(Link)>,
+        "link_project_settings": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/project/settings",
@@ -55,7 +55,7 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
           }
         >
           overview.project.next_steps.links.project_settings
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />
@@ -72,7 +72,7 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, r
     id="overview.project.next_steps.set_up_pr_deco_and_ci"
     values={
       Object {
-        "link_ci": <Link
+        "link_ci": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/tutorials",
@@ -81,7 +81,7 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, r
           }
         >
           overview.project.next_steps.links.set_up_ci
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />
@@ -98,7 +98,7 @@ exports[`should render correctly: show prompt to configure PR decoration, projec
     id="overview.project.next_steps.set_up_pr_deco.admin"
     values={
       Object {
-        "link_project_settings": <Link
+        "link_project_settings": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/project/settings",
@@ -107,7 +107,7 @@ exports[`should render correctly: show prompt to configure PR decoration, projec
           }
         >
           overview.project.next_steps.links.project_settings
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

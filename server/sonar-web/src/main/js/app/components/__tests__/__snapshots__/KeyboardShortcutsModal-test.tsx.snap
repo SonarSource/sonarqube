@@ -14,12 +14,12 @@ exports[`should render correctly: visible 1`] = `
     <h2>
       keyboard_shortcuts.title
     </h2>
-    <Link
+    <ForwardRef(Link)
       onClick={[Function]}
       to="/account"
     >
       keyboard_shortcuts.disable_link
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <div
     className="modal-body modal-container markdown display-flex-start shortcuts-modal"

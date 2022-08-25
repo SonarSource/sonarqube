@@ -85,7 +85,7 @@ exports[`should render 2`] = `
       <div
         className="flex-1 text-ellipsis"
       >
-        <Link
+        <ForwardRef(Link)
           onClick={[Function]}
           title="Foo"
           to={
@@ -100,7 +100,7 @@ exports[`should render 2`] = `
           >
             Foo
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </li>
     <li
@@ -116,7 +116,7 @@ exports[`should render 2`] = `
       <div
         className="flex-1 text-ellipsis"
       >
-        <Link
+        <ForwardRef(Link)
           onClick={[Function]}
           title="Bar"
           to={
@@ -131,7 +131,7 @@ exports[`should render 2`] = `
           >
             Bar
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </li>
   </ul>

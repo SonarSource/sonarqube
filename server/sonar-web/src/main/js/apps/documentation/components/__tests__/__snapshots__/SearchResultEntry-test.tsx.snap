@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SearchResultEntry should render 1`] = `
-<Link
+<ForwardRef(Link)
   className="list-group-item active"
   to="/documentation/foo/bar"
 >
@@ -39,7 +39,7 @@ exports[`SearchResultEntry should render 1`] = `
       }
     }
   />
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`SearchResultText should correctly extract exact matches 1`] = `

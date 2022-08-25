@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import HistoryIcon from '../../components/icons/HistoryIcon';
 import { translate } from '../../helpers/l10n';
 import { getActivityUrl, getMeasureHistoryUrl } from '../../helpers/urls';
@@ -26,6 +25,7 @@ import { BranchLike } from '../../types/branch-like';
 import { GraphType } from '../../types/project-activity';
 import { isCustomGraph } from '../activity-graph/utils';
 import './ActivityLink.css';
+import Link from './Link';
 
 export interface ActivityLinkProps {
   branchLike?: BranchLike;

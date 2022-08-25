@@ -35,7 +35,7 @@ exports[`should render correctly: default 1`] = `
         data-key="org.sonarsource.xml:xml"
         key="org.sonarsource.xml:xml"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -50,7 +50,7 @@ exports[`should render correctly: default 1`] = `
           <span>
             SonarXML
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </li>
     </ul>
     <ListFooter
@@ -134,7 +134,7 @@ exports[`should render correctly: no active rules, but associated projects 1`] =
         data-key="org.sonarsource.xml:xml"
         key="org.sonarsource.xml:xml"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -149,7 +149,7 @@ exports[`should render correctly: no active rules, but associated projects 1`] =
           <span>
             SonarXML
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </li>
     </ul>
     <ListFooter
@@ -218,7 +218,7 @@ exports[`should render correctly: no rights 1`] = `
         data-key="org.sonarsource.xml:xml"
         key="org.sonarsource.xml:xml"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -233,7 +233,7 @@ exports[`should render correctly: no rights 1`] = `
           <span>
             SonarXML
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </li>
     </ul>
     <ListFooter

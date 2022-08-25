@@ -4,7 +4,7 @@ exports[`render correctly 1`] = `
 <td
   className="little-padded-left little-padded-right"
 >
-  <Link
+  <ForwardRef(Link)
     to={
       Object {
         "pathname": "/admin/permission_templates",
@@ -17,7 +17,7 @@ exports[`render correctly 1`] = `
     >
       test
     </strong>
-  </Link>
+  </ForwardRef(Link)>
   <div
     className="spacer-top js-defaults"
   >

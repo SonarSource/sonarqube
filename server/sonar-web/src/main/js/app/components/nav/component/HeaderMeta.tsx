@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import BranchStatus from '../../../../components/common/BranchStatus';
+import Link from '../../../../components/common/Link';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
-import DetachIcon from '../../../../components/icons/DetachIcon';
 import { formatterOption } from '../../../../components/intl/DateTimeFormatter';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -86,14 +86,13 @@ export function HeaderMeta(props: HeaderMetaProps) {
       {isPullRequest(branchLike) && (
         <div className="navbar-context-meta-secondary display-inline-flex-center">
           {branchLike.url !== undefined && (
-            <a
-              className="display-inline-flex-center big-spacer-right"
-              href={branchLike.url}
-              rel="noopener noreferrer"
-              target="_blank">
+            <Link
+              className="link-no-underline big-spacer-right"
+              to={branchLike.url}
+              target="_blank"
+              size={12}>
               {translate('branches.see_the_pr')}
-              <DetachIcon className="little-spacer-left" size={12} />
-            </a>
+            </Link>
           )}
           <BranchStatus branchLike={branchLike} component={component} />
         </div>

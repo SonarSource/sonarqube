@@ -21,11 +21,12 @@ import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree
 import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { getInstalledPlugins } from '../../../api/plugins';
 import { getPluginStaticFileContent } from '../../../api/static';
 import NotFound from '../../../app/components/NotFound';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import Link from '../../../components/common/Link';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';

@@ -21,13 +21,12 @@ exports[`should render correctly for "linux": local 1`] = `
           "env_var": <code>
             PATH
           </code>,
-          "link": <a
-            href="https://redirect.sonarsource.com/doc/download-scanner.html"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="https://redirect.sonarsource.com/doc/download-scanner.html"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -112,13 +111,12 @@ exports[`should render correctly for "mac": local 1`] = `
           "env_var": <code>
             PATH
           </code>,
-          "link": <a
-            href="https://redirect.sonarsource.com/doc/download-scanner.html"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="https://redirect.sonarsource.com/doc/download-scanner.html"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -203,13 +201,12 @@ exports[`should render correctly for "win": local 1`] = `
           "env_var": <code>
             %PATH%
           </code>,
-          "link": <a
-            href="https://redirect.sonarsource.com/doc/download-scanner.html"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="https://redirect.sonarsource.com/doc/download-scanner.html"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />

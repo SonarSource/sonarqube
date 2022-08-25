@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
+import Link from '../../../common/Link';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {

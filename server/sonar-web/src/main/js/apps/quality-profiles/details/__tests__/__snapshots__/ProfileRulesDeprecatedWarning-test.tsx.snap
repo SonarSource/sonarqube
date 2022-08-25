@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
       overlay="quality_profiles.deprecated_rules_description"
     />
   </span>
-  <Link
+  <ForwardRef(Link)
     className="pull-right"
     to={
       Object {
@@ -27,6 +27,6 @@ exports[`should render correctly 1`] = `
     }
   >
     18
-  </Link>
+  </ForwardRef(Link)>
 </div>
 `;

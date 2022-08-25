@@ -144,12 +144,12 @@ exports[`generates token 1`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -300,12 +300,12 @@ exports[`generates token 2`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -364,12 +364,12 @@ exports[`generates token 3`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -438,12 +438,12 @@ exports[`revokes token 1`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -511,12 +511,12 @@ exports[`revokes token 2`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -680,12 +680,12 @@ exports[`revokes token 3`] = `
           id="onboarding.token.text"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
               >
                 onboarding.token.text.user_account
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

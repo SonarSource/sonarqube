@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
+import Link from '../common/Link';
 
 const ISSUE_MEASURES = [
   MetricKey.violations,

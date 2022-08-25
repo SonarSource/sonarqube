@@ -10,14 +10,13 @@ exports[`should display correctly 1`] = `
     <strong>
       system.latest_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -47,14 +46,13 @@ exports[`should display correctly 1`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -91,14 +89,13 @@ exports[`should display correctly 1`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -113,14 +110,13 @@ exports[`should display correctly 2`] = `
     <strong>
       system.lts_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -150,14 +146,13 @@ exports[`should display correctly 2`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -194,14 +189,13 @@ exports[`should display correctly 2`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -245,14 +239,13 @@ exports[`should display correctly 3`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -289,14 +282,13 @@ exports[`should display correctly 3`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -311,14 +303,13 @@ exports[`should display correctly 4`] = `
     <strong>
       system.latest_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -348,14 +339,13 @@ exports[`should display correctly 4`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -392,14 +382,13 @@ exports[`should display correctly 4`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -414,14 +403,13 @@ exports[`should display correctly 5`] = `
     <strong>
       system.latest_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -451,14 +439,13 @@ exports[`should display correctly 5`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -495,14 +482,13 @@ exports[`should display correctly 5`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -517,14 +503,13 @@ exports[`should display correctly 6`] = `
     <strong>
       system.latest_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -554,14 +539,13 @@ exports[`should display correctly 6`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -598,14 +582,13 @@ exports[`should display correctly 6`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -620,14 +603,13 @@ exports[`should display correctly 7`] = `
     <strong>
       system.latest_version
     </strong>
-    <a
+    <ForwardRef(Link)
       className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
-    </a>
+    </ForwardRef(Link)>
   </h3>
   <p>
     <FormattedMessage
@@ -657,14 +639,13 @@ exports[`should display correctly 7`] = `
     >
       <Component />
     </DateFormatter>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="http://changelog.url/"
-      rel="noopener noreferrer"
       target="_blank"
+      to="http://changelog.url/"
     >
       system.release_notes
-    </a>
+    </ForwardRef(Link)>
   </div>
   <SystemUpgradeIntermediate
     className="spacer-top"
@@ -682,14 +663,13 @@ exports[`should display correctly 7`] = `
     >
       system.download_x.5.6.7
     </a>
-    <a
+    <ForwardRef(Link)
       className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/upgrading.html"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://redirect.sonarsource.com/doc/upgrading.html"
     >
       system.how_to_upgrade
-    </a>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;

@@ -70,13 +70,13 @@ exports[`should render correctly 2`] = `
       <div
         className="web-api-page-header"
       >
-        <Link
+        <ForwardRef(Link)
           to="/web_api/"
         >
           <h1>
             api_documentation.page
           </h1>
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <Search
         onSearch={[Function]}

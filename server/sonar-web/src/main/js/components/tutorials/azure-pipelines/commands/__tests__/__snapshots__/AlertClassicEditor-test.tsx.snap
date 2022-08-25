@@ -10,12 +10,12 @@ exports[`should render correctly 1`] = `
     id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
     values={
       Object {
-        "doc_link": <Link
+        "doc_link": <ForwardRef(Link)
           target="_blank"
           to="/documentation/analysis/azuredevops-integration/"
         >
           onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

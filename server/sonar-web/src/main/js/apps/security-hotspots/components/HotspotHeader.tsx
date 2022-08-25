@@ -19,7 +19,7 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';

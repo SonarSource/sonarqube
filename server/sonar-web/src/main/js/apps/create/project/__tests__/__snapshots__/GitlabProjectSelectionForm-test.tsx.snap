@@ -41,17 +41,13 @@ exports[`should render correctly: importing 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://gitlab.company.com/best-projects/awesome-project-exclamation"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.gitlab.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"
@@ -74,7 +70,7 @@ exports[`should render correctly: importing 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -87,7 +83,7 @@ exports[`should render correctly: importing 1`] = `
                   qualifier="TRK"
                 />
                 Already Imported
-              </Link>
+              </ForwardRef(Link)>
             </strong>
           </Tooltip>
           <br />
@@ -102,17 +98,13 @@ exports[`should render correctly: importing 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://gitlab.company.com/best-projects/awesome-project-exclamation"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.gitlab.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td>
           <span
@@ -148,7 +140,7 @@ exports[`should render correctly: no projects 1`] = `
     id="onboarding.create_project.gitlab.no_projects"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/projects/create",
@@ -157,7 +149,7 @@ exports[`should render correctly: no projects 1`] = `
           }
         >
           onboarding.create_project.update_your_token
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />
@@ -232,17 +224,13 @@ exports[`should render correctly: projects 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://gitlab.company.com/best-projects/awesome-project-exclamation"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.gitlab.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"
@@ -265,7 +253,7 @@ exports[`should render correctly: projects 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -278,7 +266,7 @@ exports[`should render correctly: projects 1`] = `
                   qualifier="TRK"
                 />
                 Already Imported
-              </Link>
+              </ForwardRef(Link)>
             </strong>
           </Tooltip>
           <br />
@@ -293,17 +281,13 @@ exports[`should render correctly: projects 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://gitlab.company.com/best-projects/awesome-project-exclamation"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.gitlab.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td>
           <span
@@ -339,7 +323,7 @@ exports[`should render correctly: undefined projects 1`] = `
     id="onboarding.create_project.gitlab.no_projects"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/projects/create",
@@ -348,7 +332,7 @@ exports[`should render correctly: undefined projects 1`] = `
           }
         >
           onboarding.create_project.update_your_token
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import isValidUri from '../../app/utils/isValidUri';
+import Link from '../../components/common/Link';
 import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import ProjectLinkIcon from '../../components/icons/ProjectLinkIcon';
@@ -93,9 +94,9 @@ export default class LinkRow extends React.PureComponent<Props> {
         <td className="nowrap">{this.renderName(link)}</td>
         <td className="nowrap js-url">
           {isValidUri(link.url) ? (
-            <a href={link.url} rel="nofollow noreferrer noopener" target="_blank">
+            <Link to={link.url} target="_blank">
               {link.url}
-            </a>
+            </Link>
           ) : (
             link.url
           )}

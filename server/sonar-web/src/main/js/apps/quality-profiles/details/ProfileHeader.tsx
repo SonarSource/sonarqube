@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate } from '../../../helpers/l10n';

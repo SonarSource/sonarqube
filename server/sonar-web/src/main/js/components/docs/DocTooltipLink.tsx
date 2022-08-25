@@ -19,9 +19,8 @@
  */
 import { forEach } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import DetachIcon from '../../components/icons/DetachIcon';
 import { Dict } from '../../types/types';
+import Link from '../common/Link';
 
 interface OwnProps {
   customProps?: Dict<string>;
@@ -42,18 +41,15 @@ export default function DocTooltipLink({ children, customProps, href, ...other }
     href = `/documentation/${href.substr(1)}`;
 
     return (
-      <Link rel="noopener noreferrer" target="_blank" to={href} {...other}>
+      <Link target="_blank" to={href} {...other}>
         {children}
       </Link>
     );
   }
 
-  return (
-    <>
-      <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
-        {children}
-      </a>
-      <DetachIcon className="little-spacer-left little-spacer-right text-baseline" size={12} />
-    </>
-  );
+  return href ? (
+    <Link size={12} to={href} target="_blank" {...other}>
+      {children}
+    </Link>
+  ) : null;
 }

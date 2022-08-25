@@ -26,7 +26,7 @@ exports[`should render correctly: for admin 1`] = `
     values={
       Object {
         "alm": "onboarding.alm.bitbucket",
-        "url": <Link
+        "url": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/admin/settings",
@@ -35,7 +35,7 @@ exports[`should render correctly: for admin 1`] = `
           }
         >
           settings.page
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

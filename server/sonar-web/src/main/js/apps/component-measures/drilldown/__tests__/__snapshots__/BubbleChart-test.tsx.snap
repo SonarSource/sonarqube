@@ -46,7 +46,7 @@ exports[`should render correctly: all on x=0 1`] = `
     <div
       className="text-center small spacer-top spacer-bottom"
     >
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/component_measures",
@@ -55,7 +55,7 @@ exports[`should render correctly: all on x=0 1`] = `
         }
       >
         component_measures.overview.see_data_as_list
-      </Link>
+      </ForwardRef(Link)>
     </div>
     <BubbleChart
       displayXGrid={true}
@@ -254,7 +254,7 @@ exports[`should render correctly: default 1`] = `
     <div
       className="text-center small spacer-top spacer-bottom"
     >
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/component_measures",
@@ -263,7 +263,7 @@ exports[`should render correctly: default 1`] = `
         }
       >
         component_measures.overview.see_data_as_list
-      </Link>
+      </ForwardRef(Link)>
     </div>
     <BubbleChart
       displayXGrid={true}
@@ -463,7 +463,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
     <div
       className="text-center small spacer-top spacer-bottom"
     >
-      <Link
+      <ForwardRef(Link)
         to={
           Object {
             "pathname": "/component_measures",
@@ -472,7 +472,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
         }
       >
         component_measures.overview.see_data_as_list
-      </Link>
+      </ForwardRef(Link)>
     </div>
     <BubbleChart
       displayXGrid={true}

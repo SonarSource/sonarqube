@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -81,9 +82,11 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             <p className="little-spacer-bottom">
               {translate('marketplace.available_under_commercial_license')}
             </p>
-            <a href={plugin.homepageUrl} target="_blank" rel="noopener noreferrer">
-              {translate('marketplace.learn_more')}
-            </a>
+            {plugin.homepageUrl && (
+              <Link to={plugin.homepageUrl} target="_blank">
+                {translate('marketplace.learn_more')}
+              </Link>
+            )}
           </div>
         )}
         {isInstalledPlugin(plugin) && (

@@ -79,7 +79,7 @@ exports[`applications should render correctly when there is only one branch and 
         <hr
           className="spacer-top spacer-bottom"
         />
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/project/admin/extension/developer-server/application-console",
@@ -88,7 +88,7 @@ exports[`applications should render correctly when there is only one branch and 
           }
         >
           application.branches.link
-        </Link>
+        </ForwardRef(Link)>
       </React.Fragment>
     }
   >

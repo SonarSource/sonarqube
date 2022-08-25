@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Link from '../../../components/common/Link';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -37,7 +38,7 @@ export default function Unauthorized() {
           )}
 
           <div className="big-spacer-top">
-            <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+            <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
           </div>
         </div>
       </div>

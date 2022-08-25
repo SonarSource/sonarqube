@@ -6,7 +6,7 @@ exports[`renders favorite 1`] = `
   key="foo"
   role="option"
 >
-  <Link
+  <ForwardRef(Link)
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}
@@ -48,7 +48,7 @@ exports[`renders favorite 1`] = `
         foo
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
@@ -58,7 +58,7 @@ exports[`renders match 1`] = `
   key="foo"
   role="option"
 >
-  <Link
+  <ForwardRef(Link)
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}
@@ -99,7 +99,7 @@ exports[`renders match 1`] = `
         foo
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
@@ -109,7 +109,7 @@ exports[`renders recently browsed 1`] = `
   key="foo"
   role="option"
 >
-  <Link
+  <ForwardRef(Link)
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}
@@ -150,7 +150,7 @@ exports[`renders recently browsed 1`] = `
         foo
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
@@ -160,7 +160,7 @@ exports[`renders selected 1`] = `
   key="foo"
   role="option"
 >
-  <Link
+  <ForwardRef(Link)
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}
@@ -198,7 +198,7 @@ exports[`renders selected 1`] = `
         foo
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
@@ -209,7 +209,7 @@ exports[`renders selected 2`] = `
   key="foo"
   role="option"
 >
-  <Link
+  <ForwardRef(Link)
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}
@@ -247,6 +247,6 @@ exports[`renders selected 2`] = `
         foo
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;

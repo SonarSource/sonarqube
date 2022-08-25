@@ -150,7 +150,7 @@ exports[`should render correctly: search results 1`] = `
           <div
             className="little-spacer-bottom text-ellipsis"
           >
-            <Link
+            <ForwardRef(Link)
               title="SQ Name"
               to={
                 Object {
@@ -160,7 +160,7 @@ exports[`should render correctly: search results 1`] = `
               }
             >
               SQ Name
-            </Link>
+            </ForwardRef(Link)>
           </div>
           <em>
             onboarding.create_project.repository_imported
@@ -230,7 +230,7 @@ exports[`should render correctly: with repositories 1`] = `
           <div
             className="little-spacer-bottom text-ellipsis"
           >
-            <Link
+            <ForwardRef(Link)
               title="SQ Name"
               to={
                 Object {
@@ -240,7 +240,7 @@ exports[`should render correctly: with repositories 1`] = `
               }
             >
               SQ Name
-            </Link>
+            </ForwardRef(Link)>
           </div>
           <em>
             onboarding.create_project.repository_imported

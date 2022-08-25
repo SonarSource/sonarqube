@@ -8,13 +8,12 @@ exports[`should render correctly for bitbucket 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
           >
             onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -91,13 +90,12 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
           >
             onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -243,13 +241,12 @@ exports[`should render correctly for bitbucketcloud 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
           >
             onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -322,13 +319,12 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
           >
             onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />

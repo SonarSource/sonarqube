@@ -35,7 +35,7 @@ exports[`should render correctly: empty 1`] = `
     id="onboarding.create_project.azure.no_projects"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/projects/create",
@@ -44,7 +44,7 @@ exports[`should render correctly: empty 1`] = `
           }
         >
           onboarding.create_project.update_your_token
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import Tooltip from '../../../components/controls/Tooltip';
 import CheckIcon from '../../../components/icons/CheckIcon';
-import DetachIcon from '../../../components/icons/DetachIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -126,14 +125,12 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                   </Tooltip>
                 </td>
                 <td>
-                  <a
+                  <Link
                     className="display-inline-flex-center big-spacer-right"
-                    href={getRepositoryUrl(repository.workspace, repository.slug)}
-                    rel="noopener noreferrer"
+                    to={getRepositoryUrl(repository.workspace, repository.slug)}
                     target="_blank">
-                    <DetachIcon className="little-spacer-right" />
                     {translate('onboarding.create_project.bitbucketcloud.link')}
-                  </a>
+                  </Link>
                 </td>
                 {repository.sqProjectKey ? (
                   <td>

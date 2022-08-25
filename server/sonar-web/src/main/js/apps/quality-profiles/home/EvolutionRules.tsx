@@ -19,8 +19,8 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { searchRules } from '../../../api/rules';
+import Link from '../../../components/common/Link';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<Link
+<ForwardRef(Link)
   className="measures-link"
   to={
     Object {
@@ -17,11 +17,11 @@ exports[`renders 1`] = `
   <span>
     portfolio.measures_link
   </span>
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`renders 2`] = `
-<Link
+<ForwardRef(Link)
   className="measures-link"
   to={
     Object {
@@ -37,11 +37,11 @@ exports[`renders 2`] = `
   <span>
     Foo
   </span>
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`renders 3`] = `
-<Link
+<ForwardRef(Link)
   className="measures-link"
   to={
     Object {
@@ -57,5 +57,5 @@ exports[`renders 3`] = `
   <span>
     portfolio.measures_link
   </span>
-</Link>
+</ForwardRef(Link)>
 `;

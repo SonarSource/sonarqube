@@ -47,11 +47,11 @@ exports[`should render correctly when user is admin 1`] = `
       id="project_branch_pull_request.lifetime_information.admin"
       values={
         Object {
-          "settings": <Link
+          "settings": <ForwardRef(Link)
             to="/admin/settings"
           >
             settings.page
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

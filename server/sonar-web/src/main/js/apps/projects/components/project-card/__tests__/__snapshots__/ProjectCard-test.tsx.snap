@@ -36,7 +36,7 @@ exports[`should display applications 1`] = `
         className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -45,7 +45,7 @@ exports[`should display applications 1`] = `
           }
         >
           Foo
-        </Link>
+        </ForwardRef(Link)>
       </h3>
       <ProjectCardQualityGate
         status="OK"
@@ -139,7 +139,7 @@ exports[`should display applications: with project count 1`] = `
         className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -148,7 +148,7 @@ exports[`should display applications: with project count 1`] = `
           }
         >
           Foo
-        </Link>
+        </ForwardRef(Link)>
       </h3>
       <ProjectCardQualityGate
         status="OK"
@@ -223,7 +223,7 @@ exports[`should display configure analysis button for logged in user: default 1`
         className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -232,7 +232,7 @@ exports[`should display configure analysis button for logged in user: default 1`
           }
         >
           Foo
-        </Link>
+        </ForwardRef(Link)>
       </h3>
     </div>
     <div
@@ -263,7 +263,7 @@ exports[`should display configure analysis button for logged in user: default 1`
         >
           projects.not_analyzed.TRK
         </span>
-        <Link
+        <ForwardRef(Link)
           className="button spacer-left"
           to={
             Object {
@@ -273,7 +273,7 @@ exports[`should display configure analysis button for logged in user: default 1`
           }
         >
           projects.configure_analysis
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </div>
     <div
@@ -437,7 +437,7 @@ exports[`should display not analyzed yet 1`] = `
         className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -446,7 +446,7 @@ exports[`should display not analyzed yet 1`] = `
           }
         >
           Foo
-        </Link>
+        </ForwardRef(Link)>
       </h3>
     </div>
     <div
@@ -506,7 +506,7 @@ exports[`should display the overall measures and quality gate 1`] = `
         className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -515,7 +515,7 @@ exports[`should display the overall measures and quality gate 1`] = `
           }
         >
           Foo
-        </Link>
+        </ForwardRef(Link)>
       </h3>
       <ProjectCardQualityGate
         status="OK"

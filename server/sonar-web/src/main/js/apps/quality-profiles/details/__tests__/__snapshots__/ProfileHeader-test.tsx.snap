@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
       quality_profiles.page
     </NavLink>
      / 
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "pathname": "/profiles",
@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
       }
     >
       JavaScript
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <h1
     className="page-title"
@@ -63,7 +63,7 @@ exports[`should render correctly 1`] = `
         <DateFromNow />
       </li>
       <li>
-        <Link
+        <ForwardRef(Link)
           className="button"
           to={
             Object {
@@ -73,7 +73,7 @@ exports[`should render correctly 1`] = `
           }
         >
           changelog
-        </Link>
+        </ForwardRef(Link)>
       </li>
       <li>
         <withRouter(ProfileActions)
@@ -116,7 +116,7 @@ exports[`should render correctly: for default profile 1`] = `
       quality_profiles.page
     </NavLink>
      / 
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "pathname": "/profiles",
@@ -125,7 +125,7 @@ exports[`should render correctly: for default profile 1`] = `
       }
     >
       JavaScript
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <h1
     className="page-title"
@@ -174,7 +174,7 @@ exports[`should render correctly: for default profile 1`] = `
         <DateFromNow />
       </li>
       <li>
-        <Link
+        <ForwardRef(Link)
           className="button"
           to={
             Object {
@@ -184,7 +184,7 @@ exports[`should render correctly: for default profile 1`] = `
           }
         >
           changelog
-        </Link>
+        </ForwardRef(Link)>
       </li>
       <li>
         <withRouter(ProfileActions)

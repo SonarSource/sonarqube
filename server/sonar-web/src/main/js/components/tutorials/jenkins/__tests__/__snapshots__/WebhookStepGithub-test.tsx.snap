@@ -8,13 +8,12 @@ exports[`should render correctly 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
           >
             onboarding.tutorial.with.jenkins.webhook.github.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -82,13 +81,12 @@ exports[`should render correctly: with branches disabled 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": <a
-            href="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
-            rel="noopener noreferrer"
+          "link": <ForwardRef(Link)
             target="_blank"
+            to="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
           >
             onboarding.tutorial.with.jenkins.webhook.github.step1.link
-          </a>,
+          </ForwardRef(Link)>,
         }
       }
     />

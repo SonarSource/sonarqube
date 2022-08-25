@@ -10,13 +10,12 @@ exports[`should render correctly 1`] = `
         "button": <strong>
           onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button
         </strong>,
-        "link": <a
-          href="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
-          rel="noopener noreferrer"
+        "link": <ForwardRef(Link)
           target="_blank"
+          to="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
         >
           onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link
-        </a>,
+        </ForwardRef(Link)>,
       }
     }
   />

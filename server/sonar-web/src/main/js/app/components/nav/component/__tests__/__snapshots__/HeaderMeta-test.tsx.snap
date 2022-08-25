@@ -185,18 +185,14 @@ exports[`should render correctly for a pull request 1`] = `
   <div
     className="navbar-context-meta-secondary display-inline-flex-center"
   >
-    <a
-      className="display-inline-flex-center big-spacer-right"
-      href="https://example.com/pull/1234"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="link-no-underline big-spacer-right"
+      size={12}
       target="_blank"
+      to="https://example.com/pull/1234"
     >
       branches.see_the_pr
-      <DetachIcon
-        className="little-spacer-left"
-        size={12}
-      />
-    </a>
+    </ForwardRef(Link)>
     <withBranchStatus(BranchStatus)
       branchLike={
         Object {

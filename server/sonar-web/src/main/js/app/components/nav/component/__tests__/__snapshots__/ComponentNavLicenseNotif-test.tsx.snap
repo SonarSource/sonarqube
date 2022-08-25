@@ -19,12 +19,12 @@ exports[`renders background task license info correctly 1`] = `
   >
     Foo
   </span>
-  <Link
+  <ForwardRef(Link)
     to="/admin/extension/license/app"
   >
     license.component_navigation.button.LICENSING
     .
-  </Link>
+  </ForwardRef(Link)>
 </Alert>
 `;
 
@@ -52,11 +52,11 @@ exports[`renders correctly for LICENSING_LOC error 1`] = `
   >
     Foo
   </span>
-  <Link
+  <ForwardRef(Link)
     to="/admin/extension/license/app"
   >
     license.component_navigation.button.LICENSING_LOC
     .
-  </Link>
+  </ForwardRef(Link)>
 </Alert>
 `;

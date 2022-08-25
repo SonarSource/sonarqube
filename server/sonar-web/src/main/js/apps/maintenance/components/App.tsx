@@ -23,6 +23,7 @@ import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import InstanceMessage from '../../../components/common/InstanceMessage';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -163,7 +164,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.all_systems_opetational')}
                 </p>
                 <p className="maintenance-text text-center">
-                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
                 </p>
               </>
             )}
@@ -204,12 +205,11 @@ export default class App extends React.PureComponent<Props, State> {
                     id="maintenance.sonarqube_is_under_maintenance.1"
                     values={{
                       link: (
-                        <a
-                          href="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
-                          target="_blank"
-                          rel="noopener noreferrer">
+                        <Link
+                          to="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
+                          target="_blank">
                           {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
-                        </a>
+                        </Link>
                       )
                     }}
                   />
@@ -220,12 +220,11 @@ export default class App extends React.PureComponent<Props, State> {
                     id="maintenance.sonarqube_is_under_maintenance.2"
                     values={{
                       link: (
-                        <a
-                          href="https://redirect.sonarsource.com/doc/upgrading.html"
-                          target="_blank"
-                          rel="noopener noreferrer">
+                        <Link
+                          to="https://redirect.sonarsource.com/doc/upgrading.html"
+                          target="_blank">
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
-                        </a>
+                        </Link>
                       )
                     }}
                   />
@@ -239,7 +238,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.database_is_up_to_date')}
                 </h1>
                 <p className="maintenance-text text-center">
-                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
                 </p>
               </>
             )}
@@ -295,7 +294,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.database_is_up_to_date')}
                 </h1>
                 <p className="maintenance-text text-center">
-                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
                 </p>
               </>
             )}

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
@@ -68,14 +68,13 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
             id="settings.almintegration.form.personal_access_token.bitbucket.help"
             values={{
               pat: (
-                <a
-                  href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
-                  rel="noopener noreferrer"
+                <Link
+                  to="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
                   target="_blank">
                   {translate(
                     'settings.almintegration.form.personal_access_token.bitbucket.help.url'
                   )}
-                </a>
+                </Link>
               ),
               permission: <strong>Read</strong>,
               doc_link: (

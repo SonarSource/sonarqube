@@ -21,7 +21,6 @@ import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import {
   getAvailablePlugins,
   getInstalledPlugins,
@@ -29,6 +28,7 @@ import {
   getPluginUpdates
 } from '../../api/plugins';
 import { getValues, setSimpleSettingValue } from '../../api/settings';
+import Link from '../../components/common/Link';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';

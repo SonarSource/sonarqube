@@ -17,7 +17,7 @@ exports[`should render correctly: default 1`] = `
       <li
         className="bordered-top little-padded-top"
       >
-        <Link
+        <ForwardRef(Link)
           className="display-flex-center"
           to={
             Object {
@@ -30,7 +30,7 @@ exports[`should render correctly: default 1`] = `
             size={16}
           />
           more
-        </Link>
+        </ForwardRef(Link)>
       </li>
     </ul>
   }

@@ -81,7 +81,7 @@ exports[`should render correctly: encryptable 1`] = `
         id="settings.almintegration.form.secret.can_encrypt"
         values={
           Object {
-            "learn_more": <Link
+            "learn_more": <ForwardRef(Link)
               target="_blank"
               to={
                 Object {
@@ -90,7 +90,7 @@ exports[`should render correctly: encryptable 1`] = `
               }
             >
               learn_more
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />

@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
       >
         That rule
       </span>
-      <Link
+      <ForwardRef(Link)
         className="small"
         target="_blank"
         to={
@@ -31,7 +31,7 @@ exports[`should render correctly 1`] = `
         }
       >
         squid:S2077
-      </Link>
+      </ForwardRef(Link)>
     </div>
   </div>
   <div

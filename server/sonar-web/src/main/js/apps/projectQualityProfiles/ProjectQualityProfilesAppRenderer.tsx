@@ -20,9 +20,9 @@
 import { groupBy, orderBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import { Profile } from '../../api/quality-profiles';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
+import Link from '../../components/common/Link';
 import { Button } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';

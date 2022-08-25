@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../../../../components/common/Link';
 import SearchBox from '../../../../../../components/controls/SearchBox';
 import { KeyboardKeys } from '../../../../../../helpers/keycodes';
 import {

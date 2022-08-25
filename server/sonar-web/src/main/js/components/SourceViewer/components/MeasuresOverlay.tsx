@@ -19,10 +19,10 @@
  */
 import { groupBy, keyBy, sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
+import Link from '../../../components/common/Link';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';

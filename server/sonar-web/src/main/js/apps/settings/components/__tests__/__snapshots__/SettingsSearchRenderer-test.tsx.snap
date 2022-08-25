@@ -73,7 +73,7 @@ exports[`should render correctly when open: results 1`] = `
           className="spacer-bottom spacer-top"
           key="foo"
         >
-          <Link
+          <ForwardRef(Link)
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
             to={
@@ -96,13 +96,13 @@ exports[`should render correctly when open: results 1`] = `
             >
               settings.key_x.foo
             </div>
-          </Link>
+          </ForwardRef(Link)>
         </li>
         <li
           className="spacer-bottom spacer-top active"
           key="bar"
         >
-          <Link
+          <ForwardRef(Link)
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
             to={
@@ -125,7 +125,7 @@ exports[`should render correctly when open: results 1`] = `
             >
               settings.key_x.bar
             </div>
-          </Link>
+          </ForwardRef(Link)>
         </li>
       </ul>
     </DropdownOverlay>

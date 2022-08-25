@@ -46,7 +46,7 @@ exports[`should render correclty 1`] = `
 
 exports[`should render correclty 2`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -88,13 +88,13 @@ exports[`should render correclty 2`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 3`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -136,13 +136,13 @@ exports[`should render correclty 3`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 4`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -184,13 +184,13 @@ exports[`should render correclty 4`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 5`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -232,13 +232,13 @@ exports[`should render correclty 5`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 6`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -280,13 +280,13 @@ exports[`should render correclty 6`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 7`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -328,13 +328,13 @@ exports[`should render correclty 7`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 8`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -376,13 +376,13 @@ exports[`should render correclty 8`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should render correclty 9`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -424,13 +424,13 @@ exports[`should render correclty 9`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 
 exports[`should work with branch 1`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="overview-quality-gate-condition overview-quality-gate-condition-error"
     to={
       Object {
@@ -472,6 +472,6 @@ exports[`should work with branch 1`] = `
         </span>
       </div>
     </div>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;

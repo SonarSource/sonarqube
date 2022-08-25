@@ -9,7 +9,7 @@ exports[`renders correctly 1`] = `
       qualifier="TRK"
     />
   </span>
-  <Link
+  <ForwardRef(Link)
     className="spacer-right"
     to={
       Object {
@@ -19,7 +19,7 @@ exports[`renders correctly 1`] = `
     }
   >
     Foo
-  </Link>
+  </ForwardRef(Link)>
   <TaskType
     type="REPORT"
   />
@@ -31,7 +31,7 @@ exports[`renders correctly: branch 1`] = `
   <BranchIcon
     className="little-spacer-right"
   />
-  <Link
+  <ForwardRef(Link)
     className="spacer-right"
     to={
       Object {
@@ -57,7 +57,7 @@ exports[`renders correctly: branch 1`] = `
       </span>
       feature
     </span>
-  </Link>
+  </ForwardRef(Link)>
   <TaskType
     type="REPORT"
   />
@@ -69,7 +69,7 @@ exports[`renders correctly: branch 2`] = `
   <BranchIcon
     className="little-spacer-right"
   />
-  <Link
+  <ForwardRef(Link)
     className="spacer-right"
     to={
       Object {
@@ -95,7 +95,7 @@ exports[`renders correctly: branch 2`] = `
       </span>
       branch-6.7
     </span>
-  </Link>
+  </ForwardRef(Link)>
   <TaskType
     type="REPORT"
   />
@@ -111,7 +111,7 @@ exports[`renders correctly: portfolio 1`] = `
       qualifier="VW"
     />
   </span>
-  <Link
+  <ForwardRef(Link)
     className="spacer-right"
     to={
       Object {
@@ -121,7 +121,7 @@ exports[`renders correctly: portfolio 1`] = `
     }
   >
     Foo
-  </Link>
+  </ForwardRef(Link)>
   <TaskType
     type="REPORT"
   />
@@ -133,7 +133,7 @@ exports[`renders correctly: pull request 1`] = `
   <PullRequestIcon
     className="little-spacer-right"
   />
-  <Link
+  <ForwardRef(Link)
     className="spacer-right"
     to={
       Object {
@@ -158,7 +158,7 @@ exports[`renders correctly: pull request 1`] = `
       </span>
       pr-89
     </span>
-  </Link>
+  </ForwardRef(Link)>
   <TaskType
     type="REPORT"
   />

@@ -27,6 +27,7 @@ import {
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
+import Link from '../common/Link';
 import DateFormatter from '../intl/DateFormatter';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
@@ -56,13 +57,12 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
       <h3 className="h1 spacer-bottom">
         <strong>{header}</strong>
         {!isPatch && (
-          <a
+          <Link
             className="spacer-left medium"
-            href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-            rel="noopener noreferrer"
+            to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
             target="_blank">
             {translate('system.see_whats_new')}
-          </a>
+          </Link>
         )}
       </h3>
       <p>
@@ -82,13 +82,9 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           </DateFormatter>
         )}
         {lastUpgrade.changeLogUrl && (
-          <a
-            className="spacer-left"
-            href={lastUpgrade.changeLogUrl}
-            rel="noopener noreferrer"
-            target="_blank">
+          <Link className="spacer-left" to={lastUpgrade.changeLogUrl} target="_blank">
             {translate('system.release_notes')}
-          </a>
+          </Link>
         )}
       </div>
       <SystemUpgradeIntermediate className="spacer-top" upgrades={systemUpgrades.slice(1)} />
@@ -101,13 +97,12 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           target="_blank">
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </a>
-        <a
+        <Link
           className="spacer-left"
-          href="https://redirect.sonarsource.com/doc/upgrading.html"
-          rel="noopener noreferrer"
+          to="https://redirect.sonarsource.com/doc/upgrading.html"
           target="_blank">
           {translate('system.how_to_upgrade')}
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -21,11 +21,11 @@ exports[`should render correctly 1`] = `
       id="webhooks.description"
       values={
         Object {
-          "url": <Link
+          "url": <ForwardRef(Link)
             to="/documentation/project-administration/webhooks/"
           >
             webhooks.documentation_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

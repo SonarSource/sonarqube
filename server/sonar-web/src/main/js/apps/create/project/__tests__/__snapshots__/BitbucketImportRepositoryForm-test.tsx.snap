@@ -61,7 +61,7 @@ exports[`should render correctly: no projects 1`] = `
     id="onboarding.create_project.no_bbs_projects"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/projects/create",
@@ -70,7 +70,7 @@ exports[`should render correctly: no projects 1`] = `
           }
         >
           onboarding.create_project.update_your_token
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

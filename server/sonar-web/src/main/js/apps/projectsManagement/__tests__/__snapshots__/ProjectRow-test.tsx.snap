@@ -16,7 +16,7 @@ exports[`renders 1`] = `
   <td
     className="nowrap hide-overflow project-row-text-cell"
   >
-    <Link
+    <ForwardRef(Link)
       className="link-no-underline"
       to={
         Object {
@@ -37,7 +37,7 @@ exports[`renders 1`] = `
           Project
         </span>
       </Tooltip>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap"
@@ -108,7 +108,7 @@ exports[`renders: portfolio 1`] = `
   <td
     className="nowrap hide-overflow project-row-text-cell"
   >
-    <Link
+    <ForwardRef(Link)
       className="link-no-underline"
       to={
         Object {
@@ -129,7 +129,7 @@ exports[`renders: portfolio 1`] = `
           Project
         </span>
       </Tooltip>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap"
@@ -200,7 +200,7 @@ exports[`renders: with lastAnalysisDate 1`] = `
   <td
     className="nowrap hide-overflow project-row-text-cell"
   >
-    <Link
+    <ForwardRef(Link)
       className="link-no-underline"
       to={
         Object {
@@ -221,7 +221,7 @@ exports[`renders: with lastAnalysisDate 1`] = `
           Project
         </span>
       </Tooltip>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap"

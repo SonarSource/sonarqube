@@ -548,7 +548,7 @@ exports[`should render correctly with validation: pass the correct key for bitbu
       id="settings.almintegration.tabs.authentication-moved"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "pathname": "/admin/settings",
@@ -557,7 +557,7 @@ exports[`should render correctly with validation: pass the correct key for bitbu
             }
           >
             property.category.authentication
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

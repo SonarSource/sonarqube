@@ -177,7 +177,7 @@ it('should show rule advanced section with context', async () => {
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
 
   const productBoardLink = screen.getByRole('link', {
-    name: 'coding_rules.context.others.feedback_description.link'
+    name: 'opens_in_new_window coding_rules.context.others.feedback_description.link'
   });
   expect(productBoardLink).toBeInTheDocument();
   expect(productBoardLink).toHaveAttribute('target', '_blank');

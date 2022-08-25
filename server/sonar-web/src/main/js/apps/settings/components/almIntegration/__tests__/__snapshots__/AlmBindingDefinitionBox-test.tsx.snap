@@ -522,12 +522,12 @@ exports[`should render correctly: success with alert 1`] = `
         id="settings.almintegration.github.additional_permission"
         values={
           Object {
-            "link": <Link
+            "link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/github-integration/"
             >
               learn_more
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />
@@ -649,12 +649,12 @@ exports[`should render correctly: success with branches disabled 1`] = `
         id="settings.almintegration.github.additional_permission"
         values={
           Object {
-            "link": <Link
+            "link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/github-integration/"
             >
               learn_more
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />

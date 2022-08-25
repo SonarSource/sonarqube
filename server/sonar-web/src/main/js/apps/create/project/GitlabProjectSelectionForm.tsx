@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
 import Tooltip from '../../../components/controls/Tooltip';
 import CheckIcon from '../../../components/icons/CheckIcon';
-import DetachIcon from '../../../components/icons/DetachIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -123,14 +122,12 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                   </Tooltip>
                 </td>
                 <td>
-                  <a
+                  <Link
                     className="display-inline-flex-center big-spacer-right"
-                    href={project.url}
-                    rel="noopener noreferrer"
+                    to={project.url}
                     target="_blank">
-                    <DetachIcon className="little-spacer-right" />
                     {translate('onboarding.create_project.gitlab.link')}
-                  </a>
+                  </Link>
                 </td>
                 {project.sqProjectKey ? (
                   <td>

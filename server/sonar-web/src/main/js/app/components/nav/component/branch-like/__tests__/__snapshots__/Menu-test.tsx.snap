@@ -146,7 +146,7 @@ exports[`should render correctly 1`] = `
   <div
     className="hint-container text-right"
   >
-    <Link
+    <ForwardRef(Link)
       onClick={[Function]}
       to={
         Object {
@@ -156,7 +156,7 @@ exports[`should render correctly 1`] = `
       }
     >
       branch_like_navigation.manage
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </DropdownOverlay>
 `;
@@ -307,7 +307,7 @@ exports[`should render correctly with no current branch like 1`] = `
   <div
     className="hint-container text-right"
   >
-    <Link
+    <ForwardRef(Link)
       onClick={[Function]}
       to={
         Object {
@@ -317,7 +317,7 @@ exports[`should render correctly with no current branch like 1`] = `
       }
     >
       branch_like_navigation.manage
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </DropdownOverlay>
 `;

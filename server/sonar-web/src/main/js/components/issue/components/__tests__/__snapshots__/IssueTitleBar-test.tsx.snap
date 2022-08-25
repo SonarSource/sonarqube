@@ -69,7 +69,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="issue-meta"
       >
-        <Link
+        <ForwardRef(Link)
           className="js-issue-permalink link-no-underline"
           target="_blank"
           title="permalink"
@@ -82,7 +82,7 @@ exports[`should render correctly: default 1`] = `
           }
         >
           <LinkIcon />
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </div>
   </div>
@@ -158,7 +158,7 @@ exports[`should render correctly: with filter 1`] = `
       <div
         className="issue-meta"
       >
-        <Link
+        <ForwardRef(Link)
           className="js-issue-permalink link-no-underline"
           target="_blank"
           title="permalink"
@@ -171,7 +171,7 @@ exports[`should render correctly: with filter 1`] = `
           }
         >
           <LinkIcon />
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <div
         className="issue-meta"
@@ -365,7 +365,7 @@ exports[`should render correctly: with multi locations 1`] = `
       <div
         className="issue-meta"
       >
-        <Link
+        <ForwardRef(Link)
           className="js-issue-permalink link-no-underline"
           target="_blank"
           title="permalink"
@@ -378,7 +378,7 @@ exports[`should render correctly: with multi locations 1`] = `
           }
         >
           <LinkIcon />
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </div>
   </div>
@@ -521,7 +521,7 @@ exports[`should render correctly: with multi locations and link 1`] = `
       <div
         className="issue-meta"
       >
-        <Link
+        <ForwardRef(Link)
           target="_blank"
           to={
             Object {
@@ -538,12 +538,12 @@ exports[`should render correctly: with multi locations and link 1`] = `
               7
             </LocationIndex>
           </Tooltip>
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <div
         className="issue-meta"
       >
-        <Link
+        <ForwardRef(Link)
           className="js-issue-permalink link-no-underline"
           target="_blank"
           title="permalink"
@@ -556,7 +556,7 @@ exports[`should render correctly: with multi locations and link 1`] = `
           }
         >
           <LinkIcon />
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </div>
   </div>

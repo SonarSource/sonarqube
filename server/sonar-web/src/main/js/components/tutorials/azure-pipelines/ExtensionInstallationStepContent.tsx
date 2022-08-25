@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import Link from '../../common/Link';
 
 export default function ExtensionInstallationStepContent() {
   return (
@@ -31,14 +32,13 @@ export default function ExtensionInstallationStepContent() {
         id="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence"
         values={{
           link: (
-            <a
-              href="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
-              rel="noopener noreferrer"
+            <Link
+              to="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
               target="_blank">
               {translate(
                 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link'
               )}
-            </a>
+            </Link>
           ),
           button: (
             <strong>

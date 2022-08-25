@@ -74,12 +74,12 @@ exports[`expands more options 2`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <a
+      <ForwardRef(Link)
         className="spacer-left"
-        href="/"
+        to="/"
       >
         cancel
-      </a>
+      </ForwardRef(Link)>
     </div>
   </div>
 </form>
@@ -145,12 +145,12 @@ exports[`logs in with simple credentials 1`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <a
+      <ForwardRef(Link)
         className="spacer-left"
-        href="/"
+        to="/"
       >
         cancel
-      </a>
+      </ForwardRef(Link)>
     </div>
   </div>
 </form>
@@ -216,12 +216,12 @@ exports[`should display a spinner and disabled button while loading 1`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <a
+      <ForwardRef(Link)
         className="spacer-left"
-        href="/"
+        to="/"
       >
         cancel
-      </a>
+      </ForwardRef(Link)>
     </div>
   </div>
 </form>

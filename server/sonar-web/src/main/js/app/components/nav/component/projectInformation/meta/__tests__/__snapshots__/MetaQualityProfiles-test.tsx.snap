@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
           CSS
           )
         </span>
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/profiles/show",
@@ -55,7 +55,7 @@ exports[`should render correctly 1`] = `
           >
             name
           </span>
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </li>
   </ul>
@@ -108,7 +108,7 @@ exports[`should render correctly 2`] = `
             CSS
             )
           </span>
-          <Link
+          <ForwardRef(Link)
             to={
               Object {
                 "pathname": "/profiles/show",
@@ -121,7 +121,7 @@ exports[`should render correctly 2`] = `
             >
               name
             </span>
-          </Link>
+          </ForwardRef(Link)>
         </div>
       </li>
     </Tooltip>

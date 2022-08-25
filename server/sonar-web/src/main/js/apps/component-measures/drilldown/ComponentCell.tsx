@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link, To } from 'react-router-dom';
+import { To } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';

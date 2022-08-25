@@ -29,11 +29,11 @@ exports[`should render correctly 1`] = `
                 id="settings.new_code_period.description"
                 values={
                   Object {
-                    "link": <Link
+                    "link": <ForwardRef(Link)
                       to="/documentation/project-administration/new-code-period/"
                     >
                       learn_more
-                    </Link>,
+                    </ForwardRef(Link)>,
                   }
                 }
               />

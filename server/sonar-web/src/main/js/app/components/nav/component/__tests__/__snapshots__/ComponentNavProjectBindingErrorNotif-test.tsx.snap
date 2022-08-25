@@ -27,7 +27,7 @@ exports[`should render correctly: project admin 1`] = `
     id="component_navigation.pr_deco.error_detected_X"
     values={
       Object {
-        "action": <Link
+        "action": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/project/settings",
@@ -36,7 +36,7 @@ exports[`should render correctly: project admin 1`] = `
           }
         >
           component_navigation.pr_deco.action.check_project_settings
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

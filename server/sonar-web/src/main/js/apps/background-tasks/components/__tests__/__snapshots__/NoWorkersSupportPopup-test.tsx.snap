@@ -15,13 +15,12 @@ exports[`should render correctly 1`] = `
     background_tasks.add_more_workers.text
   </p>
   <p>
-    <a
-      href="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
       target="_blank"
+      to="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
     >
       learn_more
-    </a>
+    </ForwardRef(Link)>
   </p>
 </Fragment>
 `;

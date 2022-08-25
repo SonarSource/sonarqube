@@ -10,7 +10,7 @@ exports[`Should render correctly 1`] = `
     id="onboarding.create_project.bitbucketcloud.no_projects"
     values={
       Object {
-        "link": <Link
+        "link": <ForwardRef(Link)
           to={
             Object {
               "pathname": "/projects/create",
@@ -19,7 +19,7 @@ exports[`Should render correctly 1`] = `
           }
         >
           onboarding.create_project.update_your_token
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />
@@ -67,17 +67,13 @@ exports[`Should render correctly: Importing 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/import-slug"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/import-slug"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"
@@ -103,7 +99,7 @@ exports[`Should render correctly: Importing 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -116,7 +112,7 @@ exports[`Should render correctly: Importing 1`] = `
                   qualifier="TRK"
                 />
                 Repo
-              </Link>
+              </ForwardRef(Link)>
             </strong>
           </Tooltip>
           <br />
@@ -131,17 +127,13 @@ exports[`Should render correctly: Importing 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/project__repo"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/project__repo"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td>
           <span
@@ -213,17 +205,13 @@ exports[`Should render correctly: Loading more 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/project__repo"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/project__repo"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"
@@ -329,17 +317,13 @@ exports[`Should render correctly: Show more 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/project__repo"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/project__repo"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"
@@ -362,7 +346,7 @@ exports[`Should render correctly: Show more 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -375,7 +359,7 @@ exports[`Should render correctly: Show more 1`] = `
                   qualifier="TRK"
                 />
                 Repo
-              </Link>
+              </ForwardRef(Link)>
             </strong>
           </Tooltip>
           <br />
@@ -390,17 +374,13 @@ exports[`Should render correctly: Show more 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/project__repo"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/project__repo"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td>
           <span
@@ -472,17 +452,13 @@ exports[`Should render correctly: Show no more 1`] = `
           </Tooltip>
         </td>
         <td>
-          <a
+          <ForwardRef(Link)
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/worksapce/project__repo"
-            rel="noopener noreferrer"
             target="_blank"
+            to="https://bitbucket.org/worksapce/project__repo"
           >
-            <DetachIcon
-              className="little-spacer-right"
-            />
             onboarding.create_project.bitbucketcloud.link
-          </a>
+          </ForwardRef(Link)>
         </td>
         <td
           className="text-right"

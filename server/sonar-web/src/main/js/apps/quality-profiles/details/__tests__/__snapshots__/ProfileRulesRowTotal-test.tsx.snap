@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "pathname": "/coding_rules",
@@ -21,12 +21,12 @@ exports[`should render correctly 1`] = `
       <strong>
         3
       </strong>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap text-right"
   >
-    <Link
+    <ForwardRef(Link)
       className="small"
       to={
         Object {
@@ -38,7 +38,7 @@ exports[`should render correctly 1`] = `
       <strong>
         7
       </strong>
-    </Link>
+    </ForwardRef(Link)>
   </td>
 </tr>
 `;
@@ -53,7 +53,7 @@ exports[`should render correctly if there is 0 rules 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "pathname": "/coding_rules",
@@ -64,7 +64,7 @@ exports[`should render correctly if there is 0 rules 1`] = `
       <strong>
         0
       </strong>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap text-right"
@@ -88,7 +88,7 @@ exports[`should render correctly if there is missing data 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "pathname": "/coding_rules",
@@ -99,7 +99,7 @@ exports[`should render correctly if there is missing data 1`] = `
       <strong>
         5
       </strong>
-    </Link>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap text-right"

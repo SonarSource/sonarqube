@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { createProject } from '../../api/components';
+import Link from '../../components/common/Link';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';

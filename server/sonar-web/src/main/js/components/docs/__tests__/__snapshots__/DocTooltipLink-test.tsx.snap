@@ -1,31 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render internal link 1`] = `
-<Link
-  rel="noopener noreferrer"
+<ForwardRef(Link)
   target="_blank"
   to="/documentation/foo/bar"
 />
 `;
 
 exports[`should render links with custom props 1`] = `
-<Link
-  rel="noopener noreferrer"
+<ForwardRef(Link)
   target="_blank"
   to="/documentation/foo/baz"
 />
 `;
 
 exports[`should render simple link 1`] = `
-<Fragment>
-  <a
-    href="http://sample.com"
-    rel="noopener noreferrer"
-    target="_blank"
-  />
-  <DetachIcon
-    className="little-spacer-left little-spacer-right text-baseline"
-    size={12}
-  />
-</Fragment>
+<ForwardRef(Link)
+  size={12}
+  target="_blank"
+  to="http://sample.com"
+/>
 `;

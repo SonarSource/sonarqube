@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
+import Link from '../../common/Link';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import { buildGithubLink } from '../utils';
@@ -50,9 +51,9 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
           values={{
             link: linkUrl ? (
-              <a href={linkUrl} rel="noopener noreferrer" target="_blank">
+              <Link to={linkUrl} target="_blank">
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
-              </a>
+              </Link>
             ) : (
               <strong>
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}

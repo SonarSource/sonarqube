@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { isWebUri } from 'valid-url';
 import HelpTooltip from '../../components/controls/HelpTooltip';
-import DetachIcon from '../../components/icons/DetachIcon';
+import Link from './Link';
 
 export interface DocumentationTooltipProps {
   children?: React.ReactNode;
@@ -60,20 +58,9 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
                   // they won't be "clickable"), we hide the whole links section.
                   // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
                   aria-hidden={true}>
-                  {inPlace ? (
-                    <Link to={href}>
-                      <span>{label}</span>
-                    </Link>
-                  ) : (
-                    <Link
-                      className="display-inline-flex-center"
-                      to={href}
-                      rel="noopener noreferrer"
-                      target="_blank">
-                      {isWebUri(href) && <DetachIcon size={14} className="spacer-right" />}
-                      <span>{label}</span>
-                    </Link>
-                  )}
+                  <Link to={href} target={inPlace ? undefined : '_blank'}>
+                    {label}
+                  </Link>
                 </div>
               ))}
             </>

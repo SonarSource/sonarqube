@@ -43,12 +43,12 @@ exports[`should render correctly: loaded 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/documentation/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -141,12 +141,12 @@ exports[`should render correctly: loading 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 target="_blank"
                 to="/documentation/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

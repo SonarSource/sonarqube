@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
+import Link from '../../../common/Link';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
@@ -45,12 +46,11 @@ export default function DotNetFramework(props: DotNetProps) {
             values={{
               code: <code>%PATH%</code>,
               link: (
-                <a
-                  href="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
-                  rel="noopener noreferrer"
+                <Link
+                  to="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
                   target="_blank">
                   {translate('onboarding.analysis.msbuild.docs_link')}
-                </a>
+                </Link>
               )
             }}
           />

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
+import Link from '../../../../components/common/Link';
 import { Location, withRouter } from '../../../../components/hoc/withRouter';
 import { Alert } from '../../../../components/ui/Alert';
 import { hasMessage, translate } from '../../../../helpers/l10n';

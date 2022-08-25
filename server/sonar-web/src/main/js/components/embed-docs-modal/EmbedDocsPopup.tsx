@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { SuggestionLink } from '../../types/types';
+import Link from '../common/Link';
 import { DropdownOverlay } from '../controls/Dropdown';
 import { SuggestionsContext } from './SuggestionsContext';
 
@@ -112,9 +112,12 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         </ul>
         <ul className="menu abs-width-240" role="group">
           <li>
-            <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+            <Link
+              className="display-flex-center"
+              to="https://community.sonarsource.com/"
+              target="_blank">
               {translate('embed_docs.get_help')}
-            </a>
+            </Link>
           </li>
         </ul>
         <ul className="menu abs-width-240" role="group">

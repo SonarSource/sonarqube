@@ -20,8 +20,8 @@
 import classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { convertToTo, Location } from '../../helpers/urls';
+import Link from '../common/Link';
 import Tooltip, { Placement } from '../controls/Tooltip';
 import LinkIcon from '../icons/LinkIcon';
 

@@ -13,14 +13,13 @@ exports[`should render correctly 1`] = `
       height={20}
       src="/images/alm/github.svg"
     />
-    <a
+    <ForwardRef(Link)
       className="spacer-left big"
-      href="https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq"
     >
       sonarsource-cfamily-examples
-    </a>
+    </ForwardRef(Link)>
   </div>
   <p
     className="spacer-top"
@@ -43,14 +42,13 @@ exports[`should render correctly 2`] = `
       height={20}
       src="/images/alm/github.svg"
     />
-    <a
+    <ForwardRef(Link)
       className="spacer-left big"
-      href="https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq+macos+azure"
-      rel="noopener noreferrer"
       target="_blank"
+      to="https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq+macos+azure"
     >
       sonarsource-cfamily-examples
-    </a>
+    </ForwardRef(Link)>
   </div>
   <p
     className="spacer-top"

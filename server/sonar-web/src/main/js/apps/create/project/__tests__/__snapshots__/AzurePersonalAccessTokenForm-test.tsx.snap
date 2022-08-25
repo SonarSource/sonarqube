@@ -18,19 +18,13 @@ exports[`should render correctly: default 1`] = `
         id="onboarding.create_project.pat_help.instructions"
         values={
           Object {
-            "link": <a
+            "link": <ForwardRef(Link)
               className="link-no-underline"
-              href="http://www.example.com/_usersSettings/tokens"
-              rel="noopener noreferrer"
               target="_blank"
+              to="http://www.example.com/_usersSettings/tokens"
             >
-              <DetachIcon
-                className="little-spacer-right"
-              />
-              <span>
-                onboarding.create_project.pat_help.instructions.link.azure
-              </span>
-            </a>,
+              onboarding.create_project.pat_help.instructions.link.azure
+            </ForwardRef(Link)>,
             "scope": <strong>
               <em>
                 Code (Read & Write)
@@ -94,19 +88,13 @@ exports[`should render correctly: submitting 1`] = `
         id="onboarding.create_project.pat_help.instructions"
         values={
           Object {
-            "link": <a
+            "link": <ForwardRef(Link)
               className="link-no-underline"
-              href="http://www.example.com/_usersSettings/tokens"
-              rel="noopener noreferrer"
               target="_blank"
+              to="http://www.example.com/_usersSettings/tokens"
             >
-              <DetachIcon
-                className="little-spacer-right"
-              />
-              <span>
-                onboarding.create_project.pat_help.instructions.link.azure
-              </span>
-            </a>,
+              onboarding.create_project.pat_help.instructions.link.azure
+            </ForwardRef(Link)>,
             "scope": <strong>
               <em>
                 Code (Read & Write)
@@ -170,19 +158,13 @@ exports[`should render correctly: validation failed 1`] = `
         id="onboarding.create_project.pat_help.instructions"
         values={
           Object {
-            "link": <a
+            "link": <ForwardRef(Link)
               className="link-no-underline"
-              href="http://www.example.com/_usersSettings/tokens"
-              rel="noopener noreferrer"
               target="_blank"
+              to="http://www.example.com/_usersSettings/tokens"
             >
-              <DetachIcon
-                className="little-spacer-right"
-              />
-              <span>
-                onboarding.create_project.pat_help.instructions.link.azure
-              </span>
-            </a>,
+              onboarding.create_project.pat_help.instructions.link.azure
+            </ForwardRef(Link)>,
             "scope": <strong>
               <em>
                 Code (Read & Write)

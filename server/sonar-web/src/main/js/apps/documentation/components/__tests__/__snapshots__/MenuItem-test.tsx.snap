@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render a high depth differently than a depth of 3 1`] = `
-<Link
+<ForwardRef(Link)
   className="list-group-item depth-3"
   key="/bar"
   to="/documentation/bar"
@@ -9,11 +9,11 @@ exports[`should not render a high depth differently than a depth of 3 1`] = `
   <h3
     className="list-group-item-heading"
   />
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should render correctly 1`] = `
-<Link
+<ForwardRef(Link)
   className="list-group-item"
   key="/bar"
   to="/documentation/bar"
@@ -21,11 +21,11 @@ exports[`should render correctly 1`] = `
   <h3
     className="list-group-item-heading"
   />
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should render correctly if the current node matches the splat 1`] = `
-<Link
+<ForwardRef(Link)
   className="list-group-item active"
   key="/bar"
   to="/documentation/bar"
@@ -33,5 +33,5 @@ exports[`should render correctly if the current node matches the splat 1`] = `
   <h3
     className="list-group-item-heading"
   />
-</Link>
+</ForwardRef(Link)>
 `;

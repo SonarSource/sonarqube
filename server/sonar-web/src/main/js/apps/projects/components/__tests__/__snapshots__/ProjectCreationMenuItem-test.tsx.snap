@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: bitbucket 1`] = `
-<Link
+<ForwardRef(Link)
   className="display-flex-center"
   to={
     Object {
@@ -17,11 +17,11 @@ exports[`should render correctly: bitbucket 1`] = `
     width={16}
   />
   my_account.add_project.bitbucket
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should render correctly: manual 1`] = `
-<Link
+<ForwardRef(Link)
   className="display-flex-center"
   to={
     Object {
@@ -34,5 +34,5 @@ exports[`should render correctly: manual 1`] = `
     className="spacer-right"
   />
   my_account.add_project.manual
-</Link>
+</ForwardRef(Link)>
 `;

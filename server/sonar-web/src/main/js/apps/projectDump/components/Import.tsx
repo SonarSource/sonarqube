@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { doImport } from '../../../api/project-dump';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';

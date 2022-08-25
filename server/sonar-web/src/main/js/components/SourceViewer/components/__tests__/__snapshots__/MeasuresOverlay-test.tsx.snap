@@ -24,7 +24,7 @@ exports[`should render source file 1`] = `
           className="little-spacer-right"
           qualifier="TRK"
         />
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -33,7 +33,7 @@ exports[`should render source file 1`] = `
           }
         >
           Project Name
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <div
         className="display-flex-center little-spacer-top"
@@ -588,7 +588,7 @@ exports[`should render source file 2`] = `
           className="little-spacer-right"
           qualifier="TRK"
         />
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -597,7 +597,7 @@ exports[`should render source file 2`] = `
           }
         >
           Project Name
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <div
         className="display-flex-center little-spacer-top"
@@ -1735,7 +1735,7 @@ exports[`should render test file 1`] = `
           className="little-spacer-right"
           qualifier="TRK"
         />
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "pathname": "/dashboard",
@@ -1744,7 +1744,7 @@ exports[`should render test file 1`] = `
           }
         >
           Project Name
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <div
         className="display-flex-center little-spacer-top"

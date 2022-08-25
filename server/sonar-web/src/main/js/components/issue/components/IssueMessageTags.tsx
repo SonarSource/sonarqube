@@ -23,6 +23,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleStatus } from '../../../types/rules';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
+import Link from '../../common/Link';
 import SonarLintIcon from '../../icons/SonarLintIcon';
 import { WorkspaceContext } from '../../workspace/context';
 
@@ -48,12 +49,11 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
               defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}
               values={{
                 link: (
-                  <a
-                    href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
                     target="_blank">
                     SonarLint
-                  </a>
+                  </Link>
                 )
               }}
             />

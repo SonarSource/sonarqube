@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
   >
     hotspots.no_hotspots.description
   </div>
-  <Link
+  <ForwardRef(Link)
     className="big-spacer-top"
     target="_blank"
     to={
@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
     }
   >
     hotspots.learn_more
-  </Link>
+  </ForwardRef(Link)>
 </div>
 `;
 
@@ -54,7 +54,7 @@ exports[`should render correctly: file 1`] = `
   >
     hotspots.no_hotspots_for_file.description
   </div>
-  <Link
+  <ForwardRef(Link)
     className="big-spacer-top"
     target="_blank"
     to={
@@ -64,7 +64,7 @@ exports[`should render correctly: file 1`] = `
     }
   >
     hotspots.learn_more
-  </Link>
+  </ForwardRef(Link)>
 </div>
 `;
 

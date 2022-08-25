@@ -31,13 +31,12 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
           id="maintenance.sonarqube_is_under_maintenance.1"
           values={
             Object {
-              "link": <a
-                href="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
-                rel="noopener noreferrer"
+              "link": <ForwardRef(Link)
                 target="_blank"
+                to="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
               >
                 maintenance.sonarqube_is_under_maintenance_link.1
-              </a>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -50,13 +49,12 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
           id="maintenance.sonarqube_is_under_maintenance.2"
           values={
             Object {
-              "link": <a
-                href="https://redirect.sonarsource.com/doc/upgrading.html"
-                rel="noopener noreferrer"
+              "link": <ForwardRef(Link)
                 target="_blank"
+                to="https://redirect.sonarsource.com/doc/upgrading.html"
               >
                 maintenance.sonarqube_is_under_maintenance_link.2
-              </a>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -97,13 +95,12 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
           id="maintenance.sonarqube_is_under_maintenance.1"
           values={
             Object {
-              "link": <a
-                href="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
-                rel="noopener noreferrer"
+              "link": <ForwardRef(Link)
                 target="_blank"
+                to="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
               >
                 maintenance.sonarqube_is_under_maintenance_link.1
-              </a>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -116,13 +113,12 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
           id="maintenance.sonarqube_is_under_maintenance.2"
           values={
             Object {
-              "link": <a
-                href="https://redirect.sonarsource.com/doc/upgrading.html"
-                rel="noopener noreferrer"
+              "link": <ForwardRef(Link)
                 target="_blank"
+                to="https://redirect.sonarsource.com/doc/upgrading.html"
               >
                 maintenance.sonarqube_is_under_maintenance_link.2
-              </a>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -282,11 +278,11 @@ exports[`Maintenance Page should render UP status 1`] = `
       <p
         className="maintenance-text text-center"
       >
-        <a
-          href="/"
+        <ForwardRef(Link)
+          to="/"
         >
           layout.home
-        </a>
+        </ForwardRef(Link)>
       </p>
     </div>
   </div>
@@ -348,11 +344,11 @@ exports[`Setup Page should render MIGRATION_SUCCEEDED state 1`] = `
       <p
         className="maintenance-text text-center"
       >
-        <a
-          href="/"
+        <ForwardRef(Link)
+          to="/"
         >
           layout.home
-        </a>
+        </ForwardRef(Link)>
       </p>
     </div>
   </div>
@@ -383,11 +379,11 @@ exports[`Setup Page should render NO_MIGRATION state 1`] = `
       <p
         className="maintenance-text text-center"
       >
-        <a
-          href="/"
+        <ForwardRef(Link)
+          to="/"
         >
           layout.home
-        </a>
+        </ForwardRef(Link)>
       </p>
     </div>
   </div>

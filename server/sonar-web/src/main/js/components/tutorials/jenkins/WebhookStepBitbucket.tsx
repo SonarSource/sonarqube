@@ -28,6 +28,7 @@ import {
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
+import Link from '../../common/Link';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import { buildBitbucketCloudLink } from '../utils';
@@ -79,9 +80,9 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
           values={{
             link: linkUrl ? (
-              <a href={linkUrl} rel="noopener noreferrer" target="_blank">
+              <Link to={linkUrl} target="_blank">
                 {translate('onboarding.tutorial.with.jenkins.webhook', alm, 'step1.link')}
-              </a>
+              </Link>
             ) : (
               <strong>
                 {translate('onboarding.tutorial.with.jenkins.webhook', alm, 'step1.link')}

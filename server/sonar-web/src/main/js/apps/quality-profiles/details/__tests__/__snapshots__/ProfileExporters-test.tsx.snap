@@ -21,13 +21,12 @@ exports[`should render correctly 1`] = `
         data-key="exporter-key"
         key="exporter-key"
       >
-        <a
-          href="/api/qualityprofiles/export?exporterKey=exporter-key&language=js&qualityProfile=name"
-          rel="noopener noreferrer"
+        <ForwardRef(Link)
           target="_blank"
+          to="/api/qualityprofiles/export?exporterKey=exporter-key&language=js&qualityProfile=name"
         >
           exporter-name
-        </a>
+        </ForwardRef(Link)>
       </li>
     </ul>
   </div>

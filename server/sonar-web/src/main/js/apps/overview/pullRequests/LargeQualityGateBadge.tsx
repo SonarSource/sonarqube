@@ -20,8 +20,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { colors } from '../../../app/theme';
+import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import HelpIcon from '../../../components/icons/HelpIcon';
 import { translate } from '../../../helpers/l10n';

@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Link from '../../../../components/common/Link';
 import { ProfileChangelogEvent } from '../../types';
 import Changelog from '../Changelog';
 import ChangesList from '../ChangesList';
@@ -68,7 +69,7 @@ it('should render action', () => {
 it('should render rule', () => {
   const events = [createEvent()];
   const changelog = shallow(<Changelog events={events} />);
-  expect(changelog.find('Link').prop('to')).toHaveProperty('search', '?rule_key=squid1234');
+  expect(changelog.find(Link).prop('to')).toHaveProperty('search', '?rule_key=squid1234');
 });
 
 it('should render ChangesList', () => {

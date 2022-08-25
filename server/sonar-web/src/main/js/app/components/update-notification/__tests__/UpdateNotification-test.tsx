@@ -22,18 +22,18 @@ import * as React from 'react';
 import { getSystemUpgrades } from '../../../../api/system';
 import { Alert } from '../../../../components/ui/Alert';
 import DismissableAlert from '../../../../components/ui/DismissableAlert';
-import { mockUpgrades } from '../../../../helpers/mocks/system-upgrades';
+import { mockSystemUpgrade } from '../../../../helpers/mocks/system-upgrades';
 import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Permissions } from '../../../../types/permissions';
 import { UpdateNotification } from '../UpdateNotification';
 
 jest.mock('../../../../api/system', () => {
-  const { mockUpgrades } = jest.requireActual('../../../../helpers/mocks/system-upgrades');
+  const { mockSystemUpgrade } = jest.requireActual('../../../../helpers/mocks/system-upgrades');
   return {
     getSystemUpgrades: jest
       .fn()
-      .mockResolvedValue({ upgrades: [mockUpgrades({ version: '9.1' })], latestLTS: '8.9' })
+      .mockResolvedValue({ upgrades: [mockSystemUpgrade({ version: '9.1' })], latestLTS: '8.9' })
   };
 });
 
@@ -86,7 +86,7 @@ it('should not show prompt when no upgrade', async () => {
 
 it('should show prompt when no lts date', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
-    upgrades: [mockUpgrades({ version: '8.9', releaseDate: 'INVALID' })],
+    upgrades: [mockSystemUpgrade({ version: '8.9', releaseDate: 'INVALID' })],
     latestLTS: '8.9'
   });
   const wrapper = shallowRender({
@@ -100,7 +100,7 @@ it('should show prompt when no lts date', async () => {
 
 it('should show prompt when minor upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
-    upgrades: [mockUpgrades({ version: '9.2' }), mockUpgrades({ version: '9.1' })],
+    upgrades: [mockSystemUpgrade({ version: '9.2' }), mockSystemUpgrade({ version: '9.1' })],
     latestLTS: '8.9'
   });
   const wrapper = shallowRender({
@@ -114,7 +114,7 @@ it('should show prompt when minor upgrade', async () => {
 
 it('should show prompt when patch upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
-    upgrades: [mockUpgrades({ version: '9.2' }), mockUpgrades({ version: '9.1.1' })],
+    upgrades: [mockSystemUpgrade({ version: '9.2' }), mockSystemUpgrade({ version: '9.1.1' })],
     latestLTS: '8.9'
   });
   const wrapper = shallowRender({
@@ -129,9 +129,9 @@ it('should show prompt when patch upgrade', async () => {
 it('should show prompt when lts upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [
-      mockUpgrades({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
-      mockUpgrades({ version: '9.2' }),
-      mockUpgrades({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
+      mockSystemUpgrade({ version: '9.2' }),
+      mockSystemUpgrade({ version: '9.1.1' })
     ],
     latestLTS: '8.9'
   });
@@ -149,9 +149,9 @@ it('should show prompt when lts upgrade is more than 6 month', async () => {
   ltsDate.setMonth(ltsDate.getMonth() - 7);
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [
-      mockUpgrades({ version: '8.9', releaseDate: formatDate(ltsDate) }),
-      mockUpgrades({ version: '9.2' }),
-      mockUpgrades({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(ltsDate) }),
+      mockSystemUpgrade({ version: '9.2' }),
+      mockSystemUpgrade({ version: '9.1.1' })
     ],
     latestLTS: '8.9'
   });
@@ -167,9 +167,9 @@ it('should show prompt when lts upgrade is more than 6 month', async () => {
 it('should show correct alert when not dismissable', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [
-      mockUpgrades({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
-      mockUpgrades({ version: '9.2' }),
-      mockUpgrades({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
+      mockSystemUpgrade({ version: '9.2' }),
+      mockSystemUpgrade({ version: '9.1.1' })
     ],
     latestLTS: '8.9'
   });

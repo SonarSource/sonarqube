@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
+import Link from '../../common/Link';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 
@@ -55,9 +56,9 @@ function translateTransition(transition: string) {
       id={`issue.transition.${transition}.description`}
       values={{
         community_plug_link: (
-          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+          <Link to="https://community.sonarsource.com/" target="_blank">
             {translate('issue.transition.community_plug_link')}
-          </a>
+          </Link>
         )
       }}
     />

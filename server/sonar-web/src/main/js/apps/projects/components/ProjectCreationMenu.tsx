@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons/DropdownIcon';

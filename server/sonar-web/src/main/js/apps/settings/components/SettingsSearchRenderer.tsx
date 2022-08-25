@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';

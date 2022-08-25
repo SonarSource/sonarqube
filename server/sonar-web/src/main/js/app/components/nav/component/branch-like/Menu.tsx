@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../../../components/common/Link';
 import { DropdownOverlay } from '../../../../../components/controls/Dropdown';
 import SearchBox from '../../../../../components/controls/SearchBox';
 import { Router, withRouter } from '../../../../../components/hoc/withRouter';

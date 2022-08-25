@@ -41,19 +41,18 @@ exports[`should render correctly: create 1`] = `
         id="settings.almintegration.form.personal_access_token.azure.help"
         values={
           Object {
-            "doc_link": <Link
+            "doc_link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/azuredevops-integration/"
             >
               learn_more
-            </Link>,
-            "pat": <a
-              href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
-              rel="noopener noreferrer"
+            </ForwardRef(Link)>,
+            "pat": <ForwardRef(Link)
               target="_blank"
+              to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
             >
               settings.almintegration.form.personal_access_token.azure.help.url
-            </a>,
+            </ForwardRef(Link)>,
             "permission": <strong>
               Code &gt; Read & Write
             </strong>,
@@ -114,19 +113,18 @@ exports[`should render correctly: edit 1`] = `
         id="settings.almintegration.form.personal_access_token.azure.help"
         values={
           Object {
-            "doc_link": <Link
+            "doc_link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/azuredevops-integration/"
             >
               learn_more
-            </Link>,
-            "pat": <a
-              href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
-              rel="noopener noreferrer"
+            </ForwardRef(Link)>,
+            "pat": <ForwardRef(Link)
               target="_blank"
+              to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
             >
               settings.almintegration.form.personal_access_token.azure.help.url
-            </a>,
+            </ForwardRef(Link)>,
             "permission": <strong>
               Code &gt; Read & Write
             </strong>,

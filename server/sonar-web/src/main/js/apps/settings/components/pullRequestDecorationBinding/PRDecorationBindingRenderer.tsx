@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { components, OptionProps, SingleValueProps } from 'react-select';
+import Link from '../../../../components/common/Link';
 import { Button, SubmitButton } from '../../../../components/controls/buttons';
 import Select from '../../../../components/controls/Select';
 import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';

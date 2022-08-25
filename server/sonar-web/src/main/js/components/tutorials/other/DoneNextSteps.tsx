@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
+import Link from '../../common/Link';
 
 export interface DoneNextStepsProps {
   component: Component;

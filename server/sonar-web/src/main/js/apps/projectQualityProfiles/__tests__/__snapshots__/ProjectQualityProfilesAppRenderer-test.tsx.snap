@@ -99,7 +99,7 @@ exports[`should render correctly: add language 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -108,7 +108,7 @@ exports[`should render correctly: add language 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -141,7 +141,7 @@ exports[`should render correctly: add language 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -150,7 +150,7 @@ exports[`should render correctly: add language 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -185,7 +185,7 @@ exports[`should render correctly: add language 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -194,7 +194,7 @@ exports[`should render correctly: add language 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -399,7 +399,7 @@ exports[`should render correctly: default 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -408,7 +408,7 @@ exports[`should render correctly: default 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -441,7 +441,7 @@ exports[`should render correctly: default 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -450,7 +450,7 @@ exports[`should render correctly: default 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -485,7 +485,7 @@ exports[`should render correctly: default 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -494,7 +494,7 @@ exports[`should render correctly: default 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -720,7 +720,7 @@ exports[`should render correctly: open profile 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -729,7 +729,7 @@ exports[`should render correctly: open profile 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -762,7 +762,7 @@ exports[`should render correctly: open profile 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -771,7 +771,7 @@ exports[`should render correctly: open profile 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"
@@ -806,7 +806,7 @@ exports[`should render correctly: open profile 1`] = `
             <td
               className="nowrap text-right"
             >
-              <Link
+              <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/coding_rules",
@@ -815,7 +815,7 @@ exports[`should render correctly: open profile 1`] = `
                 }
               >
                 10
-              </Link>
+              </ForwardRef(Link)>
             </td>
             <td
               className="text-right"

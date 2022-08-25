@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
       overlay="quality_profiles.sonarway_missing_rules_description"
     />
   </span>
-  <Link
+  <ForwardRef(Link)
     className="pull-right"
     data-test="rules"
     to={
@@ -28,6 +28,6 @@ exports[`should render correctly 1`] = `
     }
   >
     158
-  </Link>
+  </ForwardRef(Link)>
 </div>
 `;

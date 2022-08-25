@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { Profile } from '../../../../api/quality-profiles';
+import Link from '../../../../components/common/Link';
 import ComparisonEmpty from '../ComparisonEmpty';
 import ComparisonResults from '../ComparisonResults';
 

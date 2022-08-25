@@ -116,7 +116,7 @@ exports[`should render correctly: default 1`] = `
           <div
             className="coding-rule-title"
           >
-            <Link
+            <ForwardRef(Link)
               className="link-no-underline"
               onClick={[Function]}
               to={
@@ -127,7 +127,7 @@ exports[`should render correctly: default 1`] = `
               }
             >
               Use foo
-            </Link>
+            </ForwardRef(Link)>
           </div>
         </td>
         <td
@@ -213,7 +213,7 @@ exports[`should render correctly: with activation 1`] = `
           <div
             className="coding-rule-title"
           >
-            <Link
+            <ForwardRef(Link)
               className="link-no-underline"
               onClick={[Function]}
               to={
@@ -224,7 +224,7 @@ exports[`should render correctly: with activation 1`] = `
               }
             >
               Use foo
-            </Link>
+            </ForwardRef(Link)>
           </div>
         </td>
         <td

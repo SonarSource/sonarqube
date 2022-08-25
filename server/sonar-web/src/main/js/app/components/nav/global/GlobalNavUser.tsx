@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import Dropdown from '../../../../components/controls/Dropdown';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import Avatar from '../../../../components/ui/Avatar';
@@ -98,9 +98,9 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   renderAnonymous() {
     return (
       <div>
-        <a className="navbar-login" href="/sessions/new" onClick={this.handleLogin}>
+        <Link className="navbar-login" to="/sessions/new" onClick={this.handleLogin}>
           {translate('layout.login')}
-        </a>
+        </Link>
       </div>
     );
   }

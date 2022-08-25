@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import { Alert } from '../../../../components/ui/Alert';

@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -30,6 +29,7 @@ import {
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import DocumentationTooltip from '../../common/DocumentationTooltip';
+import Link from '../../common/Link';
 import { Button, DeleteButton, SubmitButton } from '../../controls/buttons';
 import Radio from '../../controls/Radio';
 import Select from '../../controls/Select';

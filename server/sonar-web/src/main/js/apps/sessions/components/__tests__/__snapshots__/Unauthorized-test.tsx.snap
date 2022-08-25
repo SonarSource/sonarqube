@@ -27,11 +27,11 @@ exports[`render 1`] = `
       <div
         className="big-spacer-top"
       >
-        <a
-          href="/"
+        <ForwardRef(Link)
+          to="/"
         >
           layout.home
-        </a>
+        </ForwardRef(Link)>
       </div>
     </div>
   </div>

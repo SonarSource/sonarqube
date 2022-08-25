@@ -69,7 +69,7 @@ exports[`should render 2`] = `
                 />
                 master
               </span>,
-              "project": <Link
+              "project": <ForwardRef(Link)
                 onClick={[Function]}
                 title="Foo"
                 to={
@@ -80,7 +80,7 @@ exports[`should render 2`] = `
                 }
               >
                 Foo
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -107,7 +107,7 @@ exports[`should render 2`] = `
                 />
                 master
               </span>,
-              "project": <Link
+              "project": <ForwardRef(Link)
                 onClick={[Function]}
                 title="Bar"
                 to={
@@ -118,7 +118,7 @@ exports[`should render 2`] = `
                 }
               >
                 Bar
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -173,7 +173,7 @@ exports[`should render for a branch 1`] = `
                 />
                 feature-x
               </span>,
-              "project": <Link
+              "project": <ForwardRef(Link)
                 onClick={[Function]}
                 title="Foo"
                 to={
@@ -184,7 +184,7 @@ exports[`should render for a branch 1`] = `
                 }
               >
                 Foo
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -217,7 +217,7 @@ exports[`should render for a branch 1`] = `
               />
               master
             </span>,
-            "project": <Link
+            "project": <ForwardRef(Link)
               onClick={[Function]}
               title="Bar"
               to={
@@ -228,7 +228,7 @@ exports[`should render for a branch 1`] = `
               }
             >
               Bar
-            </Link>,
+            </ForwardRef(Link)>,
           }
         }
       />

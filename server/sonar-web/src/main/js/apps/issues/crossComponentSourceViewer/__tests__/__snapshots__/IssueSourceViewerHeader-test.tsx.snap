@@ -54,7 +54,7 @@ exports[`should render correctly 1`] = `
   <div
     className="flex-0 big-spacer-left"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "hash": "",
@@ -64,7 +64,7 @@ exports[`should render correctly 1`] = `
       }
     >
       source_viewer.view_all_issues
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <DeferredSpinner
     className="little-spacer-right"
@@ -132,7 +132,7 @@ exports[`should render correctly: no link to project 1`] = `
   <div
     className="flex-0 big-spacer-left"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "hash": "",
@@ -142,7 +142,7 @@ exports[`should render correctly: no link to project 1`] = `
       }
     >
       source_viewer.view_all_issues
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <DeferredSpinner
     className="little-spacer-right"
@@ -199,7 +199,7 @@ exports[`should render correctly: no project name 1`] = `
   <div
     className="flex-0 big-spacer-left"
   >
-    <Link
+    <ForwardRef(Link)
       to={
         Object {
           "hash": "",
@@ -209,7 +209,7 @@ exports[`should render correctly: no project name 1`] = `
       }
     >
       source_viewer.view_all_issues
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <DeferredSpinner
     className="little-spacer-right"

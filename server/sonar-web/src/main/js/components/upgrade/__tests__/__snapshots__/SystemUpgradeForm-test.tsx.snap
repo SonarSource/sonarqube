@@ -79,14 +79,13 @@ exports[`should display correctly for new_minor_version 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      className="pull-left"
-      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="pull-left link-no-underline display-flex-center"
       target="_blank"
+      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
-    </a>
+    </ForwardRef(Link)>
     <ResetButtonLink
       onClick={[MockFunction]}
     >
@@ -181,14 +180,13 @@ exports[`should display correctly for new_patch 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      className="pull-left"
-      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="pull-left link-no-underline display-flex-center"
       target="_blank"
+      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
-    </a>
+    </ForwardRef(Link)>
     <ResetButtonLink
       onClick={[MockFunction]}
     >
@@ -283,14 +281,13 @@ exports[`should display correctly for pre_lts 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      className="pull-left"
-      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="pull-left link-no-underline display-flex-center"
       target="_blank"
+      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
-    </a>
+    </ForwardRef(Link)>
     <ResetButtonLink
       onClick={[MockFunction]}
     >
@@ -385,14 +382,13 @@ exports[`should display correctly for previous_lts 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      className="pull-left"
-      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="pull-left link-no-underline display-flex-center"
       target="_blank"
+      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
-    </a>
+    </ForwardRef(Link)>
     <ResetButtonLink
       onClick={[MockFunction]}
     >
@@ -481,14 +477,13 @@ exports[`should display correctly for undefined 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      className="pull-left"
-      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-      rel="noopener noreferrer"
+    <ForwardRef(Link)
+      className="pull-left link-no-underline display-flex-center"
       target="_blank"
+      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
-    </a>
+    </ForwardRef(Link)>
     <ResetButtonLink
       onClick={[MockFunction]}
     >

@@ -32,6 +32,11 @@ a:focus {
   border-bottom-color: var(--primary);
 }
 
+a svg,
+a img {
+  vertical-align: middle;
+}
+
 .link-no-underline {
   border-bottom-color: transparent !important;
 }

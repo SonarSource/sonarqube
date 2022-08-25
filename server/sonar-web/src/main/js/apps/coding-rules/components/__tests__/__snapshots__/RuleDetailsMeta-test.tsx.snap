@@ -15,7 +15,7 @@ exports[`should display right meta info 1`] = `
       >
         squid:S1133
       </span>
-      <Link
+      <ForwardRef(Link)
         className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
         title="permalink"
         to={
@@ -26,7 +26,7 @@ exports[`should display right meta info 1`] = `
         }
       >
         <LinkIcon />
-      </Link>
+      </ForwardRef(Link)>
       <SimilarRulesFilter
         onFilterChange={[MockFunction]}
         rule={

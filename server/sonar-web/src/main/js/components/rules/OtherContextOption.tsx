@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import Link from '../common/Link';
 import CheckIcon from '../icons/CheckIcon';
 import ClearIcon from '../icons/ClearIcon';
-import DetachIcon from '../icons/DetachIcon';
 
 export default function OtherContextOption() {
   return (
@@ -41,13 +41,11 @@ export default function OtherContextOption() {
       </p>
       <h2>{translate('coding_rules.context.others.title_feedback')}</h2>
       <p>{translate('coding_rules.context.others.feedback_description_1')}</p>
-      <a
-        href="https://portal.productboard.com/sonarsource/3-sonarqube/submit-idea"
-        rel="noopener noreferrer"
+      <Link
+        to="https://portal.productboard.com/sonarsource/3-sonarqube/submit-idea"
         target="_blank">
         {translate('coding_rules.context.others.feedback_description.link')}
-        <DetachIcon className="spacer-left" />
-      </a>
+      </Link>
       <p>{translate('coding_rules.context.others.feedback_description_2')}</p>
     </>
   );

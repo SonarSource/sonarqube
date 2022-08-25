@@ -19,7 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link, Path } from 'react-router-dom';
+import { Path } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';

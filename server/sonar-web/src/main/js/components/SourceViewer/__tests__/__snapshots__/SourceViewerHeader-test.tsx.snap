@@ -69,7 +69,7 @@ exports[`should render correctly for a regular file 1`] = `
           </a>
         </li>
         <li>
-          <Link
+          <ForwardRef(Link)
             className="js-new-window"
             rel="noopener noreferrer"
             target="_blank"
@@ -81,7 +81,7 @@ exports[`should render correctly for a regular file 1`] = `
             }
           >
             component_viewer.new_window
-          </Link>
+          </ForwardRef(Link)>
         </li>
         <li>
           <a
@@ -202,7 +202,7 @@ exports[`should render correctly for a unit test 1`] = `
           </a>
         </li>
         <li>
-          <Link
+          <ForwardRef(Link)
             className="js-new-window"
             rel="noopener noreferrer"
             target="_blank"
@@ -214,7 +214,7 @@ exports[`should render correctly for a unit test 1`] = `
             }
           >
             component_viewer.new_window
-          </Link>
+          </ForwardRef(Link)>
         </li>
         <li>
           <a
@@ -361,7 +361,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "hash": "",
@@ -371,7 +371,7 @@ exports[`should render correctly if issue details are passed 1`] = `
           }
         >
           0
-        </Link>
+        </ForwardRef(Link)>
       </span>
     </div>
     <div
@@ -386,7 +386,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "hash": "",
@@ -396,7 +396,7 @@ exports[`should render correctly if issue details are passed 1`] = `
           }
         >
           2
-        </Link>
+        </ForwardRef(Link)>
       </span>
     </div>
     <div
@@ -411,7 +411,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "hash": "",
@@ -421,7 +421,7 @@ exports[`should render correctly if issue details are passed 1`] = `
           }
         >
           1
-        </Link>
+        </ForwardRef(Link)>
       </span>
     </div>
     <div
@@ -436,7 +436,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        <Link
+        <ForwardRef(Link)
           to={
             Object {
               "hash": "",
@@ -446,7 +446,7 @@ exports[`should render correctly if issue details are passed 1`] = `
           }
         >
           2
-        </Link>
+        </ForwardRef(Link)>
       </span>
     </div>
   </div>
@@ -466,7 +466,7 @@ exports[`should render correctly if issue details are passed 1`] = `
           </a>
         </li>
         <li>
-          <Link
+          <ForwardRef(Link)
             className="js-new-window"
             rel="noopener noreferrer"
             target="_blank"
@@ -478,7 +478,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             }
           >
             component_viewer.new_window
-          </Link>
+          </ForwardRef(Link)>
         </li>
         <li>
           <a

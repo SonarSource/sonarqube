@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import Link from '../../common/Link';
 import { OSs, TutorialModes } from '../types';
 import './GithubCFamilyExampleRepositories.css';
 
@@ -68,9 +69,9 @@ export default function GithubCFamilyExampleRepositories(
           height={20}
           src={`${getBaseUrl()}/images/alm/github.svg`}
         />
-        <a className="spacer-left big" rel="noopener noreferrer" target="_blank" href={link}>
+        <Link className="spacer-left big" target="_blank" to={link}>
           sonarsource-cfamily-examples
-        </a>
+        </Link>
       </div>
       <p className="spacer-top">
         {translate('onboarding.tutorial.cfamily.examples_repositories_description')}

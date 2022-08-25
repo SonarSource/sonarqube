@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/settings/constants';
+import Link from '../../../../components/common/Link';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectSettingsUrl } from '../../../../helpers/urls';

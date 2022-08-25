@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import { Dict } from '../../../types/types';
 import { cutWords, DocumentationEntry, highlightMarks } from '../utils';
 

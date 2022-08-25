@@ -16,12 +16,12 @@ exports[`renders 1`] = `
     <p
       className="big-spacer-top"
     >
-      <Link
+      <ForwardRef(Link)
         className="button"
         to="/projects/all"
       >
         projects.explore_projects
-      </Link>
+      </ForwardRef(Link)>
     </p>
   </div>
 </div>

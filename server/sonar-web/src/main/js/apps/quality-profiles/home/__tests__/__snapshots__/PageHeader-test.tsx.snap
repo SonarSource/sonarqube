@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <Link
+    <ForwardRef(Link)
       className="spacer-left"
       target="_blank"
       to={
@@ -25,7 +25,7 @@ exports[`should render correctly 1`] = `
       }
     >
       learn_more
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </header>
 `;
@@ -63,7 +63,7 @@ exports[`should render correctly 2`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <Link
+    <ForwardRef(Link)
       className="spacer-left"
       target="_blank"
       to={
@@ -73,7 +73,7 @@ exports[`should render correctly 2`] = `
       }
     >
       learn_more
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </header>
 `;
@@ -117,7 +117,7 @@ exports[`should render correctly 3`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <Link
+    <ForwardRef(Link)
       className="spacer-left"
       target="_blank"
       to={
@@ -127,7 +127,7 @@ exports[`should render correctly 3`] = `
       }
     >
       learn_more
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </header>
 `;
@@ -165,7 +165,7 @@ exports[`should show a create form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <Link
+    <ForwardRef(Link)
       className="spacer-left"
       target="_blank"
       to={
@@ -175,7 +175,7 @@ exports[`should show a create form 1`] = `
       }
     >
       learn_more
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <CreateProfileForm
     languages={
@@ -253,7 +253,7 @@ exports[`should show a restore form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <Link
+    <ForwardRef(Link)
       className="spacer-left"
       target="_blank"
       to={
@@ -263,7 +263,7 @@ exports[`should show a restore form 1`] = `
       }
     >
       learn_more
-    </Link>
+    </ForwardRef(Link)>
   </div>
   <RestoreProfileForm
     onClose={[Function]}

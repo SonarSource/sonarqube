@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -83,12 +83,11 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
           id="settings.almintegration.bitbucketcloud.info"
           values={{
             oauth: (
-              <a
-                href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
-                rel="noopener noreferrer"
+              <Link
+                to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
                 target="_blank">
                 {translate('settings.almintegration.bitbucketcloud.oauth')}
-              </a>
+              </Link>
             ),
             permission: <strong>Pull Requests: Read</strong>,
             doc_link: (

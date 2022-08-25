@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import DetachIcon from '../../components/icons/DetachIcon';
 import { AppState } from '../../types/appstate';
+import Link from '../common/Link';
 
 interface OwnProps {
   appState: AppState;
@@ -71,17 +70,11 @@ export class DocLink extends React.PureComponent<Props> {
       );
     }
 
-    return (
-      <>
-        <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
-          {children}
-        </a>
-        <DetachIcon
-          className="text-muted little-spacer-left little-spacer-right text-baseline"
-          size={12}
-        />
-      </>
-    );
+    return href ? (
+      <Link to={href} target="_blank" size={12} {...other}>
+        {children}
+      </Link>
+    ) : null;
   }
 }
 

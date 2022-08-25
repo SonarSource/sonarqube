@@ -19,8 +19,8 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { deleteRule, searchRules } from '../../../api/rules';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';

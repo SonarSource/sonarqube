@@ -312,7 +312,7 @@ exports[`creates project 4`] = `
           id="projects_management.project_has_been_successfully_created"
           values={
             Object {
-              "project": <Link
+              "project": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -321,7 +321,7 @@ exports[`creates project 4`] = `
                 }
               >
                 name
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

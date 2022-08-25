@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { ButtonIcon } from '../../components/controls/buttons';
 import { ClipboardIconButton } from '../../components/controls/clipboard';
 import Dropdown from '../../components/controls/Dropdown';
@@ -42,6 +41,7 @@ import {
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType, Measure, SourceViewerFile } from '../../types/types';
+import Link from '../common/Link';
 import { WorkspaceContextShape } from '../workspace/context';
 import MeasuresOverlay from './components/MeasuresOverlay';
 

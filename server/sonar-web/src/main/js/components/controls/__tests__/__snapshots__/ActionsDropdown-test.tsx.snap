@@ -78,7 +78,7 @@ exports[`ActionsDropdownItem should render correctly 1`] = `
 
 exports[`ActionsDropdownItem should render correctly 2`] = `
 <li>
-  <Link
+  <ForwardRef(Link)
     className="foo text-danger"
     id="baz"
     to="path/name"
@@ -86,7 +86,7 @@ exports[`ActionsDropdownItem should render correctly 2`] = `
     <span>
       Hello world
     </span>
-  </Link>
+  </ForwardRef(Link)>
 </li>
 `;
 

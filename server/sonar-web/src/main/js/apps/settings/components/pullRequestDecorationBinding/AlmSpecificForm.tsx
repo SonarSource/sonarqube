@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps
 } from '../../../../app/components/available-features/withAvailableFeatures';
+import Link from '../../../../components/common/Link';
 import Toggle from '../../../../components/controls/Toggle';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';

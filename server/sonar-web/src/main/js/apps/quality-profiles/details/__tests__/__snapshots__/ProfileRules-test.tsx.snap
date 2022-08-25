@@ -72,7 +72,7 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
 `;
 
 exports[`should show a button to activate more rules for admins 1`] = `
-<Link
+<ForwardRef(Link)
   className="button js-activate-rules"
   to={
     Object {
@@ -82,7 +82,7 @@ exports[`should show a button to activate more rules for admins 1`] = `
   }
 >
   quality_profiles.activate_more
-</Link>
+</ForwardRef(Link)>
 `;
 
 exports[`should show a deprecated rules warning message 1`] = `

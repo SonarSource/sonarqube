@@ -19,9 +19,9 @@
  */
 import { keyBy } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules, takeFacet } from '../../../api/rules';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';

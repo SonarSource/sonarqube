@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, GitlabBindingDefinition } from '../../../../types/alm-settings';
@@ -67,12 +67,11 @@ export default function GitlabForm(props: GitlabFormProps) {
             id="settings.almintegration.form.personal_access_token.gitlab.help"
             values={{
               pat: (
-                <a
-                  href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
-                  rel="noopener noreferrer"
+                <Link
+                  to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
                   target="_blank">
                   {translate('settings.almintegration.form.personal_access_token.gitlab.help.url')}
-                </a>
+                </Link>
               ),
               permission: <strong>Reporter</strong>,
               scope: <strong>api</strong>,

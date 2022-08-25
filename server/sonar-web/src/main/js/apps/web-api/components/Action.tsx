@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '../../../components/common/Link';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';

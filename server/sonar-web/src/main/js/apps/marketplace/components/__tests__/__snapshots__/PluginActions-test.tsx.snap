@@ -54,12 +54,6 @@ exports[`should render available plugin correctly 2`] = `
     >
       marketplace.available_under_commercial_license
     </p>
-    <a
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      marketplace.learn_more
-    </a>
   </div>
 </div>
 `;

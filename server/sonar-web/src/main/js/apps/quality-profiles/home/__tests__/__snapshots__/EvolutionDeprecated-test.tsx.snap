@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
       >
         JavaScript
         , 
-        <Link
+        <ForwardRef(Link)
           className="link-no-underline"
           to={
             Object {
@@ -46,7 +46,7 @@ exports[`should render correctly 1`] = `
           }
         >
           quality_profile.x_rules.4
-        </Link>
+        </ForwardRef(Link)>
         <div
           className="muted"
           key="qp-2"
@@ -82,7 +82,7 @@ exports[`should render correctly 1`] = `
       >
         JavaScript
         , 
-        <Link
+        <ForwardRef(Link)
           className="link-no-underline"
           to={
             Object {
@@ -92,7 +92,7 @@ exports[`should render correctly 1`] = `
           }
         >
           quality_profile.x_rules.3
-        </Link>
+        </ForwardRef(Link)>
         <div
           className="muted"
           key="qp-2"
@@ -121,7 +121,7 @@ exports[`should render correctly 1`] = `
       >
         JavaScript
         , 
-        <Link
+        <ForwardRef(Link)
           className="link-no-underline"
           to={
             Object {
@@ -131,7 +131,7 @@ exports[`should render correctly 1`] = `
           }
         >
           quality_profile.x_rules.2
-        </Link>
+        </ForwardRef(Link)>
       </div>
     </li>
     <li
@@ -153,7 +153,7 @@ exports[`should render correctly 1`] = `
       >
         JavaScript
         , 
-        <Link
+        <ForwardRef(Link)
           className="link-no-underline"
           to={
             Object {
@@ -163,7 +163,7 @@ exports[`should render correctly 1`] = `
           }
         >
           quality_profile.x_rules.2
-        </Link>
+        </ForwardRef(Link)>
         <div
           className="muted"
           key="qp-2"

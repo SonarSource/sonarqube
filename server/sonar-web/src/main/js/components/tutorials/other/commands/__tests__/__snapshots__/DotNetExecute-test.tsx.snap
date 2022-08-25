@@ -28,12 +28,12 @@ exports[`should render correctly 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
           >
             onboarding.analysis.msbuild.docs_link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

@@ -20,9 +20,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import Link from '../../../components/common/Link';
 import { SubmitButton } from '../../../components/controls/buttons';
 import ValidationInput from '../../../components/controls/ValidationInput';
-import DetachIcon from '../../../components/icons/DetachIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
@@ -72,16 +72,9 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
             defaultMessage={translate('onboarding.create_project.pat_help.instructions', alm)}
             values={{
               link: url ? (
-                <a
-                  className="link-no-underline"
-                  href={getAzurePatUrl(url)}
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  <DetachIcon className="little-spacer-right" />
-                  <span>
-                    {translate('onboarding.create_project.pat_help.instructions.link', alm)}
-                  </span>
-                </a>
+                <Link className="link-no-underline" to={getAzurePatUrl(url)} target="_blank">
+                  {translate('onboarding.create_project.pat_help.instructions.link', alm)}
+                </Link>
               ) : (
                 translate('onboarding.create_project.pat_help.instructions.link', alm)
               ),

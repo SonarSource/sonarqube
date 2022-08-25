@@ -818,12 +818,12 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
           id="settings.pr_decoration.binding.form.monorepo.help"
           values={
             Object {
-              "doc_link": <Link
+              "doc_link": <ForwardRef(Link)
                 target="_blank"
                 to="/documentation/analysis/azuredevops-integration/"
               >
                 learn_more
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

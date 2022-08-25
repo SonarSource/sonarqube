@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { doExport } from '../../../api/project-dump';
+import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -110,9 +111,9 @@ export default class Export extends React.Component<Props> {
         <div className="boxed-group-inner">
           <Alert id="export-in-progress" variant="error">
             {translate('project_dump.failed_export')}
-            <a className="spacer-left" href={detailsUrl}>
+            <Link className="spacer-left" to={detailsUrl}>
               {translate('project_dump.see_details')}
-            </a>
+            </Link>
           </Alert>
 
           {this.renderExport()}

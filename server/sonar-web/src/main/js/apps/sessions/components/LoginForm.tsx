@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Link from '../../../components/common/Link';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
@@ -124,9 +125,9 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             <SubmitButton disabled={this.state.loading}>
               {translate('sessions.log_in')}
             </SubmitButton>
-            <a className="spacer-left" href={`${getBaseUrl()}/`}>
+            <Link className="spacer-left" to={`${getBaseUrl()}/`}>
               {translate('cancel')}
-            </a>
+            </Link>
           </div>
         </div>
       </form>

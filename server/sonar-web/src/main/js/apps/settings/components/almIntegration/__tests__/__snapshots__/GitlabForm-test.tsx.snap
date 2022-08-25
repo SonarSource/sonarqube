@@ -34,19 +34,18 @@ exports[`should render correctly 1`] = `
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
           Object {
-            "doc_link": <Link
+            "doc_link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/gitlab-integration/"
             >
               learn_more
-            </Link>,
-            "pat": <a
-              href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
-              rel="noopener noreferrer"
+            </ForwardRef(Link)>,
+            "pat": <ForwardRef(Link)
               target="_blank"
+              to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
             >
               settings.almintegration.form.personal_access_token.gitlab.help.url
-            </a>,
+            </ForwardRef(Link)>,
             "permission": <strong>
               Reporter
             </strong>,
@@ -103,19 +102,18 @@ exports[`should render correctly 2`] = `
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
           Object {
-            "doc_link": <Link
+            "doc_link": <ForwardRef(Link)
               target="_blank"
               to="/documentation/analysis/gitlab-integration/"
             >
               learn_more
-            </Link>,
-            "pat": <a
-              href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
-              rel="noopener noreferrer"
+            </ForwardRef(Link)>,
+            "pat": <ForwardRef(Link)
               target="_blank"
+              to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
             >
               settings.almintegration.form.personal_access_token.gitlab.help.url
-            </a>,
+            </ForwardRef(Link)>,
             "permission": <strong>
               Reporter
             </strong>,

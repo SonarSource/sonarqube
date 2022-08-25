@@ -46,12 +46,12 @@ exports[`should render correctly: content 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -106,12 +106,12 @@ exports[`should render correctly: content for branches disabled 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />
@@ -169,12 +169,12 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

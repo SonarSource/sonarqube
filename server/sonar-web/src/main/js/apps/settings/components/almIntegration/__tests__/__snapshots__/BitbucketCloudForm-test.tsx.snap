@@ -45,19 +45,18 @@ exports[`should render correctly: default 1`] = `
       id="settings.almintegration.bitbucketcloud.info"
       values={
         Object {
-          "doc_link": <Link
+          "doc_link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/bitbucket-cloud-integration/"
           >
             learn_more
-          </Link>,
-          "oauth": <a
-            href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
-            rel="noopener noreferrer"
+          </ForwardRef(Link)>,
+          "oauth": <ForwardRef(Link)
             target="_blank"
+            to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
           >
             settings.almintegration.bitbucketcloud.oauth
-          </a>,
+          </ForwardRef(Link)>,
           "permission": <strong>
             Pull Requests: Read
           </strong>,
@@ -132,19 +131,18 @@ exports[`should render correctly: invalid workspace ID 1`] = `
       id="settings.almintegration.bitbucketcloud.info"
       values={
         Object {
-          "doc_link": <Link
+          "doc_link": <ForwardRef(Link)
             target="_blank"
             to="/documentation/analysis/bitbucket-cloud-integration/"
           >
             learn_more
-          </Link>,
-          "oauth": <a
-            href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
-            rel="noopener noreferrer"
+          </ForwardRef(Link)>,
+          "oauth": <ForwardRef(Link)
             target="_blank"
+            to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
           >
             settings.almintegration.bitbucketcloud.oauth
-          </a>,
+          </ForwardRef(Link)>,
           "permission": <strong>
             Pull Requests: Read
           </strong>,

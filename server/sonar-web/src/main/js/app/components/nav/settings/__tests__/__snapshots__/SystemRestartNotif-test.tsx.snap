@@ -11,11 +11,11 @@ exports[`should render correctly 1`] = `
     values={
       Object {
         "instance": undefined,
-        "link": <Link
+        "link": <ForwardRef(Link)
           to="/admin/background_tasks"
         >
           background_tasks.page
-        </Link>,
+        </ForwardRef(Link)>,
       }
     }
   />

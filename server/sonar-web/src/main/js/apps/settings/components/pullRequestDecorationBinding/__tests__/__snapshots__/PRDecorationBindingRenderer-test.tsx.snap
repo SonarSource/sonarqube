@@ -264,7 +264,7 @@ exports[`should render correctly: when there are configuration errors (admin use
           id="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/admin/settings",
@@ -273,7 +273,7 @@ exports[`should render correctly: when there are configuration errors (admin use
                 }
               >
                 settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -905,7 +905,7 @@ exports[`should render correctly: with no ALM instances (admin user) 1`] = `
       id="settings.pr_decoration.binding.no_bindings.admin"
       values={
         Object {
-          "link": <Link
+          "link": <ForwardRef(Link)
             to={
               Object {
                 "pathname": "/admin/settings",
@@ -914,7 +914,7 @@ exports[`should render correctly: with no ALM instances (admin user) 1`] = `
             }
           >
             settings.pr_decoration.binding.no_bindings.link
-          </Link>,
+          </ForwardRef(Link)>,
         }
       }
     />

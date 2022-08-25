@@ -77,47 +77,33 @@ exports[`renders correctly: with links 1`] = `
           aria-hidden={true}
           className="little-spacer-bottom"
         >
-          <Link
-            className="display-inline-flex-center"
-            rel="noopener noreferrer"
+          <ForwardRef(Link)
             target="_blank"
             to="http://link.tosome.place"
           >
-            <DetachIcon
-              className="spacer-right"
-              size={14}
-            />
-            <span>
-              external link
-            </span>
-          </Link>
+            external link
+          </ForwardRef(Link)>
         </div>
         <div
           aria-hidden={true}
           className="little-spacer-bottom"
         >
-          <Link
-            className="display-inline-flex-center"
-            rel="noopener noreferrer"
+          <ForwardRef(Link)
             target="_blank"
             to="/documentation/guide"
           >
-            <span>
-              internal link
-            </span>
-          </Link>
+            internal link
+          </ForwardRef(Link)>
         </div>
         <div
           aria-hidden={true}
           className="little-spacer-bottom"
         >
-          <Link
+          <ForwardRef(Link)
             to="/projects"
           >
-            <span>
-              in place
-            </span>
-          </Link>
+            in place
+          </ForwardRef(Link)>
         </div>
       </React.Fragment>
     </div>

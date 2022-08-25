@@ -18,7 +18,7 @@ exports[`should render correctly for SQ 1`] = `
           id="overview.quality_gate.conditions_on_new_code"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/quality_gates/show/30",
@@ -26,7 +26,7 @@ exports[`should render correctly for SQ 1`] = `
                 }
               >
                 overview.quality_gate
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -64,7 +64,7 @@ exports[`should render correctly for SQ 2`] = `
           id="overview.quality_gate.conditions_on_new_code"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/quality_gates/show/30",
@@ -72,7 +72,7 @@ exports[`should render correctly for SQ 2`] = `
                 }
               >
                 overview.quality_gate
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

@@ -19,7 +19,7 @@
  */
 import { SystemUpgrade } from '../../types/system';
 
-export function mockUpgrades(override: Partial<SystemUpgrade>): SystemUpgrade {
+export function mockSystemUpgrade(override: Partial<SystemUpgrade> = {}): SystemUpgrade {
   return {
     version: '5.6.7',
     description: 'Version 5.6.7 description',

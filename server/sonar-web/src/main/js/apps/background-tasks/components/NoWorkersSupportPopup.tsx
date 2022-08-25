@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 
 export default function NoWorkersSupportPopup() {
@@ -30,12 +31,11 @@ export default function NoWorkersSupportPopup() {
         {translate('background_tasks.add_more_workers.text')}
       </p>
       <p>
-        <a
-          href="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
-          rel="noopener noreferrer"
+        <Link
+          to="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
           target="_blank">
           {translate('learn_more')}
-        </a>
+        </Link>
       </p>
     </>
   );

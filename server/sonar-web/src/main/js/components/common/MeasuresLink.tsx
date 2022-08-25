@@ -19,11 +19,11 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import MeasuresIcon from '../../components/icons/MeasuresIcon';
 import { translate } from '../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
+import Link from './Link';
 import './MeasuresLink.css';
 
 export interface MeasuresLinkProps {

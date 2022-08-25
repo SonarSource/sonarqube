@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import Link from '../../../components/common/Link';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';

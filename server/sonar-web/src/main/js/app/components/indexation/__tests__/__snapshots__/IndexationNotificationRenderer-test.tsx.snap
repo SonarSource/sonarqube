@@ -94,7 +94,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
           id="indexation.completed_with_error"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/admin/background_tasks",
@@ -103,7 +103,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
                 }
               >
                 indexation.completed_with_error.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -176,7 +176,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
           id="indexation.admin_link"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/admin/background_tasks",
@@ -185,7 +185,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
                 }
               >
                 background_tasks.page
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />
@@ -261,7 +261,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
           id="indexation.progression_with_error"
           values={
             Object {
-              "link": <Link
+              "link": <ForwardRef(Link)
                 to={
                   Object {
                     "pathname": "/admin/background_tasks",
@@ -270,7 +270,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
                 }
               >
                 indexation.progression_with_error.link
-              </Link>,
+              </ForwardRef(Link)>,
             }
           }
         />

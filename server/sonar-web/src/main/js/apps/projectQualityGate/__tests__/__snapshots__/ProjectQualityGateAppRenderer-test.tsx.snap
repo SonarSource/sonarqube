@@ -478,7 +478,7 @@ exports[`should render correctly: show new code warning 1`] = `
             id="project_quality_gate.no_condition_on_new_code"
             values={
               Object {
-                "link": <Link
+                "link": <ForwardRef(Link)
                   to={
                     Object {
                       "pathname": "/quality_gates/show/3",
@@ -486,7 +486,7 @@ exports[`should render correctly: show new code warning 1`] = `
                   }
                 >
                   project_quality_gate.no_condition.link
-                </Link>,
+                </ForwardRef(Link)>,
               }
             }
           />

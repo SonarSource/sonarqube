@@ -20,9 +20,10 @@
 import { maxBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, Params, useParams } from 'react-router-dom';
+import { Params, useParams } from 'react-router-dom';
 import { fetchWebApi } from '../../../api/web-api';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import Link from '../../../components/common/Link';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';

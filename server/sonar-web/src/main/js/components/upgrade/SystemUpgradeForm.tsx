@@ -24,6 +24,7 @@ import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
+import Link from '../common/Link';
 import { ResetButtonLink } from '../controls/buttons';
 import Modal from '../controls/Modal';
 import { Alert, AlertVariant } from '../ui/Alert';
@@ -106,13 +107,12 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
         </div>
         <div className="modal-foot">
           {upgrading && <i className="spinner spacer-right" />}
-          <a
-            className="pull-left"
-            href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-            rel="noopener noreferrer"
+          <Link
+            className="pull-left link-no-underline display-flex-center"
+            to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
             target="_blank">
             {translate('system.see_sonarqube_downloads')}
-          </a>
+          </Link>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </Modal>

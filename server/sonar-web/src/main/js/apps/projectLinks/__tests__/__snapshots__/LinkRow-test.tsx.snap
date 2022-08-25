@@ -26,13 +26,12 @@ exports[`should render custom link 1`] = `
   <td
     className="nowrap js-url"
   >
-    <a
-      href="http://example.com"
-      rel="nofollow noreferrer noopener"
+    <ForwardRef(Link)
       target="_blank"
+      to="http://example.com"
     >
       http://example.com
-    </a>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap"
@@ -131,13 +130,12 @@ exports[`should render provided link 1`] = `
   <td
     className="nowrap js-url"
   >
-    <a
-      href="http://example.com"
-      rel="nofollow noreferrer noopener"
+    <ForwardRef(Link)
       target="_blank"
+      to="http://example.com"
     >
       http://example.com
-    </a>
+    </ForwardRef(Link)>
   </td>
   <td
     className="thin nowrap"

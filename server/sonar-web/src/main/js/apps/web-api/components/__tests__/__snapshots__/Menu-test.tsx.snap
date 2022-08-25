@@ -7,7 +7,7 @@ exports[`should also render domains with an actions description matching the que
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="bar"
       to={
@@ -22,8 +22,8 @@ exports[`should also render domains with an actions description matching the que
       >
         bar
       </h3>
-    </Link>
-    <Link
+    </ForwardRef(Link)>
+    <ForwardRef(Link)
       className="list-group-item"
       key="baz"
       to={
@@ -38,7 +38,7 @@ exports[`should also render domains with an actions description matching the que
       >
         baz
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -50,7 +50,7 @@ exports[`should not render deprecated domains 1`] = `
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="foo"
       to={
@@ -65,7 +65,7 @@ exports[`should not render deprecated domains 1`] = `
       >
         foo
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -77,7 +77,7 @@ exports[`should not render internal domains 1`] = `
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="foo"
       to={
@@ -92,7 +92,7 @@ exports[`should not render internal domains 1`] = `
       >
         foo
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -104,7 +104,7 @@ exports[`should render deprecated domains 1`] = `
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="foo"
       to={
@@ -119,8 +119,8 @@ exports[`should render deprecated domains 1`] = `
       >
         foo
       </h3>
-    </Link>
-    <Link
+    </ForwardRef(Link)>
+    <ForwardRef(Link)
       className="list-group-item"
       key="bar"
       to={
@@ -138,7 +138,7 @@ exports[`should render deprecated domains 1`] = `
           since="5.0"
         />
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -150,7 +150,7 @@ exports[`should render internal domains 1`] = `
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="foo"
       to={
@@ -165,8 +165,8 @@ exports[`should render internal domains 1`] = `
       >
         foo
       </h3>
-    </Link>
-    <Link
+    </ForwardRef(Link)>
+    <ForwardRef(Link)
       className="list-group-item"
       key="bar"
       to={
@@ -182,7 +182,7 @@ exports[`should render internal domains 1`] = `
         bar
         <InternalBadge />
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;
@@ -194,7 +194,7 @@ exports[`should render only domains with an action matching the query 1`] = `
   <div
     className="list-group"
   >
-    <Link
+    <ForwardRef(Link)
       className="list-group-item"
       key="foo"
       to={
@@ -209,7 +209,7 @@ exports[`should render only domains with an action matching the query 1`] = `
       >
         foo
       </h3>
-    </Link>
+    </ForwardRef(Link)>
   </div>
 </div>
 `;

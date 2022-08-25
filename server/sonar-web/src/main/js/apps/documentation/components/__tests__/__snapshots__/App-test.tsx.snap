@@ -68,13 +68,13 @@ exports[`should render correctly for SonarQube 2`] = `
           label="documentation.skip_to_nav"
           weight={10}
         />
-        <Link
+        <ForwardRef(Link)
           to="/documentation/"
         >
           <h1>
             documentation.page
           </h1>
-        </Link>
+        </ForwardRef(Link)>
       </div>
       <Sidebar
         navigation={

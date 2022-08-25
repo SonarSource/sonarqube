@@ -97,7 +97,7 @@ exports[`should render correctly 1`] = `
   <header
     className="web-api-action-header boxed-group-header"
   >
-    <Link
+    <ForwardRef(Link)
       className="spacer-right link-no-underline"
       to={
         Object {
@@ -107,7 +107,7 @@ exports[`should render correctly 1`] = `
       }
     >
       <LinkIcon />
-    </Link>
+    </ForwardRef(Link)>
     <h3
       className="web-api-action-title"
     >
