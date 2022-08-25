@@ -10,6 +10,7 @@ exports[`should handle click 1`] = `
     onClick={[Function]}
   >
     <svg
+      aria-label="issues.return_to_list"
       height="24"
       viewBox="0 0 21 24"
       width="21"
@@ -33,6 +34,7 @@ exports[`should render properly 1`] = `
     onClick={[Function]}
   >
     <svg
+      aria-label="issues.return_to_list"
       height="24"
       viewBox="0 0 21 24"
       width="21"

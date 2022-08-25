@@ -382,6 +382,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   render() {
+    const isVisible = this.isVisible();
     return (
       <>
         {React.cloneElement(this.props.children, {
@@ -394,10 +395,10 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           // always well supported. As a fallback, we use aria-labelledby as well.
           // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
           // See https://css-tricks.com/accessible-svgs/
-          'aria-describedby': this.id,
-          'aria-labelledby': this.id
+          'aria-describedby': isVisible ? this.id : undefined,
+          'aria-labelledby': isVisible ? this.id : undefined
         })}
-        {this.isVisible() && (
+        {isVisible && (
           <EscKeydownHandler onKeydown={this.handleBlur}>
             <TooltipPortal>
               <ScreenPositionFixer ready={isMeasured(this.state)}>
