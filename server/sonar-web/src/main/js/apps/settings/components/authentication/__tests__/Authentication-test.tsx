@@ -27,15 +27,15 @@ it('should render tabs and allow navigation', async () => {
   const user = userEvent.setup();
   renderAuthentication();
 
-  expect(screen.getAllByRole('button')).toHaveLength(4);
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
 
-  expect(screen.getByRole('button', { name: 'SAML' })).toHaveAttribute('aria-current', 'true');
+  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-selected', 'true');
 
-  await user.click(screen.getByRole('button', { name: 'github GitHub' }));
+  await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
 
-  expect(screen.getByRole('button', { name: 'SAML' })).toHaveAttribute('aria-current', 'false');
-  expect(screen.getByRole('button', { name: 'github GitHub' })).toHaveAttribute(
-    'aria-current',
+  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-selected', 'false');
+  expect(screen.getByRole('tab', { name: 'github GitHub' })).toHaveAttribute(
+    'aria-selected',
     'true'
   );
 });

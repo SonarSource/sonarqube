@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../../../components/common/Link';
+import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -77,7 +78,11 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
 
   return (
-    <div className="bordered">
+    <div
+      className="bordered"
+      role="tabpanel"
+      id={getTabPanelId(almTab)}
+      aria-labelledby={getTabId(almTab)}>
       <div className="big-padded">
         <DeferredSpinner loading={loadingAlmDefinitions}>
           {definitions.length === 0 && (

@@ -19,7 +19,7 @@
  */
 import { groupBy } from 'lodash';
 import * as React from 'react';
-import BoxedTabs from '../../../components/controls/BoxedTabs';
+import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -187,7 +187,13 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
     return (
       <>
         <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
-        <div className="bordered huge-spacer-bottom">{currentTab.content}</div>
+        <div
+          className="bordered huge-spacer-bottom"
+          role="tabpanel"
+          aria-labelledby={getTabId(currentTab.key)}
+          id={getTabPanelId(currentTab.key)}>
+          {currentTab.content}
+        </div>
       </>
     );
   }

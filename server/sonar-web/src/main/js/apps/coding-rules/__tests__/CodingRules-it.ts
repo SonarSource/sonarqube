@@ -87,23 +87,23 @@ it('should show hotspot rule section', async () => {
   expect(await screen.findByRole('heading', { level: 3, name: 'Hot hotspot' })).toBeInTheDocument();
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.assess_the_problem'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -118,18 +118,18 @@ it('should show rule advanced section', async () => {
   ).toBeInTheDocument();
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -143,13 +143,13 @@ it('should show rule advanced section with context', async () => {
     await screen.findByRole('heading', { level: 3, name: 'Python rule with context' })
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   );
@@ -384,13 +384,13 @@ it('should show notification for rule advanced section and remove it after user 
     name: 'Awesome Python rule with education principles'
   });
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -408,12 +408,12 @@ it('should show notification for rule advanced section and remove it after user 
   );
   // navigate away and come back
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   );
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -429,31 +429,31 @@ it('should show notification for rule advanced section and removes it when user 
     name: 'Awesome Python rule with education principles'
   });
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
 
   // navigate away and come back
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   );
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
 
   expect(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -469,12 +469,12 @@ it('should show notification for rule advanced section and removes it when user 
 
   // navigate away and come back
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.how_to_fix'
     })
   );
   await user.click(
-    screen.getByRole('button', {
+    screen.getByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );
@@ -486,7 +486,7 @@ it('should not show notification for anonymous users', async () => {
   renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule8');
 
   await user.click(
-    await screen.findByRole('button', {
+    await screen.findByRole('tab', {
       name: 'coding_rules.description_section.title.more_info'
     })
   );

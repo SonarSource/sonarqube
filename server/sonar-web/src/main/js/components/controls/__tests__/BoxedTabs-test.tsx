@@ -45,7 +45,7 @@ function mountRender(overrides: Partial<BoxedTabsProps<string>> = {}) {
   return mount(dom(overrides));
 }
 
-function dom<K>(overrides: Partial<BoxedTabsProps<K>>) {
+function dom(overrides: Partial<BoxedTabsProps<string>>) {
   return (
     <BoxedTabs
       className="boxed-tabs"

@@ -70,7 +70,10 @@ exports[`should render correctly: fix 1`] = `
     }
   />
   <div
+    aria-labelledby="tab-fix"
     className="bordered huge-spacer-bottom"
+    id="tabpanel-fix"
+    role="tabpanel"
   >
     <RuleDescription
       className="big-padded"
@@ -158,7 +161,10 @@ exports[`should render correctly: risk 1`] = `
     }
   />
   <div
+    aria-labelledby="tab-code"
     className="bordered huge-spacer-bottom"
+    id="tabpanel-code"
+    role="tabpanel"
   >
     <div
       className="padded"
@@ -241,7 +247,10 @@ exports[`should render correctly: vulnerability 1`] = `
     }
   />
   <div
+    aria-labelledby="tab-vulnerability"
     className="bordered huge-spacer-bottom"
+    id="tabpanel-vulnerability"
+    role="tabpanel"
   >
     <RuleDescription
       className="big-padded"
@@ -329,7 +338,10 @@ exports[`should render correctly: with comments or changelog element 1`] = `
     }
   />
   <div
+    aria-labelledby="tab-code"
     className="bordered huge-spacer-bottom"
+    id="tabpanel-code"
+    role="tabpanel"
   >
     <div
       className="padded"

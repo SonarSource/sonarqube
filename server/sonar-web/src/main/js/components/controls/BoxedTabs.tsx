@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import * as React from 'react';
 import { colors, sizes } from '../../app/theme';
 
-export interface BoxedTabsProps<K> {
+export interface BoxedTabsProps<K extends string | number> {
   className?: string;
   onSelect: (key: K) => void;
   selected?: K;
@@ -76,23 +76,33 @@ const ActiveBorder = styled.div<{ active: boolean }>`
   top: -1px;
 `;
 
-export default function BoxedTabs<K>(props: BoxedTabsProps<K>) {
+export default function BoxedTabs<K extends string | number>(props: BoxedTabsProps<K>) {
   const { className, tabs, selected } = props;
 
   return (
-    <TabContainer className={className}>
+    <TabContainer className={className} role="tablist">
       {tabs.map(({ key, label }, i) => (
         <StyledTab
+          id={getTabId(key)}
           active={selected === key}
-          aria-current={selected === key}
+          aria-selected={selected === key}
+          aria-controls={getTabPanelId(key)}
           // eslint-disable-next-line react/no-array-index-key
           key={i}
           onClick={() => selected !== key && props.onSelect(key)}
-          type="button">
+          role="tab">
           <ActiveBorder active={selected === key} />
           {label}
         </StyledTab>
       ))}
     </TabContainer>
   );
+}
+
+export function getTabPanelId(key: string | number) {
+  return `tabpanel-${key}`;
+}
+
+export function getTabId(key: string | number) {
+  return `tab-${key}`;
 }

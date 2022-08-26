@@ -46,7 +46,7 @@ it('should show education principles', async () => {
   const user = userEvent.setup();
   renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
   await user.click(
-    await screen.findByRole('button', { name: `coding_rules.description_section.title.more_info` })
+    await screen.findByRole('tab', { name: `coding_rules.description_section.title.more_info` })
   );
   expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
 });
@@ -59,7 +59,7 @@ it('should open issue and navigate', async () => {
   // Select an issue with an advanced rule
   expect(await screen.findByRole('region', { name: 'Fix that' })).toBeInTheDocument();
   await user.click(screen.getByRole('region', { name: 'Fix that' }));
-  expect(screen.getByRole('button', { name: 'issue.tabs.code' })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'issue.tabs.code' })).toBeInTheDocument();
 
   // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Fix that' })).toBeInTheDocument();
@@ -67,19 +67,19 @@ it('should open issue and navigate', async () => {
 
   // Select the "why is this an issue" tab and check its content
   expect(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
   ).toBeInTheDocument();
   await user.click(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
   );
   expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
   // Select the "how to fix it" tab
   expect(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.how_to_fix` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` })
   ).toBeInTheDocument();
   await user.click(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.how_to_fix` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` })
   );
 
   // Is the context selector present with the expected values and default selection?
@@ -103,10 +103,10 @@ it('should open issue and navigate', async () => {
 
   // Select the main info tab and check its content
   expect(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.more_info` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` })
   ).toBeInTheDocument();
   await user.click(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.more_info` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` })
   );
   expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
@@ -123,10 +123,10 @@ it('should open issue and navigate', async () => {
 
   // Select the "why is this an issue tab" and check its content
   expect(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
   ).toBeInTheDocument();
   await user.click(
-    screen.getByRole('button', { name: `coding_rules.description_section.title.root_cause` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
   );
   expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
@@ -413,7 +413,7 @@ it('should show code tabs when any secondary location is selected', async () => 
 
   // Select the "why is this an issue" tab
   await user.click(
-    screen.getByRole('button', { name: 'coding_rules.description_section.title.root_cause' })
+    screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
   );
   expect(
     screen.queryByRole('row', {
@@ -430,7 +430,7 @@ it('should show code tabs when any secondary location is selected', async () => 
 
   // selecting the same selected hotspot location should also navigate back to code page
   await user.click(
-    screen.getByRole('button', { name: 'coding_rules.description_section.title.root_cause' })
+    screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
   );
   expect(
     screen.queryByRole('row', {

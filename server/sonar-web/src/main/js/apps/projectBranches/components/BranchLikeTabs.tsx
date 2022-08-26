@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BoxedTabs from '../../../components/controls/BoxedTabs';
+import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import PullRequestIcon from '../../../components/icons/PullRequestIcon';
 import {
@@ -128,15 +128,17 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           tabs={TABS}
         />
 
-        <BranchLikeTable
-          branchLikes={branchLikesToDisplay}
-          component={component}
-          displayPurgeSetting={isBranchMode}
-          onDelete={this.handleDeleteBranchLike}
-          onRename={this.handleRenameBranchLike}
-          onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
-          title={title}
-        />
+        <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>
+          <BranchLikeTable
+            branchLikes={branchLikesToDisplay}
+            component={component}
+            displayPurgeSetting={isBranchMode}
+            onDelete={this.handleDeleteBranchLike}
+            onRename={this.handleRenameBranchLike}
+            onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
+            title={title}
+          />
+        </div>
 
         {deleting && (
           <DeleteBranchModal

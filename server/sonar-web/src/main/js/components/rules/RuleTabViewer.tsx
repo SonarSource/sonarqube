@@ -27,7 +27,7 @@ import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
-import BoxedTabs from '../controls/BoxedTabs';
+import BoxedTabs, { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 import './style.css';
@@ -312,7 +312,10 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
                 // We substract the footer height with padding (80) and the main layout padding (20)
                 maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial'
               }}
-              className="bordered display-flex-column">
+              className="bordered display-flex-column"
+              role="tabpanel"
+              aria-labelledby={getTabId(selectedTab.key)}
+              id={getTabPanelId(selectedTab.key)}>
               {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
               <div className="overflow-y-auto spacer" key={selectedTab.key}>
                 {tabContent}

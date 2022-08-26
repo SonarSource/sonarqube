@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import Link from '../../../../components/common/Link';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import BoxedTabs from '../../../../components/controls/BoxedTabs';
+import BoxedTabs, { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
@@ -130,7 +130,10 @@ export default function Authentication(props: Props) {
               maxHeight: `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`
             }}
             className="bordered overflow-y-auto tabbed-definitions"
-            key={currentTab}>
+            key={currentTab}
+            role="tabpanel"
+            aria-labelledby={getTabId(currentTab)}
+            id={getTabPanelId(currentTab)}>
             <div className="big-padded">
               <Alert variant="info">
                 <FormattedMessage

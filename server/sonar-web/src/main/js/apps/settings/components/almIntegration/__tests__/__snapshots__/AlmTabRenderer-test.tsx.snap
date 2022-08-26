@@ -2,7 +2,10 @@
 
 exports[`should render correctly for multi-ALM binding: editing a definition 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -48,7 +51,10 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
 
 exports[`should render correctly for multi-ALM binding: loaded 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -94,7 +100,10 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
 
 exports[`should render correctly for multi-ALM binding: loading ALM definitions 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -140,7 +149,10 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
 
 exports[`should render correctly for multi-ALM binding: loading project count 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -186,7 +198,10 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
 
 exports[`should render correctly for single-ALM binding 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -232,7 +247,10 @@ exports[`should render correctly for single-ALM binding 1`] = `
 
 exports[`should render correctly for single-ALM binding 2`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -278,7 +296,10 @@ exports[`should render correctly for single-ALM binding 2`] = `
 
 exports[`should render correctly for single-ALM binding 3`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -324,7 +345,10 @@ exports[`should render correctly for single-ALM binding 3`] = `
 
 exports[`should render correctly with validation: create a first 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -360,7 +384,10 @@ exports[`should render correctly with validation: create a first 1`] = `
 
 exports[`should render correctly with validation: create a second 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -410,7 +437,10 @@ exports[`should render correctly with validation: create a second 1`] = `
 
 exports[`should render correctly with validation: default 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -460,7 +490,10 @@ exports[`should render correctly with validation: default 1`] = `
 
 exports[`should render correctly with validation: empty 1`] = `
 <div
+  aria-labelledby="tab-azure"
   className="bordered"
+  id="tabpanel-azure"
+  role="tabpanel"
 >
   <div
     className="big-padded"
@@ -496,7 +529,10 @@ exports[`should render correctly with validation: empty 1`] = `
 
 exports[`should render correctly with validation: pass the correct key for bitbucket cloud 1`] = `
 <div
+  aria-labelledby="tab-bitbucket"
   className="bordered"
+  id="tabpanel-bitbucket"
+  role="tabpanel"
 >
   <div
     className="big-padded"

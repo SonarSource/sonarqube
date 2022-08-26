@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { rawSizes } from '../../../app/theme';
-import BoxedTabs from '../../../components/controls/BoxedTabs';
+import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -50,8 +50,8 @@ export interface MeasuresPanelProps {
 }
 
 export enum MeasuresPanelTabs {
-  New,
-  Overall
+  New = 'new',
+  Overall = 'overall'
 }
 
 export function MeasuresPanel(props: MeasuresPanelProps) {
@@ -115,9 +115,13 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
         </div>
       ) : (
         <>
-          <BoxedTabs onSelect={selectTab} selected={tab} tabs={tabs} />
+          <BoxedTabs onSelect={key => selectTab(key)} selected={tab} tabs={tabs} />
 
-          <div className="overview-panel-content flex-1 bordered">
+          <div
+            className="overview-panel-content flex-1 bordered"
+            role="tabpanel"
+            id={getTabPanelId(tab)}
+            aria-labelledby={getTabId(tab)}>
             {!hasDiffMeasures && isNewCodeTab ? (
               <MeasuresPanelNoNewCode branch={branch} component={component} period={period} />
             ) : (

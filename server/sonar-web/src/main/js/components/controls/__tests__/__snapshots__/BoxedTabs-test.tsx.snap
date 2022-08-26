@@ -108,6 +108,7 @@ exports[`should render correctly 1`] = `
 >
   <Styled(div)
     className="boxed-tabs"
+    role="tablist"
   >
     <Insertion
       cache={
@@ -296,13 +297,16 @@ exports[`should render correctly 1`] = `
     />
     <div
       className="boxed-tabs emotion-6"
+      role="tablist"
     >
       <Styled(button)
         active={true}
-        aria-current={true}
+        aria-controls="tabpanel-a"
+        aria-selected={true}
+        id="tab-a"
         key="0"
         onClick={[Function]}
-        type="button"
+        role="tab"
       >
         <Insertion
           cache={
@@ -510,10 +514,12 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
-          aria-current={true}
+          aria-controls="tabpanel-a"
+          aria-selected={true}
           className="emotion-1"
+          id="tab-a"
           onClick={[Function]}
-          type="button"
+          role="tab"
         >
           <Styled(div)
             active={true}
@@ -717,10 +723,12 @@ exports[`should render correctly 1`] = `
       </Styled(button)>
       <Styled(button)
         active={false}
-        aria-current={false}
+        aria-controls="tabpanel-b"
+        aria-selected={false}
+        id="tab-b"
         key="1"
         onClick={[Function]}
-        type="button"
+        role="tab"
       >
         <Insertion
           cache={
@@ -932,10 +940,12 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
-          aria-current={false}
+          aria-controls="tabpanel-b"
+          aria-selected={false}
           className="emotion-3"
+          id="tab-b"
           onClick={[Function]}
-          type="button"
+          role="tab"
         >
           <Styled(div)
             active={false}
@@ -1139,10 +1149,12 @@ exports[`should render correctly 1`] = `
       </Styled(button)>
       <Styled(button)
         active={false}
-        aria-current={false}
+        aria-controls="tabpanel-c"
+        aria-selected={false}
+        id="tab-c"
         key="2"
         onClick={[Function]}
-        type="button"
+        role="tab"
       >
         <Insertion
           cache={
@@ -1354,10 +1366,12 @@ exports[`should render correctly 1`] = `
           }
         />
         <button
-          aria-current={false}
+          aria-controls="tabpanel-c"
+          aria-selected={false}
           className="emotion-3"
+          id="tab-c"
           onClick={[Function]}
-          type="button"
+          role="tab"
         >
           <Styled(div)
             active={false}
