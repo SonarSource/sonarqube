@@ -27,6 +27,7 @@ public class UsersWsModule extends Module {
   protected void configureModule() {
     add(
       UsersWs.class,
+      AnonymizeAction.class,
       CreateAction.class,
       UpdateAction.class,
       UpdateLoginAction.class,
