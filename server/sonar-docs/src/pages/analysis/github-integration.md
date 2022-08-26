@@ -344,33 +344,5 @@ SonarQube can also report your Quality Gate status to GitHub pull requests and b
 | When adding a Quality Gate status to your pull requests and branches, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## Authenticating with GitHub
-To allow users to log in with GitHub credentials, use the GitHub App that you created above (see the **Importing your GitHub repositories using a GitHub App** section for more information) and update your global SonarQube settings.
 
-[[info]]
-| If you're using Community Edition or you want to use a dedicated app for GitHub authentication, see the **Creating a dedicated app for authentication** section below.
-
-To update your global SonarQube settings:
-
-Navigate to **Administration > Configuration > General Settings > Authentication > GitHub Authentication** and update the following:
-
-1. **Enabled** – set the switch to `true`.
-1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
-1. **Client Secret** – the Client secret is found below the Client ID on your GitHub App's page.
-  
-Now, from the login page, your users can connect their GitHub accounts with the new "Log in with GitHub" button.
-
-### Creating a dedicated app for authentication
-If you want to use a dedicated app for GitHub authentication, you can create a GitHub OAuth app. You'll find general instructions for creating a GitHub OAuth App [here](https://docs.github.com/en/free-pro-team@latest/developers/apps/creating-an-oauth-app). Specify the following settings in your OAuth App:
-
-- **Homepage URL** – the public URL of your SonarQube server. For example, `https://sonarqube.mycompany.com`. For security reasons, HTTP is not supported, and you must use HTTPS. The public URL is configured in SonarQube at **[Administration > General > Server base URL](/#sonarqube-admin#/admin/settings)**.
-- **Authorization callback URL** – your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
-
-After creating your app, update your global SonarQube settings: 
-
-Navigate to **Administration > Configuration > General Settings > Authentication > GitHub Authentication** and update the following:
-
-1. **Enabled** – set the switch to `true`.
-1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
-1. **Client Secret** – the Client secret is found below the Client ID on your GitHub App's page.
-  
-Now, from the login page, your users can connect their GitHub accounts with the new "Log in with GitHub" button.
+See [Authenticating with GitHub](/instance-administration/authentication/github/) 

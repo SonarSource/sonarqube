@@ -170,7 +170,10 @@
           "/instance-administration/authentication/overview/",
           "/instance-administration/authentication/http-header/",
           "/instance-administration/authentication/ldap/",
-          "/instance-administration/authentication/saml/"
+          "/instance-administration/authentication/saml/",
+          "/instance-administration/authentication/github/",
+          "/instance-administration/authentication/gitlab/",
+          "/instance-administration/authentication/bitbucket-cloud/"
         ]
       },
       "/instance-administration/look-and-feel/",

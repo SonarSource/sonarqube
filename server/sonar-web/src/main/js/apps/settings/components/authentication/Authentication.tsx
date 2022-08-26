@@ -45,12 +45,11 @@ export type AuthenticationTabs =
   | AlmKeys.GitLab
   | AlmKeys.BitbucketServer;
 
-const DOCUMENTATION_LINKS = {
-  [SAML]: '/documentation/instance-administration/delegated-auth/#saml-authentication',
-  [AlmKeys.GitHub]: '/documentation/analysis/github-integration/#authenticating-with-github',
-  [AlmKeys.GitLab]: '/documentation/analysis/gitlab-integration/#authenticating-with-gitlab',
-  [AlmKeys.BitbucketServer]:
-    '/documentation/analysis/bitbucket-cloud-integration/#authenticating-with-bitbucket-cloud'
+const DOCUMENTATION_LINK_SUFFIXES = {
+  [SAML]: 'saml',
+  [AlmKeys.GitHub]: 'github',
+  [AlmKeys.GitLab]: 'gitlab',
+  [AlmKeys.BitbucketServer]: 'bitbucket-cloud'
 };
 
 function renderDevOpsIcon(key: string) {
@@ -138,7 +137,7 @@ export default function Authentication(props: Props) {
                   values={{
                     link: (
                       <Link
-                        to={DOCUMENTATION_LINKS[currentTab]}
+                        to={`/documentation/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}
                         rel="noopener noreferrer"
                         target="_blank">
                         {translate('settings.authentication.help.link')}

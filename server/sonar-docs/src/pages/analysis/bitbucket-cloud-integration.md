@@ -300,24 +300,5 @@ SonarQube can also report your Quality Gate status to Bitbucket Cloud pull reque
 | When adding a Quality Gate status to your pull requests, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## Authenticating with Bitbucket Cloud
-To allow users to log in with Bitbucket Cloud credentials, you need to use an [OAuth consumer](https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/) and set the authentication settings in SonarQube. You can either use the OAuth consumer that you created above in the **Importing your Bitbucket Cloud repositories into SonarQube** section or create a new OAuth consumer specifically for authentication. See the following sections for more on setting up authentication.
 
-### Setting your OAuth consumer settings
-Create or update your OAuth consumer in your Bitbucket Cloud workspace settings and specify the following:
-
-- **Name** – the name of your OAuth consumer.
-- **Callback URL** – your SonarQube instance URL.
-- **Permissions**: 
-	* **Account**: **Read** and **Email** access.
-	* **Workspace membership**: **Read** access.
-
-[[info]]
-| If you're using the same OAuth consumer for authentication and importing projects/reporting status to pull requests, make sure that the **This is a private consumer** box is checked and **Read** access for the **Pull requests** permission is granted. 
-
-### Setting your authentication settings in SonarQube
-To set your global authentication settings, navigate to **Administration > Configuration > General Settings > Authentication > Bitbucket Cloud Authentication** and update the following settings:
-
-- **Enabled** - set to true.
-- **OAuth consumer key** - enter the **Key** from your OAuth consumer page in Bitbucket.
-- **OAuth consumer secret** - enter the **Secret** from your OAuth consumer page in Bitbucket.
-- **Workspaces** - Only users from Bitbucket Workspaces that you add here will be able to authenticate in SonarQube. This is optional, but _highly_ recommended to ensure only the users you want to log in with Bitbucket credentials are able to. 
+See [Authenticating with Bitbucket Cloud](/instance-administration/authentication/bitbucket-cloud/) 

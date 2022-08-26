@@ -14,11 +14,5 @@ When using group mapping, the following caveats apply regardless of which delega
 [[warning]]
 |When group mapping is configured, the delegated authentication source becomes the only place to manage group membership, and the user's groups are re-fetched with each log in.
 
-## GitHub, GitLab, and Bitbucket Cloud Authentication
-You can delegate authentication to GitHub, GitLab, or Bitbucket Cloud. See the corresponding DevOps Platform integration page for more information:
-- [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
-- [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
-- [Bitbucket Cloud](/analysis/bitbucket-cloud-integration/)
-
 ## Revoking tokens for deactivated users
 When SonarQube authentication is delegated to an external identity provider, deactivating a user on the identity provider side does not remove any tokens associated with the user on the SonarQube side. We recommend deactivating the user in SonarQube at **Administration > Security > Users** by selecting **Deactivate** from the ![Settings drop-down](/images/gear.png) drop-down menu to ensure tokens associated with that user can no longer be used.
