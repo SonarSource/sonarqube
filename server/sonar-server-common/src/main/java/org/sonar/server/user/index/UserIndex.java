@@ -93,7 +93,7 @@ public class UserIndex {
       .from(options.getOffset())
       .sort(FIELD_NAME, SortOrder.ASC);
 
-    BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, true));
+    BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, userQuery.isActive()));
     QueryBuilder esQuery = matchAllQuery();
     Optional<String> textQuery = userQuery.getTextQuery();
     if (textQuery.isPresent()) {

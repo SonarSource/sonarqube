@@ -62,9 +62,11 @@ public class SearchActionTest {
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, db.getDbClient(), new AvatarResolverImpl()));
 
   @Test
-  public void search_for_all_users() {
+  public void search_for_all_active_users() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser(u -> u.setActive(false));
+
     userIndexer.indexAll();
     userSession.logIn();
 
@@ -76,6 +78,23 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
         tuple(user1.getLogin(), user1.getName()),
         tuple(user2.getLogin(), user2.getName()));
+  }
+
+  @Test
+  public void search_deactivated_users() {
+    UserDto user1 = db.users().insertUser(u -> u.setActive(false));
+    UserDto user2 = db.users().insertUser(u -> u.setActive(true));
+    userIndexer.indexAll();
+    userSession.logIn();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("deactivated", "true")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName)
+      .containsExactlyInAnyOrder(
+        tuple(user1.getLogin(), user1.getName()));
   }
 
   @Test
@@ -378,7 +397,7 @@ public class SearchActionTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(4);
   }
 
 }

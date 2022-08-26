@@ -61,7 +61,7 @@ import static org.sonarqube.ws.Users.SearchWsResponse.User;
 import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
-
+  private static final String DEACTIVATED_PARAM = "deactivated";
   private static final int MAX_PAGE_SIZE = 500;
 
   private final UserSession userSession;
@@ -79,7 +79,7 @@ public class SearchAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
-      .setDescription("Get a list of active users. <br/>" +
+      .setDescription("Get a list of users. By default, only active users are returned.<br/>" +
         "The following fields are only returned when user has Administer System permission or for logged-in in user :" +
         "<ul>" +
         "   <li>'email'</li>" +
@@ -92,6 +92,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
         new Change("7.4", "External identity is only returned to system administrators"),
         new Change("6.4", "Paging response fields moved to a Paging object"),
@@ -116,6 +117,12 @@ public class SearchAction implements UsersWsAction {
         "    <em>exactly matches</em> the search query." +
         "  </li>" +
         "</ul>");
+    action.createParam(DEACTIVATED_PARAM)
+      .setSince("9.7")
+      .setDescription("Return deactivated users instead of active users")
+      .setRequired(false)
+      .setDefaultValue(false)
+      .setBooleanPossibleValues();
   }
 
   @Override
@@ -126,7 +133,7 @@ public class SearchAction implements UsersWsAction {
 
   private Users.SearchWsResponse doHandle(SearchRequest request) {
     SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
-    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setTextQuery(request.getQuery()).build(), options);
+    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setActive(!request.isDeactivated()).setTextQuery(request.getQuery()).build(), options);
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
@@ -177,21 +184,23 @@ public class SearchAction implements UsersWsAction {
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
     return SearchRequest.builder()
       .setQuery(request.param(TEXT_QUERY))
+      .setDeactivated(request.mandatoryParamAsBoolean(DEACTIVATED_PARAM))
       .setPage(request.mandatoryParamAsInt(PAGE))
       .setPageSize(pageSize)
       .build();
   }
 
   private static class SearchRequest {
-
     private final Integer page;
     private final Integer pageSize;
     private final String query;
+    private final boolean deactivated;
 
     private SearchRequest(Builder builder) {
       this.page = builder.page;
       this.pageSize = builder.pageSize;
       this.query = builder.query;
+      this.deactivated = builder.deactivated;
     }
 
     @CheckForNull
@@ -209,6 +218,10 @@ public class SearchAction implements UsersWsAction {
       return query;
     }
 
+    public boolean isDeactivated() {
+      return deactivated;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -218,6 +231,7 @@ public class SearchAction implements UsersWsAction {
     private Integer page;
     private Integer pageSize;
     private String query;
+    private boolean deactivated;
 
     private Builder() {
       // enforce factory method use
@@ -235,6 +249,11 @@ public class SearchAction implements UsersWsAction {
 
     public Builder setQuery(@Nullable String query) {
       this.query = query;
+      return this;
+    }
+
+    public Builder setDeactivated(boolean deactivated) {
+      this.deactivated = deactivated;
       return this;
     }
 

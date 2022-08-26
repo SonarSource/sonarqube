@@ -38,6 +38,7 @@ public class UserIndexTest {
 
   private static final String USER1_LOGIN = "user1";
   private static final String USER2_LOGIN = "user2";
+  private static final String USER3_LOGIN = "user3";
 
   @Rule
   public EsTester es = EsTester.create();
@@ -124,6 +125,7 @@ public class UserIndexTest {
   public void searchUsers() {
     es.putDocuments(TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
     es.putDocuments(TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
+    es.putDocuments(TYPE_USER, newUser(USER3_LOGIN, Collections.emptyList()).setEmail("email3").setActive(false));
 
     assertThat(underTest.search(userQuery.build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(userQuery.setTextQuery("user").build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -132,6 +134,10 @@ public class UserIndexTest {
     assertThat(underTest.search(userQuery.setTextQuery(USER2_LOGIN).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(userQuery.setTextQuery("mail").build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(userQuery.setTextQuery("EMAIL1").build(), new SearchOptions()).getDocs()).hasSize(1);
+
+    // deactivated users
+    assertThat(underTest.search(userQuery.setActive(false).setTextQuery(null).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(userQuery.setActive(false).setTextQuery("email3").build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 
   private static UserDoc newUser(String login, List<String> scmAccounts) {

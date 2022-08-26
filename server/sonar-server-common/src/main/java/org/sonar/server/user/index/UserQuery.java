@@ -28,13 +28,19 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Immutable
 public class UserQuery {
   private final String textQuery;
+  private final boolean active;
 
   private UserQuery(Builder builder) {
     this.textQuery = builder.textQuery;
+    this.active = builder.active;
   }
 
   public Optional<String> getTextQuery() {
     return Optional.ofNullable(textQuery);
+  }
+
+  public boolean isActive() {
+    return active;
   }
 
   public static Builder builder() {
@@ -43,6 +49,7 @@ public class UserQuery {
 
   public static class Builder {
     private String textQuery;
+    private boolean active = true;
 
     private Builder() {
       // enforce factory method
@@ -54,6 +61,11 @@ public class UserQuery {
 
     public Builder setTextQuery(@Nullable String textQuery) {
       this.textQuery = isBlank(textQuery) ? null : textQuery;
+      return this;
+    }
+
+    public Builder setActive(boolean active) {
+      this.active = active;
       return this;
     }
   }
