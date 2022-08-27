@@ -325,7 +325,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
     @Override
     public void close() {
-      // closing dbSession is not our responsability
+      // closing dbSession is not our responsibility
     }
   }
 
