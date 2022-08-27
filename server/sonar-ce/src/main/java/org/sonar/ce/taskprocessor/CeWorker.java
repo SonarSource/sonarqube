@@ -67,7 +67,7 @@ public interface CeWorker extends Callable<CeWorker.Result> {
 
   /**
    * Classes implementing will be called a task start and finishes executing.
-   * All classes implementing this interface are guaranted to be called for each event, even if another implementation
+   * All classes implementing this interface are guaranteed to be called for each event, even if another implementation
    * failed when called.
    */
   @ComputeEngineSide

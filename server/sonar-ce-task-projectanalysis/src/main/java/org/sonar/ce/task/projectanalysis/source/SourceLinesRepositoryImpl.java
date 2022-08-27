@@ -90,7 +90,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
     @Override
     protected String doNext() {
-      throw new UnsupportedOperationException("Not implemented because hasNext() and next() are overriden");
+      throw new UnsupportedOperationException("Not implemented because hasNext() and next() are overridden");
     }
 
     @Override

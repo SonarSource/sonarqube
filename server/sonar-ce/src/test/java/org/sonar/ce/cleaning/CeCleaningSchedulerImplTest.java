@@ -127,7 +127,7 @@ public class CeCleaningSchedulerImplTest {
             assertThat(unit).isEqualTo(TimeUnit.MINUTES);
             break;
           default:
-            fail("Unknwon call of scheduleWithFixedDelay");
+            fail("Unknown call of scheduleWithFixedDelay");
         }
         // synchronously execute command
         command.run();
