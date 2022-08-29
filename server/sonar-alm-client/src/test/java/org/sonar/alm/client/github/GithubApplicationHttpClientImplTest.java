@@ -29,6 +29,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,8 @@ import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.Response;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -52,6 +55,9 @@ public class GithubApplicationHttpClientImplTest {
   @Rule
   public MockWebServer server = new MockWebServer();
 
+  @ClassRule
+  public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
+
   private GithubApplicationHttpClientImpl underTest;
 
   private final AccessToken accessToken = new UserAccessToken(randomAlphabetic(10));
@@ -63,6 +69,7 @@ public class GithubApplicationHttpClientImplTest {
   public void setUp() {
     this.appUrl = format("http://%s:%s", server.getHostName(), server.getPort());
     this.underTest = new GithubApplicationHttpClientImpl(new ConstantTimeoutConfiguration(500));
+    logTester.clear();
   }
 
   @Test
@@ -84,6 +91,28 @@ public class GithubApplicationHttpClientImplTest {
     assertThatThrownBy(() -> underTest.get("invalidUrl", accessToken, "/endpoint"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("invalidUrl/endpoint is not a valid url");
+  }
+
+  @Test
+  public void getSilent_no_log_if_code_is_not_200() throws IOException {
+    server.enqueue(new MockResponse().setResponseCode(403));
+
+    GetResponse response = underTest.getSilent(appUrl, accessToken, randomEndPoint);
+
+    assertThat(logTester.logs()).isEmpty();
+    assertThat(response.getContent()).isEmpty();
+
+  }
+
+  @Test
+  public void get_log_if_code_is_not_200() throws IOException {
+    server.enqueue(new MockResponse().setResponseCode(403));
+
+    GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).isNotEmpty();
+    assertThat(response.getContent()).isEmpty();
+
   }
 
   @Test

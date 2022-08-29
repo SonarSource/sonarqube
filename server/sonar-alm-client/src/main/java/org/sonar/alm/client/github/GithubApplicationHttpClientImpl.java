@@ -68,17 +68,29 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
   @Override
   public GetResponse get(String appUrl, AccessToken token, String endPoint) throws IOException {
+    return get(appUrl, token, endPoint, true);
+  }
+
+  @Override
+  public GetResponse getSilent(String appUrl, AccessToken token, String endPoint) throws IOException {
+    return get(appUrl, token, endPoint, false);
+  }
+
+  private GetResponse get(String appUrl, AccessToken token, String endPoint, boolean withLog) throws IOException {
     validateEndPoint(endPoint);
 
     try (okhttp3.Response response = client.newCall(newGetRequest(appUrl, token, endPoint)).execute()) {
       int responseCode = response.code();
       if (responseCode != HTTP_OK) {
-        LOG.warn("GET response did not have expected HTTP code (was {}): {}", responseCode, attemptReadContent(response));
+        if (withLog) {
+          LOG.warn("GET response did not have expected HTTP code (was {}): {}", responseCode, attemptReadContent(response));
+        }
         return new GetResponseImpl(responseCode, null, null);
       }
       return new GetResponseImpl(responseCode, readContent(response.body()).orElse(null), readNextEndPoint(response));
     }
   }
+
 
   private static void validateEndPoint(String endPoint) {
     checkArgument(endPoint.startsWith("/") || endPoint.startsWith("http"), "endpoint must start with '/' or 'http'");

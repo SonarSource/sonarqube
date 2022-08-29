@@ -34,6 +34,12 @@ public interface GithubApplicationHttpClient {
   GetResponse get(String appUrl, AccessToken token, String endPoint) throws IOException;
 
   /**
+   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.
+   * No log if there is an issue during the call.
+   */
+  GetResponse getSilent(String appUrl, AccessToken token, String endPoint) throws IOException;
+
+  /**
    * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK} or
    * {@link java.net.HttpURLConnection#HTTP_CREATED CREATED}.
    */
