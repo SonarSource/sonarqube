@@ -148,10 +148,12 @@ const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
+  bulkButtonRef: React.RefObject<HTMLButtonElement>;
 
   constructor(props: Props) {
     super(props);
     const query = parseQuery(props.location.query);
+    this.bulkButtonRef = React.createRef();
     this.state = {
       bulkChangeModal: false,
       checked: [],
@@ -769,7 +771,11 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleCloseBulkChange = () => {
-    this.setState({ bulkChangeModal: false });
+    this.setState({ bulkChangeModal: false }, () => {
+      if (this.bulkButtonRef.current) {
+        this.bulkButtonRef.current.focus();
+      }
+    });
   };
 
   handleBulkChangeDone = () => {
@@ -857,6 +863,7 @@ export class App extends React.PureComponent<Props, State> {
           title={translate('issues.select_all_issues')}
         />
         <Button
+          innerRef={this.bulkButtonRef}
           disabled={checked.length === 0}
           id="issues-bulk-change"
           onClick={this.handleOpenBulkChange}>

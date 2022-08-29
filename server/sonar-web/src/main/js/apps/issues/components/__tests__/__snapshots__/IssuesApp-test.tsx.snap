@@ -4,6 +4,11 @@ exports[`should check all issues, even the ones that are not visible 1`] = `
 <Button
   disabled={false}
   id="issues-bulk-change"
+  innerRef={
+    Object {
+      "current": null,
+    }
+  }
   onClick={[Function]}
 >
   issues.bulk_change_X_issues.250
@@ -14,6 +19,11 @@ exports[`should check max 500 issues 1`] = `
 <Button
   disabled={false}
   id="issues-bulk-change"
+  innerRef={
+    Object {
+      "current": null,
+    }
+  }
   onClick={[Function]}
 >
   issues.bulk_change_X_issues.500

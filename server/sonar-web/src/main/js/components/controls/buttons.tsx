@@ -36,7 +36,7 @@ type AllowedButtonAttributes = Pick<
 interface ButtonProps extends AllowedButtonAttributes {
   autoFocus?: boolean;
   children?: React.ReactNode;
-  innerRef?: (node: HTMLElement | null) => void;
+  innerRef?: React.Ref<HTMLButtonElement>;
   name?: string;
   onClick?: () => void;
   preventDefault?: boolean;
