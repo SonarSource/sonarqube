@@ -31,10 +31,15 @@
 }
 
 .hotspot-category .hotspot-category-header {
+  width: 100%;
   padding: calc(2 * var(--gridSize)) var(--gridSize);
   color: var(--baseFontColor);
   border-bottom: none;
   border-left: 4px solid;
+}
+
+.hotspot-category strong {
+  text-align: left;
 }
 
 .hotspot-category .hotspot-category-header:hover,

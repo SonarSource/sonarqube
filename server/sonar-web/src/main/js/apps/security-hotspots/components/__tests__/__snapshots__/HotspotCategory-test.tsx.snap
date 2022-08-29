@@ -4,9 +4,9 @@ exports[`should render correctly with hotspots 1`] = `
 <div
   className="hotspot-category HIGH"
 >
-  <a
+  <ButtonPlain
+    aria-expanded={true}
     className="hotspot-category-header display-flex-space-between display-flex-center"
-    href="#"
     onClick={[Function]}
   >
     <strong
@@ -24,7 +24,7 @@ exports[`should render correctly with hotspots 1`] = `
         className="big-spacer-left"
       />
     </span>
-  </a>
+  </ButtonPlain>
   <ul>
     <li
       data-hotspot-key="h1"
@@ -90,9 +90,9 @@ exports[`should render correctly with hotspots: collapsed 1`] = `
 <div
   className="hotspot-category HIGH"
 >
-  <a
+  <ButtonPlain
+    aria-expanded={false}
     className="hotspot-category-header display-flex-space-between display-flex-center"
-    href="#"
     onClick={[Function]}
   >
     <strong
@@ -110,7 +110,7 @@ exports[`should render correctly with hotspots: collapsed 1`] = `
         className="big-spacer-left"
       />
     </span>
-  </a>
+  </ButtonPlain>
 </div>
 `;
 
@@ -118,9 +118,9 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
 <div
   className="hotspot-category HIGH"
 >
-  <a
+  <ButtonPlain
+    aria-expanded={true}
     className="hotspot-category-header display-flex-space-between display-flex-center contains-selected-hotspot"
-    href="#"
     onClick={[Function]}
   >
     <strong
@@ -138,7 +138,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
         className="big-spacer-left"
       />
     </span>
-  </a>
+  </ButtonPlain>
   <ul>
     <li
       data-hotspot-key="h1"
@@ -204,9 +204,9 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
 <div
   className="hotspot-category HIGH"
 >
-  <a
+  <ButtonPlain
+    aria-expanded={true}
     className="hotspot-category-header display-flex-space-between display-flex-center"
-    href="#"
     onClick={[Function]}
   >
     <strong
@@ -225,7 +225,7 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
         className="big-spacer-left"
       />
     </span>
-  </a>
+  </ButtonPlain>
   <ul>
     <li
       data-hotspot-key="h1"

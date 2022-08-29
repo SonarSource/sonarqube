@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { ButtonPlain } from '../../../components/controls/buttons';
 import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
 import ChevronUpIcon from '../../../components/icons/ChevronUpIcon';
 import { RawHotspot } from '../../../types/security-hotspots';
@@ -58,13 +59,13 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
   return (
     <div className={classNames('hotspot-category', risk)}>
       {props.onToggleExpand ? (
-        <a
+        <ButtonPlain
           className={classNames(
             'hotspot-category-header display-flex-space-between display-flex-center',
             { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
           )}
-          href="#"
-          onClick={() => props.onToggleExpand && props.onToggleExpand(categoryKey, !expanded)}>
+          onClick={() => props.onToggleExpand && props.onToggleExpand(categoryKey, !expanded)}
+          aria-expanded={expanded}>
           <strong className="flex-1 spacer-right break-word">{title}</strong>
           <span>
             <span className="counter-badge">
@@ -77,7 +78,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
               <ChevronDownIcon className="big-spacer-left" />
             )}
           </span>
-        </a>
+        </ButtonPlain>
       ) : (
         <div className="hotspot-category-header">
           <strong className="flex-1 spacer-right break-word">{title}</strong>
