@@ -118,7 +118,7 @@ Starting with version 6.6, there's an additional step you may want to perform if
 
 ### Additional database maintenance
 
-We recommend refreshing your database's statistics and rebuilding your database's indices once you've finished the technical upgrade, but before you reanalyze your projects.
+Once you've finished a technical upgrade, you should refresh your database's statistics and rebuild your database's indices before starting SonarQube and reanalyzing your projects.
 
 For PostgreSQL, that means executing `VACUUM FULL`. According to the PostgreSQL documentation:
 
