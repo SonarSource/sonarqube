@@ -33,6 +33,7 @@ interface Props {
   component?: Component;
   definitions: ExtendedSettingDefinition[];
   subCategory?: string;
+  displaySubCategoryTitle?: boolean;
 }
 
 interface State {
@@ -86,7 +87,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
   }
 
   render() {
-    const { category, component, subCategory } = this.props;
+    const { category, component, subCategory, displaySubCategoryTitle } = this.props;
     const { settings } = this.state;
 
     return (
@@ -95,6 +96,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
         component={component}
         settings={settings}
         subCategory={subCategory}
+        displaySubCategoryTitle={displaySubCategoryTitle}
       />
     );
   }

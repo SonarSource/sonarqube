@@ -155,6 +155,7 @@ export default function Authentication(props: Props) {
                 category={AUTHENTICATION_CATEGORY}
                 definitions={definitions}
                 subCategory={currentTab}
+                displaySubCategoryTitle={false}
               />
             </div>
           </div>

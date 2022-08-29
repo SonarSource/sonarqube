@@ -33,6 +33,7 @@ export interface SubCategoryDefinitionsListProps {
   location: Location;
   settings: Array<SettingDefinitionAndValue>;
   subCategory?: string;
+  displaySubCategoryTitle?: boolean;
 }
 
 export class SubCategoryDefinitionsList extends React.PureComponent<
@@ -65,7 +66,8 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
   };
 
   render() {
-    const bySubCategory = groupBy(this.props.settings, setting => setting.definition.subCategory);
+    const { displaySubCategoryTitle = true, settings, subCategory, component } = this.props;
+    const bySubCategory = groupBy(settings, setting => setting.definition.subCategory);
     const subCategories = Object.keys(bySubCategory).map(key => ({
       key,
       name: getSubCategoryName(bySubCategory[key][0].definition.category, key),
@@ -74,19 +76,21 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
     const sortedSubCategories = sortBy(subCategories, subCategory =>
       subCategory.name.toLowerCase()
     );
-    const filteredSubCategories = this.props.subCategory
-      ? sortedSubCategories.filter(c => c.key === this.props.subCategory)
+    const filteredSubCategories = subCategory
+      ? sortedSubCategories.filter(c => c.key === subCategory)
       : sortedSubCategories;
     return (
       <ul className="settings-sub-categories-list">
         {filteredSubCategories.map(subCategory => (
           <li key={subCategory.key}>
-            <h2
-              className="settings-sub-category-name"
-              data-key={subCategory.key}
-              ref={this.scrollToSubCategoryOrDefinition}>
-              {subCategory.name}
-            </h2>
+            {displaySubCategoryTitle && (
+              <h2
+                className="settings-sub-category-name"
+                data-key={subCategory.key}
+                ref={this.scrollToSubCategoryOrDefinition}>
+                {subCategory.name}
+              </h2>
+            )}
             {subCategory.description != null && (
               <div
                 className="settings-sub-category-description markdown"
@@ -97,7 +101,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
               />
             )}
             <DefinitionsList
-              component={this.props.component}
+              component={component}
               scrollToDefinition={this.scrollToSubCategoryOrDefinition}
               settings={bySubCategory[subCategory.key]}
             />
