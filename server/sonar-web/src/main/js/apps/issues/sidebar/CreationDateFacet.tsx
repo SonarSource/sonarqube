@@ -32,7 +32,7 @@ import DateTimeFormatter, {
   formatterOption as dateTimeFormatterOption
 } from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
@@ -172,11 +172,18 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
             ` - ${formatDate(tooltipEndDate, longFormatterOption)}`}
         </React.Fragment>
       );
+      const description = translateWithParameters(
+        'issues.facet.createdAt.bar_description',
+        formatMeasure(stats[start], 'SHORT_INT'),
+        formatDate(startDate, longFormatterOption),
+        formatDate(tooltipEndDate, longFormatterOption)
+      );
 
       return {
         createdAfter: startDate,
         createdBefore: endDate,
         tooltip,
+        description,
         x: index,
         y: stats[start]
       };

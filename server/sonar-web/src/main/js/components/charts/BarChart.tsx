@@ -25,6 +25,7 @@ import './BarChart.css';
 
 interface DataPoint {
   tooltip?: React.ReactNode;
+  description: string;
   x: number;
   y: number;
 }
@@ -125,6 +126,7 @@ export default class BarChart<T> extends React.PureComponent<Props<T>> {
       const rect = (
         <rect
           className="bar-chart-bar"
+          aria-label={point.description}
           height={height}
           // eslint-disable-next-line react/no-array-index-key
           key={index}
