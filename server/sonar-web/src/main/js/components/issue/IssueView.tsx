@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
 import Checkbox from '../../components/controls/Checkbox';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { Issue } from '../../types/types';
 import { updateIssue } from './actions';
@@ -94,6 +94,15 @@ export default class IssueView extends React.PureComponent<Props> {
         onClick={this.handleClick}
         role="region"
         aria-label={issue.message}>
+        {hasCheckbox && (
+          <Checkbox
+            checked={checked || false}
+            className="issue-checkbox-container"
+            onCheck={this.handleCheck}
+            label={translateWithParameters('issues.action_select.label', issue.message)}
+            title={translate('issues.action_select')}
+          />
+        )}
         <IssueTitleBar
           branchLike={branchLike}
           currentPopup={currentPopup}
@@ -123,14 +132,6 @@ export default class IssueView extends React.PureComponent<Props> {
               />
             ))}
           </div>
-        )}
-        {hasCheckbox && (
-          <Checkbox
-            checked={checked || false}
-            className="issue-checkbox-container"
-            onCheck={this.handleCheck}
-            title={translate('issues.action_select')}
-          />
         )}
       </div>
     );

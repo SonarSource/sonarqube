@@ -31,6 +31,7 @@ interface Props {
   children?: React.ReactNode;
   className?: string;
   id?: string;
+  label?: string;
   loading?: boolean;
   onCheck: (checked: boolean, id?: string) => void;
   right?: boolean;
@@ -52,7 +53,17 @@ export default class Checkbox extends React.PureComponent<Props> {
   };
 
   render() {
-    const { checked, children, disabled, id, loading, right, thirdState, title } = this.props;
+    const {
+      checked,
+      children,
+      disabled,
+      id,
+      label,
+      loading,
+      right,
+      thirdState,
+      title
+    } = this.props;
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': checked,
       'icon-checkbox-single': thirdState,
@@ -63,6 +74,7 @@ export default class Checkbox extends React.PureComponent<Props> {
       return (
         <a
           aria-checked={checked}
+          aria-label={label}
           className={classNames('link-checkbox', this.props.className, {
             disabled
           })}
@@ -87,6 +99,7 @@ export default class Checkbox extends React.PureComponent<Props> {
     return (
       <a
         aria-checked={checked}
+        aria-label={label}
         className={classNames(className, this.props.className)}
         href="#"
         id={id}
