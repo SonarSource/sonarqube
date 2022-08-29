@@ -21,7 +21,6 @@ import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
@@ -36,16 +35,13 @@ export interface SubCategoryDefinitionsListProps {
   subCategory?: string;
 }
 
-const SCROLL_OFFSET_TOP = 200;
-const SCROLL_OFFSET_BOTTOM = 500;
-
 export class SubCategoryDefinitionsList extends React.PureComponent<
   SubCategoryDefinitionsListProps
 > {
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {
-      const query = `[data-key=${hash.substr(1).replace(/[.#/]/g, '\\$&')}]`;
+      const query = `[data-key=${hash.substring(1).replace(/[.#/]/g, '\\$&')}]`;
       const element = document.querySelector<HTMLHeadingElement | HTMLLIElement>(query);
       this.scrollToSubCategoryOrDefinition(element);
     }
@@ -54,12 +50,8 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
   scrollToSubCategoryOrDefinition = (element: HTMLHeadingElement | HTMLLIElement | null) => {
     if (element) {
       const { hash } = this.props.location;
-      if (hash && hash.substr(1) === element.getAttribute('data-key')) {
-        scrollToElement(element, {
-          topOffset: SCROLL_OFFSET_TOP,
-          bottomOffset: SCROLL_OFFSET_BOTTOM,
-          smooth: true
-        });
+      if (hash && hash.substring(1) === element.getAttribute('data-key')) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
     }
   };

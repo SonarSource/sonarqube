@@ -122,14 +122,15 @@ export default function Authentication(props: Props) {
         selected={currentTab}
         tabs={tabs}
       />
-
+      {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
       <ScreenPositionHelper>
         {({ top }) => (
           <div
             style={{
               maxHeight: `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`
             }}
-            className="bordered overflow-y-auto tabbed-definitions">
+            className="bordered overflow-y-auto tabbed-definitions"
+            key={currentTab}>
             <div className="big-padded">
               <Alert variant="info">
                 <FormattedMessage

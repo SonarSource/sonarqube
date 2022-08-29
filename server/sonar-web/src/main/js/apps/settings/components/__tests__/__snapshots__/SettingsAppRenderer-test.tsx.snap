@@ -49,6 +49,7 @@ exports[`should render almintegration correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="almintegration"
         >
           <withRouter(withAppStateContext(AlmIntegration))
             categories={
@@ -133,6 +134,7 @@ exports[`should render default view correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="general"
         >
           <CategoryDefinitionsList
             category="general"
@@ -241,6 +243,7 @@ exports[`should render exclusions correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="exclusions"
         >
           <AnalysisScope
             categories={
@@ -325,6 +328,7 @@ exports[`should render languages correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="languages"
         >
           <withRouter(Languages)
             categories={
@@ -409,6 +413,7 @@ exports[`should render new_code_period correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="new_code_period"
         >
           <NewCodePeriod />
         </div>
@@ -467,6 +472,7 @@ exports[`should render pull_request_decoration_binding correctly 1`] = `
       >
         <div
           className="big-padded"
+          key="pull_request_decoration_binding"
         >
           <CategoryDefinitionsList
             category="pull_request_decoration_binding"

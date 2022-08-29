@@ -90,7 +90,8 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner">
-            <div className="big-padded">
+            {/* Adding a key to force re-rendering of the category content, so that it resets the scroll position */}
+            <div className="big-padded" key={selectedCategory}>
               {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
                 foundAdditionalCategory.renderComponent({
                   categories,

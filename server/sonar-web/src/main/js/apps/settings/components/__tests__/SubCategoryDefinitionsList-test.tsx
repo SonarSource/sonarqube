@@ -20,7 +20,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { mockSettingWithCategory } from '../../../../helpers/mocks/settings';
-import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
@@ -37,24 +36,19 @@ it('should render correctly', () => {
   expect(shallowRender({ subCategory: 'qg' })).toMatchSnapshot('subcategory');
 });
 
-it('should scroll if hash is defined', async () => {
+it('should scroll if hash is defined and updated', async () => {
+  window.HTMLElement.prototype.scrollIntoView = jest.fn();
   const wrapper = shallowRender({ location: mockLocation({ hash: '#qg' }) });
 
   await waitAndUpdate(wrapper);
 
   wrapper.find('h2').forEach(node => mount(node.getElement()));
 
-  expect(scrollToElement).toBeCalled();
-});
-
-it('should scroll when hash is updated', async () => {
-  const wrapper = shallowRender({ location: mockLocation({ hash: '#qg' }) });
+  expect(window.HTMLElement.prototype.scrollIntoView).toBeCalled();
 
   wrapper.setProps({ location: mockLocation({ hash: '#email' }) });
 
-  await waitAndUpdate(wrapper);
-
-  expect(scrollToElement).toBeCalled();
+  expect(window.HTMLElement.prototype.scrollIntoView).toBeCalled();
 });
 
 function shallowRender(props: Partial<SubCategoryDefinitionsListProps> = {}) {
