@@ -10,7 +10,7 @@ exports[`should render dark helptooltip properly: dark 1`] = `
 >
   <HelpIcon
     fill="rgba(0, 0, 0, 0.25)"
-    fillInner="#ffffff"
+    fillInner="#FFFFFF"
     size={14}
   />
 </HelpTooltip>

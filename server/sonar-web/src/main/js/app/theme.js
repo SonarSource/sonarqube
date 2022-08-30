@@ -35,7 +35,6 @@ module.exports = {
     orange: '#ed7d20',
     red: '#D02F3A',
     purple: '#9139d4',
-    white: '#ffffff',
 
     gray94: '#efefef',
     gray80: '#cdcdcd',
@@ -149,9 +148,20 @@ module.exports = {
 
     info500: '#0271B9',
 
+    success500: '#008A25',
+    successVariant: '#B0D513',
+
+    warningVariant: '#EABE06',
+    warningAccent: '#ED7D20',
+
+    error500: '#D02F3A',
+
     neutral600: '#666666',
     neutral800: '#333333',
 
+    white: '#FFFFFF',
+
+    black87: 'rgba(0, 0, 0, 0.87)',
     black38: 'rgba(0, 0, 0, 0.38)'
   },
 

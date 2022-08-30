@@ -60,7 +60,7 @@ function renderRatingLink(props: IssueRatingProps) {
       <span>
         <DrilldownLink
           branchLike={branchLike}
-          className="link-no-underline"
+          className="link-no-underline link-rating"
           component={component.key}
           metric={rating}>
           <Rating value={value} />

@@ -27,7 +27,7 @@ exports[`should render correctly for bugs 1`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="reliability_rating"
       >
@@ -67,7 +67,7 @@ exports[`should render correctly for bugs 2`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="new_reliability_rating"
       >
@@ -107,7 +107,7 @@ exports[`should render correctly for code smells 1`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="sqale_rating"
       >
@@ -147,7 +147,7 @@ exports[`should render correctly for code smells 2`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="new_maintainability_rating"
       >
@@ -187,7 +187,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="security_rating"
       >
@@ -227,7 +227,7 @@ exports[`should render correctly for vulnerabilities 2`] = `
             "title": "Foo Bar feature",
           }
         }
-        className="link-no-underline"
+        className="link-no-underline link-rating"
         component="my-project"
         metric="new_security_rating"
       >

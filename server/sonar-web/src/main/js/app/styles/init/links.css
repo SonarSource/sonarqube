@@ -44,3 +44,8 @@ a img {
 .link-no-underline:hover {
   border-bottom-color: var(--primary) !important;
 }
+
+.link-rating,
+.link-rating:hover {
+  border-bottom: 0 !important;
+}
