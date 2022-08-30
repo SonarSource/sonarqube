@@ -340,7 +340,8 @@ cyclonedxBom {
   outputs.file bomFile
 }
 tasks.cyclonedxBom {
-  inputs.files(configurations.runtimeClasspath)
+  inputs.files(configurations.runtimeClasspath, configurations.web, configurations.shutdowner, configurations.jdbc_mssql,
+          configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps, configurations.cyclonedx)
 }
 def bomArtifact = artifacts.add('archives', bomFile.get().asFile) {
   type 'json'
