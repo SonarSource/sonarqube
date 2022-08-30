@@ -128,10 +128,6 @@ public class BranchDao implements Dao {
     return mapper(session).hasAnyBranchWhereNeedIssueSync(needIssueSync) > 0;
   }
 
-  public boolean hasNonMainBranches(DbSession dbSession) {
-    return mapper(dbSession).countNonMainBranches() > 0L;
-  }
-
   public long countByTypeAndCreationDate(DbSession dbSession, BranchType branchType, long sinceDate) {
     return mapper(dbSession).countByTypeAndCreationDate(branchType.name(), sinceDate);
   }

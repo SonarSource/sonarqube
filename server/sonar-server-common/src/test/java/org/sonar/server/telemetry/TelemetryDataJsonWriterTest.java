@@ -38,7 +38,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
@@ -53,17 +52,8 @@ public class TelemetryDataJsonWriterTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
-    .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
-      .setProjectCount(12)
-      .setProjectCountByLanguage(Collections.emptyMap())
-      .setNclocByLanguage(Collections.emptyMap())
-      .build())
-    .setNcloc(42L)
     .setExternalAuthenticationProviders(asList("github", "gitlab"))
-    .setSonarlintWeeklyUsers(10)
-    .setNumberOfConnectedSonarLintClients(5)
-    .setDatabase(new TelemetryData.Database("H2", "11"))
-    .setUsingBranches(true);
+    .setDatabase(new TelemetryData.Database("H2", "11"));
 
   private final Random random = new Random();
 
@@ -97,15 +87,6 @@ public class TelemetryDataJsonWriterTest {
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("{ \"externalAuthProviders\": [ \"github\", \"gitlab\" ] }");
-  }
-
-  @Test
-  public void write_sonarlint_weekly_users() {
-    TelemetryData data = SOME_TELEMETRY_DATA.build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{ \"sonarlintWeeklyUsers\": 10 }");
   }
 
   @Test
@@ -191,72 +172,6 @@ public class TelemetryDataJsonWriterTest {
       "  \"plugins\": " +
       "[" +
       plugins.entrySet().stream().map(e -> "{\"name\":\"" + e.getKey() + "\",\"version\":\"" + e.getValue() + "\"}").collect(joining(",")) +
-      "]" +
-      "}");
-  }
-
-  @Test
-  public void write_user_count() {
-    int userCount = random.nextInt(590);
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setUserCount(userCount)
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"userCount\": " + userCount +
-      "}");
-  }
-
-  @Test
-  public void write_project_count_and_ncloc_and_no_stat_by_language() {
-    int projectCount = random.nextInt(8909);
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
-        .setProjectCount(projectCount)
-        .setProjectCountByLanguage(Collections.emptyMap())
-        .setNclocByLanguage(Collections.emptyMap())
-        .build())
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"projectCount\": " + projectCount + "," +
-      "  \"projectCountByLanguage\": []," +
-      "  \"nclocByLanguage\": []" +
-      "}");
-  }
-
-  @Test
-  public void write_project_stats_by_language() {
-    int projectCount = random.nextInt(8909);
-    Map<String, Long> countByLanguage = IntStream.range(0, 1 + random.nextInt(10))
-      .boxed()
-      .collect(MoreCollectors.uniqueIndex(i -> "P" + i, i -> 100L + i));
-    Map<String, Long> nclocByLanguage = IntStream.range(0, 1 + random.nextInt(10))
-      .boxed()
-      .collect(MoreCollectors.uniqueIndex(i -> "P" + i, i -> 1_000L + i));
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
-        .setProjectCount(projectCount)
-        .setProjectCountByLanguage(countByLanguage)
-        .setNclocByLanguage(nclocByLanguage)
-        .build())
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"projectCount\": " + projectCount + "," +
-      "  \"projectCountByLanguage\": " +
-      "[" +
-      countByLanguage.entrySet().stream().map(e -> "{\"language\":\"" + e.getKey() + "\",\"count\":" + e.getValue() + "}").collect(joining()) +
-      "]," +
-      "  \"nclocByLanguage\": " +
-      "[" +
-      nclocByLanguage.entrySet().stream().map(e -> "{\"language\":\"" + e.getKey() + "\",\"ncloc\":" + e.getValue() + "}").collect(joining()) +
       "]" +
       "}");
   }
@@ -457,7 +372,8 @@ public class TelemetryDataJsonWriterTest {
 
   @NotNull
   private static List<UserTelemetryDto> getUsers() {
-    return IntStream.range(0, 3).mapToObj(i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L)).collect(Collectors.toList());
+    return IntStream.range(0, 3).mapToObj(i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L))
+      .collect(Collectors.toList());
   }
 
   private static List<TelemetryData.Project> getProjects() {
@@ -472,7 +388,7 @@ public class TelemetryDataJsonWriterTest {
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())
-      .map(t -> new Object[]{t})
+      .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
 

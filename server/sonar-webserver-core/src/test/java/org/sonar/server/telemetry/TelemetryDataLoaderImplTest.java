@@ -47,8 +47,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -70,7 +68,6 @@ import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
@@ -80,8 +77,6 @@ public class TelemetryDataLoaderImplTest {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-  @Rule
-  public EsTester es = EsTester.create();
 
   private final FakeServer server = new FakeServer();
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
@@ -89,14 +84,12 @@ public class TelemetryDataLoaderImplTest {
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final DockerSupport dockerSupport = mock(DockerSupport.class);
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
-  private final ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
-  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private final LicenseReader licenseReader = mock(LicenseReader.class);
 
-  private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, null);
-  private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, licenseReader);
+  private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
+      internalProperties, configuration, dockerSupport, null);
+  private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
+      internalProperties, configuration, dockerSupport, licenseReader);
 
   @Test
   public void send_telemetry_data() {
@@ -120,7 +113,6 @@ public class TelemetryDataLoaderImplTest {
     activeUsers.forEach(u -> db.users().updateLastConnectionDate(u, 5L));
 
     UserDto inactiveUser = db.users().insertUser(u -> u.setActive(false).setExternalIdentityProvider("provider0"));
-    userIndexer.indexAll();
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
@@ -157,8 +149,6 @@ public class TelemetryDataLoaderImplTest {
     db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDto(project1));
     db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDto(project2));
 
-    projectMeasuresIndexer.indexAll();
-
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
     assertThat(data.getVersion()).isEqualTo(version);
@@ -166,13 +156,6 @@ public class TelemetryDataLoaderImplTest {
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
       entry("java", "4.12.0.11033"), entry("scmgit", "1.2"), entry("other", "undefined"));
-    assertThat(data.getUserCount()).isEqualTo(activeUserCount);
-    assertThat(data.getProjectCount()).isEqualTo(2L);
-    assertThat(data.getNcloc()).isEqualTo(310L);
-    assertThat(data.getProjectCountByLanguage()).containsOnly(
-      entry("java", 2L), entry("kotlin", 1L), entry("js", 2L));
-    assertThat(data.getNclocByLanguage()).containsOnly(
-      entry("java", 250L), entry("kotlin", 10L), entry("js", 50L));
     assertThat(data.isInDocker()).isFalse();
     assertThat(data.getExternalAuthenticationProviders()).containsExactlyInAnyOrder("provider0", "provider1", "provider2");
 
@@ -190,15 +173,13 @@ public class TelemetryDataLoaderImplTest {
         tuple(project1.uuid(), "js", 30L, analysisDate),
         tuple(project1.uuid(), "kotlin", 10L, analysisDate),
         tuple(project2.uuid(), "java", 180L, analysisDate),
-        tuple(project2.uuid(), "js", 20L, analysisDate)
-      );
+        tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
       .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
         TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getAlm)
       .containsExactlyInAnyOrder(
         tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
-        tuple(1L, 0L, "scm-2", "ci-2", "github_cloud")
-      );
+        tuple(1L, 0L, "scm-2", "ci-2", "github_cloud"));
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {
@@ -209,40 +190,6 @@ public class TelemetryDataLoaderImplTest {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Test
-  public void take_largest_branch() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
-    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
-    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
-    db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
-    db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
-    db.measures().insertLiveMeasure(pr, ncloc, m -> m.setValue(15d));
-    projectMeasuresIndexer.indexAll();
-
-    TelemetryData data = communityUnderTest.load();
-
-    assertThat(data.getNcloc()).isEqualTo(20L);
-  }
-
-  @Test
-  public void take_largest_branch_with_pr() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
-    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
-    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
-    db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
-    db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
-    db.measures().insertLiveMeasure(pr, ncloc, m -> m.setValue(30d));
-    projectMeasuresIndexer.indexAll();
-
-    TelemetryData data = communityUnderTest.load();
-
-    assertThat(data.getNcloc()).isEqualTo(30L);
   }
 
   @Test
@@ -271,22 +218,18 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertMeasure(project, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
     db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
 
-    projectMeasuresIndexer.indexAll();
-
     TelemetryData data = communityUnderTest.load();
 
     assertThat(data.getProjects()).extracting(TelemetryData.Project::getProjectUuid, TelemetryData.Project::getLanguage, TelemetryData.Project::getLoc)
       .containsExactlyInAnyOrder(
         tuple(project.uuid(), "java", 100L),
         tuple(project.uuid(), "js", 50L),
-        tuple(project.uuid(), "kotlin", 30L)
-      );
+        tuple(project.uuid(), "kotlin", 30L));
     assertThat(data.getProjectStatistics())
       .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
         TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(
-        tuple(2L, 0L, "undetected", "undetected")
-      );
+        tuple(2L, 0L, "undetected", "undetected"));
   }
 
   @Test
@@ -314,7 +257,8 @@ public class TelemetryDataLoaderImplTest {
     db.users().insertUser();
 
     TelemetryData data = communityUnderTest.load();
-    assertThat(data.sonarlintWeeklyUsers()).isEqualTo(2L);
+    assertThat(data.getUserTelemetries())
+      .hasSize(4);
   }
 
   @Test
@@ -440,7 +384,6 @@ public class TelemetryDataLoaderImplTest {
   public void undetected_alm_ci_slm_data() {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     db.components().insertPublicProject();
-    projectMeasuresIndexer.indexAll();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
       .extracting(TelemetryData.ProjectStatistics::getAlm, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)

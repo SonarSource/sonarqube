@@ -147,13 +147,6 @@
     </foreach>
   </select>
 
-  <select id="countNonMainBranches" resultType="long">
-    select count(pb.uuid)
-    from project_branches pb
-    where
-    pb.uuid &lt;&gt; pb.project_uuid
-  </select>
-
   <select id="countByTypeAndCreationDate" parameterType="map" resultType="long">
     select count(pb.uuid)
     from project_branches pb

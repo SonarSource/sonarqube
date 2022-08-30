@@ -26,12 +26,10 @@ import java.util.Locale;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.text.JsonWriter;
 
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class TelemetryDataJsonWriter {
 
-  public static final String COUNT_PROP = "count";
   public static final String LANGUAGE_PROP = "language";
 
   public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
@@ -54,28 +52,6 @@ public class TelemetryDataJsonWriter {
       json.endObject();
     });
     json.endArray();
-    json.prop("userCount", statistics.getUserCount());
-    json.prop("projectCount", statistics.getProjectCount());
-    json.prop("usingBranches", statistics.isUsingBranches());
-    json.prop(NCLOC_KEY, statistics.getNcloc());
-    json.name("projectCountByLanguage");
-    json.beginArray();
-    statistics.getProjectCountByLanguage().forEach((language, count) -> {
-      json.beginObject();
-      json.prop(LANGUAGE_PROP, language);
-      json.prop(COUNT_PROP, count);
-      json.endObject();
-    });
-    json.endArray();
-    json.name("nclocByLanguage");
-    json.beginArray();
-    statistics.getNclocByLanguage().forEach((language, ncloc) -> {
-      json.beginObject();
-      json.prop(LANGUAGE_PROP, language);
-      json.prop("ncloc", ncloc);
-      json.endObject();
-    });
-    json.endArray();
 
     if (!statistics.getCustomSecurityConfigs().isEmpty()) {
       json.name("customSecurityConfig");
@@ -91,8 +67,6 @@ public class TelemetryDataJsonWriter {
     json.beginArray();
     statistics.getExternalAuthenticationProviders().forEach(json::value);
     json.endArray();
-
-    json.prop("sonarlintWeeklyUsers", statistics.sonarlintWeeklyUsers());
 
     if (statistics.getInstallationDate() != null) {
       json.prop("installationDate", statistics.getInstallationDate());

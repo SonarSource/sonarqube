@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.db.user.UserTelemetryDto;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -36,13 +35,7 @@ public class TelemetryData {
   private final String serverId;
   private final String version;
   private final Map<String, String> plugins;
-  private final long ncloc;
-  private final long userCount;
-  private final long projectCount;
-  private final boolean usingBranches;
   private final Database database;
-  private final Map<String, Long> projectCountByLanguage;
-  private final Map<String, Long> nclocByLanguage;
   private final List<String> externalAuthenticationProviders;
   private final EditionProvider.Edition edition;
   private final String licenseType;
@@ -52,8 +45,6 @@ public class TelemetryData {
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
   private final List<String> customSecurityConfigs;
-  private final long sonarlintWeeklyUsers;
-  private final long numberOfConnectedSonarLintClients;
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
@@ -62,14 +53,7 @@ public class TelemetryData {
     serverId = builder.serverId;
     version = builder.version;
     plugins = builder.plugins;
-    ncloc = builder.ncloc;
-    userCount = builder.userCount;
-    projectCount = builder.projectMeasuresStatistics.getProjectCount();
-    usingBranches = builder.usingBranches;
     database = builder.database;
-    sonarlintWeeklyUsers = builder.sonarlintWeeklyUsers;
-    projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
-    nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
     edition = builder.edition;
     licenseType = builder.licenseType;
     installationDate = builder.installationDate;
@@ -79,7 +63,6 @@ public class TelemetryData {
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
     externalAuthenticationProviders = builder.externalAuthenticationProviders;
-    numberOfConnectedSonarLintClients = builder.numberOfConnectedSonarLintClients;
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
@@ -97,40 +80,8 @@ public class TelemetryData {
     return plugins;
   }
 
-  public long getNcloc() {
-    return ncloc;
-  }
-
-  public long sonarlintWeeklyUsers() {
-    return sonarlintWeeklyUsers;
-  }
-
-  public long sonarLintConnectedClients() {
-    return numberOfConnectedSonarLintClients;
-  }
-
-  public long getUserCount() {
-    return userCount;
-  }
-
-  public long getProjectCount() {
-    return projectCount;
-  }
-
-  public boolean isUsingBranches() {
-    return usingBranches;
-  }
-
   public Database getDatabase() {
     return database;
-  }
-
-  public Map<String, Long> getProjectCountByLanguage() {
-    return projectCountByLanguage;
-  }
-
-  public Map<String, Long> getNclocByLanguage() {
-    return nclocByLanguage;
   }
 
   public Optional<EditionProvider.Edition> getEdition() {
@@ -188,13 +139,8 @@ public class TelemetryData {
   static class Builder {
     private String serverId;
     private String version;
-    private long userCount;
-    private long sonarlintWeeklyUsers;
     private Map<String, String> plugins;
     private Database database;
-    private ProjectMeasuresStatistics projectMeasuresStatistics;
-    private Long ncloc;
-    private Boolean usingBranches;
     private Edition edition;
     private String licenseType;
     private Long installationDate;
@@ -204,7 +150,6 @@ public class TelemetryData {
     private Boolean hasUnanalyzedCpp;
     private List<String> customSecurityConfigs;
     private List<String> externalAuthenticationProviders;
-    private long numberOfConnectedSonarLintClients;
     private List<UserTelemetryDto> users;
     private List<Project> projects;
     private List<ProjectStatistics> projectStatistics;
@@ -218,11 +163,6 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setSonarlintWeeklyUsers(long sonarlintWeeklyUsers) {
-      this.sonarlintWeeklyUsers = sonarlintWeeklyUsers;
-      return this;
-    }
-
     Builder setServerId(String serverId) {
       this.serverId = serverId;
       return this;
@@ -233,33 +173,13 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setUserCount(long userCount) {
-      this.userCount = userCount;
-      return this;
-    }
-
     Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
       return this;
     }
 
-    Builder setProjectMeasuresStatistics(ProjectMeasuresStatistics projectMeasuresStatistics) {
-      this.projectMeasuresStatistics = projectMeasuresStatistics;
-      return this;
-    }
-
-    Builder setNcloc(long ncloc) {
-      this.ncloc = ncloc;
-      return this;
-    }
-
     Builder setDatabase(Database database) {
       this.database = database;
-      return this;
-    }
-
-    Builder setUsingBranches(boolean usingBranches) {
-      this.usingBranches = usingBranches;
       return this;
     }
 
@@ -303,11 +223,6 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setNumberOfConnectedSonarLintClients(long numberOfConnectedSonarLintClients) {
-      this.numberOfConnectedSonarLintClients = numberOfConnectedSonarLintClients;
-      return this;
-    }
-
     Builder setUsers(List<UserTelemetryDto> users) {
       this.users = users;
       return this;
@@ -322,10 +237,7 @@ public class TelemetryData {
       requireNonNull(serverId);
       requireNonNull(version);
       requireNonNull(plugins);
-      requireNonNull(projectMeasuresStatistics);
-      requireNonNull(ncloc);
       requireNonNull(database);
-      requireNonNull(usingBranches);
       requireNonNull(externalAuthenticationProviders);
 
       return new TelemetryData(this);
@@ -385,7 +297,7 @@ public class TelemetryData {
     }
   }
 
-  static class ProjectStatistics{
+  static class ProjectStatistics {
     private final String projectUuid;
     private final Long branchCount;
     private final Long pullRequestCount;

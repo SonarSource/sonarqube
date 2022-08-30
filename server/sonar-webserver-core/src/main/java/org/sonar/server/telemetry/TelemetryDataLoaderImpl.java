@@ -45,15 +45,10 @@ import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.PrAndBranchCountByProjectDto;
 import org.sonar.db.measure.ProjectMeasureDto;
-import org.sonar.db.measure.SumNclocDbQuery;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.telemetry.TelemetryData.Database;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserQuery;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
@@ -73,8 +68,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final Server server;
   private final DbClient dbClient;
   private final PluginRepository pluginRepository;
-  private final UserIndex userIndex;
-  private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
   private final Configuration configuration;
   private final InternalProperties internalProperties;
@@ -83,14 +76,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final LicenseReader licenseReader;
 
   @Inject
-  public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
+  public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
-    this.userIndex = userIndex;
-    this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
     this.internalProperties = internalProperties;
     this.configuration = configuration;
@@ -120,17 +111,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
     Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);
-    long userCount = userIndex.search(UserQuery.builder().build(), new SearchOptions().setLimit(1)).getTotal();
-    data.setUserCount(userCount);
-    ProjectMeasuresStatistics projectMeasuresStatistics = projectMeasuresIndex.searchTelemetryStatistics();
-    data.setProjectMeasuresStatistics(projectMeasuresStatistics);
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
-      data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
-      SumNclocDbQuery query = SumNclocDbQuery.builder()
-        .setOnlyPrivateProjects(false)
-        .build();
-      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query));
       long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
       long numberOfUnanalyzedCppMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_CPP_KEY);
       editionProvider.get()
@@ -141,7 +123,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         });
 
       data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
-      data.setSonarlintWeeklyUsers(dbClient.userDao().countSonarlintWeeklyUsers(dbSession));
 
       Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
       Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);

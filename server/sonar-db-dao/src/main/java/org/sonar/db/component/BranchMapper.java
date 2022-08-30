@@ -55,8 +55,6 @@ public interface BranchMapper {
 
   List<String> selectProjectUuidsWithIssuesNeedSync(@Param("projectUuids") Collection<String> uuids);
 
-  long countNonMainBranches();
-
   long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
 
   short hasAnyBranchWhereNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);

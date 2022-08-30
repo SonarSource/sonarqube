@@ -29,7 +29,6 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.util.GlobalLockManager;
@@ -66,15 +65,8 @@ public class TelemetryDaemonTest {
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
     .setExternalAuthenticationProviders(singletonList("github"))
-    .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
-      .setProjectCount(12)
-      .setProjectCountByLanguage(Collections.emptyMap())
-      .setNclocByLanguage(Collections.emptyMap())
-      .build())
-    .setNcloc(42L)
     .setExternalAuthenticationProviders(Collections.emptyList())
     .setDatabase(new TelemetryData.Database("H2", "11"))
-    .setUsingBranches(true)
     .build();
 
   private final TelemetryClient client = mock(TelemetryClient.class);
