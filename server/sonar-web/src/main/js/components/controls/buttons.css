@@ -139,6 +139,12 @@
   background-color: transparent;
 }
 
+.button-plain:active,
+.button-plain:focus {
+  box-shadow: none;
+  outline: 1px dotted var(--blue);
+}
+
 /* #endregion */
 
 /* #region .button-link */

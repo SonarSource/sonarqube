@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { uniq } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
+import { ButtonPlain } from '../../../components/controls/buttons';
 import LocationsList from '../../../components/locations/LocationsList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Issue } from '../../../types/types';
@@ -92,13 +92,13 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
         className={classNames('concise-issue-box', 'clearfix', { selected })}
         ref={node => (this.rootElement = node)}
         onClick={selected ? undefined : this.handleClick}>
-        <ButtonLink
-          className="concise-issue-box-message link-no-underline"
+        <ButtonPlain
+          className="concise-issue-box-message"
           aria-current={selected}
           innerRef={node => (this.messageElement = node)}
           onClick={this.handleClick}>
           {issue.message}
-        </ButtonLink>
+        </ButtonPlain>
         <div className="concise-issue-box-attributes">
           <TypeHelper className="display-block little-spacer-right" type={issue.type} />
           <ConciseIssueLocations

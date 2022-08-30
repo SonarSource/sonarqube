@@ -5,14 +5,14 @@ exports[`should render correctly 1`] = `
   className="concise-issue-box clearfix"
   onClick={[Function]}
 >
-  <ButtonLink
+  <ButtonPlain
     aria-current={false}
-    className="concise-issue-box-message link-no-underline"
+    className="concise-issue-box-message"
     innerRef={[Function]}
     onClick={[Function]}
   >
     Reduce the number of conditional operators (4) used in the expression
-  </ButtonLink>
+  </ButtonPlain>
   <div
     className="concise-issue-box-attributes"
   >
@@ -62,14 +62,14 @@ exports[`should render correctly 2`] = `
 <div
   className="concise-issue-box clearfix selected"
 >
-  <ButtonLink
+  <ButtonPlain
     aria-current={true}
-    className="concise-issue-box-message link-no-underline"
+    className="concise-issue-box-message"
     innerRef={[Function]}
     onClick={[Function]}
   >
     Reduce the number of conditional operators (4) used in the expression
-  </ButtonLink>
+  </ButtonPlain>
   <div
     className="concise-issue-box-attributes"
   >
