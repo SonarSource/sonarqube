@@ -130,6 +130,18 @@ public class ProjectAlmSettingDaoTest {
   }
 
   @Test
+  public void select_alm_type_and_url_by_project() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
+    assertThat(underTest.selectAlmTypeAndUrlByProject(dbSession))
+      .extracting(ProjectAlmKeyAndProject::getProjectUuid, ProjectAlmKeyAndProject::getAlmId, ProjectAlmKeyAndProject::getUrl)
+      .containsExactly(tuple(project.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl()));
+  }
+
+  @Test
   public void update_existing_binding() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();

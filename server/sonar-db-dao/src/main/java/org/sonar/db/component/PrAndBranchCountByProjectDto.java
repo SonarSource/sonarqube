@@ -17,30 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.component;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+public class PrAndBranchCountByProjectDto {
 
-public interface MeasureMapper {
+  private String projectUuid = null;
+  private Long pullRequest = null;
+  private Long branch = null;
 
-  @CheckForNull
-  MeasureDto selectLastMeasure(
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public String getProjectUuid() {
+    return projectUuid;
+  }
 
-  @CheckForNull
-  MeasureDto selectMeasure(
-    @Param("analysisUuid") String analysisUuid,
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+  }
 
-  List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
+  public Long getPullRequest() {
+    return pullRequest;
+  }
 
-  void insert(MeasureDto measureDto);
+  public void setPullRequest(Long pullRequest) {
+    this.pullRequest = pullRequest;
+  }
 
-  List<ProjectMeasureDto> selectLastMeasureForAllProjects(@Param("metricKey") String metricKey);
+  public Long getBranch() {
+    return branch;
+  }
+
+  public void setBranch(Long branch) {
+    this.branch = branch;
+  }
 }

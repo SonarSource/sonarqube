@@ -575,9 +575,39 @@ public class UserDaoTest {
       .containsExactlyInAnyOrder(tuple(u1.getLogin(), u1.getName()), tuple(u2.getLogin(), u2.getName()));
   }
 
-  private void commit(Runnable runnable) {
-    runnable.run();
-    session.commit();
+  @Test
+  public void selectUserTelemetry() {
+    UserDto u1 = insertUser(true);
+    UserDto u2 = insertUser(false);
+
+    List<UserTelemetryDto> result = underTest.selectUsersForTelemetry(db.getSession());
+
+    assertThat(result)
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate()),
+        tuple(u2.getUuid(), u2.isActive(), u2.getLastConnectionDate(), u2.getLastSonarlintConnectionDate()));
+  }
+
+  @Test
+  public void selectUserTelemetryUpdatedLastConnectionDate() {
+    UserDto u1 = insertUser(true);
+    UserDto u2 = insertUser(false);
+
+    assertThat(underTest.selectUsersForTelemetry(db.getSession()))
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(u1.getUuid(), u1.isActive(), null, u1.getLastSonarlintConnectionDate()),
+        tuple(u2.getUuid(), u2.isActive(), null, u2.getLastSonarlintConnectionDate()));
+
+    underTest.update(db.getSession(), u1.setLastConnectionDate(10_000_000_000L));
+    underTest.update(db.getSession(), u2.setLastConnectionDate(20_000_000_000L));
+
+    assertThat(underTest.selectUsersForTelemetry(db.getSession()))
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(u1.getUuid(), u1.isActive(), 10_000_000_000L, u1.getLastSonarlintConnectionDate()),
+        tuple(u2.getUuid(), u2.isActive(), 20_000_000_000L, u2.getLastSonarlintConnectionDate()));
   }
 
   private UserDto insertActiveUser() {

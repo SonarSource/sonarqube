@@ -22,9 +22,11 @@ package org.sonar.server.telemetry;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
 import static java.util.Collections.emptyList;
@@ -40,11 +42,8 @@ public class TelemetryData {
   private final boolean usingBranches;
   private final Database database;
   private final Map<String, Long> projectCountByLanguage;
-  private final Map<String, Long> almIntegrationCountByAlm;
   private final Map<String, Long> nclocByLanguage;
   private final List<String> externalAuthenticationProviders;
-  private final Map<String, Long> projectCountByScm;
-  private final Map<String, Long> projectCountByCi;
   private final EditionProvider.Edition edition;
   private final String licenseType;
   private final Long installationDate;
@@ -55,6 +54,9 @@ public class TelemetryData {
   private final List<String> customSecurityConfigs;
   private final long sonarlintWeeklyUsers;
   private final long numberOfConnectedSonarLintClients;
+  private final List<UserTelemetryDto> users;
+  private final List<Project> projects;
+  private final List<ProjectStatistics> projectStatistics;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -67,7 +69,6 @@ public class TelemetryData {
     database = builder.database;
     sonarlintWeeklyUsers = builder.sonarlintWeeklyUsers;
     projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
-    almIntegrationCountByAlm = builder.almIntegrationCountByAlm;
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
     edition = builder.edition;
     licenseType = builder.licenseType;
@@ -78,9 +79,10 @@ public class TelemetryData {
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
     externalAuthenticationProviders = builder.externalAuthenticationProviders;
-    projectCountByScm = builder.projectCountByScm;
-    projectCountByCi = builder.projectCountByCi;
     numberOfConnectedSonarLintClients = builder.numberOfConnectedSonarLintClients;
+    users = builder.users;
+    projects = builder.projects;
+    projectStatistics = builder.projectStatistics;
   }
 
   public String getServerId() {
@@ -127,10 +129,6 @@ public class TelemetryData {
     return projectCountByLanguage;
   }
 
-  public Map<String, Long> getAlmIntegrationCountByAlm() {
-    return almIntegrationCountByAlm;
-  }
-
   public Map<String, Long> getNclocByLanguage() {
     return nclocByLanguage;
   }
@@ -171,12 +169,16 @@ public class TelemetryData {
     return externalAuthenticationProviders;
   }
 
-  public Map<String, Long> getProjectCountByScm() {
-    return projectCountByScm;
+  public List<UserTelemetryDto> getUserTelemetries() {
+    return users;
   }
 
-  public Map<String, Long> getProjectCountByCi() {
-    return projectCountByCi;
+  public List<Project> getProjects() {
+    return projects;
+  }
+
+  public List<ProjectStatistics> getProjectStatistics() {
+    return projectStatistics;
   }
 
   static Builder builder() {
@@ -191,7 +193,6 @@ public class TelemetryData {
     private Map<String, String> plugins;
     private Database database;
     private ProjectMeasuresStatistics projectMeasuresStatistics;
-    private Map<String, Long> almIntegrationCountByAlm;
     private Long ncloc;
     private Boolean usingBranches;
     private Edition edition;
@@ -203,9 +204,10 @@ public class TelemetryData {
     private Boolean hasUnanalyzedCpp;
     private List<String> customSecurityConfigs;
     private List<String> externalAuthenticationProviders;
-    private Map<String, Long> projectCountByScm;
-    private Map<String, Long> projectCountByCi;
     private long numberOfConnectedSonarLintClients;
+    private List<UserTelemetryDto> users;
+    private List<Project> projects;
+    private List<ProjectStatistics> projectStatistics;
 
     private Builder() {
       // enforce static factory method
@@ -216,18 +218,8 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setProjectCountByScm(Map<String, Long> projectCountByScm) {
-      this.projectCountByScm = projectCountByScm;
-      return this;
-    }
-
     Builder setSonarlintWeeklyUsers(long sonarlintWeeklyUsers) {
       this.sonarlintWeeklyUsers = sonarlintWeeklyUsers;
-      return this;
-    }
-
-    Builder setProjectCountByCi(Map<String, Long> projectCountByCi) {
-      this.projectCountByCi = projectCountByCi;
       return this;
     }
 
@@ -248,11 +240,6 @@ public class TelemetryData {
 
     Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
-      return this;
-    }
-
-    Builder setAlmIntegrationCountByAlm(Map<String, Long> almIntegrationCountByAlm) {
-      this.almIntegrationCountByAlm = almIntegrationCountByAlm;
       return this;
     }
 
@@ -321,20 +308,32 @@ public class TelemetryData {
       return this;
     }
 
+    Builder setUsers(List<UserTelemetryDto> users) {
+      this.users = users;
+      return this;
+    }
+
+    Builder setProjects(List<Project> projects) {
+      this.projects = projects;
+      return this;
+    }
+
     TelemetryData build() {
       requireNonNull(serverId);
       requireNonNull(version);
       requireNonNull(plugins);
       requireNonNull(projectMeasuresStatistics);
-      requireNonNull(almIntegrationCountByAlm);
       requireNonNull(ncloc);
       requireNonNull(database);
       requireNonNull(usingBranches);
       requireNonNull(externalAuthenticationProviders);
-      requireNonNull(projectCountByScm);
-      requireNonNull(projectCountByCi);
 
       return new TelemetryData(this);
+    }
+
+    Builder setProjectStatistics(List<ProjectStatistics> projectStatistics) {
+      this.projectStatistics = projectStatistics;
+      return this;
     }
   }
 
@@ -353,6 +352,81 @@ public class TelemetryData {
 
     public String getVersion() {
       return version;
+    }
+  }
+
+  static class Project {
+    private final String projectUuid;
+    private final String language;
+    private final Long loc;
+    private final Long lastAnalysis;
+
+    public Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
+      this.projectUuid = projectUuid;
+      this.lastAnalysis = lastAnalysis;
+      this.language = language;
+      this.loc = loc;
+    }
+
+    public String getProjectUuid() {
+      return projectUuid;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public Long getLoc() {
+      return loc;
+    }
+
+    public Long getLastAnalysis() {
+      return lastAnalysis;
+    }
+  }
+
+  static class ProjectStatistics{
+    private final String projectUuid;
+    private final Long branchCount;
+    private final Long pullRequestCount;
+    private final String scm;
+    private final String ci;
+    private final String alm;
+
+    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable String scm, @Nullable String ci, @Nullable String alm) {
+      this.projectUuid = projectUuid;
+      this.branchCount = branchCount;
+      this.pullRequestCount = pullRequestCount;
+      this.scm = scm;
+      this.ci = ci;
+      this.alm = alm;
+    }
+
+    public String getProjectUuid() {
+      return projectUuid;
+    }
+
+    public Long getBranchCount() {
+      return branchCount;
+    }
+
+    public Long getPullRequestCount() {
+      return pullRequestCount;
+    }
+
+    @CheckForNull
+    public String getScm() {
+      return scm;
+    }
+
+    @CheckForNull
+    public String getCi() {
+      return ci;
+    }
+
+    @CheckForNull
+    public String getAlm() {
+      return alm;
     }
   }
 }

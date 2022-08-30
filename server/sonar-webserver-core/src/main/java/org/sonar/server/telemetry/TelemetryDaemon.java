@@ -22,7 +22,6 @@ package org.sonar.server.telemetry;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,8 +37,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.util.GlobalLockManager;
 
-import static org.sonar.api.utils.DateUtils.formatDate;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;

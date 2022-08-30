@@ -71,8 +71,8 @@ public class AnalysisPropertiesDao implements Dao {
     }
   }
 
-  public List<ProjectCountPerAnalysisPropertyValue> selectProjectCountPerAnalysisPropertyValueInLastAnalysis(DbSession session, String analysisPropertyKey) {
-    return getMapper(session).selectProjectCountPerAnalysisPropertyValueInLastAnalysis(analysisPropertyKey);
+  public List<AnalysisPropertyValuePerProject> selectAnalysisPropertyValueInLastAnalysisPerProject(DbSession session, String analysisPropertyKey) {
+    return getMapper(session).selectAnalysisPropertyValueInLastAnalysisPerProject(analysisPropertyKey);
   }
 
   private static boolean mustBeStoredInClob(String value) {

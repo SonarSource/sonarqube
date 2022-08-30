@@ -49,6 +49,8 @@ import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 @RunWith(DataProviderRunner.class)
 public class BranchDaoTest {
@@ -543,6 +545,30 @@ public class BranchDaoTest {
       .isEqualTo(branch1.uuid());
     assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isPresent();
     assertThat(underTest.selectByUuid(db.getSession(), "unknown")).isNotPresent();
+  }
+
+  @Test
+  public void countPrAndBranchByProjectUuid() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH).setKey("p1-branch-1"));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH).setKey("p1-branch-2"));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-1"));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-2"));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey("p1-pr-3"));
+
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().insertProjectBranch(project2, b -> b.setBranchType(PULL_REQUEST).setKey("p2-pr-1"));
+
+    ComponentDto project3 = db.components().insertPrivateProject();
+    db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setKey("p3-branch-1"));
+
+    assertThat(underTest.countPrAndBranchByProjectUuid(db.getSession()))
+      .extracting(PrAndBranchCountByProjectDto::getProjectUuid, PrAndBranchCountByProjectDto::getBranch, PrAndBranchCountByProjectDto::getPullRequest)
+      .containsExactlyInAnyOrder(
+        tuple(project1.uuid(), 3L, 3L),
+        tuple(project2.uuid(), 1L, 1L),
+        tuple(project3.uuid(), 2L, 0L)
+      );
   }
 
   @Test

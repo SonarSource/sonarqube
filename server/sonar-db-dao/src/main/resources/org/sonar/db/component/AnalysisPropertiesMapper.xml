@@ -31,16 +31,15 @@
     AND analysis_uuid in <foreach collection="analysisUuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="selectProjectCountPerAnalysisPropertyValueInLastAnalysis" parameterType="string" resultType="ProjectCountPerAnalysisPropertyValue">
+  <select id="selectAnalysisPropertyValueInLastAnalysisPerProject" parameterType="string" resultType="AnalysisPropertyValuePerProject">
     select
-      ap.text_value as "propertyValue",
-      count(ap.text_value) as "count"
+      cp.uuid as "projectUuid", ap.text_value as "propertyValue"
     from components cp
     inner join snapshots s on s.component_uuid = cp.uuid
     inner join analysis_properties ap on ap.analysis_uuid = s.uuid
     where
       cp.main_branch_project_uuid is null and s.islast = ${_true} and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
-    group by ap.text_value
+    order by cp.uuid asc
   </select>
 
   <insert id="insertAsEmpty" parameterType="map" useGeneratedKeys="false">

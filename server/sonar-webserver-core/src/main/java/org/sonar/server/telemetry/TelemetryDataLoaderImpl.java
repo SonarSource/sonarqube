@@ -21,6 +21,7 @@ package org.sonar.server.telemetry;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,6 @@ import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -41,8 +41,10 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
-import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.component.ProjectCountPerAnalysisPropertyValue;
+import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
+import org.sonar.db.component.AnalysisPropertyValuePerProject;
+import org.sonar.db.component.PrAndBranchCountByProjectDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
@@ -55,7 +57,10 @@ import org.sonar.server.user.index.UserQuery;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.sonar.api.internal.apachecommons.lang.StringUtils.startsWithIgnoreCase;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
@@ -64,6 +69,7 @@ import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
+  public static final String UNDETECTED = "undetected";
   private final Server server;
   private final DbClient dbClient;
   private final PluginRepository pluginRepository;
@@ -134,11 +140,47 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
           data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
         });
 
-      data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
       data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
       data.setSonarlintWeeklyUsers(dbClient.userDao().countSonarlintWeeklyUsers(dbSession));
-      addScmInformationToTelemetry(dbSession, data);
-      addCiInformationToTelemetry(dbSession, data);
+
+      Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
+      Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
+      Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
+      List<String> projectUuids = dbClient.projectDao().selectAllProjectUuids(dbSession);
+
+      Map<String, PrAndBranchCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrAndBranchByProjectUuid(dbSession)
+        .stream().collect(Collectors.toMap(PrAndBranchCountByProjectDto::getProjectUuid, Function.identity()));
+
+      List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
+      for (String projectUuid : projectUuids) {
+        Long branchCount = Optional.ofNullable(prAndBranchCountByProjects.get(projectUuid)).map(PrAndBranchCountByProjectDto::getBranch).orElse(0L);
+        Long pullRequestCount = Optional.ofNullable(prAndBranchCountByProjects.get(projectUuid)).map(PrAndBranchCountByProjectDto::getPullRequest).orElse(0L);
+        String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
+        String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
+        String alm = null;
+        if (almAndUrlByProject.containsKey(projectUuid)) {
+          ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
+          alm = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
+        }
+        alm = Optional.ofNullable(alm).orElse(UNDETECTED);
+
+        projectStatistics.add(new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, scm, ci, alm));
+      }
+      data.setProjectStatistics(projectStatistics);
+
+      data.setUsers(dbClient.userDao().selectUsersForTelemetry(dbSession));
+
+      List<ProjectMeasureDto> measures = dbClient.measureDao().selectLastMeasureForAllProjects(dbSession, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      List<TelemetryData.Project> projects = new ArrayList<>();
+      for (ProjectMeasureDto measure : measures) {
+        for (String measureTextValue : measure.getTextValue().split(";")) {
+          String[] languageAndLoc = measureTextValue.split("=");
+          String language = languageAndLoc[0];
+          Long loc = Long.parseLong(languageAndLoc[1]);
+          projects.add(new TelemetryData.Project(measure.getProjectUuid(), measure.getLastAnalysis(), language, loc));
+        }
+      }
+      data.setProjects(projects);
     }
 
     setSecurityCustomConfigIfPresent(data);
@@ -168,40 +210,33 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       });
   }
 
-  private void addScmInformationToTelemetry(DbSession dbSession, TelemetryData.Builder data) {
-    Map<String, Long> projectCountPerScmDetected = dbClient.analysisPropertiesDao()
-      .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM)
+  private Map<String, String> getAnalysisPropertyByProject(DbSession dbSession, String analysisPropertyKey) {
+    return dbClient.analysisPropertiesDao()
+      .selectAnalysisPropertyValueInLastAnalysisPerProject(dbSession, analysisPropertyKey)
       .stream()
-      .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
-    data.setProjectCountByScm(projectCountPerScmDetected);
+      .collect(Collectors.toMap(AnalysisPropertyValuePerProject::getProjectUuid, AnalysisPropertyValuePerProject::getPropertyValue));
   }
 
-  private void addCiInformationToTelemetry(DbSession dbSession, TelemetryData.Builder data) {
-    Map<String, Long> projectCountPerCiDetected = dbClient.analysisPropertiesDao()
-      .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI)
-      .stream()
-      .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
-    data.setProjectCountByCi(projectCountPerCiDetected);
+  private Map<String, ProjectAlmKeyAndProject> getAlmAndUrlByProject(DbSession dbSession) {
+    List<ProjectAlmKeyAndProject> projectAlmKeyAndProjects = dbClient.projectAlmSettingDao().selectAlmTypeAndUrlByProject(dbSession);
+    return projectAlmKeyAndProjects.stream().collect(Collectors.toMap(ProjectAlmKeyAndProject::getProjectUuid, Function.identity()));
   }
 
-  private Map<String, Long> countAlmUsage(DbSession dbSession) {
-    return dbClient.almSettingDao().selectAll(dbSession).stream()
-      .collect(Collectors.groupingBy(almSettingDto -> {
-        if (checkIfCloudAlm(almSettingDto, ALM.GITHUB, "https://api.github.com")) {
-          return "github_cloud";
-        } else if (checkIfCloudAlm(almSettingDto, ALM.GITLAB, "https://gitlab.com/api/v4")) {
-          return "gitlab_cloud";
-        } else if (checkIfCloudAlm(almSettingDto, ALM.AZURE_DEVOPS, "https://dev.azure.com")) {
-          return "azure_devops_cloud";
-        } else if (ALM.BITBUCKET_CLOUD.equals(almSettingDto.getAlm())) {
-          return almSettingDto.getRawAlm();
-        }
-        return almSettingDto.getRawAlm() + "_server";
-      }, Collectors.counting()));
+  private static String getAlmName(String alm, String url) {
+    if (checkIfCloudAlm(alm, ALM.GITHUB.getId(), url, "https://api.github.com")) {
+      return "github_cloud";
+    } else if (checkIfCloudAlm(alm, ALM.GITLAB.getId(), url, "https://gitlab.com/api/v4")) {
+      return "gitlab_cloud";
+    } else if (checkIfCloudAlm(alm, ALM.AZURE_DEVOPS.getId(), url, "https://dev.azure.com")) {
+      return "azure_devops_cloud";
+    } else if (ALM.BITBUCKET_CLOUD.getId().equals(alm)) {
+      return alm;
+    }
+    return alm + "_server";
   }
 
-  private static boolean checkIfCloudAlm(AlmSettingDto almSettingDto, ALM alm, String url) {
-    return alm.equals(almSettingDto.getAlm()) && startsWith(almSettingDto.getUrl(), url);
+  private static boolean checkIfCloudAlm(String almRaw, String alm, String url, String cloudUrl) {
+    return alm.equals(almRaw) && startsWithIgnoreCase(url, cloudUrl);
   }
 
   @Override

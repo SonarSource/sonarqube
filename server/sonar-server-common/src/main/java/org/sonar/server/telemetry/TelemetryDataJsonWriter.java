@@ -19,14 +19,20 @@
  */
 package org.sonar.server.telemetry;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.text.JsonWriter;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class TelemetryDataJsonWriter {
 
-  public static final String COUNT = "count";
+  public static final String COUNT_PROP = "count";
+  public static final String LANGUAGE_PROP = "language";
 
   public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
     json.beginObject();
@@ -56,8 +62,8 @@ public class TelemetryDataJsonWriter {
     json.beginArray();
     statistics.getProjectCountByLanguage().forEach((language, count) -> {
       json.beginObject();
-      json.prop("language", language);
-      json.prop(COUNT, count);
+      json.prop(LANGUAGE_PROP, language);
+      json.prop(COUNT_PROP, count);
       json.endObject();
     });
     json.endArray();
@@ -65,17 +71,8 @@ public class TelemetryDataJsonWriter {
     json.beginArray();
     statistics.getNclocByLanguage().forEach((language, ncloc) -> {
       json.beginObject();
-      json.prop("language", language);
+      json.prop(LANGUAGE_PROP, language);
       json.prop("ncloc", ncloc);
-      json.endObject();
-    });
-    json.endArray();
-    json.name("almIntegrationCount");
-    json.beginArray();
-    statistics.getAlmIntegrationCountByAlm().forEach((alm, count) -> {
-      json.beginObject();
-      json.prop("alm", alm);
-      json.prop(COUNT, count);
       json.endObject();
     });
     json.endArray();
@@ -95,9 +92,6 @@ public class TelemetryDataJsonWriter {
     statistics.getExternalAuthenticationProviders().forEach(json::value);
     json.endArray();
 
-    addScmInfo(json, statistics);
-    addCiInfo(json, statistics);
-
     json.prop("sonarlintWeeklyUsers", statistics.sonarlintWeeklyUsers());
 
     if (statistics.getInstallationDate() != null) {
@@ -107,30 +101,77 @@ public class TelemetryDataJsonWriter {
       json.prop("installationVersion", statistics.getInstallationVersion());
     }
     json.prop("docker", statistics.isInDocker());
+
+    writeUserData(json, statistics);
+    writeProjectData(json, statistics);
+    writeProjectStatsData(json, statistics);
+
     json.endObject();
   }
 
-  private static void addScmInfo(JsonWriter json, TelemetryData statistics) {
-    json.name("projectCountByScm");
-    json.beginArray();
-    statistics.getProjectCountByScm().forEach((scm, count) -> {
-      json.beginObject();
-      json.prop("scm", scm);
-      json.prop(COUNT, count);
-      json.endObject();
-    });
-    json.endArray();
+  private static void writeUserData(JsonWriter json, TelemetryData statistics) {
+    if (statistics.getUserTelemetries() != null) {
+      json.name("users");
+      json.beginArray();
+      statistics.getUserTelemetries().forEach(user -> {
+        json.beginObject();
+        json.prop("userUuid", user.getUuid());
+        json.prop("status", user.isActive() ? "active" : "inactive");
+
+        if (user.getLastConnectionDate() != null) {
+          json.prop("lastActivity", toUtc(user.getLastConnectionDate()));
+        }
+        if (user.getLastSonarlintConnectionDate() != null) {
+          json.prop("lastSonarlintActivity", toUtc(user.getLastSonarlintConnectionDate()));
+        }
+
+        json.endObject();
+      });
+      json.endArray();
+    }
   }
 
-  private static void addCiInfo(JsonWriter json, TelemetryData statistics) {
-    json.name("projectCountByCI");
-    json.beginArray();
-    statistics.getProjectCountByCi().forEach((ci, count) -> {
-      json.beginObject();
-      json.prop("ci", ci);
-      json.prop(COUNT, count);
-      json.endObject();
-    });
-    json.endArray();
+  private static void writeProjectData(JsonWriter json, TelemetryData statistics) {
+    if (statistics.getProjects() != null) {
+      json.name("projects");
+      json.beginArray();
+      statistics.getProjects().forEach(project -> {
+        json.beginObject();
+        json.prop("projectUuid", project.getProjectUuid());
+        if (project.getLastAnalysis() != null) {
+          json.prop("lastAnalysis", toUtc(project.getLastAnalysis()));
+        }
+        json.prop(LANGUAGE_PROP, project.getLanguage());
+        json.prop("loc", project.getLoc());
+        json.endObject();
+      });
+      json.endArray();
+    }
   }
+
+  private static void writeProjectStatsData(JsonWriter json, TelemetryData statistics) {
+    if (statistics.getProjectStatistics() != null) {
+      json.name("projects-general-stats");
+      json.beginArray();
+      statistics.getProjectStatistics().forEach(project -> {
+        json.beginObject();
+        json.prop("projectUuid", project.getProjectUuid());
+        json.prop("branchCount", project.getBranchCount());
+        json.prop("pullRequestCount", project.getPullRequestCount());
+        json.prop("scm", project.getScm());
+        json.prop("ci", project.getCi());
+        json.prop("alm", project.getAlm());
+        json.endObject();
+      });
+      json.endArray();
+    }
+  }
+
+  @NotNull
+  private static String toUtc(long date) {
+    return DateTimeFormatter.ofPattern(DATETIME_FORMAT)
+      .withZone(ZoneOffset.UTC)
+      .format(Instant.ofEpochMilli(date));
+  }
+
 }

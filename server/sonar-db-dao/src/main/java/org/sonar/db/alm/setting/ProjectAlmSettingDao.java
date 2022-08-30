@@ -101,4 +101,8 @@ public class ProjectAlmSettingDao implements Dao {
   public List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> almRepos) {
     return executeLargeInputs(almRepos, repos -> getMapper(dbSession).selectByAlmSettingAndRepos(almSettingDto.getUuid(), repos));
   }
+
+  public List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject(DbSession dbSession) {
+    return getMapper(dbSession).selectAlmTypeAndUrlByProject();
+  }
 }

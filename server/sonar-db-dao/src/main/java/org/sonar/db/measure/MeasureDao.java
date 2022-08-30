@@ -75,4 +75,9 @@ public class MeasureDao implements Dao {
   private static MeasureMapper mapper(DbSession session) {
     return session.getMapper(MeasureMapper.class);
   }
+
+  public List<ProjectMeasureDto> selectLastMeasureForAllProjects(DbSession session, String metricKey) {
+    return mapper(session).selectLastMeasureForAllProjects(metricKey);
+
+  }
 }

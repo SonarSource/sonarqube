@@ -101,6 +101,10 @@ public class BranchDao implements Dao {
     return mapper(dbSession).selectByProjectUuid(project.getUuid());
   }
 
+  public List<PrAndBranchCountByProjectDto> countPrAndBranchByProjectUuid(DbSession dbSession){
+    return mapper(dbSession).countPrAndBranchByProjectUuid();
+  }
+
   public List<BranchDto> selectByUuids(DbSession session, Collection<String> uuids) {
     if (uuids.isEmpty()) {
       return emptyList();

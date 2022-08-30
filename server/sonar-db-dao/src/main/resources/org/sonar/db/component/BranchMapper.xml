@@ -111,6 +111,14 @@
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="countPrAndBranchByProjectUuid" resultType="org.sonar.db.component.PrAndBranchCountByProjectDto">
+    select project_uuid as projectUuid,
+      sum(case when pb.branch_type = 'PULL_REQUEST' then 1 else 0 end) as pullRequest,
+      sum(case when pb.branch_type = 'BRANCH' then 1 else 0 end) as branch
+    from project_branches pb
+    group by pb.project_uuid
+  </select>
+
   <select id="selectByUuids" resultType="org.sonar.db.component.BranchDto">
     select <include refid="columns"/>
     from project_branches pb

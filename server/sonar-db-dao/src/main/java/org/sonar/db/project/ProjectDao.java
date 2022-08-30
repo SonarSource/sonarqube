@@ -118,4 +118,7 @@ public class ProjectDao implements Dao {
     return session.getMapper(ProjectMapper.class);
   }
 
+  public List<String> selectAllProjectUuids(DbSession session) {
+    return mapper(session).selectAllProjectUuids();
+  }
 }

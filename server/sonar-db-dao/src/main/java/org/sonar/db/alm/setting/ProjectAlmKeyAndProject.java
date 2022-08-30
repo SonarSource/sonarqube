@@ -17,30 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.alm.setting;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+public class ProjectAlmKeyAndProject {
 
-public interface MeasureMapper {
+  private String projectUuid;
+  private String almId;
+  private String url;
 
-  @CheckForNull
-  MeasureDto selectLastMeasure(
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public ProjectAlmKeyAndProject() {
+    // keep empty
+  }
 
-  @CheckForNull
-  MeasureDto selectMeasure(
-    @Param("analysisUuid") String analysisUuid,
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public String getProjectUuid() {
+    return projectUuid;
+  }
 
-  List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
+  public ProjectAlmKeyAndProject setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+    return this;
+  }
 
-  void insert(MeasureDto measureDto);
+  public String getAlmId() {
+    return almId;
+  }
 
-  List<ProjectMeasureDto> selectLastMeasureForAllProjects(@Param("metricKey") String metricKey);
+  public ProjectAlmKeyAndProject setAlmId(String almId) {
+    this.almId = almId;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public ProjectAlmKeyAndProject setUrl(String url) {
+    this.url = url;
+    return this;
+  }
 }

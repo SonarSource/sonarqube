@@ -182,7 +182,7 @@ public class AnalysisPropertiesDaoTest {
     final String analysisPropertyKey = "key";
     for (int i = 0; i < 7; i++) {
       final int index = i;
-      ProjectDto project = dbTester.components().insertPrivateProjectDto();
+      ProjectDto project = dbTester.components().insertPrivateProjectDto(p -> p.setUuid("uuid" + index));
       dbTester.components().insertSnapshot(project, s -> s.setLast(true).setUuid("uuid" + index));
       // branches shouldn't be taken into account
       dbTester.components().insertProjectBranch(project);
@@ -195,14 +195,18 @@ public class AnalysisPropertiesDaoTest {
     underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid4").setUuid("4"));
     underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid5").setUuid("5"));
 
-    List<ProjectCountPerAnalysisPropertyValue> result = underTest.selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, analysisPropertyKey);
+    List<AnalysisPropertyValuePerProject> result = underTest.selectAnalysisPropertyValueInLastAnalysisPerProject(dbSession, analysisPropertyKey);
 
     assertThat(result)
-      .extracting(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount)
+      .extracting(AnalysisPropertyValuePerProject::getProjectUuid, AnalysisPropertyValuePerProject::getPropertyValue)
       .containsExactlyInAnyOrder(
-        tuple("git", 3L),
-        tuple("svn", 1L),
-        tuple("undetected", 2L));
+        tuple("uuid0", "git"),
+        tuple("uuid1", "svn"),
+        tuple("uuid2", "undetected"),
+        tuple("uuid3", "undetected"),
+        tuple("uuid4", "git"),
+        tuple("uuid5", "git")
+        );
   }
 
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {

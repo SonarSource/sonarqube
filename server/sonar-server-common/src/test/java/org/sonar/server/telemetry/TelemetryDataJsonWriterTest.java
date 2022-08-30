@@ -19,22 +19,25 @@
  */
 package org.sonar.server.telemetry;
 
-import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
 import static java.util.Arrays.asList;
@@ -50,7 +53,6 @@ public class TelemetryDataJsonWriterTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
-    .setAlmIntegrationCountByAlm(Collections.emptyMap())
     .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
       .setProjectCount(12)
       .setProjectCountByLanguage(Collections.emptyMap())
@@ -58,10 +60,8 @@ public class TelemetryDataJsonWriterTest {
       .build())
     .setNcloc(42L)
     .setExternalAuthenticationProviders(asList("github", "gitlab"))
-    .setProjectCountByScm(Collections.emptyMap())
     .setSonarlintWeeklyUsers(10)
     .setNumberOfConnectedSonarLintClients(5)
-    .setProjectCountByCi(Collections.emptyMap())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);
 
@@ -230,40 +230,6 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void write_project_count_by_scm() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectCountByScm(ImmutableMap.of("git", 5L, "svn", 4L, "cvs", 3L, "undetected", 2L))
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"projectCountByScm\": ["
-      + "{ \"scm\":\"git\", \"count\":5},"
-      + "{ \"scm\":\"svn\", \"count\":4},"
-      + "{ \"scm\":\"cvs\", \"count\":3},"
-      + "{ \"scm\":\"undetected\", \"count\":2},"
-      + "]}");
-  }
-
-  @Test
-  public void write_project_count_by_ci() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectCountByCi(ImmutableMap.of("Bitbucket Pipelines", 5L, "Github Actions", 4L, "Jenkins", 3L, "undetected", 2L))
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"projectCountByCI\": ["
-      + "{ \"ci\":\"Bitbucket Pipelines\", \"count\":5},"
-      + "{ \"ci\":\"Github Actions\", \"count\":4},"
-      + "{ \"ci\":\"Jenkins\", \"count\":3},"
-      + "{ \"ci\":\"undetected\", \"count\":2},"
-      + "]}");
-  }
-
-  @Test
   public void write_project_stats_by_language() {
     int projectCount = random.nextInt(8909);
     Map<String, Long> countByLanguage = IntStream.range(0, 1 + random.nextInt(10))
@@ -292,32 +258,6 @@ public class TelemetryDataJsonWriterTest {
       "[" +
       nclocByLanguage.entrySet().stream().map(e -> "{\"language\":\"" + e.getKey() + "\",\"ncloc\":" + e.getValue() + "}").collect(joining()) +
       "]" +
-      "}");
-  }
-
-  @Test
-  public void write_alm_count_by_alm() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setAlmIntegrationCountByAlm(ImmutableMap.of(
-        "github", 4L,
-        "github_cloud", 1L,
-        "gitlab", 2L,
-        "gitlab_cloud", 5L,
-        "azure_devops", 1L))
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"almIntegrationCount\": " +
-      "["
-      + "{ \"alm\":\"github\", \"count\":4},"
-      + "{ \"alm\":\"github_cloud\", \"count\":1},"
-      + "{ \"alm\":\"gitlab\", \"count\":2},"
-      + "{ \"alm\":\"gitlab_cloud\", \"count\":5},"
-      + "{ \"alm\":\"azure_devops\", \"count\":1},"
-      + "]"
-      +
       "}");
   }
 
@@ -411,6 +351,122 @@ public class TelemetryDataJsonWriterTest {
     assertJson(json).isSimilarTo("{" +
       "  \"customSecurityConfig\": [\"php\", \"java\"]" +
       "}");
+  }
+
+  @Test
+  public void writes_all_users() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setUsers(getUsers())
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"users\": [" +
+      "    {" +
+      "      \"userUuid\":\"uuid-0\"," +
+      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"status\":\"active\"" +
+      "    }," +
+      "    {" +
+      "      \"userUuid\":\"uuid-1\"," +
+      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"status\":\"inactive\"" +
+      "    }," +
+      "    {" +
+      "      \"userUuid\":\"uuid-2\"," +
+      "      \"lastActivity\":\"1970-01-01T01:00:00+0100\"," +
+      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"status\":\"active\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
+  public void writes_all_projects() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setProjects(getProjects())
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"projects\": [" +
+      "    {" +
+      "      \"projectUuid\": \"uuid-0\"," +
+      "      \"language\": \"lang-0\"," +
+      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"loc\": 2" +
+      "    }," +
+      "    {" +
+      "      \"projectUuid\": \"uuid-1\"," +
+      "      \"language\": \"lang-1\"," +
+      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"loc\": 4" +
+      "    }," +
+      "    {" +
+      "      \"projectUuid\": \"uuid-2\"," +
+      "      \"language\": \"lang-2\"," +
+      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"loc\": 6" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
+  public void writes_all_projects_stats() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setProjectStatistics(getProjectStats())
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"projects-general-stats\": [" +
+      "    {" +
+      "      \"projectUuid\": \"uuid-0\"," +
+      "      \"branchCount\": 2," +
+      "      \"pullRequestCount\": 2," +
+      "      \"scm\": \"scm-0\"," +
+      "      \"ci\": \"ci-0\"," +
+      "      \"alm\": \"alm-0\"" +
+      "    }," +
+      "    {" +
+      "      \"projectUuid\": \"uuid-1\"," +
+      "      \"branchCount\": 4," +
+      "      \"pullRequestCount\": 4," +
+      "      \"scm\": \"scm-1\"," +
+      "      \"ci\": \"ci-1\"," +
+      "      \"alm\": \"alm-1\"" +
+      "    }," +
+      "    {" +
+      "      \"projectUuid\": \"uuid-2\"," +
+      "      \"branchCount\": 6," +
+      "      \"pullRequestCount\": 6," +
+      "      \"scm\": \"scm-2\"," +
+      "      \"ci\": \"ci-2\"," +
+      "      \"alm\": \"alm-2\"" +
+      "    }" +
+      "  ]" +
+      "}");
+  }
+
+  @NotNull
+  private static List<UserTelemetryDto> getUsers() {
+    return IntStream.range(0, 3).mapToObj(i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L)).collect(Collectors.toList());
+  }
+
+  private static List<TelemetryData.Project> getProjects() {
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
+  }
+
+  private List<TelemetryData.ProjectStatistics> getProjectStats() {
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "alm-" + i))
+      .collect(Collectors.toList());
   }
 
   @DataProvider

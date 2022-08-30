@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.component;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+public class AnalysisPropertyValuePerProject {
+  private String projectUuid;
+  private String propertyValue;
 
-public interface MeasureMapper {
+  public AnalysisPropertyValuePerProject() {
+    //nothing to do here
+  }
 
-  @CheckForNull
-  MeasureDto selectLastMeasure(
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public String getPropertyValue() {
+    return propertyValue;
+  }
 
-  @CheckForNull
-  MeasureDto selectMeasure(
-    @Param("analysisUuid") String analysisUuid,
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKey") String metricKey
-  );
+  public void setPropertyValue(String propertyValue) {
+    this.propertyValue = propertyValue;
+  }
 
-  List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
+  public String getProjectUuid() {
+    return projectUuid;
+  }
 
-  void insert(MeasureDto measureDto);
-
-  List<ProjectMeasureDto> selectLastMeasureForAllProjects(@Param("metricKey") String metricKey);
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+  }
 }

@@ -33,7 +33,7 @@ public interface AnalysisPropertiesMapper {
 
   void insertAsText(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
 
-  List<ProjectCountPerAnalysisPropertyValue> selectProjectCountPerAnalysisPropertyValueInLastAnalysis(@Param("analysisPropertyKey") String analysisPropertyKey);
+  List<AnalysisPropertyValuePerProject> selectAnalysisPropertyValueInLastAnalysisPerProject(@Param("analysisPropertyKey") String analysisPropertyKey);
 
   List<AnalysisPropertyDto> selectByKeyAnAnalysisUuids(@Param("analysisUuids") Collection<String> analysisUuids, @Param("analysisPropertyKey") String analysisPropertyKey);
 

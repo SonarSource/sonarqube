@@ -17,29 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.db.measure;
 
-public class ProjectCountPerAnalysisPropertyValue {
-  private String propertyValue;
-  private Long count;
+public class ProjectMeasureDto {
 
-  public ProjectCountPerAnalysisPropertyValue() {
-    //nothing to do here
+  private String projectUuid;
+  private Long lastAnalysis;
+  private long loc;
+  private String textValue;
+
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public String getPropertyValue() {
-    return propertyValue;
+  public ProjectMeasureDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+    return this;
   }
 
-  public void setPropertyValue(String propertyValue) {
-    this.propertyValue = propertyValue;
+  public String getTextValue() {
+    return textValue;
   }
 
-  public Long getCount() {
-    return count;
+  public ProjectMeasureDto setTextValue(String textValue) {
+    this.textValue = textValue;
+    return this;
   }
 
-  public void setCount(Long count) {
-    this.count = count;
+  public long getLoc() {
+    return loc;
   }
+
+  public ProjectMeasureDto setLoc(long loc) {
+    this.loc = loc;
+    return this;
+  }
+
+  public Long getLastAnalysis() {
+    return lastAnalysis;
+  }
+
+  public ProjectMeasureDto setLastAnalysis(Long lastAnalysis) {
+    this.lastAnalysis = lastAnalysis;
+    return this;
+  }
+
 }

@@ -48,6 +48,8 @@ public interface UserMapper {
 
   List<UserDto> selectUsers(UserQuery query);
 
+  List<UserTelemetryDto> selectUsersForTelemetry();
+
   List<UserDto> selectByLogins(List<String> logins);
 
   List<UserDto> selectByUuids(List<String> uuids);

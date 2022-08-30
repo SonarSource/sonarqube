@@ -59,4 +59,6 @@ public interface ProjectMapper {
   List<ProjectDto> selectAllApplications();
 
   List<ProjectDto> selectApplicationsByKeys(@Param("kees") Collection<String> kees);
+
+  List<String> selectAllProjectUuids();
 }

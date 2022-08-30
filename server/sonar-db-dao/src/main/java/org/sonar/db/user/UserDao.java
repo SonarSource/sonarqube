@@ -102,6 +102,10 @@ public class UserDao implements Dao {
     return mapper(dbSession).selectUsers(query);
   }
 
+  public List<UserTelemetryDto> selectUsersForTelemetry(DbSession dbSession) {
+    return mapper(dbSession).selectUsersForTelemetry();
+  }
+
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
     mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));

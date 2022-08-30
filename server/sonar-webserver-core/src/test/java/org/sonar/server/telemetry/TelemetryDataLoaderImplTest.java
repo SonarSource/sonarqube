@@ -23,6 +23,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,8 +34,13 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
@@ -50,6 +56,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -57,6 +64,8 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
@@ -93,15 +102,24 @@ public class TelemetryDataLoaderImplTest {
   public void send_telemetry_data() {
     String serverId = "AU-TpxcB-iU5OvuD2FL7";
     String version = "7.5.4";
+    Long analysisDate = 1L;
+    Long lastConnectionDate = 5L;
+
     server.setId(serverId);
     server.setVersion(version);
     List<PluginInfo> plugins = asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
     when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
 
-    int userCount = 3;
-    IntStream.range(0, userCount).forEach(i -> db.users().insertUser(u -> u.setExternalIdentityProvider("provider" + i)));
-    db.users().insertUser(u -> u.setActive(false).setExternalIdentityProvider("provider0"));
+    int activeUserCount = 3;
+    List<UserDto> activeUsers = IntStream.range(0, activeUserCount).mapToObj(i -> db.users().insertUser(
+      u -> u.setExternalIdentityProvider("provider" + i).setLastSonarlintConnectionDate(i * 2L)))
+      .collect(Collectors.toList());
+
+    // update last connection
+    activeUsers.forEach(u -> db.users().updateLastConnectionDate(u, 5L));
+
+    UserDto inactiveUser = db.users().insertUser(u -> u.setActive(false).setExternalIdentityProvider("provider0"));
     userIndexer.indexAll();
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
@@ -109,29 +127,37 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
-    db.measures().insertLiveMeasure(project1, lines, m -> m.setValue(200d));
-    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(100d));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    db.measures().insertLiveMeasure(project1, lines, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(project1, nclocDistrib, m -> m.setValue(null).setData("java=200;js=50"));
+    db.measures().insertLiveMeasure(project1, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
 
-    ComponentDto project2 = db.components().insertPublicProject();
-    db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(300d));
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(80d));
-    db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=300;kotlin=2500"));
-    projectMeasuresIndexer.indexAll();
+    db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=180;js=20"));
+
+    SnapshotDto project1Analysis = db.components().insertSnapshot(project1, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(project2, t -> t.setLast(true).setBuildDate(analysisDate));
+    db.measures().insertMeasure(project1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(project2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
+
+    insertAnalysisProperty(project1Analysis, "prop-uuid-1", SONAR_ANALYSIS_DETECTEDCI, "ci-1");
+    insertAnalysisProperty(project2Analysis, "prop-uuid-2", SONAR_ANALYSIS_DETECTEDCI, "ci-2");
+    insertAnalysisProperty(project1Analysis, "prop-uuid-3", SONAR_ANALYSIS_DETECTEDSCM, "scm-1");
+    insertAnalysisProperty(project2Analysis, "prop-uuid-4", SONAR_ANALYSIS_DETECTEDSCM, "scm-2");
 
     // alm
     db.almSettings().insertAzureAlmSetting();
-    db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
-    db.almSettings().insertBitbucketAlmSetting();
-    db.almSettings().insertBitbucketCloudAlmSetting();
     db.almSettings().insertGitHubAlmSetting();
-    db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
-    db.almSettings().insertGitlabAlmSetting();
-    db.almSettings().insertGitlabAlmSetting(a -> a.setUrl("https://gitlab.com/api/v4"));
+    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
+    AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
+    db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDto(project1));
+    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDto(project2));
+
+    projectMeasuresIndexer.indexAll();
 
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
@@ -140,24 +166,39 @@ public class TelemetryDataLoaderImplTest {
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
       entry("java", "4.12.0.11033"), entry("scmgit", "1.2"), entry("other", "undefined"));
-    assertThat(data.getUserCount()).isEqualTo(userCount);
+    assertThat(data.getUserCount()).isEqualTo(activeUserCount);
     assertThat(data.getProjectCount()).isEqualTo(2L);
-    assertThat(data.getNcloc()).isEqualTo(300L);
+    assertThat(data.getNcloc()).isEqualTo(310L);
     assertThat(data.getProjectCountByLanguage()).containsOnly(
-      entry("java", 2L), entry("kotlin", 1L), entry("js", 1L));
+      entry("java", 2L), entry("kotlin", 1L), entry("js", 2L));
     assertThat(data.getNclocByLanguage()).containsOnly(
-      entry("java", 500L), entry("kotlin", 2500L), entry("js", 50L));
+      entry("java", 250L), entry("kotlin", 10L), entry("js", 50L));
     assertThat(data.isInDocker()).isFalse();
-    assertThat(data.getAlmIntegrationCountByAlm())
-      .containsEntry("azure_devops_server", 1L)
-      .containsEntry("azure_devops_cloud", 1L)
-      .containsEntry("bitbucket_server", 1L)
-      .containsEntry("bitbucket_cloud", 1L)
-      .containsEntry("gitlab_server", 1L)
-      .containsEntry("gitlab_cloud", 1L)
-      .containsEntry("github_cloud", 1L)
-      .containsEntry("github_server", 1L);
     assertThat(data.getExternalAuthenticationProviders()).containsExactlyInAnyOrder("provider0", "provider1", "provider2");
+
+    assertThat(data.getUserTelemetries())
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate, UserTelemetryDto::isActive)
+      .containsExactlyInAnyOrder(
+        tuple(activeUsers.get(0).getUuid(), lastConnectionDate, activeUsers.get(0).getLastSonarlintConnectionDate(), true),
+        tuple(activeUsers.get(1).getUuid(), lastConnectionDate, activeUsers.get(1).getLastSonarlintConnectionDate(), true),
+        tuple(activeUsers.get(2).getUuid(), lastConnectionDate, activeUsers.get(2).getLastSonarlintConnectionDate(), true),
+        tuple(inactiveUser.getUuid(), null, inactiveUser.getLastSonarlintConnectionDate(), false));
+    assertThat(data.getProjects())
+      .extracting(TelemetryData.Project::getProjectUuid, TelemetryData.Project::getLanguage, TelemetryData.Project::getLoc, TelemetryData.Project::getLastAnalysis)
+      .containsExactlyInAnyOrder(
+        tuple(project1.uuid(), "java", 70L, analysisDate),
+        tuple(project1.uuid(), "js", 30L, analysisDate),
+        tuple(project1.uuid(), "kotlin", 10L, analysisDate),
+        tuple(project2.uuid(), "java", 180L, analysisDate),
+        tuple(project2.uuid(), "js", 20L, analysisDate)
+      );
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
+        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getAlm)
+      .containsExactlyInAnyOrder(
+        tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
+        tuple(1L, 0L, "scm-2", "ci-2", "github_cloud")
+      );
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {
@@ -202,6 +243,50 @@ public class TelemetryDataLoaderImplTest {
     TelemetryData data = communityUnderTest.load();
 
     assertThat(data.getNcloc()).isEqualTo(30L);
+  }
+
+  @Test
+  public void take_largest_branch_snapshot_project_data() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+
+    MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
+
+    ComponentDto project = db.components().insertPublicProject();
+    db.measures().insertLiveMeasure(project, lines, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(80d));
+    db.measures().insertLiveMeasure(project, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.measures().insertLiveMeasure(branch, lines, m -> m.setValue(180d));
+    db.measures().insertLiveMeasure(branch, ncloc, m -> m.setValue(180d));
+    db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(80d));
+    db.measures().insertLiveMeasure(branch, nclocDistrib, m -> m.setValue(null).setData("java=100;js=50;kotlin=30"));
+
+    SnapshotDto project1Analysis = db.components().insertSnapshot(project, t -> t.setLast(true));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
+    db.measures().insertMeasure(project, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
+
+    projectMeasuresIndexer.indexAll();
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjects()).extracting(TelemetryData.Project::getProjectUuid, TelemetryData.Project::getLanguage, TelemetryData.Project::getLoc)
+      .containsExactlyInAnyOrder(
+        tuple(project.uuid(), "java", 100L),
+        tuple(project.uuid(), "js", 50L),
+        tuple(project.uuid(), "kotlin", 30L)
+      );
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
+        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .containsExactlyInAnyOrder(
+        tuple(2L, 0L, "undetected", "undetected")
+      );
   }
 
   @Test
@@ -351,9 +436,29 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getCustomSecurityConfigs()).isEmpty();
   }
 
+  @Test
+  public void undetected_alm_ci_slm_data() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    db.components().insertPublicProject();
+    projectMeasuresIndexer.indexAll();
+    TelemetryData data = communityUnderTest.load();
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::getAlm, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
+  }
+
   private PluginInfo newPlugin(String key, String version) {
     return new PluginInfo(key)
       .setVersion(Version.create(version));
+  }
+
+  private void insertAnalysisProperty(SnapshotDto snapshotDto, String uuid, String key, String value) {
+    db.getDbClient().analysisPropertiesDao().insert(db.getSession(), new AnalysisPropertyDto()
+      .setUuid(uuid)
+      .setAnalysisUuid(snapshotDto.getUuid())
+      .setKey(key)
+      .setValue(value)
+      .setCreatedAt(1L));
   }
 
 }

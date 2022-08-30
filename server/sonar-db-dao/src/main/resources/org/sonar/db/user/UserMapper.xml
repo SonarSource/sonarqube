@@ -104,6 +104,16 @@
         ORDER BY u.name
     </select>
 
+    <select id="selectUsersForTelemetry" parameterType="map" resultType="UserTelemetry">
+        SELECT
+            u.uuid as uuid,
+            u.active as "active",
+            u.last_connection_date as "lastConnectionDate",
+            u.last_sonarlint_connection as "lastSonarlintConnectionDate"
+        FROM users u
+        ORDER BY u.uuid
+    </select>
+
     <select id="selectByEmail" parameterType="String" resultType="User">
         SELECT
         <include refid="userColumns"/>
