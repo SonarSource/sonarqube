@@ -25,6 +25,10 @@ const routes = [
     component: lazyLoadComponent(() => import('./components/LoginContainer'))
   },
   {
+    path: 'sso',
+    component: lazyLoadComponent(() => import('./components/SamlLogin'))
+  },
+  {
     path: 'logout',
     component: lazyLoadComponent(() => import('./components/Logout'))
   },
