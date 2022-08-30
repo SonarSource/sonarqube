@@ -47,7 +47,7 @@ export type AuthenticationTabs =
   | AlmKeys.BitbucketServer;
 
 const DOCUMENTATION_LINK_SUFFIXES = {
-  [SAML]: 'saml',
+  [SAML]: 'saml/overview',
   [AlmKeys.GitHub]: 'github',
   [AlmKeys.GitLab]: 'gitlab',
   [AlmKeys.BitbucketServer]: 'bitbucket-cloud'

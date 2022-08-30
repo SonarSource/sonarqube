@@ -170,7 +170,15 @@
           "/instance-administration/authentication/overview/",
           "/instance-administration/authentication/http-header/",
           "/instance-administration/authentication/ldap/",
-          "/instance-administration/authentication/saml/",
+          {
+            "title": "SAML",
+            "children": [
+              "/instance-administration/authentication/saml/overview/",
+              "/instance-administration/authentication/saml/azuread/",
+              "/instance-administration/authentication/saml/keycloak/",
+              "/instance-administration/authentication/saml/okta/"
+            ]
+          },
           "/instance-administration/authentication/github/",
           "/instance-administration/authentication/gitlab/",
           "/instance-administration/authentication/bitbucket-cloud/"
