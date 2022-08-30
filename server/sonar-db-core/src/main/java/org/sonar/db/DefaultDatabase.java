@@ -43,7 +43,6 @@ import org.sonar.process.logging.LogbackHelper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
 import static org.sonar.process.ProcessProperties.Property.JDBC_MIN_IDLE;
 import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
@@ -68,10 +67,23 @@ public class DefaultDatabase implements Database {
     "sonar.jdbc.minEvictableIdleTimeMillis",
     "sonar.jdbc.timeBetweenEvictionRunsMillis");
 
-  private static final Set<String> IGNORED_SONAR_PROPERTIES = Set.of(SONAR_JDBC_DIALECT, JDBC_DRIVER_PATH.getKey(),
-    "sonar.jdbc.maxIdle",
-    "sonar.jdbc.minEvictableIdleTimeMillis",
-    "sonar.jdbc.timeBetweenEvictionRunsMillis");
+  private static final Set<String> ALLOWED_SONAR_PROPERTIES = Set.of(
+    JDBC_USERNAME.getKey(),
+    JDBC_PASSWORD.getKey(),
+    JDBC_EMBEDDED_PORT.getKey(),
+    JDBC_URL.getKey(),
+    JDBC_MIN_IDLE.getKey(),
+    SONAR_JDBC_MAX_WAIT,
+    SONAR_JDBC_MAX_ACTIVE,
+    // allowed hikari cp direct properties
+    SONAR_JDBC_DRIVER,
+    "sonar.jdbc.dataSource.user",
+    "sonar.jdbc.dataSource.password",
+    "sonar.jdbc.dataSource.portNumber",
+    "sonar.jdbc.jdbcUrl",
+    "sonar.jdbc.connectionTimeout",
+    "sonar.jdbc.maximumPoolSize",
+    "sonar.jdbc.minimumIdle");
 
   private static final Map<String, String> SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS = Map.of(
     JDBC_USERNAME.getKey(), "dataSource.user",
@@ -195,7 +207,7 @@ public class DefaultDatabase implements Database {
     Properties result = new Properties();
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String key = (String) entry.getKey();
-      if (IGNORED_SONAR_PROPERTIES.contains(key)) {
+      if (!ALLOWED_SONAR_PROPERTIES.contains(key)) {
         if (DEPRECATED_SONAR_PROPERTIES.contains(key)) {
           LOG.warn("Property [{}] has no effect as pool connection implementation changed, check 9.7 upgrade notes.", key);
         }
