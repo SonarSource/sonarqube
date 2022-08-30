@@ -24,19 +24,21 @@ import applyCodeDifferences from '../code-difference';
 it('should apply diff view correctly', () => {
   const { container } = renderDom(properCodeSnippet);
   applyCodeDifferences(container);
-  expect(container.getElementsByClassName('code-difference')).toMatchSnapshot('differenciatedCode');
+  expect(container.getElementsByClassName('code-difference-scrollable')).toMatchSnapshot(
+    'differenciatedCode'
+  );
 });
 
 it('should not apply diff view if 3 examples are present', () => {
   const { container } = renderDom(codeSnippetWith3Examples);
   applyCodeDifferences(container);
-  expect(container.getElementsByClassName('code-difference').length).toEqual(0);
+  expect(container.getElementsByClassName('code-difference-scrollable').length).toEqual(0);
 });
 
 it('should not apply diff view if compliant code is absent', () => {
   const { container } = renderDom(codeSnippetWithoutCompliantCode);
   applyCodeDifferences(container);
-  expect(container.getElementsByClassName('code-difference').length).toEqual(0);
+  expect(container.getElementsByClassName('code-difference-scrollable').length).toEqual(0);
 });
 
 const properCodeSnippet = `<!DOCTYPE html><body>

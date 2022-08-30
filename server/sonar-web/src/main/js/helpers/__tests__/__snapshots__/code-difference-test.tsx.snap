@@ -2,56 +2,64 @@
 
 exports[`should apply diff view correctly: differenciatedCode 1`] = `
 HTMLCollection [
-  <div
-    class="code-difference"
+  <pre
+    class="code-difference-scrollable"
   >
-    <pre>
-      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+    <div
+      class="code-difference-container"
+    >
+      <div>
+        public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
 {
     String data        = request.getParameter("input");
     PrintWriter writer = response.getWriter();
 
 
-    </pre>
-    <pre
-      class="code-removed"
-    >
-          writer.print(data); // Noncompliant
+      </div>
+      <div
+        class="code-removed"
+      >
+            writer.print(data); // Noncompliant
 
-    </pre>
-    <pre>
-      }
+      </div>
+      <div>
+        }
 
-    </pre>
-  </div>,
-  <div
-    class="code-difference"
+      </div>
+    </div>
+  </pre>,
+  <pre
+    class="code-difference-scrollable"
   >
-    <pre
-      class="code-added"
+    <div
+      class="code-difference-container"
     >
-      import org.owasp.encoder.Encode;
+      <div
+        class="code-added"
+      >
+        import org.owasp.encoder.Encode;
 
 
-    </pre>
-    <pre>
-      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+      </div>
+      <div>
+        public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
 {
     String data        = request.getParameter("input");
     PrintWriter writer = response.getWriter();
 
 
-    </pre>
-    <pre
-      class="code-added"
-    >
-          writer.print(Encode.forHtml(data));
+      </div>
+      <div
+        class="code-added"
+      >
+            writer.print(Encode.forHtml(data));
 
-    </pre>
-    <pre>
-      }
+      </div>
+      <div>
+        }
 
-    </pre>
-  </div>,
+      </div>
+    </div>
+  </pre>,
 ]
 `;

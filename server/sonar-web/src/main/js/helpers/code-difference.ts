@@ -20,6 +20,7 @@
 
 import { diffLines } from 'diff';
 import { groupBy, keyBy } from 'lodash';
+import { sanitizeString } from './sanitize';
 
 const NUMBER_OF_EXAMPLES = 2;
 
@@ -70,25 +71,29 @@ function differentiateCode(compliant: string, nonCompliant: string) {
   let compliantCode = '';
 
   hunks.forEach(hunk => {
+    const value = sanitizeString(hunk.value);
     if (!hunk.added && !hunk.removed) {
-      nonCompliantCode += `<pre>${hunk.value}</pre>`;
-      compliantCode += `<pre>${hunk.value}</pre>`;
+      nonCompliantCode += `<div>${value}</div>`;
+      compliantCode += `<div>${value}</div>`;
     }
 
     if (hunk.added) {
-      compliantCode += `<pre class='code-added'>${hunk.value}</pre>`;
+      compliantCode += `<div class='code-added'>${value}</div>`;
     }
 
     if (hunk.removed) {
-      nonCompliantCode += `<pre class='code-removed'>${hunk.value}</pre>`;
+      nonCompliantCode += `<div class='code-removed'>${value}</div>`;
     }
   });
   return [nonCompliantCode, compliantCode];
 }
 
 function replaceInDom(current: Element, code: string) {
-  const markedCode = document.createElement('div');
-  markedCode.classList.add('code-difference');
-  markedCode.innerHTML = code;
+  const markedCode = document.createElement('pre');
+  markedCode.classList.add('code-difference-scrollable');
+  const flexDiv = document.createElement('div');
+  flexDiv.classList.add('code-difference-container');
+  flexDiv.innerHTML = code;
+  markedCode.appendChild(flexDiv);
   current.parentNode?.replaceChild(markedCode, current);
 }

@@ -1,45 +1,70 @@
-<p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
-    by meeting the loop’s end condition or via a <code>break</code>, every loop should have an end condition.</p>
-<h3>Known Limitations</h3>
-<ul>
-    <li> False positives: when <code>yield</code> is used - <a href="https://github.com/SonarSource/SonarJS/issues/674">Issue #674</a>. </li>
-    <li> False positives: when an exception is raised by a function invoked within the loop. </li>
-    <li> False negatives: when a loop condition is based on an element of an array or object. </li>
-</ul>
+<p>This is an example of an attempt to run some code on our</p>
+<h3>Cross-site scripting (XSS) attack</h3>
+
+<p>
+  Assistive technologies, such as screen readers, use <code>&lt;th&gt;</code> headers to provide
+  some context when users navigates a table. Without it the user gets rapidly lost in the flow of
+  data.
+</p>
+<p>
+  Headers should be properly associated with the corresponding <code>&lt;td&gt;</code>&nbsp;cells by
+  using either a <code>scope</code> attribute or <code>headers</code> and
+  <code>id</code> attributes. See&nbsp;<a href="https://www.w3.org/WAI/tutorials/tables/tips/"
+    >W3C WAI&nbsp;Web Accessibility Tutorials</a
+  >&nbsp;for more information.
+</p>
+<p>
+  This rule raises an issue whenever a <code>&lt;table&gt;</code> does not contain
+  any&nbsp;<code>&lt;th&gt;</code>&nbsp;elements.
+</p>
+
+<p>
+  Moreover in this example, we attempted a Cross-site scripting attack by adding a script tag and
+  adding a onload property to the pre tag. The code being sanitized before being injected in the DOM
+  prevents us from being vulnerable.
+</p>
+
 <h2>Noncompliant Code Example</h2>
-<pre data-diff-id="example-1" data-diff-type="noncompliant">for (;;) {  // Noncompliant; end condition omitted
-  // ...
-}
-
-var j = 0;
-while (true) { // Noncompliant; constant end condition
-  j++;
-}
-
-var k;
-var b = true;
-while (b) { // Noncompliant; constant end condition
-  k++;
-}
+<pre data-diff-id="example-1" data-diff-type="noncompliant" onload="alert('You got hacked')">
+&lt;table&gt; &lt;!-- Noncompliant --&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Name&lt;/td&gt;
+    &lt;td&gt;Age&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;John Doe&lt;/td&gt;
+    &lt;td&gt;24&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Alice Doe&lt;/td&gt;
+    &lt;td&gt;54&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+  <script>
+    alert('you got hacked!!');
+  </script>
 </pre>
+
 <h2>Compliant Solution</h2>
-<pre data-diff-id="example-1" data-diff-type="compliant">while (true) { // break will potentially allow leaving the loop
-  if (someCondition) {
-    break;
-  }
-}
-
-var k;
-var b = true;
-while (b) {
-  k++;
-  b = k &lt; 10;
-}
-
-outer:
-while(true) {
-  while(true) {
-    break outer;
-  }
-}
+<pre data-diff-id="example-1" data-diff-type="compliant">
+&lt;table&gt;
+  &lt;tr&gt;
+    &lt;th scope=&quot;col&quot;&gt;Name&lt;/th&gt;
+    &lt;th scope=&quot;col&quot;&gt;Age&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;John Doe&lt;/td&gt;
+    &lt;td&gt;24&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Alice Doe&lt;/td&gt;
+    &lt;td&gt;54&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+&lt;script&gt;
+  alert('nevermind, you good..');
+&lt;/script&gt;
+  <script>
+    alert('nevermind, you good..');
+  </script>
 </pre>
