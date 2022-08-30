@@ -113,7 +113,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  // jest.clearAllMocks();
   (searchIssues as jest.Mock).mockReset();
 });
 
@@ -272,74 +271,6 @@ it('should be able to bulk change specific issues', async () => {
     .props()
     .fetchIssues({});
   expect(issues).toHaveLength(2);
-});
-
-it('should be able to uncheck all issue with global checkbox', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().issues.length).toBe(4);
-
-  const instance = wrapper.instance();
-  instance.handleIssueCheck('foo');
-  instance.handleIssueCheck('bar');
-  expect(wrapper.state().checked.length).toBe(2);
-
-  instance.handleCheckAll(false);
-  expect(wrapper.state().checked.length).toBe(0);
-});
-
-it('should be able to check all issue with global checkbox', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  const instance = wrapper.instance();
-  expect(wrapper.state().checked.length).toBe(0);
-  instance.handleCheckAll(true);
-  expect(wrapper.state().checked.length).toBe(wrapper.state().issues.length);
-});
-
-it('should check all issues, even the ones that are not visible', async () => {
-  (searchIssues as jest.Mock).mockResolvedValueOnce({
-    components: [referencedComponent],
-    effortTotal: 1,
-    facets: FACETS,
-    issues: ISSUES,
-    languages: [],
-    paging: { pageIndex: 1, pageSize: 100, total: 250 },
-    rules: [],
-    users: []
-  });
-
-  const wrapper = shallowRender();
-  const instance = wrapper.instance();
-  await waitAndUpdate(wrapper);
-
-  // Checking all issues should show the correct count in the Bulk Change button.
-  instance.handleCheckAll(true);
-  waitAndUpdate(wrapper);
-  expect(wrapper.find('#issues-bulk-change')).toMatchSnapshot();
-});
-
-it('should check max 500 issues', async () => {
-  (searchIssues as jest.Mock).mockResolvedValue({
-    components: [referencedComponent],
-    effortTotal: 1,
-    facets: FACETS,
-    issues: ISSUES,
-    languages: [],
-    paging: { pageIndex: 1, pageSize: 100, total: 1000 },
-    rules: [],
-    users: []
-  });
-  const wrapper = shallowRender();
-  const instance = wrapper.instance();
-  await waitAndUpdate(wrapper);
-
-  // Checking all issues should show 500 in the Bulk Change button, and display
-  // a warning.
-  instance.handleCheckAll(true);
-  waitAndUpdate(wrapper);
-  expect(wrapper.find('#issues-bulk-change')).toMatchSnapshot();
 });
 
 it('should display the right facets open', () => {

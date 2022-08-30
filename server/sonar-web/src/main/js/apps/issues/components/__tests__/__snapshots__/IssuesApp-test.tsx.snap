@@ -1,35 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should check all issues, even the ones that are not visible 1`] = `
-<Button
-  disabled={false}
-  id="issues-bulk-change"
-  innerRef={
-    Object {
-      "current": null,
-    }
-  }
-  onClick={[Function]}
->
-  issues.bulk_change_X_issues.250
-</Button>
-`;
-
-exports[`should check max 500 issues 1`] = `
-<Button
-  disabled={false}
-  id="issues-bulk-change"
-  innerRef={
-    Object {
-      "current": null,
-    }
-  }
-  onClick={[Function]}
->
-  issues.bulk_change_X_issues.500
-</Button>
-`;
-
 exports[`should show warnning when not all projects are accessible 1`] = `
 <div
   className="layout-page-side-outer"

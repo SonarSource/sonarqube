@@ -288,10 +288,9 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   handleBlur = () => {
     if (this.mounted) {
       this.setState({ visible: false });
-    }
-
-    if (this.props.onHide) {
-      this.props.onHide();
+      if (this.props.onHide) {
+        this.props.onHide();
+      }
     }
   };
 

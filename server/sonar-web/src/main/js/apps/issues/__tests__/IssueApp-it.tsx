@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import selectEvent from 'react-select-event';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockCurrentUser } from '../../../helpers/testMocks';
@@ -40,6 +41,52 @@ beforeEach(() => {
   handler = new IssuesServiceMock();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollIntoView = jest.fn();
+});
+
+//Improve this to include all the bulk change fonctionality
+it('should be able to bulk change', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+
+  // Check that the bulk button has correct behavior
+  expect(await screen.findByRole('button', { name: 'bulk_change' })).toHaveAttribute('disabled');
+  await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+  expect(
+    screen.getByRole('button', { name: 'issues.bulk_change_X_issues.500' })
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.500' }));
+  await user.click(screen.getByRole('button', { name: 'cancel' }));
+  expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.500' })).toHaveFocus();
+  await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+
+  // Check that we bulk change the selected issue
+  const issueBoxFixThat = within(await screen.findByRole('region', { name: 'Fix that' }));
+
+  expect(
+    issueBoxFixThat.getByRole('button', {
+      name: 'issue.type.type_x_click_to_change.issue.type.CODE_SMELL'
+    })
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' }));
+  expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' }));
+
+  await user.click(screen.getByRole('textbox', { name: 'issue.comment.formlink' }));
+  await user.keyboard('New Comment');
+  expect(screen.getByRole('button', { name: 'apply' })).toHaveAttribute('disabled');
+
+  await selectEvent.select(screen.getByRole('textbox', { name: 'issue.set_type' }), [
+    'issue.type.BUG'
+  ]);
+  await user.click(screen.getByRole('button', { name: 'apply' }));
+
+  expect(
+    issueBoxFixThat.getByRole('button', {
+      name: 'issue.type.type_x_click_to_change.issue.type.BUG'
+    })
+  ).toBeInTheDocument();
 });
 
 it('should show education principles', async () => {
@@ -480,7 +527,7 @@ describe('redirects', () => {
 });
 
 function renderIssueApp(currentUser?: CurrentUser) {
-  renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(), ...currentUser });
+  renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
 }
 
 function renderProjectIssuesApp(navigateTo?: string) {

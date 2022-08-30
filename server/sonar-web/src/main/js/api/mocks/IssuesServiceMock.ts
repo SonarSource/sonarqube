@@ -53,6 +53,7 @@ import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
 import {
   addIssueComment,
+  bulkChangeIssues,
   deleteIssueComment,
   editIssueComment,
   getIssueFlowSnippets,
@@ -252,6 +253,7 @@ export default class IssuesServiceMock {
     (getComponentForSourceViewer as jest.Mock).mockImplementation(
       this.handleGetComponentForSourceViewer
     );
+    (bulkChangeIssues as jest.Mock).mockImplementation(this.handleBulkChangeIssues);
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
     (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
     (setIssueType as jest.Mock).mockImplementation(this.handleSetIssueType);
@@ -284,6 +286,16 @@ export default class IssuesServiceMock {
   setIsAdmin(isAdmin: boolean) {
     this.isAdmin = isAdmin;
   }
+
+  handleBulkChangeIssues = (issueKeys: string[], query: RequestData) => {
+    //For now we only check for issue type change.
+    this.list
+      .filter(i => issueKeys.includes(i.issue.key))
+      .forEach(data => {
+        data.issue.type = query.set_type;
+      });
+    return this.reply({});
+  };
 
   handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
     return this.reply(range(data.from || 1, data.to || 10).map(line => mockSourceLine({ line })));
