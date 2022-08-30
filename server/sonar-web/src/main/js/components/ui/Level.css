@@ -62,7 +62,7 @@ a > .level:hover {
 }
 
 .level-OK {
-  background-color: var(--qualityGatePassedBackground);
+  background-color: var(--success500);
 }
 
 .level-WARN {
@@ -70,7 +70,7 @@ a > .level:hover {
 }
 
 .level-ERROR {
-  background-color: var(--red);
+  background-color: var(--error500);
 }
 
 .level-NONE {
