@@ -163,7 +163,6 @@
 .issues .issue a:focus,
 .issues .issue button:focus {
   box-shadow: none;
-  outline: 1px dotted var(--blue);
 }
 
 @media (max-width: 1320px) {

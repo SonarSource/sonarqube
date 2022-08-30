@@ -44,14 +44,6 @@
   color: var(--white);
 }
 
-.button:active {
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-}
-
-.button:focus {
-  box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
-}
-
 .button-primary {
   background: var(--darkBlue);
   border-color: var(--darkBlue);
@@ -79,7 +71,6 @@
   border-color: var(--disableGrayBorder) !important;
   background: var(--disableGrayBg) !important;
   cursor: not-allowed !important;
-  box-shadow: none !important;
 }
 
 /* #region .button-red */
@@ -94,10 +85,6 @@
   color: var(--white);
 }
 
-.button-red:focus {
-  box-shadow: 0 0 0 3px rgba(212, 51, 63, 0.25);
-}
-
 /* #endregion */
 
 /* #region .button-success */
@@ -110,10 +97,6 @@
 .button-success.active {
   background: var(--green);
   color: var(--white);
-}
-
-.button-success:focus {
-  box-shadow: 0 0 0 3px rgba(0, 170, 0, 0.25);
 }
 
 /* #endregion */
@@ -137,12 +120,6 @@
 .button-plain:hover {
   color: var(--blue);
   background-color: transparent;
-}
-
-.button-plain:active,
-.button-plain:focus {
-  box-shadow: none;
-  outline: 1px dotted var(--blue);
 }
 
 /* #endregion */
@@ -172,12 +149,6 @@
 .button-link:hover {
   background: transparent;
   color: var(--blue);
-}
-
-.button-link:active,
-.button-link:focus {
-  box-shadow: none;
-  outline: 1px dotted var(--blue);
 }
 
 .button-link.disabled {
@@ -216,7 +187,6 @@
   border: solid 1px var(--white);
   border-radius: 3px;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 1px 1px var(--barBorderColor);
 }
 
 .button-huge:hover,
@@ -224,7 +194,6 @@
 .button-huge:active {
   background-color: var(--white);
   color: var(--darkBlue);
-  box-shadow: var(--defaultShadow);
   transform: translateY(-2px);
 }
 

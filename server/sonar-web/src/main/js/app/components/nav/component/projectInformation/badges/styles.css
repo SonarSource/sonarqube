@@ -41,7 +41,6 @@
 .button.badge-button:active {
   background-color: var(--barBackgroundColor);
   border-color: var(--blue);
-  box-shadow: none;
 }
 
 .button.badge-button.selected {
