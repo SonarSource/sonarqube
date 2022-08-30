@@ -50,6 +50,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
@@ -61,6 +62,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -85,7 +90,8 @@ public class DeactivateActionTest {
   private final DbClient dbClient = db.getDbClient();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final DbSession dbSession = db.getSession();
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession, new UserJsonWriter(userSession)));
+  private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession, new UserJsonWriter(userSession), userAnonymizer));
 
   @Test
   public void deactivate_user_and_delete_their_related_data() {
@@ -101,10 +107,32 @@ public class DeactivateActionTest {
 
     verifyThatUserIsDeactivated(user.getLogin());
     assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-      .source(new SearchSourceBuilder()
-        .query(boolQuery()
-          .must(termQuery(FIELD_UUID, user.getUuid()))
-          .must(termQuery(FIELD_ACTIVE, "false")))))
+        .source(new SearchSourceBuilder()
+          .query(boolQuery()
+            .must(termQuery(FIELD_UUID, user.getUuid()))
+            .must(termQuery(FIELD_ACTIVE, "false")))))
+      .getHits().getHits()).hasSize(1);
+  }
+
+  @Test
+  public void anonymize_user_if_param_provided() {
+    createAdminUser();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
+    logInAsSystemAdministrator();
+
+    deactivate(user.getLogin(), true);
+
+    verifyThatUserIsDeactivated("anonymized");
+    verifyThatUserIsAnomymized("anonymized");
+    assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
+        .source(new SearchSourceBuilder()
+          .query(boolQuery()
+            .must(termQuery(FIELD_UUID, user.getUuid()))
+            .must(termQuery(FIELD_ACTIVE, "false")))))
       .getHits().getHits()).hasSize(1);
   }
 
@@ -394,7 +422,7 @@ public class DeactivateActionTest {
   public void test_definition() {
     assertThat(ws.getDef().isPost()).isTrue();
     assertThat(ws.getDef().isInternal()).isFalse();
-    assertThat(ws.getDef().params()).hasSize(1);
+    assertThat(ws.getDef().params()).hasSize(2);
   }
 
   @Test
@@ -418,13 +446,20 @@ public class DeactivateActionTest {
   }
 
   private TestResponse deactivate(@Nullable String login) {
-    return deactivate(ws, login);
+    return deactivate(login, false);
   }
 
-  private TestResponse deactivate(WsActionTester ws, @Nullable String login) {
+  private TestResponse deactivate(@Nullable String login, boolean anonymize) {
+    return deactivate(ws, login, anonymize);
+  }
+
+  private TestResponse deactivate(WsActionTester ws, @Nullable String login, boolean anonymize) {
     TestRequest request = ws.newRequest()
       .setMethod("POST");
     Optional.ofNullable(login).ifPresent(t -> request.setParam("login", login));
+    if (anonymize) {
+      request.setParam("anonymize", "true");
+    }
     return request.execute();
   }
 
@@ -438,6 +473,15 @@ public class DeactivateActionTest {
     assertThat(user.get().isActive()).isFalse();
     assertThat(user.get().getEmail()).isNull();
     assertThat(user.get().getScmAccountsAsList()).isEmpty();
+  }
+
+  private void verifyThatUserIsAnomymized(String login) {
+    Optional<UserDto> user = db.users().selectUserByLogin(login);
+    assertThat(user).isPresent();
+    assertThat(user.get().getName()).isEqualTo(login);
+    assertThat(user.get().getExternalLogin()).isEqualTo(login);
+    assertThat(user.get().getExternalId()).isEqualTo(login);
+    assertThat(user.get().getExternalIdentityProvider()).isEqualTo(ExternalIdentity.SQ_AUTHORITY);
   }
 
   private UserDto createAdminUser() {

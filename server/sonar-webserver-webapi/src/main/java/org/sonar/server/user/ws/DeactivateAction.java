@@ -42,17 +42,20 @@ import static org.sonar.server.exceptions.NotFoundException.checkFound;
 public class DeactivateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
+  private static final String PARAM_ANONYMIZE = "anonymize";
 
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
+  private final UserAnonymizer userAnonymizer;
 
-  public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter) {
+  public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter, UserAnonymizer userAnonymizer) {
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.userSession = userSession;
     this.userWriter = userWriter;
+    this.userAnonymizer = userAnonymizer;
   }
 
   @Override
@@ -68,6 +71,13 @@ public class DeactivateAction implements UsersWsAction {
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("myuser");
+
+    action.createParam(PARAM_ANONYMIZE)
+      .setDescription("Anonymize user in addition to deactivating it")
+      .setBooleanPossibleValues()
+      .setRequired(false)
+      .setSince("9.7")
+      .setDefaultValue(false);
   }
 
   @Override
@@ -96,11 +106,17 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.sessionTokensDao().deleteByUser(dbSession, user);
       dbClient.userDismissedMessagesDao().deleteByUser(dbSession, user);
       dbClient.qualityGateUserPermissionDao().deleteByUser(dbSession, user);
-      dbClient.userDao().deactivateUser(dbSession, user);
-      userIndexer.commitAndIndex(dbSession, user);
-    }
 
-    writeResponse(response, login);
+      if (request.mandatoryParamAsBoolean(PARAM_ANONYMIZE)) {
+        userAnonymizer.anonymize(dbSession, user);
+        dbClient.userDao().update(dbSession, user);
+      }
+
+      dbClient.userDao().deactivateUser(dbSession, user);
+
+      userIndexer.commitAndIndex(dbSession, user);
+      writeResponse(response, user.getLogin());
+    }
   }
 
   private void writeResponse(Response response, String login) {

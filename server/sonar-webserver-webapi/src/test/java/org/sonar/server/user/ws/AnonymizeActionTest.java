@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -68,7 +67,8 @@ public class AnonymizeActionTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private final WsActionTester ws = new WsActionTester(new AnonymizeAction(dbClient, userIndexer, userSession));
+  private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient());
+  private final WsActionTester ws = new WsActionTester(new AnonymizeAction(dbClient, userIndexer, userSession, userAnonymizer));
 
   @Test
   public void anonymize_user() {
@@ -83,28 +83,11 @@ public class AnonymizeActionTest {
       .setExternalId("external.id"));
     logInAsSystemAdministrator();
 
-    anonymize(user.getLogin());
+    TestResponse response = anonymize(user.getLogin());
 
     verifyThatUserIsAnonymized(user.getUuid());
     verifyThatUserIsAnonymizedOnEs(user.getUuid());
-  }
-
-  @Test
-  public void try_avoid_login_collisions() {
-    List<String> logins = List.of("login1", "login2", "login3");
-    Iterator<String> randomGeneratorIt = logins.iterator();
-    WsActionTester ws = new WsActionTester(new AnonymizeAction(dbClient, userIndexer, userSession, randomGeneratorIt::next));
-
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("login1"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("login2"));
-    UserDto userToAnonymize = db.users().insertUser(u -> u.setLogin("toAnonymize").setActive(false));
-
-    logInAsSystemAdministrator();
-
-    anonymize(ws, userToAnonymize.getLogin());
-    assertThat(dbClient.userDao().selectUsers(db.getSession(), UserQuery.builder().includeDeactivated().build()))
-      .extracting(UserDto::getLogin)
-      .containsOnly("login1", "login2", "login3");
+    assertThat(response.getInput()).isEmpty();
   }
 
   @Test

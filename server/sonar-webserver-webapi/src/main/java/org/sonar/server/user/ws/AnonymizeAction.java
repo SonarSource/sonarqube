@@ -19,9 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.function.Supplier;
-import javax.inject.Inject;
-import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,31 +26,24 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class AnonymizeAction implements UsersWsAction {
-  private static final int LOGIN_RANDOM_LENGTH = 6;
   private static final String PARAM_LOGIN = "login";
 
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final UserSession userSession;
-  private final Supplier<String> randomNameGenerator;
+  private final UserAnonymizer userAnonymizer;
 
-  @Inject
-  public AnonymizeAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession) {
-    this(dbClient, userIndexer, userSession, () -> "sq-removed-" + RandomStringUtils.randomAlphanumeric(LOGIN_RANDOM_LENGTH));
-  }
-
-  public AnonymizeAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, Supplier<String> randomNameGenerator) {
+  public AnonymizeAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserAnonymizer userAnonymizer) {
+    this.userAnonymizer = userAnonymizer;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.userSession = userSession;
-    this.randomNameGenerator = randomNameGenerator;
   }
 
   @Override
@@ -82,14 +72,7 @@ public class AnonymizeAction implements UsersWsAction {
         throw new IllegalArgumentException(String.format("User '%s' is not deactivated", login));
       }
 
-      String newLogin = generateAnonymousLogin(dbSession);
-      user
-        .setLogin(newLogin)
-        .setName(newLogin)
-        .setExternalIdentityProvider(ExternalIdentity.SQ_AUTHORITY)
-        .setLocal(true)
-        .setExternalId(newLogin)
-        .setExternalLogin(newLogin);
+      userAnonymizer.anonymize(dbSession, user);
       dbClient.userDao().update(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
     }
@@ -97,13 +80,4 @@ public class AnonymizeAction implements UsersWsAction {
     response.noContent();
   }
 
-  private String generateAnonymousLogin(DbSession session) {
-    for (int i = 0; i < 10; i++) {
-      String candidate = randomNameGenerator.get();
-      if (dbClient.userDao().selectByLogin(session, candidate) == null) {
-        return candidate;
-      }
-    }
-    throw new IllegalStateException("Could not find a unique login");
-  }
 }
