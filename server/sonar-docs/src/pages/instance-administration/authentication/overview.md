@@ -16,3 +16,13 @@ When using group mapping, the following caveats apply regardless of which delega
 
 ## Revoking tokens for deactivated users
 When SonarQube authentication is delegated to an external identity provider, deactivating a user on the identity provider side does not remove any tokens associated with the user on the SonarQube side. We recommend deactivating the user in SonarQube at **Administration > Security > Users** by selecting **Deactivate** from the ![Settings drop-down](/images/gear.png) drop-down menu to ensure tokens associated with that user can no longer be used.
+
+## Anonymizing users' personal data
+SonarQube offers the possibility to anonymize the data of deactivated users. This comes in handy when you want to ensure that the personal data of past users is not retained, for example, for legal compliance.
+
+In order to anonymize data, the user first needs to be deactivated. Only then can an admin use the webservice `/api/users/anonymize` and pass to it the login of a deactivated user to replace all personal data of the user with anonymized data. Note that the admin is able to retrieve the (now anonymized) logins of deactivated users by using `/api/users/search` endpoint with the appropriate parameter.
+
+This feature has the following limitations:
+- Anonymizing a user will change its login, making it impossible to reactivate the user by recreating a user with the old login.
+- The user’s login may still be stored in issue changelogs and the user’s login, name and email address may still be stored in audit entries. Audit entries are purged by default after 30 days.
+- Some columns in the database may contain parts of the user's login if the user was created before the instance was upgraded to SonarQube 8.3.
