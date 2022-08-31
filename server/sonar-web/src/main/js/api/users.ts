@@ -92,7 +92,7 @@ export function updateUser(data: {
   });
 }
 
-export function deactivateUser(data: { login: string }): Promise<User> {
+export function deactivateUser(data: { login: string; anonymize?: boolean }): Promise<User> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 

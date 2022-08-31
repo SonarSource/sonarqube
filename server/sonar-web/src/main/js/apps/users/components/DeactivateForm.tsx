@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { deactivateUser } from '../../../api/users';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
 import Modal from '../../../components/controls/Modal';
+import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserActive } from '../../../types/users';
 
@@ -32,11 +35,12 @@ export interface Props {
 
 interface State {
   submitting: boolean;
+  anonymize: boolean;
 }
 
 export default class DeactivateForm extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { submitting: false };
+  state: State = { submitting: false, anonymize: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -46,10 +50,14 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  handleAnonymize = (checked: boolean) => {
+    this.setState({ anonymize: checked });
+  };
+
   handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ submitting: true });
-    deactivateUser({ login: this.props.user.login }).then(
+    deactivateUser({ login: this.props.user.login, anonymize: this.state.anonymize }).then(
       () => {
         this.props.onUpdateUsers();
         this.props.onClose();
@@ -64,7 +72,7 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
 
   render() {
     const { user } = this.props;
-    const { submitting } = this.state;
+    const { submitting, anonymize } = this.state;
 
     const header = translate('users.deactivate_user');
     return (
@@ -73,8 +81,35 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
           <header className="modal-head">
             <h2>{header}</h2>
           </header>
-          <div className="modal-body">
+          <div className="modal-body display-flex-column">
             {translateWithParameters('users.deactivate_user.confirmation', user.name, user.login)}
+            <Checkbox
+              id="delete-user"
+              className="big-spacer-top"
+              checked={anonymize}
+              onCheck={this.handleAnonymize}>
+              <label className="little-spacer-left" htmlFor="delete-user">
+                {translate('users.delete_user')}
+              </label>
+            </Checkbox>
+            {anonymize && (
+              <Alert variant="warning" className="big-spacer-top">
+                <FormattedMessage
+                  defaultMessage={translate('users.delete_user.help')}
+                  id="delete-user-warning"
+                  values={{
+                    link: (
+                      <a
+                        href="/documentation/instance-administration/authentication/overview/"
+                        rel="noopener noreferrer"
+                        target="_blank">
+                        {translate('users.delete_user.help.link')}
+                      </a>
+                    )
+                  }}
+                />
+              </Alert>
+            )}
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
