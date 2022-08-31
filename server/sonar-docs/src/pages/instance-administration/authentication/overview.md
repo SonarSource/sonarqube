@@ -21,6 +21,7 @@ When SonarQube authentication is delegated to an external identity provider, dea
 SonarQube offers the possibility to anonymize the data of deactivated users. This comes in handy when you want to ensure that the personal data of past users is not retained, for example, for legal compliance.
 
 In order to anonymize data, the user first needs to be deactivated. Only then can an admin use the webservice `/api/users/anonymize` and pass to it the login of a deactivated user to replace all personal data of the user with anonymized data. Note that the admin is able to retrieve the (now anonymized) logins of deactivated users by using `/api/users/search` endpoint with the appropriate parameter.
+Deleting user's personal information can also be achieved through UI, by following the steps mentioned in the paragraph above and checking the checkbox titled 'Delete user’s personal information'.
 
 This feature has the following limitations:
 - Anonymizing a user will change its login, making it impossible to reactivate the user by recreating a user with the old login.
