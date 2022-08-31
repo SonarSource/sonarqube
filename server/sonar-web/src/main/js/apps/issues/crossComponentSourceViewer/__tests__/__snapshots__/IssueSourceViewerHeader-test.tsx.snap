@@ -73,6 +73,7 @@ exports[`should render correctly 1`] = `
       className="flex-0 big-spacer-left"
     >
       <ButtonIcon
+        aria-label="source_viewer.expand_all_lines"
         className="js-actions"
         onClick={[MockFunction]}
       >
@@ -151,6 +152,7 @@ exports[`should render correctly: no link to project 1`] = `
       className="flex-0 big-spacer-left"
     >
       <ButtonIcon
+        aria-label="source_viewer.expand_all_lines"
         className="js-actions"
         onClick={[MockFunction]}
       >
@@ -218,6 +220,7 @@ exports[`should render correctly: no project name 1`] = `
       className="flex-0 big-spacer-left"
     >
       <ButtonIcon
+        aria-label="source_viewer.expand_all_lines"
         className="js-actions"
         onClick={[MockFunction]}
       >
@@ -261,6 +264,7 @@ exports[`should render correctly: project root 1`] = `
       className="flex-0 big-spacer-left"
     >
       <ButtonIcon
+        aria-label="source_viewer.expand_all_lines"
         className="js-actions"
         onClick={[MockFunction]}
       >

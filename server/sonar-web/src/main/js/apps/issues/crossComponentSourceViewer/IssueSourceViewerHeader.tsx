@@ -121,7 +121,10 @@ export default function IssueSourceViewerHeader(props: Props) {
       {expandable && (
         <DeferredSpinner className="little-spacer-right" loading={loading}>
           <div className="flex-0 big-spacer-left">
-            <ButtonIcon className="js-actions" onClick={onExpand}>
+            <ButtonIcon
+              aria-label={translate('source_viewer.expand_all_lines')}
+              className="js-actions"
+              onClick={onExpand}>
               <ExpandSnippetIcon />
             </ButtonIcon>
           </div>
