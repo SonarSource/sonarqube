@@ -3,13 +3,11 @@ title: How to setup Okta
 url: /instance-administration/authentication/saml/okta/
 ---
 
-## Using Okta as a SAML Identity Provider
-
 The following example may be useful if you are using Okta as a SAML Identity Provider.
 Note that Okta does not support service provider signed requests even if they are enabled on the SonarQube side.
 
 
-### Create a new application in Okta admin dashboard
+## Create a new application in Okta admin dashboard
 
 1. Under  **Applications**, choose **Create App Integration**.
 
@@ -40,7 +38,7 @@ Under *General Settings*, configure the following fields:
 
 - **Key Transport Algorithm**: Choose *RSA-OAEP*.
 
-- **Encryption Certificate**: Add the service provider (SonarQube) certificate.
+- **Encryption Certificate**: Add the service provider certificate. It should be the same certificate as that found in the SonarQube SAML settings under "Service provider certificate".
 
 ![Encryption attributes](/images/okta/okta-encryption-attributes.png)
 
@@ -72,7 +70,7 @@ Under **Attribute Statements**, add the following attribute mappings:
 
   ![Attributes](/images/okta/okta-attributes.png)
 
-- (Optional) Under *Group Attribute Statements*:
+- (Optional) Under *Group Attribute Statements* (See details in [Group Mapping](/instance-administration/authentication/overview/)):
 
   1. **Name**: `groups`.
 
@@ -84,6 +82,11 @@ Under **Attribute Statements**, add the following attribute mappings:
 
 Click **Finish** in the **Feedback** dialog to confirm the creation of the application.
 
+You can now add users and groups in the *Assignments* tab of the application.
+
+![Assign users](/images/okta/okta-assign-users.png)
+
+
 After the application creation, navigate to the **Sign On** tab of the *SonarQube* application in Okta.
 
 ![Signon tab](/images/okta/okta-signon.png)
@@ -91,6 +94,7 @@ After the application creation, navigate to the **Sign On** tab of the *SonarQub
 Next to the **SAML Signing Certificates** subsection, you will find the configurations needed for setting up SonarQube, under **View SAML setup instructions**.
 
 ![Setup instructions](/images/okta/okta-setup-instructions.png)
+
 
 
 ## In SonarQube, Configure SAML authentication
@@ -117,10 +121,10 @@ Go to **[Administration > Configuration > General Settings > Authentication > SA
 
 - **Sign requests**: Not supported for Okta.
 
-- **Service provider private key**: The private key is required for assertion encryption support and should be provided for SonarQube in `PKCS8` format without password protection.
+- (Optional) **Service provider private key**: The private key is required for assertion encryption support. It must be provided for SonarQube in `PKCS8` format without encryption. You can find instructions for converting to different key formats [here](https://manpages.ubuntu.com/manpages/focal/man1/pkcs8.1ssl.html).
 
-- **Service provider certificate**: The certificate is required for assertion encryption support and should be shared with Okta in order to activate the assertion encryption.
+- (Optional) **Service provider certificate**: The certificate is required for assertion encryption support. It must be shared with Okta in order to activate the assertion encryption.
 
-You can find instructions for converting to different key formats [here](https://manpages.ubuntu.com/manpages/focal/man1/pkcs8.1ssl.html).
+The service provider private key and certificate can be either a new self-signed pair or any existing pair available in your infrastructure.
 
-In the login form, the new button **Log in with SAML** allows users to connect with their SAML account.
+In the login form, the new button **Log in with SAML** (or a custom name specified in the `sonar.auth.saml.providerName` setting) allows users to connect with their SAML account.
