@@ -17,7 +17,9 @@ exports[`should handle duplication popup 1`] = `
 
 exports[`should render correctly 1`] = `
 <div>
-  <DeferredSpinner />
+  <DeferredSpinner
+    ariaLabel="code_viewer.loading"
+  />
 </div>
 `;
 

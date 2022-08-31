@@ -187,7 +187,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     if (loading) {
       return (
         <div>
-          <DeferredSpinner />
+          <DeferredSpinner ariaLabel={translate('code_viewer.loading')} />
         </div>
       );
     }
