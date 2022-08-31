@@ -73,7 +73,7 @@ export default class Checkbox extends React.PureComponent<Props> {
     if (children) {
       return (
         <a
-          aria-checked={checked}
+          aria-checked={thirdState ? 'mixed' : checked}
           aria-label={label}
           className={classNames('link-checkbox', this.props.className, {
             disabled
@@ -98,7 +98,7 @@ export default class Checkbox extends React.PureComponent<Props> {
 
     return (
       <a
-        aria-checked={checked}
+        aria-checked={thirdState ? 'mixed' : checked}
         aria-label={label}
         className={classNames(className, this.props.className)}
         href="#"

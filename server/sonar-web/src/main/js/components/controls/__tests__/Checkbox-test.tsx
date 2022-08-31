@@ -48,12 +48,14 @@ it('should render unchecked third state', () => {
   const checkbox = shallow(<Checkbox checked={false} onCheck={() => true} thirdState={true} />);
   expect(checkbox.is('.icon-checkbox-single')).toBe(true);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
+  expect(checkbox.prop('aria-checked')).toBe('mixed');
 });
 
 it('should render checked third state', () => {
   const checkbox = shallow(<Checkbox checked={true} onCheck={() => true} thirdState={true} />);
   expect(checkbox.is('.icon-checkbox-single')).toBe(true);
   expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
+  expect(checkbox.prop('aria-checked')).toBe('mixed');
 });
 
 it('should render with a spinner', () => {
