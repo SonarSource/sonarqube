@@ -20,7 +20,7 @@ The **[Projects Management](/#sonarqube-admin#/admin/projects_management/)** sea
 ## How do I lock down permissions on a project? (Private vs Public)
 By default, any newly created project will be considered "Public". It means every SonarQube user, authenticated or not, will be able to:
 
-* **Browse**: Access a project, browse its measures, issues and perform some issue edits (confirm/resolve/reopen, assignment, comment).
+* **Browse**: Access a project, browse its measures, issues and perform some issue edits (confirm, assignment, comment).
 * **See Source Code**: View the project's source code.
 
 If you want to be sure only a limited list of Groups and Users can see the project, you need to mark it Private. Once a project is private you will be able to define which Groups and Users can **Browse** the project or **See Source Code**.
