@@ -24,7 +24,7 @@ CRAM-MD5|![](/images/check.svg)|  |![](/images/check.svg)|![](/images/check.svg)
 GSSAPI|![](/images/check.svg)|  |  |  
 ![](/images/check.svg) = successfully tested
 
-### Setup
+## Setup
 1. Configure LDAP by editing _$SONARQUBE-HOME/conf/sonar.properties_ (see table below)
 2. Restart the SonarQube server and check the log file for:
 ```
@@ -71,7 +71,7 @@ Property|Description|Default value|Required|Example for Active Directory
 `ldap.group.request`|LDAP group request.|`(&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))`|No|`(&(objectClass=group)(member={dn}))`
 `ldap.group.idAttribute`|Property used to specifiy the attribute to be used for returning the list of user groups in the compatibility mode.|`cn`|No|`sAMAccountName`
 
-### Sample Configuration
+### Configuration sample
 ```
 # LDAP configuration
 # General Configuration
