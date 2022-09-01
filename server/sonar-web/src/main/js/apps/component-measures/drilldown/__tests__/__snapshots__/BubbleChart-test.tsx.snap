@@ -276,7 +276,11 @@ exports[`should render correctly: default 1`] = `
       items={
         Array [
           Object {
-            "color": "#b0d513",
+            "color": Object {
+              "fill": "#B0D513",
+              "fillTransparent": "rgba(177, 213, 19, 0.20)",
+              "stroke": "#B0D513",
+            },
             "data": Object {
               "key": "foo:src/index.tsx",
               "leak": "1.0",
@@ -485,7 +489,11 @@ exports[`should render correctly: only showing first 500 files 1`] = `
       items={
         Array [
           Object {
-            "color": "#b0d513",
+            "color": Object {
+              "fill": "#B0D513",
+              "fillTransparent": "rgba(177, 213, 19, 0.20)",
+              "stroke": "#B0D513",
+            },
             "data": Object {
               "key": "foo:src/index.tsx",
               "leak": "1.0",

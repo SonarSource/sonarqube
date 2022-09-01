@@ -140,28 +140,39 @@ module.exports = {
     darkBackgroundFontColor: '#f6f8fa',
 
     // new color palette
-    // some of these colors duplicate what we have above, but this will make it
+    // Some of these colors duplicate what we have above, but this will make it
     // easier to align with the UX designers on what colors to use where.
+    // Colors that have transparency are suffixed with an "a" followed by the percentage
+    // value of the alpha channel.
     primary: '#236a97',
-    primary40: 'rgba(35, 107, 151, 0.4)',
+    primarya40: 'rgba(35, 107, 151, 0.40)',
 
     info500: '#0271B9',
 
     success500: '#008A25',
+    success500a20: 'rgba(0, 138, 37, 0.20)',
     successVariant: '#B0D513',
+    successVarianta20: 'rgba(177, 213, 19, 0.20)',
+    successVariantDark: '#809E00',
 
+    warning: '#B95E04',
     warningVariant: '#EABE06',
+    warningVarianta20: 'rgba(234, 188, 6, 0.20)',
+    warningVariantDark: '#B18F00',
     warningAccent: '#ED7D20',
+    warningAccenta20: 'rgba(237, 124, 32, 0.20)',
 
     error500: '#D02F3A',
+    error500a20: 'rgba(208, 47, 58, 0.20)',
 
     neutral600: '#666666',
     neutral800: '#333333',
 
     white: '#FFFFFF',
 
-    black87: 'rgba(0, 0, 0, 0.87)',
-    black38: 'rgba(0, 0, 0, 0.38)'
+    black: '#000000',
+    blacka87: 'rgba(0, 0, 0, 0.87)',
+    blacka38: 'rgba(0, 0, 0, 0.38)'
   },
 
   sizes: {

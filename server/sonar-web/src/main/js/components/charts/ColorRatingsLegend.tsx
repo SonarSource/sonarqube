@@ -23,6 +23,7 @@ import Tooltip from '../../components/controls/Tooltip';
 import { RATING_COLORS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import Checkbox from '../controls/Checkbox';
 import './ColorBoxLegend.css';
 
 export interface ColorRatingsLegendProps {
@@ -44,25 +45,19 @@ export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
               'component_measures.legend.help_x',
               formatMeasure(rating, 'RATING')
             )}>
-            <a
-              aria-checked={!filters[rating]}
-              className={classNames('little-padded-bottom', {
-                filtered: filters[rating]
-              })}
-              href="#"
-              onClick={() => props.onRatingClick(rating)}
-              role="checkbox"
-              tabIndex={0}>
+            <Checkbox
+              className="display-flex-center"
+              checked={!filters[rating]}
+              onCheck={() => props.onRatingClick(rating)}>
               <span
-                className="color-box-legend-rect"
-                style={{ borderColor: RATING_COLORS[rating - 1] }}>
-                <span
-                  className="color-box-legend-rect-inner"
-                  style={{ backgroundColor: RATING_COLORS[rating - 1] }}
-                />
+                className="color-box-legend-rating little-spacer-left"
+                style={{
+                  borderColor: RATING_COLORS[rating - 1].stroke,
+                  backgroundColor: RATING_COLORS[rating - 1].fillTransparent
+                }}>
+                {formatMeasure(rating, 'RATING')}
               </span>
-              {formatMeasure(rating, 'RATING')}
-            </a>
+            </Checkbox>
           </Tooltip>
         </li>
       ))}

@@ -22,6 +22,21 @@
   justify-content: center;
 }
 
+.color-box-legend .link-checkbox .color-box-legend-rating {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  color: var(--blacka87);
+}
+
+.color-box-legend .link-checkbox[aria-checked='false'] .color-box-legend-rating {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
 .color-box-legend > *:not(:first-child) {
   margin-left: 24px;
 }

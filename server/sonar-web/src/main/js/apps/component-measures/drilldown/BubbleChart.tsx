@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import theme from '../../../app/theme';
 import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import Link from '../../../components/common/Link';
@@ -156,7 +157,10 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
           x,
           y,
           size,
-          color: colorRating !== undefined ? RATING_COLORS[colorRating - 1] : undefined,
+          color:
+            colorRating !== undefined
+              ? RATING_COLORS[colorRating - 1]
+              : { fill: theme.colors.primary, stroke: theme.colors.primary },
           data: component,
           tooltip: this.getTooltip(component, { x, y, size, colors }, metrics)
         };

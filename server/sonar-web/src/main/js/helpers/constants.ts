@@ -38,28 +38,20 @@ export const SOURCE_SCOPES = [
 export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
-export const CHART_COLORS_RANGE_PERCENT = [
-  colors.green,
-  colors.lightGreen,
-  colors.yellow,
-  colors.orange,
-  colors.red
-];
-
-export const CHART_REVERSED_COLORS_RANGE_PERCENT = [
-  colors.red,
-  colors.orange,
-  colors.yellow,
-  colors.lightGreen,
-  colors.green
-];
-
 export const RATING_COLORS = [
-  colors.green,
-  colors.lightGreen,
-  colors.yellow,
-  colors.orange,
-  colors.red
+  { fill: colors.success500, fillTransparent: colors.success500a20, stroke: colors.success500 },
+  {
+    fill: colors.successVariant,
+    fillTransparent: colors.successVarianta20,
+    stroke: colors.successVariant
+  },
+  {
+    fill: colors.warningVariant,
+    fillTransparent: colors.warningVarianta20,
+    stroke: colors.warningVariantDark
+  },
+  { fill: colors.warningAccent, fillTransparent: colors.warningAccenta20, stroke: colors.warning },
+  { fill: colors.error500, fillTransparent: colors.error500a20, stroke: colors.error500 }
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;

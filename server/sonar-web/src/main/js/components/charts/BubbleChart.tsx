@@ -33,7 +33,7 @@ import './BubbleChart.css';
 const TICKS_COUNT = 5;
 
 interface BubbleItem<T> {
-  color?: string;
+  color: { fill: string; stroke: string; hover?: string };
   key?: string;
   data?: T;
   size: number;
@@ -343,7 +343,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
 }
 
 interface BubbleProps<T> {
-  color?: string;
+  color: { fill: string; stroke: string; hover?: string };
   onClick?: (ref?: T) => void;
   data?: T;
   r: number;
@@ -367,7 +367,7 @@ function Bubble<T>(props: BubbleProps<T>) {
       <circle
         className="bubble-chart-bubble"
         r={props.r}
-        style={{ fill: props.color, stroke: props.color }}
+        style={{ fill: props.color.fill, stroke: props.color.stroke }}
         transform={`translate(${props.x}, ${props.y}) scale(${props.scale})`}
       />
     </a>

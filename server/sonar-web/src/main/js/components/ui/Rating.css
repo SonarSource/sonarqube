@@ -23,7 +23,7 @@
   height: var(--controlHeight);
   line-height: calc(var(--controlHeight) - 1px);
   border-radius: var(--controlHeight);
-  border: 1px solid var(--black38);
+  border: 1px solid var(--blacka38);
   box-sizing: border-box;
   font-size: var(--bigFontSize);
   font-weight: 400;
@@ -43,19 +43,19 @@ a > .rating-A,
 
 a > .rating-B,
 .rating-B {
-  color: var(--black87);
+  color: var(--blacka87);
   background-color: var(--successVariant);
 }
 
 a > .rating-C,
 .rating-C {
-  color: var(--black87);
+  color: var(--blacka87);
   background-color: var(--warningVariant);
 }
 
 a > .rating-D,
 .rating-D {
-  color: var(--black87);
+  color: var(--blacka87);
   background-color: var(--warningAccent);
 }
 

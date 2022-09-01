@@ -95,7 +95,7 @@ button.hotspot-item:focus {
   padding: 0 var(--gridSize);
   font-weight: bold;
   border-radius: 2px;
-  border: 1px solid var(--black38);
+  border: 1px solid var(--blacka38);
 }
 
 .hotspot-risk-badge.HIGH {
@@ -103,11 +103,11 @@ button.hotspot-item:focus {
   background-color: var(--error500);
 }
 .hotspot-risk-badge.MEDIUM {
-  color: var(--black87);
+  color: var(--blacka87);
   background-color: var(--warningAccent);
 }
 .hotspot-risk-badge.LOW {
-  color: var(--black87);
+  color: var(--blacka87);
   background-color: var(--warningVariant);
 }
 

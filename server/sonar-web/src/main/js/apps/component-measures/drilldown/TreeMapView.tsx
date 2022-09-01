@@ -26,6 +26,7 @@ import ColorGradientLegend from '../../../components/charts/ColorGradientLegend'
 import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
+import { RATING_COLORS } from '../../../helpers/constants';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
@@ -44,8 +45,13 @@ interface State {
 }
 
 const HEIGHT = 500;
-const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
-const LEVEL_COLORS = [colors.red, colors.orange, colors.green, colors.gray71];
+const COLORS = RATING_COLORS.map(({ fill }) => fill);
+const LEVEL_COLORS = [
+  colors.error500,
+  colors.orange,
+  colors.success500,
+  colors.disabledQualityGate
+];
 const NA_GRADIENT = `linear-gradient(-45deg, ${colors.gray71} 25%, ${colors.gray60} 25%, ${colors.gray60} 50%, ${colors.gray71} 50%, ${colors.gray71} 75%, ${colors.gray60} 75%, ${colors.gray60} 100%)`;
 
 export default class TreeMapView extends React.PureComponent<Props, State> {

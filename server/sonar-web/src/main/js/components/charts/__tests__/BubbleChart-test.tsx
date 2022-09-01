@@ -59,8 +59,8 @@ it('should display bubbles', () => {
 it('should render bubble links', () => {
   const wrapper = shallowRender({
     items: [
-      { x: 1, y: 10, size: 7 },
-      { x: 2, y: 30, size: 5 }
+      { x: 1, y: 10, size: 7, color: { fill: 'blue', stroke: 'blue' } },
+      { x: 2, y: 30, size: 5, color: { fill: 'green', stroke: 'green' } }
     ]
   });
   wrapper
@@ -141,8 +141,20 @@ function shallowRender(props: Partial<BubbleChart<ComponentMeasureEnhanced>['pro
     <BubbleChart
       height={100}
       items={[
-        { x: 1, y: 10, size: 7, data: mockComponentMeasureEnhanced() },
-        { x: 2, y: 30, size: 5, data: mockComponentMeasureEnhanced() }
+        {
+          x: 1,
+          y: 10,
+          size: 7,
+          data: mockComponentMeasureEnhanced(),
+          color: { fill: 'blue', stroke: 'blue' }
+        },
+        {
+          x: 2,
+          y: 30,
+          size: 5,
+          data: mockComponentMeasureEnhanced(),
+          color: { fill: 'red', stroke: 'red' }
+        }
       ]}
       padding={[0, 0, 0, 0]}
       {...props}

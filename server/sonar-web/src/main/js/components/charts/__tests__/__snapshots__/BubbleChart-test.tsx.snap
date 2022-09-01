@@ -11,8 +11,8 @@ exports[`should display bubbles 1`] = `
       r={45}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "blue",
+          "stroke": "blue",
         }
       }
       transform="translate(33.21428571428571, 70.07936507936509) scale(1)"
@@ -32,8 +32,8 @@ exports[`should display bubbles 2`] = `
       r={33.57142857142858}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "red",
+          "stroke": "red",
         }
       }
       transform="translate(66.42857142857142, 33.57142857142858) scale(1)"
@@ -53,8 +53,8 @@ exports[`should render bubble links 1`] = `
       r={45}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "blue",
+          "stroke": "blue",
         }
       }
       transform="translate(33.21428571428571, 70.07936507936509) scale(1)"
@@ -74,8 +74,8 @@ exports[`should render bubble links 2`] = `
       r={33.57142857142858}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "green",
+          "stroke": "green",
         }
       }
       transform="translate(66.42857142857142, 33.57142857142858) scale(1)"
@@ -95,8 +95,8 @@ exports[`should render bubbles with click handlers 1`] = `
       r={45}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "blue",
+          "stroke": "blue",
         }
       }
       transform="translate(33.21428571428571, 70.07936507936509) scale(1)"
@@ -116,8 +116,8 @@ exports[`should render bubbles with click handlers 2`] = `
       r={33.57142857142858}
       style={
         Object {
-          "fill": undefined,
-          "stroke": undefined,
+          "fill": "red",
+          "stroke": "red",
         }
       }
       transform="translate(66.42857142857142, 33.57142857142858) scale(1)"
