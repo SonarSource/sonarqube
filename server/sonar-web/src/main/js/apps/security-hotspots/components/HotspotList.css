@@ -48,15 +48,15 @@
 }
 
 .hotspot-category.HIGH .hotspot-category-header {
-  border-left-color: var(--red);
+  border-left-color: var(--error500);
 }
 
 .hotspot-category.MEDIUM .hotspot-category-header {
-  border-left-color: var(--orange);
+  border-left-color: var(--warningAccent);
 }
 
 .hotspot-category.LOW .hotspot-category-header {
-  border-left-color: var(--yellow);
+  border-left-color: var(--warningVariant);
 }
 
 .hotspot-item {
@@ -88,7 +88,6 @@ button.hotspot-item:focus {
 }
 
 .hotspot-risk-badge {
-  color: white;
   text-transform: uppercase;
   display: inline-block;
   text-align: center;
@@ -96,16 +95,20 @@ button.hotspot-item:focus {
   padding: 0 var(--gridSize);
   font-weight: bold;
   border-radius: 2px;
+  border: 1px solid var(--black38);
 }
 
 .hotspot-risk-badge.HIGH {
-  background-color: var(--red);
+  color: var(--white);
+  background-color: var(--error500);
 }
 .hotspot-risk-badge.MEDIUM {
-  background-color: var(--orange);
+  color: var(--black87);
+  background-color: var(--warningAccent);
 }
 .hotspot-risk-badge.LOW {
-  background-color: var(--yellow);
+  color: var(--black87);
+  background-color: var(--warningVariant);
 }
 
 .hotspot-box-filename {
