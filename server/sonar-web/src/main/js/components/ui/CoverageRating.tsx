@@ -45,8 +45,8 @@ export default function CoverageRating({
   if (value != null) {
     const numberValue = Number(value);
     data = [
-      { value: numberValue, fill: muted ? colors.gray71 : colors.green },
-      { value: FULL_PERCENT - numberValue, fill: muted ? 'transparent' : colors.lineCoverageRed }
+      { value: numberValue, fill: muted ? colors.gray71 : colors.success500 },
+      { value: FULL_PERCENT - numberValue, fill: muted ? 'transparent' : colors.error500 }
     ];
     if (numberValue !== 0 && numberValue < FULL_PERCENT) {
       padAngle = 0.1; // Same for all sizes, because it scales automatically
