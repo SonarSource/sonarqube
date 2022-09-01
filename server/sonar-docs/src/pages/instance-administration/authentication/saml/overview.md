@@ -5,7 +5,7 @@ url: /instance-administration/authentication/saml/overview/
 
 You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authentication.
 
-### SAML authentication flow
+## SAML authentication flow
 
 1. When a user requests a SonarQube web page and is not already authenticated, SonarQube will start a SAML authentication process.
 2. SonarQube creates a SAML request for the configured Identity Provider and sends it back to the user.
@@ -20,7 +20,8 @@ You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authe
 During the process, certificates are used to authenticate the Identity Provider and, optionally, SonarQube.
 The Identity Provider public certificate is necessary to ensure that the SAML assertion is genuine.
 The SonarQube certificate is optional, but ensures that only SonarQube can use the assertion provided.
-### Setup
+
+## Settings
 
 Property| Description                                                                                                                        | Default value | Required
 ---|------------------------------------------------------------------------------------------------------------------------------------|-----------|--------------------------------------------------------------------------
@@ -38,7 +39,7 @@ Property| Description                                                           
 `sonar.auth.saml.sp.privateKey.secured`| The PKCS8 private key without password used by SonarQube to sign SAML messages and to decrypt encrypted SAML responses.            |           | Only if SonarQube requests signature or responses encryption is enabled.
 `sonar.auth.saml.sp.certificate.secured`| The public key part of the previously provided private key.                                                                        |           | Only if SonarQube requests signature is enabled.
 
-### SAML configuration related information and limitations
+## SAML configuration related information and limitations
 
 * **SAML and reverse proxy configuration**: When using SAML, make sure your reverse proxy is properly configured. See [Operating the Server](/setup/operate-server/) for more information.
 * **Migrating from LDAP to SAML as Identity Provider**: A guide on how to perform this migration is available [here](https://community.sonarsource.com/t/migrating-sonarqube-users-between-identity-providers-with-a-focus-on-ldap-saml/48653).
