@@ -54,7 +54,11 @@ export default function AssigneeRenderer(props: AssigneeRendererProps) {
             {!assignee && translate('unassigned')}
           </strong>
           {loggedInUser && canEdit && (
-            <EditButton className="spacer-left" onClick={props.onEnterEditionMode} />
+            <EditButton
+              aria-label={translate('hotspots.assignee.change_user')}
+              className="spacer-left"
+              onClick={props.onEnterEditionMode}
+            />
           )}
         </div>
       )}

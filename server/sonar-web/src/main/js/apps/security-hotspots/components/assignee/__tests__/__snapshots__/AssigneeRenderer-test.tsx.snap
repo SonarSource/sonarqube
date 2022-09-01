@@ -44,6 +44,7 @@ exports[`should render correctly: not editing 1`] = `
       user.x_deleted.Skywalker
     </strong>
     <EditButton
+      aria-label="hotspots.assignee.change_user"
       className="spacer-left"
       onClick={[MockFunction]}
     />
@@ -64,6 +65,7 @@ exports[`should render correctly: with active assignee 1`] = `
       John Doe
     </strong>
     <EditButton
+      aria-label="hotspots.assignee.change_user"
       className="spacer-left"
       onClick={[MockFunction]}
     />
@@ -84,6 +86,7 @@ exports[`should render correctly: without current assignee 1`] = `
       unassigned
     </strong>
     <EditButton
+      aria-label="hotspots.assignee.change_user"
       className="spacer-left"
       onClick={[MockFunction]}
     />
