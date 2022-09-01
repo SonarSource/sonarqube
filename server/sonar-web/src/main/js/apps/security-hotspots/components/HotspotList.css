@@ -66,7 +66,7 @@
   border: 1px solid transparent;
   border-top-color: var(--barBorderColor);
   transition: padding 0s, border 0s;
-  max-width: 100%;
+  width: 100%;
   text-align: left;
 }
 
