@@ -4,33 +4,32 @@ exports[`should render correctly 1`] = `
 <div
   className="padded it__hs-review-history"
 >
-  <div>
-    <div
-      className="little-spacer-bottom"
-    >
-      hotspots.comment.field
-    </div>
-    <textarea
-      className="form-field fixed-width width-100 spacer-bottom"
-      onChange={[Function]}
-      rows={2}
-      value=""
+  <label
+    htmlFor="security-hotspot-comment"
+  >
+    hotspots.comment.field
+  </label>
+  <textarea
+    className="form-field fixed-width width-100 spacer-bottom"
+    id="security-hotspot-comment"
+    onChange={[Function]}
+    rows={2}
+    value=""
+  />
+  <div
+    className="display-flex-space-between display-flex-center "
+  >
+    <FormattingTips
+      className="huge-spacer-bottom"
     />
-    <div
-      className="display-flex-space-between display-flex-center "
-    >
-      <FormattingTips
+    <div>
+      <Button
         className="huge-spacer-bottom"
-      />
-      <div>
-        <Button
-          className="huge-spacer-bottom"
-          id="hotspot-comment-box-submit"
-          onClick={[Function]}
-        >
-          hotspots.comment.submit
-        </Button>
-      </div>
+        id="hotspot-comment-box-submit"
+        onClick={[Function]}
+      >
+        hotspots.comment.submit
+      </Button>
     </div>
   </div>
   <h2

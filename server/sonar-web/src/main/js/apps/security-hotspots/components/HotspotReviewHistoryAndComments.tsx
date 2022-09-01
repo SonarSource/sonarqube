@@ -93,9 +93,10 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     return (
       <div className="padded it__hs-review-history">
         {isLoggedIn(currentUser) && (
-          <div>
-            <div className="little-spacer-bottom">{translate('hotspots.comment.field')}</div>
+          <>
+            <label htmlFor="security-hotspot-comment">{translate('hotspots.comment.field')}</label>
             <textarea
+              id="security-hotspot-comment"
               className="form-field fixed-width width-100 spacer-bottom"
               onChange={this.handleCommentChange}
               ref={commentTextRef}
@@ -113,7 +114,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
                 </Button>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         <h2 className="spacer-top big-spacer-bottom">{translate('hotspot.section.activity')}</h2>
