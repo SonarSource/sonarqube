@@ -406,7 +406,7 @@ Delay in seconds between processing of notification queue. Default is 60 seconds
 Paths to persistent data files (embedded database and search index) and temporary files. Can be absolute or relative to installation directory. Defaults are respectively <installation home>/data and <installation home>/temp
 
 **`SONAR_TELEMETRY_ENABLE=true`**
-Telemetry - Share anonymous SonarQube statistics. By sharing anonymous SonarQube statistics, you help us understand how SonarQube is used so we can improve the product to work even better for you. We don't collect source code or IP addresses. And we don't share the data with anyone else. To see an example of the data shared: login as a global administrator, call the WS api/system/info and check the Statistics field.
+Telemetry - Share anonymous SonarQube statistics. By sharing anonymous SonarQube statistics, you help us understand how SonarQube is used so we can improve the product to work even better for you. We don't collect source code or IP addresses. And we don't share the data with anyone else. For more information, see [Telemetry](/instance-administration/telemetry/).
 
 ## Development – only for developers
 [[warning]]

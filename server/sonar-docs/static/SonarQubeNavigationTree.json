@@ -195,7 +195,8 @@
       "/instance-administration/project-move/",
       "/instance-administration/compute-engine-performance/",
       "/instance-administration/db-copy/",
-      "/instance-administration/backup-restore/"
+      "/instance-administration/backup-restore/",
+      "/instance-administration/telemetry/"
     ]
   },
   {
