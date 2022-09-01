@@ -140,18 +140,6 @@
   text-align: center;
 }
 
-.page-footer a {
-  border-bottom: 1px solid #d0d0d0;
-  color: var(--baseFontColor);
-}
-
-.page-footer a:hover,
-.page-footer a:active,
-.page-footer a:focus {
-  border-bottom-color: var(--lightBlue);
-  color: var(--alertIconInfo);
-}
-
 .sidebar-page #footer {
   padding-left: calc(50vw - 370px + 10px) !important;
 }
