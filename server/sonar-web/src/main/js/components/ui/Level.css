@@ -25,6 +25,7 @@
   padding-right: 9px;
   height: var(--controlHeight);
   line-height: var(--controlHeight);
+  border: 1px solid var(--black38);
   border-radius: var(--controlHeight);
   box-sizing: border-box;
   color: #fff;
