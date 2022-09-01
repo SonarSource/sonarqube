@@ -397,7 +397,7 @@ public class RuleMapper {
       ruleResponse.setMdNote(noteData);
     }
     String userUuid = ruleDto.getNoteUserUuid();
-    if (shouldReturnField(fieldsToReturn, FIELD_NOTE_LOGIN) && userUuid != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_NOTE_LOGIN) && userUuid != null && usersByUuid.containsKey(userUuid)) {
       ruleResponse.setNoteLogin(usersByUuid.get(userUuid).getLogin());
     }
   }

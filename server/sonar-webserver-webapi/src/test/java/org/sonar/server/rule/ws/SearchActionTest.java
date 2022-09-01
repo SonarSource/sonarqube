@@ -194,6 +194,22 @@ public class SearchActionTest {
   }
 
   @Test
+  public void dont_fail_if_note_author_no_longer_exists() {
+    // note: this can only happen due to DB corruption (user deleted)
+    RuleDto rule1 = db.rules().insert(r -> r.setNoteUserUuid("non-existent"));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("f", "noteLogin")
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList())
+      .extracting(Rule::getKey, Rule::getNoteLogin)
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getKey().toString(), ""));
+  }
+
+  @Test
   public void filter_by_rule_key() {
     RuleDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
     db.rules().insert(r1 -> r1.setLanguage("java").setNoteUserUuid(null));
