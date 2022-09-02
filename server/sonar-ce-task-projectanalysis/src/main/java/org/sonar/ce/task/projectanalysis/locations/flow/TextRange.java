@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.locations.flow;
 
-import java.util.Objects;
-
 public class TextRange {
   private int startLine;
   private int startLineOffset;
@@ -70,24 +68,6 @@ public class TextRange {
 
   public void setHash(String hash) {
     this.hash = hash;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    TextRange textRange = (TextRange) o;
-    return getStartLine() == textRange.getStartLine() && getStartLineOffset() == textRange.getStartLineOffset() && getEndLine() == textRange.getEndLine()
-      && getEndLineOffset() == textRange.getEndLineOffset() && Objects.equals(getHash(), textRange.getHash());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(getStartLine(), getStartLineOffset(), getEndLine(), getEndLineOffset(), getHash());
   }
 
 }
