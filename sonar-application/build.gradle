@@ -340,7 +340,7 @@ cyclonedxBom {
   outputs.file bomFile
 }
 tasks.cyclonedxBom {
-  inputs.files(configurations.runtimeClasspath, configurations.web, configurations.shutdowner, configurations.jdbc_mssql,
+  inputs.files(configurations.runtimeClasspath, configurations.shutdowner, configurations.jdbc_mssql,
           configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps, configurations.cyclonedx)
 }
 def bomArtifact = artifacts.add('archives', bomFile.get().asFile) {
@@ -354,8 +354,10 @@ publishing {
     mavenJava(MavenPublication) {
       artifact zip
     }
-    mavenJava(MavenPublication) {
-      artifact bomArtifact
+    if (enableBom) {
+      mavenJava(MavenPublication) {
+        artifact bomArtifact
+      }
     }
   }
 }

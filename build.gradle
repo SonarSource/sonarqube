@@ -17,6 +17,20 @@ if (!JavaVersion.current().java11Compatible) {
   throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
 }
 
+/**
+ * The BOM related tasks are disabled by default, activated by:
+ * - running in the CI and being on a main branch or a nightly build,
+ * - or using '-Dbom' project property
+ * - or by explicit call to 'cyclonedxBom' Gradle task
+ */
+def bomTasks = "cyclonedxBom"
+def ghBranch = System.getenv()["GITHUB_BRANCH"]
+def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
+def isNightlyBuild = ghBranch == "branch-nightly-build"
+boolean enableBom = System.getenv('CI') == "true" && (isMainBranch || isNightlyBuild) ||
+        System.getProperty("bom") != null ||
+        gradle.startParameter.taskNames.findAll({ it.matches(".*:($bomTasks)") })
+
 allprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
@@ -35,6 +49,14 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
+  }
+
+  ext.enableBom = enableBom
+  if (!enableBom) {
+    tasks.matching { it.name.matches(bomTasks) }.all({
+      logger.info("{} disabled", it.name);
+      it.enabled = false
+    })
   }
 
   repositories {
@@ -78,7 +100,7 @@ allprojects {
             'build.number': System.getenv('BUILD_NUMBER'),
             'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
             'pr.number': System.getenv('PULL_REQUEST'),
-            'vcs.branch': System.getenv('GITHUB_BRANCH'),
+            'vcs.branch': ghBranch,
             'vcs.revision': System.getenv('GIT_SHA1'),
             'version': version
         ]
@@ -507,7 +529,7 @@ subprojects {
     }
   }
 
-  if (System.getenv('GITHUB_BRANCH') == "branch-nightly-build") {
+  if (isNightlyBuild) {
     tasks.withType(Test) {
 
       configurations {
@@ -536,19 +558,14 @@ subprojects {
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     required {
-      def branch = System.getenv()["GITHUB_BRANCH"]
-      return (branch in ['master'] || branch ==~ 'branch-[\\d.]+') &&
-             gradle.taskGraph.hasTask(":artifactoryPublish")
+      return isMainBranch && gradle.taskGraph.hasTask(":artifactoryPublish")
     }
     sign publishing.publications
   }
 
   tasks.withType(Sign) {
     onlyIf {
-      def branch = System.getenv()["GITHUB_BRANCH"]
-      return !artifactoryPublish.skip &&
-             (branch in ['master'] || branch ==~ 'branch-[\\d.]+') &&
-             gradle.taskGraph.hasTask(":artifactoryPublish")
+      return !artifactoryPublish.skip && isMainBranch && gradle.taskGraph.hasTask(":artifactoryPublish")
     }
   }
 }
