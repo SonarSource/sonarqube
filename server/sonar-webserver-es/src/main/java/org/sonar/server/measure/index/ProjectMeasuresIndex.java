@@ -28,10 +28,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -42,10 +45,12 @@ import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
+import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
@@ -72,12 +77,14 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.sum;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -100,7 +107,9 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.es.EsUtils.termsToMap;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.STICKY;
 import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER;
 import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
@@ -114,6 +123,9 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_MEASURE_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_MEASURE_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION_LANGUAGE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION_NCLOC;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -231,6 +243,60 @@ public class ProjectMeasuresIndex {
       .map(Facet::getTopAggregationDef)
       .collect(toSet(facetNames.size()));
     return new RequestFiltersComputer(allFilters, facets);
+  }
+
+  public ProjectMeasuresStatistics searchSupportStatistics() {
+    SearchRequest projectMeasuresSearchRequest = buildProjectMeasureSearchRequest();
+    SearchResponse projectMeasures = client.search(projectMeasuresSearchRequest);
+    return buildProjectMeasuresStatistics(projectMeasures);
+  }
+
+  private static SearchRequest buildProjectMeasureSearchRequest() {
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+      .fetchSource(false)
+      .size(0);
+
+    BoolQueryBuilder esFilter = boolQuery()
+      .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
+      .filter(termQuery(FIELD_QUALIFIER, Qualifiers.PROJECT));
+    searchSourceBuilder.query(esFilter);
+    searchSourceBuilder.aggregation(AggregationBuilders.terms(FIELD_LANGUAGES)
+      .field(FIELD_LANGUAGES)
+      .size(MAX_PAGE_SIZE)
+      .minDocCount(1)
+      .order(BucketOrder.count(false)));
+    searchSourceBuilder.aggregation(AggregationBuilders.nested(FIELD_NCLOC_DISTRIBUTION, FIELD_NCLOC_DISTRIBUTION)
+      .subAggregation(AggregationBuilders.terms(FIELD_NCLOC_DISTRIBUTION + "_terms")
+        .field(FIELD_NCLOC_DISTRIBUTION_LANGUAGE)
+        .size(MAX_PAGE_SIZE)
+        .minDocCount(1)
+        .order(BucketOrder.count(false))
+        .subAggregation(sum(FIELD_NCLOC_DISTRIBUTION_NCLOC).field(FIELD_NCLOC_DISTRIBUTION_NCLOC))));
+    searchSourceBuilder.aggregation(AggregationBuilders.nested(NCLOC_KEY, FIELD_MEASURES)
+      .subAggregation(AggregationBuilders.filter(NCLOC_KEY + "_filter", termQuery(FIELD_MEASURES_MEASURE_KEY, NCLOC_KEY))
+        .subAggregation(sum(NCLOC_KEY + "_filter_sum").field(FIELD_MEASURES_MEASURE_VALUE))));
+    searchSourceBuilder.size(SCROLL_SIZE);
+
+    return EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType()).source(searchSourceBuilder).scroll(KEEP_ALIVE_SCROLL_DURATION);
+  }
+
+  private static ProjectMeasuresStatistics buildProjectMeasuresStatistics(SearchResponse response) {
+    ProjectMeasuresStatistics.Builder statistics = ProjectMeasuresStatistics.builder();
+    statistics.setProjectCount(getTotalHits(response.getHits().getTotalHits()).value);
+    statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
+
+    Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_NCLOC_DISTRIBUTION_NCLOC)).getValue());
+    Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))
+      .map(nested -> (Terms) nested.getAggregations().get(nested.getName() + "_terms"))
+      .flatMap(terms -> terms.getBuckets().stream())
+      .collect(MoreCollectors.uniqueIndex(Bucket::getKeyAsString, bucketToNcloc));
+    statistics.setNclocByLanguage(nclocByLanguage);
+
+    return statistics.build();
+  }
+
+  private static TotalHits getTotalHits(@Nullable TotalHits totalHits) {
+    return ofNullable(totalHits).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   private static void addSort(ProjectMeasuresQuery query, SearchSourceBuilder requestBuilder) {
