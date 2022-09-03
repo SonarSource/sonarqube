@@ -26,7 +26,7 @@ rem Returns an error code if Java executable is not found in the PATH and the en
         echo ERROR: java.exe not found. Please make sure that the environmental variable SONAR_JAVA_PATH points to the Java executable.
         exit /b 1
     )
-    goto:eof
+    exit /b 0
 
 :exit
 exit /b

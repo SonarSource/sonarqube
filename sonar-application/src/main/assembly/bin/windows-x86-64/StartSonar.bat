@@ -63,7 +63,7 @@ goto:eof
         echo ERROR: Another instance of the SonarQube application is already running with PID %SQ_PROCESS%
         exit /b 1
     )
-    goto:eof
+    exit /b 0
 
 endlocal
 
