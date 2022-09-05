@@ -26,31 +26,33 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
 import static org.sonar.db.CoreDbTester.createForSchema;
-import static org.sonar.server.platform.db.migration.version.v96.AddLanguageColumnToPushEventsTable.COLUMN_LANGUAGE;
-import static org.sonar.server.platform.db.migration.version.v96.CreatePushEventsTable.PUSH_EVENTS_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v96.AddWebhookSecretToAlmSettingsTable.ALM_SETTINGS_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v96.AddWebhookSecretToAlmSettingsTable.WEBHOOK_SECRET_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v96.DbConstants.WEBHOOK_SECRET_COLUMN_SIZE;
 
-public class AddLanguageColumnToPushEventsTableTest {
+public class AddWebhookSecretToAlmSettingsTableTest {
+
   @Rule
-  public final CoreDbTester db = createForSchema(AddLanguageColumnToPushEventsTableTest.class, "schema.sql");
+  public final CoreDbTester db = createForSchema(AddWebhookSecretToAlmSettingsTableTest.class, "schema.sql");
 
-  private final AddLanguageColumnToPushEventsTable underTest = new AddLanguageColumnToPushEventsTable(db.database());
+  private final AddWebhookSecretToAlmSettingsTable underTest = new AddWebhookSecretToAlmSettingsTable(db.database());
 
   @Test
   public void column_language_should_be_added() throws SQLException {
-    db.assertColumnDoesNotExist(PUSH_EVENTS_TABLE_NAME, COLUMN_LANGUAGE);
+    db.assertColumnDoesNotExist(ALM_SETTINGS_TABLE_NAME, WEBHOOK_SECRET_COLUMN_NAME);
 
     underTest.execute();
 
-    db.assertColumnDefinition(PUSH_EVENTS_TABLE_NAME, COLUMN_LANGUAGE, Types.VARCHAR, 20, true);
+    db.assertColumnDefinition(ALM_SETTINGS_TABLE_NAME, WEBHOOK_SECRET_COLUMN_NAME, Types.VARCHAR, WEBHOOK_SECRET_COLUMN_SIZE, true);
   }
 
   @Test
   public void migration_should_be_reentrant() throws SQLException {
-    db.assertColumnDoesNotExist(PUSH_EVENTS_TABLE_NAME, COLUMN_LANGUAGE);
+    db.assertColumnDoesNotExist(ALM_SETTINGS_TABLE_NAME, WEBHOOK_SECRET_COLUMN_NAME);
 
     underTest.execute();
     underTest.execute();
 
-    db.assertColumnDefinition(PUSH_EVENTS_TABLE_NAME, COLUMN_LANGUAGE, Types.VARCHAR, 20, true);
+    db.assertColumnDefinition(ALM_SETTINGS_TABLE_NAME, WEBHOOK_SECRET_COLUMN_NAME, Types.VARCHAR, WEBHOOK_SECRET_COLUMN_SIZE, true);
   }
 }

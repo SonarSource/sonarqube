@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v96;
 
 class DbConstants {
   static final int CONTEXT_KEY_COLUMNS_SIZE = 50;
+  static final int WEBHOOK_SECRET_COLUMN_SIZE = 160;
 
   private DbConstants() {
     throw new IllegalStateException("This class must not be instantiated");
