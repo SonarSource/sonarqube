@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -27,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
+import static org.apache.commons.lang.StringUtils.removeEnd;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
 
 public class CreateGithubAction implements AlmSettingsWsAction {
@@ -37,6 +39,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
   private static final String PARAM_CLIENT_ID = "clientId";
   private static final String PARAM_CLIENT_SECRET = "clientSecret";
   private static final String PARAM_PRIVATE_KEY = "privateKey";
+  private static final String PARAM_WEBHOOK_SECRET = "webhookSecret";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -54,6 +57,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
     WebService.NewAction action = context.createAction("create_github")
       .setDescription("Create GitHub ALM instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
+      .setChangelog(new Change("9.7", String.format("Optional parameter '%s' was added", PARAM_WEBHOOK_SECRET)))
       .setPost(true)
       .setSince("8.1")
       .setHandler(this);
@@ -82,40 +86,41 @@ public class CreateGithubAction implements AlmSettingsWsAction {
       .setRequired(true)
       .setMaximumLength(160)
       .setDescription("GitHub App Client Secret");
+    action.createParam(PARAM_WEBHOOK_SECRET)
+      .setRequired(false)
+      .setMaximumLength(160)
+      .setDescription("GitHub App Webhook Secret");
   }
 
   @Override
   public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
-    doHandle(request);
+    tryDoHandle(request);
     response.noContent();
   }
 
-  private void doHandle(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
-    String url = request.mandatoryParam(PARAM_URL);
-    String appId = request.mandatoryParam(PARAM_APP_ID);
-    String clientId = request.mandatoryParam(PARAM_CLIENT_ID);
-    String clientSecret = request.mandatoryParam(PARAM_CLIENT_SECRET);
-    String privateKey = request.mandatoryParam(PARAM_PRIVATE_KEY);
-
-    if (url.endsWith("/")) {
-      url = url.substring(0, url.length() - 1);
-    }
-
+  private void tryDoHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(GITHUB);
-      almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
-      dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
-        .setAlm(GITHUB)
-        .setKey(key)
-        .setUrl(url)
-        .setAppId(appId)
-        .setPrivateKey(privateKey)
-        .setClientId(clientId)
-        .setClientSecret(clientSecret));
-      dbSession.commit();
+      doHandle(request, dbSession);
     }
+  }
+
+  private void doHandle(Request request, DbSession dbSession) {
+    almSettingsSupport.checkAlmMultipleFeatureEnabled(GITHUB);
+    String key = request.mandatoryParam(PARAM_KEY);
+    almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
+
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(GITHUB)
+      .setKey(key)
+      .setUrl(removeEnd(request.mandatoryParam(PARAM_URL), "/"))
+      .setAppId(request.mandatoryParam(PARAM_APP_ID))
+      .setPrivateKey(request.mandatoryParam(PARAM_PRIVATE_KEY))
+      .setClientId(request.mandatoryParam(PARAM_CLIENT_ID))
+      .setClientSecret(request.mandatoryParam(PARAM_CLIENT_SECRET))
+      .setWebhookSecret(request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null)));
+
+    dbSession.commit();
   }
 
 }

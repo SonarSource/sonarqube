@@ -14,7 +14,8 @@
     a.client_id as "clientId",
     a.client_secret as "clientSecret",
     a.created_at as "createdAt",
-    a.updated_at as "updatedAt"
+    a.updated_at as "updatedAt",
+    a.webhook_secret as "webhookSecret"
   </sql>
 
   <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.alm.setting.AlmSettingDto">
@@ -60,7 +61,8 @@
       client_id,
       client_secret,
       created_at,
-      updated_at
+      updated_at,
+      webhook_secret
     )
     VALUES (
       #{dto.uuid, jdbcType=VARCHAR},
@@ -73,7 +75,8 @@
       #{dto.clientId, jdbcType=VARCHAR},
       #{dto.clientSecret, jdbcType=VARCHAR},
       #{dto.createdAt, jdbcType=BIGINT},
-      #{dto.updatedAt, jdbcType=BIGINT}
+      #{dto.updatedAt, jdbcType=BIGINT},
+      #{dto.webhookSecret, jdbcType=VARCHAR}
     )
   </insert>
 
@@ -87,7 +90,8 @@
       pat = #{dto.personalAccessToken, jdbcType=VARCHAR},
       client_id = #{dto.clientId, jdbcType=VARCHAR},
       client_secret = #{dto.clientSecret, jdbcType=VARCHAR},
-      updated_at = #{dto.updatedAt, jdbcType=BIGINT}
+      updated_at = #{dto.updatedAt, jdbcType=BIGINT},
+      webhook_secret = #{dto.webhookSecret, jdbcType=VARCHAR}
     </set>
     <where>
       uuid = #{dto.uuid, jdbcType=VARCHAR}

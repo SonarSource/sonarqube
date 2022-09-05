@@ -19,12 +19,16 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
@@ -43,6 +47,8 @@ import static org.mockito.Mockito.when;
 
 public class CreateGithubActionTest {
 
+  private static final String APP_ID = "12345";
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -51,71 +57,75 @@ public class CreateGithubActionTest {
   private final Encryption encryption = mock(Encryption.class);
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
 
-  private WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
+  private final WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
       multipleAlmFeatureProvider)));
 
   @Before
-  public void before() {
+  public void setUp() {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
   }
 
   @Test
   public void create() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-
-    ws.newRequest()
-      .setParam("key", "GitHub Server - Dev Team")
-      .setParam("url", "https://github.enterprise.com")
-      .setParam("appId", "12345")
-      .setParam("privateKey", "678910")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+    buildTestRequest().execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
-        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
-      .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", "12345", "678910", "client_1234", "client_so_secret"));
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption), s -> s.getDecryptedWebhookSecret(encryption))
+      .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", APP_ID, "678910", "client_1234", "client_so_secret", null));
+  }
+
+  private TestRequest buildTestRequest() {
+    return ws.newRequest()
+      .setParam("key", "GitHub Server - Dev Team")
+      .setParam("url", "https://github.enterprise.com")
+      .setParam("appId", APP_ID)
+      .setParam("privateKey", "678910")
+      .setParam("clientId", "client_1234")
+      .setParam("clientSecret", "client_so_secret");
+  }
+
+  @Test
+  public void create_withWebhookSecret() {
+    buildTestRequest().setParam("webhookSecret", "webhook_secret").execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption), s -> s.getDecryptedWebhookSecret(encryption))
+      .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", "12345", "678910", "client_1234", "client_so_secret", "webhook_secret"));
+  }
+
+  @Test
+  public void create_withEmptyWebhookSecret_shouldNotPersist() {
+    buildTestRequest().setParam("webhookSecret", "").execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectByAlmAndAppId(db.getSession(), ALM.GITHUB, APP_ID))
+      .map(almSettingDto -> almSettingDto.getDecryptedWebhookSecret(encryption))
+      .isEmpty();
   }
 
   @Test
   public void remove_trailing_slash() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
 
-    ws.newRequest()
-      .setParam("key", "GitHub Server - Dev Team")
-      .setParam("url", "https://github.enterprise.com/")
-      .setParam("appId", "12345")
-      .setParam("privateKey", "678910")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+    buildTestRequest().setParam("url", "https://github.enterprise.com/").execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
         s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
-      .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", "12345", "678910", "client_1234", "client_so_secret"));
+      .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", APP_ID, "678910", "client_1234", "client_so_secret"));
   }
 
   @Test
   public void fail_when_key_is_already_used() {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
-    TestRequest request = ws.newRequest()
-      .setParam("key", gitHubAlmSetting.getKey())
-      .setParam("url", "https://github.enterprise.com")
-      .setParam("appId", "12345")
-      .setParam("privateKey", "678910")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+    TestRequest request = buildTestRequest().setParam("key", gitHubAlmSetting.getKey());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", gitHubAlmSetting.getKey()));
   }
@@ -123,19 +133,11 @@ public class CreateGithubActionTest {
   @Test
   public void fail_when_no_multiple_instance_allowed() {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertGitHubAlmSetting();
 
-    TestRequest request = ws.newRequest()
-      .setParam("key", "key")
-      .setParam("url", "https://github.enterprise.com")
-      .setParam("appId", "12345")
-      .setParam("privateKey", "678910")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+    TestRequest request = buildTestRequest();
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("A GITHUB setting is already defined");
   }
@@ -145,15 +147,9 @@ public class CreateGithubActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    TestRequest request = ws.newRequest()
-      .setParam("key", "GitHub Server - Dev Team")
-      .setParam("url", "https://github.enterprise.com")
-      .setParam("appId", "12345")
-      .setParam("privateKey", "678910")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+    TestRequest request = buildTestRequest();
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -165,6 +161,20 @@ public class CreateGithubActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("key", true), tuple("url", true), tuple("appId", true), tuple("privateKey", true), tuple("clientId", true), tuple("clientSecret", true));
+      .containsExactlyInAnyOrder(
+        tuple("key", true),
+        tuple("url", true),
+        tuple("appId", true),
+        tuple("privateKey", true),
+        tuple("clientId", true),
+        tuple("clientSecret", true),
+        tuple("webhookSecret", false));
+  }
+
+  @Test
+  public void definition_shouldHaveChangeLog() {
+    assertThat(ws.getDef().changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
+      new Tuple("9.7", "Optional parameter 'webhookSecret' was added")
+    );
   }
 }

@@ -20,115 +20,94 @@
 package org.sonar.db.alm.setting;
 
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.almsettings.AlmSettingsTesting;
 import org.sonar.db.audit.NoOpAuditPersister;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.alm.setting.ALM.GITHUB;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newAlmSettingDtoWithEmptySecrets;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDtoWithNonRequiredField;
 
 public class AlmSettingDaoTest {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private final Encryption encryption = mock(Encryption.class);
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final AlmSettingDao underTest = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
 
-  private AlmSettingDao underTest = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
+  @Before
+  public void setUp() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+  }
 
   @Test
   public void selectByUuid() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    when(encryption.isEncrypted(any())).thenReturn(false);
+    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    underTest.insert(dbSession, expected);
 
-    AlmSettingDto almSettingDto = newGithubAlmSettingDto();
-    underTest.insert(dbSession, almSettingDto);
+    AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).orElse(null);
 
-    assertThat(underTest.selectByUuid(dbSession, A_UUID).get())
-      .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
-        s -> almSettingDto.getDecryptedPrivateKey(encryption),
-        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
-        s -> almSettingDto.getDecryptedClientSecret(encryption))
-      .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), NOW, NOW,
-        almSettingDto.getDecryptedPrivateKey(encryption),
-        almSettingDto.getDecryptedPersonalAccessToken(encryption),
-        almSettingDto.getDecryptedClientSecret(encryption));
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  public void selectByUuid_shouldNotFindResult_whenUuidIsNotPresent() {
+    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    underTest.insert(dbSession, expected);
 
     assertThat(underTest.selectByUuid(dbSession, "foo")).isNotPresent();
   }
 
   @Test
   public void selectByKey() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    String decrypted = "decrypted";
-    when(encryption.isEncrypted(any())).thenReturn(true);
-    when(encryption.decrypt(any())).thenReturn(decrypted);
+    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    underTest.insert(dbSession, expected);
 
-    AlmSettingDto almSettingDto = AlmSettingsTesting.newGithubAlmSettingDto();
-    underTest.insert(dbSession, almSettingDto);
+    AlmSettingDto result = underTest.selectByKey(dbSession, expected.getKey()).orElse(null);
 
-    assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey()).get())
-      .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
-        s -> almSettingDto.getDecryptedPrivateKey(encryption),
-        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
-        s -> almSettingDto.getDecryptedClientSecret(encryption))
-      .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), NOW, NOW,
-        almSettingDto.getDecryptedPrivateKey(encryption),
-        null,
-        almSettingDto.getDecryptedClientSecret(encryption));
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  public void selectByKey_shouldNotFindResult_whenKeyIsNotPresent() {
+    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    underTest.insert(dbSession, expected);
 
     assertThat(underTest.selectByKey(dbSession, "foo")).isNotPresent();
   }
 
   @Test
   public void selectByKey_withEmptySecrets() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    String decrypted = "decrypted";
-    when(encryption.isEncrypted(any())).thenReturn(true);
-    when(encryption.decrypt(any())).thenReturn(decrypted);
+    AlmSettingDto expected = newAlmSettingDtoWithEmptySecrets();
+    underTest.insert(dbSession, expected);
 
-    AlmSettingDto almSettingDto = AlmSettingsTesting.newAlmSettingDtoWithEmptySecrets();
-    underTest.insert(dbSession, almSettingDto);
+    AlmSettingDto result = underTest.selectByKey(dbSession, expected.getKey()).orElse(null);
 
-    assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey()).get())
-      .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
-        s -> almSettingDto.getDecryptedPrivateKey(encryption),
-        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
-        s -> almSettingDto.getDecryptedClientSecret(encryption))
-      .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), NOW, NOW, null, null, null);
-
-    assertThat(underTest.selectByKey(dbSession, "foo")).isNotPresent();
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
   public void selectByAlm() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto gitHubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto gitHubAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
-    AlmSettingDto azureAlmSetting2 = db.almSettings().insertAzureAlmSetting();
+    db.almSettings().insertAzureAlmSetting();
 
-    List<AlmSettingDto> almSettings = underTest.selectByAlm(dbSession, ALM.GITHUB);
+    List<AlmSettingDto> almSettings = underTest.selectByAlm(dbSession, GITHUB);
 
     assertThat(almSettings)
       .extracting(AlmSettingDto::getUuid)
@@ -137,7 +116,6 @@ public class AlmSettingDaoTest {
 
   @Test
   public void selectAll() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     underTest.insert(dbSession, newGithubAlmSettingDto());
     when(uuidFactory.create()).thenReturn(A_UUID + "bis");
     underTest.insert(dbSession, newGithubAlmSettingDto());
@@ -149,34 +127,27 @@ public class AlmSettingDaoTest {
 
   @Test
   public void update() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    AlmSettingDto almSettingDto = newGithubAlmSettingDto();
-    underTest.insert(dbSession, almSettingDto);
+    //GIVEN
+    AlmSettingDto expected = newGithubAlmSettingDto();
+    underTest.insert(dbSession, expected);
 
-    almSettingDto.setPrivateKey("updated private key");
-    almSettingDto.setAppId("updated app id");
-    almSettingDto.setUrl("updated url");
-    almSettingDto.setPersonalAccessToken("updated pat");
-    almSettingDto.setKey("updated key");
+    expected.setPrivateKey("updated private key");
+    expected.setAppId("updated app id");
+    expected.setUrl("updated url");
+    expected.setPersonalAccessToken("updated pat");
+    expected.setKey("updated key");
+    expected.setWebhookSecret("updated webhook secret");
 
     system2.setNow(NOW + 1);
-    underTest.update(dbSession, almSettingDto, false);
-
-    AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).get();
-    assertThat(result)
-      .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId,
-        s -> almSettingDto.getDecryptedPrivateKey(encryption),
-        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
-        AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt)
-      .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), almSettingDto.getDecryptedPrivateKey(encryption),
-        almSettingDto.getDecryptedPersonalAccessToken(encryption), NOW, NOW + 1);
+    //WHEN
+    underTest.update(dbSession, expected, false);
+    //THEN
+    AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).orElse(null);
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
   public void delete() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
 

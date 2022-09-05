@@ -19,12 +19,25 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.assertj.core.groups.Tuple;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.component.ComponentFinder;
@@ -35,38 +48,43 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.sonar.db.alm.setting.ALM.GITHUB;
 
+@RunWith(DataProviderRunner.class)
 public class UpdateGithubActionTest {
+
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(auditPersister);
 
   private final Encryption encryption = mock(Encryption.class);
 
-  private WsActionTester ws = new WsActionTester(new UpdateGithubAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
+  private final WsActionTester ws = new WsActionTester(new UpdateGithubAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
       mock(MultipleAlmFeatureProvider.class))));
+
+  private AlmSettingDto almSettingDto;
+
+  @Before
+  public void setUp() {
+    almSettingDto = db.almSettings().insertGitHubAlmSetting();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+  }
 
   @Test
   public void update() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
-
-    ws.newRequest()
-      .setParam("key", almSettingDto.getKey())
-      .setParam("url", "https://github.enterprise-unicorn.com")
-      .setParam("appId", "54321")
-      .setParam("privateKey", "10987654321")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+    buildTestRequest().execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
@@ -74,20 +92,19 @@ public class UpdateGithubActionTest {
       .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321", "10987654321", "client_1234", "client_so_secret"));
   }
 
-  @Test
-  public void update_url_with_trailing_slash() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
-
-    ws.newRequest()
+  private TestRequest buildTestRequest() {
+    return ws.newRequest()
       .setParam("key", almSettingDto.getKey())
-      .setParam("url", "https://github.enterprise-unicorn.com/")
+      .setParam("url", "https://github.enterprise-unicorn.com")
       .setParam("appId", "54321")
       .setParam("privateKey", "10987654321")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+  }
+
+  @Test
+  public void update_url_with_trailing_slash() {
+    buildTestRequest().setParam("url", "https://github.enterprise-unicorn.com/").execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
@@ -97,19 +114,7 @@ public class UpdateGithubActionTest {
 
   @Test
   public void update_with_new_key() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
-
-    ws.newRequest()
-      .setParam("key", almSettingDto.getKey())
-      .setParam("newKey", "GitHub Server - Infra Team")
-      .setParam("url", "https://github.enterprise-unicorn.com")
-      .setParam("appId", "54321")
-      .setParam("privateKey", "10987654321")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+    buildTestRequest().setParam("newKey", "GitHub Server - Infra Team").execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
@@ -119,16 +124,7 @@ public class UpdateGithubActionTest {
 
   @Test
   public void update_without_private_key_nor_client_secret() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
-
-    ws.newRequest()
-      .setParam("key", almSettingDto.getKey())
-      .setParam("url", "https://github.enterprise-unicorn.com/")
-      .setParam("appId", "54321")
-      .setParam("clientId", "client_1234")
-      .execute();
+    buildTestRequestWithoutSecrets().execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
@@ -137,42 +133,35 @@ public class UpdateGithubActionTest {
         almSettingDto.getDecryptedPrivateKey(encryption), "client_1234", almSettingDto.getDecryptedClientSecret(encryption)));
   }
 
+
+  private TestRequest buildTestRequestWithoutSecrets() {
+    return ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("url", "https://github.enterprise-unicorn.com/")
+      .setParam("appId", "54321")
+      .setParam("clientId", "client_1234");
+  }
+
   @Test
   public void fail_when_key_does_not_match_existing_alm_setting() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-
-    TestRequest request = ws.newRequest()
+    TestRequest request = buildTestRequest()
       .setParam("key", "unknown")
-      .setParam("newKey", "GitHub Server - Infra Team")
-      .setParam("url", "https://github.enterprise-unicorn.com")
-      .setParam("appId", "54321")
-      .setParam("privateKey", "10987654321")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+      .setParam("newKey", "GitHub Server - Infra Team");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
   }
 
   @Test
   public void fail_when_new_key_matches_existing_alm_setting() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto almSetting2 = db.almSettings().insertGitHubAlmSetting();
 
-    TestRequest request = ws.newRequest()
-      .setParam("key", almSetting1.getKey())
-      .setParam("newKey", almSetting2.getKey())
-      .setParam("url", "https://github.enterprise-unicorn.com")
-      .setParam("appId", "54321")
-      .setParam("privateKey", "10987654321")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+    TestRequest request = buildTestRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("newKey", almSetting2.getKey());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
   }
@@ -181,19 +170,10 @@ public class UpdateGithubActionTest {
   public void fail_when_missing_administer_system_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
 
-    TestRequest request = ws.newRequest()
-      .setParam("key", almSettingDto.getKey())
-      .setParam("newKey", "GitHub Server - Infra Team")
-      .setParam("url", "https://github.enterprise-unicorn.com")
-      .setParam("appId", "54321")
-      .setParam("privateKey", "10987654321")
-      .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret");
+    TestRequest request = buildTestRequest();
 
-    assertThatThrownBy(() -> request.execute())
-      .isInstanceOf(ForbiddenException.class);
+    assertThatThrownBy(request::execute).isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -204,8 +184,85 @@ public class UpdateGithubActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("key", true), tuple("newKey", false), tuple("url", true), tuple("appId", true), tuple("privateKey", false), tuple("clientId", true),
-        tuple("clientSecret", false));
+      .containsExactlyInAnyOrder(
+        tuple("key", true),
+        tuple("newKey", false),
+        tuple("url", true),
+        tuple("appId", true),
+        tuple("privateKey", false),
+        tuple("clientId", true),
+        tuple("clientSecret", false),
+        tuple("webhookSecret", false));
+  }
+
+  @Test
+  public void update_withWebhookSecret() {
+    buildTestRequest().setParam("webhookSecret", "webhook_secret").execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
+      .extracting(almSettings -> almSettings.getDecryptedWebhookSecret(encryption))
+      .containsOnly("webhook_secret");
+  }
+
+  @Test
+  public void update_withoutWebhookSecret_shouldNotOverrideExistingValue() {
+    buildTestRequest().setParam("webhookSecret", "webhook_secret").execute();
+
+    buildTestRequest().execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
+      .extracting(almSettings -> almSettings.getDecryptedWebhookSecret(encryption))
+      .containsOnly("webhook_secret");
+  }
+
+  @Test
+  public void update_withEmptyValue_shouldResetWebhookSecret() {
+    buildTestRequest().setParam("webhookSecret", "webhook_secret").execute();
+
+    buildTestRequest().setParam("webhookSecret", "").execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
+      .extracting(almSettings -> almSettings.getDecryptedWebhookSecret(encryption))
+      .containsOnly((String) null);
+  }
+
+  @Test
+  public void definition_shouldHaveChangeLog() {
+    assertThat(ws.getDef().changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
+      new Tuple("9.7", "Optional parameter 'webhookSecret' was added"),
+      new Tuple("8.7", "Parameter 'privateKey' is no longer required"),
+      new Tuple("8.7", "Parameter 'clientSecret' is no longer required")
+    );
+  }
+
+  @Test
+  @UseDataProvider("secretParams")
+  public void update_withSecretChange_shouldAuditDevOpsPlatformSecret(String secretParam) {
+    buildTestRequestWithoutSecrets().setParam(secretParam, randomAlphanumeric(10)).execute();
+    SecretNewValue expected = new SecretNewValue("DevOpsPlatform", GITHUB.getId());
+    ArgumentCaptor<SecretNewValue> captor = ArgumentCaptor.forClass(SecretNewValue.class);
+
+    verify(auditPersister).updateDevOpsPlatformSecret(any(DbSession.class), captor.capture());
+    assertThat(captor.getValue()).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @DataProvider
+  public static Object[][] secretParams() {
+    return new Object[][] {
+      {"webhookSecret"},
+      {"clientSecret"},
+      {"privateKey"}
+    };
+  }
+
+  @Test
+  public void update_withNoSecretChanges_shouldAuditDevOpsPlatformSettings() {
+    buildTestRequestWithoutSecrets().execute();
+    DevOpsPlatformSettingNewValue expected = new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(), almSettingDto.getKey());
+    ArgumentCaptor<DevOpsPlatformSettingNewValue> captor = ArgumentCaptor.forClass(DevOpsPlatformSettingNewValue.class);
+
+    verify(auditPersister).updateDevOpsPlatformSetting(any(DbSession.class), captor.capture());
+    assertThat(captor.getValue()).usingRecursiveComparison().comparingOnlyFields("devOpsPlatformSettingUuid", "key").isEqualTo(expected);
   }
 
 }

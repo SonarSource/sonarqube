@@ -29,6 +29,14 @@ import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 
 public class AlmSettingsTesting {
 
+  private AlmSettingsTesting() {
+
+  }
+
+  public static AlmSettingDto newGithubAlmSettingDtoWithNonRequiredField() {
+    return newGithubAlmSettingDto().setWebhookSecret(randomAlphanumeric(160));
+  }
+
   public static AlmSettingDto newGithubAlmSettingDto() {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))

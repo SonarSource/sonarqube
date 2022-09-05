@@ -78,12 +78,20 @@ public class AlmSettingDto {
    * It will be null when the ALM is Azure DevOps or Bitbucket.
    */
   private String clientId;
+
   /**
    * Application client secret of the GitHub instance. Max size is 80.
    * This column will only be fed when alm is GitHub.
    * It will be null when the ALM is Azure DevOps or Bitbucket.
    */
   private String clientSecret;
+
+  /**
+   * Webhook secret of the GitHub instance. Max size is 160.
+   * This column will only be fed when alm is GitHub.
+   * It will be null when the ALM is Azure DevOps or Bitbucket.
+   */
+  private String webhookSecret;
 
   private long updatedAt;
   private long createdAt;
@@ -190,6 +198,19 @@ public class AlmSettingDto {
 
   public AlmSettingDto setClientSecret(@Nullable String clientSecret) {
     this.clientSecret = clientSecret;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDecryptedWebhookSecret(Encryption encryption) {
+    if (!isNullOrEmpty(webhookSecret) && encryption.isEncrypted(webhookSecret)) {
+      return encryption.decrypt(webhookSecret);
+    }
+    return webhookSecret;
+  }
+
+  public AlmSettingDto setWebhookSecret(@Nullable String webhookSecret) {
+    this.webhookSecret = webhookSecret;
     return this;
   }
 
