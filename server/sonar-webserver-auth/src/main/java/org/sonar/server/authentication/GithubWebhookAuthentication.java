@@ -19,26 +19,143 @@
  */
 package org.sonar.server.authentication;
 
+import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.user.GithubWebhookUserSession.GITHUB_WEBHOOK_USER_NAME;
 
 public class GithubWebhookAuthentication {
+  private static final Logger LOG = Loggers.get(GithubWebhookAuthentication.class);
+
+  @VisibleForTesting
+  static final String GITHUB_SIGNATURE_HEADER = "x-hub-signature-256";
+
+  @VisibleForTesting
+  static final String GITHUB_APP_ID_HEADER = "x-github-hook-installation-target-id";
+
+  @VisibleForTesting
+  static final String MSG_AUTHENTICATION_FAILED = "Failed to authenticate payload from Github webhook. Either the webhook was called by unexpected clients"
+    + " or the webhook secret set in SonarQube does not match the one from Github.";
+
+  @VisibleForTesting
+  static final String MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED = "Unauthenticated calls from GitHub are forbidden. A webhook secret must be defined in the GitHub App with Id %s.";
+
+  @VisibleForTesting
+  static final String MSG_NO_WEBHOOK_SECRET_FOUND = "Webhook secret for your GitHub app with Id %s must be set in SonarQube.";
+
+  @VisibleForTesting
+  static final String MSG_NO_BODY_FOUND = "No body found in GitHub Webhook event.";
+
+  private static final String SHA_256_PREFIX = "sha256=";
+
   private final AuthenticationEvent authenticationEvent;
 
-  public GithubWebhookAuthentication(AuthenticationEvent authenticationEvent) {
+  private final DbClient dbClient;
+
+  private final Encryption encryption;
+
+  public GithubWebhookAuthentication(AuthenticationEvent authenticationEvent, DbClient dbClient, Settings settings) {
     this.authenticationEvent = authenticationEvent;
+    this.dbClient = dbClient;
+    this.encryption = settings.getEncryption();
   }
 
   public Optional<UserAuthResult> authenticate(HttpServletRequest request) {
-    String authorizationHeader = request.getHeader("x-hub-signature-256");
-    if (StringUtils.isEmpty(authorizationHeader)) {
+    String githubAppId = request.getHeader(GITHUB_APP_ID_HEADER);
+    if (isEmpty(githubAppId)) {
       return Optional.empty();
     }
-    //TODO SONAR-17269 implement authentication algorithm
+
+    String githubSignature = getGithubSignature(request, githubAppId);
+    String body = getBody(request);
+    String webhookSecret = getWebhookSecret(githubAppId);
+
+    String computedSignature = computeSignature(body, webhookSecret);
+    if (!checkEqualityTimingAttacksSafe(githubSignature, computedSignature)) {
+      logAuthenticationProblemAndThrow(MSG_AUTHENTICATION_FAILED);
+    }
+    return createAuthResult(request);
+  }
+
+  private static String getGithubSignature(HttpServletRequest request, String githubAppId) {
+    String githubSignature = request.getHeader(GITHUB_SIGNATURE_HEADER);
+    if (isEmpty(githubSignature) ) {
+      logAuthenticationProblemAndThrow(format(MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED, githubAppId));
+    }
+    return githubSignature;
+  }
+
+  private static String getBody(HttpServletRequest request) {
+    Optional<String> body = getBodyInternal(request);
+    if (body.isEmpty() ||  isEmpty(body.get())) {
+      logAuthenticationProblemAndThrow(MSG_NO_BODY_FOUND);
+    }
+    return body.get();
+  }
+
+
+  private static Optional<String> getBodyInternal(HttpServletRequest request) {
+    try {
+      String body = request.getReader().lines().collect(joining(System.lineSeparator()));
+      return Optional.of(body);
+    } catch (IOException e) {
+      LOG.debug("Unexpected error while trying to get the body of github webhook request", e);
+      return Optional.empty();
+    }
+  }
+
+  private String getWebhookSecret(String githubAppId) {
+    String webhookSecret = fetchWebhookSecret(githubAppId);
+    if (isEmpty(webhookSecret)) {
+      logAuthenticationProblemAndThrow(format(MSG_NO_WEBHOOK_SECRET_FOUND, githubAppId));
+    }
+    return webhookSecret;
+  }
+
+  private String fetchWebhookSecret(String appId) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.almSettingDao().selectByAlmAndAppId(dbSession, ALM.GITHUB, appId)
+        .map(almSettingDto -> almSettingDto.getDecryptedWebhookSecret(encryption))
+        .orElse(null);
+    }
+  }
+
+  private static void logAuthenticationProblemAndThrow(String message) {
+    LOG.warn(message);
+    throw AuthenticationException.newBuilder()
+      .setSource(AuthenticationEvent.Source.githubWebhook())
+      .setMessage(message)
+      .build();
+  }
+
+  private static String computeSignature(String body, String webhookSecret) {
+    HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, webhookSecret);
+    return SHA_256_PREFIX + hmacUtils.hmacHex(body);
+  }
+
+  private static boolean checkEqualityTimingAttacksSafe(String githubSignature, String computedSignature) {
+    return MessageDigest.isEqual(githubSignature.getBytes(UTF_8), computedSignature.getBytes(UTF_8));
+  }
+
+  private Optional<UserAuthResult> createAuthResult(HttpServletRequest request) {
     UserAuthResult userAuthResult = UserAuthResult.withGithubWebhook();
     authenticationEvent.loginSuccess(request, GITHUB_WEBHOOK_USER_NAME, AuthenticationEvent.Source.githubWebhook());
     return Optional.of(userAuthResult);

@@ -90,7 +90,6 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   }
 
   private UserAuthResult loadUser(HttpServletRequest request, HttpServletResponse response) {
-
     Function<UserAuthResult.AuthType, Function<UserDto, UserAuthResult>> createUserAuthResult = type -> userDto -> new UserAuthResult(userDto, type);
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
     return httpHeadersAuthentication.authenticate(request, response).map(createUserAuthResult.apply(SSO))

@@ -33,10 +33,6 @@ public class AlmSettingsTesting {
 
   }
 
-  public static AlmSettingDto newGithubAlmSettingDtoWithNonRequiredField() {
-    return newGithubAlmSettingDto().setWebhookSecret(randomAlphanumeric(160));
-  }
-
   public static AlmSettingDto newGithubAlmSettingDto() {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))
@@ -45,15 +41,6 @@ public class AlmSettingsTesting {
       .setClientId(randomNumeric(8))
       .setClientSecret(randomAlphanumeric(80))
       .setPrivateKey(randomAlphanumeric(2000))
-      .setAlm(ALM.GITHUB);
-  }
-
-  public static AlmSettingDto newAlmSettingDtoWithEmptySecrets() {
-    return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setUrl(randomAlphanumeric(2000))
-      .setAppId(randomNumeric(8))
-      .setClientId(randomNumeric(8))
       .setAlm(ALM.GITHUB);
   }
 

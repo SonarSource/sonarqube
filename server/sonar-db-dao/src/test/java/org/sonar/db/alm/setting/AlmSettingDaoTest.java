@@ -19,7 +19,11 @@
  */
 package org.sonar.db.alm.setting;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +37,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
-import static org.sonar.db.almsettings.AlmSettingsTesting.newAlmSettingDtoWithEmptySecrets;
+import static org.sonar.db.alm.setting.ALM.GITLAB;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
-import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDtoWithNonRequiredField;
 
 public class AlmSettingDaoTest {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
+  private static final AlmSettingDto ALM_SETTING_WITH_WEBHOOK_SECRET = newGithubAlmSettingDto().setWebhookSecret("webhook_secret");
+
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -52,22 +57,23 @@ public class AlmSettingDaoTest {
 
   @Before
   public void setUp() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
+    Iterator<Integer> values = Stream.iterate(0, i -> i + 1).iterator();
+    when(uuidFactory.create()).thenAnswer(answer -> A_UUID + "_" + values.next());
   }
 
   @Test
   public void selectByUuid() {
-    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    AlmSettingDto expected = ALM_SETTING_WITH_WEBHOOK_SECRET;
     underTest.insert(dbSession, expected);
 
-    AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).orElse(null);
+    AlmSettingDto result = underTest.selectByUuid(dbSession, expected.getUuid()).orElse(null);
 
     assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
   public void selectByUuid_shouldNotFindResult_whenUuidIsNotPresent() {
-    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    AlmSettingDto expected = ALM_SETTING_WITH_WEBHOOK_SECRET;
     underTest.insert(dbSession, expected);
 
     assertThat(underTest.selectByUuid(dbSession, "foo")).isNotPresent();
@@ -75,7 +81,7 @@ public class AlmSettingDaoTest {
 
   @Test
   public void selectByKey() {
-    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    AlmSettingDto expected = ALM_SETTING_WITH_WEBHOOK_SECRET;
     underTest.insert(dbSession, expected);
 
     AlmSettingDto result = underTest.selectByKey(dbSession, expected.getKey()).orElse(null);
@@ -85,7 +91,7 @@ public class AlmSettingDaoTest {
 
   @Test
   public void selectByKey_shouldNotFindResult_whenKeyIsNotPresent() {
-    AlmSettingDto expected = newGithubAlmSettingDtoWithNonRequiredField();
+    AlmSettingDto expected = ALM_SETTING_WITH_WEBHOOK_SECRET;
     underTest.insert(dbSession, expected);
 
     assertThat(underTest.selectByKey(dbSession, "foo")).isNotPresent();
@@ -93,7 +99,7 @@ public class AlmSettingDaoTest {
 
   @Test
   public void selectByKey_withEmptySecrets() {
-    AlmSettingDto expected = newAlmSettingDtoWithEmptySecrets();
+    AlmSettingDto expected = newGithubAlmSettingDto().setWebhookSecret(null);
     underTest.insert(dbSession, expected);
 
     AlmSettingDto result = underTest.selectByKey(dbSession, expected.getKey()).orElse(null);
@@ -142,7 +148,7 @@ public class AlmSettingDaoTest {
     //WHEN
     underTest.update(dbSession, expected, false);
     //THEN
-    AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).orElse(null);
+    AlmSettingDto result = underTest.selectByUuid(dbSession, expected.getUuid()).orElse(null);
     assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
@@ -154,6 +160,42 @@ public class AlmSettingDaoTest {
     underTest.delete(dbSession, almSettingDto);
 
     assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey())).isNotPresent();
+  }
+
+  @Test
+  public void selectByAlmAndAppId_whenSingleMatch_returnsCorrectObject() {
+    String appId = "APP_ID";
+    AlmSettingDto expectedAlmSettingDto = db.almSettings().insertGitHubAlmSetting(almSettingDto -> almSettingDto.setAppId(appId));
+    db.almSettings().insertGitHubAlmSetting(almSettingDto -> almSettingDto.setAppId(null));
+
+    Optional<AlmSettingDto> result = underTest.selectByAlmAndAppId(dbSession, GITHUB, appId);
+
+    assertThat(result).isPresent();
+    assertThat(result.get()).usingRecursiveComparison().isEqualTo(expectedAlmSettingDto);
+  }
+
+  @Test
+  public void selectByAlmAndAppId_whenAppIdSharedWithAnotherAlm_returnsCorrectOne() {
+    String appId = "APP_ID";
+    db.almSettings().insertGitHubAlmSetting(almSettingDto -> almSettingDto.setAppId(appId));
+    AlmSettingDto gitLabAlmSettingDto = db.almSettings().insertGitlabAlmSetting(almSettingDto -> almSettingDto.setAppId(appId));
+
+    Optional<AlmSettingDto> result = underTest.selectByAlmAndAppId(dbSession, GITLAB, appId);
+
+    assertThat(result).isPresent();
+    assertThat(result.get()).usingRecursiveComparison().isEqualTo(gitLabAlmSettingDto);
+  }
+
+  @Test
+  public void selectByAlmAndAppId_withMultipleConfigurationWithSameAppId_returnsAnyAndDoesNotFail() {
+    String appId = "APP_ID";
+    IntStream.of(1, 10).forEach(i -> db.almSettings().insertGitHubAlmSetting(almSettingDto -> almSettingDto.setAppId(appId)));
+    IntStream.of(1, 5).forEach(i -> db.almSettings().insertGitHubAlmSetting(almSettingDto -> almSettingDto.setAppId(null)));
+
+    Optional<AlmSettingDto> result = underTest.selectByAlmAndAppId(dbSession, GITHUB, appId);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getAppId()).isEqualTo(appId);
   }
 
 }

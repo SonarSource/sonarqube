@@ -32,7 +32,7 @@ public class GithubWebhookUserSession extends AbstractUserSession {
 
   @Override
   public String getLogin() {
-    throw new IllegalStateException("GithubWebhookUserSession does not contain a login.");
+    return GITHUB_WEBHOOK_USER_NAME;
   }
 
   @Override

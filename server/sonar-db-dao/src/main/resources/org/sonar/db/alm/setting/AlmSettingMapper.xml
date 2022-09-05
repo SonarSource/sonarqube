@@ -102,5 +102,4 @@
     DELETE FROM alm_settings WHERE kee = #{key, jdbcType=VARCHAR}
   </delete>
 
-
 </mapper>
