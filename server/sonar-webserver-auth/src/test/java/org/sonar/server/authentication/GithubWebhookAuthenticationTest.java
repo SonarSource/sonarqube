@@ -17,21 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user;
+package org.sonar.server.authentication;
 
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTokenDto;
+import javax.servlet.http.HttpServletRequest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 
-@ServerSide
-public interface UserSessionFactory {
+import static org.mockito.Mockito.mock;
 
-  UserSession create(UserDto user);
+@RunWith(MockitoJUnitRunner.class)
+public class GithubWebhookAuthenticationTest {
 
-  UserSession create(UserDto user, UserTokenDto userToken);
+  @Mock
+  private AuthenticationEvent authenticationEvent;
 
-  GithubWebhookUserSession createGithubWebhookUserSession();
+  @InjectMocks
+  private GithubWebhookAuthentication githubWebhookAuthentication;
 
-  UserSession createAnonymous();
+  @Test
+  public void test(){
+
+    githubWebhookAuthentication.authenticate(mock(HttpServletRequest.class));
+
+    //TODO SONAR-17266
+
+  }
 
 }

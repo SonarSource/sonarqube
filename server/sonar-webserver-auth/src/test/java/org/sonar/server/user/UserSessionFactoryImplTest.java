@@ -19,19 +19,32 @@
  */
 package org.sonar.server.user;
 
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTokenDto;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.db.DbClient;
+import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 
-@ServerSide
-public interface UserSessionFactory {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  UserSession create(UserDto user);
+@RunWith(MockitoJUnitRunner.class)
+public class UserSessionFactoryImplTest {
 
-  UserSession create(UserDto user, UserTokenDto userToken);
+  @Mock
+  private DbClient dbClient;
 
-  GithubWebhookUserSession createGithubWebhookUserSession();
+  @Mock
+  private UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
 
-  UserSession createAnonymous();
+  @InjectMocks
+  private UserSessionFactoryImpl userSessionFactory;
+
+  @Test
+  public void createGithubWebhookUserSession_returnsNonNullGithubWebhookUserSession() {
+    GithubWebhookUserSession githubWebhookUserSession = userSessionFactory.createGithubWebhookUserSession();
+    assertThat(githubWebhookUserSession).isNotNull();
+  }
 
 }

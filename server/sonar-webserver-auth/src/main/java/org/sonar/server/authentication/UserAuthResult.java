@@ -28,6 +28,7 @@ public class UserAuthResult {
     SSO,
     JWT,
     TOKEN,
+    GITHUB_WEBHOOK,
     BASIC
   }
 
@@ -47,6 +48,14 @@ public class UserAuthResult {
     this.userDto = userDto;
     this.tokenDto = tokenDto;
     this.authType = authType;
+  }
+
+  private UserAuthResult(AuthType authType) {
+    this.authType = authType;
+  }
+
+  public static UserAuthResult withGithubWebhook() {
+    return new UserAuthResult(AuthType.GITHUB_WEBHOOK);
   }
 
   public UserDto getUserDto() {

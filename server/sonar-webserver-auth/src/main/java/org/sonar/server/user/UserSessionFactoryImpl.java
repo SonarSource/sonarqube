@@ -54,6 +54,11 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
   }
 
   @Override
+  public GithubWebhookUserSession createGithubWebhookUserSession() {
+    return new GithubWebhookUserSession();
+  }
+
+  @Override
   public ServerUserSession createAnonymous() {
     return new ServerUserSession(dbClient, null);
   }

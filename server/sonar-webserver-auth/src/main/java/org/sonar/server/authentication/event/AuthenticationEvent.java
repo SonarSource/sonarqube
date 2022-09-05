@@ -66,6 +66,10 @@ public interface AuthenticationEvent {
      */
     JWT,
     /**
+     * Authentication of the GitHub webhook (with shared Nwebhook_secret)
+     */
+    GITHUB_WEBHOOK,
+    /**
      * External authentication (ie. fully implemented out of SQ's core code, see {@link BaseIdentityProvider}).
      */
     EXTERNAL
@@ -89,6 +93,10 @@ public interface AuthenticationEvent {
      */
     JWT,
     /**
+     * User authentication done thanks to the signature hash provided by github in the request headers generated with a common secret.
+     */
+    GITHUB_WEBHOOK,
+    /**
      * User authentication made by external provider (see {@link BaseIdentityProvider}).
      */
     EXTERNAL
@@ -98,6 +106,7 @@ public interface AuthenticationEvent {
     private static final String LOCAL_PROVIDER_NAME = "local";
     private static final Source SSO_INSTANCE = new Source(Method.SSO, Provider.SSO, "sso");
     private static final Source JWT_INSTANCE = new Source(Method.JWT, Provider.JWT, "jwt");
+    private static final Source GITHUB_WEBHOOK_INSTANCE = new Source(Method.GITHUB_WEBHOOK, Provider.GITHUB_WEBHOOK, "github");
 
     private final Method method;
     private final Provider provider;
@@ -130,6 +139,10 @@ public interface AuthenticationEvent {
 
     public static Source jwt() {
       return JWT_INSTANCE;
+    }
+
+    public static Source githubWebhook() {
+      return GITHUB_WEBHOOK_INSTANCE;
     }
 
     public static Source external(IdentityProvider identityProvider) {

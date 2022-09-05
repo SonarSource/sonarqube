@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.db.user.UserDto;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Objects.nonNull;
 import static org.sonar.server.authentication.UserAuthResult.AuthType.BASIC;
+import static org.sonar.server.authentication.UserAuthResult.AuthType.GITHUB_WEBHOOK;
 import static org.sonar.server.authentication.UserAuthResult.AuthType.JWT;
 import static org.sonar.server.authentication.UserAuthResult.AuthType.SSO;
 import static org.sonar.server.authentication.UserAuthResult.AuthType.TOKEN;
@@ -42,17 +44,19 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   private final BasicAuthentication basicAuthentication;
   private final UserTokenAuthentication userTokenAuthentication;
   private final HttpHeadersAuthentication httpHeadersAuthentication;
+  private final GithubWebhookAuthentication githubWebhookAuthentication;
   private final UserSessionFactory userSessionFactory;
   private final List<CustomAuthentication> customAuthentications;
 
   @Autowired(required = false)
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
     HttpHeadersAuthentication httpHeadersAuthentication,
-    UserSessionFactory userSessionFactory, CustomAuthentication[] customAuthentications) {
+    GithubWebhookAuthentication githubWebhookAuthentication, UserSessionFactory userSessionFactory, CustomAuthentication[] customAuthentications) {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthentication = basicAuthentication;
     this.userTokenAuthentication = userTokenAuthentication;
     this.httpHeadersAuthentication = httpHeadersAuthentication;
+    this.githubWebhookAuthentication = githubWebhookAuthentication;
     this.userSessionFactory = userSessionFactory;
     this.customAuthentications = Arrays.asList(customAuthentications);
   }
@@ -60,8 +64,8 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   @Autowired(required = false)
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
     HttpHeadersAuthentication httpHeadersAuthentication,
-    UserSessionFactory userSessionFactory) {
-    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, userSessionFactory, new CustomAuthentication[0]);
+    UserSessionFactory userSessionFactory, GithubWebhookAuthentication githubWebhookAuthentication) {
+    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, githubWebhookAuthentication, userSessionFactory, new CustomAuthentication[0]);
   }
 
   @Override
@@ -79,32 +83,22 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
         return userSessionFactory.create(userAuthResult.getUserDto(), userAuthResult.getTokenDto());
       }
       return userSessionFactory.create(userAuthResult.getUserDto());
+    } else if (GITHUB_WEBHOOK.equals(userAuthResult.getAuthType())) {
+      return userSessionFactory.createGithubWebhookUserSession();
     }
     return userSessionFactory.createAnonymous();
   }
 
   private UserAuthResult loadUser(HttpServletRequest request, HttpServletResponse response) {
-    // Try first to authenticate from SSO, then JWT token, then try from basic http header
 
+    Function<UserAuthResult.AuthType, Function<UserDto, UserAuthResult>> createUserAuthResult = type -> userDto -> new UserAuthResult(userDto, type);
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
-    Optional<UserDto> user = httpHeadersAuthentication.authenticate(request, response);
-    if (user.isPresent()) {
-      return new UserAuthResult(user.get(), SSO);
-    }
-    user = jwtHttpHandler.validateToken(request, response);
-    if (user.isPresent()) {
-      return new UserAuthResult(user.get(), JWT);
-    }
-
-    // Check if the authentication is token based
-    Optional<UserAuthResult> userAuthResult = userTokenAuthentication.authenticate(request);
-    if (userAuthResult.isPresent()) {
-      return userAuthResult.get();
-    }
-
-    user = basicAuthentication.authenticate(request);
-    return user.map(userDto -> new UserAuthResult(userDto, BASIC))
-      .orElseGet(UserAuthResult::new);
+    return httpHeadersAuthentication.authenticate(request, response).map(createUserAuthResult.apply(SSO))
+      .orElseGet(() -> jwtHttpHandler.validateToken(request, response).map(createUserAuthResult.apply(JWT))
+      .orElseGet(() -> userTokenAuthentication.authenticate(request)
+        .or(() -> githubWebhookAuthentication.authenticate(request))
+        .or(() -> basicAuthentication.authenticate(request).map(createUserAuthResult.apply(BASIC)))
+        .orElseGet(UserAuthResult::new)));
   }
 
 }

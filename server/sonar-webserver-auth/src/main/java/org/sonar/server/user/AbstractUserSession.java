@@ -120,7 +120,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
+  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     Optional<String> projectUuid = componentUuidToProjectUuid(componentUuid);
     return projectUuid
       .map(s -> hasProjectUuidPermission(permission, s))

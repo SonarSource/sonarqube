@@ -17,21 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user;
+package org.sonar.server.authentication;
 
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTokenDto;
+import org.junit.Test;
 
-@ServerSide
-public interface UserSessionFactory {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  UserSession create(UserDto user);
+public class UserAuthResultTest {
 
-  UserSession create(UserDto user, UserTokenDto userToken);
-
-  GithubWebhookUserSession createGithubWebhookUserSession();
-
-  UserSession createAnonymous();
+ @Test
+ public void withGithubWebhook_returnsCorrectUserAuthResult() {
+  UserAuthResult userAuthResult = UserAuthResult.withGithubWebhook();
+  assertThat(userAuthResult.getAuthType()).isEqualTo(UserAuthResult.AuthType.GITHUB_WEBHOOK);
+  assertThat(userAuthResult.getUserDto()).isNull();
+  assertThat(userAuthResult.getTokenDto()).isNull();
+ }
 
 }

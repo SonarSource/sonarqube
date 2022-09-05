@@ -30,6 +30,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
+import org.sonar.server.user.GithubWebhookUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
 import org.sonar.server.usertoken.UserTokenAuthentication;
@@ -53,18 +54,23 @@ public class RequestAuthenticatorImplTest {
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private final BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
   private final UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
+  private final GithubWebhookAuthentication githubWebhookAuthentication = mock(GithubWebhookAuthentication.class);
   private final HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
   private final UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
   private final CustomAuthentication customAuthentication1 = mock(CustomAuthentication.class);
   private final CustomAuthentication customAuthentication2 = mock(CustomAuthentication.class);
-  private final RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, sessionFactory,
+  private final RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication,
+    githubWebhookAuthentication, sessionFactory,
     new CustomAuthentication[]{customAuthentication1, customAuthentication2});
+
+  private final GithubWebhookUserSession githubWebhookMockUserSession = mock(GithubWebhookUserSession.class);
 
   @Before
   public void setUp() {
     when(sessionFactory.create(A_USER)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.create(A_USER, A_USER_TOKEN)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
+    when(sessionFactory.createGithubWebhookUserSession()).thenReturn(githubWebhookMockUserSession);
   }
 
   @Test
@@ -73,6 +79,16 @@ public class RequestAuthenticatorImplTest {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(A_USER));
 
     assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+    verify(response, never()).setStatus(anyInt());
+  }
+
+  @Test
+  public void authenticate_from_githubWebhook() {
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+    when(githubWebhookAuthentication.authenticate(request)).thenReturn(Optional.of(UserAuthResult.withGithubWebhook()));
+
+    assertThat(underTest.authenticate(request, response)).isInstanceOf(GithubWebhookUserSession.class);
     verify(response, never()).setStatus(anyInt());
   }
 
