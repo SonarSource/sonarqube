@@ -25,11 +25,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,16 +43,14 @@ import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
-import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.rule.CommonRuleKeys;
+import org.sonarqube.ws.Common;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -100,9 +94,14 @@ public class TrackerRawInputFactoryTest {
   private final TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
     commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
 
+  @Before
+  public void before() {
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+  }
+
   @Test
   public void load_source_hash_sequences() {
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -125,9 +124,7 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
 
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -161,12 +158,42 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
+  public void load_issues_from_report_with_locations() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .addFlow(ScannerReport.Flow.newBuilder()
+        .setType(ScannerReport.FlowType.DATA)
+        .setDescription("flow1")
+        .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc1").setComponentRef(1).build())
+        .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc2").setComponentRef(1).build()))
+      .addFlow(ScannerReport.Flow.newBuilder()
+        .addLocation(ScannerReport.IssueLocation.newBuilder().setTextRange(newTextRange(2)).setComponentRef(1).build()))
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    DbIssues.Locations locations = Iterators.getOnlyElement(issues.iterator()).getLocations();
+    assertThat(locations.getFlowCount()).isEqualTo(2);
+    assertThat(locations.getFlow(0).getDescription()).isEqualTo("flow1");
+    assertThat(locations.getFlow(0).getType()).isEqualTo(DbIssues.FlowType.DATA);
+    assertThat(locations.getFlow(0).getLocationList()).hasSize(2);
+
+    assertThat(locations.getFlow(1).hasDescription()).isFalse();
+    assertThat(locations.getFlow(1).hasType()).isFalse();
+    assertThat(locations.getFlow(1).getLocationList()).hasSize(1);
+  }
+
+  @Test
   public void load_issues_from_report_with_rule_description_context_key() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
 
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -189,8 +216,6 @@ public class TrackerRawInputFactoryTest {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "Rule 1");
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -216,9 +241,7 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report_missing_secondary_location_component() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
 
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -260,7 +283,6 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -304,7 +326,6 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -337,9 +358,6 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void excludes_issues_on_inactive_rules() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -360,7 +378,6 @@ public class TrackerRawInputFactoryTest {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -380,7 +397,6 @@ public class TrackerRawInputFactoryTest {
   public void exclude_issues_on_common_rules() {
     RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "S001");
     markRuleAsActive(ruleKey);
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
@@ -398,8 +414,6 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_of_compute_engine_common_rules() {
     RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
     markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(ruleKey)
       .setMessage("not enough coverage")
@@ -417,7 +431,6 @@ public class TrackerRawInputFactoryTest {
     RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
     markRuleAsActive(ruleKey);
     when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(ruleKey)
       .setMessage("not enough coverage")

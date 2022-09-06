@@ -38,6 +38,13 @@ message Locations {
 
 message Flow {
   repeated Location location = 1;
+  optional string description = 2;
+  optional FlowType type = 3;
+}
+
+enum FlowType {
+  DATA = 0;
+  EXECUTION = 1;
 }
 
 message Location {

@@ -184,15 +184,11 @@ public class TrackerRawInputFactory {
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasTextRange()) {
-        DbCommons.TextRange.Builder textRange = convertTextRange(reportIssue.getTextRange());
-        dbLocationsBuilder.setTextRange(textRange);
+        dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
       }
       for (ScannerReport.Flow flow : reportIssue.getFlowList()) {
         if (flow.getLocationCount() > 0) {
-          DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
-          for (ScannerReport.IssueLocation location : flow.getLocationList()) {
-            convertLocation(location).ifPresent(dbFlowBuilder::addLocation);
-          }
+          DbIssues.Flow.Builder dbFlowBuilder = convertLocations(flow);
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
@@ -201,6 +197,18 @@ public class TrackerRawInputFactory {
       issue.setQuickFixAvailable(reportIssue.getQuickFixAvailable());
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       return issue;
+    }
+
+    private DbIssues.Flow.Builder convertLocations(ScannerReport.Flow flow) {
+      DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
+      for (ScannerReport.IssueLocation location : flow.getLocationList()) {
+        convertLocation(location).ifPresent(dbFlowBuilder::addLocation);
+      }
+      if (isNotEmpty(flow.getDescription())) {
+        dbFlowBuilder.setDescription(flow.getDescription());
+      }
+      toFlowType(flow.getType()).ifPresent(dbFlowBuilder::setType);
+      return dbFlowBuilder;
     }
 
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
@@ -230,10 +238,7 @@ public class TrackerRawInputFactory {
       }
       for (ScannerReport.Flow flow : reportExternalIssue.getFlowList()) {
         if (flow.getLocationCount() > 0) {
-          DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
-          for (ScannerReport.IssueLocation location : flow.getLocationList()) {
-            convertLocation(location).ifPresent(dbFlowBuilder::addLocation);
-          }
+          DbIssues.Flow.Builder dbFlowBuilder = convertLocations(flow);
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
@@ -250,6 +255,17 @@ public class TrackerRawInputFactory {
         return new NewAdHocRule(adHocRule);
       }
       return new NewAdHocRule(reportIssue);
+    }
+
+    private Optional<DbIssues.FlowType> toFlowType(ScannerReport.FlowType flowType) {
+      switch (flowType) {
+        case DATA:
+          return Optional.of(DbIssues.FlowType.DATA);
+        case EXECUTION:
+          return Optional.of(DbIssues.FlowType.EXECUTION);
+        default:
+          return Optional.empty();
+      }
     }
 
     private RuleType toRuleType(IssueType type) {
