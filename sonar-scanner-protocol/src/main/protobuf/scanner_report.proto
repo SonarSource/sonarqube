@@ -236,6 +236,14 @@ message IssueLocation {
 
 message Flow {
   repeated IssueLocation location = 1;
+  string description = 2;
+  FlowType type = 3;
+}
+
+enum FlowType {
+  DATA = 0;
+  EXECUTION = 1;
+  UNKNOWN = 2;
 }
 
 message Changesets {

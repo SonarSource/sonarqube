@@ -25,13 +25,14 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
-import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -160,7 +161,8 @@ public class IssuePublisher {
   private static void applyFlows(Consumer<ScannerReport.Flow> consumer, ScannerReport.IssueLocation.Builder locationBuilder,
     ScannerReport.TextRange.Builder textRangeBuilder, Collection<Flow> flows) {
     ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
-    for (Flow flow : flows) {
+    for (Flow f : flows) {
+      DefaultIssueFlow flow = (DefaultIssueFlow) f;
       if (flow.locations().isEmpty()) {
         return;
       }
@@ -179,7 +181,22 @@ public class IssuePublisher {
         }
         flowBuilder.addLocation(locationBuilder.build());
       }
+      if (flow.getDescription() != null) {
+        flowBuilder.setDescription(flow.getDescription());
+      }
+      flowBuilder.setType(toProtobufFlowType(flow.getType()));
       consumer.accept(flowBuilder.build());
+    }
+  }
+
+  private static ScannerReport.FlowType toProtobufFlowType(DefaultIssueFlow.Type flowType) {
+    switch (flowType) {
+      case EXECUTION:
+        return ScannerReport.FlowType.EXECUTION;
+      case DATA:
+        return ScannerReport.FlowType.DATA;
+      default:
+        return ScannerReport.FlowType.UNDEFINED;
     }
   }
 

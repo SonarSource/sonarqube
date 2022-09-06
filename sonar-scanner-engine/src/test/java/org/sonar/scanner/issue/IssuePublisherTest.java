@@ -22,32 +22,34 @@ package org.sonar.scanner.issue;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
 import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -58,26 +60,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
-
   static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
-  static final String JAVA_RULE_NAME = "Avoid Cycle";
   private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("java", "NoSonarCheck");
 
   private DefaultInputProject project;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  public IssueFilters filters = mock(IssueFilters.class);
 
-  @Mock
-  IssueFilters filters;
-
-  ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
-  RulesBuilder ruleBuilder = new RulesBuilder();
-
-  IssuePublisher moduleIssues;
-
-  DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
-  ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
+  private final ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
+  private IssuePublisher moduleIssues;
+  private final DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
+  private final ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
   @Before
   public void prepare() throws IOException {
@@ -85,15 +80,22 @@ public class IssuePublisherTest {
       .setKey("foo")
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
+
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(JAVA_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
+      .build());
+    initModuleIssues();
   }
 
   @Test
   public void ignore_null_active_rule() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
+    RuleKey INACTIVE_RULE_KEY = RuleKey.of("repo", "inactive");
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(JAVA_RULE_KEY);
+      .forRule(INACTIVE_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
@@ -102,8 +104,6 @@ public class IssuePublisherTest {
 
   @Test
   public void ignore_null_rule_of_active_rule() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(JAVA_RULE_KEY).setQProfileKey("qp-1").build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -117,12 +117,6 @@ public class IssuePublisherTest {
 
   @Test
   public void add_issue_to_cache() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(JAVA_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setQProfileKey("qp-1")
-      .build());
     initModuleIssues();
 
     final String ruleDescriptionContextKey = "spring";
@@ -146,8 +140,46 @@ public class IssuePublisherTest {
   }
 
   @Test
+  public void add_issue_flows_to_cache() {
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue(project)
+      .at(new DefaultIssueLocation().on(file))
+      // Flow without type
+      .addFlow(List.of(new DefaultIssueLocation().on(file).at(file.selectLine(1)).message("Foo1"), new DefaultIssueLocation().on(file).at(file.selectLine(2)).message("Foo2")))
+      // Flow with type and description
+      .addFlow(List.of(new DefaultIssueLocation().on(file)), DefaultIssueFlow.Type.DATA, "description")
+      // Flow with execution type and no description
+      .addFlow(List.of(new DefaultIssueLocation().on(file)), DefaultIssueFlow.Type.EXECUTION, null)
+      .forRule(JAVA_RULE_KEY);
+
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
+    List<ScannerReport.Flow> writtenFlows = argument.getValue().getFlowList();
+
+    assertThat(writtenFlows)
+      .extracting(ScannerReport.Flow::getDescription, ScannerReport.Flow::getType)
+      .containsExactly(tuple("", FlowType.UNDEFINED), tuple("description", FlowType.DATA), tuple("", FlowType.EXECUTION));
+
+    assertThat(writtenFlows.get(0).getLocationCount()).isEqualTo(2);
+    assertThat(writtenFlows.get(0).getLocationList()).containsExactly(
+      ScannerReport.IssueLocation.newBuilder()
+        .setComponentRef(file.scannerId())
+        .setMsg("Foo1")
+        .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(1).setEndLine(1).setEndOffset(3).build())
+        .build(),
+      ScannerReport.IssueLocation.newBuilder()
+        .setComponentRef(file.scannerId())
+        .setMsg("Foo2")
+        .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(2).setEndLine(2).setEndOffset(3).build())
+        .build());
+  }
+
+  @Test
   public void add_external_issue_to_cache() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
     initModuleIssues();
 
     DefaultExternalIssue issue = new DefaultExternalIssue(project)
@@ -165,12 +197,6 @@ public class IssuePublisherTest {
 
   @Test
   public void use_severity_from_active_rule_if_no_severity_on_issue() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(JAVA_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setQProfileKey("qp-1")
-      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -186,14 +212,6 @@ public class IssuePublisherTest {
 
   @Test
   public void filter_issue() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(JAVA_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setQProfileKey("qp-1")
-      .build());
-    initModuleIssues();
-
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(JAVA_RULE_KEY);
@@ -208,12 +226,6 @@ public class IssuePublisherTest {
 
   @Test
   public void should_ignore_lines_commented_with_nosonar() {
-    ruleBuilder.add(JAVA_RULE_KEY).setName(JAVA_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(JAVA_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setQProfileKey("qp-1")
-      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue(project)
@@ -231,7 +243,6 @@ public class IssuePublisherTest {
   @Test
   public void should_accept_issues_on_no_sonar_rules() {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
-    ruleBuilder.add(NOSONAR_RULE_KEY).setName("No Sonar");
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
       .setRuleKey(NOSONAR_RULE_KEY)
       .setSeverity(Severity.INFO)

@@ -79,9 +79,9 @@ public class ReportPublisher implements Startable {
   private final ScanProperties properties;
   private final CeTaskReportDataHolder ceTaskReportDataHolder;
 
-  private Path reportDir;
-  private ScannerReportWriter writer;
-  private ScannerReportReader reader;
+  private final Path reportDir;
+  private final ScannerReportWriter writer;
+  private final ScannerReportReader reader;
 
   public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration,

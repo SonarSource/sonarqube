@@ -27,29 +27,23 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.Issue.Flow;
-import org.sonar.api.batch.sensor.issue.IssueLocation;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.Issue.Flow;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.PathUtils;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> extends DefaultStorable {
   protected IssueLocation primaryLocation;
-  protected List<List<IssueLocation>> flows = new ArrayList<>();
+  protected List<DefaultIssueFlow> flows = new ArrayList<>();
   protected DefaultInputProject project;
-
-  protected AbstractDefaultIssue(DefaultInputProject project) {
-    this(project, null);
-  }
 
   public AbstractDefaultIssue(DefaultInputProject project, @Nullable SensorStorage storage) {
     super(storage);
@@ -61,9 +55,7 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
   }
 
   public List<Flow> flows() {
-    return this.flows.stream()
-      .<Flow>map(l -> () -> unmodifiableList(new ArrayList<>(l)))
-      .collect(toList());
+    return Collections.unmodifiableList(flows);
   }
 
   public NewIssueLocation newLocation() {
@@ -79,16 +71,21 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
   }
 
   public T addLocation(NewIssueLocation secondaryLocation) {
-    flows.add(Collections.singletonList(rewriteLocation((DefaultIssueLocation) secondaryLocation)));
+    flows.add(new DefaultIssueFlow(List.of(rewriteLocation((DefaultIssueLocation) secondaryLocation)), DefaultIssueFlow.Type.UNDEFINED, null));
     return (T) this;
   }
 
   public T addFlow(Iterable<NewIssueLocation> locations) {
+    return addFlow(locations, DefaultIssueFlow.Type.UNDEFINED, null);
+  }
+
+  public T addFlow(Iterable<NewIssueLocation> locations, DefaultIssueFlow.Type type, @Nullable String description) {
+    checkArgument(type != null, "Type can't be null");
     List<IssueLocation> flowAsList = new ArrayList<>();
     for (NewIssueLocation issueLocation : locations) {
       flowAsList.add(rewriteLocation((DefaultIssueLocation) issueLocation));
     }
-    flows.add(flowAsList);
+    flows.add(new DefaultIssueFlow(flowAsList, type, description));
     return (T) this;
   }
 

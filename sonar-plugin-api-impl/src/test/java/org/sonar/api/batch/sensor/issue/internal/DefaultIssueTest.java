@@ -21,34 +21,39 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DefaultIssueTest {
-
+  private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule");
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private DefaultInputProject project;
-
-  private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+  private final SensorStorage storage = mock(SensorStorage.class);
+  private final DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
     .build();
+  private DefaultInputProject project;
 
   @Before
   public void prepare() throws IOException {
@@ -60,13 +65,12 @@ public class DefaultIssueTest {
 
   @Test
   public void build_file_issue() {
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
-      .forRule(RuleKey.of("repo", "rule"))
+      .forRule(RULE_KEY)
       .gap(10.0)
       .setRuleDescriptionContextKey("spring");
 
@@ -83,8 +87,26 @@ public class DefaultIssueTest {
   }
 
   @Test
+  public void build_issue_with_flows() {
+    TextRange range1 = new DefaultTextRange(new DefaultTextPointer(1, 1), new DefaultTextPointer(1, 2));
+    TextRange range2 = new DefaultTextRange(new DefaultTextPointer(2, 1), new DefaultTextPointer(2, 2));
+
+    DefaultIssue issue = new DefaultIssue(project, storage)
+      .at(new DefaultIssueLocation().on(inputFile))
+      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile)), DefaultIssueFlow.Type.DATA, "desc")
+      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile).at(range1), new DefaultIssueLocation().message("loc1").on(inputFile).at(range2)))
+      .forRule(RULE_KEY);
+
+    assertThat(issue.flows)
+      .extracting(DefaultIssueFlow::getType, DefaultIssueFlow::getDescription)
+      .containsExactly(tuple(DefaultIssueFlow.Type.DATA, "desc"), tuple(DefaultIssueFlow.Type.UNDEFINED, null));
+
+    assertThat(issue.flows.get(0).locations()).hasSize(1);
+    assertThat(issue.flows.get(1).locations()).hasSize(2);
+  }
+
+  @Test
   public void move_directory_issue_to_project_root() {
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(new DefaultInputDir("foo", "src/main").setModuleBaseDir(project.getBaseDir()))
@@ -115,12 +137,11 @@ public class DefaultIssueTest {
     project.definition().addSubProject(subModuleDefinition);
     DefaultInputModule subModule = new DefaultInputModule(subModuleDefinition);
 
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(subModule)
         .message("Wrong way!"))
-      .forRule(RuleKey.of("repo", "rule"))
+      .forRule(RULE_KEY)
       .overrideSeverity(Severity.BLOCKER);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(project);
@@ -136,13 +157,12 @@ public class DefaultIssueTest {
 
   @Test
   public void build_project_issue() throws IOException {
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultInputModule inputModule = new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(inputModule)
         .message("Wrong way!"))
-      .forRule(RuleKey.of("repo", "rule"))
+      .forRule(RULE_KEY)
       .gap(10.0);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputModule);
@@ -158,7 +178,6 @@ public class DefaultIssueTest {
 
   @Test
   public void default_issue_has_no_quickfix() {
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(project, storage);
 
     assertThat(issue.isQuickFixAvailable()).isFalse();
@@ -166,7 +185,6 @@ public class DefaultIssueTest {
 
   @Test
   public void issue_can_have_quickfix() {
-    SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(project, storage).setQuickFixAvailable(true);
 
     assertThat(issue.isQuickFixAvailable()).isTrue();
