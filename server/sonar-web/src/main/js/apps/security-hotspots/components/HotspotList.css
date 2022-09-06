@@ -59,7 +59,7 @@
   border-left-color: var(--warningVariant);
 }
 
-.hotspot-item {
+.hotspot-category .hotspot-item {
   color: var(--baseFontColor);
   display: block;
   padding: var(--gridSize) calc(2 * var(--gridSize));
@@ -70,17 +70,17 @@
   text-align: left;
 }
 
-button.hotspot-item:focus {
+.hotspot-category button.hotspot-item:focus {
   color: var(--baseFontColor);
 }
 
-.hotspot-item:hover {
+.hotspot-category .hotspot-item:hover {
   background-color: var(--veryLightBlue);
   border: 1px dashed var(--blue);
   color: var(--baseFontColor);
 }
 
-.hotspot-item.highlight {
+.hotspot-category .hotspot-item.highlight {
   background-color: var(--veryLightBlue);
   color: var(--baseFontColor);
   border: 1px solid var(--blue);
