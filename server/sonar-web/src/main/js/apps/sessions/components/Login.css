@@ -18,13 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 .login-page {
-  padding-top: 10vh;
+  padding-top: 20vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .login-title {
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   line-height: 1.5;
   font-size: 24px;
   font-weight: 300;
   text-align: center;
+}
+
+body {
+  background: url("../images/codescan-bg.jpg");
+}
+
+.login-wrapper {
+  background-color: #e5e7ea;
+  padding: 40px 80px;
+  margin: 25px auto 0;
 }

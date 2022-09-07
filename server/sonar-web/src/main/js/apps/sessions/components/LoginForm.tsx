@@ -76,7 +76,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
       return (
         <div className="text-center">
           <a
-            className="small text-muted js-more-options"
+            className="small js-more-options"
             href="#"
             onClick={this.handleMoreOptionsClick}>
             {translate('login.more_options')}
