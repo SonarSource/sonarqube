@@ -164,8 +164,10 @@ public class GithubBinding {
     String dismissedReason;
     @SerializedName("dismissed_comment")
     String dismissedComment;
+    @SerializedName("tool")
+    GsonGithubCodeScanningAlertTool tool;
     @SerializedName("most_recent_instance")
-    GithubCodeScanningAlertInstance mostRecentInstance;
+    GsonGithubCodeScanningAlertInstance mostRecentInstance;
 
     public GsonGithubCodeScanningAlert() {
       // even if empty constructor is not required for Gson, it is strongly
@@ -189,28 +191,59 @@ public class GithubBinding {
       return dismissedComment;
     }
 
-    public GithubCodeScanningAlertInstance getInstance() {
+    public GsonGithubCodeScanningAlertTool getTool() {
+      return tool;
+    }
+
+    public GsonGithubCodeScanningAlertInstance getMostRecentInstance() {
       return mostRecentInstance;
     }
 
     public String getMessageText() {
-      return getInstance().getMessageText();
+      return getMostRecentInstance().getMessageText();
     }
   }
 
-  public static class GithubCodeScanningAlertInstance {
-    @SerializedName("state")
-    GithubCodeScanningAlertState state;
-    @SerializedName("message")
-    Message message;
+  public static class GsonGithubCodeScanningAlertWebhookPayload {
+    @SerializedName("action")
+    String action;
+    @SerializedName("alert")
+    GsonGithubCodeScanningAlert alert;
+    @SerializedName("sender")
+    GsonGithubCodeScanningAlertWebhookPayloadSender sender;
 
-    public GithubCodeScanningAlertInstance() {
+    public GsonGithubCodeScanningAlertWebhookPayload() {
       // even if empty constructor is not required for Gson, it is strongly
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
     }
 
-    public Message getMessage() {
+    public String getAction() {
+      return action;
+    }
+
+    public GsonGithubCodeScanningAlert getAlert() {
+      return alert;
+    }
+
+    public GsonGithubCodeScanningAlertWebhookPayloadSender getSender() {
+      return sender;
+    }
+  }
+
+  public static class GsonGithubCodeScanningAlertInstance {
+    @SerializedName("state")
+    GithubCodeScanningAlertState state;
+    @SerializedName("message")
+    GsonGithubCodeScanningAlertMessage message;
+
+    public GsonGithubCodeScanningAlertInstance() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public GsonGithubCodeScanningAlertMessage getMessage() {
       return message;
     }
 
@@ -225,14 +258,14 @@ public class GithubBinding {
     @SerializedName("fixed")
     FIXED,
     @SerializedName("dismissed")
-    DISMISSED;
+    DISMISSED
   }
 
-  public static class Message {
+  public static class GsonGithubCodeScanningAlertMessage {
     @SerializedName("text")
     String text;
 
-    public Message() {
+    public GsonGithubCodeScanningAlertMessage() {
       // even if empty constructor is not required for Gson, it is strongly
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
@@ -240,6 +273,36 @@ public class GithubBinding {
 
     public String getText() {
       return text;
+    }
+  }
+
+  public static class GsonGithubCodeScanningAlertWebhookPayloadSender {
+    @SerializedName("login")
+    String login;
+
+    public GsonGithubCodeScanningAlertWebhookPayloadSender() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public String getLogin() {
+      return login;
+    }
+  }
+
+  public static class GsonGithubCodeScanningAlertTool {
+    @SerializedName("name")
+    String name;
+
+    public GsonGithubCodeScanningAlertTool() {
+      // even if empty constructor is not required for Gson, it is strongly
+      // recommended:
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public String getName() {
+      return name;
     }
   }
 }
