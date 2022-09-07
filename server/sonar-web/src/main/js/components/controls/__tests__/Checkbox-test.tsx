@@ -17,101 +17,59 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import * as React from 'react';
-import { click } from '../../../helpers/testUtils';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import Checkbox from '../Checkbox';
 
-it('should render', () => {
-  const checkbox = shallow(<Checkbox checked={true} onCheck={() => {}} title="Title value" />);
-  expect(checkbox).toMatchSnapshot();
-});
+describe.each([
+  { children: null, describtion: 'with no children' },
+  { children: <a>child</a>, describtion: 'with children' }
+])('Checkbox $describtion', ({ children }) => {
+  it('should call check function', async () => {
+    const user = userEvent.setup();
+    const onCheck = jest.fn();
+    const rerender = renderCheckbox({
+      label: 'me',
+      children,
+      onCheck,
+      checked: false,
+      title: 'title'
+    });
+    await user.click(screen.getByRole('checkbox', { name: 'me' }));
+    expect(onCheck).toHaveBeenCalledWith(true, undefined);
+    expect(screen.getByTitle('title')).toBeInTheDocument();
+    rerender({ checked: true });
+    await user.click(screen.getByRole('checkbox', { name: 'me' }));
+    expect(onCheck).toHaveBeenCalledWith(false, undefined);
+  });
 
-it('should render unchecked', () => {
-  const checkbox = shallow(<Checkbox checked={false} onCheck={() => true} />);
-  expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
-  expect(checkbox.prop('aria-checked')).toBe(false);
-});
+  it('should accept partial state', () => {
+    renderCheckbox({ label: 'me', thirdState: true, children, checked: false });
+    expect(screen.getByRole('checkbox', { name: 'me' })).toHaveAttribute('aria-checked', 'mixed');
+  });
 
-it('should render checked', () => {
-  const checkbox = shallow(<Checkbox checked={true} onCheck={() => true} />);
-  expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
-  expect(checkbox.prop('aria-checked')).toBe(true);
-});
-
-it('should render disabled', () => {
-  const checkbox = shallow(<Checkbox checked={true} disabled={true} onCheck={() => true} />);
-  expect(checkbox.is('.icon-checkbox-disabled')).toBe(true);
-});
-
-it('should render unchecked third state', () => {
-  const checkbox = shallow(<Checkbox checked={false} onCheck={() => true} thirdState={true} />);
-  expect(checkbox.is('.icon-checkbox-single')).toBe(true);
-  expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
-  expect(checkbox.prop('aria-checked')).toBe('mixed');
-});
-
-it('should render checked third state', () => {
-  const checkbox = shallow(<Checkbox checked={true} onCheck={() => true} thirdState={true} />);
-  expect(checkbox.is('.icon-checkbox-single')).toBe(true);
-  expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
-  expect(checkbox.prop('aria-checked')).toBe('mixed');
-});
-
-it('should render with a spinner', () => {
-  const checkbox = shallow(<Checkbox checked={false} loading={true} onCheck={() => true} />);
-  expect(checkbox.find('DeferredSpinner').exists()).toBe(true);
-});
-
-it('should render children', () => {
-  const checkbox = shallow(
-    <Checkbox checked={false} onCheck={() => true}>
-      <span>foo</span>
-    </Checkbox>
-  );
-  expect(checkbox.hasClass('link-checkbox')).toBe(true);
-  expect(checkbox.find('span').exists()).toBe(true);
-});
-
-it('should render children with a spinner', () => {
-  const checkbox = shallow(
-    <Checkbox checked={false} loading={true} onCheck={() => true}>
-      <span>foo</span>
-    </Checkbox>
-  );
-  expect(checkbox.hasClass('link-checkbox')).toBe(true);
-  expect(checkbox.find('span').exists()).toBe(true);
-  expect(checkbox.find('DeferredSpinner').exists()).toBe(true);
-});
-
-it('should call onCheck', () => {
-  const onCheck = jest.fn();
-  const checkbox = shallow(<Checkbox checked={false} onCheck={onCheck} />);
-  click(checkbox);
-  expect(onCheck).toBeCalledWith(true, undefined);
-});
-
-it('should not call onCheck when disabled', () => {
-  const onCheck = jest.fn();
-  const checkbox = shallow(<Checkbox checked={false} disabled={true} onCheck={onCheck} />);
-  click(checkbox);
-  expect(onCheck).toHaveBeenCalledTimes(0);
-});
-
-it('should call onCheck with id as second parameter', () => {
-  const onCheck = jest.fn();
-  const checkbox = shallow(<Checkbox checked={false} id="foo" onCheck={onCheck} />);
-  click(checkbox);
-  expect(onCheck).toBeCalledWith(true, 'foo');
-});
-
-it('should apply custom class', () => {
-  const checkbox = shallow(
-    <Checkbox checked={true} className="customclass" onCheck={() => true} />
-  );
-  expect(checkbox.is('.customclass')).toBe(true);
+  it('should render loading state', () => {
+    jest.useFakeTimers();
+    renderCheckbox({ label: 'me', children, loading: true });
+    jest.runAllTimers();
+    expect(screen.getByLabelText('me')).toMatchSnapshot();
+    jest.useRealTimers();
+  });
 });
 
 it('should render the checkbox on the right', () => {
-  expect(shallow(<Checkbox checked={true} onCheck={() => true} right={true} />)).toMatchSnapshot();
+  renderCheckbox({ label: 'me', children: <a>child</a>, right: true });
+  expect(screen.getByRole('checkbox', { name: 'me' })).toMatchSnapshot();
 });
+
+function renderCheckbox(override?: Partial<Checkbox['props']>) {
+  const { rerender } = renderComponent(
+    <Checkbox checked={true} onCheck={jest.fn()} {...override} />
+  );
+  return function(reoverride?: Partial<Checkbox['props']>) {
+    rerender(<Checkbox checked={true} onCheck={jest.fn()} {...override} {...reoverride} />);
+  };
+}

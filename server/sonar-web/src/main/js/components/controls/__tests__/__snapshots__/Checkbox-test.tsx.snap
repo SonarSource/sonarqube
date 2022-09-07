@@ -1,22 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render 1`] = `
+exports[`Checkbox with children should render loading state 1`] = `
 <a
-  aria-checked={true}
-  className="icon-checkbox icon-checkbox-checked"
+  aria-checked="true"
+  aria-label="me"
+  class="link-checkbox"
   href="#"
-  onClick={[Function]}
   role="checkbox"
-  title="Title value"
+>
+  <i
+    class="deferred-spinner"
+  />
+  <a>
+    child
+  </a>
+</a>
+`;
+
+exports[`Checkbox with no children should render loading state 1`] = `
+<i
+  aria-label="me"
+  aria-live="polite"
+  class="deferred-spinner"
 />
 `;
 
 exports[`should render the checkbox on the right 1`] = `
 <a
-  aria-checked={true}
-  className="icon-checkbox icon-checkbox-checked"
+  aria-checked="true"
+  aria-label="me"
+  class="link-checkbox"
   href="#"
-  onClick={[Function]}
   role="checkbox"
-/>
+>
+  <a>
+    child
+  </a>
+  <i
+    class="icon-checkbox icon-checkbox-checked"
+  />
+</a>
 `;

@@ -93,7 +93,7 @@ export default class Checkbox extends React.PureComponent<Props> {
     }
 
     if (loading) {
-      return <DeferredSpinner />;
+      return <DeferredSpinner ariaLabel={label} />;
     }
 
     return (
