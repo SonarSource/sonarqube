@@ -45,7 +45,7 @@ public class HealthActionSupport {
   void define(WebService.NewController controller, SystemWsAction handler) {
     controller.createAction("health")
       .setDescription("Provide health status of SonarQube." +
-        "<p>Require 'Administer System' permission or authentication with passcode</p>" +
+        "<p>Although global health is calculated based on both application and search nodes, detailed information is returned only for application nodes.</p>" +
         "<p> " +
         " <ul>" +
         " <li>GREEN: SonarQube is fully operational</li>" +

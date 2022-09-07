@@ -166,39 +166,6 @@ public class HealthActionTest {
                   .setPort(999)
                   .setStartedAt(time)
                   .build())
-              .build(),
-            newNodeHealthBuilder()
-              .setStatus(NodeHealth.Status.GREEN)
-              .setDetails(
-                newNodeDetailsBuilder()
-                  .setName("es-1")
-                  .setType(NodeDetails.Type.SEARCH)
-                  .setHost("192.168.1.3")
-                  .setPort(999)
-                  .setStartedAt(time)
-                  .build())
-              .build(),
-            newNodeHealthBuilder()
-              .setStatus(NodeHealth.Status.GREEN)
-              .setDetails(
-                newNodeDetailsBuilder()
-                  .setName("es-2")
-                  .setType(NodeDetails.Type.SEARCH)
-                  .setHost("192.168.1.4")
-                  .setPort(999)
-                  .setStartedAt(time)
-                  .build())
-              .build(),
-            newNodeHealthBuilder()
-              .setStatus(NodeHealth.Status.GREEN)
-              .setDetails(
-                newNodeDetailsBuilder()
-                  .setName("es-3")
-                  .setType(NodeDetails.Type.SEARCH)
-                  .setHost("192.168.1.5")
-                  .setPort(999)
-                  .setStartedAt(time)
-                  .build())
               .build())));
 
     TestResponse response = underTest.newRequest().execute();
