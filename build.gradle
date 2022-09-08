@@ -322,7 +322,7 @@ subprojects {
         exclude 'commons-logging:commons-logging'
       }
       dependency 'org.subethamail:subethasmtp:3.1.7'
-      dependency 'org.yaml:snakeyaml:1.30'
+      dependency 'org.yaml:snakeyaml:1.31'
 
       // please keep this list alphabetically ordered
     }
