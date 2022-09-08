@@ -95,6 +95,14 @@ message TextRange {
 
 message Flow {
   repeated Location locations = 1;
+  optional string description = 2;
+  optional FlowType flowType = 3;
+}
+
+enum FlowType {
+  UNDEFINED = 0;
+  DATA = 1;
+  EXECUTION = 2;
 }
 
 message Location {

@@ -199,7 +199,8 @@ public class SearchAction implements HotspotsWsAction {
       .setSince("8.1")
       .setInternal(true)
       .setChangelog(
-        new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"));
+        new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
+        new Change("9.7", "Hotspot flows in the response may contain a description and a type"));
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
@@ -603,14 +604,7 @@ public class SearchAction implements HotspotsWsAction {
     }
 
     textRangeFormatter.formatTextRange(locations, hotspotBuilder::setTextRange);
-
-    for (DbIssues.Flow flow : locations.getFlowList()) {
-      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
-      for (DbIssues.Location flowLocation : flow.getLocationList()) {
-        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, hotspotBuilder.getComponent(), data.getComponentsByUuid()));
-      }
-      hotspotBuilder.addFlows(targetFlow.build());
-    }
+    hotspotBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, hotspotBuilder.getComponent(), data.getComponentsByUuid()));
   }
 
   private void formatComponents(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {

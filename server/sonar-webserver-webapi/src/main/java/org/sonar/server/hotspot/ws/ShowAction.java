@@ -105,7 +105,8 @@ public class ShowAction implements HotspotsWsAction {
       .setDescription("Provides the details of a Security Hotspot.")
       .setSince("8.1")
       .setChangelog(new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
-        + " /api/rules/show endpoint should be used to fetch rule descriptions."));
+          + " /api/rules/show endpoint should be used to fetch rule descriptions."),
+        new Change("9.7", "Hotspot flows in the response may contain a description and a type"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
@@ -222,13 +223,7 @@ public class ShowAction implements HotspotsWsAction {
     Set<String> componentUuids = readComponentUuidsFromLocations(hotspot, locations);
     Map<String, ComponentDto> componentsByUuids = loadComponents(dbSession, componentUuids);
 
-    for (DbIssues.Flow flow : locations.getFlowList()) {
-      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
-      for (DbIssues.Location flowLocation : flow.getLocationList()) {
-        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, hotspotBuilder.getComponent().getKey(), componentsByUuids));
-      }
-      hotspotBuilder.addFlows(targetFlow.build());
-    }
+    hotspotBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, hotspotBuilder.getComponent().getKey(), componentsByUuids));
   }
 
   private static Set<String> readComponentUuidsFromLocations(IssueDto hotspot, Locations locations) {
@@ -246,7 +241,7 @@ public class ShowAction implements HotspotsWsAction {
 
   private Map<String, ComponentDto> loadComponents(DbSession dbSession, Set<String> componentUuids) {
     Map<String, ComponentDto> componentsByUuids = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession,
-      componentUuids)
+        componentUuids)
       .stream()
       .collect(toMap(ComponentDto::uuid, Function.identity(), (componentDto, componentDto2) -> componentDto2));
 
@@ -278,10 +273,10 @@ public class ShowAction implements HotspotsWsAction {
   private void formatUsers(ShowWsResponse.Builder responseBuilder, Users users, FormattingContext formattingContext) {
     Common.User.Builder userBuilder = Common.User.newBuilder();
     Stream.concat(
-      Stream.of(users.getAssignee(), users.getAuthor())
-        .filter(Optional::isPresent)
-        .map(Optional::get),
-      formattingContext.getUsers().stream())
+        Stream.of(users.getAssignee(), users.getAuthor())
+          .filter(Optional::isPresent)
+          .map(Optional::get),
+        formattingContext.getUsers().stream())
       .distinct()
       .map(user -> userFormatter.formatUser(userBuilder, user))
       .forEach(responseBuilder::addUsers);
@@ -302,7 +297,7 @@ public class ShowAction implements HotspotsWsAction {
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
     ComponentDto component = hotspotOnProject ? project
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
     return new Components(project, component);
   }

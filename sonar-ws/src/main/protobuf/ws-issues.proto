@@ -287,4 +287,6 @@ message TaintVulnerabilityLite {
 
 message Flow {
   repeated Location locations = 1;
+  optional string description = 2;
+  optional sonarqube.ws.commons.FlowType type = 3;
 }

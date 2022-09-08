@@ -204,36 +204,50 @@ public class ShowActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
-    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder().addFlow(DbIssues.Flow.newBuilder().addAllLocation(Arrays.asList(
-      DbIssues.Location.newBuilder()
-        .setComponentId(file.uuid())
-        .setMsg("FLOW MESSAGE")
-        .setTextRange(DbCommons.TextRange.newBuilder()
-          .setStartLine(1)
-          .setEndLine(1)
-          .setStartOffset(0)
-          .setEndOffset(12)
-          .build())
-        .build(),
-      DbIssues.Location.newBuilder()
-        .setComponentId(anotherFile.uuid())
-        .setMsg("ANOTHER FLOW MESSAGE")
-        .setTextRange(DbCommons.TextRange.newBuilder()
-          .setStartLine(1)
-          .setEndLine(1)
-          .setStartOffset(0)
-          .setEndOffset(12)
-          .build())
-        .build(),
-      DbIssues.Location.newBuilder()
-        .setMsg("FLOW MESSAGE WITHOUT FILE UUID")
-        .setTextRange(DbCommons.TextRange.newBuilder()
-          .setStartLine(1)
-          .setEndLine(1)
-          .setStartOffset(0)
-          .setEndOffset(12)
-          .build())
-        .build())));
+    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder()
+      .addFlow(DbIssues.Flow.newBuilder()
+        .setDescription("FLOW DESCRIPTION")
+        .setType(DbIssues.FlowType.DATA)
+        .addAllLocation(Arrays.asList(
+          DbIssues.Location.newBuilder()
+            .setComponentId(file.uuid())
+            .setMsg("FLOW MESSAGE")
+            .setTextRange(DbCommons.TextRange.newBuilder()
+              .setStartLine(1)
+              .setEndLine(1)
+              .setStartOffset(0)
+              .setEndOffset(12)
+              .build())
+            .build(),
+          DbIssues.Location.newBuilder()
+            .setComponentId(anotherFile.uuid())
+            .setMsg("ANOTHER FLOW MESSAGE")
+            .setTextRange(DbCommons.TextRange.newBuilder()
+              .setStartLine(1)
+              .setEndLine(1)
+              .setStartOffset(0)
+              .setEndOffset(12)
+              .build())
+            .build(),
+          DbIssues.Location.newBuilder()
+            .setMsg("FLOW MESSAGE WITHOUT FILE UUID")
+            .setTextRange(DbCommons.TextRange.newBuilder()
+              .setStartLine(1)
+              .setEndLine(1)
+              .setStartOffset(0)
+              .setEndOffset(12)
+              .build())
+            .build())))
+      .addFlow(DbIssues.Flow.newBuilder()
+        .addAllLocation(Arrays.asList(
+          DbIssues.Location.newBuilder()
+            .setComponentId(file.uuid())
+            .setTextRange(DbCommons.TextRange.newBuilder()
+              .setStartLine(1)
+              .setStartOffset(0)
+              .setEndOffset(12)
+              .build())
+            .build())));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     var hotspot = dbTester.issues().insertHotspot(rule, project, file, i -> i.setLocations(locations.build()));
     mockChangelogAndCommentsFormattingContext();
@@ -244,13 +258,18 @@ public class ShowActionTest {
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getKey()).isEqualTo(hotspot.getKey());
-    assertThat(response.getFlowsCount()).isEqualTo(1);
+    assertThat(response.getFlowsCount()).isEqualTo(2);
+    assertThat(response.getFlows(0).getDescription()).isEqualTo("FLOW DESCRIPTION");
+    assertThat(response.getFlows(0).getFlowType()).isEqualTo(Common.FlowType.DATA);
     assertThat(response.getFlows(0).getLocationsList())
       .extracting(Location::getMsg, Location::getComponent)
       .containsExactlyInAnyOrder(
         tuple("FLOW MESSAGE", file.getKey()),
         tuple("ANOTHER FLOW MESSAGE", anotherFile.getKey()),
         tuple("FLOW MESSAGE WITHOUT FILE UUID", file.getKey()));
+
+    assertThat(response.getFlows(1).getDescription()).isEmpty();
+    assertThat(response.getFlows(1).hasFlowType()).isFalse();
   }
 
   @Test
@@ -435,7 +454,6 @@ public class ShowActionTest {
     };
   }
 
-
   @Test
   public void dispatch_description_sections_of_advanced_rule_in_relevant_field() {
     ComponentDto project = dbTester.components().insertPrivateProject();
@@ -481,7 +499,7 @@ public class ShowActionTest {
 
     RuleDto rule = newRuleWithoutSection(SECURITY_HOTSPOT,
       r -> r.addRuleDescriptionSectionDto(introductionSection)
-       .setDescriptionFormat(HTML));
+        .setDescriptionFormat(HTML));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
@@ -558,7 +576,6 @@ public class ShowActionTest {
 
     assertThat(response.getRule().getRiskDescription()).isEqualTo("<h2>Title</h2>&lt;div&gt;line1<br/>line2&lt;/div&gt;");
   }
-
 
   @Test
   public void handles_null_description_for_custom_rules() {
@@ -1037,8 +1054,8 @@ public class ShowActionTest {
       .extracting(User::getLogin, User::getName, User::getActive)
       .containsExactlyInAnyOrder(
         Stream.concat(
-          Stream.of(author, assignee),
-          changeLogAndCommentsUsers.stream())
+            Stream.of(author, assignee),
+            changeLogAndCommentsUsers.stream())
           .map(t -> tuple(t.getLogin(), t.getName(), t.isActive()))
           .toArray(Tuple[]::new));
   }

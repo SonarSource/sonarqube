@@ -19,8 +19,11 @@
  */
 package org.sonar.server.issue;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -43,6 +46,33 @@ public class TextRangeResponseFormatter {
     if (locations.hasTextRange()) {
       DbCommons.TextRange textRange = locations.getTextRange();
       rangeConsumer.accept(convertTextRange(textRange).build());
+    }
+  }
+
+  public List<Common.Flow> formatFlows(DbIssues.Locations locations, String issueComponent, Map<String, ComponentDto> componentsByUuid) {
+    return locations.getFlowList().stream().map(flow -> {
+      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
+      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+        targetFlow.addLocations(formatLocation(flowLocation, issueComponent, componentsByUuid));
+      }
+      if (flow.hasDescription()) {
+        targetFlow.setDescription(flow.getDescription());
+      }
+      if (flow.hasType()) {
+        convertFlowType(flow.getType()).ifPresent(targetFlow::setFlowType);
+      }
+      return targetFlow.build();
+    }).collect(Collectors.toList());
+  }
+
+  private static Optional<Common.FlowType> convertFlowType(DbIssues.FlowType flowType) {
+    switch (flowType) {
+      case DATA:
+        return Optional.of(Common.FlowType.DATA);
+      case EXECUTION:
+        return Optional.of(Common.FlowType.EXECUTION);
+      default:
+        return Optional.empty();
     }
   }
 

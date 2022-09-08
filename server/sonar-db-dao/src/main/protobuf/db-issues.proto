@@ -43,8 +43,9 @@ message Flow {
 }
 
 enum FlowType {
-  DATA = 0;
-  EXECUTION = 1;
+  UNDEFINED = 0;
+  DATA = 1;
+  EXECUTION = 2;
 }
 
 message Location {

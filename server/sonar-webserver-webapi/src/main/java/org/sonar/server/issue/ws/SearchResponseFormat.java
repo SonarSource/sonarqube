@@ -226,13 +226,7 @@ public class SearchResponseFormat {
       return;
     }
     textRangeFormatter.formatTextRange(locations, issueBuilder::setTextRange);
-    for (DbIssues.Flow flow : locations.getFlowList()) {
-      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
-      for (DbIssues.Location flowLocation : flow.getLocationList()) {
-        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, issueBuilder.getComponent(), data.getComponentsByUuid()));
-      }
-      issueBuilder.addFlows(targetFlow.build());
-    }
+    issueBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, issueBuilder.getComponent(), data.getComponentsByUuid()));
   }
 
   private static Transitions createIssueTransition(SearchResponseData data, IssueDto dto) {
