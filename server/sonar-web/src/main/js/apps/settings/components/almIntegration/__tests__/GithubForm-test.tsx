@@ -30,7 +30,15 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<GithubFormProps> = {}) {
   return shallow(
     <GithubForm
-      formData={{ key: '', appId: '', clientId: '', clientSecret: '', privateKey: '', url: '' }}
+      formData={{
+        key: '',
+        appId: '',
+        clientId: '',
+        clientSecret: '',
+        privateKey: '',
+        url: '',
+        webhookSecret: ''
+      }}
       onFieldChange={jest.fn()}
       {...props}
     />

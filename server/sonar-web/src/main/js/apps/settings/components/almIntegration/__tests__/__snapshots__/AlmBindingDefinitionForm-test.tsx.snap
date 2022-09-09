@@ -13,6 +13,7 @@ exports[`should render correctly: create 1`] = `
       "key": "",
       "privateKey": "",
       "url": "",
+      "webhookSecret": "",
     }
   }
   isUpdate={false}
@@ -37,6 +38,7 @@ exports[`should render correctly: edit 1`] = `
       "key": "key",
       "privateKey": "asdf1234",
       "url": "http://github.enterprise.com",
+      "webhookSecret": "verySecretText!!",
     }
   }
   isUpdate={true}

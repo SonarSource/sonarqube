@@ -30,6 +30,7 @@ exports[`should render correctly 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -87,6 +88,7 @@ exports[`should render correctly for azure 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -144,6 +146,7 @@ exports[`should render correctly for bitbucket 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         isUpdate={false}
@@ -204,6 +207,7 @@ exports[`should render correctly for github 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -261,6 +265,7 @@ exports[`should render correctly for gitlab 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -318,6 +323,7 @@ exports[`should render correctly: editing 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -381,6 +387,7 @@ exports[`should render correctly: second instance 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -438,6 +445,7 @@ exports[`should render correctly: submitting 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}
@@ -495,6 +503,7 @@ exports[`should render correctly: with validation error 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         onFieldChange={[MockFunction]}

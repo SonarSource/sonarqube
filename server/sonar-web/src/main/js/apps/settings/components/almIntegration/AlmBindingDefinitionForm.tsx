@@ -43,6 +43,7 @@ import {
   GitlabBindingDefinition,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
@@ -64,11 +65,19 @@ interface State {
   validationError?: string;
 }
 
-const BINDING_PER_ALM = {
+const BINDING_PER_ALM: {
+  [key in AlmKeys]: {
+    createApi: (def: AlmBindingDefinition) => Promise<void>;
+    updateApi: (def: AlmBindingDefinition) => Promise<void>;
+    defaultBinding: AlmBindingDefinition;
+    optionalFields: Dict<boolean>;
+  };
+} = {
   [AlmKeys.Azure]: {
     createApi: createAzureConfiguration,
     updateApi: updateAzureConfiguration,
-    defaultBinding: { key: '', personalAccessToken: '', url: '' } as AzureBindingDefinition
+    defaultBinding: { key: '', personalAccessToken: '', url: '' } as AzureBindingDefinition,
+    optionalFields: {}
   },
   [AlmKeys.GitHub]: {
     createApi: createGithubConfiguration,
@@ -79,13 +88,16 @@ const BINDING_PER_ALM = {
       clientId: '',
       clientSecret: '',
       url: '',
-      privateKey: ''
-    } as GithubBindingDefinition
+      privateKey: '',
+      webhookSecret: ''
+    } as GithubBindingDefinition,
+    optionalFields: { webhookSecret: true }
   },
   [AlmKeys.GitLab]: {
     createApi: createGitlabConfiguration,
     updateApi: updateGitlabConfiguration,
-    defaultBinding: { key: '', personalAccessToken: '', url: '' } as GitlabBindingDefinition
+    defaultBinding: { key: '', personalAccessToken: '', url: '' } as GitlabBindingDefinition,
+    optionalFields: {}
   },
   [AlmKeys.BitbucketServer]: {
     createApi: createBitbucketServerConfiguration,
@@ -94,7 +106,8 @@ const BINDING_PER_ALM = {
       key: '',
       url: '',
       personalAccessToken: ''
-    } as BitbucketServerBindingDefinition
+    } as BitbucketServerBindingDefinition,
+    optionalFields: {}
   },
   [AlmKeys.BitbucketCloud]: {
     createApi: createBitbucketCloudConfiguration,
@@ -104,7 +117,8 @@ const BINDING_PER_ALM = {
       clientId: '',
       clientSecret: '',
       workspace: ''
-    } as BitbucketCloudBindingDefinition
+    } as BitbucketCloudBindingDefinition,
+    optionalFields: {}
   }
 };
 
@@ -226,16 +240,23 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
 
   canSubmit = () => {
     const { bitbucketVariant, formData, touched } = this.state;
-    const allFieldsProvided = touched && !Object.values(formData).some(v => !v);
+    const { alm } = this.props;
+    const allRequiredFieldsProvided =
+      touched &&
+      !Object.entries(formData)
+        .filter(([key, _value]) => !BINDING_PER_ALM[alm].optionalFields[key])
+        .some(([_key, value]) => !value);
 
     if (
       bitbucketVariant === AlmKeys.BitbucketCloud &&
       isBitbucketCloudBindingDefinition(formData)
     ) {
-      return allFieldsProvided && BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace);
+      return (
+        allRequiredFieldsProvided && BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace)
+      );
     }
 
-    return allFieldsProvided;
+    return allRequiredFieldsProvided;
   };
 
   render() {

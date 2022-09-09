@@ -114,6 +114,17 @@ export default function GithubForm(props: GithubFormProps) {
         maxLength={2500}
         isSecret={true}
       />
+      <AlmBindingDefinitionFormField
+        id="webhook_secret.github"
+        help={translate('settings.almintegration.form.webhook_secret.github.help')}
+        maxLength={160}
+        onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
+        propKey="webhookSecret"
+        value={formData.webhookSecret}
+        isSecret={true}
+        optional={true}
+      />
     </>
   );
 }

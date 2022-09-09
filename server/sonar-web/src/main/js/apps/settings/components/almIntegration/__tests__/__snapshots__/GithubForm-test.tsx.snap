@@ -90,6 +90,17 @@ exports[`should render correctly 1`] = `
     propKey="privateKey"
     value=""
   />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.webhook_secret.github.help"
+    id="webhook_secret.github"
+    isSecret={true}
+    maxLength={160}
+    onFieldChange={[MockFunction]}
+    optional={true}
+    overwriteOnly={false}
+    propKey="webhookSecret"
+    value=""
+  />
 </Fragment>
 `;
 
@@ -182,6 +193,17 @@ exports[`should render correctly 2`] = `
     overwriteOnly={true}
     propKey="privateKey"
     value="asdf1234"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.webhook_secret.github.help"
+    id="webhook_secret.github"
+    isSecret={true}
+    maxLength={160}
+    onFieldChange={[MockFunction]}
+    optional={true}
+    overwriteOnly={true}
+    propKey="webhookSecret"
+    value="verySecretText!!"
   />
 </Fragment>
 `;

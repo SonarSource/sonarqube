@@ -422,6 +422,7 @@ exports[`should render correctly with validation: create a second 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         key="key"
@@ -475,6 +476,7 @@ exports[`should render correctly with validation: default 1`] = `
             "key": "key",
             "privateKey": "asdf1234",
             "url": "http://github.enterprise.com",
+            "webhookSecret": "verySecretText!!",
           }
         }
         key="key"

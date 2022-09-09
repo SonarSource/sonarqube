@@ -100,6 +100,7 @@ export function mockGithubBindingDefinition(
     clientId: 'client1',
     clientSecret: '**clientsecret**',
     privateKey: 'asdf1234',
+    webhookSecret: 'verySecretText!!',
     ...overrides
   };
 }

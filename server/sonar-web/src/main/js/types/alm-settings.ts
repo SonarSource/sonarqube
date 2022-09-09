@@ -59,6 +59,7 @@ export interface GithubBindingDefinition extends AlmBindingDefinitionBase {
   clientSecret: string;
   privateKey: string;
   url: string;
+  webhookSecret: string;
 }
 
 export interface GitlabBindingDefinition extends AlmBindingDefinitionBase {
