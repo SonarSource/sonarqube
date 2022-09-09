@@ -31,6 +31,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { AUTHENTICATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
+import SamlAuthentication from './SamlAuthentication';
 
 interface Props {
   definitions: ExtendedSettingDefinition[];
@@ -134,7 +135,7 @@ export default function Authentication(props: Props) {
             role="tabpanel"
             aria-labelledby={getTabId(currentTab)}
             id={getTabPanelId(currentTab)}>
-            <div className="big-padded">
+            <div className="big-padded-top big-padded-left big-padded-right">
               <Alert variant="info">
                 <FormattedMessage
                   id="settings.authentication.help"
@@ -151,12 +152,20 @@ export default function Authentication(props: Props) {
                   }}
                 />
               </Alert>
-              <CategoryDefinitionsList
-                category={AUTHENTICATION_CATEGORY}
-                definitions={definitions}
-                subCategory={currentTab}
-                displaySubCategoryTitle={false}
-              />
+              {currentTab === SAML && (
+                <SamlAuthentication
+                  definitions={definitions.filter(def => def.subCategory === SAML)}
+                />
+              )}
+
+              {currentTab !== SAML && (
+                <CategoryDefinitionsList
+                  category={AUTHENTICATION_CATEGORY}
+                  definitions={definitions}
+                  subCategory={currentTab}
+                  displaySubCategoryTitle={false}
+                />
+              )}
             </div>
           </div>
         )}

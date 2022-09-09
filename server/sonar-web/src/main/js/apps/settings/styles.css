@@ -199,3 +199,15 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+.fixed-footer {
+  position: sticky;
+  bottom: 0px;
+  height: 50px;
+  align-items: center;
+  display: flex;
+  border: 1px solid var(--gray80);
+  background-color: white;
+  justify-content: space-between;
+  margin: 0px -16px;
+}

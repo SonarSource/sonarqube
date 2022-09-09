@@ -20,12 +20,25 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
+import { mockDefinition } from '../../../../../helpers/mocks/settings';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { ExtendedSettingDefinition, SettingType } from '../../../../../types/settings';
 import Authentication from '../Authentication';
+
+jest.mock('../../../../../api/settings');
+
+let handler: AuthenticationServiceMock;
+
+beforeEach(() => {
+  handler = new AuthenticationServiceMock();
+});
+
+afterEach(() => handler.resetValues());
 
 it('should render tabs and allow navigation', async () => {
   const user = userEvent.setup();
-  renderAuthentication();
+  renderAuthentication([]);
 
   expect(screen.getAllByRole('tab')).toHaveLength(4);
 
@@ -40,6 +53,84 @@ it('should render tabs and allow navigation', async () => {
   );
 });
 
-function renderAuthentication() {
-  renderComponent(<Authentication definitions={[]} />);
+it('should allow user to edit fields and save configuration', async () => {
+  const user = userEvent.setup();
+  const definitions = [
+    mockDefinition({
+      key: 'test1',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'test1',
+      description: 'desc1'
+    }),
+    mockDefinition({
+      key: 'test2',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'test2',
+      description: 'desc2'
+    }),
+    mockDefinition({
+      key: 'sonar.auth.saml.certificate.secured',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'Certificate',
+      description: 'Secured certificate',
+      type: SettingType.PASSWORD
+    }),
+    mockDefinition({
+      key: 'sonar.auth.saml.enabled',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'Enabled',
+      description: 'To enable the flag',
+      type: SettingType.BOOLEAN
+    })
+  ];
+  renderAuthentication(definitions);
+
+  expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'true');
+  // update fields
+  await user.click(screen.getByRole('textbox', { name: 'test1' }));
+  await user.keyboard('new test1');
+
+  await user.click(screen.getByRole('textbox', { name: 'test2' }));
+  await user.keyboard('new test2');
+  // check if enable is allowed after updating
+  expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'false');
+
+  // reset value
+  await user.click(screen.getByRole('textbox', { name: 'test2' }));
+  await user.keyboard('{Control>}a{/Control}{Backspace}');
+  await user.click(screen.getByRole('button', { name: 'settings.authentication.saml.form.save' }));
+  expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'true');
+
+  await user.click(screen.getByRole('textbox', { name: 'test2' }));
+  await user.keyboard('new test2');
+  expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'false');
+
+  expect(
+    screen.getByRole('button', { name: 'settings.almintegration.form.secret.update_field' })
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole('button', { name: 'settings.almintegration.form.secret.update_field' })
+  );
+  // check for secure fields
+  expect(screen.getByRole('textbox', { name: 'Certificate' })).toBeInTheDocument();
+  await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
+  await user.keyboard('new certificate');
+  // enable the configuration
+  await user.click(screen.getByRole('button', { name: 'off' }));
+  expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'settings.authentication.saml.form.save' }));
+  // check after switching tab that the flag is still enabled
+  await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
+  await user.click(screen.getByRole('tab', { name: 'SAML' }));
+
+  expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
+});
+
+function renderAuthentication(definitions: ExtendedSettingDefinition[]) {
+  renderComponent(<Authentication definitions={definitions} />);
 }
