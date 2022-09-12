@@ -127,7 +127,7 @@ public class SamlIdentityProviderTest {
 
     assertThatThrownBy(() -> underTest.init(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fail to create Auth");
+      .hasMessage("Failed to create a SAML Auth");
   }
 
   @Test
@@ -278,7 +278,7 @@ public class SamlIdentityProviderTest {
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fail to create Auth");
+      .hasMessage("Failed to create a SAML Auth");
   }
 
   @Test

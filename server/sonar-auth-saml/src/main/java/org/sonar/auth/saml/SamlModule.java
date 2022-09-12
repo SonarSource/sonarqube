@@ -30,7 +30,8 @@ public class SamlModule extends Module {
     add(
       SamlIdentityProvider.class,
       SamlMessageIdChecker.class,
-      SamlSettings.class);
+      SamlSettings.class,
+      SamlAuthenticator.class);
     List<PropertyDefinition> definitions = SamlSettings.definitions();
     add(definitions.toArray(new Object[definitions.size()]));
   }

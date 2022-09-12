@@ -22,6 +22,9 @@ dependencies {
   compile project(':server:sonar-webserver-ws')
   compile project(':server:sonar-webserver-pushapi')
   compile project(':server:sonar-alm-client')
+  compile (project(':server:sonar-auth-saml')) {
+    exclude group:'org.apache.santuario'
+  }
   compile project(':sonar-scanner-protocol')
 
   compileOnly 'com.google.code.findbugs:jsr305'

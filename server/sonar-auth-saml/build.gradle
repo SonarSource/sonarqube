@@ -17,6 +17,7 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'com.squareup.okhttp3:okhttp'
     compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly 'org.json:json'
     compileOnly project(':server:sonar-db-dao')
     compileOnly project(':sonar-core')
 
