@@ -195,8 +195,10 @@ public class IssuePublisher {
         return ScannerReport.FlowType.EXECUTION;
       case DATA:
         return ScannerReport.FlowType.DATA;
-      default:
+      case UNDEFINED:
         return ScannerReport.FlowType.UNDEFINED;
+      default:
+        throw new IllegalArgumentException("Unrecognized flow type: " + flowType);
     }
   }
 

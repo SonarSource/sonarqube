@@ -263,8 +263,10 @@ public class TrackerRawInputFactory {
           return Optional.of(DbIssues.FlowType.DATA);
         case EXECUTION:
           return Optional.of(DbIssues.FlowType.EXECUTION);
-        default:
+        case UNDEFINED:
           return Optional.empty();
+        default:
+          throw new IllegalArgumentException("Unrecognized type: " + flowType);
       }
     }
 

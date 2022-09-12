@@ -71,8 +71,10 @@ public class TextRangeResponseFormatter {
         return Optional.of(Common.FlowType.DATA);
       case EXECUTION:
         return Optional.of(Common.FlowType.EXECUTION);
+      case UNDEFINED:
+        // we should only get this value if no type was set (since it's the default value of the enum), in which case this method shouldn't be called.
       default:
-        return Optional.empty();
+        throw new IllegalArgumentException("Unrecognized flow type: " + flowType);
     }
   }
 
