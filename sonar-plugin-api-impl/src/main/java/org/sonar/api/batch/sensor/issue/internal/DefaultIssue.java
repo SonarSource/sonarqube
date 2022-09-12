@@ -21,12 +21,12 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.rule.RuleKey;
 
 import static java.lang.String.format;

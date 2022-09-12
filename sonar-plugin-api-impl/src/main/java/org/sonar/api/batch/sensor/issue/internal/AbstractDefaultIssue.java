@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.PathUtils;
 
@@ -79,7 +80,11 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
     return addFlow(locations, DefaultIssueFlow.Type.UNDEFINED, null);
   }
 
-  public T addFlow(Iterable<NewIssueLocation> locations, DefaultIssueFlow.Type type, @Nullable String description) {
+  public T addFlow(Iterable<NewIssueLocation> flowLocations, NewIssue.FlowType flowType, @Nullable String flowDescription) {
+    return addFlow(flowLocations, DefaultIssueFlow.Type.valueOf(flowType.name()), flowDescription);
+  }
+
+  private T addFlow(Iterable<NewIssueLocation> locations, DefaultIssueFlow.Type type, @Nullable String description) {
     checkArgument(type != null, "Type can't be null");
     List<IssueLocation> flowAsList = new ArrayList<>();
     for (NewIssueLocation issueLocation : locations) {

@@ -37,6 +37,7 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +94,7 @@ public class DefaultIssueTest {
 
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation().on(inputFile))
-      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile)), DefaultIssueFlow.Type.DATA, "desc")
+      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile)), NewIssue.FlowType.DATA, "desc")
       .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile).at(range1), new DefaultIssueLocation().message("loc1").on(inputFile).at(range2)))
       .forRule(RULE_KEY);
 

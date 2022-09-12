@@ -37,9 +37,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -148,9 +148,9 @@ public class IssuePublisherTest {
       // Flow without type
       .addFlow(List.of(new DefaultIssueLocation().on(file).at(file.selectLine(1)).message("Foo1"), new DefaultIssueLocation().on(file).at(file.selectLine(2)).message("Foo2")))
       // Flow with type and description
-      .addFlow(List.of(new DefaultIssueLocation().on(file)), DefaultIssueFlow.Type.DATA, "description")
+      .addFlow(List.of(new DefaultIssueLocation().on(file)), NewIssue.FlowType.DATA, "description")
       // Flow with execution type and no description
-      .addFlow(List.of(new DefaultIssueLocation().on(file)), DefaultIssueFlow.Type.EXECUTION, null)
+      .addFlow(List.of(new DefaultIssueLocation().on(file)), NewIssue.FlowType.EXECUTION, null)
       .forRule(JAVA_RULE_KEY);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
