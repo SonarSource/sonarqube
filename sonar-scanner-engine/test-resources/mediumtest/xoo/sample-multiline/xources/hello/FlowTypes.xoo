@@ -1,0 +1,11 @@
+package hello;
+
+public class HelloJava {
+
+  public static void main(String[] args) {
+    {xoo-start-issue:1}System.out.println("Hello"){xoo-end-issue:1};
+    {xoo-start-data-flow:1:1:1}System.out.println("World"){xoo-end-data-flow:1:1:1};
+    {xoo-start-flow:1:2:1}System.out.println("World"){xoo-end-flow:1:2:1};
+    {xoo-start-execution-flow:1:3:1}System.out.println("World"){xoo-end-execution-flow:1:3:1};
+  }
+}

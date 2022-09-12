@@ -26,15 +26,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Flow;
+import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class MultilineIssuesMediumTest {
 
@@ -117,5 +120,19 @@ public class MultilineIssuesMediumTest {
     Flow flow = issue.getFlow(0);
     assertThat(flow.getLocationList()).hasSize(2);
     // TODO more assertions
+  }
+
+  @Test
+  public void testFlowsWithTypes() {
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/FlowTypes.xoo"));
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.get(0);
+    assertThat(issue.getFlowList()).hasSize(3);
+
+    assertThat(issue.getFlowList()).extracting(Flow::getType, Flow::getDescription, f -> f.getLocationList().size())
+      .containsExactly(
+        tuple(FlowType.DATA, "flow #1", 1),
+        tuple(FlowType.UNDEFINED, "", 1),
+        tuple(FlowType.EXECUTION, "flow #3", 1));
   }
 }
