@@ -89,8 +89,8 @@
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: bold;
-  color: inherit;
+  font-weight: bold !important;
+  color: inherit !important;
   text-align: left;
   max-width: 100%;
 }
