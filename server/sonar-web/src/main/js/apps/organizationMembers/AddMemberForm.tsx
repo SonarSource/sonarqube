@@ -106,9 +106,6 @@ export default class AddMemberForm extends React.PureComponent<Props, State> {
   render() {
     return (
       <>
-        <Button key="add-member-button" onClick={this.openForm}>
-          {translate('organization.members.add')}
-        </Button>
         <Link to={"/organizations/" + this.props.organization.key + "/extension/developer/invite_users"} className="button little-spacer-left">
           Invite Member
         </Link>
