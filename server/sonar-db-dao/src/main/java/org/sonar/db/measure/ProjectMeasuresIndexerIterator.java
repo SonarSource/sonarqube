@@ -131,7 +131,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
-         ResultSet rs = stmt.executeQuery()) {
+      ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String uuid = rs.getString(1);
         String key = rs.getString(2);
@@ -191,14 +191,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   private Measures selectMeasures(String projectUuid) {
-    Measures measures = new Measures();
-    ResultSet rs = null;
     try {
+      Measures measures = new Measures();
       prepareMeasuresStatement(projectUuid);
-      rs = measuresStatement.executeQuery();
-
-      while (rs.next()) {
-        readMeasure(rs, measures);
+      try (ResultSet rs = measuresStatement.executeQuery()) {
+        while (rs.next()) {
+          readMeasure(rs, measures);
+        }
       }
 
       List<String> projectBranches = selectProjectBranches(dbSession, projectUuid);
@@ -206,19 +205,18 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       if (!projectBranches.isEmpty()) {
         long biggestNcloc = selectProjectBiggestNcloc(dbSession, projectBranches);
         String biggestBranch = selectProjectBiggestBranch(dbSession, projectBranches, biggestNcloc);
-        PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch);
-        rs = prepareNclocByLanguageStatement.executeQuery();
-
-        if (rs.next()) {
-          readMeasure(rs, measures);
+        try (PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch)) {
+          try (ResultSet rs = prepareNclocByLanguageStatement.executeQuery()) {
+            if (rs.next()) {
+              readMeasure(rs, measures);
+            }
+          }
         }
       }
 
       return measures;
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s", projectUuid), e);
-    } finally {
-      DatabaseUtils.closeQuietly(rs);
     }
   }
 
@@ -246,64 +244,57 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   private static List<String> selectProjectBranches(DbSession session, String projectUuid) {
-    ResultSet rs = null;
     List<String> projectBranches = new ArrayList<>();
     try (PreparedStatement stmt = session.getConnection().prepareStatement(SQL_PROJECT_BRANCHES)) {
       AtomicInteger index = new AtomicInteger(1);
       stmt.setString(index.getAndIncrement(), projectUuid);
 
-      rs = stmt.executeQuery();
-
-      while (rs.next()) {
-        String uuid = rs.getString(1);
-        projectBranches.add(uuid);
+      try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+          String uuid = rs.getString(1);
+          projectBranches.add(uuid);
+        }
       }
       return projectBranches;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select all project branches", e);
-    } finally {
-      DatabaseUtils.closeQuietly(rs);
     }
   }
 
   private static long selectProjectBiggestNcloc(DbSession session, List<String> projectBranches) {
-    try {
-      long ncloc = 0;
-
+    try (PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_NCLOC_VALUE, session)) {
       AtomicInteger index = new AtomicInteger(1);
-      PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_NCLOC_VALUE, session);
       projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
 
       nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
       nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
 
-      ResultSet rs = nclocStatement.executeQuery();
-
-      if (rs.next()) {
-        ncloc = rs.getLong(1);
+      try (ResultSet rs = nclocStatement.executeQuery()) {
+        long ncloc = 0;
+        if (rs.next()) {
+          ncloc = rs.getLong(1);
+        }
+        return ncloc;
       }
-      return ncloc;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select the project biggest ncloc", e);
     }
   }
 
   private static String selectProjectBiggestBranch(DbSession session, List<String> projectBranches, long ncloc) {
-    try {
-      String biggestBranchUuid = "";
-
+    try (PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_BRANCH, session)) {
       AtomicInteger index = new AtomicInteger(1);
-      PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_BRANCH, session);
       projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
 
       nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
       nclocStatement.setLong(index.getAndIncrement(), ncloc);
       nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
 
-      ResultSet rs = nclocStatement.executeQuery();
-
-      if (rs.next()) {
-        biggestBranchUuid = rs.getString(1);
+      String biggestBranchUuid = "";
+      try (ResultSet rs = nclocStatement.executeQuery()) {
+        if (rs.next()) {
+          biggestBranchUuid = rs.getString(1);
+        }
       }
       return biggestBranchUuid;
     } catch (SQLException e) {
@@ -401,7 +392,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static class Measures {
-    private Map<String, Double> numericMeasures = new HashMap<>();
+    private final Map<String, Double> numericMeasures = new HashMap<>();
     private String qualityGateStatus;
     private Map<String, Integer> nclocByLanguages = new LinkedHashMap<>();
 
@@ -435,8 +426,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static class ProjectMeasures {
-    private Project project;
-    private Measures measures;
+    private final Project project;
+    private final Measures measures;
 
     public ProjectMeasures(Project project, Measures measures) {
       this.project = project;
