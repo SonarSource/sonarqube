@@ -44,6 +44,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -56,6 +57,7 @@ import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowTest {
@@ -147,7 +149,7 @@ public class IssueWorkflowTest {
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
@@ -168,7 +170,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(previousStatus);
       assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
@@ -194,7 +196,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(previousStatus);
       assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
@@ -218,7 +220,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(randomPreviousStatus);
       assertThat(issue.resolution()).isEqualTo(resolutionBeforeClosed);
@@ -242,7 +244,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(randomPreviousStatus);
       assertThat(issue.resolution()).isNull();
@@ -270,7 +272,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(randomPreviousStatus);
       assertThat(issue.resolution()).isEqualTo(resolutionBeforeClosed);
@@ -296,7 +298,7 @@ public class IssueWorkflowTest {
     underTest.start();
 
     Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
 
       assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
       assertThat(issue.updateDate()).isNull();
@@ -331,7 +333,7 @@ public class IssueWorkflowTest {
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
@@ -349,7 +351,7 @@ public class IssueWorkflowTest {
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
@@ -367,7 +369,7 @@ public class IssueWorkflowTest {
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
@@ -384,12 +386,11 @@ public class IssueWorkflowTest {
       .setStatus("xxx")
       .setNew(false)
       .setBeingClosed(true);
-    try {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Unknown status: xxx [issue=ABCDE]");
-    }
+
+    IssueChangeContext issueChangeContext = issueChangeContextByScanBuilder(new Date()).build();
+    assertThatThrownBy(() -> underTest.doAutomaticTransition(issue, issueChangeContext))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unknown status: xxx [issue=ABCDE]");
   }
 
   @Test
@@ -401,7 +402,7 @@ public class IssueWorkflowTest {
       .setAssigneeUuid("morgan");
 
     underTest.start();
-    underTest.doManualTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
+    underTest.doManualTransition(issue, DefaultTransitions.FALSE_POSITIVE, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -419,7 +420,7 @@ public class IssueWorkflowTest {
       .setAssigneeUuid("morgan");
 
     underTest.start();
-    underTest.doManualTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
+    underTest.doManualTransition(issue, DefaultTransitions.WONT_FIX, issueChangeContextByScanBuilder(new Date()).build());
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);

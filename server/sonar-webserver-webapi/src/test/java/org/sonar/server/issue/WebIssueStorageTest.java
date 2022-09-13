@@ -31,7 +31,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -46,6 +45,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
@@ -173,7 +173,7 @@ public class WebIssueStorageTest {
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssigneeUuid("loic")
-      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+      .setFieldChange(issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "severity", "INFO", "BLOCKER")
       .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
       .setResolution("FIXED")
       .setStatus("RESOLVED")

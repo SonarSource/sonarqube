@@ -19,14 +19,11 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
@@ -46,127 +43,57 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   private static final Logger LOG = Loggers.get(QGChangeEventListenersImpl.class);
 
-  private final QGChangeEventListener[] listeners;
+  private final Set<QGChangeEventListener> listeners;
 
-  public QGChangeEventListenersImpl(@Nullable QGChangeEventListener[] listeners) {
-    this.listeners = listeners != null ? listeners : new QGChangeEventListener[0];
+  public QGChangeEventListenersImpl(Set<QGChangeEventListener> listeners) {
+    this.listeners = listeners;
   }
 
   @Override
-  public void broadcastOnIssueChange(List<DefaultIssue> issues, Collection<QGChangeEvent> changeEvents) {
-    if (listeners.length == 0 || issues.isEmpty() || changeEvents.isEmpty()) {
+  public void broadcastOnIssueChange(List<DefaultIssue> issues, Collection<QGChangeEvent> changeEvents, boolean fromAlm) {
+    if (listeners.isEmpty() || issues.isEmpty() || changeEvents.isEmpty()) {
       return;
     }
 
     try {
-      Multimap<String, QGChangeEvent> eventsByBranchUuid = changeEvents.stream()
-        .collect(MoreCollectors.index(t -> t.getBranch().getUuid()));
-      Multimap<String, DefaultIssue> issueByBranchUuid = issues.stream()
-        .collect(MoreCollectors.index(DefaultIssue::projectUuid));
-
-      issueByBranchUuid.asMap().forEach((branchUuid, branchIssues) -> {
-        Collection<QGChangeEvent> qgChangeEvents = eventsByBranchUuid.get(branchUuid);
-        if (qgChangeEvents.isEmpty()) {
-          return;
-        }
-        Set<ChangedIssue> changedIssues = branchIssues.stream().map(ChangedIssueImpl::new).collect(toSet());
-        for (QGChangeEvent changeEvent : qgChangeEvents) {
-          for (QGChangeEventListener listener : listeners) {
-            broadcastTo(changedIssues, changeEvent, listener);
-          }
-        }
-      });
+      broadcastChangeEventsToBranches(issues, changeEvents, fromAlm);
     } catch (Error e) {
       LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
     }
   }
 
-  private static void broadcastTo(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent, QGChangeEventListener listener) {
+  private void broadcastChangeEventsToBranches(List<DefaultIssue> issues, Collection<QGChangeEvent> changeEvents, boolean fromAlm) {
+    Multimap<String, QGChangeEvent> eventsByBranchUuid = changeEvents.stream()
+      .collect(MoreCollectors.index(qgChangeEvent -> qgChangeEvent.getBranch().getUuid()));
+
+    Multimap<String, DefaultIssue> issueByBranchUuid = issues.stream()
+      .collect(MoreCollectors.index(DefaultIssue::projectUuid));
+
+    issueByBranchUuid.asMap().forEach(
+      (branchUuid, branchIssues) -> broadcastChangeEventsToBranch(branchIssues, eventsByBranchUuid.get(branchUuid), fromAlm));
+  }
+
+  private void broadcastChangeEventsToBranch(Collection<DefaultIssue> branchIssues, Collection<QGChangeEvent> branchQgChangeEvents, boolean fromAlm) {
+    Set<ChangedIssue> changedIssues = toChangedIssues(branchIssues, fromAlm);
+    branchQgChangeEvents.forEach(changeEvent -> broadcastChangeEventToListeners(changedIssues, changeEvent));
+  }
+
+  private static ImmutableSet<ChangedIssue> toChangedIssues(Collection<DefaultIssue> defaultIssues, boolean fromAlm) {
+    return defaultIssues.stream()
+      .map(defaultIssue -> new ChangedIssueImpl(defaultIssue, fromAlm))
+      .collect(toSet());
+  }
+
+  private void broadcastChangeEventToListeners(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent) {
+    listeners.forEach(listener -> broadcastChangeEventToListener(changedIssues, changeEvent, listener));
+  }
+
+  private static void broadcastChangeEventToListener(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent, QGChangeEventListener listener) {
     try {
       LOG.trace("calling onChange() on listener {} for events {}...", listener.getClass().getName(), changeEvent);
       listener.onIssueChanges(changeEvent, changedIssues);
     } catch (Exception e) {
       LOG.warn(format("onChange() call failed on listener %s for events %s", listener.getClass().getName(), changeEvent), e);
-    }
-  }
-
-  static class ChangedIssueImpl implements ChangedIssue {
-    private final String key;
-    private final QGChangeEventListener.Status status;
-    private final RuleType type;
-    private final String severity;
-
-    ChangedIssueImpl(DefaultIssue issue) {
-      this.key = issue.key();
-      this.status = statusOf(issue);
-      this.type = issue.type();
-      this.severity = issue.severity();
-    }
-
-    static QGChangeEventListener.Status statusOf(DefaultIssue issue) {
-      switch (issue.status()) {
-        case Issue.STATUS_OPEN:
-          return QGChangeEventListener.Status.OPEN;
-        case Issue.STATUS_CONFIRMED:
-          return QGChangeEventListener.Status.CONFIRMED;
-        case Issue.STATUS_REOPENED:
-          return QGChangeEventListener.Status.REOPENED;
-        case Issue.STATUS_TO_REVIEW:
-          return QGChangeEventListener.Status.TO_REVIEW;
-        case Issue.STATUS_IN_REVIEW:
-          return QGChangeEventListener.Status.IN_REVIEW;
-        case Issue.STATUS_REVIEWED:
-          return QGChangeEventListener.Status.REVIEWED;
-        case Issue.STATUS_RESOLVED:
-          return statusOfResolved(issue);
-        default:
-          throw new IllegalStateException("Unexpected status: " + issue.status());
-      }
-    }
-
-    private static QGChangeEventListener.Status statusOfResolved(DefaultIssue issue) {
-      String resolution = issue.resolution();
-      Objects.requireNonNull(resolution, "A resolved issue should have a resolution");
-      switch (resolution) {
-        case Issue.RESOLUTION_FALSE_POSITIVE:
-          return QGChangeEventListener.Status.RESOLVED_FP;
-        case Issue.RESOLUTION_WONT_FIX:
-          return QGChangeEventListener.Status.RESOLVED_WF;
-        case Issue.RESOLUTION_FIXED:
-          return QGChangeEventListener.Status.RESOLVED_FIXED;
-        default:
-          throw new IllegalStateException("Unexpected resolution for a resolved issue: " + resolution);
-      }
-    }
-
-    @Override
-    public String getKey() {
-      return key;
-    }
-
-    @Override
-    public QGChangeEventListener.Status getStatus() {
-      return status;
-    }
-
-    @Override
-    public RuleType getType() {
-      return type;
-    }
-
-    @Override
-    public String getSeverity() {
-      return severity;
-    }
-
-    @Override
-    public String toString() {
-      return "ChangedIssueImpl{" +
-        "key='" + key + '\'' +
-        ", status=" + status +
-        ", type=" + type +
-        ", severity=" + severity +
-        '}';
     }
   }
 

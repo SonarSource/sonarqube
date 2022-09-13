@@ -39,6 +39,7 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
@@ -95,10 +96,10 @@ public class AddCommentAction implements IssuesWsAction {
     AddCommentRequest wsRequest = toWsRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, wsRequest.getIssue());
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+      IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
       DefaultIssue defaultIssue = issueDto.toDefaultIssue();
       issueFieldsSetter.addComment(defaultIssue, wsRequest.getText(), context);
-      SearchResponseData preloadedSearchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, false);
+      SearchResponseData preloadedSearchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
       responseWriter.write(defaultIssue.key(), preloadedSearchResponseData, request, response);
     }
   }

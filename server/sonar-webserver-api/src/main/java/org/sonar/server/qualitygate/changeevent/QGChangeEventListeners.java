@@ -25,5 +25,11 @@ import org.sonar.core.issue.DefaultIssue;
 
 public interface QGChangeEventListeners {
 
-  void broadcastOnIssueChange(List<DefaultIssue> changedIssues, Collection<QGChangeEvent> qgChangeEvents);
+  /**
+   * Broadcast events after issues were updated
+   *
+   * @param fromAlm: true if issues changes were initiated by an ALM.
+   */
+  void broadcastOnIssueChange(List<DefaultIssue> changedIssues, Collection<QGChangeEvent> qgChangeEvents, boolean fromAlm);
+
 }

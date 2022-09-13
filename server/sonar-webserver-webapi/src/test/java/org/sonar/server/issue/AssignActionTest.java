@@ -40,6 +40,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class AssignActionTest {
@@ -53,7 +54,7 @@ public class AssignActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "user_uuid");
+  private final IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
   private final DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
   private Action.Context context;
 

@@ -44,6 +44,7 @@ import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -114,11 +115,11 @@ public class DoTransitionAction implements IssuesWsAction {
 
   private SearchResponseData doTransition(DbSession session, IssueDto issueDto, String transitionKey) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue, defaultIssue.projectUuid());
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, true, branch);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(defaultIssue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, null, transitionKey, branch,

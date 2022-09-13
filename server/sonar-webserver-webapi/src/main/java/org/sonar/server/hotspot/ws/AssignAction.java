@@ -107,7 +107,7 @@ public class AssignAction implements HotspotsWsAction {
       hotspotWsSupport.loadAndCheckProject(dbSession, hotspotDto, UserRole.USER);
       UserDto assignee = isNullOrEmpty(login) ? null : getAssignee(dbSession, login);
 
-      IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
+      IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithoutMeasureRefresh();
 
       DefaultIssue defaultIssue = hotspotDto.toDefaultIssue();
 
@@ -120,7 +120,7 @@ public class AssignAction implements HotspotsWsAction {
       }
 
       if (issueFieldsSetter.assign(defaultIssue, assignee, context)) {
-        issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, false);
+        issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
       }
     }
   }

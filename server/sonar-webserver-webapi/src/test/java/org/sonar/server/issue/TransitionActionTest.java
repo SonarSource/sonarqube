@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -46,6 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
@@ -65,7 +65,7 @@ public class TransitionActionTest {
   public void setUp() {
     workflow.start();
     when(context.issue()).thenReturn(issue);
-    when(context.issueChangeContext()).thenReturn(IssueChangeContext.createUser(new Date(), "user_uuid"));
+    when(context.issueChangeContext()).thenReturn(issueChangeContextByUserBuilder(new Date(), "user_uuid").build());
   }
 
   @Test

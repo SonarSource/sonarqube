@@ -64,6 +64,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 @RunWith(DataProviderRunner.class)
@@ -226,14 +227,13 @@ public class AddCommentActionTest {
 
     newRequest(hotspot, comment).execute().assertNoContent();
 
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(issueFieldsSetter).addComment(defaultIssueCaptor.capture(), eq(comment), eq(issueChangeContext));
     verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
       any(DbSession.class),
       defaultIssueCaptor.capture(),
-      eq(issueChangeContext),
-      eq(false));
+      eq(issueChangeContext));
 
     // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
     List<DefaultIssue> capturedDefaultIssues = defaultIssueCaptor.getAllValues();

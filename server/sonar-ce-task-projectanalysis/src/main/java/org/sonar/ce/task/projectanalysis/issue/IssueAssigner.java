@@ -36,7 +36,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-import static org.sonar.core.issue.IssueChangeContext.createScan;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**
  * Detect the SCM author and SQ assignee.
@@ -62,7 +62,7 @@ public class IssueAssigner extends IssueVisitor {
     this.scmAccountToUser = scmAccountToUser;
     this.defaultAssignee = defaultAssignee;
     this.issueUpdater = issueUpdater;
-    this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
+    this.changeContext = issueChangeContextByScanBuilder(new Date(analysisMetadataHolder.getAnalysisDate())).build();
   }
 
   @Override

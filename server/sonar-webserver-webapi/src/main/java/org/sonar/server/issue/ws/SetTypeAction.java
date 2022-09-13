@@ -41,6 +41,7 @@ import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -116,10 +117,10 @@ public class SetTypeAction implements IssuesWsAction {
 
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       BranchDto branch = issueUpdater.getBranch(session, issue, issue.projectUuid());
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, true, branch);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, null, ruleType.name(), null, branch,
           response.getComponentByUuid(issue.projectUuid()).getKey());

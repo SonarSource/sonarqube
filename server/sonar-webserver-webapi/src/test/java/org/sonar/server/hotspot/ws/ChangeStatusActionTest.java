@@ -75,6 +75,7 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 @RunWith(DataProviderRunner.class)
@@ -404,7 +405,7 @@ public class ChangeStatusActionTest {
 
     newRequest(hotspot, STATUS_REVIEWED, resolution, NO_COMMENT).execute().assertNoContent();
 
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(transitionService).checkTransitionPermission(eq(expectedTransitionKey), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
@@ -415,8 +416,7 @@ public class ChangeStatusActionTest {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
         defaultIssueCaptor.capture(),
-        eq(issueChangeContext),
-        eq(true));
+        eq(issueChangeContext));
 
       // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
       verifyAllSame3Objects(defaultIssueCaptor.getAllValues());
@@ -453,7 +453,7 @@ public class ChangeStatusActionTest {
 
     newRequest(hotspot, STATUS_TO_REVIEW, null, NO_COMMENT).execute().assertNoContent();
 
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(transitionService).checkTransitionPermission(eq(DefaultTransitions.RESET_AS_TO_REVIEW), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
@@ -464,8 +464,7 @@ public class ChangeStatusActionTest {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
         defaultIssueCaptor.capture(),
-        eq(issueChangeContext),
-        eq(true));
+        eq(issueChangeContext));
 
       // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
       verifyAllSame3Objects(defaultIssueCaptor.getAllValues());
@@ -504,7 +503,7 @@ public class ChangeStatusActionTest {
 
     newRequest(hotspot, newStatus, newResolution, comment).execute().assertNoContent();
 
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(now), userSessionRule.getUuid()).withRefreshMeasures().build();
     ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(transitionService).doTransition(defaultIssueCaptor.capture(), eq(issueChangeContext), anyString());
     if (transitionDone) {
@@ -512,8 +511,7 @@ public class ChangeStatusActionTest {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
         defaultIssueCaptor.capture(),
-        eq(issueChangeContext),
-        eq(true));
+        eq(issueChangeContext));
 
       // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
       verifyAllSame3Objects(defaultIssueCaptor.getAllValues());

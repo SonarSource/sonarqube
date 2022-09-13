@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -43,7 +44,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl.ChangedIssueImpl;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -77,25 +77,25 @@ public class QGChangeEventListenersImplTest {
 
   private final InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
-  private final QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
+  private final QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new LinkedHashSet<>(List.of(listener1, listener2, listener3)));
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
-    underTest.broadcastOnIssueChange(emptyList(), singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(emptyList(), singletonList(component1QGChangeEvent), false);
 
     verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_changeEvent() {
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, emptySet());
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, emptySet(), false);
 
     verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
   public void broadcastOnIssueChange_passes_same_arguments_to_all_listeners_in_order_of_addition_to_constructor() {
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
@@ -112,7 +112,7 @@ public class QGChangeEventListenersImplTest {
       .when(failingListener)
       .onIssueChanges(any(), any());
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
@@ -130,7 +130,7 @@ public class QGChangeEventListenersImplTest {
       .when(listener2)
       .onIssueChanges(any(), any());
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
@@ -143,7 +143,7 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_logs_each_listener_call_at_TRACE_level() {
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     assertThat(logTester.logs()).hasSize(3);
     List<String> traceLogs = logTester.logs(LoggerLevel.TRACE);
@@ -156,9 +156,9 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_passes_immutable_set_of_ChangedIssues() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1});
+    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(Set.of(listener1));
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
@@ -167,9 +167,9 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_listener() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(null);
+    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(Set.of());
 
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
     verifyNoInteractions(listener1, listener2, listener3);
   }
@@ -213,7 +213,7 @@ public class QGChangeEventListenersImplTest {
       .flatMap(s -> s)
       .collect(Collectors.toList());
 
-    underTest.broadcastOnIssueChange(changedIssues, randomizedList(qgChangeEvents));
+    underTest.broadcastOnIssueChange(changedIssues, randomizedList(qgChangeEvents), false);
 
     listeners.forEach(listener -> {
       verifyListenerCalled(listener, component1QGChangeEvent, component1Issue);
@@ -272,6 +272,41 @@ public class QGChangeEventListenersImplTest {
     ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
 
     assertThat(changedIssue.isVulnerability()).isFalse();
+  }
+
+  @Test
+  public void fromAlm_returns_false_by_default() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_OPEN);
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.fromAlm()).isFalse();
+  }
+
+  @Test
+  public void getSeverity_should_returns_default_issue_severity() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_OPEN);
+    defaultIssue.setSeverity("BLOCKER");
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.getSeverity()).isEqualTo(defaultIssue.severity());
+  }
+
+  @Test
+  public void test_ChangedIssueImpl_toString() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_CONFIRMED);
+    defaultIssue.setKey("abc");
+    defaultIssue.setType(RuleType.BUG);
+    defaultIssue.setSeverity("BLOCKER");
+    String expected = "ChangedIssueImpl{key='abc', status=" + Issue.STATUS_CONFIRMED + ", type=" + RuleType.BUG + ", severity=BLOCKER, fromAlm=false}";
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue).hasToString(expected);
   }
 
   @Test
@@ -345,12 +380,10 @@ public class QGChangeEventListenersImplTest {
   }
 
   private static String[] possibleResolutions(String status) {
-    switch (status) {
-      case Issue.STATUS_RESOLVED:
-        return new String[] {Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_WONT_FIX};
-      default:
-        return new String[0];
+    if (Issue.STATUS_RESOLVED.equals(status)) {
+      return new String[]{Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_WONT_FIX};
     }
+    return new String[0];
   }
 
   private static BranchDto newBranchDto(String uuid) {

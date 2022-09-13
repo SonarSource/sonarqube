@@ -25,16 +25,22 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class IssueChangeContext implements Serializable {
 
   private final String userUuid;
   private final Date date;
   private final boolean scan;
+  private final boolean refreshMeasures;
+  private final boolean fromAlm;
 
-  private IssueChangeContext(@Nullable String userUuid, Date date, boolean scan) {
+  private IssueChangeContext(@Nullable String userUuid, Date date, boolean scan, boolean refreshMeasures, boolean fromAlm) {
     this.userUuid = userUuid;
-    this.date = date;
+    this.date = requireNonNull(date);
     this.scan = scan;
+    this.refreshMeasures = refreshMeasures;
+    this.fromAlm = fromAlm;
   }
 
   @CheckForNull
@@ -50,12 +56,12 @@ public class IssueChangeContext implements Serializable {
     return scan;
   }
 
-  public static IssueChangeContext createScan(Date date) {
-    return new IssueChangeContext(null, date, true);
+  public boolean refreshMeasures() {
+    return refreshMeasures;
   }
 
-  public static IssueChangeContext createUser(Date date, @Nullable String userUuid) {
-    return new IssueChangeContext(userUuid, date, false);
+  public boolean fromAlm() {
+    return fromAlm;
   }
 
   @Override
@@ -69,12 +75,13 @@ public class IssueChangeContext implements Serializable {
     IssueChangeContext that = (IssueChangeContext) o;
     return scan == that.scan &&
       Objects.equals(userUuid, that.userUuid) &&
-      Objects.equals(date, that.date);
+      Objects.equals(date, that.date) &&
+      refreshMeasures == that.refreshMeasures;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userUuid, date, scan);
+    return Objects.hash(userUuid, date, scan, refreshMeasures, fromAlm);
   }
 
   @Override
@@ -83,6 +90,60 @@ public class IssueChangeContext implements Serializable {
       "userUuid='" + userUuid + '\'' +
       ", date=" + date +
       ", scan=" + scan +
+      ", refreshMeasures=" + refreshMeasures +
+      ", fromAlm=" + fromAlm +
       '}';
+  }
+
+  public static IssueChangeContextBuilder newBuilder() {
+    return new IssueChangeContextBuilder();
+  }
+
+  public static IssueChangeContextBuilder issueChangeContextByScanBuilder(Date date) {
+    return newBuilder().withScan().setUserUuid(null).setDate(date);
+  }
+
+  public static IssueChangeContextBuilder issueChangeContextByUserBuilder(Date date, @Nullable String userUuid) {
+    return newBuilder().setUserUuid(userUuid).setDate(date);
+  }
+
+  public static final class IssueChangeContextBuilder {
+    private String userUuid;
+    private Date date;
+    private boolean scan = false;
+    private boolean refreshMeasures = false;
+    private boolean fromAlm = false;
+
+    private IssueChangeContextBuilder() {
+    }
+
+    public IssueChangeContextBuilder setUserUuid(@Nullable String userUuid) {
+      this.userUuid = userUuid;
+      return this;
+    }
+
+    public IssueChangeContextBuilder setDate(Date date) {
+      this.date = date;
+      return this;
+    }
+
+    public IssueChangeContextBuilder withScan() {
+      this.scan = true;
+      return this;
+    }
+
+    public IssueChangeContextBuilder withRefreshMeasures() {
+      this.refreshMeasures = true;
+      return this;
+    }
+
+    public IssueChangeContextBuilder withFromAlm() {
+      this.fromAlm = true;
+      return this;
+    }
+
+    public IssueChangeContext build() {
+      return new IssueChangeContext(userUuid, date, scan, refreshMeasures, fromAlm);
+    }
   }
 }

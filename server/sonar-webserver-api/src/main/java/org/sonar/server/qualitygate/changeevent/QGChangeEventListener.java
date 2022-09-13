@@ -53,6 +53,10 @@ public interface QGChangeEventListener {
     default boolean isVulnerability() {
       return getType() == VULNERABILITY;
     }
+
+    default boolean fromAlm() {
+      return false;
+    }
   }
 
   enum Status {

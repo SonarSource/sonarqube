@@ -34,6 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 
 public class HotspotWsSupport {
   private final DbClient dbClient;
@@ -77,7 +78,11 @@ public class HotspotWsSupport {
     return userSession.hasComponentPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
   }
 
-  IssueChangeContext newIssueChangeContext() {
-    return IssueChangeContext.createUser(new Date(system2.now()), checkLoggedIn());
+  IssueChangeContext newIssueChangeContextWithoutMeasureRefresh() {
+    return issueChangeContextByUserBuilder(new Date(system2.now()), checkLoggedIn()).build();
+  }
+
+  IssueChangeContext newIssueChangeContextWithMeasureRefresh() {
+    return issueChangeContextByUserBuilder(new Date(system2.now()), checkLoggedIn()).withRefreshMeasures().build();
   }
 }

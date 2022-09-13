@@ -20,28 +20,83 @@
 package org.sonar.core.issue;
 
 import java.util.Date;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 
 public class IssueChangeContextTest {
-  @Test
-  public void test_scan_context() {
-    Date now = new Date();
-    IssueChangeContext context = IssueChangeContext.createScan(now);
 
-    assertThat(context.scan()).isTrue();
-    assertThat(context.userUuid()).isNull();
-    assertThat(context.date()).isEqualTo(now);
+  private static final Date NOW = new Date();
+  private static final String USER_UUID = "user_uuid";
+
+  private IssueChangeContext context;
+
+  @Test
+  public void test_issueChangeContextByScanBuilder() {
+    context = issueChangeContextByScanBuilder(NOW).build();
+
+    verifyContext(null, true, false, false);
   }
 
   @Test
-  public void test_end_user_context() {
-    Date now = new Date();
-    IssueChangeContext context = IssueChangeContext.createUser(now, "user_uuid");
+  public void test_issueChangeContextByUserBuilder() {
+    context = issueChangeContextByUserBuilder(NOW, USER_UUID).build();
 
-    assertThat(context.scan()).isFalse();
-    assertThat(context.userUuid()).isEqualTo("user_uuid");
-    assertThat(context.date()).isEqualTo(now);
+    verifyContext(USER_UUID, false, false, false);
   }
+
+  @Test
+  public void test_newBuilder() {
+    context = IssueChangeContext.newBuilder()
+      .withScan()
+      .withRefreshMeasures()
+      .setUserUuid(USER_UUID)
+      .setDate(NOW)
+      .withFromAlm()
+      .build();
+
+    verifyContext(USER_UUID, true, true, true);
+  }
+
+  @Test
+  public void test_equal() {
+    context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
+    IssueChangeContext equalContext = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
+    IssueChangeContext notEqualContext = IssueChangeContext.newBuilder().setUserUuid("other_user_uuid").setDate(NOW).build();
+
+    assertThat(context).isEqualTo(context)
+      .isEqualTo(equalContext)
+      .isNotEqualTo(notEqualContext)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
+  }
+
+  @Test
+  public void test_hashCode() {
+    context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
+
+    assertThat(context.hashCode()).isEqualTo(Objects.hash(USER_UUID, NOW, false, false, false));
+  }
+
+  @Test
+  public void test_toString() {
+    context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
+    String expected = "IssueChangeContext{userUuid='user_uuid', date=" + NOW + ", scan=false, refreshMeasures=false, fromAlm=false}";
+
+    assertThat(context).hasToString(expected);
+  }
+
+  private void verifyContext(@Nullable String userUuid, boolean scan, boolean refreshMeasures, boolean fromAlm) {
+    assertThat(context.userUuid()).isEqualTo(userUuid);
+    assertThat(context.date()).isEqualTo(NOW);
+    assertThat(context.scan()).isEqualTo(scan);
+    assertThat(context.refreshMeasures()).isEqualTo(refreshMeasures);
+    assertThat(context.fromAlm()).isEqualTo(fromAlm);
+  }
+
+
 }

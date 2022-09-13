@@ -83,9 +83,9 @@ public class AddCommentAction implements HotspotsWsAction {
       hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
 
       DefaultIssue defaultIssue = hotspot.toDefaultIssue();
-      IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
+      IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithoutMeasureRefresh();
       issueFieldsSetter.addComment(defaultIssue, comment, context);
-      issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, false);
+      issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
       response.noContent();
     }
   }

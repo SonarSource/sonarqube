@@ -37,6 +37,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**
  * Sets the appropriate fields when an issue is :
@@ -58,7 +59,7 @@ public class IssueLifecycle {
   @Inject
   public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueFieldsSetter updater, DebtCalculator debtCalculator,
     RuleRepository ruleRepository) {
-    this(analysisMetadataHolder, IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator, ruleRepository);
+    this(analysisMetadataHolder, issueChangeContextByScanBuilder(new Date(analysisMetadataHolder.getAnalysisDate())).build(), workflow, updater, debtCalculator, ruleRepository);
   }
 
   @VisibleForTesting IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,

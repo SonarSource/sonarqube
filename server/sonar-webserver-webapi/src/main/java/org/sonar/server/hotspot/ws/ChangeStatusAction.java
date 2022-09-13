@@ -147,13 +147,13 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
   private void doTransition(DbSession session, IssueDto issueDto, String transitionKey, @Nullable String comment) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-    IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
+    IssueChangeContext context = hotspotWsSupport.newIssueChangeContextWithMeasureRefresh();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       if (comment != null) {
         issueFieldsSetter.addComment(defaultIssue, comment, context);
       }
-      issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, true);
+      issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context);
     }
   }
 

@@ -29,7 +29,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
@@ -43,6 +42,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -68,7 +68,7 @@ public class SetSeverityActionTest {
     IssueDto issueDto = newIssue().setSeverity(MAJOR);
     DefaultIssue issue = issueDto.toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-    Action.Context context = new ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null);
+    Action.Context context = new ActionContext(issue, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null);
 
     action.execute(ImmutableMap.of("severity", MINOR), context);
 

@@ -57,6 +57,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectBranchOf;
@@ -91,10 +92,10 @@ public class IssueUpdaterTest {
   public void update_issue() {
     DefaultIssue issue = db.issues().insertIssue(i -> i.setSeverity(MAJOR)).toDefaultIssue();
     UserDto user = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), user.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), user.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issue.key()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(BLOCKER);
@@ -110,10 +111,10 @@ public class IssueUpdaterTest {
       t -> t.setSeverity(MAJOR).setAssigneeUuid(assignee.getUuid()))
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -139,10 +140,10 @@ public class IssueUpdaterTest {
       t -> t.setSeverity(MAJOR).setAssigneeUuid(assignee.getUuid()))
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
     issueFieldsSetter.setResolution(issue, RESOLUTION_FIXED, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -167,10 +168,10 @@ public class IssueUpdaterTest {
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file,
       t -> t.setSeverity(MAJOR)).toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -193,10 +194,10 @@ public class IssueUpdaterTest {
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file, t -> t.setSeverity(MAJOR)).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verifyNoInteractions(notificationManager);
   }
@@ -207,10 +208,10 @@ public class IssueUpdaterTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(rule, project, file, t -> t.setSeverity(MAJOR)).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verifyNoInteractions(notificationManager);
   }
@@ -224,11 +225,11 @@ public class IssueUpdaterTest {
     DefaultIssue issue = db.issues().insertIssue(rule, project, file, t -> t.setAssigneeUuid(oldAssignee.getUuid()))
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).build();
     UserDto newAssignee = db.users().insertUser();
     issueFieldsSetter.assign(issue, newAssignee, context);
 
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -252,10 +253,10 @@ public class IssueUpdaterTest {
     IssueDto issueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = issueDto.setSeverity(MAJOR).toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), changeAuthor.getUuid()).withRefreshMeasures().build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, true);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);
@@ -277,10 +278,10 @@ public class IssueUpdaterTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = issueDto.setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);

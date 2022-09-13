@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
@@ -41,6 +40,7 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -68,7 +68,7 @@ public class SetTypeActionTest {
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     action.execute(ImmutableMap.of("type", VULNERABILITY.name()),
-      new ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null));
+      new ActionContext(issue, issueChangeContextByUserBuilder(NOW, userSession.getUuid()).build(), null));
 
     assertThat(issue.type()).isEqualTo(VULNERABILITY);
     assertThat(issue.isChanged()).isTrue();

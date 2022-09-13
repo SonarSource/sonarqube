@@ -88,6 +88,7 @@ import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -207,7 +208,7 @@ public class BulkChangeAction implements IssuesWsAction {
   private BulkChangeResult executeBulkChange(DbSession dbSession, Request request) {
     BulkChangeData bulkChangeData = new BulkChangeData(dbSession, request);
     BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
 
     List<DefaultIssue> items = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
@@ -239,7 +240,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .collect(MoreCollectors.toList(touchedComponentUuids.size()));
 
     List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).collect(MoreCollectors.toList());
-    issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents);
+    issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents, false);
   }
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {

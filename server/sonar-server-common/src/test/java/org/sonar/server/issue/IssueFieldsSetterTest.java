@@ -34,6 +34,7 @@ import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
 import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
@@ -47,7 +48,7 @@ public class IssueFieldsSetterTest {
   private final String DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY = "spring";
 
   private final DefaultIssue issue = new DefaultIssue();
-  private final IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+  private final IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
   private final IssueFieldsSetter underTest = new IssueFieldsSetter();
 
   @Test

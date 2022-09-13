@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 
 class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
 
@@ -104,7 +105,7 @@ class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
   private Collection<? extends DefaultIssue> migrateIssuesToTheRoot(List<DefaultIssue> issuesOnModule, String modulePath) {
     for (DefaultIssue i : issuesOnModule) {
       // changes the issue's component uuid, add a change and set issue as changed to enforce it is persisted to DB
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null);
+      IssueChangeContext context = issueChangeContextByUserBuilder(new Date(analysisMetadataHolder.getAnalysisDate()), null).build();
       if (StringUtils.isNotBlank(modulePath)) {
         issueUpdater.setMessage(i, "[" + modulePath + "] " + i.getMessage(), context);
       }

@@ -39,6 +39,7 @@ import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -111,10 +112,10 @@ public class SetSeverityAction implements IssuesWsAction {
     DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getUuid());
+    IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
       BranchDto branch = issueUpdater.getBranch(session, issue, issue.projectUuid());
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, true, branch);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, severity, null, null,

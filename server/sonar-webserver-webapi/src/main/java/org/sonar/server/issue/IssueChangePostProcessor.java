@@ -34,6 +34,6 @@ public interface IssueChangePostProcessor {
    *
    * @param components the components of changed issues
    */
-  void process(DbSession dbSession, List<DefaultIssue> changedIssues, Collection<ComponentDto> components);
+  void process(DbSession dbSession, List<DefaultIssue> changedIssues, Collection<ComponentDto> components, boolean fromAlm);
 
 }

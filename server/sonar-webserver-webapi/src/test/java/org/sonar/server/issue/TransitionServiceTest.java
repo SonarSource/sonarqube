@@ -41,6 +41,7 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class TransitionServiceTest {
@@ -119,7 +120,7 @@ public class TransitionServiceTest {
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     DefaultIssue defaultIssue = issue.toDefaultIssue();
-    boolean result = underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
+    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "confirm");
 
     assertThat(result).isTrue();
     assertThat(defaultIssue.status()).isEqualTo(STATUS_CONFIRMED);
@@ -133,7 +134,8 @@ public class TransitionServiceTest {
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
 
-    assertThatThrownBy(() -> underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm"))
+    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
+    assertThatThrownBy(() -> underTest.doTransition(defaultIssue, issueChangeContext, "confirm"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Transition is not allowed on issues imported from external rule engines");
   }

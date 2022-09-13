@@ -42,7 +42,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
-import static org.sonar.core.issue.IssueChangeContext.createScan;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**
  * Calculates the creation date of an issue. Takes into account, that the issue
@@ -66,7 +66,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     this.issueUpdater = issueUpdater;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.ruleRepository = ruleRepository;
-    this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
+    this.changeContext = issueChangeContextByScanBuilder(new Date(analysisMetadataHolder.getAnalysisDate())).build();
     this.activeRulesHolder = activeRulesHolder;
     this.addedFileRepository = addedFileRepository;
     this.qProfileStatusRepository = qProfileStatusRepository;

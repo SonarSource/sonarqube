@@ -33,23 +33,24 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QGChangeEventTest {
 
-  private ProjectDto project = new ProjectDto()
+  private final ProjectDto project = new ProjectDto()
     .setKey("foo")
     .setUuid("bar");
-  private BranchDto branch = new BranchDto()
+  private final BranchDto branch = new BranchDto()
     .setBranchType(BranchType.BRANCH)
     .setUuid("bar")
     .setProjectUuid("doh")
     .setMergeBranchUuid("zop");
-  private SnapshotDto analysis = new SnapshotDto()
+  private final SnapshotDto analysis = new SnapshotDto()
     .setUuid("pto")
     .setCreatedAt(8_999_999_765L);
-  private Configuration configuration = Mockito.mock(Configuration.class);
-  private Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
+  private final Configuration configuration = Mockito.mock(Configuration.class);
+  private final Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
   private Supplier<Optional<EvaluatedQualityGate>> supplier = Optional::empty;
 
   @Test
@@ -82,7 +83,7 @@ public class QGChangeEventTest {
 
   @Test
   public void constructor_does_not_fail_with_NPE_if_previousStatus_is_null() {
-    new QGChangeEvent(project, branch, analysis, configuration, null, supplier);
+    assertThatCode(() -> new QGChangeEvent(project, branch, analysis, configuration, null, supplier)).doesNotThrowAnyException();
   }
 
   @Test

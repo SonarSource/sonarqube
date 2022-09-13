@@ -54,6 +54,7 @@ import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 public class IssueLifecycleTest {
@@ -68,7 +69,7 @@ public class IssueLifecycleTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private final IssueChangeContext issueChangeContext = IssueChangeContext.createUser(DEFAULT_DATE, "default_user_uuid");
+  private final IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(DEFAULT_DATE, "default_user_uuid").build();
   private final IssueWorkflow workflow = mock(IssueWorkflow.class);
   private final IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
   private final DebtCalculator debtCalculator = mock(DebtCalculator.class);

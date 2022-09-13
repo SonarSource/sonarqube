@@ -502,8 +502,7 @@ public class AssignActionTest {
     verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
       any(DbSession.class),
       defaultIssueCaptor.capture(),
-      any(IssueChangeContext.class),
-      eq(false));
+      any(IssueChangeContext.class));
 
     capturedArgsCount += 2;
 

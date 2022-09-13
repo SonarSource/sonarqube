@@ -41,6 +41,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
@@ -104,9 +105,9 @@ public class AssignAction implements IssuesWsAction {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+      IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).build();
       if (issueFieldsSetter.assign(issue, user, context)) {
-        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, false);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context);
       }
       return new SearchResponseData(issueDto);
     }
