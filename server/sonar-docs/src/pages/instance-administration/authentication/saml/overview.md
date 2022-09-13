@@ -8,7 +8,7 @@ You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authe
 ## SAML authentication flow
 
 1. When a user requests a SonarQube web page and is not already authenticated, SonarQube will start a SAML authentication process.
-2. SonarQube creates a SAML request for the configured Identity Provider and sends it back to the user.
+2. SonarQube creates a SAML request for the configured Identity Provider and sends it back to the user's browser.
 3. The user's browser automatically relays the SAML request to the Identity Provider.
 4. The Identity Provider authenticates the user and creates a SAML assertion containing the user information and privilege. Optionally, it can encrypt this assertion with the SonarQube certificate.
 5. The Identity Provider sends a SAML assertion back to the web browser
