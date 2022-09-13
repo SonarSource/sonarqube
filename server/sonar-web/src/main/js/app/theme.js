@@ -146,6 +146,7 @@ module.exports = {
     // value of the alpha channel.
     primary: '#236a97',
     primarya40: 'rgba(35, 107, 151, 0.40)',
+    primary400: '#297BAE',
 
     info500: '#0271B9',
 

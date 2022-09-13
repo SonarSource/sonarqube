@@ -29,10 +29,6 @@ exports[`should render correctly 1`] = `
   border-right: 1px solid #e6e6e6;
 }
 
-.emotion-1:focus-visible {
-  outline: 2px dotted #4b9fd5;
-}
-
 .emotion-0 {
   display: block;
   background-color: #4b9fd5;
@@ -64,10 +60,6 @@ exports[`should render correctly 1`] = `
 
 .emotion-3:last-child {
   border-right: 1px solid #e6e6e6;
-}
-
-.emotion-3:focus-visible {
-  outline: 2px dotted #4b9fd5;
 }
 
 .emotion-2 {
@@ -115,9 +107,9 @@ exports[`should render correctly 1`] = `
         Object {
           "insert": [Function],
           "inserted": Object {
-            "1193b7i": true,
+            "1kg7pv0": true,
+            "60rv5s": true,
             "ko9asm": true,
-            "mwuwl": true,
             "o2j9ze": true,
             "v2seq5": true,
           },
@@ -155,13 +147,6 @@ exports[`should render correctly 1`] = `
                 data-s=""
               >
                 
-                .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-              </style>
-              <style
-                data-emotion="css"
-                data-s=""
-              >
-                
                 .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
               </style>
               <style
@@ -190,17 +175,10 @@ exports[`should render correctly 1`] = `
                 data-s=""
               >
                 
-                .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-              </style>
-              <style
-                data-emotion="css"
-                data-s=""
-              >
-                
                 .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
               </style>
             </head>,
-            "ctr": 10,
+            "ctr": 8,
             "insertionPoint": undefined,
             "isSpeedy": false,
             "key": "css",
@@ -233,13 +211,6 @@ exports[`should render correctly 1`] = `
                 data-s=""
               >
                 
-                .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-              </style>,
-              <style
-                data-emotion="css"
-                data-s=""
-              >
-                
                 .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
               </style>,
               <style
@@ -262,13 +233,6 @@ exports[`should render correctly 1`] = `
               >
                 
                 .emotion-3:last-child{border-right:1px solid #e6e6e6;}
-              </style>,
-              <style
-                data-emotion="css"
-                data-s=""
-              >
-                
-                .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
               </style>,
               <style
                 data-emotion="css"
@@ -313,9 +277,9 @@ exports[`should render correctly 1`] = `
             Object {
               "insert": [Function],
               "inserted": Object {
-                "1193b7i": true,
+                "1kg7pv0": true,
+                "60rv5s": true,
                 "ko9asm": true,
-                "mwuwl": true,
                 "o2j9ze": true,
                 "v2seq5": true,
               },
@@ -353,13 +317,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                   <style
@@ -388,17 +345,10 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                 </head>,
-                "ctr": 10,
+                "ctr": 8,
                 "insertionPoint": undefined,
                 "isSpeedy": false,
                 "key": "css",
@@ -431,13 +381,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                   <style
@@ -466,13 +409,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                 ],
@@ -483,7 +419,7 @@ exports[`should render correctly 1`] = `
           serialized={
             Object {
               "map": undefined,
-              "name": "1193b7i",
+              "name": "60rv5s",
               "next": undefined,
               "styles": "
   position: relative;
@@ -503,10 +439,6 @@ exports[`should render correctly 1`] = `
 
   &:last-child {
     border-right: 1px solid #e6e6e6;
-  }
-
-  &:focus-visible {
-    outline: 2px dotted #4b9fd5;
   }
 ",
               "toString": [Function],
@@ -529,9 +461,9 @@ exports[`should render correctly 1`] = `
                 Object {
                   "insert": [Function],
                   "inserted": Object {
-                    "1193b7i": true,
+                    "1kg7pv0": true,
+                    "60rv5s": true,
                     "ko9asm": true,
-                    "mwuwl": true,
                     "o2j9ze": true,
                     "v2seq5": true,
                   },
@@ -569,13 +501,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                       <style
@@ -604,17 +529,10 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                     </head>,
-                    "ctr": 10,
+                    "ctr": 8,
                     "insertionPoint": undefined,
                     "isSpeedy": false,
                     "key": "css",
@@ -647,13 +565,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>,
                       <style
@@ -676,13 +587,6 @@ exports[`should render correctly 1`] = `
                       >
                         
                         .emotion-3:last-child{border-right:1px solid #e6e6e6;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
                       </style>,
                       <style
                         data-emotion="css"
@@ -735,9 +639,9 @@ exports[`should render correctly 1`] = `
             Object {
               "insert": [Function],
               "inserted": Object {
-                "1193b7i": true,
+                "1kg7pv0": true,
+                "60rv5s": true,
                 "ko9asm": true,
-                "mwuwl": true,
                 "o2j9ze": true,
                 "v2seq5": true,
               },
@@ -775,13 +679,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                   <style
@@ -810,17 +707,10 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                 </head>,
-                "ctr": 10,
+                "ctr": 8,
                 "insertionPoint": undefined,
                 "isSpeedy": false,
                 "key": "css",
@@ -853,13 +743,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                   <style
@@ -888,13 +771,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                 ],
@@ -905,7 +781,7 @@ exports[`should render correctly 1`] = `
           serialized={
             Object {
               "map": undefined,
-              "name": "mwuwl",
+              "name": "1kg7pv0",
               "next": undefined,
               "styles": "
   position: relative;
@@ -930,10 +806,6 @@ exports[`should render correctly 1`] = `
   &:last-child {
     border-right: 1px solid #e6e6e6;
   }
-
-  &:focus-visible {
-    outline: 2px dotted #4b9fd5;
-  }
 ",
               "toString": [Function],
             }
@@ -955,9 +827,9 @@ exports[`should render correctly 1`] = `
                 Object {
                   "insert": [Function],
                   "inserted": Object {
-                    "1193b7i": true,
+                    "1kg7pv0": true,
+                    "60rv5s": true,
                     "ko9asm": true,
-                    "mwuwl": true,
                     "o2j9ze": true,
                     "v2seq5": true,
                   },
@@ -995,13 +867,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                       <style
@@ -1030,17 +895,10 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                     </head>,
-                    "ctr": 10,
+                    "ctr": 8,
                     "insertionPoint": undefined,
                     "isSpeedy": false,
                     "key": "css",
@@ -1073,13 +931,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>,
                       <style
@@ -1102,13 +953,6 @@ exports[`should render correctly 1`] = `
                       >
                         
                         .emotion-3:last-child{border-right:1px solid #e6e6e6;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
                       </style>,
                       <style
                         data-emotion="css"
@@ -1161,9 +1005,9 @@ exports[`should render correctly 1`] = `
             Object {
               "insert": [Function],
               "inserted": Object {
-                "1193b7i": true,
+                "1kg7pv0": true,
+                "60rv5s": true,
                 "ko9asm": true,
-                "mwuwl": true,
                 "o2j9ze": true,
                 "v2seq5": true,
               },
@@ -1201,13 +1045,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                   <style
@@ -1236,17 +1073,10 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>
                 </head>,
-                "ctr": 10,
+                "ctr": 8,
                 "insertionPoint": undefined,
                 "isSpeedy": false,
                 "key": "css",
@@ -1279,13 +1109,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                   <style
@@ -1314,13 +1137,6 @@ exports[`should render correctly 1`] = `
                     data-s=""
                   >
                     
-                    .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                  </style>,
-                  <style
-                    data-emotion="css"
-                    data-s=""
-                  >
-                    
                     .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                   </style>,
                 ],
@@ -1331,7 +1147,7 @@ exports[`should render correctly 1`] = `
           serialized={
             Object {
               "map": undefined,
-              "name": "mwuwl",
+              "name": "1kg7pv0",
               "next": undefined,
               "styles": "
   position: relative;
@@ -1356,10 +1172,6 @@ exports[`should render correctly 1`] = `
   &:last-child {
     border-right: 1px solid #e6e6e6;
   }
-
-  &:focus-visible {
-    outline: 2px dotted #4b9fd5;
-  }
 ",
               "toString": [Function],
             }
@@ -1381,9 +1193,9 @@ exports[`should render correctly 1`] = `
                 Object {
                   "insert": [Function],
                   "inserted": Object {
-                    "1193b7i": true,
+                    "1kg7pv0": true,
+                    "60rv5s": true,
                     "ko9asm": true,
-                    "mwuwl": true,
                     "o2j9ze": true,
                     "v2seq5": true,
                   },
@@ -1421,13 +1233,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                       <style
@@ -1456,17 +1261,10 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-2{display:none;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>
                     </head>,
-                    "ctr": 10,
+                    "ctr": 8,
                     "insertionPoint": undefined,
                     "isSpeedy": false,
                     "key": "css",
@@ -1499,13 +1297,6 @@ exports[`should render correctly 1`] = `
                         data-s=""
                       >
                         
-                        .emotion-1:focus-visible{outline:2px dotted #4b9fd5;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
                         .emotion-0{display:block;background-color:#4b9fd5;height:3px;width:100%;position:absolute;left:0;top:-1px;}
                       </style>,
                       <style
@@ -1528,13 +1319,6 @@ exports[`should render correctly 1`] = `
                       >
                         
                         .emotion-3:last-child{border-right:1px solid #e6e6e6;}
-                      </style>,
-                      <style
-                        data-emotion="css"
-                        data-s=""
-                      >
-                        
-                        .emotion-3:focus-visible{outline:2px dotted #4b9fd5;}
                       </style>,
                       <style
                         data-emotion="css"

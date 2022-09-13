@@ -60,10 +60,6 @@ const StyledTab = styled.button<{ active: boolean }>`
   &:last-child {
     border-right: ${baseBorder};
   }
-
-  &:focus-visible {
-    outline: 2px dotted ${colors.blue};
-  }
 `;
 
 const ActiveBorder = styled.div<{ active: boolean }>`
