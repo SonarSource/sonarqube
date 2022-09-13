@@ -5,6 +5,8 @@ url: /instance-administration/authentication/saml/keycloak/
 
 The following content may be useful if you're using Keycloak as a SAML Identity Provider.
 
+To integrate Keycloak (Identity Provider) with SonarQube (Service Provider), both sides need to be configured.
+
 ## Keycloak server configuration
 Create a new SAML client
 

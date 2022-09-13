@@ -6,6 +6,7 @@ url: /instance-administration/authentication/saml/okta/
 The following example may be useful if you are using Okta as a SAML Identity Provider.
 Note that Okta does not support service provider signed requests even if they are enabled on the SonarQube side.
 
+To integrate Okta (Identity Provider) with SonarQube (Service Provider), both sides need to be configured.
 
 ## Create a new application in Okta admin dashboard
 
@@ -30,6 +31,14 @@ Under *General Settings*, configure the following fields:
 
 ![SAML settings](/images/okta/okta-saml-settings.png)
 
+Assertion signature is mandatory. You must keep the following default settings in *Show Advanced Settings*:
+
+- **Response**: Choose *Signed*.
+
+- **Assertion Signature**: Choose *Signed*.
+
+- **Signature Algorithm**: Choose *RSA-SHA256*.
+
 (Optional) If you want to enable assertion encryption, expand *Show Advanced Settings* and configure the following fields:
 
 - **Assertion Encryption**: Choose *Encrypted*.
@@ -38,7 +47,7 @@ Under *General Settings*, configure the following fields:
 
 - **Key Transport Algorithm**: Choose *RSA-OAEP*.
 
-- **Encryption Certificate**: Add the service provider certificate. It should be the same certificate as that found in the SonarQube SAML settings under "Service provider certificate".
+- **Encryption Certificate**: Add the service provider certificate. It should be the same certificate as the one found in the SonarQube SAML settings under "Service provider certificate".
 
 ![Encryption attributes](/images/okta/okta-encryption-attributes.png)
 
@@ -86,8 +95,7 @@ You can now add users and groups in the *Assignments* tab of the application.
 
 ![Assign users](/images/okta/okta-assign-users.png)
 
-
-After the application creation, navigate to the **Sign On** tab of the *SonarQube* application in Okta.
+Navigate to the **Sign On** tab of the *SonarQube* application in Okta.
 
 ![Signon tab](/images/okta/okta-signon.png)
 
