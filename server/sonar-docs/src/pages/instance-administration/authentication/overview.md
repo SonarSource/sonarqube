@@ -3,7 +3,7 @@ title: Overview
 url: /instance-administration/authentication/overview/
 ---
 
-SonarQube comes with an onboard user database, as well as the ability to delegate authentication via HTTP Headers, GitHub Authentication, GitLab Authentication, Bitbucket Cloud Authentication, SAML, or LDAP. Each method offers user identity management, group synchronization/mapping, and authentication.
+SonarQube comes with an onboard user database, as well as the ability to delegate authentication via [HTTP Headers](/instance-administration/authentication/http-header/), [GitHub Authentication](/instance-administration/authentication/github/), [GitLab Authentication](/instance-administration/authentication/gitlab/), [Bitbucket Cloud Authentication](/instance-administration/authentication/bitbucket-cloud/), [SAML](/instance-administration/authentication/saml/overview/), or [LDAP](/instance-administration/authentication/ldap/). Each method offers user identity management, group synchronization/mapping, and authentication.
 
 ## Group Mapping
 When using group mapping, the following caveats apply regardless of which delegated authentication method is used:
