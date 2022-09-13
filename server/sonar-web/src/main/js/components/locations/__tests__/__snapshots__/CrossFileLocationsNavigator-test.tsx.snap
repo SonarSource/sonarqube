@@ -24,7 +24,6 @@ exports[`should render 1`] = `
         key="0"
         message="Do not use foo"
         onClick={[MockFunction]}
-        scroll={[MockFunction]}
         selected={false}
       />
     </div>
@@ -67,7 +66,6 @@ exports[`should render 1`] = `
         key="2"
         message="Do not use bar"
         onClick={[MockFunction]}
-        scroll={[MockFunction]}
         selected={false}
       />
     </div>
@@ -97,7 +95,6 @@ exports[`should render locations with no component name 1`] = `
         index={0}
         key="0"
         onClick={[MockFunction]}
-        scroll={[MockFunction]}
         selected={false}
       />
     </div>

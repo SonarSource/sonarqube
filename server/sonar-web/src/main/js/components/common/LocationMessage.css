@@ -22,45 +22,13 @@
   vertical-align: top;
   line-height: 16px;
   padding: 0 6px;
-  border-radius: 2px;
-  background-color: #9e9e9e;
-  color: #fff;
-  font-family: var(--baseFontFamily);
   font-size: var(--smallFontSize);
   text-overflow: ellipsis;
   overflow: hidden;
-  transition: background-color 0.3s ease;
-}
-
-.location-message.selected {
-  background-color: #475760;
 }
 
 .location-index + .location-message {
   margin-left: 4px;
-}
-
-.location-index > .location-message {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 0;
-}
-
-.location-index:hover > .location-message {
-  display: block;
-}
-
-.location-index > .location-message::after {
-  position: absolute;
-  bottom: -5px;
-  left: 4px;
-  width: 0;
-  height: 0;
-  border-top: 5px solid #475760;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  content: '';
 }
 
 .source-line-code .location-message {

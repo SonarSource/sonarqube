@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { uniqueId } from 'lodash';
 import * as React from 'react';
 import OpenCloseIcon from '../icons/OpenCloseIcon';
+import { ButtonPlain } from './buttons';
 
-interface Props {
+interface BoxedGroupAccordionProps {
   children: React.ReactNode;
+  noBorder?: boolean;
   className?: string;
   data?: string;
   onClick: (data?: string) => void;
@@ -31,48 +34,38 @@ interface Props {
   title: React.ReactNode;
 }
 
-interface State {
-  hoveringInner: boolean;
-}
+export default function BoxedGroupAccordion(props: BoxedGroupAccordionProps) {
+  const { className, noBorder, open, renderHeader, title, data, onClick } = props;
 
-export default class BoxedGroupAccordion extends React.PureComponent<Props, State> {
-  state: State = { hoveringInner: false };
+  const id = React.useMemo(() => uniqueId('accordion-'), []);
+  const handleClick = React.useCallback(() => {
+    onClick(data);
+  }, [onClick, data]);
 
-  handleClick = () => {
-    this.props.onClick(this.props.data);
-  };
-
-  onDetailEnter = () => {
-    this.setState({ hoveringInner: true });
-  };
-
-  onDetailLeave = () => {
-    this.setState({ hoveringInner: false });
-  };
-
-  render() {
-    const { className, open, renderHeader, title } = this.props;
-    return (
-      <div
-        className={classNames('boxed-group boxed-group-accordion', className, {
-          'no-hover': this.state.hoveringInner
-        })}>
-        <div className="boxed-group-header" onClick={this.handleClick} role="listitem">
-          <span className="boxed-group-accordion-title">
-            <OpenCloseIcon className="little-spacer-right" open={open} />
-            {title}
-          </span>
-          {renderHeader && renderHeader()}
-        </div>
-        {open && (
-          <div
-            className="boxed-group-inner"
-            onMouseEnter={this.onDetailEnter}
-            onMouseLeave={this.onDetailLeave}>
-            {this.props.children}
-          </div>
-        )}
+  return (
+    <div
+      className={classNames('boxed-group boxed-group-accordion', className, {
+        'no-border': noBorder,
+        open
+      })}
+      role="listitem">
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div onClick={handleClick} className="display-flex-center boxed-group-header">
+        <ButtonPlain
+          stopPropagation={true}
+          className="boxed-group-accordion-title flex-grow"
+          onClick={handleClick}
+          id={`${id}-header`}
+          aria-controls={`${id}-panel`}
+          aria-expanded={open}>
+          {title}
+        </ButtonPlain>
+        {renderHeader && renderHeader()}
+        <OpenCloseIcon aria-hidden={true} className="spacer-left" open={open} />
       </div>
-    );
-  }
+      <div id={`${id}-panel`} aria-labelledby={`${id}-header`} role="region">
+        {open && <div className="boxed-group-inner">{props.children}</div>}
+      </div>
+    </div>
+  );
 }

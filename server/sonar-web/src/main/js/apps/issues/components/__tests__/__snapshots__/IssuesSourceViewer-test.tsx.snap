@@ -30,7 +30,6 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
           Array [
             Object {
               "component": "main.js",
-              "index": 0,
               "textRange": Object {
                 "endLine": 2,
                 "endOffset": 2,
@@ -40,7 +39,6 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
             },
             Object {
               "component": "main.js",
-              "index": 1,
               "textRange": Object {
                 "endLine": 12,
                 "endOffset": 2,
@@ -50,6 +48,7 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
             },
           ],
         ],
+        "flowsWithType": Array [],
         "key": "AVsae-CQS-9G3txfbFN2",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -61,6 +60,7 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
         "secondaryLocations": Array [
           Object {
             "component": "main.js",
+            "index": 0,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -70,6 +70,7 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
           },
           Object {
             "component": "main.js",
+            "index": 1,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -150,6 +151,7 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
               },
             ],
           ],
+          "flowsWithType": Array [],
           "key": "AVsae-CQS-9G3txfbFN2",
           "line": 25,
           "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -207,9 +209,9 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
           "component": "main.js",
           "index": 1,
           "textRange": Object {
-            "endLine": 12,
+            "endLine": 2,
             "endOffset": 2,
-            "startLine": 10,
+            "startLine": 1,
             "startOffset": 1,
           },
         },
@@ -251,7 +253,6 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
           Array [
             Object {
               "component": "main.js",
-              "index": 0,
               "textRange": Object {
                 "endLine": 2,
                 "endOffset": 2,
@@ -261,7 +262,6 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
             },
             Object {
               "component": "main.js",
-              "index": 1,
               "textRange": Object {
                 "endLine": 2,
                 "endOffset": 2,
@@ -271,7 +271,6 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
             },
             Object {
               "component": "main.js",
-              "index": 2,
               "textRange": Object {
                 "endLine": 2,
                 "endOffset": 2,
@@ -281,6 +280,7 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
             },
           ],
         ],
+        "flowsWithType": Array [],
         "key": "AVsae-CQS-9G3txfbFN2",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -292,6 +292,7 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
         "secondaryLocations": Array [
           Object {
             "component": "main.js",
+            "index": 0,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -301,6 +302,7 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
           },
           Object {
             "component": "main.js",
+            "index": 1,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -381,6 +383,7 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
               },
             ],
           ],
+          "flowsWithType": Array [],
           "key": "AVsae-CQS-9G3txfbFN2",
           "line": 25,
           "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -437,16 +440,6 @@ exports[`should render SourceViewer correctly: all secondary locations on same l
         Object {
           "component": "main.js",
           "index": 1,
-          "textRange": Object {
-            "endLine": 2,
-            "endOffset": 2,
-            "startLine": 1,
-            "startOffset": 1,
-          },
-        },
-        Object {
-          "component": "main.js",
-          "index": 2,
           "textRange": Object {
             "endLine": 2,
             "endOffset": 2,
@@ -489,6 +482,7 @@ exports[`should render SourceViewer correctly: default 1`] = `
         "componentUuid": "foo1234",
         "creationDate": "2017-03-01T09:36:01+0100",
         "flows": Array [],
+        "flowsWithType": Array [],
         "key": "AVsae-CQS-9G3txfbFN2",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -520,6 +514,7 @@ exports[`should render SourceViewer correctly: default 1`] = `
           "componentUuid": "foo1234",
           "creationDate": "2017-03-01T09:36:01+0100",
           "flows": Array [],
+          "flowsWithType": Array [],
           "key": "AVsae-CQS-9G3txfbFN2",
           "line": 25,
           "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -579,7 +574,6 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
           Array [
             Object {
               "component": "main.js",
-              "index": 0,
               "textRange": Object {
                 "endLine": 2,
                 "endOffset": 2,
@@ -589,6 +583,7 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
             },
           ],
         ],
+        "flowsWithType": Array [],
         "key": "AVsae-CQS-9G3txfbFN2",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -600,6 +595,7 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
         "secondaryLocations": Array [
           Object {
             "component": "main.js",
+            "index": 0,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -609,6 +605,7 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
           },
           Object {
             "component": "main.js",
+            "index": 1,
             "textRange": Object {
               "endLine": 2,
               "endOffset": 2,
@@ -689,6 +686,7 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
               },
             ],
           ],
+          "flowsWithType": Array [],
           "key": "AVsae-CQS-9G3txfbFN2",
           "line": 25,
           "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -735,6 +733,16 @@ exports[`should render SourceViewer correctly: single secondary location 1`] = `
         Object {
           "component": "main.js",
           "index": 0,
+          "textRange": Object {
+            "endLine": 2,
+            "endOffset": 2,
+            "startLine": 1,
+            "startOffset": 1,
+          },
+        },
+        Object {
+          "component": "main.js",
+          "index": 1,
           "textRange": Object {
             "endLine": 2,
             "endOffset": 2,

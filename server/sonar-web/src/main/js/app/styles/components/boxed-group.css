@@ -24,6 +24,10 @@
   background-color: #fff;
 }
 
+.boxed-group.no-border {
+  border-color: transparent;
+}
+
 .boxed-group-centered {
   margin-left: auto;
   margin-right: auto;
@@ -87,16 +91,14 @@
 }
 
 .boxed-group-accordion {
+  border-color: var(--neutral200);
   margin-bottom: var(--gridSize);
   transition: border-color 0.3s ease;
 }
 
-.boxed-group-accordion:not(.no-hover):hover {
-  border-color: var(--blue);
-}
-
-.boxed-group-accordion:not(.no-hover):hover .boxed-group-accordion-title {
-  color: var(--blue);
+.boxed-group-accordion:hover,
+.boxed-group-accordion.open {
+  border-color: var(--info400);
 }
 
 .boxed-group-accordion .boxed-group-header {

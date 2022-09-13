@@ -49,7 +49,6 @@ exports[`should render correctly 1`] = `
   onHotspotClick={[Function]}
   onLoadMore={[Function]}
   onLocationClick={[Function]}
-  onScroll={[Function]}
   onShowAllHotspots={[Function]}
   onSwitchStatusFilter={[Function]}
   onUpdateHotspot={[Function]}

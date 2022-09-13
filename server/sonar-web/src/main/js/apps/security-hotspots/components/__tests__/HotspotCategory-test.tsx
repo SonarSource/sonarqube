@@ -76,7 +76,6 @@ function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
       title="Class Injection"
       isLastAndIncomplete={false}
       onLocationClick={jest.fn()}
-      onScroll={jest.fn()}
       {...props}
     />
   );

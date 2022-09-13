@@ -23,7 +23,8 @@ import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { Component, Webhook } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { Webhook } from '../../../types/webhook';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';

@@ -27,7 +27,6 @@ import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 interface Props {
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
-  scroll: (element: Element) => void;
   selectedLocationIndex: number | undefined;
 }
 
@@ -113,7 +112,6 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
         key={index}
         message={message}
         onClick={this.props.onLocationSelect}
-        scroll={this.props.scroll}
         selected={index === this.props.selectedLocationIndex}
       />
     );

@@ -48,7 +48,6 @@ export class Button extends React.PureComponent<ButtonProps> {
   handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const { disabled, onClick, preventDefault = true, stopPropagation = false } = this.props;
 
-    event.currentTarget.blur();
     if (preventDefault || disabled) {
       event.preventDefault();
     }
@@ -72,12 +71,15 @@ export class Button extends React.PureComponent<ButtonProps> {
       type = 'button',
       ...props
     } = this.props;
+
+    // Instead of undoing button style we simply not apply the class.
+    const isPlain = className && className.indexOf('button-plain') !== -1;
     return (
       <button
         {...props}
         aria-disabled={disabled}
         disabled={disabled}
-        className={classNames('button', className, { disabled })}
+        className={classNames(isPlain ? '' : 'button', className, { disabled })}
         id={this.props.id}
         onClick={this.handleClick}
         ref={this.props.innerRef}

@@ -17,38 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import DeliveryItem from '../DeliveryItem';
+.issue-flows .boxed-group-header {
+  padding: calc(1.5 * var(--gridSize));
+}
 
-const delivery = {
-  at: '12.02.2018',
-  durationMs: 20,
-  httpStatus: 200,
-  id: '2',
-  success: true
-};
+.issue-flows .boxed-group-inner {
+  padding: 0 var(--gridSize) var(--gridSize);
+}
 
-it('should render correctly', () => {
-  const wrapper = getWrapper();
-  expect(wrapper).toMatchSnapshot();
-});
+.issue-flows .boxed-group-header .location-index {
+  background-color: var(--neutral600);
+}
 
-it('should render correctly when no payload', () => {
-  expect(getWrapper({ loading: true, payload: undefined })).toMatchSnapshot();
-});
-
-it('should render correctly when no http status', () => {
-  expect(getWrapper({ delivery: { ...delivery, httpStatus: undefined } })).toMatchSnapshot();
-});
-
-function getWrapper(props = {}) {
-  return shallow(
-    <DeliveryItem
-      delivery={delivery}
-      loading={false}
-      payload={'{ status: "SUCCESS" }'}
-      {...props}
-    />
-  );
+.issue-flows .boxed-group-header .location-index.selected {
+  background-color: var(--conciseIssueRedSelected);
 }

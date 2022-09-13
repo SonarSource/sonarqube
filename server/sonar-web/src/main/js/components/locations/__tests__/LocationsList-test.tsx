@@ -37,21 +37,9 @@ const location2: FlowLocation = {
   textRange: { startLine: 8, endLine: 8, startOffset: 0, endOffset: 5 }
 };
 
-const location3: FlowLocation = {
-  component: 'bar',
-  componentName: 'src/bar.js',
-  msg: 'Do not use bar',
-  textRange: { startLine: 15, endLine: 16, startOffset: 4, endOffset: 6 }
-};
-
 it('should render locations in the same file', () => {
   const locations = [location1, location2];
-  expect(shallowRender({ locations, isCrossFile: false })).toMatchSnapshot();
-});
-
-it('should render flow locations in different file', () => {
-  const locations = [location1, location3];
-  expect(shallowRender({ locations, isCrossFile: true })).toMatchSnapshot();
+  expect(shallowRender({ locations })).toMatchSnapshot();
 });
 
 it('should not render locations', () => {
@@ -63,9 +51,8 @@ function shallowRender(overrides: Partial<LocationsList['props']> = {}) {
   return shallow<LocationsList>(
     <LocationsList
       locations={mockIssue().secondaryLocations}
-      isCrossFile={true}
+      componentKey="foo"
       onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
       selectedLocationIndex={undefined}
       {...overrides}
     />

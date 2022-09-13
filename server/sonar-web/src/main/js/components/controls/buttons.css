@@ -103,23 +103,12 @@
 
 /* #region .button-plain */
 .button-plain {
-  display: inline-flex;
-  height: auto;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
+  box-sizing: border-box;
+  background: inherit;
   color: inherit;
-  border-bottom: 0;
-  font-weight: inherit;
-  font-size: inherit;
-}
-
-.button-plain:hover {
-  color: var(--blue);
-  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  border: 0;
 }
 
 /* #endregion */

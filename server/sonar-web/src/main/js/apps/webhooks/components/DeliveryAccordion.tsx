@@ -23,7 +23,8 @@ import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordio
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { WebhookDelivery } from '../../../types/types';
+import { translate } from '../../../helpers/l10n';
+import { WebhookDelivery } from '../../../types/webhook';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {
@@ -89,9 +90,9 @@ export default class DeliveryAccordion extends React.PureComponent<Props, State>
         open={open}
         renderHeader={() =>
           delivery.success ? (
-            <AlertSuccessIcon className="pull-right js-success" />
+            <AlertSuccessIcon aria-label={translate('success')} className="js-success" />
           ) : (
-            <AlertErrorIcon className="pull-right js-error" />
+            <AlertErrorIcon aria-label={translate('error')} className="js-error" />
           )
         }
         title={<DateTimeFormatter date={delivery.at} />}>

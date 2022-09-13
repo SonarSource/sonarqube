@@ -17,42 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { getDelivery } from '../../../../api/webhooks';
+import { mockWebhookDelivery } from '../../../../helpers/mocks/webhook';
+import { HttpStatus } from '../../../../helpers/request';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import DeliveryAccordion from '../DeliveryAccordion';
 
 jest.mock('../../../../api/webhooks', () => ({
-  getDelivery: jest.fn(() =>
-    Promise.resolve({
-      delivery: { payload: '{ "success": true }' }
-    })
-  )
+  getDelivery: jest.fn().mockResolvedValue({
+    delivery: { payload: '{ "message": "This was successful" }' }
+  })
 }));
 
-const delivery = {
-  at: '12.02.2018',
-  durationMs: 20,
-  httpStatus: 200,
-  id: '2',
-  success: true
-};
+beforeEach(jest.clearAllMocks);
 
-beforeEach(() => {
-  (getDelivery as jest.Mock<any>).mockClear();
+it('should render correctly for successful payloads', async () => {
+  const user = userEvent.setup();
+  renderDeliveryAccordion();
+  expect(screen.getByLabelText('success')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button'));
+  expect(screen.getByText(`webhooks.delivery.response_x.${HttpStatus.Ok}`)).toBeInTheDocument();
+  expect(screen.getByText('webhooks.delivery.duration_x.20ms')).toBeInTheDocument();
+  expect(screen.getByText('webhooks.delivery.payload')).toBeInTheDocument();
+
+  const codeSnippet = await screen.findByText('{ "message": "This was successful" }');
+  expect(codeSnippet).toBeInTheDocument();
 });
 
-it('should render correctly', async () => {
-  const wrapper = getWrapper();
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly for errored payloads', async () => {
+  const user = userEvent.setup();
+  (getDelivery as jest.Mock).mockResolvedValueOnce({
+    delivery: { payload: '503 Service Unavailable' }
+  });
+  renderDeliveryAccordion({
+    delivery: mockWebhookDelivery({ httpStatus: undefined, success: false })
+  });
+  expect(screen.getByLabelText('error')).toBeInTheDocument();
 
-  wrapper.find('BoxedGroupAccordion').prop<Function>('onClick')();
-  await new Promise(setImmediate);
-  expect(getDelivery).lastCalledWith({ deliveryId: delivery.id });
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
+  await user.click(screen.getByRole('button'));
+  expect(
+    screen.getByText('webhooks.delivery.response_x.webhooks.delivery.server_unreachable')
+  ).toBeInTheDocument();
+
+  const codeSnippet = await screen.findByText('503 Service Unavailable');
+  expect(codeSnippet).toBeInTheDocument();
 });
 
-function getWrapper(props = {}) {
-  return shallow(<DeliveryAccordion delivery={delivery} {...props} />);
+function renderDeliveryAccordion(props: Partial<DeliveryAccordion['props']> = {}) {
+  return renderComponent(<DeliveryAccordion delivery={mockWebhookDelivery()} {...props} />);
 }

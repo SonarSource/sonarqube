@@ -23,7 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/types';
+import { Webhook } from '../../../types/webhook';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
 import DeliveriesForm from './DeliveriesForm';

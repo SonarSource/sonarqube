@@ -24,7 +24,7 @@ import ConciseIssue from './ConciseIssue';
 
 export interface ConciseIssuesListProps {
   issues: Issue[];
-  onFlowSelect: (index: number) => void;
+  onFlowSelect: (index?: number) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
   selected: string | undefined;

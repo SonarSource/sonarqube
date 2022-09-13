@@ -24,9 +24,7 @@ import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/securi
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockHtmlElement } from '../../../helpers/mocks/dom';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { getStandards } from '../../../helpers/security-standard';
 import {
   mockCurrentUser,
@@ -412,20 +410,6 @@ it('should handle secondary location click', () => {
   wrapper.setState({ selectedHotspotLocationIndex: 2 });
   wrapper.instance().handleLocationClick();
   expect(wrapper.instance().state.selectedHotspotLocationIndex).toBeUndefined();
-});
-
-it('should handle scroll properly', async () => {
-  const fakeElement = document.createElement('div');
-  jest.spyOn(document, 'querySelector').mockImplementationOnce(() => fakeElement);
-  const wrapper = shallowRender();
-  const element = mockHtmlElement();
-  wrapper.instance().handleScroll(element);
-  await waitAndUpdate(wrapper);
-  expect(scrollToElement).toBeCalledWith(element, {
-    bottomOffset: 100,
-    parent: fakeElement,
-    topOffset: 150
-  });
 });
 
 describe('keyboard navigation', () => {

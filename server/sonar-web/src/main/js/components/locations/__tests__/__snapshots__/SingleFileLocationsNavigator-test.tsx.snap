@@ -1,43 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: index 1 1`] = `
-<div
-  className="little-spacer-top"
+<ButtonPlain
+  aria-current="location"
+  className="locations-navigator selected"
+  innerRef={[Function]}
+  onClick={[Function]}
+  preventDefault={true}
+  stopPropagation={true}
 >
-  <a
-    className="locations-navigator"
-    href="#"
-    onClick={[Function]}
-  >
-    <LocationIndex
-      selected={true}
-    >
-      1
-    </LocationIndex>
-    <LocationMessage
-      selected={true}
-    />
-  </a>
-</div>
+  <LocationIndex>
+    1
+  </LocationIndex>
+  <LocationMessage />
+</ButtonPlain>
 `;
 
 exports[`should render correctly: index 2 1`] = `
-<div
-  className="little-spacer-top"
+<ButtonPlain
+  aria-current="location"
+  className="locations-navigator selected"
+  innerRef={[Function]}
+  onClick={[Function]}
+  preventDefault={true}
+  stopPropagation={true}
 >
-  <a
-    className="locations-navigator"
-    href="#"
-    onClick={[Function]}
-  >
-    <LocationIndex
-      selected={true}
-    >
-      2
-    </LocationIndex>
-    <LocationMessage
-      selected={true}
-    />
-  </a>
-</div>
+  <LocationIndex>
+    2
+  </LocationIndex>
+  <LocationMessage />
+</ButtonPlain>
 `;

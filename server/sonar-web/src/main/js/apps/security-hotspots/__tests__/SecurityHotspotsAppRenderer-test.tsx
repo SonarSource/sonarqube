@@ -155,7 +155,6 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       onSwitchStatusFilter={jest.fn()}
       onUpdateHotspot={jest.fn()}
       onLocationClick={jest.fn()}
-      onScroll={jest.fn()}
       securityCategories={{}}
       selectedHotspot={undefined}
       standards={mockStandards()}

@@ -18,6 +18,7 @@ exports[`should render 1`] = `
           "componentUuid": "",
           "creationDate": "",
           "flows": Array [],
+          "flowsWithType": Array [],
           "key": "",
           "message": "",
           "project": "",

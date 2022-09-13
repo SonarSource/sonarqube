@@ -82,7 +82,6 @@ function shallowRender(props: Partial<CrossFileLocationsNavigator['props']> = {}
     <CrossFileLocationsNavigator
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
       selectedLocationIndex={undefined}
       {...props}
     />

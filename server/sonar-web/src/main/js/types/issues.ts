@@ -50,7 +50,8 @@ export interface RawIssue {
   comments?: Array<Comment>;
   component: string;
   flows?: Array<{
-    // `componentName` is not available in RawIssue
+    type?: string;
+    description?: string;
     locations?: Array<Omit<FlowLocation, 'componentName'>>;
   }>;
   key: string;

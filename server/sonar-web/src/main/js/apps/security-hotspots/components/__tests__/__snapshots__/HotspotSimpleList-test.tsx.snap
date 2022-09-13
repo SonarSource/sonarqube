@@ -54,7 +54,6 @@ exports[`should render correctly: filter by both 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={true}
           />
         </li>
@@ -82,7 +81,6 @@ exports[`should render correctly: filter by both 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={false}
           />
         </li>
@@ -150,7 +148,6 @@ exports[`should render correctly: filter by category 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={true}
           />
         </li>
@@ -178,7 +175,6 @@ exports[`should render correctly: filter by category 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={false}
           />
         </li>
@@ -246,7 +242,6 @@ exports[`should render correctly: filter by cwe 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={true}
           />
         </li>
@@ -274,7 +269,6 @@ exports[`should render correctly: filter by cwe 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={false}
           />
         </li>
@@ -352,7 +346,6 @@ exports[`should render correctly: filter by file 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={true}
           />
         </li>
@@ -380,7 +373,6 @@ exports[`should render correctly: filter by file 1`] = `
             }
             onClick={[MockFunction]}
             onLocationClick={[MockFunction]}
-            onScroll={[MockFunction]}
             selected={false}
           />
         </li>

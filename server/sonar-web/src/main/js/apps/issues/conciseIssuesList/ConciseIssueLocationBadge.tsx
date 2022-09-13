@@ -25,21 +25,25 @@ import { formatMeasure } from '../../../helpers/measures';
 
 interface Props {
   count: number;
+  flow?: boolean;
   onClick?: () => void;
   selected: boolean;
 }
 
 export default function ConciseIssueLocationBadge(props: Props) {
+  const { count, flow, selected } = props;
   return (
     <Tooltip
       mouseEnterDelay={0.5}
       overlay={translateWithParameters(
-        'issue.this_issue_involves_x_code_locations',
-        formatMeasure(props.count, 'INT')
+        flow
+          ? 'issue.this_flow_involves_x_code_locations'
+          : 'issue.this_issue_involves_x_code_locations',
+        formatMeasure(count, 'INT')
       )}>
-      <LocationIndex onClick={props.onClick} selected={props.selected}>
+      <LocationIndex onClick={props.onClick} selected={selected}>
         {'+'}
-        {props.count}
+        {count}
       </LocationIndex>
     </Tooltip>
   );

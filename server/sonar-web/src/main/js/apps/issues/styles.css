@@ -105,6 +105,10 @@
   justify-content: flex-start;
 }
 
+.concise-issue-box-attributes .concise-issue-box-flow-indicator {
+  margin-left: auto;
+}
+
 .concise-issue-box:not(.selected) .location-index {
   background-color: var(--secondFontColor);
 }

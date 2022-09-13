@@ -638,6 +638,10 @@ th.huge-spacer-right {
   color: inherit;
 }
 
+.muted {
+  color: var(--neutral600);
+}
+
 .leak-box {
   background-color: var(--leakPrimaryColor);
   border: 1px solid var(--leakSecondaryColor);

@@ -24,7 +24,7 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/types';
+import { Webhook } from '../../../types/webhook';
 import LatestDeliveryForm from './LatestDeliveryForm';
 
 interface Props {

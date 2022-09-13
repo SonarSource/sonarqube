@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import SingleFileLocationNavigator from '../SingleFileLocationNavigator';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('index 1');
-  expect(shallowRender({ index: 1 })).toMatchSnapshot('index 2');
-});
+export interface Webhook {
+  key: string;
+  latestDelivery?: WebhookDelivery;
+  name: string;
+  secret?: string;
+  url: string;
+}
 
-function shallowRender(props: Partial<SingleFileLocationNavigator['props']> = {}) {
-  return shallow(
-    <SingleFileLocationNavigator
-      index={0}
-      message=""
-      onClick={jest.fn()}
-      selected={true}
-      {...props}
-    />
-  );
+export interface WebhookDelivery {
+  at: string;
+  durationMs: number;
+  httpStatus?: number;
+  id: string;
+  success: boolean;
 }

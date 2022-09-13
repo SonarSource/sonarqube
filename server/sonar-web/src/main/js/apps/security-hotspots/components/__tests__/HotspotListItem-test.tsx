@@ -52,7 +52,6 @@ function shallowRender(props: Partial<HotspotListItemProps> = {}) {
     <HotspotListItem
       hotspot={mockRawHotspot()}
       onClick={jest.fn()}
-      onScroll={jest.fn()}
       onLocationClick={jest.fn}
       selected={false}
       {...props}

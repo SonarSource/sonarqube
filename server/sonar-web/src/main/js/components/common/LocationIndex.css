@@ -33,6 +33,7 @@
   user-select: none;
 }
 
+.selected > .location-index,
 .location-index.selected {
   background-color: var(--conciseIssueRedSelected);
 }

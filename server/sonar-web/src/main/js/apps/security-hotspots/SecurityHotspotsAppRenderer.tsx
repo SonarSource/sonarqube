@@ -61,7 +61,6 @@ export interface SecurityHotspotsAppRendererProps {
   onShowAllHotspots: () => void;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
-  onScroll: (element: Element) => void;
   selectedHotspot?: RawHotspot;
   selectedHotspotLocation?: number;
   securityCategories: StandardSecurityCategories;
@@ -153,7 +152,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                         onHotspotClick={props.onHotspotClick}
                         onLoadMore={props.onLoadMore}
                         onLocationClick={props.onLocationClick}
-                        onScroll={props.onScroll}
                         selectedHotspotLocation={selectedHotspotLocation}
                         selectedHotspot={selectedHotspot}
                         standards={standards}
@@ -171,7 +169,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                         selectedHotspot={selectedHotspot}
                         selectedHotspotLocation={selectedHotspotLocation}
                         statusFilter={filters.status}
-                        onScroll={props.onScroll}
                       />
                     )}
                   </div>

@@ -1,0 +1,81 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2022 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import 'FlowsList.css';
+import * as React from 'react';
+import ConciseIssueLocationBadge from '../../apps/issues/conciseIssuesList/ConciseIssueLocationBadge';
+import { translate } from '../../helpers/l10n';
+import { Flow, FlowType } from '../../types/types';
+import BoxedGroupAccordion from '../controls/BoxedGroupAccordion';
+import SingleFileLocationNavigator from './SingleFileLocationNavigator';
+
+export interface Props {
+  flows: Flow[];
+  selectedLocationIndex?: number;
+  selectedFlowIndex?: number;
+  onFlowSelect: (index?: number) => void;
+  onLocationSelect: (index: number) => void;
+}
+
+export default function FlowsList(props: Props) {
+  const { flows, selectedLocationIndex, selectedFlowIndex } = props;
+
+  return (
+    <div className="issue-flows little-padded-top" role="list">
+      {flows.map((flow, index) => {
+        const open = selectedFlowIndex === index;
+        return (
+          <BoxedGroupAccordion
+            className="spacer-top"
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            onClick={() => props.onFlowSelect(open ? undefined : index)}
+            open={open}
+            noBorder={flow.type === FlowType.EXECUTION}
+            title={
+              flow.type === FlowType.EXECUTION
+                ? translate('issue.execution_flow')
+                : flow.description
+            }
+            renderHeader={() => (
+              <ConciseIssueLocationBadge
+                count={flow.locations.length}
+                flow={true}
+                selected={open}
+              />
+            )}>
+            <ul>
+              {flow.locations.map((location, locIndex) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <li className="display-flex-column" key={locIndex}>
+                  <SingleFileLocationNavigator
+                    index={locIndex}
+                    message={location.msg}
+                    onClick={props.onLocationSelect}
+                    selected={locIndex === selectedLocationIndex}
+                  />
+                </li>
+              ))}
+            </ul>
+          </BoxedGroupAccordion>
+        );
+      })}
+    </div>
+  );
+}

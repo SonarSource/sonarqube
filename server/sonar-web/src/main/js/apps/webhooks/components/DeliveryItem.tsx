@@ -22,7 +22,7 @@ import CodeSnippet from '../../../components/common/CodeSnippet';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { WebhookDelivery } from '../../../types/types';
+import { WebhookDelivery } from '../../../types/webhook';
 
 interface Props {
   className?: string;

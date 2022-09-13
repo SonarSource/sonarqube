@@ -148,7 +148,9 @@ module.exports = {
     primarya40: 'rgba(35, 107, 151, 0.40)',
     primary400: '#297BAE',
 
+    info50: '#ECF6FE',
     info500: '#0271B9',
+    info400: '#4B9FD5',
 
     success500: '#008A25',
     success500a20: 'rgba(0, 138, 37, 0.20)',
@@ -166,6 +168,7 @@ module.exports = {
     error500: '#D02F3A',
     error500a20: 'rgba(208, 47, 58, 0.20)',
 
+    neutral200: '#CCCCCC',
     neutral600: '#666666',
     neutral800: '#333333',
 

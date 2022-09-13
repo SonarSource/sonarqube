@@ -17,51 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { uniq } from 'lodash';
 import * as React from 'react';
 import { FlowLocation } from '../../types/types';
 import CrossFileLocationNavigator from './CrossFileLocationNavigator';
 import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 interface Props {
-  isCrossFile: boolean;
+  componentKey: string;
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
-  scroll: (element: Element) => void;
   selectedLocationIndex?: number;
+  showCrossFile?: boolean;
 }
 
 export default class LocationsList extends React.PureComponent<Props> {
   render() {
-    const { isCrossFile, locations, selectedLocationIndex } = this.props;
+    const { locations, componentKey, selectedLocationIndex, showCrossFile = true } = this.props;
+
+    const locationComponents = [componentKey, ...locations.map(location => location.component)];
+    const isCrossFile = uniq(locationComponents).length > 1;
 
     if (!locations || locations.length === 0 || locations.every(location => !location.msg)) {
       return null;
     }
 
-    if (isCrossFile) {
+    if (isCrossFile && showCrossFile) {
       return (
         <CrossFileLocationNavigator
           locations={locations}
           onLocationSelect={this.props.onLocationSelect}
-          scroll={this.props.scroll}
           selectedLocationIndex={selectedLocationIndex}
         />
       );
     }
     return (
-      <div className="spacer-top">
+      <ul className="spacer-top ">
         {locations.map((location, index) => (
-          <SingleFileLocationNavigator
-            index={index}
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            message={location.msg}
-            onClick={this.props.onLocationSelect}
-            scroll={this.props.scroll}
-            selected={index === selectedLocationIndex}
-          />
+          // eslint-disable-next-line react/no-array-index-key
+          <li className="display-flex-column" key={index}>
+            <SingleFileLocationNavigator
+              index={index}
+              message={location.msg}
+              onClick={this.props.onLocationSelect}
+              selected={index === selectedLocationIndex}
+            />
+          </li>
         ))}
-      </div>
+      </ul>
     );
   }
 }

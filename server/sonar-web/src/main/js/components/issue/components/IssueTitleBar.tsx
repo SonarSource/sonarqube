@@ -50,7 +50,8 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
 
   const locationsCount =
     issue.secondaryLocations.length +
-    issue.flows.reduce((sum, locations) => sum + locations.length, 0);
+    issue.flows.reduce((sum, locations) => sum + locations.length, 0) +
+    issue.flowsWithType.reduce((sum, { locations }) => sum + locations.length, 0);
 
   const locationsBadge = (
     <Tooltip

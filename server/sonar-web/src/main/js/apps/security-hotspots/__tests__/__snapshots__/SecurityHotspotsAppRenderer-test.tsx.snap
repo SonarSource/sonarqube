@@ -118,7 +118,6 @@ exports[`should render correctly when filtered by category or cwe: category 1`] 
       onHotspotClick={[MockFunction]}
       onLoadMore={[MockFunction]}
       onLocationClick={[MockFunction]}
-      onScroll={[MockFunction]}
       selectedHotspot={
         Object {
           "author": "Developer 1",
@@ -260,7 +259,6 @@ exports[`should render correctly when filtered by category or cwe: cwe 1`] = `
       onHotspotClick={[MockFunction]}
       onLoadMore={[MockFunction]}
       onLocationClick={[MockFunction]}
-      onScroll={[MockFunction]}
       selectedHotspot={
         Object {
           "author": "Developer 1",
@@ -462,7 +460,6 @@ exports[`should render correctly with hotspots 2`] = `
       onHotspotClick={[MockFunction]}
       onLoadMore={[MockFunction]}
       onLocationClick={[MockFunction]}
-      onScroll={[MockFunction]}
       securityCategories={Object {}}
       selectedHotspot={
         Object {

@@ -26,7 +26,7 @@ describe('selectFlow', () => {
     expect(selectFlow(5)()).toEqual({
       locationsNavigator: true,
       selectedFlowIndex: 5,
-      selectedLocationIndex: 0
+      selectedLocationIndex: undefined
     });
   });
 });

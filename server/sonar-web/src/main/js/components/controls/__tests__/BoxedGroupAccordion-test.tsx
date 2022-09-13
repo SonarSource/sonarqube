@@ -17,36 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { click } from '../../../helpers/testUtils';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import BoxedGroupAccordion from '../BoxedGroupAccordion';
 
-it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+it('should behave correctly', async () => {
+  const user = userEvent.setup();
+  renderDeliveryAccordion();
+  expect(screen.queryByText('children')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { expanded: false }));
+  expect(screen.queryByText('children')).toBeInTheDocument();
 });
 
-it('should show the inner content after a click', () => {
-  const onClick = jest.fn();
-  const wrapper = getWrapper({ onClick });
-  click(wrapper.find('.boxed-group-header'));
-
-  expect(onClick).lastCalledWith('foo');
-  wrapper.setProps({ open: true });
-
-  expect(wrapper.find('.boxed-group-inner').exists()).toBe(true);
+it('should render header correctly', () => {
+  renderDeliveryAccordion(() => <div>header</div>);
+  expect(screen.getByText('header')).toBeInTheDocument();
 });
 
-function getWrapper(props = {}) {
-  return shallow(
-    <BoxedGroupAccordion
-      data="foo"
-      onClick={() => {}}
-      open={false}
-      renderHeader={() => <div>header content</div>}
-      title="Foo"
-      {...props}>
-      <div>inner content</div>
-    </BoxedGroupAccordion>
-  );
+function renderDeliveryAccordion(renderHeader?: () => React.ReactNode) {
+  function AccordionTest() {
+    const [open, setOpen] = React.useState(false);
+
+    return (
+      <BoxedGroupAccordion
+        onClick={() => setOpen(!open)}
+        open={open}
+        title="test"
+        renderHeader={renderHeader}>
+        <div>children</div>
+      </BoxedGroupAccordion>
+    );
+  }
+
+  return renderComponent(<AccordionTest />);
 }

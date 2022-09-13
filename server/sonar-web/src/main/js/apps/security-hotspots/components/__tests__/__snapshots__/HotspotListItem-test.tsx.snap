@@ -57,10 +57,10 @@ exports[`should render correctly 2`] = `
     </div>
   </div>
   <LocationsList
-    isCrossFile={false}
+    componentKey="com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest"
     locations={Array []}
     onLocationSelect={[Function]}
-    scroll={[MockFunction]}
+    showCrossFile={false}
   />
 </ButtonPlain>
 `;

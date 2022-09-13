@@ -44,6 +44,7 @@ import {
 import { Standards } from '../../types/security';
 import {
   Dict,
+  FlowType,
   RuleActivation,
   RuleDetails,
   SnippetsByComponent,
@@ -95,6 +96,98 @@ export default class IssuesServiceMock {
       mockSourceViewerFile('file.bar', 'project')
     ];
     this.list = [
+      {
+        issue: mockRawIssue(false, {
+          key: 'issue11',
+          component: 'project:file.foo',
+          message: 'FlowIssue',
+          rule: 'simpleRuleId',
+          textRange: {
+            startLine: 10,
+            endLine: 10,
+            startOffset: 0,
+            endOffset: 2
+          },
+          flows: [
+            {
+              type: FlowType.DATA,
+              description: 'Backtracking 1',
+              locations: [
+                {
+                  component: 'project:file.foo',
+                  msg: 'Data location 1',
+                  textRange: {
+                    startLine: 20,
+                    endLine: 20,
+                    startOffset: 0,
+                    endOffset: 1
+                  }
+                },
+                {
+                  component: 'project:file.foo',
+                  msg: 'Data location 2',
+                  textRange: {
+                    startLine: 21,
+                    endLine: 21,
+                    startOffset: 0,
+                    endOffset: 1
+                  }
+                }
+              ]
+            },
+            {
+              type: FlowType.EXECUTION,
+              locations: [
+                {
+                  component: 'project:file.bar',
+                  msg: 'Execution location 1',
+                  textRange: {
+                    startLine: 20,
+                    endLine: 20,
+                    startOffset: 0,
+                    endOffset: 1
+                  }
+                },
+                {
+                  component: 'project:file.bar',
+                  msg: 'Execution location 2',
+                  textRange: {
+                    startLine: 22,
+                    endLine: 22,
+                    startOffset: 0,
+                    endOffset: 1
+                  }
+                },
+                {
+                  component: 'project:file.bar',
+                  msg: 'Execution location 3',
+                  textRange: {
+                    startLine: 5,
+                    endLine: 5,
+                    startOffset: 0,
+                    endOffset: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }),
+        snippets: keyBy(
+          [
+            mockSnippetsByComponent(
+              'file.foo',
+              'project',
+              times(40, i => i + 1)
+            ),
+            mockSnippetsByComponent(
+              'file.bar',
+              'project',
+              times(40, i => i + 1)
+            )
+          ],
+          'component.key'
+        )
+      },
       {
         issue: mockRawIssue(false, {
           key: 'issue0',

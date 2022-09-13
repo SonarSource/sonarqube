@@ -69,7 +69,6 @@ export default function HealthCard({
           {health && (
             <HealthItem
               biggerHealth={biggerHealth}
-              className="pull-right"
               health={health}
               healthCauses={healthCauses}
               name={name}

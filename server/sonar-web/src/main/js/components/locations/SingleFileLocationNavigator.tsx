@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import LocationIndex from '../common/LocationIndex';
 import LocationMessage from '../common/LocationMessage';
+import { ButtonPlain } from '../controls/buttons';
 import './SingleFileLocationNavigator.css';
 
 interface Props {
   index: number;
   message: string | undefined;
   onClick: (index: number) => void;
-  scroll: (element: Element) => void;
   selected: boolean;
 }
 
@@ -35,18 +36,25 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
 
   componentDidMount() {
     if (this.props.selected && this.node) {
-      this.props.scroll(this.node);
+      this.node.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
     }
   }
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.selected && prevProps.selected !== this.props.selected && this.node) {
-      this.props.scroll(this.node);
+      this.node.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
     }
   }
 
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleClick = () => {
     this.props.onClick(this.props.index);
   };
 
@@ -54,12 +62,18 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
     const { index, message, selected } = this.props;
 
     return (
-      <div className="little-spacer-top" ref={node => (this.node = node)}>
-        <a className="locations-navigator" href="#" onClick={this.handleClick}>
-          <LocationIndex selected={selected}>{index + 1}</LocationIndex>
-          <LocationMessage selected={selected}>{message}</LocationMessage>
-        </a>
-      </div>
+      <ButtonPlain
+        preventDefault={true}
+        stopPropagation={true}
+        aria-current={selected ? 'location' : false}
+        className={classNames('locations-navigator', { selected })}
+        innerRef={node => {
+          this.node = node;
+        }}
+        onClick={this.handleClick}>
+        <LocationIndex>{index + 1}</LocationIndex>
+        <LocationMessage>{message}</LocationMessage>
+      </ButtonPlain>
     );
   }
 }

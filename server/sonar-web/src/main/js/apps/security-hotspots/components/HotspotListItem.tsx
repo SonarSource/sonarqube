@@ -30,7 +30,6 @@ export interface HotspotListItemProps {
   hotspot: RawHotspot;
   onClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index?: number) => void;
-  onScroll: (element: Element) => void;
   selected: boolean;
   selectedHotspotLocation?: number;
 }
@@ -63,10 +62,10 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       {selected && (
         <LocationsList
           locations={locations}
-          isCrossFile={false} // Currently we are not supporting cross file for security hotspot
+          showCrossFile={false} // To removed once we support multi file location
+          componentKey={hotspot.component}
           onLocationSelect={props.onLocationClick}
           selectedLocationIndex={selectedHotspotLocation}
-          scroll={props.onScroll}
         />
       )}
     </ButtonPlain>

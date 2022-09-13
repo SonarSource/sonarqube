@@ -65,7 +65,6 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
       onHotspotClick={jest.fn()}
       onLoadMore={jest.fn()}
       onLocationClick={jest.fn()}
-      onScroll={jest.fn()}
       selectedHotspot={hotspots[0]}
       standards={{
         cwe: { 327: { title: 'Use of a Broken or Risky Cryptographic Algorithm' } },

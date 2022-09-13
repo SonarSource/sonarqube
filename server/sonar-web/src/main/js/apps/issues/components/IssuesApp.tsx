@@ -230,9 +230,9 @@ export class App extends React.PureComponent<Props, State> {
       this.setState({ checkAll: false });
     } else if (openIssue && openIssue.key !== this.state.selected) {
       this.setState({
-        locationsNavigator: false,
+        locationsNavigator: true,
         selected: openIssue.key,
-        selectedFlowIndex: undefined,
+        selectedFlowIndex: 0,
         selectedLocationIndex: undefined
       });
     }
@@ -504,6 +504,7 @@ export class App extends React.PureComponent<Props, State> {
             effortTotal,
             facets: { ...state.facets, ...parseFacets(facets) },
             loading: false,
+            locationsNavigator: true,
             issues,
             openIssue,
             paging,
@@ -513,7 +514,7 @@ export class App extends React.PureComponent<Props, State> {
             referencedRules: keyBy(other.rules, 'key'),
             referencedUsers: keyBy(other.users, 'login'),
             selected,
-            selectedFlowIndex: undefined,
+            selectedFlowIndex: 0,
             selectedLocationIndex: undefined
           }));
         }

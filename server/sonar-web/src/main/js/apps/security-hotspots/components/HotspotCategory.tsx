@@ -32,7 +32,6 @@ export interface HotspotCategoryProps {
   onHotspotClick: (hotspot: RawHotspot) => void;
   onToggleExpand?: (categoryKey: string, value: boolean) => void;
   onLocationClick: (index: number) => void;
-  onScroll: (element: Element) => void;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
   title: string;
@@ -92,7 +91,6 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
                 hotspot={h}
                 onClick={props.onHotspotClick}
                 onLocationClick={props.onLocationClick}
-                onScroll={props.onScroll}
                 selectedHotspotLocation={selectedHotspotLocation}
                 selected={h.key === selectedHotspot.key}
               />

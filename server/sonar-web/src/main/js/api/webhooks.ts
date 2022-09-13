@@ -19,7 +19,8 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
-import { Paging, Webhook, WebhookDelivery } from '../types/types';
+import { Paging } from '../types/types';
+import { Webhook, WebhookDelivery } from '../types/webhook';
 
 export function createWebhook(data: {
   name: string;

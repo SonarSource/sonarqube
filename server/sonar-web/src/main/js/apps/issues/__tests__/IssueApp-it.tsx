@@ -89,6 +89,54 @@ it('should be able to bulk change', async () => {
   ).toBeInTheDocument();
 });
 
+it('should interact with flows and locations', async () => {
+  const user = userEvent.setup();
+  renderProjectIssuesApp('project/issues?issues=issue11&open=issue11&id=myproject');
+  const dataFlowButton = await screen.findByRole('button', { name: 'Backtracking 1' });
+  const exectionFlowButton = await screen.findByRole('button', { name: 'issue.execution_flow' });
+
+  let dataLocation1Button = screen.getByRole('button', { name: '1 Data location 1' });
+  let dataLocation2Button = screen.getByRole('button', { name: '2 Data location 2' });
+
+  expect(dataFlowButton).toBeInTheDocument();
+  expect(dataLocation1Button).toBeInTheDocument();
+  expect(dataLocation2Button).toBeInTheDocument();
+
+  await user.click(dataFlowButton);
+  // Colapsing flow
+  expect(dataLocation1Button).not.toBeInTheDocument();
+  expect(dataLocation2Button).not.toBeInTheDocument();
+
+  await user.click(exectionFlowButton);
+  expect(screen.getByRole('button', { name: '1 Execution location 1' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '2 Execution location 2' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '3 Execution location 3' })).toBeInTheDocument();
+
+  // Keyboard interaction
+  await user.click(dataFlowButton);
+  dataLocation1Button = screen.getByRole('button', { name: '1 Data location 1' });
+  dataLocation2Button = screen.getByRole('button', { name: '2 Data location 2' });
+
+  //Location navigation
+  await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+  expect(dataLocation1Button).toHaveClass('selected');
+  await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+  expect(dataLocation1Button).not.toHaveClass('selected');
+  expect(dataLocation2Button).toHaveClass('selected');
+  await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+  expect(dataLocation1Button).not.toHaveClass('selected');
+  expect(dataLocation2Button).not.toHaveClass('selected');
+  await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+  expect(dataLocation1Button).not.toHaveClass('selected');
+  expect(dataLocation2Button).toHaveClass('selected');
+
+  //Flow navigation
+  await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+  expect(screen.getByRole('button', { name: '1 Execution location 1' })).toHaveClass('selected');
+  await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+  expect(screen.getByRole('button', { name: '1 Data location 1' })).toHaveClass('selected');
+});
+
 it('should show education principles', async () => {
   const user = userEvent.setup();
   renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
@@ -468,7 +516,7 @@ it('should show code tabs when any secondary location is selected', async () => 
     })
   ).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('link', { name: '1 location 1' }));
+  await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
     screen.getByRole('row', {
       name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
@@ -485,7 +533,7 @@ it('should show code tabs when any secondary location is selected', async () => 
     })
   ).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('link', { name: '1 location 1' }));
+  await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
     screen.getByRole('row', {
       name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'

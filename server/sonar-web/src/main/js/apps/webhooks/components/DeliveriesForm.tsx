@@ -24,7 +24,8 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Paging, Webhook, WebhookDelivery } from '../../../types/types';
+import { Paging } from '../../../types/types';
+import { Webhook, WebhookDelivery } from '../../../types/webhook';
 import DeliveryAccordion from './DeliveryAccordion';
 
 interface Props {

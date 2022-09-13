@@ -28,7 +28,6 @@ import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { KeyboardKeys } from '../../helpers/keycodes';
-import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
@@ -494,13 +493,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     }
   };
 
-  handleScroll = (element: Element, bottomOffset = 100) => {
-    const scrollableElement = document.querySelector('.layout-page-side');
-    if (element && scrollableElement) {
-      scrollToElement(element, { topOffset: 150, bottomOffset, parent: scrollableElement });
-    }
-  };
-
   render() {
     const { branchLike, component } = this.props;
     const {
@@ -544,7 +536,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onSwitchStatusFilter={this.handleChangeStatusFilter}
         onUpdateHotspot={this.handleHotspotUpdate}
         onLocationClick={this.handleLocationClick}
-        onScroll={this.handleScroll}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}
         selectedHotspotLocation={selectedHotspotLocationIndex}

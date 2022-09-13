@@ -202,18 +202,23 @@ export const saveMyIssues = (myIssues: boolean) =>
   save(ISSUES_DEFAULT, myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
 
 export function getLocations(
-  { flows, secondaryLocations }: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  {
+    flows,
+    secondaryLocations,
+    flowsWithType
+  }: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined
 ) {
-  if (selectedFlowIndex !== undefined) {
-    return flows[selectedFlowIndex] || [];
-  } else {
-    return flows.length > 0 ? flows[0] : secondaryLocations;
+  if (secondaryLocations.length > 0) {
+    return secondaryLocations;
+  } else if (selectedFlowIndex !== undefined) {
+    return flows[selectedFlowIndex] || flowsWithType[selectedFlowIndex]?.locations || [];
   }
+  return [];
 }
 
 export function getSelectedLocation(
-  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined,
   selectedLocationIndex: number | undefined
 ) {
@@ -230,7 +235,7 @@ export function getSelectedLocation(
 }
 
 export function allLocationsEmpty(
-  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined
 ) {
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);

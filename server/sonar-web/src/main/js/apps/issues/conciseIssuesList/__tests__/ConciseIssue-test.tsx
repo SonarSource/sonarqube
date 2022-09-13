@@ -30,6 +30,7 @@ const issue: Issue = {
   componentUuid: '',
   creationDate: '',
   flows: [],
+  flowsWithType: [],
   key: '',
   message: '',
   project: '',

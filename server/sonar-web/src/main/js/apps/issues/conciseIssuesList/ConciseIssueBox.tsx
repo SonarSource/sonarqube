@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { uniq } from 'lodash';
 import * as React from 'react';
 import { ButtonPlain } from '../../../components/controls/buttons';
+import FlowsList from '../../../components/locations/FlowsList';
 import LocationsList from '../../../components/locations/LocationsList';
 import TypeHelper from '../../../components/shared/TypeHelper';
-import { Issue } from '../../../types/types';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { FlowType, Issue } from '../../../types/types';
 import { getLocations } from '../utils';
 import ConciseIssueLocations from './ConciseIssueLocations';
 
 interface Props {
   issue: Issue;
   onClick: (issueKey: string) => void;
-  onFlowSelect: (index: number) => void;
+  onFlowSelect: (index?: number) => void;
   onLocationSelect: (index: number) => void;
   scroll: (element: Element, bottomOffset?: number) => void;
   selected: boolean;
@@ -38,12 +39,10 @@ interface Props {
   selectedLocationIndex: number | undefined;
 }
 
-const MAX_LOCATIONS_SCROLL = 15;
 const SCROLL_TOP_OFFSET = 250;
 
 export default class ConciseIssueBox extends React.PureComponent<Props> {
   messageElement?: HTMLElement | null;
-  rootElement?: HTMLElement | null;
 
   componentDidMount() {
     if (this.props.selected) {
@@ -62,19 +61,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
   };
 
   handleScroll = () => {
-    const { selectedFlowIndex } = this.props;
-    const { flows, secondaryLocations } = this.props.issue;
-
-    const locations = flows.length > 0 ? flows[selectedFlowIndex || 0] : secondaryLocations;
-
-    if (!locations || locations.length < MAX_LOCATIONS_SCROLL) {
-      // if there are no locations, or there are just few
-      // then ensuse that the whole box is visible
-      if (this.rootElement) {
-        this.props.scroll(this.rootElement);
-      }
-    } else if (this.messageElement) {
-      // otherwise scroll until the the message element is located on top
+    if (this.messageElement) {
       this.props.scroll(this.messageElement, window.innerHeight - SCROLL_TOP_OFFSET);
     }
   };
@@ -84,13 +71,9 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
 
     const locations = getLocations(issue, selectedFlowIndex);
 
-    const locationComponents = [issue.component, ...locations.map(location => location.component)];
-    const isCrossFile = uniq(locationComponents).length > 1;
-
     return (
       <div
         className={classNames('concise-issue-box', 'clearfix', { selected })}
-        ref={node => (this.rootElement = node)}
         onClick={selected ? undefined : this.handleClick}>
         <ButtonPlain
           className="concise-issue-box-message"
@@ -101,21 +84,38 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
         </ButtonPlain>
         <div className="concise-issue-box-attributes">
           <TypeHelper className="display-block little-spacer-right" type={issue.type} />
-          <ConciseIssueLocations
-            issue={issue}
-            onFlowSelect={this.props.onFlowSelect}
-            selectedFlowIndex={selectedFlowIndex}
-          />
+          {issue.flowsWithType.length > 0 ? (
+            <span className="concise-issue-box-flow-indicator muted">
+              {translateWithParameters(
+                'issue.x_data_flows',
+                issue.flowsWithType.filter(f => f.type === FlowType.DATA).length
+              )}
+            </span>
+          ) : (
+            <ConciseIssueLocations
+              issue={issue}
+              onFlowSelect={this.props.onFlowSelect}
+              selectedFlowIndex={selectedFlowIndex}
+            />
+          )}
         </div>
-        {selected && (
-          <LocationsList
-            locations={locations}
-            isCrossFile={isCrossFile}
-            onLocationSelect={this.props.onLocationSelect}
-            scroll={this.props.scroll}
-            selectedLocationIndex={selectedLocationIndex}
-          />
-        )}
+        {selected &&
+          (issue.flowsWithType.length > 0 ? (
+            <FlowsList
+              flows={issue.flowsWithType}
+              onLocationSelect={this.props.onLocationSelect}
+              onFlowSelect={this.props.onFlowSelect}
+              selectedLocationIndex={selectedLocationIndex}
+              selectedFlowIndex={selectedFlowIndex}
+            />
+          ) : (
+            <LocationsList
+              locations={locations}
+              componentKey={issue.component}
+              onLocationSelect={this.props.onLocationSelect}
+              selectedLocationIndex={selectedLocationIndex}
+            />
+          ))}
       </div>
     );
   }

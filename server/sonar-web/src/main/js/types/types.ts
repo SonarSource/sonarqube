@@ -229,6 +229,17 @@ export interface FacetValue<T = string> {
   val: T;
 }
 
+export enum FlowType {
+  DATA = 'DATA',
+  EXECUTION = 'EXECUTION'
+}
+
+export interface Flow {
+  type: FlowType;
+  description?: string;
+  locations: FlowLocation[];
+}
+
 export interface FlowLocation {
   component: string;
   componentName?: string;
@@ -276,6 +287,7 @@ export interface Issue {
   quickFixAvailable?: boolean;
   key: string;
   flows: FlowLocation[][];
+  flowsWithType: Flow[];
   line?: number;
   message: string;
   project: string;
@@ -783,22 +795,6 @@ export interface UserSelected extends UserActive {
 }
 
 export type Visibility = 'public' | 'private';
-
-export interface Webhook {
-  key: string;
-  latestDelivery?: WebhookDelivery;
-  name: string;
-  secret?: string;
-  url: string;
-}
-
-export interface WebhookDelivery {
-  at: string;
-  durationMs: number;
-  httpStatus?: number;
-  id: string;
-  success: boolean;
-}
 
 export namespace WebApi {
   export interface Action {

@@ -24,7 +24,7 @@ import SecurityHotspotIcon from '../components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from '../components/icons/VulnerabilityIcon';
 import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
-import { Dict, FlowLocation, Issue, TextRange } from '../types/types';
+import { Dict, Flow, FlowLocation, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';
 
@@ -73,14 +73,10 @@ function injectCommentsRelational(issue: RawIssue, users?: UserBase[]) {
   return { comments };
 }
 
-function prepareClosed(
-  issue: RawIssue,
-  secondaryLocations: FlowLocation[],
-  flows: FlowLocation[][]
-) {
+function prepareClosed(issue: RawIssue) {
   return issue.status === 'CLOSED'
     ? { flows: [], line: undefined, textRange: undefined, secondaryLocations: [] }
-    : { flows, secondaryLocations };
+    : {};
 }
 
 function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
@@ -105,7 +101,15 @@ function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
 function splitFlows(
   issue: RawIssue,
   components: Component[] = []
-): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][] } {
+): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
+  if (issue.flows?.some(flow => flow.type !== undefined)) {
+    return {
+      flows: [],
+      flowsWithType: issue.flows.filter(flow => flow.type !== undefined) as Flow[],
+      secondaryLocations: []
+    };
+  }
+
   const parsedFlows: FlowLocation[][] = (issue.flows || [])
     .filter(flow => flow.locations !== undefined)
     .map(flow => flow.locations!.filter(location => location.textRange != null))
@@ -119,8 +123,12 @@ function splitFlows(
   const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
 
   return onlySecondaryLocations
-    ? { secondaryLocations: orderLocations(flatten(parsedFlows)), flows: [] }
-    : { secondaryLocations: [], flows: parsedFlows.map(reverseLocations) };
+    ? { secondaryLocations: orderLocations(flatten(parsedFlows)), flowsWithType: [], flows: [] }
+    : {
+        secondaryLocations: [],
+        flowsWithType: [],
+        flows: parsedFlows.map(reverseLocations)
+      };
 }
 
 function orderLocations(locations: FlowLocation[]) {
@@ -137,7 +145,6 @@ export function parseIssueFromResponse(
   users?: UserBase[],
   rules?: Rule[]
 ): Issue {
-  const { secondaryLocations, flows } = splitFlows(issue, components);
   return {
     ...issue,
     ...injectRelational(issue, components, 'component', 'key'),
@@ -145,7 +152,8 @@ export function parseIssueFromResponse(
     ...injectRelational(issue, rules, 'rule', 'key'),
     ...injectRelational(issue, users, 'assignee', 'login'),
     ...injectCommentsRelational(issue, users),
-    ...prepareClosed(issue, secondaryLocations, flows),
+    ...splitFlows(issue, components),
+    ...prepareClosed(issue),
     ...ensureTextRange(issue)
   } as Issue;
 }

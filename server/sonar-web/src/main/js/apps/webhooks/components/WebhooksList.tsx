@@ -20,7 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../types/types';
+import { Webhook } from '../../../types/webhook';
 import WebhookItem from './WebhookItem';
 
 interface Props {

@@ -38,7 +38,6 @@ interface Props {
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
   onLocationClick: (index?: number) => void;
-  onScroll: (element: Element) => void;
   securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
@@ -162,7 +161,6 @@ export default class HotspotList extends React.Component<Props, State> {
                           onHotspotClick={this.props.onHotspotClick}
                           onToggleExpand={this.handleToggleCategory}
                           onLocationClick={this.props.onLocationClick}
-                          onScroll={this.props.onScroll}
                           selectedHotspot={selectedHotspot}
                           selectedHotspotLocation={selectedHotspotLocation}
                           title={cat.title}

@@ -43,7 +43,6 @@ export interface HotspotSimpleListProps {
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index?: number) => void;
-  onScroll: (element: Element) => void;
   onLoadMore: () => void;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
@@ -115,7 +114,6 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
                     hotspot={h}
                     onClick={this.props.onHotspotClick}
                     onLocationClick={this.props.onLocationClick}
-                    onScroll={this.props.onScroll}
                     selected={h.key === selectedHotspot.key}
                     selectedHotspotLocation={selectedHotspotLocation}
                   />
