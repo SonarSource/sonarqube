@@ -21,10 +21,12 @@ package org.sonar.xoo.rule;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +48,7 @@ import org.sonar.xoo.Xoo;
 
 import static org.sonar.api.batch.sensor.issue.NewIssue.FlowType.DATA;
 import static org.sonar.api.batch.sensor.issue.NewIssue.FlowType.EXECUTION;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class MultilineIssuesSensor implements Sensor {
 
@@ -99,23 +102,20 @@ public class MultilineIssuesSensor implements Sensor {
         .at(file.newRange(parsedIssue.start, parsedIssue.end));
       newIssue.at(primaryLocation.message("Primary location"));
 
-      IssueFlows issueFlows = flowIndex.getFlows(parsedIssue.issueId);
-      if (issueFlows != null) {
-        for (ParsedFlow flow : issueFlows.getFlows()) {
-          List<NewIssueLocation> flowLocations = new LinkedList<>();
+      for (ParsedFlow flow : flowIndex.getFlows(parsedIssue.issueId)) {
+        List<NewIssueLocation> flowLocations = new LinkedList<>();
 
-          for (ParsedFlowLocation flowLocation : flow.getLocations()) {
-            flowLocations.add(newIssue.newLocation()
-              .on(file)
-              .at(file.newRange(flowLocation.start, flowLocation.end))
-              .message("Flow step #" + flowLocation.flowLocationId));
-          }
+        for (ParsedFlowLocation flowLocation : flow.getLocations()) {
+          flowLocations.add(newIssue.newLocation()
+            .on(file)
+            .at(file.newRange(flowLocation.start, flowLocation.end))
+            .message("Flow step #" + flowLocation.flowLocationId));
+        }
 
-          if (flow.getType() != null) {
-            newIssue.addFlow(flowLocations, flow.getType(), "flow #" + flow.getFlowId());
-          } else {
-            newIssue.addFlow(flowLocations);
-          }
+        if (flow.getType() != null) {
+          newIssue.addFlow(flowLocations, flow.getType(), "flow #" + flow.getFlowId());
+        } else {
+          newIssue.addFlow(flowLocations);
         }
       }
       newIssue.save();
@@ -191,9 +191,8 @@ public class MultilineIssuesSensor implements Sensor {
       flowsByIssueId.computeIfAbsent(flowLocation.issueId, issueId -> new IssueFlows()).addLocation(flowLocation, type);
     }
 
-    @CheckForNull
-    public IssueFlows getFlows(int issueId) {
-      return flowsByIssueId.get(issueId);
+    public Collection<ParsedFlow> getFlows(int issueId) {
+      return Optional.ofNullable(flowsByIssueId.get(issueId)).map(IssueFlows::getFlows).orElse(Collections.emptyList());
     }
   }
 
@@ -222,12 +221,10 @@ public class MultilineIssuesSensor implements Sensor {
 
     private void addLocation(ParsedFlowLocation flowLocation) {
       if (locationsById.containsKey(flowLocation.flowLocationId)) {
-        if (flowLocation.start != null) {
-          locationsById.get(flowLocation.flowLocationId).start = flowLocation.start;
-        } else if (flowLocation.end != null) {
-          locationsById.get(flowLocation.flowLocationId).end = flowLocation.end;
-        }
+        checkState(flowLocation.end != null, "Existing flow should be the end");
+        locationsById.get(flowLocation.flowLocationId).end = flowLocation.end;
       } else {
+        checkState(flowLocation.start != null, "New flow should be the start");
         locationsById.put(flowLocation.flowLocationId, flowLocation);
       }
     }
