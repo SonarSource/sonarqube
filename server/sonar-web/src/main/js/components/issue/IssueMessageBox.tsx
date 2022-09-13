@@ -36,7 +36,7 @@ export function IssueMessageBox(props: IssueMessageBoxProps, ref: React.Forwarde
   return (
     <div
       className={classNames('issue-message-box display-flex-row display-flex-center padded-right', {
-        'selected big-padded-top big-padded-bottom': selected,
+        'selected big-padded-top big-padded-bottom text-bold': selected,
         'secondary-issue padded-top padded-bottom': !selected
       })}
       key={issue.key}
