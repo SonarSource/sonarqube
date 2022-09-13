@@ -232,6 +232,7 @@ button.search-navigator-facet:focus,
   border-bottom: none;
   color: var(--baseFontColor);
   cursor: pointer;
+  font-weight: inherit;
 }
 
 .search-navigator-facet-header > button:focus,
