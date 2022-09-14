@@ -204,14 +204,14 @@ The encryption algorithm used is AES with 256 bit keys.
 1. **Generate the secret key**  
 A unique secret key must be shared between all parts of the SonarQube infrastructure. To generate it, go to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and click on Generate Secret Key.
 1. **Store the secret key on the SonarQube server**  
-   * Copy the generated secret key to a file on the machine hosting the SonarQube server. The default location is _~/.sonar/sonar-secret.txt_. If you want to store it somewhere else, set its path through the `sonar.secretKeyPath` property in _$SONARQUBE-HOME/conf/sonar.properties_
+   * Copy the generated secret key to a file on the machine hosting the SonarQube server. The default location is _~/.sonar/sonar-secret.txt_. If you want to store it somewhere else, set its path through the `sonar.secretKeyPath` property in _$SONARQUBE_HOME/conf/sonar.properties_
    * Restrict file permissions to the account running the SonarQube server (ownership and read-access only).
    * Restart your SonarQube server
 1. **Generate the encrypted values of your settings**  
 Go back to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and use the form that has been added to the interface to generated encrypted versions of your values.
 ![Encrypt values through the admin interface](/images/encrypt-value.png)
 1. **Use the encrypted values in your SonarQube server configuration**  
-Encrypted values can either be set in SonarQube or copied into _$SONARQUBE-HOME/conf/sonar.properties_:
+Encrypted values can either be set in SonarQube or copied into _$SONARQUBE_HOME/conf/sonar.properties_:
    ```
    sonar.jdbc.password={aes-gcm}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
    ...

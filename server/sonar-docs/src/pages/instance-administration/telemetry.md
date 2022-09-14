@@ -20,7 +20,7 @@ If you suspect the telemetry is collecting sensitive data or the data is being i
 
 ## Turning it off
 
-You can disable telemetry at any time by setting the `sonar.telemetry.enabled` property to `false` in `$SONARQUBE-HOME/conf/sonar.properties`.
+You can disable telemetry at any time by setting the `sonar.telemetry.enabled` property to `false` in `$SONARQUBE_HOME/conf/sonar.properties`.
 By default, it is set to `true`.
 
 

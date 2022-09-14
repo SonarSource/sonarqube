@@ -86,7 +86,7 @@ In addition, we provide a Web API _api/system/health_ you can use to validate th
 * YELLOW: SonarQube is usable, but it needs attention in order to be fully operational
 * RED: SonarQube is not operational
 
-To call it from a monitoring system without having to give admin credentials, it is possible to setup a system passcode. You can configure this through the `sonar.web.systemPasscode` property in _$SONARQUBE-HOME/conf/sonar.properties_ if you're using a traditional environment or through the corresponding environment variable if you're using a Docker environment.
+To call it from a monitoring system without having to give admin credentials, it is possible to setup a system passcode. You can configure this through the `sonar.web.systemPasscode` property in _$SONARQUBE_HOME/conf/sonar.properties_ if you're using a traditional environment or through the corresponding environment variable if you're using a Docker environment.
 
 ### Cluster Status
 On the System Info page at **Administration > System**, you can check whether your cluster is running safely (green) or has some nodes with problems (orange or red).
@@ -116,7 +116,7 @@ There are three TCP networks to configure:
 In a Docker environment, your properties are configured using [Environment Variables](/setup/environment-variables/).
 
 ## Traditional Environment Configuration
-The following properties may be defined in the _$SONARQUBE-HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
+The following properties may be defined in the _$SONARQUBE_HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
 
 [[warning]]
 | Ports can be unintentionally exposed. We recommend only giving external access to the application nodes and to main port (`sonar.web.port`).
@@ -138,7 +138,7 @@ Property  | Description | Required
 `sonar.cluster.node.web.port`|The Hazelcast port for communication with the WebServer process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.node.ce.port`|The Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port, but not both. The item format is `sonar.cluster.node.search.host` for host only or`sonar.cluster.node.search.host:sonar.cluster.node.search.port` for host and port.| yes
-`sonar.auth.jwtBase64Hs256Secret`|Required for authentication with multiple web servers. It is used to keep user sessions opened when they are redirected from one web server to another by the load balancer. See _$SONARQUBE-HOME/conf/sonar.properties_) for details about how to generate this secret key.| yes
+`sonar.auth.jwtBase64Hs256Secret`|Required for authentication with multiple web servers. It is used to keep user sessions opened when they are redirected from one web server to another by the load balancer. See _$SONARQUBE_HOME/conf/sonar.properties_) for details about how to generate this secret key.| yes
 
 ### Search nodes
 Property  | Description | Default | Required 
@@ -212,7 +212,7 @@ No. Multicast is disabled. All hosts (IP+port) must be listed.
 Yes, but it's best to have one machine for each node to be resilient to failures. To maintain an even higher level of availability, each of your three search nodes can be located in a separate availability zone *within the same region*.
 
 ### Can the members of a cluster be discovered automatically? 
-No, all nodes must be configured in _$SONARQUBE-HOME/conf/sonar.properties_
+No, all nodes must be configured in _$SONARQUBE_HOME/conf/sonar.properties_
 
 ### My keystore/truststore cannot be read by SonarQube
 Make sure that the keystore/truststore in question was generated with an algorithm that is known to Java 11. See [JDK-8267599](https://bugs.openjdk.java.net/browse/JDK-8267599) for reference

@@ -17,7 +17,7 @@ Additionally, if you have a Support contract, you might be asked by a Support re
 Your server id can be obtained from this page by expanding the **System** section. If you're running a commercial instance, you can also find this value on the License page (**[Administration > Configuration > License Manager](/#sonarqube-admin#/admin/extension/license/app)**)
 
 ## Logs
-Server-side logging is controlled by properties set in _$SONARQUBE-HOME/conf/sonar.properties_.
+Server-side logging is controlled by properties set in _$SONARQUBE_HOME/conf/sonar.properties_.
 
 4 logs files are created: one per SonarQube process.
 
@@ -47,7 +47,7 @@ To control log rolling, use the `sonar.log.rollingPolicy`
 
 ### UI Access to Logs and Log Levels
 
-The System Info page gives you the ability to download your instance's current log files (log files rotate on a regular basis), and to tune the log level via controls at the top of the page. Changes made here are temporary, and last only until the next time the instance is restarted, at which point the level will be reset to the more permanent value set in _$SONARQUBE-HOME/conf/sonar.properties_. Regardless, if you change your log level _from_ `INFO`, but sure to change it back as soon as is practical; log files can get very large very quickly at lower log levels.
+The System Info page gives you the ability to download your instance's current log files (log files rotate on a regular basis), and to tune the log level via controls at the top of the page. Changes made here are temporary, and last only until the next time the instance is restarted, at which point the level will be reset to the more permanent value set in _$SONARQUBE_HOME/conf/sonar.properties_. Regardless, if you change your log level _from_ `INFO`, but sure to change it back as soon as is practical; log files can get very large very quickly at lower log levels.
 
 ## Total Lines of Code
 The number of Lines of Code (for licensing purposes) in an instance can be found in the **System** section of the System Info page on, and on the License page (**[Administration > Configuration > License Manager](/#sonarqube-admin#/admin/extension/license/app)** in commercial editions. 
