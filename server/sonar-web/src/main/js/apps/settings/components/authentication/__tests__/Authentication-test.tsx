@@ -53,6 +53,42 @@ it('should render tabs and allow navigation', async () => {
   );
 });
 
+it('should allow user to test the configuration', async () => {
+  const user = userEvent.setup();
+
+  const definitions = [
+    mockDefinition({
+      key: 'sonar.auth.saml.certificate.secured',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'Certificate',
+      description: 'Secured certificate',
+      type: SettingType.PASSWORD
+    }),
+    mockDefinition({
+      key: 'sonar.auth.saml.enabled',
+      category: 'authentication',
+      subCategory: 'saml',
+      name: 'Enabled',
+      description: 'To enable the flag',
+      type: SettingType.BOOLEAN
+    })
+  ];
+
+  renderAuthentication(definitions);
+
+  await user.click(await screen.findByText('settings.almintegration.form.secret.update_field'));
+
+  await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
+  await user.keyboard('new certificate');
+
+  expect(screen.getByText('settings.authentication.saml.form.test')).toHaveClass('disabled');
+
+  await user.click(screen.getByRole('button', { name: 'settings.authentication.saml.form.save' }));
+
+  expect(screen.getByText('settings.authentication.saml.form.test')).not.toHaveClass('disabled');
+});
+
 it('should allow user to edit fields and save configuration', async () => {
   const user = userEvent.setup();
   const definitions = [

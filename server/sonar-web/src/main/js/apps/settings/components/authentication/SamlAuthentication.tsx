@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { keyBy } from 'lodash';
 import React from 'react';
 import { getValues, resetSettingValue, setSettingValue } from '../../../../api/settings';
 import { SubmitButton } from '../../../../components/controls/buttons';
+import Tooltip from '../../../../components/controls/Tooltip';
+import DetachIcon from '../../../../components/icons/DetachIcon';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { parseError } from '../../../../helpers/request';
+import { getBaseUrl } from '../../../../helpers/system';
 import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
 import SamlFormField from './SamlFormField';
 import SamlToggleField from './SamlToggleField';
@@ -39,6 +43,8 @@ interface SamlAuthenticationState {
   securedFieldsSubmitted: string[];
   error: { [key: string]: string };
 }
+
+const CONFIG_TEST_PATH = '/api/saml/validation_init';
 
 const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';
 
@@ -214,10 +220,25 @@ class SamlAuthentication extends React.PureComponent<
     );
   };
 
+  getTestButtonTooltipContent = (formIsIncomplete: boolean, hasDirtyFields: boolean) => {
+    if (hasDirtyFields) {
+      return translate('settings.authentication.saml.form.test.help.dirty');
+    }
+
+    if (formIsIncomplete) {
+      return translate('settings.authentication.saml.form.test.help.incomplete');
+    }
+
+    return null;
+  };
+
   render() {
     const { definitions } = this.props;
     const { submitting, settingValue, securedFieldsSubmitted, error, dirtyFields } = this.state;
     const enabledFlagDefinition = definitions.find(def => def.key === SAML_ENABLED_FIELD);
+
+    const formIsIncomplete = !this.allowEnabling();
+    const preventTestingConfig = formIsIncomplete || dirtyFields.length > 0;
 
     return (
       <div>
@@ -246,16 +267,30 @@ class SamlAuthentication extends React.PureComponent<
               <SamlToggleField
                 definition={enabledFlagDefinition}
                 settingValue={settingValue?.find(set => set.key === enabledFlagDefinition.key)}
-                toggleDisabled={!this.allowEnabling()}
+                toggleDisabled={formIsIncomplete}
                 onChange={this.onEnableFlagChange}
               />
             </div>
           )}
           <div>
-            <SubmitButton onClick={this.onSaveConfig}>
+            <SubmitButton className="button-primary spacer-right" onClick={this.onSaveConfig}>
               {translate('settings.authentication.saml.form.save')}
               <DeferredSpinner className="spacer-left" loading={submitting} />
             </SubmitButton>
+
+            <Tooltip
+              overlay={this.getTestButtonTooltipContent(formIsIncomplete, dirtyFields.length > 0)}>
+              <a
+                className={classNames('button', {
+                  disabled: preventTestingConfig
+                })}
+                href={preventTestingConfig ? undefined : `${getBaseUrl()}${CONFIG_TEST_PATH}`}
+                target="_blank"
+                rel="noopener noreferrer">
+                <DetachIcon className="spacer-right" />
+                {translate('settings.authentication.saml.form.test')}
+              </a>
+            </Tooltip>
           </div>
         </div>
       </div>
