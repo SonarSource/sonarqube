@@ -26,7 +26,7 @@ rem check if Java is found
 set JAVA_EXE=
 call "%REALPATH%lib\find_java.bat" set_java_exe FAIL || goto:eof
 rem replace JAVA_EXE with the Java path in configuration file
-powershell -Command "(Get-Content %REALPATH%lib\SonarServiceWrapperTemplate.xml) -replace 'JAVA_EXE', '%JAVA_EXE%' | Out-File -encoding ASCII %REALPATH%lib\SonarServiceWrapper.xml"
+powershell -Command "(Get-Content '%REALPATH%lib\SonarServiceWrapperTemplate.xml') -replace 'JAVA_EXE', '%JAVA_EXE%' | Out-File -encoding ASCII '%REALPATH%lib\SonarServiceWrapper.xml'"
 
 rem call the SonarServiceWrapper.exe passing all the parameters
 "%REALPATH%lib\SonarServiceWrapper.exe" %*
