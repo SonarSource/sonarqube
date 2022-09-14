@@ -46,7 +46,7 @@ public final class AuthenticationError {
     redirectToUnauthorized(request, response);
   }
 
-  static void handleError(HttpServletRequest request, HttpServletResponse response, String message) {
+  public static void handleError(HttpServletRequest request, HttpServletResponse response, String message) {
     LOGGER.warn(message);
     redirectToUnauthorized(request, response);
   }

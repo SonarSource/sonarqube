@@ -225,11 +225,9 @@ public class SamlIdentityProviderTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", WRONG_FORMAT_PRIVATE_KEY);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
 
-    try {
-      underTest.callback(callbackContext);
-    } catch (IllegalStateException ise) {
-      assertThat(ise.getMessage()).contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
-    }
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
   }
 
   @Test

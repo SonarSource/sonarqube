@@ -33,9 +33,9 @@ import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_LOGIN_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
 
-public class SamlStatusChecker {
+public final class SamlStatusChecker {
 
-  private SamlStatusChecker()  {
+  private SamlStatusChecker() {
     throw new IllegalStateException("This Utility class cannot be instantiated");
   }
 
@@ -77,25 +77,17 @@ public class SamlStatusChecker {
   }
 
   private static List<String> generateWarnings(Auth auth, SamlSettings samlSettings) {
-    List<String> warnings = new ArrayList<>();
-    warnings.addAll(generateMappingWarnings(auth, samlSettings));
-    return warnings;
-  }
-
-  private static List<String> generateMappingWarnings(Auth auth, SamlSettings samlSettings) {
     Map<String, String> mappings = Map.of(
       USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
       USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin(),
       USER_EMAIL_ATTRIBUTE, samlSettings.getUserEmail().orElse(""),
       GROUP_NAME_ATTRIBUTE, samlSettings.getGroupName().orElse(""));
-    List<String> warnings = new ArrayList<>();
 
-    mappings.forEach((key, value) -> {
-      if (!value.isEmpty() && (auth.getAttribute(value) == null || auth.getAttribute(value).isEmpty())) {
-        warnings.add(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", key, value));
-      }
-    });
-
-    return warnings;
+    return mappings.entrySet()
+      .stream()
+      .filter(entry -> !entry.getValue().isEmpty() && (auth.getAttribute(entry.getValue()) == null || auth.getAttribute(entry.getValue()).isEmpty()))
+      .map(entry -> String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", entry.getKey(), entry.getValue()))
+      .collect(Collectors.toList());
   }
+
 }

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.json.JSONObject;
 
-public class SamlAuthStatusPageGenerator {
+public final class SamlAuthStatusPageGenerator {
 
   private static final String WEB_CONTEXT = "%WEB_CONTEXT%";
   private static final String STATUS = "%STATUS%";

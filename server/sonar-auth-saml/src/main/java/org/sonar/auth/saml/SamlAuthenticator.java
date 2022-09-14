@@ -43,7 +43,9 @@ import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.auth.saml.SamlAuthStatusPageGenerator.getSamlAuthStatusHtml;
 import static org.sonar.auth.saml.SamlIdentityProvider.RSA_SHA_256_URL;
+import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlAuthenticator {
 
@@ -125,7 +127,7 @@ public class SamlAuthenticator {
 
     var saml2Settings = new SettingsBuilder().fromValues(samlData).build();
     if (samlSettings.getServiceProviderPrivateKey().isPresent() && saml2Settings.getSPkey() == null) {
-      LOGGER.error("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+      throw new IllegalStateException("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
     }
     return saml2Settings;
   }
@@ -205,4 +207,10 @@ public class SamlAuthenticator {
   private void checkMessageId(Auth auth) {
     samlMessageIdChecker.check(auth);
   }
+
+  public String getAuthenticationStatusPage(HttpServletRequest request, HttpServletResponse response) {
+    Auth auth = this.initSamlAuth(request, response);
+    return getSamlAuthStatusHtml(getSamlAuthenticationStatus(auth, samlSettings));
+  }
 }
+

@@ -43,6 +43,7 @@ public class AuthenticationModule extends Module {
       JwtHttpHandler.class,
       JwtSerializer.class,
       OAuth2AuthenticationParametersImpl.class,
+      SamlValidationRedirectionFilter.class,
       OAuth2CallbackFilter.class,
       OAuth2ContextFactory.class,
       OAuthCsrfVerifier.class,

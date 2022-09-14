@@ -26,7 +26,8 @@ public class SamlValidationModule extends Module {
   protected void configureModule() {
     add(
       SamlValidationWs.class,
-      SamlValidationInitAction.class
+      SamlValidationInitAction.class,
+      SamlValidationCallbackFilter.class
     );
   }
 }
