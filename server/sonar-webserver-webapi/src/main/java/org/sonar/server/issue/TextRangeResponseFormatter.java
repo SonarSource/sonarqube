@@ -59,7 +59,7 @@ public class TextRangeResponseFormatter {
         targetFlow.setDescription(flow.getDescription());
       }
       if (flow.hasType()) {
-        convertFlowType(flow.getType()).ifPresent(targetFlow::setFlowType);
+        convertFlowType(flow.getType()).ifPresent(targetFlow::setType);
       }
       return targetFlow.build();
     }).collect(Collectors.toList());

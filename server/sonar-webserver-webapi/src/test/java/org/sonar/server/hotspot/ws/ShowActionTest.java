@@ -260,7 +260,7 @@ public class ShowActionTest {
     assertThat(response.getKey()).isEqualTo(hotspot.getKey());
     assertThat(response.getFlowsCount()).isEqualTo(2);
     assertThat(response.getFlows(0).getDescription()).isEqualTo("FLOW DESCRIPTION");
-    assertThat(response.getFlows(0).getFlowType()).isEqualTo(Common.FlowType.DATA);
+    assertThat(response.getFlows(0).getType()).isEqualTo(Common.FlowType.DATA);
     assertThat(response.getFlows(0).getLocationsList())
       .extracting(Location::getMsg, Location::getComponent)
       .containsExactlyInAnyOrder(
@@ -269,7 +269,7 @@ public class ShowActionTest {
         tuple("FLOW MESSAGE WITHOUT FILE UUID", file.getKey()));
 
     assertThat(response.getFlows(1).getDescription()).isEmpty();
-    assertThat(response.getFlows(1).hasFlowType()).isFalse();
+    assertThat(response.getFlows(1).hasType()).isFalse();
   }
 
   @Test

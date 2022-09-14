@@ -96,7 +96,7 @@ message TextRange {
 message Flow {
   repeated Location locations = 1;
   optional string description = 2;
-  optional FlowType flowType = 3;
+  optional FlowType type = 3;
 }
 
 enum FlowType {
