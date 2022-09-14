@@ -87,7 +87,7 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    assertThat(writer).hasToString("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
       "<rules>" +
@@ -96,7 +96,7 @@ public class QProfileBackuperImplTest {
       "<key>" + rule.getRuleKey() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
-      "<parameters></parameters>" +
+      "<parameters/>" +
       "</rule>" +
       "</rules>" +
       "</profile>");
@@ -133,10 +133,10 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    assertThat(writer).hasToString("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
-      "<rules></rules>" +
+      "<rules/>" +
       "</profile>");
   }
 
@@ -156,7 +156,7 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    assertThat(writer).hasToString("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
       "<name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
@@ -186,7 +186,7 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    assertThat(writer).hasToString("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
       "<name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +

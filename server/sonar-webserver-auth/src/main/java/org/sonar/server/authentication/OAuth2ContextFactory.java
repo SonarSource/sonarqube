@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -67,6 +68,11 @@ public class OAuth2ContextFactory {
     return new OAuthContextImpl(request, response, identityProvider);
   }
 
+  @NotNull
+  public String generateCallbackUrl(String identityProviderKey) {
+    return server.getPublicRootUrl() + CALLBACK_PATH + identityProviderKey;
+  }
+
   public class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2CallbackContext {
 
     private final HttpServletRequest request;
@@ -81,7 +87,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public String getCallbackUrl() {
-      return server.getPublicRootUrl() + CALLBACK_PATH + identityProvider.getKey();
+      return generateCallbackUrl(identityProvider.getKey());
     }
 
     @Override

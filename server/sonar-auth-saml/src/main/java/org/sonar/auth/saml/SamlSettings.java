@@ -32,7 +32,6 @@ import static org.sonar.api.PropertyType.PASSWORD;
 
 @ServerSide
 public class SamlSettings {
-
   public static final String ENABLED = "sonar.auth.saml.enabled";
   public static final String PROVIDER_ID = "sonar.auth.saml.providerId";
   public static final String PROVIDER_NAME = "sonar.auth.saml.providerName";
@@ -117,7 +116,7 @@ public class SamlSettings {
       configuration.get(USER_NAME_ATTRIBUTE).isPresent();
   }
 
-  static List<PropertyDefinition> definitions() {
+  public static List<PropertyDefinition> definitions() {
     return Arrays.asList(
       PropertyDefinition.builder(ENABLED)
         .name("Enabled")

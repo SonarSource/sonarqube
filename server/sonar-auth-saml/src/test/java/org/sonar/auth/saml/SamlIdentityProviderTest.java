@@ -38,8 +38,6 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +47,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 
 public class SamlIdentityProviderTest {
   private static final String SQ_CALLBACK_URL = "http://localhost:9000/oauth2/callback/saml";
@@ -65,8 +62,6 @@ public class SamlIdentityProviderTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public LogTester log = new LogTester();
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
   private final SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
@@ -230,11 +225,11 @@ public class SamlIdentityProviderTest {
     settings.setProperty("sonar.auth.saml.sp.privateKey.secured", WRONG_FORMAT_PRIVATE_KEY);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
 
-    underTest.callback(callbackContext);
-
-    assertThat(log.getLogs(ERROR))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    try {
+      underTest.callback(callbackContext);
+    } catch (IllegalStateException ise) {
+      assertThat(ise.getMessage()).contains("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    }
   }
 
   @Test
@@ -396,7 +391,7 @@ public class SamlIdentityProviderTest {
 
     private String loadResponse(String file) {
       try (InputStream json = getClass().getResourceAsStream("SamlIdentityProviderTest/" + file)) {
-        return IOUtils.toString(json, StandardCharsets.UTF_8.name());
+        return IOUtils.toString(json, StandardCharsets.UTF_8);
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }

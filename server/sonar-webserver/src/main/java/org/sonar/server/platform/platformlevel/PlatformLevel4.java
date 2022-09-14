@@ -221,6 +221,7 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
+import org.sonar.server.saml.ws.SamlValidationModule;
 import org.sonar.server.scannercache.ScannerCache;
 import org.sonar.server.scannercache.ws.AnalysisCacheWsModule;
 import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
@@ -381,6 +382,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new GitLabModule(),
       new LdapModule(),
       new SamlModule(),
+      new SamlValidationModule(),
       DefaultAdminCredentialsVerifierImpl.class,
       DefaultAdminCredentialsVerifierNotificationTemplate.class,
       DefaultAdminCredentialsVerifierNotificationHandler.class,

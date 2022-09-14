@@ -37,6 +37,7 @@ public class SamlValidationInitAction extends ServletFilter implements SamlActio
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   private final SamlAuthenticator samlAuthenticator;
+
   private final OAuth2ContextFactory oAuth2ContextFactory;
 
   public SamlValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory) {
