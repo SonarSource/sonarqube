@@ -28,6 +28,39 @@ import Authentication from '../Authentication';
 
 jest.mock('../../../../../api/settings');
 
+const mockDefinitionFields = [
+  mockDefinition({
+    key: 'test1',
+    category: 'authentication',
+    subCategory: 'saml',
+    name: 'test1',
+    description: 'desc1'
+  }),
+  mockDefinition({
+    key: 'test2',
+    category: 'authentication',
+    subCategory: 'saml',
+    name: 'test2',
+    description: 'desc2'
+  }),
+  mockDefinition({
+    key: 'sonar.auth.saml.certificate.secured',
+    category: 'authentication',
+    subCategory: 'saml',
+    name: 'Certificate',
+    description: 'Secured certificate',
+    type: SettingType.PASSWORD
+  }),
+  mockDefinition({
+    key: 'sonar.auth.saml.enabled',
+    category: 'authentication',
+    subCategory: 'saml',
+    name: 'Enabled',
+    description: 'To enable the flag',
+    type: SettingType.BOOLEAN
+  })
+];
+
 let handler: AuthenticationServiceMock;
 
 beforeEach(() => {
@@ -91,38 +124,7 @@ it('should allow user to test the configuration', async () => {
 
 it('should allow user to edit fields and save configuration', async () => {
   const user = userEvent.setup();
-  const definitions = [
-    mockDefinition({
-      key: 'test1',
-      category: 'authentication',
-      subCategory: 'saml',
-      name: 'test1',
-      description: 'desc1'
-    }),
-    mockDefinition({
-      key: 'test2',
-      category: 'authentication',
-      subCategory: 'saml',
-      name: 'test2',
-      description: 'desc2'
-    }),
-    mockDefinition({
-      key: 'sonar.auth.saml.certificate.secured',
-      category: 'authentication',
-      subCategory: 'saml',
-      name: 'Certificate',
-      description: 'Secured certificate',
-      type: SettingType.PASSWORD
-    }),
-    mockDefinition({
-      key: 'sonar.auth.saml.enabled',
-      category: 'authentication',
-      subCategory: 'saml',
-      name: 'Enabled',
-      description: 'To enable the flag',
-      type: SettingType.BOOLEAN
-    })
-  ];
+  const definitions = mockDefinitionFields;
   renderAuthentication(definitions);
 
   expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'true');
@@ -160,11 +162,25 @@ it('should allow user to edit fields and save configuration', async () => {
   expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'settings.authentication.saml.form.save' }));
+  expect(screen.getByText('settings.authentication.saml.form.save_success')).toBeInTheDocument();
   // check after switching tab that the flag is still enabled
   await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
   await user.click(screen.getByRole('tab', { name: 'SAML' }));
 
   expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
+});
+
+it('should handle and show error to the user', async () => {
+  const user = userEvent.setup();
+  const definitions = mockDefinitionFields;
+  renderAuthentication(definitions);
+
+  await user.click(screen.getByRole('textbox', { name: 'test1' }));
+  await user.keyboard('value');
+  await user.click(screen.getByRole('textbox', { name: 'test2' }));
+  await user.keyboard('{Control>}a{/Control}error');
+  await user.click(screen.getByRole('button', { name: 'settings.authentication.saml.form.save' }));
+  expect(screen.getByText('settings.authentication.saml.form.save_partial')).toBeInTheDocument();
 });
 
 function renderAuthentication(definitions: ExtendedSettingDefinition[]) {

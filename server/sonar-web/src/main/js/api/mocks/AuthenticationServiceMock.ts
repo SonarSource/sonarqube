@@ -49,6 +49,14 @@ export default class AuthenticationServiceMock {
   };
 
   setValueHandler = (definition: SettingDefinition, value: string) => {
+    if (value === 'error') {
+      const res = new Response('', {
+        status: 400,
+        statusText: 'fail'
+      });
+
+      return Promise.reject(res);
+    }
     const updatedSettingValue = this.settingValues.find(set => set.key === definition.key);
     if (updatedSettingValue) {
       updatedSettingValue.value = value;
@@ -58,16 +66,14 @@ export default class AuthenticationServiceMock {
 
   resetValueHandler = (data: { keys: string; component?: string } & BranchParameters) => {
     if (data.keys) {
-      return Promise.resolve(
-        this.settingValues.map(set => {
-          if (data.keys.includes(set.key)) {
-            set.value = '';
-          }
-          return set;
-        })
-      );
+      this.settingValues.forEach(set => {
+        if (data.keys.includes(set.key)) {
+          set.value = '';
+        }
+        return set;
+      });
     }
-    return Promise.resolve(this.settingValues);
+    return Promise.resolve();
   };
 
   resetValues = () => {

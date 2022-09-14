@@ -44,7 +44,7 @@ export default function SamlSecuredField(props: SamlToggleFieldProps) {
         <textarea
           className="width-100"
           id={definition.key}
-          maxLength={2000}
+          maxLength={4000}
           onChange={e => props.onFieldChange(definition.key, e.currentTarget.value)}
           required={!optional}
           rows={5}

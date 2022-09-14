@@ -203,7 +203,6 @@
 .fixed-footer {
   position: sticky;
   bottom: 0px;
-  height: 50px;
   align-items: center;
   display: flex;
   border: 1px solid var(--gray80);
