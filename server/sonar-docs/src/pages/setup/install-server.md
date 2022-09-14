@@ -106,11 +106,11 @@ First, check the [requirements](/requirements/requirements/). Then download and 
 
 SonarQube cannot be run as `root` on Unix-based systems, so create a dedicated user account for SonarQube if necessary.
 
-_$SONARQUBE-HOME_ (below) refers to the path to the directory where the SonarQube distribution has been unzipped.
+_$SONARQUBE_HOME_ (below) refers to the path to the directory where the SonarQube distribution has been unzipped.
 
 ### Setting the Access to the Database
 
-Edit _$SONARQUBE-HOME/conf/sonar.properties_ to configure the database settings. Templates are available for every supported database. Just uncomment and configure the template you need and comment out the lines dedicated to H2:
+Edit _$SONARQUBE_HOME/conf/sonar.properties_ to configure the database settings. Templates are available for every supported database. Just uncomment and configure the template you need and comment out the lines dedicated to H2:
 
 ```
 Example for PostgreSQL
@@ -123,13 +123,13 @@ sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
 
 Drivers for the supported databases (except Oracle) are already provided. Do not replace the provided drivers; they are the only ones supported.
 
-For Oracle, copy the JDBC driver into _$SONARQUBE-HOME/extensions/jdbc-driver/oracle_.
+For Oracle, copy the JDBC driver into _$SONARQUBE_HOME/extensions/jdbc-driver/oracle_.
 
 ### Configuring the Elasticsearch storage path
 
-By default, Elasticsearch data is stored in _$SONARQUBE-HOME/data_, but this is not recommended for production instances. Instead, you should store this data elsewhere, ideally in a dedicated volume with fast I/O. Beyond maintaining acceptable performance, doing so will also ease the upgrade of SonarQube.
+By default, Elasticsearch data is stored in _$SONARQUBE_HOME/data_, but this is not recommended for production instances. Instead, you should store this data elsewhere, ideally in a dedicated volume with fast I/O. Beyond maintaining acceptable performance, doing so will also ease the upgrade of SonarQube.
 
-Edit _$SONARQUBE-HOME/conf/sonar.properties_ to configure the following settings:
+Edit _$SONARQUBE_HOME/conf/sonar.properties_ to configure the following settings:
 
 ```
 sonar.path.data=/var/sonarqube/data
@@ -140,7 +140,7 @@ The user used to launch SonarQube must have read and write access to those direc
 
 ### Starting the Web Server
 
-The default port is "9000" and the context path is "/". These values can be changed in _$SONARQUBE-HOME/conf/sonar.properties_:
+The default port is "9000" and the context path is "/". These values can be changed in _$SONARQUBE_HOME/conf/sonar.properties_:
 
 ```
 sonar.web.host=192.168.0.1

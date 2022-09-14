@@ -42,10 +42,10 @@ If you're using a commercial edition or your server doesn't have internet access
 
 To see what plugins are available and which version of a plugin is appropriate for your server, use the [plugin version matrix](/instance-administration/plugin-version-matrix/), which is kept up to date with current plugin availability and compatibility.
 
-To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in `$SONARQUBE-HOME/extensions/plugins`, and restart the server.
+To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in `$SONARQUBE_HOME/extensions/plugins`, and restart the server.
 
 ### Stopping the Marketplace from searching for plugin updates
-Your SonarQube server needs internet access for the Marketplace to search for plugin updates. If your server doesn't have internet access, you may get errors in your logs when the Marketplace tries to search for new plugins. You can stop this by updating `sonar.updatecenter.activate` in `$SONARQUBE-HOME/conf/sonar.properties`.
+Your SonarQube server needs internet access for the Marketplace to search for plugin updates. If your server doesn't have internet access, you may get errors in your logs when the Marketplace tries to search for new plugins. You can stop this by updating `sonar.updatecenter.activate` in `$SONARQUBE_HOME/conf/sonar.properties`.
 
 ## Which URLs does the Marketplace connect to?
 The SonarQube Marketplace connects to https://update.sonarsource.org/ to get the list of plugins. Most of the referenced plugins are downloaded from:
@@ -53,7 +53,7 @@ The SonarQube Marketplace connects to https://update.sonarsource.org/ to get the
 * https://github.com/
 
 ## Using the Marketplace behind a Proxy
-Marketplace uses HTTP(S) connections to external servers to provide these services. If SonarQube is located behind a proxy, additional information must be provided in the _$SONARQUBE-HOME/conf/sonar.properties_ configuration file:
+Marketplace uses HTTP(S) connections to external servers to provide these services. If SonarQube is located behind a proxy, additional information must be provided in the _$SONARQUBE_HOME/conf/sonar.properties_ configuration file:
 ```
 http.proxyHost=<your.proxy.host>
 http.proxyPort=<yout.proxy.port>

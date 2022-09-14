@@ -20,7 +20,7 @@ If you have any concerns about telemetry collection, please email us at `securit
 
 ## Turning it off
 
-You can disable telemetry at any time by setting the `sonar.telemetry.enabled` property to `false` in `$SONARQUBE-HOME/conf/sonar.properties`.
+You can disable telemetry at any time by setting the `sonar.telemetry.enabled` property to `false` in `$SONARQUBE_HOME/conf/sonar.properties`.
 By default, it is set to `true`.
 
 

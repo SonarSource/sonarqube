@@ -17,7 +17,7 @@ The SonarQube application server consists of three main Java processes:
 * Elasticsearch
 * Web (including embedded web server)
 
-Each of these Java processes has its own memory settings that can be configured in the _$SONARQUBE-HOME/conf/sonar.properties_ file. The default memory settings that ship with SonarQube are fine for most instances. If you are supporting a large SonarQube instance (more than 100 users or more than 5,000,000 lines of code) or an instance that is part of your Continuous Integration pipeline, you should monitor the memory and CPU usage of all three key Java processes on your instance, along with overall disk space. Monitoring will allow you to see if any of the processes is running short of resources and take action ahead of resource shortages. There are numerous monitoring tools available, both open source and commercial, to help you with this task. SonarSource does not recommend or endorse any particular tool.
+Each of these Java processes has its own memory settings that can be configured in the _$SONARQUBE_HOME/conf/sonar.properties_ file. The default memory settings that ship with SonarQube are fine for most instances. If you are supporting a large SonarQube instance (more than 100 users or more than 5,000,000 lines of code) or an instance that is part of your Continuous Integration pipeline, you should monitor the memory and CPU usage of all three key Java processes on your instance, along with overall disk space. Monitoring will allow you to see if any of the processes is running short of resources and take action ahead of resource shortages. There are numerous monitoring tools available, both open source and commercial, to help you with this task. SonarSource does not recommend or endorse any particular tool.
 
 ## Memory settings
 
@@ -28,7 +28,7 @@ You may need to increase your memory settings if you see the following symptoms:
 * A SonarQube background task fails with an out-of-memory error in the background task log
 * The store size of the Issues index of your Elasticsearch instance (visible in the System Info) is greater than or equal to the memory allocated to the Elasticsearch Java process
 
-You can increase the maximum memory allocated to the appropriate process by increasing the  -Xmx memory setting for the corresponding Java process in your _$SONARQUBE-HOME/conf/sonar.properties_ file:
+You can increase the maximum memory allocated to the appropriate process by increasing the  -Xmx memory setting for the corresponding Java process in your _$SONARQUBE_HOME/conf/sonar.properties_ file:
 
 Java Process | SonarQube Property | Notes
 --- | --- | ---

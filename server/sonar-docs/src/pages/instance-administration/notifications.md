@@ -4,7 +4,7 @@ url: /instance-administration/notifications/
 ---
 At the end of each analysis, notifications are computed for each subscribed user. Then, asynchronously, these notifications are sent via email.
 
-To set the frequency with which the notification queue is processed, set `the sonar.notifications.delay` property (in seconds) in _$SONARQUBE-HOME/conf/sonar.properties_. The server must be restarted for the new value to be taken into account.
+To set the frequency with which the notification queue is processed, set `the sonar.notifications.delay` property (in seconds) in _$SONARQUBE_HOME/conf/sonar.properties_. The server must be restarted for the new value to be taken into account.
 
 ## Who gets notifications
 Only users who subscribe themselves will get notifications. With only one exception, there is no admin functionality to proactively subscribe another user. If you believe a user should be receiving notifications, then it's time to practice the gentle art of persuasion.

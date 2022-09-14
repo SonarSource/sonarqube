@@ -15,6 +15,6 @@ The tool that handles the authentication should:
 
 ![HTTP Header Authentication flow](/images/http-header-authentication.png)
 
-All the parameters required to activate and configure this feature are available in SonarQube server configuration file (in _$SONARQUBE-HOME/conf/sonar.properties_).
+All the parameters required to activate and configure this feature are available in SonarQube server configuration file (in _$SONARQUBE_HOME/conf/sonar.properties_).
 
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.

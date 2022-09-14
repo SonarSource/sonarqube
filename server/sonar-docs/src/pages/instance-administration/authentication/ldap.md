@@ -3,7 +3,7 @@ title: LDAP
 url: /instance-administration/authentication/ldap/
 ---
 
-You can configure SonarQube authentication and authorization to an LDAP server (including LDAP Service of Active Directory) by configuring the correct values in _$SONARQUBE-HOME/conf/sonar.properties_.
+You can configure SonarQube authentication and authorization to an LDAP server (including LDAP Service of Active Directory) by configuring the correct values in _$SONARQUBE_HOME/conf/sonar.properties_.
 
 The main features are:
 
@@ -25,7 +25,7 @@ GSSAPI|![](/images/check.svg)|  |  |
 ![](/images/check.svg) = successfully tested
 
 ## Setup
-1. Configure LDAP by editing _$SONARQUBE-HOME/conf/sonar.properties_ (see table below)
+1. Configure LDAP by editing _$SONARQUBE_HOME/conf/sonar.properties_ (see table below)
 2. Restart the SonarQube server and check the log file for:
 ```
 INFO org.sonar.INFO Security realm: LDAP ...
@@ -129,4 +129,4 @@ If you are changing your delegated authentication method and migrating existing 
 * Detailed connection logs (and potential error codes received from LDAP server) are output to SonarQube's _$SONARQUBE_HOME/logs/web.log_, when logging is in `DEBUG` mode.
 
 * Time out when running SonarQube analysis using LDAP
-Java parameters are documented here: http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html. Such parameters can be set in `sonar.web.javaAdditionalOpts` in _$SONARQUBE-HOME/conf/sonar.properties_.
+Java parameters are documented here: http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html. Such parameters can be set in `sonar.web.javaAdditionalOpts` in _$SONARQUBE_HOME/conf/sonar.properties_.
