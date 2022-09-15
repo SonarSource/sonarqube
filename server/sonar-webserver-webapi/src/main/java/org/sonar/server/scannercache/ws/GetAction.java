@@ -41,12 +41,10 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class GetAction implements AnalysisCacheWsAction {
   private static final String PROJECT = "project";
   private static final String BRANCH = "branch";
-  private static final String PR = "pullRequest";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -111,13 +109,11 @@ public class GetAction implements AnalysisCacheWsAction {
   }
 
   private static boolean requestedCompressedData(Request request) {
-    String encoding = request.getHeaders().get("Accept-Encoding");
-    if (encoding == null) {
-      return false;
-    }
-    return Arrays.stream(encoding.split(","))
-      .map(String::trim)
-      .anyMatch("gzip"::equals);
+    return request.header("Accept-Encoding")
+      .map(encoding -> Arrays.stream(encoding.split(","))
+        .map(String::trim)
+        .anyMatch("gzip"::equals))
+      .orElse(false);
   }
 
   private void checkPermission(ComponentDto project) {

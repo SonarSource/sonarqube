@@ -22,6 +22,7 @@ package org.sonarqube.ws.client;
 import javax.annotation.Generated;
 import org.sonarqube.ws.client.almintegrations.AlmIntegrationsService;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
+import org.sonarqube.ws.client.analysiscache.AnalysisCacheService;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.applications.ApplicationsService;
 import org.sonarqube.ws.client.authentication.AuthenticationService;
@@ -102,6 +103,8 @@ public interface WsClient {
   AlmIntegrationsService almIntegrations();
 
   AlmSettingsService almSettings();
+
+  AnalysisCacheService analysisCache();
 
   AnalysisReportsService analysisReports();
 

@@ -22,6 +22,7 @@ package org.sonar.scanner.cache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
@@ -94,8 +95,8 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
   }
 
   private static AnalysisCacheMsg decompress(InputStream is) {
-    try (InflaterInputStream iis = new InflaterInputStream(is)) {
-      return Protobuf.read(iis, ScannerInternal.AnalysisCacheMsg.parser());
+    try (GZIPInputStream gzipInputStream = new GZIPInputStream(is)) {
+      return Protobuf.read(gzipInputStream, ScannerInternal.AnalysisCacheMsg.parser());
     } catch (IOException e) {
       throw new IllegalStateException("Failed to decompress analysis cache", e);
     }

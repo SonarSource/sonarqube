@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -130,7 +132,7 @@ public class DefaultAnalysisCacheLoaderTest {
   }
 
   private void setCompressedResponse(AnalysisCacheMsg msg) throws IOException {
-    when(response.contentStream()).thenReturn(new DeflaterInputStream(createInputStream(msg)));
+    when(response.contentStream()).thenReturn(createCompressedInputStream(msg));
     when(response.header(CONTENT_ENCODING)).thenReturn(Optional.of("gzip"));
   }
 
@@ -142,6 +144,14 @@ public class DefaultAnalysisCacheLoaderTest {
   private InputStream createInputStream(AnalysisCacheMsg analysisCacheMsg) throws IOException {
     ByteArrayOutputStream serialized = new ByteArrayOutputStream(analysisCacheMsg.getSerializedSize());
     analysisCacheMsg.writeTo(serialized);
+    return new ByteArrayInputStream(serialized.toByteArray());
+  }
+
+  private InputStream createCompressedInputStream(AnalysisCacheMsg analysisCacheMsg) throws IOException {
+    ByteArrayOutputStream serialized = new ByteArrayOutputStream(analysisCacheMsg.getSerializedSize());
+    GZIPOutputStream compressed = new GZIPOutputStream(serialized);
+    analysisCacheMsg.writeTo(compressed);
+    compressed.close();
     return new ByteArrayInputStream(serialized.toByteArray());
   }
 }

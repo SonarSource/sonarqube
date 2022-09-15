@@ -22,6 +22,7 @@ package org.sonarqube.ws.client;
 import javax.annotation.Generated;
 import org.sonarqube.ws.client.almintegrations.AlmIntegrationsService;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
+import org.sonarqube.ws.client.analysiscache.AnalysisCacheService;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.applications.ApplicationsService;
 import org.sonarqube.ws.client.authentication.AuthenticationService;
@@ -89,6 +90,7 @@ class DefaultWsClient implements WsClient {
 
   private final AlmIntegrationsService almIntegrationsService;
   private final AlmSettingsService almSettingsService;
+  private final AnalysisCacheService analysisCacheService;
   private final AnalysisReportsService analysisReportsService;
   private final ApplicationsService applicationsService;
   private final AuthenticationService authenticationService;
@@ -148,6 +150,7 @@ class DefaultWsClient implements WsClient {
 
     this.almIntegrationsService = new AlmIntegrationsService(wsConnector);
     this.almSettingsService = new AlmSettingsService(wsConnector);
+    this.analysisCacheService = new AnalysisCacheService(wsConnector);
     this.analysisReportsService = new AnalysisReportsService(wsConnector);
     this.applicationsService = new ApplicationsService(wsConnector);
     this.authenticationService = new AuthenticationService(wsConnector);
@@ -220,6 +223,11 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
+  public AnalysisCacheService analysisCache() {
+    return analysisCacheService;
+  }
+
+  @Override
   public AnalysisReportsService analysisReports() {
     return analysisReportsService;
   }
@@ -253,7 +261,7 @@ class DefaultWsClient implements WsClient {
   public RegulatoryReportsService regulatoryReports() {
     return regulatoryReportsService;
   }
-  
+
   @Override
   public DuplicationsService duplications() {
     return duplicationsService;
