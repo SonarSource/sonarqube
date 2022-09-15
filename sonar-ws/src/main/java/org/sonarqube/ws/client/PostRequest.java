@@ -28,6 +28,7 @@ import java.util.Map;
  */
 public class PostRequest extends BaseRequest<PostRequest> {
 
+  private String body;
   private final Map<String, Part> parts = new LinkedHashMap<>();
 
   public PostRequest(String path) {
@@ -37,6 +38,19 @@ public class PostRequest extends BaseRequest<PostRequest> {
   @Override
   public Method getMethod() {
     return Method.POST;
+  }
+
+  public PostRequest setBody(String body) {
+    this.body = body;
+    return this;
+  }
+
+  public String getBody() {
+    return body;
+  }
+
+  public boolean hasBody() {
+    return this.body != null;
   }
 
   public PostRequest setPart(String name, Part part) {

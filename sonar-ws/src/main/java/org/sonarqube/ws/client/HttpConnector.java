@@ -55,6 +55,7 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
+  private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
@@ -129,7 +130,9 @@ public class HttpConnector implements WsConnector {
 
     RequestBody body;
     Map<String, PostRequest.Part> parts = postRequest.getParts();
-    if (parts.isEmpty()) {
+    if (postRequest.hasBody()) {
+      body = RequestBody.create(JSON, postRequest.getBody());
+    } else if (parts.isEmpty()) {
       // parameters are defined in the body (application/x-www-form-urlencoded)
       FormBody.Builder formBody = new FormBody.Builder();
       postRequest.getParameters().getKeys()

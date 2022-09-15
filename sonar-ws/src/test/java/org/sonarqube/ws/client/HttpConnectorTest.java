@@ -366,6 +366,32 @@ public class HttpConnectorTest {
   }
 
   @Test
+  public void setBody_shouldAddCorrectlyBodyPayloadToPostRequest_whenComposingAndSendingPostRequest() throws Exception {
+    answerHelloWorld();
+
+    String xGithubEventHeader = "code_scanning_alert";
+    String xHubSignatureHeader = "x-hub-signature";
+    String xHubSignature256Header = "x-hub-signature-256";
+    String bodyRaw = "{\"state\":\"open\"}";
+
+    PostRequest request = new PostRequest("api/alm_integrations/webhook_github")
+      .setHeader("X-GitHub-Event", xGithubEventHeader)
+      .setHeader("X-Hub-Signature", xHubSignatureHeader)
+      .setHeader("X-Hub-Signature-256", xHubSignature256Header)
+      .setBody(bodyRaw)
+      .setMediaType(MediaTypes.JSON);
+
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    underTest.call(request);
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("X-GitHub-Event")).isEqualTo(xGithubEventHeader);
+    assertThat(recordedRequest.getHeader("X-Hub-Signature")).isEqualTo(xHubSignatureHeader);
+    assertThat(recordedRequest.getHeader("X-Hub-Signature-256")).isEqualTo(xHubSignature256Header);
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(bodyRaw);
+  }
+
+  @Test
   public void upload_file() throws Exception {
     answerHelloWorld();
     File reportFile = temp.newFile();

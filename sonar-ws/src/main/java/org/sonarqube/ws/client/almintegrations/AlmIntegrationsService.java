@@ -201,6 +201,24 @@ public class AlmIntegrationsService extends BaseService {
    * This is part of the internal API.
    * This is a POST request.
    *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/webhook_github">Further information about this action online (including a response example)</a>
+   * @since 9.7
+   */
+  public void sendGitubCodeScanningAlertWebhookPayload(SendGithubCodeScanningAlertWebhookPayloadRequest request) {
+    call(
+      new PostRequest(path("webhook_github"))
+        .setHeader("X-GitHub-Event", request.getGithubEventHeader())
+        .setHeader("X-Hub-Signature", request.getGithubSignatureHeader())
+        .setHeader("X-Hub-Signature-256", request.getGithubSignature256Header())
+        .setBody(request.getPayload())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   * This is part of the internal API.
+   * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
    * @since 8.2
    */

@@ -57,4 +57,14 @@ public class PostRequestTest {
     assertThat(part.getMediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(part.getFile()).isSameAs(reportFile);
   }
+
+  @Test
+  public void setBody_shouldCorrectlyAddRawBodyToPostRequest() throws IOException {
+    String bodyRaw = "{\"state\":\"open\"}";
+    PostRequest request = new PostRequest("api/alm_integrations/webhook_github");
+    request.setBody(bodyRaw);
+
+    assertThat(request.getBody()).isEqualTo(bodyRaw);
+    assertThat(request.hasBody()).isTrue();
+  }
 }

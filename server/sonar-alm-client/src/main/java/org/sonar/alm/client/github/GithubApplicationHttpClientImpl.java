@@ -79,7 +79,6 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
   private GetResponse get(String appUrl, AccessToken token, String endPoint, boolean withLog) throws IOException {
     validateEndPoint(endPoint);
-
     try (okhttp3.Response response = client.newCall(newGetRequest(appUrl, token, endPoint)).execute()) {
       int responseCode = response.code();
       if (responseCode != HTTP_OK) {
