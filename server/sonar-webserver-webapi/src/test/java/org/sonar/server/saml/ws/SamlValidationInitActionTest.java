@@ -25,10 +25,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,10 +38,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class SamlValidationInitActionTest {
-
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
   private SamlValidationInitAction underTest;
   private SamlAuthenticator samlAuthenticator;
   private OAuth2ContextFactory oAuth2ContextFactory;
@@ -48,7 +52,7 @@ public class SamlValidationInitActionTest {
   public void setUp() throws Exception {
     samlAuthenticator = mock(SamlAuthenticator.class);
     oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-    underTest = new SamlValidationInitAction(samlAuthenticator, oAuth2ContextFactory);
+    underTest = new SamlValidationInitAction(samlAuthenticator, oAuth2ContextFactory, userSession);
   }
 
   @Test
@@ -58,9 +62,9 @@ public class SamlValidationInitActionTest {
     assertThat(underTest.doGetPattern().matches("/api/saml/validation_init2")).isFalse();
   }
 
-
   @Test
-  public void do_filter() throws IOException, ServletException {
+  public void do_filter_as_admin() throws IOException, ServletException {
+    userSession.logIn().setSystemAdministrator();
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
@@ -73,6 +77,38 @@ public class SamlValidationInitActionTest {
     verify(samlAuthenticator).initLogin(matches(callbackUrl),
       matches(SamlValidationInitAction.VALIDATION_RELAY_STATE),
       any(), any());
+  }
+
+  @Test
+  public void do_filter_as_not_admin() throws IOException, ServletException {
+    userSession.logIn();
+    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    FilterChain filterChain = mock(FilterChain.class);
+    String callbackUrl = "http://localhost:9000/api/validation_test";
+    when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
+      .thenReturn(callbackUrl);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verifyNoInteractions(samlAuthenticator);
+    verify(servletResponse).sendRedirect(anyString());
+  }
+
+  @Test
+  public void do_filter_as_anonymous() throws IOException, ServletException {
+    userSession.anonymous();
+    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    FilterChain filterChain = mock(FilterChain.class);
+    String callbackUrl = "http://localhost:9000/api/validation_test";
+    when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
+      .thenReturn(callbackUrl);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verifyNoInteractions(samlAuthenticator);
+    verify(servletResponse).sendRedirect(anyString());
   }
 
   @Test

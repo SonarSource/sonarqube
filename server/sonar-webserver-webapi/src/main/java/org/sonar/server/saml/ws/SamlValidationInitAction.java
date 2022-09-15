@@ -30,7 +30,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
+import org.sonar.server.authentication.AuthenticationError;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
 public class SamlValidationInitAction extends ServletFilter implements SamlAction {
@@ -39,10 +42,12 @@ public class SamlValidationInitAction extends ServletFilter implements SamlActio
   private final SamlAuthenticator samlAuthenticator;
 
   private final OAuth2ContextFactory oAuth2ContextFactory;
+  private final UserSession userSession;
 
-  public SamlValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory) {
+  public SamlValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory, UserSession userSession) {
     this.samlAuthenticator = samlAuthenticator;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
+    this.userSession = userSession;
   }
 
   @Override
@@ -65,6 +70,13 @@ public class SamlValidationInitAction extends ServletFilter implements SamlActio
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+    try {
+      userSession.checkIsSystemAdministrator();
+    } catch (ForbiddenException e) {
+      AuthenticationError.handleError(request, response, "User needs to be logged in as system administrator to access this page.");
+      return;
+    }
 
     samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),
       VALIDATION_RELAY_STATE, request, response);
