@@ -19,7 +19,6 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
 import {
   changeProfileParent,
   createQualityProfile,
@@ -27,6 +26,7 @@ import {
 } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
 import { Location } from '../../../components/hoc/withRouter';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -198,7 +198,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   value={languagesOptions.filter(o => o.value === selectedLanguage)}
                 />
               </div>
-              {selectedLanguage && profiles.length && (
+              {selectedLanguage && profiles.length > 0 && (
                 <div className="modal-field">
                   <label htmlFor="create-profile-parent-input">
                     {translate('quality_profiles.parent')}
