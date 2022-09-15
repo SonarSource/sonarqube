@@ -129,6 +129,8 @@ message Changelog {
   repeated Diff diffs = 5;
   optional string avatar = 6;
   optional bool isUserActive = 7;
+  optional string externalUser = 8;
+  optional string webhookSource = 9;
 
   message Diff {
     optional string key = 1;

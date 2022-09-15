@@ -123,10 +123,12 @@ public class FieldDiffsTest {
 
   @Test
   public void test_toString() {
+    diffs.setWebhookSource("github");
+    diffs.setExternalUser("toto");
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("resolution", "OPEN", "FIXED");
 
-    assertThat(diffs.toString()).isEqualTo("severity=BLOCKER|INFO,resolution=OPEN|FIXED");
+    assertThat(diffs).hasToString("webhookSource=github,externalUser=toto,severity=BLOCKER|INFO,resolution=OPEN|FIXED");
   }
 
   @Test
@@ -142,13 +144,16 @@ public class FieldDiffsTest {
     diffs.setDiff("severity", null, "INFO");
     diffs.setDiff("assignee", "user1", null);
 
-    assertThat(diffs.toString()).isEqualTo("severity=INFO,assignee=user1|");
+    assertThat(diffs).hasToString("severity=INFO,assignee=user1|");
   }
 
   @Test
   public void test_parse() {
-    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,resolution=OPEN|FIXED,donut=|new,gambas=miam,acme=old|");
+    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,webhookSource=github,resolution=OPEN|FIXED,donut=|new,gambas=miam,acme=old|,externalUser=charlie");
     assertThat(diffs.diffs()).hasSize(5);
+
+    assertThat(diffs.webhookSource()).contains("github");
+    assertThat(diffs.externalUser()).contains("charlie");
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
@@ -187,7 +192,10 @@ public class FieldDiffsTest {
 
   @Test
   public void test_parse_empty_values() {
-    diffs = FieldDiffs.parse("severity=INFO,resolution=");
+    diffs = FieldDiffs.parse("severity=INFO,resolution=,webhookSource=,externalUser=");
+
+    assertThat(diffs.externalUser()).isEmpty();
+    assertThat(diffs.webhookSource()).isEmpty();
     assertThat(diffs.diffs()).hasSize(2);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");

@@ -156,10 +156,10 @@ public class IssueLifecycleTest {
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
     assertThat(raw.changes()).hasSize(2);
     assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
-    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
-    assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
+    assertThat(raw.changes().get(0).userUuid()).contains("user_uuid");
+    assertThat(raw.changes().get(0).issueKey()).contains("raw");
     assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
-    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
+    assertThat(raw.changes().get(1).userUuid()).contains("default_user_uuid");
     assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_BRANCH);
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).oldValue()).isEqualTo("#2");
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).newValue()).isEqualTo("master");
@@ -213,13 +213,45 @@ public class IssueLifecycleTest {
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
     assertThat(raw.changes()).hasSize(2);
     assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
-    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
-    assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
+    assertThat(raw.changes().get(0).userUuid()).contains("user_uuid");
+    assertThat(raw.changes().get(0).issueKey()).contains("raw");
     assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
-    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
+    assertThat(raw.changes().get(1).userUuid()).contains("default_user_uuid");
     assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_BRANCH);
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).oldValue()).isEqualTo("sourceBranch-1");
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).newValue()).isEqualTo("#1");
+  }
+
+  @Test
+  public void copyExistingIssuesFromSourceBranchOfPullRequest_copyFieldDiffsCorrectly() {
+    String pullRequestKey = "1";
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    when(branch.getName()).thenReturn("sourceBranch-1");
+    when(branch.getPullRequestKey()).thenReturn(pullRequestKey);
+    analysisMetadataHolder.setBranch(branch);
+    analysisMetadataHolder.setPullRequestKey(pullRequestKey);
+    DefaultIssue destIssue = new DefaultIssue()
+      .setKey("raw");
+    DefaultIssue sourceIssue = new DefaultIssue()
+      .setKey("issue");
+    sourceIssue.setResolution("resolution");
+    sourceIssue.setStatus("status");
+
+    FieldDiffs sourceFieldDiffs = new FieldDiffs();
+    sourceIssue.addChange(sourceFieldDiffs
+      .setCreationDate(new Date())
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setExternalUser("toto")
+      .setWebhookSource("github")
+      .setDiff("severity", "MINOR", "MAJOR"));
+
+    underTest.copyExistingIssueFromSourceBranchToPullRequest(destIssue, sourceIssue);
+
+    FieldDiffs actualFieldDiffs = destIssue.changes().iterator().next();
+    assertThat(actualFieldDiffs.issueKey()).contains(destIssue.key());
+    assertThat(actualFieldDiffs).usingRecursiveComparison().ignoringFields("issueKey").isEqualTo(sourceFieldDiffs);
   }
 
   @Test

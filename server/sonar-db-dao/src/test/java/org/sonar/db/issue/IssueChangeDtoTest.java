@@ -115,8 +115,8 @@ public class IssueChangeDtoTest {
       .setIssueChangeCreationDate(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
-    assertThat(diffs.userUuid()).isEqualTo("user_uuid");
-    assertThat(diffs.issueKey()).isEqualTo("ABCDE");
+    assertThat(diffs.userUuid()).contains("user_uuid");
+    assertThat(diffs.issueKey()).contains("ABCDE");
     assertThat(diffs.creationDate()).isNotNull();
   }
 
@@ -130,8 +130,8 @@ public class IssueChangeDtoTest {
       .setCreatedAt(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
-    assertThat(diffs.userUuid()).isEqualTo("user_uuid");
-    assertThat(diffs.issueKey()).isEqualTo("ABCDE");
+    assertThat(diffs.userUuid()).contains("user_uuid");
+    assertThat(diffs.issueKey()).contains("ABCDE");
     assertThat(diffs.creationDate()).isNotNull();
   }
 

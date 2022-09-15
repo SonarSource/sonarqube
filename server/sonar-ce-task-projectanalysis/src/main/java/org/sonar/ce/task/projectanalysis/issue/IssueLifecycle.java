@@ -152,13 +152,15 @@ public class IssueLifecycle {
   /**
    * Copy a diff from another issue
    */
-  private static Optional<FieldDiffs> copyFieldDiffOfIssueFromOtherBranch(String issueKey, FieldDiffs c) {
+  private static Optional<FieldDiffs> copyFieldDiffOfIssueFromOtherBranch(String issueKey, FieldDiffs source) {
     FieldDiffs result = new FieldDiffs();
     result.setIssueKey(issueKey);
-    result.setUserUuid(c.userUuid());
-    result.setCreationDate(c.creationDate());
+    source.userUuid().ifPresent(result::setUserUuid);
+    source.webhookSource().ifPresent(result::setWebhookSource);
+    source.externalUser().ifPresent(result::setExternalUser);
+    result.setCreationDate(source.creationDate());
     // Don't copy "file" changelogs as they refer to file uuids that might later be purged
-    c.diffs().entrySet().stream()
+    source.diffs().entrySet().stream()
       .filter(e -> !e.getKey().equals(IssueFieldsSetter.FILE))
       .forEach(e -> result.setDiff(e.getKey(), e.getValue().oldValue(), e.getValue().newValue()));
     if (result.diffs().isEmpty()) {

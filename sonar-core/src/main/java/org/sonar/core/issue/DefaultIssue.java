@@ -33,8 +33,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -502,6 +502,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
         currentChange = new FieldDiffs();
         currentChange.setUserUuid(context.userUuid());
         currentChange.setCreationDate(context.date());
+        currentChange.setWebhookSource(context.getWebhookSource());
+        currentChange.setExternalUser(context.getExternalUser());
       }
       currentChange.setDiff(field, oldValue, newValue);
     }

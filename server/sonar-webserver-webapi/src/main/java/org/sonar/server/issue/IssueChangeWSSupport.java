@@ -147,12 +147,15 @@ public class IssueChangeWSSupport {
   private Map<String, UserDto> loadUsers(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey,
     Map<String, List<IssueChangeDto>> commentsByIssueKey, Set<UserDto> preloadedUsers) {
     Set<String> userUuids = Stream.concat(
-      changesByRuleKey.values().stream()
-        .flatMap(Collection::stream)
-        .map(FieldDiffs::userUuid),
-      commentsByIssueKey.values().stream()
-        .flatMap(Collection::stream)
-        .map(IssueChangeDto::getUserUuid))
+        changesByRuleKey.values().stream()
+          .flatMap(Collection::stream)
+          .map(FieldDiffs::userUuid)
+          .filter(Optional::isPresent)
+          .map(Optional::get),
+        commentsByIssueKey.values().stream()
+          .flatMap(Collection::stream)
+          .map(IssueChangeDto::getUserUuid)
+      )
       .filter(Objects::nonNull)
       .collect(toSet());
     if (userUuids.isEmpty()) {
@@ -168,8 +171,8 @@ public class IssueChangeWSSupport {
     }
 
     return Stream.concat(
-      preloadedUsers.stream(),
-      dbClient.userDao().selectByUuids(dbSession, missingUsersUuids).stream())
+        preloadedUsers.stream(),
+        dbClient.userDao().selectByUuids(dbSession, missingUsersUuids).stream())
       .filter(t -> userUuids.contains(t.getUuid()))
       .collect(uniqueIndex(UserDto::getUuid, userUuids.size()));
   }
@@ -200,8 +203,8 @@ public class IssueChangeWSSupport {
     }
 
     return Stream.concat(
-      preloadedComponents.stream(),
-      dbClient.componentDao().selectByUuids(dbSession, missingFileUuids).stream())
+        preloadedComponents.stream(),
+        dbClient.componentDao().selectByUuids(dbSession, missingFileUuids).stream())
       .filter(t -> fileUuids.contains(t.uuid()))
       .collect(uniqueIndex(ComponentDto::uuid, fileUuids.size()));
   }
@@ -227,16 +230,17 @@ public class IssueChangeWSSupport {
 
   private Function<FieldDiffs, Common.Changelog> toWsChangelog(FormattingContext formattingContext) {
     return change -> {
-      String userUUuid = change.userUuid();
       Common.Changelog.Builder changelogBuilder = Common.Changelog.newBuilder();
       changelogBuilder.setCreationDate(formatDateTime(change.creationDate()));
-      formattingContext.getUserByUuid(userUUuid)
+      change.userUuid().flatMap(formattingContext::getUserByUuid)
         .ifPresent(user -> {
           changelogBuilder.setUser(user.getLogin());
           changelogBuilder.setIsUserActive(user.isActive());
           ofNullable(user.getName()).ifPresent(changelogBuilder::setUserName);
           ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> changelogBuilder.setAvatar(avatarFactory.create(user)));
         });
+      change.externalUser().ifPresent(changelogBuilder::setExternalUser);
+      change.webhookSource().ifPresent(changelogBuilder::setWebhookSource);
       change.diffs().entrySet().stream()
         .map(toWsDiff(formattingContext))
         .forEach(changelogBuilder::addDiffs);

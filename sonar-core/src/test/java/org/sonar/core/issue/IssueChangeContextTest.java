@@ -32,6 +32,8 @@ public class IssueChangeContextTest {
 
   private static final Date NOW = new Date();
   private static final String USER_UUID = "user_uuid";
+  private static final String EXTERNAL_USER = "toto@tata.com";
+  private static final String WEBHOOK_SOURCE = "github";
 
   private IssueChangeContext context;
 
@@ -39,14 +41,14 @@ public class IssueChangeContextTest {
   public void test_issueChangeContextByScanBuilder() {
     context = issueChangeContextByScanBuilder(NOW).build();
 
-    verifyContext(null, true, false, false);
+    verifyContext(true, false, null, null, null);
   }
 
   @Test
   public void test_issueChangeContextByUserBuilder() {
     context = issueChangeContextByUserBuilder(NOW, USER_UUID).build();
 
-    verifyContext(USER_UUID, false, false, false);
+    verifyContext(false, false, USER_UUID, null, null);
   }
 
   @Test
@@ -56,16 +58,27 @@ public class IssueChangeContextTest {
       .withRefreshMeasures()
       .setUserUuid(USER_UUID)
       .setDate(NOW)
-      .withFromAlm()
+      .setExternalUser(EXTERNAL_USER)
+      .setWebhookSource(WEBHOOK_SOURCE)
       .build();
 
-    verifyContext(USER_UUID, true, true, true);
+    verifyContext(true, true, USER_UUID, EXTERNAL_USER, WEBHOOK_SOURCE);
   }
 
   @Test
   public void test_equal() {
-    context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
-    IssueChangeContext equalContext = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
+    context = IssueChangeContext.newBuilder()
+      .setUserUuid(USER_UUID)
+      .setDate(NOW)
+      .setExternalUser(EXTERNAL_USER)
+      .setWebhookSource(WEBHOOK_SOURCE)
+      .build();
+    IssueChangeContext equalContext = IssueChangeContext.newBuilder()
+      .setUserUuid(USER_UUID)
+      .setDate(NOW)
+      .setExternalUser(EXTERNAL_USER)
+      .setWebhookSource(WEBHOOK_SOURCE)
+      .build();
     IssueChangeContext notEqualContext = IssueChangeContext.newBuilder().setUserUuid("other_user_uuid").setDate(NOW).build();
 
     assertThat(context).isEqualTo(context)
@@ -79,24 +92,17 @@ public class IssueChangeContextTest {
   public void test_hashCode() {
     context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
 
-    assertThat(context.hashCode()).isEqualTo(Objects.hash(USER_UUID, NOW, false, false, false));
+    assertThat(context.hashCode()).isEqualTo(Objects.hash(USER_UUID, NOW, false, false, null, null));
   }
 
-  @Test
-  public void test_toString() {
-    context = IssueChangeContext.newBuilder().setUserUuid(USER_UUID).setDate(NOW).build();
-    String expected = "IssueChangeContext{userUuid='user_uuid', date=" + NOW + ", scan=false, refreshMeasures=false, fromAlm=false}";
-
-    assertThat(context).hasToString(expected);
-  }
-
-  private void verifyContext(@Nullable String userUuid, boolean scan, boolean refreshMeasures, boolean fromAlm) {
+  private void verifyContext(boolean scan, boolean refreshMeasures, @Nullable String userUuid, @Nullable String externalUser,
+    @Nullable String webhookSource) {
     assertThat(context.userUuid()).isEqualTo(userUuid);
     assertThat(context.date()).isEqualTo(NOW);
     assertThat(context.scan()).isEqualTo(scan);
     assertThat(context.refreshMeasures()).isEqualTo(refreshMeasures);
-    assertThat(context.fromAlm()).isEqualTo(fromAlm);
+    assertThat(context.getExternalUser()).isEqualTo(externalUser);
+    assertThat(context.getWebhookSource()).isEqualTo(webhookSource);
   }
-
 
 }

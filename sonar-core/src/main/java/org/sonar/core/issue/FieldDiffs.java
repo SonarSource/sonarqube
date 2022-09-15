@@ -21,17 +21,22 @@ package org.sonar.core.issue;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * PLUGINS MUST NOT USE THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -40,15 +45,19 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 public class FieldDiffs implements Serializable {
   private static final String CHAR_TO_ESCAPE = "|,{}=:";
-  public static final String ASSIGNEE = "assignee";
-  public static final String ENCODING_PREFIX = "{base64:";
-  public static final String ENCODING_SUFFIX = "}";
+  private static final String ASSIGNEE = "assignee";
+  private static final String ENCODING_PREFIX = "{base64:";
+  private static final String ENCODING_SUFFIX = "}";
+  private static final String WEBHOOK_SOURCE = "webhookSource";
+  private static final String EXTERNAL_USER_KEY = "externalUser";
 
   private final Map<String, Diff> diffs = new LinkedHashMap<>();
 
-  private String issueKey;
-  private String userUuid;
-  private Date creationDate;
+  private String issueKey = null;
+  private String userUuid = null;
+  private Date creationDate = null;
+  private String externalUser = null;
+  private String webhookSource = null;
 
   public Map<String, Diff> diffs() {
     if (diffs.containsKey(ASSIGNEE)) {
@@ -66,9 +75,8 @@ public class FieldDiffs implements Serializable {
     return diffs.get(field);
   }
 
-  @CheckForNull
-  public String userUuid() {
-    return userUuid;
+  public Optional<String> userUuid() {
+    return Optional.ofNullable(userUuid);
   }
 
   public FieldDiffs setUserUuid(@Nullable String s) {
@@ -85,13 +93,30 @@ public class FieldDiffs implements Serializable {
     return this;
   }
 
-  @CheckForNull
-  public String issueKey() {
-    return issueKey;
+  public Optional<String> issueKey() {
+    return Optional.ofNullable(issueKey);
   }
 
   public FieldDiffs setIssueKey(@Nullable String issueKey) {
     this.issueKey = issueKey;
+    return this;
+  }
+
+  public Optional<String> externalUser() {
+    return Optional.ofNullable(externalUser);
+  }
+
+  public FieldDiffs setExternalUser(@Nullable String externalUser) {
+    this.externalUser = externalUser;
+    return this;
+  }
+
+  public Optional<String> webhookSource() {
+    return Optional.ofNullable(webhookSource);
+  }
+
+  public FieldDiffs setWebhookSource(@Nullable String webhookSource) {
+    this.webhookSource = webhookSource;
     return this;
   }
 
@@ -121,23 +146,22 @@ public class FieldDiffs implements Serializable {
   }
 
   private String serialize(boolean shouldEncode) {
-    StringBuilder sb = new StringBuilder();
-    boolean notFirst = false;
-    for (Map.Entry<String, Diff> entry : diffs.entrySet()) {
-      if (notFirst) {
-        sb.append(',');
-      } else {
-        notFirst = true;
-      }
-      sb.append(entry.getKey());
-      sb.append('=');
-      if (shouldEncode) {
-        sb.append(entry.getValue().toEncodedString());
-      } else {
-        sb.append(entry.getValue().toString());
-      }
+    List<String> serializedStrings = new ArrayList<>();
+    if (isNotBlank(webhookSource)) {
+      serializedStrings.add(WEBHOOK_SOURCE + "=" + webhookSource);
     }
-    return sb.toString();
+    if (isNotBlank(externalUser)) {
+      serializedStrings.add(EXTERNAL_USER_KEY + "=" + externalUser);
+    }
+    diffs.entrySet().stream()
+      .map(entry -> serializeKeyValuePair(shouldEncode, entry.getKey(), entry.getValue()))
+      .forEach(serializedStrings::add);
+    return StringUtils.join(serializedStrings, ",");
+  }
+
+  private static String serializeKeyValuePair(boolean shouldEncode, String key, Diff values) {
+    String serializedValues = shouldEncode ? values.toEncodedString() : values.toString();
+    return key + "=" + serializedValues;
   }
 
   public static FieldDiffs parse(@Nullable String s) {
@@ -152,19 +176,30 @@ public class FieldDiffs implements Serializable {
       }
 
       String[] keyValues = field.split("=", 2);
+      String key = keyValues[0];
       if (keyValues.length == 2) {
         String values = keyValues[1];
-        int split = values.indexOf('|');
-        if (split > -1) {
-          diffs.setDiff(keyValues[0], emptyToNull(values.substring(0, split)), emptyToNull(values.substring(split + 1)));
+        if (EXTERNAL_USER_KEY.equals(key)) {
+          diffs.setExternalUser(trimToNull(values));
+        } else if (WEBHOOK_SOURCE.equals(key)) {
+          diffs.setWebhookSource(trimToNull(values));
         } else {
-          diffs.setDiff(keyValues[0], null, emptyToNull(values));
+          addDiff(diffs, key, values);
         }
       } else {
-        diffs.setDiff(keyValues[0], null, null);
+        diffs.setDiff(key, null, null);
       }
     }
     return diffs;
+  }
+
+  private static void addDiff(FieldDiffs diffs, String key, String values) {
+    int split = values.indexOf('|');
+    if (split > -1) {
+      diffs.setDiff(key, emptyToNull(values.substring(0, split)), emptyToNull(values.substring(split + 1)));
+    } else {
+      diffs.setDiff(key, null, emptyToNull(values));
+    }
   }
 
   @SuppressWarnings("unchecked")

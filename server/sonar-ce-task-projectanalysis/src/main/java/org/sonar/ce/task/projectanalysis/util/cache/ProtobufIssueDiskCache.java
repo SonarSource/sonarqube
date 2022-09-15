@@ -245,14 +245,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     IssueCache.FieldDiffs.Builder builder = IssueCache.FieldDiffs.newBuilder()
       .setCreationDate(fieldDiffs.creationDate().getTime());
 
-    if (fieldDiffs.issueKey() != null) {
-      builder.setIssueKey(fieldDiffs.issueKey());
-    }
-
-    String userUuid = fieldDiffs.userUuid();
-    if (userUuid != null) {
-      builder.setUserUuid(userUuid);
-    }
+    fieldDiffs.issueKey().ifPresent(builder::setIssueKey);
+    fieldDiffs.userUuid().ifPresent(builder::setUserUuid);
 
     for (Map.Entry<String, FieldDiffs.Diff> e : fieldDiffs.diffs().entrySet()) {
       IssueCache.Diff.Builder diffBuilder = IssueCache.Diff.newBuilder();

@@ -30,6 +30,7 @@ import org.sonar.api.utils.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultIssueTest {
 
@@ -198,9 +199,17 @@ public class DefaultIssueTest {
   @Test
   public void all_changes_contain_current_change() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
-    DefaultIssue issue = new DefaultIssue().setKey("AAA").setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
+    when(issueChangeContext.getExternalUser()).thenReturn("toto");
+    when(issueChangeContext.getWebhookSource()).thenReturn("github");
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("AAA")
+      .setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
 
     assertThat(issue.changes()).hasSize(1);
+    FieldDiffs actualDiffs = issue.changes().iterator().next();
+    assertThat(actualDiffs.externalUser()).contains(issueChangeContext.getExternalUser());
+    assertThat(actualDiffs.webhookSource()).contains(issueChangeContext.getWebhookSource());
   }
 
   @Test

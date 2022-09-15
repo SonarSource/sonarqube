@@ -42,6 +42,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Changelog.Diff;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 
@@ -56,7 +57,6 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ChangelogActionTest {
-
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -83,17 +83,30 @@ public class ChangelogActionTest {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
-    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+    FieldDiffs fieldDiffs = createFieldDiffs(user);
+    db.issues().insertFieldDiffs(issueDto, fieldDiffs);
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
     assertThat(result.getChangelogList()).hasSize(1);
-    assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
-    assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
-    assertThat(result.getChangelogList().get(0).getIsUserActive()).isTrue();
-    assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("93942e96f5acd83e2e047ad8fe03114d");
-    assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
-    assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
+    Common.Changelog changelog = result.getChangelogList().get(0);
+    assertThat(changelog.getUser()).isNotNull().isEqualTo(user.getLogin());
+    assertThat(changelog.getUserName()).isNotNull().isEqualTo(user.getName());
+    assertThat(changelog.getIsUserActive()).isTrue();
+    assertThat(changelog.getAvatar()).isNotNull().isEqualTo("93942e96f5acd83e2e047ad8fe03114d");
+    assertThat(changelog.getCreationDate()).isNotEmpty();
+    assertThat(changelog.getExternalUser()).isEqualTo(fieldDiffs.externalUser().orElse(null));
+    assertThat(changelog.getWebhookSource()).isEqualTo(fieldDiffs.webhookSource().orElse(null));
+    assertThat(changelog.getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
+  }
+
+  private static FieldDiffs createFieldDiffs(UserDto user) {
+    return new FieldDiffs()
+      .setUserUuid(user.getUuid())
+      .setDiff("severity", "MAJOR", "BLOCKER")
+      .setCreationDate(new Date())
+      .setExternalUser("toto")
+      .setWebhookSource("github");
   }
 
   @Test
@@ -274,7 +287,10 @@ public class ChangelogActionTest {
       .addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs()
       .setUserUuid(user.getUuid())
-      .setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date())
+      .setDiff("severity", "MAJOR", "BLOCKER")
+      .setWebhookSource("github")
+      .setExternalUser("toto")
+      .setCreationDate(new Date())
       .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();

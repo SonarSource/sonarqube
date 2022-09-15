@@ -56,6 +56,7 @@ public class ChangelogAction implements IssuesWsAction {
         "Requires the 'Browse' permission on the project of the specified issue.")
       .setSince("4.1")
       .setChangelog(
+        new Change("9.7", "'externalUser' and 'webhookSource' information added to the answer"),
         new Change("6.3", "changes on effort is expressed with the raw value in minutes (instead of the duration previously)"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(IssuesWs.class, "changelog-example.json"));

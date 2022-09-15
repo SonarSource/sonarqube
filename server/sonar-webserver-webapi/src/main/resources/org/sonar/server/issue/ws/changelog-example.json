@@ -6,6 +6,8 @@
       "isUserActive": true,
       "avatar": "b0d8c6e5ea589e6fc3d3e08afb1873bb",
       "creationDate": "2014-03-04T23:03:44+0100",
+      "externalUser": "toto",
+      "webhookSource": "github",
       "diffs": [
         {
           "key": "severity",

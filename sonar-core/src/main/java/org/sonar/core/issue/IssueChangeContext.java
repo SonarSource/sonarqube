@@ -33,14 +33,17 @@ public class IssueChangeContext implements Serializable {
   private final Date date;
   private final boolean scan;
   private final boolean refreshMeasures;
-  private final boolean fromAlm;
+  private final String externalUser;
+  private final String webhookSource;
 
-  private IssueChangeContext(@Nullable String userUuid, Date date, boolean scan, boolean refreshMeasures, boolean fromAlm) {
+  private IssueChangeContext(Date date, boolean scan, boolean refreshMeasures, @Nullable String userUuid, @Nullable String externalUser,
+    @Nullable String webhookSource) {
     this.userUuid = userUuid;
     this.date = requireNonNull(date);
     this.scan = scan;
     this.refreshMeasures = refreshMeasures;
-    this.fromAlm = fromAlm;
+    this.externalUser = externalUser;
+    this.webhookSource = webhookSource;
   }
 
   @CheckForNull
@@ -60,8 +63,14 @@ public class IssueChangeContext implements Serializable {
     return refreshMeasures;
   }
 
-  public boolean fromAlm() {
-    return fromAlm;
+  @Nullable
+  public String getExternalUser() {
+    return externalUser;
+  }
+
+  @Nullable
+  public String getWebhookSource() {
+    return webhookSource;
   }
 
   @Override
@@ -73,26 +82,13 @@ public class IssueChangeContext implements Serializable {
       return false;
     }
     IssueChangeContext that = (IssueChangeContext) o;
-    return scan == that.scan &&
-      Objects.equals(userUuid, that.userUuid) &&
-      Objects.equals(date, that.date) &&
-      refreshMeasures == that.refreshMeasures;
+    return scan == that.scan && refreshMeasures == that.refreshMeasures &&  Objects.equals(userUuid, that.userUuid) && date.equals(that.date)
+      && Objects.equals(externalUser, that.getExternalUser()) && Objects.equals(webhookSource, that.getWebhookSource());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userUuid, date, scan, refreshMeasures, fromAlm);
-  }
-
-  @Override
-  public String toString() {
-    return "IssueChangeContext{" +
-      "userUuid='" + userUuid + '\'' +
-      ", date=" + date +
-      ", scan=" + scan +
-      ", refreshMeasures=" + refreshMeasures +
-      ", fromAlm=" + fromAlm +
-      '}';
+    return Objects.hash(userUuid, date, scan, refreshMeasures, externalUser, webhookSource);
   }
 
   public static IssueChangeContextBuilder newBuilder() {
@@ -112,7 +108,8 @@ public class IssueChangeContext implements Serializable {
     private Date date;
     private boolean scan = false;
     private boolean refreshMeasures = false;
-    private boolean fromAlm = false;
+    private String externalUser;
+    private String webhookSource;
 
     private IssueChangeContextBuilder() {
     }
@@ -137,13 +134,18 @@ public class IssueChangeContext implements Serializable {
       return this;
     }
 
-    public IssueChangeContextBuilder withFromAlm() {
-      this.fromAlm = true;
+    public IssueChangeContextBuilder setExternalUser(@Nullable String externalUser) {
+      this.externalUser = externalUser;
+      return this;
+    }
+
+    public IssueChangeContextBuilder setWebhookSource(@Nullable String webhookSource) {
+      this.webhookSource = webhookSource;
       return this;
     }
 
     public IssueChangeContext build() {
-      return new IssueChangeContext(userUuid, date, scan, refreshMeasures, fromAlm);
+      return new IssueChangeContext(date, scan, refreshMeasures, userUuid, externalUser, webhookSource);
     }
   }
 }

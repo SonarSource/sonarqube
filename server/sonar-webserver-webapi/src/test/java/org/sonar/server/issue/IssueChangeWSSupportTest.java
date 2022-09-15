@@ -20,6 +20,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -523,6 +524,26 @@ public class IssueChangeWSSupportTest {
     assertThat(wsChangelog.getDiffsList().get(3).getKey()).isEqualTo("f_change_4");
     assertThat(wsChangelog.getDiffsList().get(3).hasOldValue()).isFalse();
     assertThat(wsChangelog.getDiffsList().get(3).getNewValue()).isEqualTo("e");
+  }
+
+  @Test
+  public void formatChangelog_handlesCorrectlyExternalUserAndWebhookSource() {
+    IssueDto issue = dbTester.issues().insertIssue();
+
+    IssueChangeDto issueChangeDto = newFieldChange(issue)
+      .setChangeData(new FieldDiffs()
+        .setDiff("f_change_" + 1, null, null)
+        .setExternalUser("toto")
+        .setWebhookSource("github")
+        .toEncodedString());
+
+    dbTester.issues().insertChange(issueChangeDto);
+
+    FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.CHANGE_LOG);
+
+    Changelog changeLog = underTest.formatChangelog(issue, formattingContext).collect(MoreCollectors.onlyElement());
+    assertThat(changeLog.getExternalUser()).isEqualTo("toto");
+    assertThat(changeLog.getWebhookSource()).isEqualTo("github");
   }
 
   @Test

@@ -82,7 +82,6 @@ public class QGChangeEventListenersImplTest {
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
     underTest.broadcastOnIssueChange(emptyList(), singletonList(component1QGChangeEvent), false);
-
     verifyNoInteractions(listener1, listener2, listener3);
   }
 

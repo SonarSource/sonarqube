@@ -49,6 +49,7 @@ import org.sonar.server.notification.NotificationManager;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class IssueUpdater {
@@ -86,7 +87,8 @@ public class IssueUpdater {
 
     if (context.refreshMeasures()) {
       List<DefaultIssue> changedIssues = result.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(result.getIssues().size()));
-      issueChangePostProcessor.process(dbSession, changedIssues, singleton(component), context.fromAlm());
+      boolean isChangeFromWebhook = isNotEmpty(context.getWebhookSource());
+      issueChangePostProcessor.process(dbSession, changedIssues, singleton(component), isChangeFromWebhook);
     }
 
     return result;
