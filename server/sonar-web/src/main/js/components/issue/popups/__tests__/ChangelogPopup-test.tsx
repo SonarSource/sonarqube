@@ -65,6 +65,59 @@ it('should render the changelog popup when we have a deleted user', async () => 
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render the changelog popup when change was triggered by a webhook with external user', async () => {
+  (getIssueChangelog as jest.Mock).mockResolvedValueOnce({
+    changelog: [
+      {
+        creationDate: '2017-03-01T09:36:01+0100',
+        user: null,
+        isUserActive: false,
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
+        webhookSource: 'GitHub',
+        externalUser: 'toto@github.com'
+      }
+    ]
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render the changelog popup when change was triggered by a webhook without user', async () => {
+  (getIssueChangelog as jest.Mock).mockResolvedValueOnce({
+    changelog: [
+      {
+        creationDate: '2017-03-01T09:36:01+0100',
+        user: null,
+        isUserActive: false,
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
+        webhookSource: 'GitHub'
+      }
+    ]
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render the changelog popup with SQ user when both SQ and external user are presents', async () => {
+  (getIssueChangelog as jest.Mock).mockResolvedValueOnce({
+    changelog: [
+      {
+        creationDate: '2017-03-01T09:36:01+0100',
+        user: 'toto@sonarqube.com',
+        isUserActive: false,
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
+        webhookSource: 'GitHub',
+        externalUser: 'toto@github.com'
+      }
+    ]
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<ChangelogPopup['props']> = {}) {
   return shallow(
     <ChangelogPopup

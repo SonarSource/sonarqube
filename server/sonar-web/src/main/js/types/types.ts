@@ -315,6 +315,8 @@ export interface IssueChangelog {
   user: string;
   isUserActive: boolean;
   userName: string;
+  externalUser?: string;
+  webhookSource?: string;
 }
 
 export interface IssueChangelogDiff {

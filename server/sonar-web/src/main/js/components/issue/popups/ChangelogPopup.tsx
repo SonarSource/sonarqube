@@ -77,7 +77,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
               </tr>
 
               {this.state.changelog.map((item, idx) => {
-                const userName = item.userName || item.user;
+                const userName = item.userName || item.user || item.externalUser;
 
                 return (
                   <tr key={idx}>
@@ -85,19 +85,26 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                       <DateTimeFormatter date={item.creationDate} />
                     </td>
                     <td className="text-left text-top">
-                      {userName && (
-                        <p>
-                          <Avatar
-                            className="little-spacer-right"
-                            hash={item.avatar}
-                            name={userName}
-                            size={16}
-                          />
-                          {item.isUserActive
-                            ? userName
-                            : translateWithParameters('user.x_deleted', userName)}
-                        </p>
-                      )}
+                      <p>
+                        {userName && (
+                          <>
+                            <Avatar
+                              className="little-spacer-right"
+                              hash={item.avatar}
+                              name={userName}
+                              size={16}
+                            />
+                            {item.isUserActive || item.externalUser
+                              ? userName
+                              : translateWithParameters('user.x_deleted', userName)}
+                          </>
+                        )}
+                        {item.webhookSource &&
+                          translateWithParameters(
+                            'issue.changelog.webhook_source',
+                            item.webhookSource
+                          )}
+                      </p>
                       {item.diffs.map(diff => (
                         <IssueChangelogDiff diff={diff} key={diff.key} />
                       ))}
