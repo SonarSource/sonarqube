@@ -104,7 +104,7 @@ public class ExtractReportStepTest {
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Decompression failed because unzipped size reached threshold: 2000000000 bytes");
+      .hasMessage("Decompression failed because unzipped size reached threshold: 4000000000 bytes");
   }
 
   private File generateReport() throws IOException {
