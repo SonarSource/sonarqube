@@ -53,8 +53,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbCommons.TextRange;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.Flow;
+import org.sonar.db.protobuf.DbIssues.FlowType;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
@@ -205,49 +207,31 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
     DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder()
-      .addFlow(DbIssues.Flow.newBuilder()
+      .addFlow(Flow.newBuilder()
         .setDescription("FLOW DESCRIPTION")
-        .setType(DbIssues.FlowType.DATA)
+        .setType(FlowType.DATA)
         .addAllLocation(Arrays.asList(
           DbIssues.Location.newBuilder()
             .setComponentId(file.uuid())
             .setMsg("FLOW MESSAGE")
-            .setTextRange(DbCommons.TextRange.newBuilder()
-              .setStartLine(1)
-              .setEndLine(1)
-              .setStartOffset(0)
-              .setEndOffset(12)
-              .build())
-            .build(),
+            .setTextRange(textRange(1, 1, 0, 12)).build(),
           DbIssues.Location.newBuilder()
             .setComponentId(anotherFile.uuid())
             .setMsg("ANOTHER FLOW MESSAGE")
-            .setTextRange(DbCommons.TextRange.newBuilder()
-              .setStartLine(1)
-              .setEndLine(1)
-              .setStartOffset(0)
-              .setEndOffset(12)
-              .build())
-            .build(),
+            .setTextRange(textRange(1, 1, 0, 12)).build(),
           DbIssues.Location.newBuilder()
             .setMsg("FLOW MESSAGE WITHOUT FILE UUID")
-            .setTextRange(DbCommons.TextRange.newBuilder()
-              .setStartLine(1)
-              .setEndLine(1)
-              .setStartOffset(0)
-              .setEndOffset(12)
-              .build())
-            .build())))
-      .addFlow(DbIssues.Flow.newBuilder()
-        .addAllLocation(Arrays.asList(
-          DbIssues.Location.newBuilder()
-            .setComponentId(file.uuid())
-            .setTextRange(DbCommons.TextRange.newBuilder()
-              .setStartLine(1)
-              .setStartOffset(0)
-              .setEndOffset(12)
-              .build())
-            .build())));
+            .setTextRange(textRange(1, 1, 0, 12)).build())))
+      .addFlow(Flow.newBuilder()
+        .addLocation(DbIssues.Location.newBuilder()
+          .setComponentId(file.uuid())
+          .setTextRange(TextRange.newBuilder().setStartLine(1).setStartOffset(0).setEndOffset(12).build())
+          .build()))
+      .addFlow(Flow.newBuilder()
+        .setType(FlowType.EXECUTION)
+        .addLocation(DbIssues.Location.newBuilder()
+          .setComponentId(file.uuid())
+          .build()));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     var hotspot = dbTester.issues().insertHotspot(rule, project, file, i -> i.setLocations(locations.build()));
     mockChangelogAndCommentsFormattingContext();
@@ -258,7 +242,7 @@ public class ShowActionTest {
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getKey()).isEqualTo(hotspot.getKey());
-    assertThat(response.getFlowsCount()).isEqualTo(2);
+    assertThat(response.getFlowsCount()).isEqualTo(3);
     assertThat(response.getFlows(0).getDescription()).isEqualTo("FLOW DESCRIPTION");
     assertThat(response.getFlows(0).getType()).isEqualTo(Common.FlowType.DATA);
     assertThat(response.getFlows(0).getLocationsList())
@@ -270,6 +254,8 @@ public class ShowActionTest {
 
     assertThat(response.getFlows(1).getDescription()).isEmpty();
     assertThat(response.getFlows(1).hasType()).isFalse();
+
+    assertThat(response.getFlows(2).getType()).isEqualTo(Common.FlowType.EXECUTION);
   }
 
   @Test
@@ -674,14 +660,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
-      t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder()
-          .setStartLine(startLine)
-          .setEndLine(endLine)
-          .setStartOffset(startOffset)
-          .setEndOffset(endOffset)
-          .build())
-        .build()));
+      t -> t.setLocations(DbIssues.Locations.newBuilder().setTextRange(textRange(startLine, endLine, startOffset, endOffset)).build()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -857,7 +836,7 @@ public class ShowActionTest {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
 
@@ -882,7 +861,7 @@ public class ShowActionTest {
     RuleDto rule = newRule(SECURITY_HOTSPOT, t -> t.setSecurityStandards(standards));
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
 
@@ -917,7 +896,7 @@ public class ShowActionTest {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, project,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
 
@@ -937,7 +916,7 @@ public class ShowActionTest {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, branch, file,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
 
@@ -958,7 +937,7 @@ public class ShowActionTest {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, pullRequest, file,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
 
@@ -977,7 +956,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
       t -> t.setLocations(DbIssues.Locations.newBuilder()
-        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .setTextRange(TextRange.newBuilder().build())
         .build()));
     List<Common.Changelog> changelog = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Changelog.newBuilder().setUser("u" + i).build())
@@ -1179,6 +1158,15 @@ public class ShowActionTest {
     } else {
       assertThat(wsComponent.getPullRequest()).isEqualTo(pullRequest);
     }
+  }
+
+  private static TextRange textRange(int startLine, int endLine, int startOffset, int endOffset) {
+    return TextRange.newBuilder()
+      .setStartLine(startLine)
+      .setEndLine(endLine)
+      .setStartOffset(startOffset)
+      .setEndOffset(endOffset)
+      .build();
   }
 
   private TestRequest newRequest(IssueDto hotspot) {

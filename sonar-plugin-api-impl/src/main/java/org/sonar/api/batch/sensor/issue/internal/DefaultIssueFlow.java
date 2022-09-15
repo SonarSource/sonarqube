@@ -24,14 +24,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 
 public class DefaultIssueFlow implements Issue.Flow {
   private final List<IssueLocation> locations;
-  private final Type type;
+  private final FlowType type;
   @Nullable
   private final String description;
 
-  public DefaultIssueFlow(List<IssueLocation> locations, Type type, @Nullable String description) {
+  public DefaultIssueFlow(List<IssueLocation> locations, FlowType type, @Nullable String description) {
     this.locations = locations;
     this.type = type;
     this.description = description;
@@ -42,16 +43,14 @@ public class DefaultIssueFlow implements Issue.Flow {
     return locations;
   }
 
-  public Type getType() {
+  @Override
+  public FlowType type() {
     return type;
   }
 
   @CheckForNull
-  public String getDescription() {
+  @Override
+  public String description() {
     return description;
-  }
-
-  public enum Type {
-    UNDEFINED, DATA, EXECUTION;
   }
 }

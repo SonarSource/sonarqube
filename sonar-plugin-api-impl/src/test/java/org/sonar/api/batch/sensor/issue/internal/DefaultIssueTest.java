@@ -37,10 +37,14 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -94,16 +98,35 @@ public class DefaultIssueTest {
 
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation().on(inputFile))
-      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile)), NewIssue.FlowType.DATA, "desc")
+      .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile)), FlowType.DATA, "desc")
       .addFlow(List.of(new DefaultIssueLocation().message("loc1").on(inputFile).at(range1), new DefaultIssueLocation().message("loc1").on(inputFile).at(range2)))
       .forRule(RULE_KEY);
 
-    assertThat(issue.flows)
-      .extracting(DefaultIssueFlow::getType, DefaultIssueFlow::getDescription)
-      .containsExactly(tuple(DefaultIssueFlow.Type.DATA, "desc"), tuple(DefaultIssueFlow.Type.UNDEFINED, null));
+    assertThat(issue.flows())
+      .extracting(Flow::type, Flow::description)
+      .containsExactly(tuple(FlowType.DATA, "desc"), tuple(FlowType.UNDEFINED, null));
 
-    assertThat(issue.flows.get(0).locations()).hasSize(1);
-    assertThat(issue.flows.get(1).locations()).hasSize(2);
+    assertThat(issue.flows().get(0).locations()).hasSize(1);
+    assertThat(issue.flows().get(1).locations()).hasSize(2);
+  }
+
+  @Test
+  public void build_issue_with_secondary_locations() {
+    TextRange range1 = new DefaultTextRange(new DefaultTextPointer(1, 1), new DefaultTextPointer(1, 2));
+    TextRange range2 = new DefaultTextRange(new DefaultTextPointer(2, 1), new DefaultTextPointer(2, 2));
+
+    DefaultIssue issue = new DefaultIssue(project, storage)
+      .at(new DefaultIssueLocation().on(inputFile))
+      .addLocation(new DefaultIssueLocation().on(inputFile).at(range1).message("loc1"))
+      .addLocation(new DefaultIssueLocation().on(inputFile).at(range2).message("loc2"))
+      .forRule(RULE_KEY);
+
+    assertThat(issue.flows())
+      .extracting(Flow::type, Flow::description)
+      .containsExactly(tuple(FlowType.UNDEFINED, null), tuple(FlowType.UNDEFINED, null));
+
+    assertThat(issue.flows().get(0).locations()).hasSize(1);
+    assertThat(issue.flows().get(1).locations()).hasSize(1);
   }
 
   @Test
@@ -175,6 +198,19 @@ public class DefaultIssueTest {
     issue.save();
 
     verify(storage).store(issue);
+  }
+
+  @Test
+  public void at_fails_if_called_twice() {
+    DefaultIssueLocation loc = new DefaultIssueLocation().on(inputFile);
+    DefaultIssue issue = new DefaultIssue(project, storage).at(loc);
+    assertThatThrownBy(() -> issue.at(loc)).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void at_fails_if_location_is_null() {
+    DefaultIssue issue = new DefaultIssue(project, storage);
+    assertThatThrownBy(() -> issue.at(null)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

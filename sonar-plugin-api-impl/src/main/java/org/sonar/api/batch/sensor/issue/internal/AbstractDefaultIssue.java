@@ -34,7 +34,7 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
-import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.PathUtils;
 
@@ -72,25 +72,21 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
   }
 
   public T addLocation(NewIssueLocation secondaryLocation) {
-    flows.add(new DefaultIssueFlow(List.of(rewriteLocation((DefaultIssueLocation) secondaryLocation)), DefaultIssueFlow.Type.UNDEFINED, null));
+    flows.add(new DefaultIssueFlow(List.of(rewriteLocation((DefaultIssueLocation) secondaryLocation)), FlowType.UNDEFINED, null));
     return (T) this;
   }
 
   public T addFlow(Iterable<NewIssueLocation> locations) {
-    return addFlow(locations, DefaultIssueFlow.Type.UNDEFINED, null);
+    return addFlow(locations, FlowType.UNDEFINED, null);
   }
 
-  public T addFlow(Iterable<NewIssueLocation> flowLocations, NewIssue.FlowType flowType, @Nullable String flowDescription) {
-    return addFlow(flowLocations, DefaultIssueFlow.Type.valueOf(flowType.name()), flowDescription);
-  }
-
-  private T addFlow(Iterable<NewIssueLocation> locations, DefaultIssueFlow.Type type, @Nullable String description) {
+  public T addFlow(Iterable<NewIssueLocation> flowLocations, FlowType type, @Nullable String flowDescription) {
     checkArgument(type != null, "Type can't be null");
     List<IssueLocation> flowAsList = new ArrayList<>();
-    for (NewIssueLocation issueLocation : locations) {
+    for (NewIssueLocation issueLocation : flowLocations) {
       flowAsList.add(rewriteLocation((DefaultIssueLocation) issueLocation));
     }
-    flows.add(new DefaultIssueFlow(flowAsList, type, description));
+    flows.add(new DefaultIssueFlow(flowAsList, type, flowDescription));
     return (T) this;
   }
 

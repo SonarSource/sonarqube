@@ -48,9 +48,9 @@ import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
-import org.sonarqube.ws.Common;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -167,10 +167,13 @@ public class TrackerRawInputFactoryTest {
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .addFlow(ScannerReport.Flow.newBuilder()
-        .setType(ScannerReport.FlowType.DATA)
+        .setType(FlowType.DATA)
         .setDescription("flow1")
         .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc1").setComponentRef(1).build())
         .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc2").setComponentRef(1).build()))
+      .addFlow(ScannerReport.Flow.newBuilder()
+        .setType(FlowType.EXECUTION)
+        .addLocation(ScannerReport.IssueLocation.newBuilder().setTextRange(newTextRange(2)).setComponentRef(1).build()))
       .addFlow(ScannerReport.Flow.newBuilder()
         .addLocation(ScannerReport.IssueLocation.newBuilder().setTextRange(newTextRange(2)).setComponentRef(1).build()))
       .build();
@@ -179,14 +182,18 @@ public class TrackerRawInputFactoryTest {
 
     Collection<DefaultIssue> issues = input.getIssues();
     DbIssues.Locations locations = Iterators.getOnlyElement(issues.iterator()).getLocations();
-    assertThat(locations.getFlowCount()).isEqualTo(2);
+    assertThat(locations.getFlowCount()).isEqualTo(3);
     assertThat(locations.getFlow(0).getDescription()).isEqualTo("flow1");
     assertThat(locations.getFlow(0).getType()).isEqualTo(DbIssues.FlowType.DATA);
     assertThat(locations.getFlow(0).getLocationList()).hasSize(2);
 
     assertThat(locations.getFlow(1).hasDescription()).isFalse();
-    assertThat(locations.getFlow(1).hasType()).isFalse();
+    assertThat(locations.getFlow(1).getType()).isEqualTo(DbIssues.FlowType.EXECUTION);
     assertThat(locations.getFlow(1).getLocationList()).hasSize(1);
+
+    assertThat(locations.getFlow(2).hasDescription()).isFalse();
+    assertThat(locations.getFlow(2).hasType()).isFalse();
+    assertThat(locations.getFlow(2).getLocationList()).hasSize(1);
   }
 
   @Test
@@ -291,6 +298,7 @@ public class TrackerRawInputFactoryTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .setEffort(20L)
       .setType(issueType)
+      .addFlow(ScannerReport.Flow.newBuilder().setType(FlowType.DATA).addLocation(ScannerReport.IssueLocation.newBuilder().build()).build())
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -306,6 +314,13 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.effort()).isEqualTo(Duration.create(20L));
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.type()).isEqualTo(expectedRuleType);
+
+    DbIssues.Locations locations = Iterators.getOnlyElement(issues.iterator()).getLocations();
+    assertThat(locations.getFlowCount()).isEqualTo(1);
+    assertThat(locations.getFlow(0).getType()).isEqualTo(DbIssues.FlowType.DATA);
+    assertThat(locations.getFlow(0).getLocationList()).hasSize(1);
+
+
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));

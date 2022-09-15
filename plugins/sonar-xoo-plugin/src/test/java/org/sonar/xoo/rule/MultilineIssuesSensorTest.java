@@ -35,8 +35,9 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow.Type;
 import org.sonar.api.internal.apachecommons.io.IOUtils;
 import org.sonar.xoo.Xoo;
 
@@ -77,7 +78,7 @@ public class MultilineIssuesSensorTest {
 
     List<DefaultIssueFlow> defaultIssueFlows = flows.stream().map(DefaultIssueFlow.class::cast).collect(Collectors.toList());
 
-    assertThat(defaultIssueFlows).extracting(DefaultIssueFlow::getType).containsExactlyInAnyOrder(Type.DATA, Type.EXECUTION);
+    assertThat(defaultIssueFlows).extracting(DefaultIssueFlow::type).containsExactlyInAnyOrder(FlowType.DATA, FlowType.EXECUTION);
   }
 
   private DefaultInputFile newTestFile(String content) {

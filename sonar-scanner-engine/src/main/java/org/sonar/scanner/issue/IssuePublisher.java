@@ -32,6 +32,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
+import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -181,15 +182,15 @@ public class IssuePublisher {
         }
         flowBuilder.addLocation(locationBuilder.build());
       }
-      if (flow.getDescription() != null) {
-        flowBuilder.setDescription(flow.getDescription());
+      if (flow.description() != null) {
+        flowBuilder.setDescription(flow.description());
       }
-      flowBuilder.setType(toProtobufFlowType(flow.getType()));
+      flowBuilder.setType(toProtobufFlowType(flow.type()));
       consumer.accept(flowBuilder.build());
     }
   }
 
-  private static ScannerReport.FlowType toProtobufFlowType(DefaultIssueFlow.Type flowType) {
+  private static ScannerReport.FlowType toProtobufFlowType(FlowType flowType) {
     switch (flowType) {
       case EXECUTION:
         return ScannerReport.FlowType.EXECUTION;
