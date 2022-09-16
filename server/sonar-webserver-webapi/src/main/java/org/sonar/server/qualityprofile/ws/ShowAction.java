@@ -139,8 +139,12 @@ public class ShowAction implements QProfileWsAction {
       return null;
     }
 
+    OrganizationDto organizationDto = new OrganizationDto();
+    organizationDto.setUuid(profile.getOrganizationUuid());
+    organizationDto.setKey(profile.getKee());
+
     long missingRuleCount = ruleIndex.search(
-      new RuleQuery().setQProfile(profile).setActivation(false).setCompareToQProfile(sonarWay),
+      new RuleQuery().setQProfile(profile).setActivation(false).setCompareToQProfile(sonarWay).setOrganization(organizationDto),
       new SearchOptions().setLimit(1))
       .getTotal();
 
