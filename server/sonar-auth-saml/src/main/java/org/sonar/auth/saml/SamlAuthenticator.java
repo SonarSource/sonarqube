@@ -127,7 +127,7 @@ public class SamlAuthenticator {
 
     var saml2Settings = new SettingsBuilder().fromValues(samlData).build();
     if (samlSettings.getServiceProviderPrivateKey().isPresent() && saml2Settings.getSPkey() == null) {
-      throw new IllegalStateException("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+      LOGGER.error("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
     }
     return saml2Settings;
   }

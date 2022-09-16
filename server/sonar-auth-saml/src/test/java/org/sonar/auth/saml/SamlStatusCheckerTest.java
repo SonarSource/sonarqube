@@ -20,11 +20,13 @@
 package org.sonar.auth.saml;
 
 import com.onelogin.saml2.Auth;
+import com.onelogin.saml2.settings.Saml2Settings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
@@ -36,8 +38,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_LOGIN_ATTRIBUTE;
+import static org.sonar.auth.saml.SamlSettings.USER_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlStatusChecker.getSamlAuthenticationStatus;
 
 public class SamlStatusCheckerTest {
@@ -53,12 +57,18 @@ public class SamlStatusCheckerTest {
 
   private SamlAuthenticationStatus samlAuthenticationStatus;
 
+  @Before
+  public void setUp() {
+    when(auth.getErrors()).thenReturn(new ArrayList<String>());
+    when(auth.getSettings()).thenReturn(new Saml2Settings());
+    when(auth.getAttributes()).thenReturn(getResponseAttributes());
+  }
+
   @Test
   public void authentication_status_is_success_when_no_errors() {
     setSettings();
 
-    when(auth.getErrors()).thenReturn(new ArrayList<String>());
-    when(auth.getAttributes()).thenReturn(getEmptyAttributes());
+    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
     samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
 
@@ -101,12 +111,12 @@ public class SamlStatusCheckerTest {
   }
 
   @Test
-  public void authentication_has_warnings_when_mappings_are_not_correct() {
+  public void authentication_has_warnings_when_optional_mappings_are_not_correct() {
     setSettings();
-    settings.setProperty(USER_LOGIN_ATTRIBUTE, "wrongLoginField");
+    settings.setProperty(GROUP_NAME_ATTRIBUTE, "wrongGroupField");
     settings.setProperty(USER_EMAIL_ATTRIBUTE, "wrongEmailField");
-    when(auth.getErrors()).thenReturn(new ArrayList<String>());
-    when(auth.getAttributes()).thenReturn(getResponseAttributes());
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
+
     getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
     samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
@@ -115,17 +125,35 @@ public class SamlStatusCheckerTest {
     assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
     assertEquals(2, samlAuthenticationStatus.getWarnings().size());
     assertTrue(samlAuthenticationStatus.getWarnings()
-      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField")));
+      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", GROUP_NAME_ATTRIBUTE, "wrongGroupField")));
     assertTrue(samlAuthenticationStatus.getWarnings()
       .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_EMAIL_ATTRIBUTE, "wrongEmailField")));
   }
 
   @Test
+  public void authentication_has_errors_when_login_and_name_mappings_are_not_correct() {
+    setSettings();
+    settings.setProperty(USER_LOGIN_ATTRIBUTE, "wrongLoginField");
+    settings.setProperty(USER_NAME_ATTRIBUTE, "wrongNameField");
+    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+
+    samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
+
+    assertEquals("error", samlAuthenticationStatus.getStatus());
+    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
+    assertEquals(2, samlAuthenticationStatus.getErrors().size());
+    assertTrue(samlAuthenticationStatus.getErrors()
+      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField")));
+    assertTrue(samlAuthenticationStatus.getErrors()
+      .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_NAME_ATTRIBUTE, "wrongNameField")));
+  }
+
+  @Test
   public void authentication_has_no_warnings_when_optional_mappings_are_not_provided() {
     setSettings();
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
     settings.setProperty(USER_EMAIL_ATTRIBUTE, (String) null);
-    when(auth.getErrors()).thenReturn(new ArrayList<String>());
-    when(auth.getAttributes()).thenReturn(getResponseAttributes());
+    settings.setProperty(GROUP_NAME_ATTRIBUTE, (String) null);
     getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
     samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
@@ -136,10 +164,23 @@ public class SamlStatusCheckerTest {
   }
 
   @Test
+  public void authentication_has_warnings_when_the_private_key_is_invalid_but_auth_completes() {
+    setSettings();
+    getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+
+    samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
+
+    assertEquals("success", samlAuthenticationStatus.getStatus());
+    assertTrue(samlAuthenticationStatus.getErrors().isEmpty());
+    assertFalse(samlAuthenticationStatus.getWarnings().isEmpty());
+    assertTrue(samlAuthenticationStatus.getWarnings()
+      .contains(String.format("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.")));
+  }
+
+  @Test
   public void mapped_attributes_are_complete_when_mapping_fields_are_correct() {
     setSettings();
-    when(auth.getErrors()).thenReturn(new ArrayList<String>());
-    when(auth.getAttributes()).thenReturn(getResponseAttributes());
+    settings.setProperty("sonar.auth.saml.sp.privateKey.secured", (String) null);
     getResponseAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
 
     samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));

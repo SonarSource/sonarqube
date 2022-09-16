@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
@@ -53,6 +54,9 @@ public final class SamlStatusChecker {
     if (auth.getLastErrorReason() != null) {
       samlAuthenticationStatus.getErrors().add(auth.getLastErrorReason());
     }
+    if (samlAuthenticationStatus.getErrors().isEmpty()) {
+      samlAuthenticationStatus.getErrors().addAll(generateMappingErrors(auth, samlSettings));
+    }
     samlAuthenticationStatus.setAvailableAttributes(auth.getAttributes());
     samlAuthenticationStatus.setMappedAttributes(getAttributesMapping(auth, samlSettings));
 
@@ -77,12 +81,35 @@ public final class SamlStatusChecker {
   }
 
   private static List<String> generateWarnings(Auth auth, SamlSettings samlSettings) {
+    List<String> warnings = new ArrayList<>(generateMappingWarnings(auth, samlSettings));
+    generatePrivateKeyWarning(auth, samlSettings).ifPresent(warnings::add);
+    return warnings;
+  }
+
+  private static List<String> generateMappingWarnings(Auth auth, SamlSettings samlSettings) {
     Map<String, String> mappings = Map.of(
-      USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
-      USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin(),
       USER_EMAIL_ATTRIBUTE, samlSettings.getUserEmail().orElse(""),
       GROUP_NAME_ATTRIBUTE, samlSettings.getGroupName().orElse(""));
 
+    return generateMissingMappingMessages(mappings, auth);
+  }
+
+  private static Optional<String> generatePrivateKeyWarning(Auth auth, SamlSettings samlSettings) {
+    if (samlSettings.getServiceProviderPrivateKey().isPresent() && auth.getSettings().getSPkey() == null) {
+      return Optional.of("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+    }
+    return Optional.empty();
+  }
+
+  private static List<String> generateMappingErrors(Auth auth, SamlSettings samlSettings) {
+    Map<String, String> mappings = Map.of(
+      USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
+      USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin());
+
+    return generateMissingMappingMessages(mappings, auth);
+  }
+
+  private static List<String> generateMissingMappingMessages(Map<String, String> mappings, Auth auth) {
     return mappings.entrySet()
       .stream()
       .filter(entry -> !entry.getValue().isEmpty() && (auth.getAttribute(entry.getValue()) == null || auth.getAttribute(entry.getValue()).isEmpty()))
