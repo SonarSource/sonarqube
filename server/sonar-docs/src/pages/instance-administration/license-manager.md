@@ -23,7 +23,9 @@ By clicking the **Set new license** button, you can set a new license to enable 
 ### Lines of Code consumption
 Under **Lines of Code**, the gauge shows how many lines of code (LOC) you are currently scanning and how close you are to your limit. If you're near your limit, you may need to purchase additional LOCs.
 
-For a given project, the lines of code that count towards License Usage are those of the largest branch (or pull request). Lines of test code do not count towards your License Usage.
+LOCs are computed by summing up the main/program LOCs of each project analyzed. The LOCs used for a project are the LOCs found during the most recent analysis of the project. 
+
+For a given project, the LOCs that count towards License Usage are those of the largest branch (or pull request). Lines of test code do not count towards your License Usage.
 
 For example:
 - If a project has 100 lines of code on its main branch and 200 on a secondary branch, then the number of LOCs counted for the project is 200
