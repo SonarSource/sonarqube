@@ -17,14 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { getCookie } from '../../../../helpers/cookies';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import Unauthorized from '../Unauthorized';
 
 jest.mock('../../../../helpers/cookies', () => ({
-  getCookie: jest.fn().mockReturnValue('Foo')
+  getCookie: jest.fn()
 }));
 
-it('render', () => {
-  expect(shallow(<Unauthorized />)).toMatchSnapshot();
+it('should render correctly', () => {
+  renderUnauthorized();
+  expect(screen.getByText('unauthorized.message')).toBeInTheDocument();
+  expect(screen.queryByText('REASON')).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'layout.home' })).toBeInTheDocument();
 });
+
+it('should correctly get the reason from the cookie', () => {
+  (getCookie as jest.Mock).mockReturnValueOnce('REASON');
+  renderUnauthorized();
+  expect(screen.getByText('unauthorized.reason REASON')).toBeInTheDocument();
+});
+
+function renderUnauthorized() {
+  return renderComponent(<Unauthorized />);
+}

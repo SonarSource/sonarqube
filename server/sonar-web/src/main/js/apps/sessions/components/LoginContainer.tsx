@@ -58,7 +58,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 
   handleSuccessfulLogin = () => {
-    window.location.href = getReturnUrl(this.props.location);
+    window.location.replace(getReturnUrl(this.props.location));
   };
 
   handleSubmit = (id: string, password: string) => {
@@ -82,7 +82,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
       <Login
         identityProviders={identityProviders}
         onSubmit={this.handleSubmit}
-        returnTo={getReturnUrl(location)}
+        location={location}
       />
     );
   }

@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { logOut } from '../../../../api/auth';
+import RecentHistory from '../../../../app/components/RecentHistory';
 import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import Logout from '../Logout';
 
 jest.mock('../../../../api/auth', () => ({
@@ -32,20 +33,29 @@ jest.mock('../../../../helpers/globalMessages', () => ({
   addGlobalErrorMessage: jest.fn()
 }));
 
+jest.mock('../../../../helpers/system', () => ({
+  getBaseUrl: jest.fn().mockReturnValue('/context')
+}));
+
+jest.mock('../../../../app/components/RecentHistory', () => ({
+  __esModule: true,
+  default: {
+    clear: jest.fn()
+  }
+}));
+
 const originalLocation = window.location;
+const replace = jest.fn();
+
 beforeAll(() => {
   const location = {
     ...window.location,
-    replace: jest.fn()
+    replace
   };
   Object.defineProperty(window, 'location', {
     writable: true,
     value: location
   });
-});
-
-beforeEach(() => {
-  jest.clearAllMocks();
 });
 
 afterAll(() => {
@@ -55,29 +65,27 @@ afterAll(() => {
   });
 });
 
-it('should logout correctly', async () => {
-  (logOut as jest.Mock).mockResolvedValue(true);
+beforeEach(jest.clearAllMocks);
 
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
+it('should behave correctly', async () => {
+  renderLogout();
 
-  expect(logOut).toHaveBeenCalled();
-  expect(window.location.replace).toHaveBeenCalledWith('/');
-  expect(addGlobalErrorMessage).not.toHaveBeenCalled();
+  expect(screen.getByText('logging_out')).toBeInTheDocument();
+  await waitFor(() => {
+    expect(replace).toHaveBeenCalledWith('/context/');
+  });
+  expect(RecentHistory.clear).toHaveBeenCalled();
 });
 
-it('should not redirect if logout fails', async () => {
-  (logOut as jest.Mock).mockRejectedValue(false);
+it('should correctly handle a failing log out', async () => {
+  (logOut as jest.Mock).mockRejectedValueOnce(false);
+  renderLogout();
 
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  expect(logOut).toHaveBeenCalled();
-  expect(window.location.replace).not.toHaveBeenCalled();
-  expect(addGlobalErrorMessage).toHaveBeenCalled();
-  expect(wrapper).toMatchSnapshot();
+  await waitFor(() => {
+    expect(addGlobalErrorMessage).toHaveBeenCalledWith('login.logout_failed');
+  });
 });
 
-function shallowRender() {
-  return shallow(<Logout />);
+function renderLogout() {
+  return renderComponent(<Logout />);
 }

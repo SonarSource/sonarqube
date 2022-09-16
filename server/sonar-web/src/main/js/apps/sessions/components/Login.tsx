@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Location, withRouter } from '../../../components/hoc/withRouter';
+import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import './Login.css';
 import LoginForm from './LoginForm';
@@ -29,13 +30,13 @@ import OAuthProviders from './OAuthProviders';
 export interface LoginProps {
   identityProviders: IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
-  returnTo: string;
   location: Location;
 }
 
-export function Login(props: LoginProps) {
-  const { identityProviders, returnTo, location } = props;
-  const displayError = location.query.authorizationError;
+export default function Login(props: LoginProps) {
+  const { identityProviders, location } = props;
+  const returnTo = getReturnUrl(location);
+  const displayError = Boolean(location.query.authorizationError);
 
   return (
     <div className="login-page" id="login_form">
@@ -57,5 +58,3 @@ export function Login(props: LoginProps) {
     </div>
   );
 }
-
-export default withRouter(Login);

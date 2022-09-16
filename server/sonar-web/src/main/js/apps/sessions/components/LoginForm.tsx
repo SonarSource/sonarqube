@@ -22,7 +22,6 @@ import Link from '../../../components/common/Link';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import './LoginForm.css';
 
 interface Props {
@@ -125,7 +124,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             <SubmitButton disabled={this.state.loading}>
               {translate('sessions.log_in')}
             </SubmitButton>
-            <Link className="spacer-left" to={`${getBaseUrl()}/`}>
+            <Link className="spacer-left" to="/">
               {translate('cancel')}
             </Link>
           </div>

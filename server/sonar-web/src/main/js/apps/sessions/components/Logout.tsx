@@ -24,7 +24,7 @@ import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
-export default class Logout extends React.PureComponent<{}> {
+export default class Logout extends React.PureComponent {
   componentDidMount() {
     logOut()
       .then(() => {

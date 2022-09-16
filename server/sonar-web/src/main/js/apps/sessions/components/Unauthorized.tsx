@@ -21,7 +21,6 @@ import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
 export default function Unauthorized() {
   const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
@@ -38,7 +37,7 @@ export default function Unauthorized() {
           )}
 
           <div className="big-spacer-top">
-            <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
+            <Link to="/">{translate('layout.home')}</Link>
           </div>
         </div>
       </div>

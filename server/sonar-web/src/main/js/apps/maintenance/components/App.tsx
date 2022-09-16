@@ -45,6 +45,9 @@ interface State {
   wasStarting?: boolean;
 }
 
+const DELAY_REDIRECT_PREV_PAGE = 2500;
+const DELAY_REFRESH_STATUS = 5000;
+
 export default class App extends React.PureComponent<Props, State> {
   interval?: number;
   mounted = false;
@@ -109,13 +112,13 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   scheduleRefresh = () => {
-    this.interval = window.setTimeout(this.fetchStatus, 5000);
+    this.interval = window.setTimeout(this.fetchStatus, DELAY_REFRESH_STATUS);
   };
 
   loadPreviousPage = () => {
     setInterval(() => {
-      window.location.href = getReturnUrl(this.props.location);
-    }, 2500);
+      window.location.replace(getReturnUrl(this.props.location));
+    }, DELAY_REDIRECT_PREV_PAGE);
   };
 
   handleMigrateClick = () => {
@@ -150,6 +153,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.sonarqube_is_offline.text')}
                 </p>
                 <p className="maintenance-text text-center">
+                  {/* We don't use <Link> here, as we want to fully refresh the page. */}
                   <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
                 </p>
               </>
@@ -164,7 +168,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.all_systems_opetational')}
                 </p>
                 <p className="maintenance-text text-center">
-                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
+                  <Link to="/">{translate('layout.home')}</Link>
                 </p>
               </>
             )}
@@ -189,6 +193,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.sonarqube_is_down.text')}
                 </p>
                 <p className="maintenance-text text-center">
+                  {/* We don't use <Link> here, as we want to fully refresh the page. */}
                   <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
                 </p>
               </>
@@ -238,7 +243,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.database_is_up_to_date')}
                 </h1>
                 <p className="maintenance-text text-center">
-                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
+                  <Link to="/">{translate('layout.home')}</Link>
                 </p>
               </>
             )}
@@ -294,7 +299,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('maintenance.database_is_up_to_date')}
                 </h1>
                 <p className="maintenance-text text-center">
-                  <Link to={getBaseUrl() + '/'}>{translate('layout.home')}</Link>
+                  <Link to="/">{translate('layout.home')}</Link>
                 </p>
               </>
             )}
