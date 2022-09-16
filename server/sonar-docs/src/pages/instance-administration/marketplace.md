@@ -26,6 +26,9 @@ Install
 
 To view/install plugin updates, your SonarQube server needs internet access. Installations require the platform to be restarted before they take effect.
 
+[[info]]
+| sonarplugins.com is not endorsed by, affiliated with, maintained, authorized, or sponsored by Sonar.
+
 ## Pending Operations
 
 When you perform an action in the Marketplace (install, update, or uninstall a plugin), a yellow banner appears at the top of the page showing pending operations that will be executed once SonarQube is restarted. Pending operations can be canceled until the server is restarted.
@@ -60,3 +63,7 @@ http.proxyUser=<your.proxy.user>
 http.proxyPassword=<your.proxy.password> 
 ```
 Note: the same properties can be used in the 'https.' form for HTTPS connections.
+
+## Deploying to the Marketplace
+
+If you have developed a SonarQube plugin, you can check out the [requirements](https://community.sonarsource.com/t/deploying-to-the-marketplace/35236) to add it to the marketplace in the [Plugin Development community](https://community.sonarsource.com/c/plugins/15).
