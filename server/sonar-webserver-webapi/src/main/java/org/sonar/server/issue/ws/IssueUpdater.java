@@ -112,7 +112,7 @@ public class IssueUpdater {
         || ruleDto == null
         // notification are not supported on PRs
         || !hasNotificationSupport(branchDto)
-        || context.fromAlm()) {
+        || context.getWebhookSource() != null) {
       return issueDto;
     }
 

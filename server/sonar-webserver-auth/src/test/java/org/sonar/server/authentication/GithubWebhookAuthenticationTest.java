@@ -119,6 +119,17 @@ public class GithubWebhookAuthenticationTest {
 
     assertThatExceptionOfType(AuthenticationException.class)
       .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
+      .withMessage(MSG_AUTHENTICATION_FAILED);
+    assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(MSG_AUTHENTICATION_FAILED);
+  }
+
+  @Test
+  public void authenticate_withExceptionWhileReadingBody_throws() throws IOException {
+    HttpServletRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    when(request.getReader()).thenThrow(new IOException());
+
+    assertThatExceptionOfType(AuthenticationException.class)
+      .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
       .withMessage(MSG_NO_BODY_FOUND);
     assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(MSG_NO_BODY_FOUND);
   }

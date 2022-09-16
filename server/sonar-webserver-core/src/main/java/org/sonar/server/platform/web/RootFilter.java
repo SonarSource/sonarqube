@@ -20,7 +20,9 @@
 package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpSession;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 /**
  * <p>Profile HTTP requests using platform profiling utility.</p>
@@ -91,6 +94,7 @@ public class RootFilter implements Filter {
 
   @VisibleForTesting
   static class ServletRequestWrapper extends HttpServletRequestWrapper {
+    private String body;
 
     ServletRequestWrapper(HttpServletRequest request) {
       super(request);
@@ -112,5 +116,18 @@ public class RootFilter implements Filter {
     private static UnsupportedOperationException notSupported() {
       return new UnsupportedOperationException("Sessions are disabled so that web server is stateless");
     }
+
+    @Override
+    public BufferedReader getReader() throws IOException {
+      if (body == null) {
+        body = getBodyInternal((HttpServletRequest) getRequest());
+      }
+      return new BufferedReader(new StringReader(body));
+    }
+
+    private static String getBodyInternal(HttpServletRequest request) throws IOException {
+      return request.getReader().lines().collect(joining(System.lineSeparator()));
+    }
+
   }
 }

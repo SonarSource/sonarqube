@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -97,28 +96,18 @@ public class GithubWebhookAuthentication {
 
   private static String getGithubSignature(HttpServletRequest request, String githubAppId) {
     String githubSignature = request.getHeader(GITHUB_SIGNATURE_HEADER);
-    if (isEmpty(githubSignature) ) {
+    if (isEmpty(githubSignature)) {
       logAuthenticationProblemAndThrow(format(MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED, githubAppId));
     }
     return githubSignature;
   }
 
   private static String getBody(HttpServletRequest request) {
-    Optional<String> body = getBodyInternal(request);
-    if (body.isEmpty() ||  isEmpty(body.get())) {
-      logAuthenticationProblemAndThrow(MSG_NO_BODY_FOUND);
-    }
-    return body.get();
-  }
-
-
-  private static Optional<String> getBodyInternal(HttpServletRequest request) {
     try {
-      String body = request.getReader().lines().collect(joining(System.lineSeparator()));
-      return Optional.of(body);
-    } catch (IOException e) {
-      LOG.debug("Unexpected error while trying to get the body of github webhook request", e);
-      return Optional.empty();
+      return request.getReader().lines().collect(joining(System.lineSeparator()));
+    } catch (Exception e) {
+      logAuthenticationProblemAndThrow(MSG_NO_BODY_FOUND);
+      return "";
     }
   }
 

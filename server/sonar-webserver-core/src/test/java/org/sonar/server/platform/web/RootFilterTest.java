@@ -19,7 +19,11 @@
  */
 package org.sonar.server.platform.web;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
+import java.util.stream.IntStream;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -34,8 +38,11 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
+import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -44,6 +51,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RootFilterTest {
+
+  private static final String PAYLOAD = "payload";
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -117,8 +126,8 @@ public class RootFilterTest {
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
-
-    assertThatThrownBy(() -> ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession())
+    ServletRequest actualServletRequest = requestArgumentCaptor.getValue();
+    assertThatThrownBy(() -> ((HttpServletRequest) actualServletRequest).getSession())
       .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -128,7 +137,8 @@ public class RootFilterTest {
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
-    assertThatThrownBy(() -> ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession(true))
+    ServletRequest actualServletRequest = requestArgumentCaptor.getValue();
+    assertThatThrownBy(() -> ((HttpServletRequest) actualServletRequest).getSession(true))
       .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -144,5 +154,46 @@ public class RootFilterTest {
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.isCommitted()).thenReturn(committed);
     return response;
+  }
+
+  @Test
+  public void body_can_be_read_several_times() {
+    HttpServletRequest request = mockRequestWithBody();
+    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request);
+
+    IntStream.range(0,3).forEach(i -> assertThat(readBody(servletRequestWrapper)).isEqualTo(PAYLOAD));
+  }
+
+  @Test
+  public void getReader_whenIoExceptionThrown_rethrows() throws IOException {
+    HttpServletRequest request = mockRequestWithBody();
+    IOException ioException = new IOException();
+    when(request.getReader()).thenThrow(ioException);
+
+    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request);
+
+    assertThatExceptionOfType(RuntimeException.class)
+      .isThrownBy(() -> readBody(servletRequestWrapper))
+      .withCause(ioException);
+  }
+
+  private static HttpServletRequest mockRequestWithBody() {
+    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+    try {
+      StringReader stringReader = new StringReader(PAYLOAD);
+      BufferedReader bufferedReader = new BufferedReader(stringReader);
+      when(httpServletRequest.getReader()).thenReturn(bufferedReader);
+    } catch (IOException e) {
+      fail("mockRequest threw an exception: " + e.getMessage());
+    }
+    return httpServletRequest;
+  }
+
+  private static String readBody(HttpServletRequest request) {
+    try {
+      return request.getReader().lines().collect(joining(System.lineSeparator()));
+    } catch (IOException e) {
+      throw new RuntimeException("unexpected failure", e);
+    }
   }
 }

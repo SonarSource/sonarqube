@@ -369,6 +369,15 @@ public class SearchActionTest {
         .setUserUuid(fabrice.getUuid())
         .setProjectUuid(project.projectUuid())
         .setIssueChangeCreationDate(parseDateTime("2014-09-10T12:00:00+0000").getTime()));
+    dbClient.issueChangeDao().insert(session,
+      new IssueChangeDto()
+        .setUuid(Uuids.createFast())
+        .setIssueKey(issue.getKey())
+        .setKey("COMMENT-NO-USER")
+        .setChangeData("Another comment without user")
+        .setChangeType(IssueChangeDto.TYPE_COMMENT)
+        .setProjectUuid(project.projectUuid())
+        .setIssueChangeCreationDate(parseDateTime("2022-09-10T12:00:00+0000").getTime()));
     session.commit();
     indexIssues();
     userSession.logIn(john);

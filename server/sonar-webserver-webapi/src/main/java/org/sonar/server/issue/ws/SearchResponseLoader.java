@@ -186,12 +186,16 @@ public class SearchResponseLoader {
     if (fields.contains(COMMENTS)) {
       List<IssueChangeDto> comments = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbSession, collector.getIssueKeys(), IssueChangeDto.TYPE_COMMENT);
       result.setComments(comments);
-      for (IssueChangeDto comment : comments) {
-        collector.addUserUuids(singletonList(comment.getUserUuid()));
-        if (canEditOrDelete(comment)) {
-          result.addUpdatableComment(comment.getKey());
-        }
-      }
+      comments.stream()
+        .filter(c -> c.getUserUuid() != null)
+        .forEach(comment -> loadComment(collector, result, comment));
+    }
+  }
+
+  private void loadComment(Collector collector, SearchResponseData result, IssueChangeDto comment) {
+    collector.addUserUuids(singletonList(comment.getUserUuid()));
+    if (canEditOrDelete(comment)) {
+      result.addUpdatableComment(comment.getKey());
     }
   }
 
