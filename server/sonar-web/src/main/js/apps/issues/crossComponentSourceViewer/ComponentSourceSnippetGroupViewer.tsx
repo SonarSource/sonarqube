@@ -106,7 +106,9 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       component: snippetGroup.component.key,
       issue,
       locations:
-        snippetGroup.locations.length === 0 ? [getPrimaryLocation(issue)] : snippetGroup.locations
+        snippetGroup.locations.length === 0
+          ? [getPrimaryLocation(issue)]
+          : [getPrimaryLocation(issue), ...snippetGroup.locations]
     });
 
     this.setState({ snippets });

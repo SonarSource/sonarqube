@@ -74,8 +74,8 @@ it('should render correctly with secondary locations', () => {
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
   expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 2, end: 16 });
-  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 29, end: 39 });
-  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 69, end: 79 });
+  expect(wrapper.state('snippets')[1]).toEqual({ index: 2, start: 29, end: 39 });
+  expect(wrapper.state('snippets')[2]).toEqual({ index: 3, start: 69, end: 79 });
 });
 
 it('should render correctly with flows', () => {
@@ -104,9 +104,10 @@ it('should render correctly with flows', () => {
     ])
   };
   const wrapper = shallowRender({ issue, snippetGroup });
-  expect(wrapper.state('snippets')).toHaveLength(2);
-  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 29, end: 39 });
-  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 69, end: 79 });
+  expect(wrapper.state('snippets')).toHaveLength(3);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 2, end: 16 });
+  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 29, end: 39 });
+  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 69, end: 79 });
 
   // Check that locationsByLine is defined when isLastOccurenceOfPrimaryComponent
   expect(
@@ -237,7 +238,7 @@ it('should get the right branch when expanding', async () => {
   wrapper.instance().expandBlock(0, 'down');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'project:a', to: 67 });
+  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 36, key: 'project:a', to: 95 });
 });
 
 it('should handle symbol highlighting', () => {
