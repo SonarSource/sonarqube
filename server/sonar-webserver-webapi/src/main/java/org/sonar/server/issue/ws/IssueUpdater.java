@@ -111,7 +111,8 @@ public class IssueUpdater {
         // name of rule is displayed in notification, rule must therefor be present
         || ruleDto == null
         // notification are not supported on PRs
-        || !hasNotificationSupport(branchDto)) {
+        || !hasNotificationSupport(branchDto)
+        || context.fromAlm()) {
       return issueDto;
     }
 

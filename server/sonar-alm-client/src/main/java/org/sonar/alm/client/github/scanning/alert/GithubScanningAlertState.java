@@ -23,15 +23,10 @@ import com.google.gson.annotations.SerializedName;
 import javax.annotation.Nullable;
 
 public class GithubScanningAlertState {
-  protected static final String GH_OPEN = "open";
-  protected static final String GH_DISMISSED = "dismissed";
-  protected static final String GH_WONTFIX = "won't fix";
-  protected static final String GH_FALSE_POSITIVE = "false positive";
-
   @SerializedName("state")
-  private String state;
+  private final String state;
   @SerializedName("dismissed_reason")
-  private String dismissedReason;
+  private final String dismissedReason;
 
   public GithubScanningAlertState(String state, @Nullable String dismissedReason) {
     this.state = state;
