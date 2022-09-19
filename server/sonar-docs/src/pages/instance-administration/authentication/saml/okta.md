@@ -23,83 +23,83 @@ To integrate Okta (Identity Provider) with SonarQube (Service Provider), both si
 
 ### Configure SAML settings
 
-Under *General Settings*, configure the following fields:
+1. Under *General Settings*, configure the following fields:
 
-- **Single sign on URL**: `<Your SonarQube URL>/oauth2/callback/saml` (e.g., `https://sonarqube.mycompany.com/oauth2/callback/saml`).
+   - **Single sign on URL**: `<Your SonarQube URL>/oauth2/callback/saml` (e.g., `https://sonarqube.mycompany.com/oauth2/callback/saml`).
 
-- **Audience URI (SP Entity ID)**: Something like `sonarqube` (SonarQube default value). It must not contain whitespace. 
+   - **Audience URI (SP Entity ID)**: Something like `sonarqube` (SonarQube default value). It must not contain whitespace. 
 
-![SAML settings](/images/okta/okta-saml-settings.png)
+  ![SAML settings](/images/okta/okta-saml-settings.png)
 
-Assertion signature is mandatory. You must keep the following default settings in *Show Advanced Settings*:
+2. Assertion signature is mandatory. You must keep the following default settings in *Show Advanced Settings*:
 
-- **Response**: Choose *Signed*.
+   - **Response**: Choose *Signed*.
 
-- **Assertion Signature**: Choose *Signed*.
+   - **Assertion Signature**: Choose *Signed*.
 
-- **Signature Algorithm**: Choose *RSA-SHA256*.
+   - **Signature Algorithm**: Choose *RSA-SHA256*.
 
-(Optional) If you want to enable assertion encryption, expand *Show Advanced Settings* and configure the following fields:
+3. (Optional) If you want to enable assertion encryption, expand *Show Advanced Settings* and configure the following fields:
 
-- **Assertion Encryption**: Choose *Encrypted*.
+   - **Assertion Encryption**: Choose *Encrypted*.
 
-- **Encryption Algorithm**: Choose *AES256-GCM* for high security.
+   - **Encryption Algorithm**: Choose *AES256-GCM* for high security.
 
-- **Key Transport Algorithm**: Choose *RSA-OAEP*.
+   - **Key Transport Algorithm**: Choose *RSA-OAEP*.
 
-- **Encryption Certificate**: Add the service provider certificate. It should be the same certificate as the one found in the SonarQube SAML settings under "Service provider certificate".
+   - **Encryption Certificate**: Add the service provider certificate. It should be the same certificate as the one found in the SonarQube SAML settings under "Service provider certificate".
 
-![Encryption attributes](/images/okta/okta-encryption-attributes.png)
+    ![Encryption attributes](/images/okta/okta-encryption-attributes.png)
 
-Under **Attribute Statements**, add the following attribute mappings:
+4. Under **Attribute Statements**, add the following attribute mappings:
 
-- Create a mapping for the *name*:
+   - Create a mapping for the *name*:
 
-  1. **Name**: `name`.
+      1. **Name**: `name`.
 
-  2. **Name format**: *Unspecified*.
+      2. **Name format**: *Unspecified*.
 
-  3. **Value**: Choose `user.firstName`.
+      3. **Value**: Choose `user.firstName`.
 
-- Create a mapping for the *login*:
+   - Create a mapping for the *login*:
 
-  1. **Name**: `login`.
+      1. **Name**: `login`.
 
-  2. **Name format**: *Unspecified*.
+      2. **Name format**: *Unspecified*.
 
-  3. **Value**: Choose `user.login`.
+      3. **Value**: Choose `user.login`.
 
-- (Optional) Create a mapping for the *email*:
+   - (Optional) Create a mapping for the *email*:
 
-  1. **Name**: `email`.
+      1. **Name**: `email`.
 
-  2. **Name format**: *Unspecified*.
+      2. **Name format**: *Unspecified*.
 
-  3. **Value**: Choose `user.email`.
+      3. **Value**: Choose `user.email`.
 
-  ![Attributes](/images/okta/okta-attributes.png)
+      ![Attributes](/images/okta/okta-attributes.png)
 
-- (Optional) Under *Group Attribute Statements* (See details in [Group Mapping](/instance-administration/authentication/overview/)):
+   - (Optional) Under *Group Attribute Statements* (See details in [Group Mapping](/instance-administration/authentication/overview/)):
 
-  1. **Name**: `groups`.
+      1. **Name**: `groups`.
 
-  2. **Name format**: *Unspecified*.
+      2. **Name format**: *Unspecified*.
 
-  3. **Filter**: Choose *Matches regex* and set the value to `.*`.
+      3. **Filter**: Choose *Matches regex* and set the value to `.*`.
 
-  ![Group attribute](/images/okta/okta-group-attribute.png)
+      ![Group attribute](/images/okta/okta-group-attribute.png)
 
-Click **Finish** in the **Feedback** dialog to confirm the creation of the application.
+5. Click **Finish** in the **Feedback** dialog to confirm the creation of the application.
 
-You can now add users and groups in the *Assignments* tab of the application.
+6. You can now add users and groups in the *Assignments* tab of the application.
 
 ![Assign users](/images/okta/okta-assign-users.png)
 
-Navigate to the **Sign On** tab of the *SonarQube* application in Okta.
+7. Navigate to the **Sign On** tab of the *SonarQube* application in Okta.
 
 ![Signon tab](/images/okta/okta-signon.png)
 
-Next to the **SAML Signing Certificates** subsection, you will find the configurations needed for setting up SonarQube, under **View SAML setup instructions**.
+8. Next to the **SAML Signing Certificates** subsection, you will find the configurations needed for setting up SonarQube, under **View SAML setup instructions**.
 
 ![Setup instructions](/images/okta/okta-setup-instructions.png)
 
