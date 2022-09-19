@@ -87,19 +87,31 @@ class SamlAuthentication extends React.PureComponent<
   componentDidMount() {
     const { definitions } = this.props;
     const keys = definitions.map(definition => definition.key).join(',');
+    // Added setTimeout to make sure the component gets updated before scrolling
+    setTimeout(() => {
+      if (location.hash) {
+        this.scrollToSearchedField();
+      }
+    });
     this.loadSettingValues(keys);
   }
 
   componentDidUpdate(prevProps: SamlAuthenticationProps) {
     const { location } = this.props;
-    if (this.formFieldRef.current && prevProps.location.hash !== location.hash) {
+    if (prevProps.location.hash !== location.hash) {
+      this.scrollToSearchedField();
+    }
+  }
+
+  scrollToSearchedField = () => {
+    if (this.formFieldRef.current) {
       this.formFieldRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'nearest'
       });
     }
-  }
+  };
 
   onFieldChange = (id: string, value: string | boolean) => {
     const { settingValue, dirtyFields } = this.state;
