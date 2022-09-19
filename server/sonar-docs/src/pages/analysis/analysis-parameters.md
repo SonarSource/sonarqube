@@ -3,12 +3,17 @@ title: Analysis Parameters
 url: /analysis/analysis-parameters/
 ---
 
-Project analysis settings can be configured in multiple places. Here is the hierarchy:
+Project analysis settings can be configured in multiple places. Here is the hierarchy in order of precedence:
 
-* Global properties, defined in the UI, apply to all projects (From the top bar, go to **[Administration > Configuration > General Settings](/#sonarqube-admin#/admin/settings)**)
-* Project properties, defined in the UI, override global property values (At a project level, go to **Project Settings > General Settings**)
-* Project analysis parameters, defined in a project analysis configuration file or scanner configuration file, override the ones defined in the UI
-* Analysis / Command line parameters, defined when launching an analysis (with `-D` on the command line), override project analysis parameters
+![](/images/settings-hierarchy.png)
+
+1. *Global properties*:  Apply to all projects. Defined in the UI in **Administration > Configuration > General Settings**
+
+2. *Project properties*: Apply to one project only. At project level, defined in the UI in **Project Settings > General Settings**
+
+3. *Project analysis parameters*: Defined in a project analysis configuration file or scanner configuration file
+
+4. *Analysis / Command line parameters*: Defined when launching an analysis with `-D` on the command line
 
 Note that only parameters set through the UI are stored in the database.
 For example, if you override the `sonar.exclusions` parameter via command line for a specific project, it will not be stored in the database. Subsequent analyses, or analyses in SonarLint with connected mode, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
