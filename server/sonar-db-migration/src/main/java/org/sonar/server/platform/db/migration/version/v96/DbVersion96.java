@@ -43,7 +43,10 @@ public class DbVersion96 implements DbVersion {
       .add(6512, "Add column 'language' to 'push_events'", AddLanguageColumnToPushEventsTable.class)
       .add(6513, "Delete duplicated rows in 'project_badge_token'", DeleteDuplicatedProjectBadgeTokens.class)
       .add(6514, "Add unique index on 'project_uuid' in 'project_badge_token'", CreateIndexForProjectBadgeTokens.class)
-      .add(6515,"Add column 'webhook_secret' to 'alm_settings'", AddWebhookSecretToAlmSettingsTable.class)
+      .add(6515, "Add column 'webhook_secret' to 'alm_settings'", AddWebhookSecretToAlmSettingsTable.class)
+      .add(6516, "Drop non unique index on 'uuid' in 'components'", DropNonUniqueIndexForComponentsUuid.class)
+      .add(6517, "Add unique index on 'uuid' in 'components'", CreateUniqueIndexForComponentsUuid.class)
+
     ;
   }
 }
