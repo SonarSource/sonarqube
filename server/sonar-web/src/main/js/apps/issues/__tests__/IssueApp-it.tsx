@@ -498,6 +498,26 @@ it('should open the actions popup using keyboard shortcut', async () => {
   expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
 });
 
+it('should not open the actions popup using keyboard shortcut when keyboard shortcut flag is disabled', async () => {
+  localStorage.setItem('sonarqube.preferences.keyboard_shortcuts_enabled', 'false');
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderIssueApp();
+
+  // Select an issue with an advanced rule
+  await user.click(await screen.findByRole('region', { name: 'Fix that' }));
+
+  // open status popup on key press 'f'
+  await user.keyboard('f');
+  expect(screen.queryByText('issue.transition.confirm')).not.toBeInTheDocument();
+  expect(screen.queryByText('issue.transition.resolve')).not.toBeInTheDocument();
+
+  // open comment popup on key press 'c'
+  await user.keyboard('c');
+  expect(screen.queryByText('issue.comment.submit')).not.toBeInTheDocument();
+  localStorage.setItem('sonarqube.preferences.keyboard_shortcuts_enabled', 'true');
+});
+
 it('should show code tabs when any secondary location is selected', async () => {
   const user = userEvent.setup();
   renderIssueApp();

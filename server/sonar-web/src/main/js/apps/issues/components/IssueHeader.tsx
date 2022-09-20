@@ -29,6 +29,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { getComponentIssuesUrl, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
@@ -91,7 +92,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
   };
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (isInput(event) || isShortcut(event)) {
+    if (isInput(event) || isShortcut(event) || !getKeyboardShortcutEnabled()) {
       return true;
     } else if (event.key === KeyboardKeys.KeyF) {
       event.preventDefault();
