@@ -20,13 +20,19 @@
 
 package org.sonar.server.authentication;
 
+import com.google.common.io.Resources;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.internal.apachecommons.lang.StringEscapeUtils;
 import org.sonar.api.platform.Server;
 import org.sonar.api.web.ServletFilter;
 
@@ -36,6 +42,7 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   public static final String SAML_VALIDATION_URL = "/saml/validation_callback";
+  private String redirectionPageTemplate;
   private final Server server;
 
   public SamlValidationRedirectionFilter(Server server) {
@@ -48,12 +55,34 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
   }
 
   @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    super.init(filterConfig);
+    this.redirectionPageTemplate = extractTemplate("validation-redirection.html");
+  }
+
+  String extractTemplate(String templateLocation) {
+    try {
+      URL url = Resources.getResource(templateLocation);
+      return Resources.toString(url, StandardCharsets.UTF_8);
+    } catch (IOException | IllegalArgumentException e) {
+      throw new IllegalStateException("Cannot read the template " + templateLocation, e);
+    }
+  }
+
+  @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     if (isSamlValidation(httpRequest)) {
       HttpServletResponse httpResponse = (HttpServletResponse) response;
-      httpResponse.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-      httpResponse.setHeader("Location", server.getContextPath() + SAML_VALIDATION_URL);
+
+      String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter("SAMLResponse"));
+
+      String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
+        new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%"},
+        new String[]{server.getContextPath() + SAML_VALIDATION_URL, samlResponse});
+
+      httpResponse.setContentType("text/html");
+      httpResponse.getWriter().print(template);
       return;
     }
     chain.doFilter(request, response);

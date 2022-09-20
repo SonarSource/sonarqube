@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="application-name" content="SonarQube"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8"/>
+    <title>SAML Authentication Test</title>
+</head>
+
+<body>
+    <h1>SAML Authentication Validation</h1>
+    <form id="saml_validate" action="%VALIDATION_URL%" method="POST">
+        <input name="SAMLResponse" value="%SAML_RESPONSE%" type="hidden"/>
+        <button>Click Here to See Result</button>
+    </form>
+</body>
+<script>
+    document.getElementById("saml_validate").submit()
+</script>
+</html>
