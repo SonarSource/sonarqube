@@ -47,37 +47,33 @@ export function LineCoverage({ line, scrollToUncoveredLine }: LineCoverageProps)
   return (
     <td className={className} data-line-number={line.line} ref={coverageMarker}>
       <Tooltip overlay={status} placement="bottom">
-        <div aria-label={status} className="source-line-bar" />
+        <div aria-label={status} role="img" className="source-line-bar" />
       </Tooltip>
     </td>
   );
 }
 
 function getStatusTooltip(line: SourceLine) {
-  if (line.coverageStatus === 'uncovered') {
-    if (line.conditions) {
-      return translateWithParameters('source_viewer.tooltip.uncovered.conditions', line.conditions);
-    } else {
-      return translate('source_viewer.tooltip.uncovered');
-    }
-  } else if (line.coverageStatus === 'covered') {
-    if (line.conditions) {
-      return translateWithParameters('source_viewer.tooltip.covered.conditions', line.conditions);
-    } else {
-      return translate('source_viewer.tooltip.covered');
-    }
-  } else if (line.coverageStatus === 'partially-covered') {
-    if (line.conditions) {
-      return translateWithParameters(
-        'source_viewer.tooltip.partially-covered.conditions',
-        line.coveredConditions || 0,
-        line.conditions
-      );
-    } else {
-      return translate('source_viewer.tooltip.partially-covered');
-    }
+  switch (line.coverageStatus) {
+    case 'uncovered':
+      return line.conditions
+        ? translateWithParameters('source_viewer.tooltip.uncovered.conditions', line.conditions)
+        : translate('source_viewer.tooltip.uncovered');
+    case 'covered':
+      return line.conditions
+        ? translateWithParameters('source_viewer.tooltip.covered.conditions', line.conditions)
+        : translate('source_viewer.tooltip.covered');
+    case 'partially-covered':
+      return line.conditions
+        ? translateWithParameters(
+            'source_viewer.tooltip.partially-covered.conditions',
+            line.coveredConditions || 0,
+            line.conditions
+          )
+        : translate('source_viewer.tooltip.partially-covered');
+    default:
+      return undefined;
   }
-  return undefined;
 }
 
 export default React.memo(LineCoverage);
