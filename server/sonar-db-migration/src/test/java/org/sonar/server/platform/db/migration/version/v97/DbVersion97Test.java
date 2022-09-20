@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v96;
+package org.sonar.server.platform.db.migration.version.v97;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DropIndexChange;
+import org.junit.Test;
 
-public class DropNonUniqueIndexForComponentsUuid extends DropIndexChange {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  @VisibleForTesting
-  static final String TABLE = "components";
-  @VisibleForTesting
-  static final String INDEX_NAME = "projects_uuid";
+public class DbVersion97Test {
 
-  public DropNonUniqueIndexForComponentsUuid(Database db) {
-    super(db, INDEX_NAME, TABLE);
+  private final DbVersion97 underTest = new DbVersion97();
+
+  @Test
+  public void migrationNumber_starts_at_6600() {
+    verifyMinimumMigrationNumber(underTest, 6600);
+  }
+
+  @Test
+  public void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
   }
 
 }

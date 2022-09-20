@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v96;
+package org.sonar.server.platform.db.migration.version.v97;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v96.DropNonUniqueIndexForComponentsUuid.INDEX_NAME;
-import static org.sonar.server.platform.db.migration.version.v96.DropNonUniqueIndexForComponentsUuid.TABLE;
+import static org.sonar.server.platform.db.migration.version.v97.DropNonUniqueIndexForComponentsUuid.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v97.DropNonUniqueIndexForComponentsUuid.TABLE;
 
 public class DropNonUniqueIndexForComponentsUuidTest {
 

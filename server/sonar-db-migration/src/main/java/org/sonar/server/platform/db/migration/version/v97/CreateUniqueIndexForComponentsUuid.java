@@ -17,50 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v96;
+package org.sonar.server.platform.db.migration.version.v97;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.version.v96.DbConstants.WEBHOOK_SECRET_COLUMN_SIZE;
-
-public class AddWebhookSecretToAlmSettingsTable extends DdlChange {
+public class CreateUniqueIndexForComponentsUuid extends DdlChange {
 
   @VisibleForTesting
-  static final String WEBHOOK_SECRET_COLUMN_NAME = "webhook_secret";
+  static final String COLUMN_NAME = "uuid";
   @VisibleForTesting
-  static final String ALM_SETTINGS_TABLE_NAME = "alm_settings";
+  static final String TABLE = "components";
+  @VisibleForTesting
+  static final String INDEX_NAME = "components_uuid";
 
-  private static final VarcharColumnDef COLUMN_DEFINITION = newVarcharColumnDefBuilder()
-    .setColumnName(WEBHOOK_SECRET_COLUMN_NAME)
-    .setIsNullable(true)
-    .setLimit(WEBHOOK_SECRET_COLUMN_SIZE).build();
-
-
-  public AddWebhookSecretToAlmSettingsTable(Database db) {
+  public CreateUniqueIndexForComponentsUuid(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      createWebhookSecretColumn(context, connection);
+      createComponentsUuidUniqueIndex(context, connection);
     }
   }
 
-  private void createWebhookSecretColumn(Context context, Connection connection) {
-    if (!DatabaseUtils.tableColumnExists(connection, ALM_SETTINGS_TABLE_NAME, WEBHOOK_SECRET_COLUMN_NAME)) {
-      context.execute(new AddColumnsBuilder(getDialect(), ALM_SETTINGS_TABLE_NAME)
-        .addColumn(COLUMN_DEFINITION)
+  private static void createComponentsUuidUniqueIndex(Context context, Connection connection) {
+    if (!DatabaseUtils.indexExistsIgnoreCase(TABLE, INDEX_NAME, connection)) {
+      context.execute(new CreateIndexBuilder()
+        .setTable(TABLE)
+        .setName(INDEX_NAME)
+        .addColumn(COLUMN_NAME)
+        .setUnique(true)
         .build());
     }
   }
-
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v96;
+package org.sonar.server.platform.db.migration.version.v97;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
 import static org.sonar.db.CoreDbTester.createForSchema;
-import static org.sonar.server.platform.db.migration.version.v96.AddWebhookSecretToAlmSettingsTable.ALM_SETTINGS_TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v96.AddWebhookSecretToAlmSettingsTable.WEBHOOK_SECRET_COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v96.DbConstants.WEBHOOK_SECRET_COLUMN_SIZE;
+import static org.sonar.server.platform.db.migration.version.v97.AddWebhookSecretToAlmSettingsTable.ALM_SETTINGS_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v97.AddWebhookSecretToAlmSettingsTable.WEBHOOK_SECRET_COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v97.DbConstants.WEBHOOK_SECRET_COLUMN_SIZE;
 
 public class AddWebhookSecretToAlmSettingsTableTest {
 
