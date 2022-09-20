@@ -94,14 +94,15 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_MESSAGE)
         .name("System announcement message")
-        .description("If \"Display system announcement message\" is set to True, this message will be displayed in a banner to all authenticate SonarQube users.")
+        .description("If \"Display system announcement message\" is set to True, this message will be displayed in a warning banner to all SonarQube users."
+          +" If this field is empty, no message will be displayed, even if \"Display system announcement message\" is set to True.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
         .type(TEXT)
         .build(),
       PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_DISPLAY_MESSAGE)
         .name("Display system announcement message")
-        .description("If set to True, the \"System announcement message\" will be displayed in a banner to all authenticate SonarQube users.")
+        .description("If set to True, the \"System announcement message\" will be displayed in a warning banner to all SonarQube users.")
         .defaultValue(Boolean.toString(false))
         .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
         .category(CoreProperties.CATEGORY_GENERAL)

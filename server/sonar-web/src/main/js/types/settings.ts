@@ -36,7 +36,9 @@ export enum GlobalSettingKeys {
   GravatarServerUrl = 'sonar.lf.gravatarServerUrl',
   RatingGrid = 'sonar.technicalDebt.ratingGrid',
   DeveloperAggregatedInfoDisabled = 'sonar.developerAggregatedInfo.disabled',
-  UpdatecenterActivated = 'sonar.updatecenter.activate'
+  UpdatecenterActivated = 'sonar.updatecenter.activate',
+  DisplaySystemMessage = 'sonar.systemAnnouncement.displayMessage',
+  SystemMessage = 'sonar.systemAnnouncement.message'
 }
 
 export type SettingDefinitionAndValue = {
