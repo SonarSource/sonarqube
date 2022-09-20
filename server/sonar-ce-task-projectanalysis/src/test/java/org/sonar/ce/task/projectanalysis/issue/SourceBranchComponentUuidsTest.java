@@ -79,7 +79,7 @@ public class SourceBranchComponentUuidsTest {
     when(branch.getPullRequestKey()).thenReturn(PR_KEY);
     db.components().insertSnapshot(newAnalysis(branch1));
 
-    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
     assertThat(underTest.hasSourceBranchAnalysis()).isTrue();
   }
 
@@ -108,7 +108,7 @@ public class SourceBranchComponentUuidsTest {
     when(branch.getType()).thenReturn(BranchType.BRANCH);
     when(branch.getName()).thenReturn(BRANCH_KEY);
 
-    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getKey())).isNull();
   }
 
   @Test
@@ -116,6 +116,6 @@ public class SourceBranchComponentUuidsTest {
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getName()).thenReturn(BRANCH_KEY);
 
-    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getSourceBranchComponentUuid(pr1File.getKey())).isNull();
   }
 }

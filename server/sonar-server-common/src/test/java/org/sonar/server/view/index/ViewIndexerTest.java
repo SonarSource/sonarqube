@@ -189,14 +189,14 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_branch() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     ComponentDto project2Branch = db.components().insertProjectBranch(project2);
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setDbKey("prj3"));
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("prj3"));
     ComponentDto project3Branch = db.components().insertProjectBranch(project3);
     db.components().insertComponent(newProjectCopy(project1Branch, applicationBranch1));
     db.components().insertComponent(newProjectCopy(project2Branch, applicationBranch1));

@@ -51,10 +51,10 @@ public class ExportEventsStepTest {
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid(PROJECT_UUID)
-    .setProjectUuid(PROJECT_UUID)
+    .setBranchUuid(PROJECT_UUID)
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)
-    .setDbKey("the_project")
+    .setKey("the_project")
     .setEnabled(true);
 
 

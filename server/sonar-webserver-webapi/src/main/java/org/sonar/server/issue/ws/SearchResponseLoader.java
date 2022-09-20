@@ -153,9 +153,9 @@ public class SearchResponseLoader {
   private void loadProjects(Collector collector, DbSession dbSession, SearchResponseData result) {
     Collection<ComponentDto> loadedComponents = result.getComponents();
     for (ComponentDto component : loadedComponents) {
-      collector.addProjectUuid(component.projectUuid());
+      collector.addProjectUuid(component.branchUuid());
     }
-    Set<String> loadedProjectUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.projectUuid())).map(ComponentDto::uuid).collect(MoreCollectors.toSet());
+    Set<String> loadedProjectUuids = loadedComponents.stream().filter(cpt -> cpt.uuid().equals(cpt.branchUuid())).map(ComponentDto::uuid).collect(MoreCollectors.toSet());
     Set<String> projectUuidsToLoad = copyOf(difference(collector.getProjectUuids(), loadedProjectUuids));
     if (!projectUuidsToLoad.isEmpty()) {
       List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, collector.getProjectUuids());
@@ -208,7 +208,7 @@ public class SearchResponseLoader {
       Map<String, ComponentDto> componentsByProjectUuid = result.getComponents()
         .stream()
         .filter(ComponentDto::isRootProject)
-        .collect(MoreCollectors.uniqueIndex(ComponentDto::projectUuid));
+        .collect(MoreCollectors.uniqueIndex(ComponentDto::branchUuid));
       for (IssueDto issueDto : result.getIssues()) {
         // so that IssueDto can be used.
         if (fields.contains(ACTIONS)) {

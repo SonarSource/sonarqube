@@ -156,7 +156,7 @@ public class ComponentAction implements NavigationWsAction {
         !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
-      Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
+      Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.branchUuid());
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
@@ -181,7 +181,7 @@ public class ComponentAction implements NavigationWsAction {
 
   private ComponentDto getRootProjectOrBranch(ComponentDto component, DbSession session) {
     if (!component.isRootProject()) {
-      return dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
+      return dbClient.componentDao().selectOrFailByUuid(session, component.branchUuid());
     } else {
       return component;
     }
@@ -245,7 +245,7 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
-    Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, component.projectUuid(), QUALITY_PROFILES_KEY)
+    Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, component.branchUuid(), QUALITY_PROFILES_KEY)
       .map(LiveMeasureDto::getDataAsString)
       .map(data -> QPMeasureData.fromJson(data).getProfiles())
       .orElse(emptySortedSet());

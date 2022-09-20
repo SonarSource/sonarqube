@@ -139,14 +139,14 @@ public class LinesAction implements SourcesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = loadComponent(dbSession, request);
       Supplier<Optional<Long>> periodDateSupplier = () -> dbClient.snapshotDao()
-        .selectLastAnalysisByComponentUuid(dbSession, file.projectUuid())
+        .selectLastAnalysisByComponentUuid(dbSession, file.branchUuid())
         .map(SnapshotDto::getPeriodDate);
 
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
-      Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
+      Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         linesJsonWriter.writeSource(lines, json, periodDateSupplier);

@@ -360,7 +360,7 @@ public class ExportIssuesStepTest {
   }
 
   private ProjectDto createProject() {
-    ComponentDto projectDto = dbTester.components().insertPrivateProject(c -> c.setDbKey(PROJECT_KEY).setUuid(SOME_PROJECT_UUID));
+    ComponentDto projectDto = dbTester.components().insertPrivateProject(c -> c.setKey(PROJECT_KEY).setUuid(SOME_PROJECT_UUID));
     dbTester.commit();
     return dbTester.components().getProjectDto(projectDto);
   }

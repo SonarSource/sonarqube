@@ -91,10 +91,10 @@ public class ActivityStatusActionTest {
   public void status_for_a_project_as_project_admin() {
     String projectKey = "project-key";
     String anotherProjectKey = "another-project-key";
-    ComponentDto project = newPrivateProjectDto().setDbKey(projectKey);
-    ComponentDto anotherProject = newPrivateProjectDto().setDbKey(anotherProjectKey);
+    ComponentDto project = newPrivateProjectDto().setKey(projectKey);
+    ComponentDto anotherProject = newPrivateProjectDto().setKey(anotherProjectKey);
     db.components().insertComponent(project);
-    db.components().insertComponent(newPrivateProjectDto().setDbKey(anotherProjectKey));
+    db.components().insertComponent(newPrivateProjectDto().setKey(anotherProjectKey));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -119,7 +119,7 @@ public class ActivityStatusActionTest {
   @Test
   public void add_pending_time() {
     String projectKey = "project-key";
-    ComponentDto project = newPrivateProjectDto().setDbKey(projectKey);
+    ComponentDto project = newPrivateProjectDto().setKey(projectKey);
     db.components().insertComponent(project);
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -160,7 +160,7 @@ public class ActivityStatusActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPrivateProject();
 
-    String dbKey = project.getDbKey();
+    String dbKey = project.getKey();
     assertThatThrownBy(() -> callByComponentKey(dbKey))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");

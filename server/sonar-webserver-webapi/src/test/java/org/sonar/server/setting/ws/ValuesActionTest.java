@@ -748,7 +748,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     assertThatThrownBy(() -> {
-      executeRequest(project.getDbKey(), "foo");
+      executeRequest(project.getKey(), "foo");
     })
       .isInstanceOf(ForbiddenException.class);
   }
@@ -828,11 +828,11 @@ public class ValuesActionTest {
     assertThatThrownBy(() -> {
       newTester().newRequest()
         .setParam("keys", "foo")
-        .setParam("component", branch.getDbKey())
+        .setParam("component", branch.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -894,11 +894,11 @@ public class ValuesActionTest {
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {
-    return executeRequest(componentDto.getDbKey(), keys);
+    return executeRequest(componentDto.getKey(), keys);
   }
 
   private ValuesWsResponse executeRequestForProjectProperties(String... keys) {
-    return executeRequest(project.getDbKey(), keys);
+    return executeRequest(project.getKey(), keys);
   }
 
   private ValuesWsResponse executeRequestForGlobalProperties(String... keys) {

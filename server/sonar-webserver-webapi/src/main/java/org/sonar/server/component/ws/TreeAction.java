@@ -245,7 +245,7 @@ public class TreeAction implements ComponentsWsAction {
       wsComponent = projectOrAppToWsComponent(projectDto, null);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
-        ofNullable(component.getMainBranchProjectUuid()).orElse(component.projectUuid()));
+        ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
       wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null);
     }
 

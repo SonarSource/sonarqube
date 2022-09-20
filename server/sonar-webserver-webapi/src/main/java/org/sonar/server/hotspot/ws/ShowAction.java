@@ -38,6 +38,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -169,8 +171,8 @@ public class ShowAction implements HotspotsWsAction {
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
     responseBuilder
-      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getProject()))
-      .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent()));
+      .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getProject(), components.getBranch(), components.getPullRequest()))
+      .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent(), components.getBranch(), components.getPullRequest()));
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
@@ -292,6 +294,7 @@ public class ShowAction implements HotspotsWsAction {
     String componentUuid = hotspot.getComponentUuid();
 
     ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
+    BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.branchUuid()).orElseThrow(() -> new IllegalStateException("Can't find branch " + project.branchUuid()));
 
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
@@ -299,16 +302,38 @@ public class ShowAction implements HotspotsWsAction {
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
       .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
-    return new Components(project, component);
+    return new Components(project, component, branch);
   }
 
   private static final class Components {
     private final ComponentDto project;
     private final ComponentDto component;
+    private final String branch;
+    private final String pullRequest;
 
-    private Components(ComponentDto project, ComponentDto component) {
+    private Components(ComponentDto project, ComponentDto component, BranchDto branch) {
       this.project = project;
       this.component = component;
+      if (branch.isMain()) {
+        this.branch = null;
+        this.pullRequest = null;
+      } else if (branch.getBranchType() == BranchType.BRANCH) {
+        this.branch = branch.getKey();
+        this.pullRequest = null;
+      } else {
+        this.branch = null;
+        this.pullRequest = branch.getKey();
+      }
+    }
+
+    @CheckForNull
+    public String getBranch() {
+      return branch;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
     }
 
     public ComponentDto getProject() {

@@ -125,9 +125,9 @@ public class ShowActionTest {
     db.components().insertProjectAndSnapshot(project);
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(project.getDbKey());
+    ShowWsResponse response = newRequest(project.getKey());
 
-    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getKey());
   }
 
   @Test
@@ -138,10 +138,10 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(file.getDbKey());
+    ShowWsResponse response = newRequest(file.getKey());
 
-    assertThat(response.getComponent().getKey()).isEqualTo(file.getDbKey());
-    assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getDbKey(), module.getDbKey(), project.getDbKey());
+    assertThat(response.getComponent().getKey()).isEqualTo(file.getKey());
+    assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getKey(), module.getKey(), project.getKey());
   }
 
   @Test
@@ -150,9 +150,9 @@ public class ShowActionTest {
     db.components().insertComponent(newModuleDto(project));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(project.getDbKey());
+    ShowWsResponse response = newRequest(project.getKey());
 
-    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getKey());
     assertThat(response.getAncestorsList()).isEmpty();
   }
 
@@ -165,7 +165,7 @@ public class ShowActionTest {
       newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(project.getDbKey());
+    ShowWsResponse response = newRequest(project.getKey());
 
     assertThat(response.getComponent().getAnalysisDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
   }
@@ -180,7 +180,7 @@ public class ShowActionTest {
 
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(project.getDbKey());
+    ShowWsResponse response = newRequest(project.getKey());
 
     assertThat(response.getComponent().getLeakPeriodDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
   }
@@ -194,7 +194,7 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(file.getDbKey());
+    ShowWsResponse response = newRequest(file.getKey());
 
     String expectedDate = formatDateTime(new Date(3_000_000_000L));
     assertThat(response.getAncestorsList()).extracting(Component::getAnalysisDate)
@@ -206,7 +206,7 @@ public class ShowActionTest {
     ComponentDto privateProject = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, privateProject);
 
-    ShowWsResponse result = newRequest(privateProject.getDbKey());
+    ShowWsResponse result = newRequest(privateProject.getKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
     assertThat(result.getComponent().getVisibility()).isEqualTo("private");
   }
@@ -216,7 +216,7 @@ public class ShowActionTest {
     ComponentDto publicProject = db.components().insertPublicProject();
     userSession.registerComponents(publicProject);
 
-    ShowWsResponse result = newRequest(publicProject.getDbKey());
+    ShowWsResponse result = newRequest(publicProject.getKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
     assertThat(result.getComponent().getVisibility()).isEqualTo("public");
   }
@@ -226,7 +226,7 @@ public class ShowActionTest {
     ComponentDto view = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(USER, view);
 
-    ShowWsResponse result = newRequest(view.getDbKey());
+    ShowWsResponse result = newRequest(view.getKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
   }
 
@@ -236,7 +236,7 @@ public class ShowActionTest {
     userSession.addProjectPermission(USER, privateProject);
     ComponentDto module = db.components().insertComponent(newModuleDto(privateProject));
 
-    ShowWsResponse result = newRequest(module.getDbKey());
+    ShowWsResponse result = newRequest(module.getKey());
     assertThat(result.getComponent().hasVisibility()).isFalse();
   }
 
@@ -249,7 +249,7 @@ public class ShowActionTest {
     db.components().insertSnapshot(project, s -> s.setProjectVersion("1.1"));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(file.getDbKey());
+    ShowWsResponse response = newRequest(file.getKey());
 
     assertThat(response.getComponent().getVersion()).isEqualTo("1.1");
     assertThat(response.getAncestorsList())
@@ -379,7 +379,7 @@ public class ShowActionTest {
     ComponentDto componentDto = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(componentDto);
 
-    String componentDtoDbKey = componentDto.getDbKey();
+    String componentDtoDbKey = componentDto.getKey();
     assertThatThrownBy(() -> newRequest(componentDtoDbKey))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -396,7 +396,7 @@ public class ShowActionTest {
     ComponentDto privateProjectDto = newPrivateProjectDto();
     ComponentDto project = db.components().insertComponent(privateProjectDto);
     userSession.addProjectPermission(USER, project);
-    db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
 
     assertThatThrownBy(() -> newRequest("file-key"))
       .isInstanceOf(NotFoundException.class)
@@ -426,10 +426,10 @@ public class ShowActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey());
+      .setParam(PARAM_COMPONENT, branch.getKey());
     assertThatThrownBy(() -> request.executeProtobuf(ShowWsResponse.class))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(String.format("Component key '%s' not found", branch.getKey()));
   }
 
   private ShowWsResponse newRequest(@Nullable String key) {
@@ -442,8 +442,8 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
-      .setProjectUuid("AVIF98jgA3Ax6PH2efOW")
-      .setDbKey("com.sonarsource:java-markdown")
+      .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
+      .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")
       .setQualifier(Qualifiers.PROJECT),
@@ -454,13 +454,13 @@ public class ShowActionTest {
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())
       .setPeriodDate(parseDateTime("2017-01-01T11:39:03+0100").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
-      .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
+      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")
       .setQualifier(Qualifiers.DIRECTORY);
     db.components().insertComponent(directory);
     db.components().insertComponent(
       newFileDto(directory, directory, "AVIF-FffA3Ax6PH2efPD")
-        .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
+        .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setName("Rule.java")
         .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setLanguage("java")

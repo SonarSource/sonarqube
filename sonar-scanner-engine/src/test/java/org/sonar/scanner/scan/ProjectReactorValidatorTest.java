@@ -97,23 +97,6 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_when_key_contains_invalid_phrases() {
-    ProjectReactor reactorWithBranchInKey = createProjectReactor("test:BRANCH:test");
-
-    assertThatThrownBy(() -> underTest.validate(reactorWithBranchInKey))
-      .isInstanceOf(MessageException.class)
-      .hasMessageContainingAll("\"test:BRANCH:test\" is not a valid project key. "
-        + "Project key must not contain following phrases", ":BRANCH:", ":PULLREQUEST:");
-
-    ProjectReactor reactorWithPRinKey = createProjectReactor("test:PULLREQUEST:test");
-
-    assertThatThrownBy(() -> underTest.validate(reactorWithPRinKey))
-      .isInstanceOf(MessageException.class)
-      .hasMessageContainingAll("\"test:PULLREQUEST:test\" is not a valid project key. "
-        + "Project key must not contain following phrases", ":BRANCH:", ":PULLREQUEST:");
-  }
-
-  @Test
   public void fail_when_only_digits() {
     ProjectReactor reactor = createProjectReactor("12345");
 

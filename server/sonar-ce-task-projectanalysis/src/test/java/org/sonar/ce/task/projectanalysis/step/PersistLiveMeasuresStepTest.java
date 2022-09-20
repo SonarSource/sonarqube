@@ -267,7 +267,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getDbKey(), project.getName(), project.getDescription(), emptyList()));
+    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), emptyList()));
 
     // components as persisted in db
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
@@ -304,11 +304,11 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
   private ComponentDto insertComponent(String key, String uuid) {
     ComponentDto componentDto = new ComponentDto()
-      .setDbKey(key)
+      .setKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
       .setRootUuid(uuid)
-      .setProjectUuid(uuid);
+      .setBranchUuid(uuid);
     db.components().insertComponent(componentDto);
     return componentDto;
   }

@@ -180,7 +180,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<Measure> buildWsMeasures() {
       Map<String, ComponentDto> componentsByUuid = projects.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
-      Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getDbKey, ComponentDto::name));
+      Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getKey, ComponentDto::name));
       Map<String, MetricDto> metricsByUuid = metrics.stream().collect(toMap(MetricDto::getUuid, identity()));
 
       Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsByUuid.get(dbMeasure.getMetricUuid());
@@ -191,7 +191,7 @@ public class SearchAction implements MeasuresWsAction {
       return measures.stream()
         .map(dbMeasure -> {
           updateMeasureBuilder(measureBuilder, dbMeasureToDbMetric.apply(dbMeasure), dbMeasure);
-          measureBuilder.setComponent(componentsByUuid.get(dbMeasure.getComponentUuid()).getDbKey());
+          measureBuilder.setComponent(componentsByUuid.get(dbMeasure.getComponentUuid()).getKey());
           Measure measure = measureBuilder.build();
           measureBuilder.clear();
           return measure;

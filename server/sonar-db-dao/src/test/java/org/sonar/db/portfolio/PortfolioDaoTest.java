@@ -224,7 +224,7 @@ public class PortfolioDaoTest {
     db.components().insertPrivatePortfolioDto("portfolio1");
     db.components().insertPrivatePortfolioDto("portfolio2");
     db.components().insertPrivatePortfolioDto("portfolio3");
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
 
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio2", "portfolio3");
@@ -240,7 +240,7 @@ public class PortfolioDaoTest {
     db.components().insertPrivatePortfolioDto("portfolio1");
     db.components().insertPrivatePortfolioDto("portfolio2");
     db.components().insertPrivatePortfolioDto("portfolio3");
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
 
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio2", "portfolio3");
@@ -259,9 +259,9 @@ public class PortfolioDaoTest {
     var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
     var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
     var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
-    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
-    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app3"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setKey("app2"));
+    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setKey("app3"));
 
     portfolioDao.addReference(session, "portfolio1", app1.getUuid());
     portfolioDao.addReference(session, "portfolio2", app2.getUuid());
@@ -282,9 +282,9 @@ public class PortfolioDaoTest {
     var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
     var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
     var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
-    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
-    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app3"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setKey("app2"));
+    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setKey("app3"));
 
     portfolioDao.addReference(session, "portfolio1", app1.getUuid());
     portfolioDao.addReference(session, "portfolio2", app2.getUuid());
@@ -316,10 +316,10 @@ public class PortfolioDaoTest {
   @Test
   public void selectAllApplicationProjectsBelongToTheSamePortfolio() {
     var portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
-    var app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
-    var app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
-    var project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    var project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
+    var app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
+    var app2 = db.components().insertPrivateApplicationDto(p -> p.setKey("app2"));
+    var project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    var project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
 
     db.components().addApplicationProject(app1, project1);
     db.components().addApplicationProject(app2, project2);
@@ -353,7 +353,7 @@ public class PortfolioDaoTest {
   @Test
   public void select_reference_to_app_by_key() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
     db.components().addPortfolioReference(portfolio, app1.getUuid());
 
     assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app1.getKey()))
@@ -371,7 +371,7 @@ public class PortfolioDaoTest {
   @Test
   public void select_reference_to_app_with_branches() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setKey("app").setName("app"));
     BranchDto branch1 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
     BranchDto branch2 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
 
@@ -391,7 +391,7 @@ public class PortfolioDaoTest {
   @Test
   public void select_root_reference_to_app_main_branch() {
     PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setKey("app1"));
     db.components().addPortfolioReference(portfolio1, app1.getUuid());
 
     assertThat(portfolioDao.selectRootOfReferencersToMainBranch(db.getSession(), app1.getUuid()))
@@ -399,7 +399,7 @@ public class PortfolioDaoTest {
       .containsExactly(portfolio1.getKey());
 
     PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("portfolio2");
-    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setKey("app2"));
     db.components().addPortfolioApplicationBranch(portfolio2.getUuid(), app2.getUuid(), app2.getUuid());
 
     assertThat(portfolioDao.selectRootOfReferencersToMainBranch(db.getSession(), app2.getUuid()))
@@ -410,7 +410,7 @@ public class PortfolioDaoTest {
   @Test
   public void select_root_reference_to_app_with_branches() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setKey("app").setName("app"));
     BranchDto branch = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
 
     db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch.getUuid());
@@ -530,7 +530,7 @@ public class PortfolioDaoTest {
   @Test
   public void deleteReferenceBranch() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
-    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setKey("app").setName("app"));
     BranchDto branch1 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
     BranchDto branch2 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
 

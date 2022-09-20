@@ -229,7 +229,7 @@ public class SearchEventsAction implements DevelopersWsAction {
     Map<String, Long> fromDatesByProjectKey = IntStream.range(0, projectKeys.size()).boxed()
       .collect(uniqueIndex(projectKeys::get, fromDates::get));
     return authorizedProjects.stream()
-      .map(dto -> new UuidFromPair(dto.uuid(), fromDatesByProjectKey.get(dto.getDbKey())))
+      .map(dto -> new UuidFromPair(dto.uuid(), fromDatesByProjectKey.get(dto.getKey())))
       .collect(toList(authorizedProjects.size()));
   }
 

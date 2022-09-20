@@ -110,7 +110,7 @@ public class SearchHistoryActionTest {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -131,7 +131,7 @@ public class SearchHistoryActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -148,7 +148,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
 
@@ -173,7 +173,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);
@@ -213,7 +213,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .setPage(2)
       .setPageSize(3)
@@ -237,7 +237,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .setFrom(analysisDates.get(1))
       .setTo(analysisDates.get(3))
@@ -257,7 +257,7 @@ public class SearchHistoryActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(file.getDbKey())
+      .setComponent(file.getKey())
       .setMetrics(asList("optimized", "new_optimized"))
       .build();
     SearchHistoryResponse result = call(request);
@@ -268,7 +268,7 @@ public class SearchHistoryActionTest {
 
     // Best value is not applied to project
     request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList("optimized", "new_optimized"))
       .build();
     result = call(request);
@@ -283,7 +283,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);
@@ -345,17 +345,17 @@ public class SearchHistoryActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
+      .setParam(PARAM_COMPONENT, branch.getKey())
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
         .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+        .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
   public void fail_if_unknown_metric() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"))
       .build();
 
@@ -368,7 +368,7 @@ public class SearchHistoryActionTest {
   public void fail_if_not_enough_permissions() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -390,7 +390,7 @@ public class SearchHistoryActionTest {
       .addProjectPermission(UserRole.USER, application, project1);
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(application.getDbKey())
+      .setComponent(application.getKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -412,7 +412,7 @@ public class SearchHistoryActionTest {
   @Test
   public void fail_when_component_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
     userSession.addProjectPermission(UserRole.USER, project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -470,7 +470,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     String result = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRICS, String.join(",", asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey())))
       .execute().getInput();
 
@@ -483,7 +483,7 @@ public class SearchHistoryActionTest {
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getDbKey())
+      .setComponent(project.getKey())
       .setMetrics(singletonList(stringMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);

@@ -54,18 +54,18 @@ public class ExportNewCodePeriodsStepTest {
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid(PROJECT_UUID)
-    .setProjectUuid(PROJECT_UUID)
+    .setBranchUuid(PROJECT_UUID)
     .setQualifier(Qualifiers.PROJECT)
     .setName("project")
-    .setDbKey("the_project");
+    .setKey("the_project");
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
     .setUuid(ANOTHER_PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid(ANOTHER_PROJECT_UUID)
-    .setProjectUuid(ANOTHER_PROJECT_UUID)
+    .setBranchUuid(ANOTHER_PROJECT_UUID)
     .setQualifier(Qualifiers.PROJECT)
     .setName("another_project")
-    .setDbKey("another_project");
+    .setKey("another_project");
 
   private static final List<BranchDto> PROJECT_BRANCHES = ImmutableList.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-uuid-1").setMergeBranchUuid("master"),

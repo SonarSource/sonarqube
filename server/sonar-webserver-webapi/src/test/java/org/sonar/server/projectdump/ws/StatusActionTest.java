@@ -284,7 +284,7 @@ public class StatusActionTest {
 
     assertThatThrownBy(() -> {
       underTest.newRequest()
-        .setParam(KEY_PARAM, branch.getDbKey())
+        .setParam(KEY_PARAM, branch.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
@@ -304,7 +304,7 @@ public class StatusActionTest {
   }
 
   private ProjectDto insertProject(String uuid, String key) {
-    return db.components().insertPrivateProjectDto(c -> c.setProjectUuid(uuid).setUuid(uuid).setDbKey(key));
+    return db.components().insertPrivateProjectDto(c -> c.setBranchUuid(uuid).setUuid(uuid).setKey(key));
   }
 
   private void insertSnapshot(ProjectDto projectDto, boolean last) {

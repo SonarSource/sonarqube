@@ -218,7 +218,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
 
     userSessionRule.logIn(user1);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.getDbKey())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.getKey())));
 
     userSessionRule.logIn(user2);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I2");

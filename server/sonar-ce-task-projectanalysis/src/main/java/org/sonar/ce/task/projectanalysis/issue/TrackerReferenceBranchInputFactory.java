@@ -46,7 +46,7 @@ public class TrackerReferenceBranchInputFactory {
   }
 
   public Input<DefaultIssue> create(Component component) {
-    String referenceBranchComponentUuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+    String referenceBranchComponentUuid = referenceBranchComponentUuids.getComponentUuid(component.getKey());
     return new ReferenceLazyInput(component.getType(), referenceBranchComponentUuid);
   }
 

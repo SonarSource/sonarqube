@@ -19,6 +19,7 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonarqube.ws.Hotspots;
 
@@ -30,15 +31,15 @@ public class HotspotWsResponseFormatter {
     // nothing to do here
   }
 
-  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component) {
+  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pr) {
     builder
       .clear()
       .setKey(component.getKey())
       .setQualifier(component.qualifier())
       .setName(component.name())
       .setLongName(component.longName());
-    ofNullable(component.getBranch()).ifPresent(builder::setBranch);
-    ofNullable(component.getPullRequest()).ifPresent(builder::setPullRequest);
+    ofNullable(branch).ifPresent(builder::setBranch);
+    ofNullable(pr).ifPresent(builder::setPullRequest);
     ofNullable(component.path()).ifPresent(builder::setPath);
     return builder.build();
   }

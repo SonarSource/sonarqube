@@ -61,7 +61,7 @@ public class IndexActionTest {
     insertFileWithData(file, newData("public class HelloWorld {", "}"));
 
     TestResponse request = tester.newRequest()
-      .setParam("resource", file.getDbKey())
+      .setParam("resource", file.getKey())
       .execute();
 
     assertJson(request.getInput()).isSimilarTo("[\n" +
@@ -80,7 +80,7 @@ public class IndexActionTest {
     insertFileWithData(file, newData("/**", " */", "public class HelloWorld {", "}", "", "foo"));
 
     TestResponse request = tester.newRequest()
-      .setParam("resource", file.getDbKey())
+      .setParam("resource", file.getKey())
       .setParam("from", "3")
       .setParam("to", "5")
       .execute();
@@ -100,7 +100,7 @@ public class IndexActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     assertThatThrownBy(() -> tester.newRequest()
-      .setParam("resource", file.getDbKey())
+      .setParam("resource", file.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }
@@ -120,10 +120,10 @@ public class IndexActionTest {
     userSession.addProjectPermission(USER, project);
 
     assertThatThrownBy(() -> tester.newRequest()
-      .setParam("resource", branch.getDbKey())
+      .setParam("resource", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   private static DbFileSources.Data newData(String... lines) {
@@ -140,7 +140,7 @@ public class IndexActionTest {
   private void insertFileWithData(ComponentDto file, DbFileSources.Data fileData) {
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
-      .setProjectUuid(file.projectUuid())
+      .setProjectUuid(file.branchUuid())
       .setFileUuid(file.uuid())
       .setSourceData(fileData));
     db.commit();

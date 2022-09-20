@@ -78,7 +78,7 @@ public class NewCodeReferenceBranchComponentUuidsTest {
   public void should_support_db_key_when_looking_for_reference_component() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "branch1", null));
     db.components().insertSnapshot(newAnalysis(branch1));
-    assertThat(underTest.getComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
   }
 
   @Test
@@ -98,19 +98,19 @@ public class NewCodeReferenceBranchComponentUuidsTest {
   @Test
   public void skip_init_if_no_reference_branch_analysis() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "branch1", null));
-    assertThat(underTest.getComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getComponentUuid(pr1File.getKey())).isNull();
   }
 
   @Test
   public void skip_init_if_branch_not_found() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "unknown", null));
-    assertThat(underTest.getComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getComponentUuid(pr1File.getKey())).isNull();
   }
 
   @Test
   public void throw_ise_if_mode_is_not_reference_branch() {
     periodHolder.setPeriod(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "10", 1000L));
-    assertThatThrownBy(() -> underTest.getComponentUuid(pr1File.getDbKey()))
+    assertThatThrownBy(() -> underTest.getComponentUuid(pr1File.getKey()))
       .isInstanceOf(IllegalStateException.class);
   }
 }

@@ -127,7 +127,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       dbClient.componentDao().scrollForIndexing(dbSession, branchUuid, context -> {
         ComponentDto dto = context.getResultObject();
         bulkIndexer.add(toDocument(dto).toIndexRequest());
-        remaining.remove(dto.projectUuid());
+        remaining.remove(dto.branchUuid());
       });
     }
 
@@ -185,8 +185,8 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     return new ComponentDoc()
       .setId(component.uuid())
       .setName(component.name())
-      .setKey(component.getDbKey())
-      .setProjectUuid(component.projectUuid())
+      .setKey(component.getKey())
+      .setProjectUuid(component.branchUuid())
       .setQualifier(component.qualifier());
   }
 }

@@ -101,7 +101,7 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(project);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.newCodePeriods().insert(project.projectUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, projectAnalysis.getUuid());
+    db.newCodePeriods().insert(project.branchUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, projectAnalysis.getUuid());
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), null);
@@ -115,7 +115,7 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.newCodePeriods().insert(project.projectUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, branchAnalysis.getUuid());
+    db.newCodePeriods().insert(project.branchUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, branchAnalysis.getUuid());
 
     logInAsProjectAdministrator(project);
 

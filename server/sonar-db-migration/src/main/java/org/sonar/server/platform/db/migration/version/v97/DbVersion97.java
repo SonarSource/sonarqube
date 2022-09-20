@@ -29,6 +29,12 @@ public class DbVersion97 implements DbVersion {
       .add(6600, "Add column 'webhook_secret' to 'alm_settings'", AddWebhookSecretToAlmSettingsTable.class)
       .add(6601, "Drop non unique index on 'uuid' in 'components'", DropNonUniqueIndexForComponentsUuid.class)
       .add(6602, "Add unique index on 'uuid' in 'components'", CreateUniqueIndexForComponentsUuid.class)
+
+      .add(6603, "Drop index for 'project_uuid' in 'components'", DropIndexForComponentsProjectUuid.class)
+      .add(6604, "Rename column 'project_uuid' to 'branch_uuid' in 'components'", RenameProjectUuidToBranchUuidInComponents.class)
+      .add(6605, "Create index for 'branch_uuid' in 'components'", CreateIndexForComponentsBranchUuid.class)
+      
+      .add(6606, "Drop index for 'kee' in 'components'", DropIndexForComponentsKey.class)
     ;
   }
 }

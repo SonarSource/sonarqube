@@ -257,7 +257,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_on_views() {
-    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setKey("view-key"));
     GroupDto group = db.users().insertGroup("project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 
@@ -341,11 +341,11 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     assertThatThrownBy(() ->  {
       newRequest()
         .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
 }

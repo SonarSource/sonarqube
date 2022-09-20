@@ -96,7 +96,7 @@ public class CreateActionTest {
   @Test
   public void create_a_webhook_with_400_length_project_key() {
     String longProjectKey = generateStringWithLength(400);
-    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setDbKey(longProjectKey));
+    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey));
 
     userSession.logIn().addProjectPermission(ADMIN, project);
 

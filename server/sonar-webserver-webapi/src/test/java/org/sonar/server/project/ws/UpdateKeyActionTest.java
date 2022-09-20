@@ -64,9 +64,9 @@ public class UpdateKeyActionTest {
     ComponentDto project = insertProject();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    call(project.getDbKey(), ANOTHER_KEY);
+    call(project.getKey(), ANOTHER_KEY);
 
-    assertThat(selectByKey(project.getDbKey())).isEmpty();
+    assertThat(selectByKey(project.getKey())).isEmpty();
     assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
   }
 
@@ -111,7 +111,7 @@ public class UpdateKeyActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    String branchDbKey = branch.getDbKey();
+    String branchDbKey = branch.getKey();
     assertThatThrownBy(() -> call(branchDbKey, ANOTHER_KEY))
       .isInstanceOf(NotFoundException.class)
       .hasMessage(String.format("Project '%s' not found", branchDbKey));

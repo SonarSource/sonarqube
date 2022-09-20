@@ -173,13 +173,13 @@ public class GroupPermissionDaoWithPersisterTest {
 
   private void addGroupPermission() {
     group = db.users().insertGroup(g -> g.setUuid("guuid").setName("gname"));
-    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setDbKey("cKey"));
+    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey"));
     dto = getGroupPermission(group, project);
     underTest.insert(dbSession, dto, project, null);
   }
 
   private void addGroupPermissionWithoutGroup() {
-    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setDbKey("cKey"));
+    project = db.components().insertPrivateProject(c -> c.setUuid("cuuid").setName("cname").setKey("cKey"));
     dto = getGroupPermission(project);
     underTest.insert(dbSession, dto, project, null);
   }

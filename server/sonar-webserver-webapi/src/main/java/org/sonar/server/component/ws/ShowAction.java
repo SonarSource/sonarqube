@@ -110,7 +110,7 @@ public class ShowAction implements ComponentsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
       userSession.checkComponentPermission(UserRole.USER, component);
-      Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
+      Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.branchUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null));
     }
@@ -149,7 +149,7 @@ public class ShowAction implements ComponentsWsAction {
         .setNeedIssueSync(needIssueSync);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
-        ofNullable(component.getMainBranchProjectUuid()).orElse(component.projectUuid()));
+        ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
       boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
       return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis)
         .setNeedIssueSync(needIssueSync);

@@ -65,9 +65,9 @@ public class ProjectQgateAssociationDaoTest {
   @Test
   public void select_all_projects_by_query_should_have_deterministic_order() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject(d -> d.setName("p1").setDbKey("key1"));
-    ComponentDto project2 = db.components().insertPrivateProject(d -> d.setName("p1").setDbKey("key2"));
-    ComponentDto project3 = db.components().insertPrivateProject(d -> d.setName("p2").setDbKey("key3"));
+    ComponentDto project1 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key1"));
+    ComponentDto project2 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key2"));
+    ComponentDto project3 = db.components().insertPrivateProject(d -> d.setName("p2").setKey("key3"));
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate1);
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate1);

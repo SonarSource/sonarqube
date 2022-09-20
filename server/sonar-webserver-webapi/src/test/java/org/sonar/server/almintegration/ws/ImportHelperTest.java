@@ -85,6 +85,6 @@ public class ImportHelperTest {
 
     assertThat(project).extracting(CreateWsResponse.Project::getKey, CreateWsResponse.Project::getName,
         CreateWsResponse.Project::getQualifier)
-      .containsExactly(componentDto.getDbKey(), componentDto.name(), componentDto.qualifier());
+      .containsExactly(componentDto.getKey(), componentDto.name(), componentDto.qualifier());
   }
 }

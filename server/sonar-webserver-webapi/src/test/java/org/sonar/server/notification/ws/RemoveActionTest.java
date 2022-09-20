@@ -116,7 +116,7 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
-    call(request.setProject(project.getDbKey()));
+    call(request.setProject(project.getKey()));
 
     db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), project);
   }
@@ -146,7 +146,7 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    RemoveRequest request = this.request.setProject(project.getDbKey());
+    RemoveRequest request = this.request.setProject(project.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Notification doesn't exist");
@@ -248,7 +248,7 @@ public class RemoveActionTest {
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     ComponentDto project = db.components().insertPrivateProject();
 
-    RemoveRequest request = this.request.setType("Dispatcher42").setProject(project.getDbKey());
+    RemoveRequest request = this.request.setType("Dispatcher42").setProject(project.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
@@ -284,7 +284,7 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    db.components().insertPortfolioAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
+    db.components().insertPortfolioAndSnapshot(newPortfolio().setKey("VIEW_1"));
 
     RemoveRequest request = this.request.setProject("VIEW_1");
     assertThatThrownBy(() -> call(request))
@@ -310,10 +310,10 @@ public class RemoveActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    RemoveRequest request = this.request.setProject(branch.getDbKey());
+    RemoveRequest request = this.request.setProject(branch.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   private TestResponse call(RemoveRequest remove) {

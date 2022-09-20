@@ -167,10 +167,10 @@ public class DeselectActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("projectKey", branch.getDbKey())
+      .setParam("projectKey", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test

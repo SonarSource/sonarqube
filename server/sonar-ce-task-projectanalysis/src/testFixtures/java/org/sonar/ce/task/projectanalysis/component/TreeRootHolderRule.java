@@ -72,7 +72,7 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
-          builder.put(component.getDbKey(), component);
+          builder.put(component.getKey(), component);
         }
       }).visit(getRoot());
     this.componentsByKey = builder.build();

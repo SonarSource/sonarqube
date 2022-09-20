@@ -47,7 +47,7 @@ public class IssueTesting {
 
   public static IssueDto newIssue(RuleDto rule, ComponentDto project, ComponentDto file) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a project");
-    return newIssue(rule, project.uuid(), project.getDbKey(), file);
+    return newIssue(rule, project.uuid(), project.getKey(), file);
   }
 
   public static IssueDto newIssue(RuleDto rule, ProjectDto project, ComponentDto file) {
@@ -55,7 +55,7 @@ public class IssueTesting {
   }
 
   public static IssueDto newIssue(RuleDto rule, String projectUuid, String projectKey, ComponentDto file) {
-    checkArgument(file.projectUuid().equals(projectUuid), "The file doesn't belong to the project");
+    checkArgument(file.branchUuid().equals(projectUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))

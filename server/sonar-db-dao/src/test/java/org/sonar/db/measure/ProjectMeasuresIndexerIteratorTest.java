@@ -62,7 +62,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   @Test
   public void return_project_measure() {
     ComponentDto project = dbTester.components().insertPrivateProject(
-      c -> c.setDbKey("Project-Key").setName("Project Name"),
+      c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTags(newArrayList("platform", "java")));
 
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
@@ -87,7 +87,7 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_application_measure() {
-    ComponentDto project = dbTester.components().insertPrivateApplication(c -> c.setDbKey("App-Key").setName("App Name"));
+    ComponentDto project = dbTester.components().insertPrivateApplication(c -> c.setKey("App-Key").setName("App Name"));
 
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
@@ -110,7 +110,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   @Test
   public void return_project_measure_having_leak() {
     ComponentDto project = dbTester.components().insertPrivateProject(
-      c -> c.setDbKey("Project-Key").setName("Project Name"),
+      c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTagsString("platform,java"));
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setVariation(10d));
@@ -269,7 +269,7 @@ public class ProjectMeasuresIndexerIteratorTest {
     ProjectMeasures doc = docsById.get(project1.uuid());
     assertThat(doc).isNotNull();
     assertThat(doc.getProject().getUuid()).isEqualTo(project1.uuid());
-    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project1.getDbKey());
+    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project1.getKey());
     assertThat(doc.getProject().getName()).isNotNull().isEqualTo(project1.name());
     assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis1.getCreatedAt());
   }

@@ -104,7 +104,7 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(Ce.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(taskResponse.getTask().getComponentId()).isEqualTo(privateProject.uuid());
-    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(privateProject.getDbKey());
+    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(privateProject.getKey());
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(privateProject.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getWarningCount()).isZero();
@@ -149,7 +149,7 @@ public class TaskActionTest {
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(privateProject.uuid());
-    assertThat(task.getComponentKey()).isEqualTo(privateProject.getDbKey());
+    assertThat(task.getComponentKey()).isEqualTo(privateProject.getKey());
     assertThat(task.getComponentName()).isEqualTo(privateProject.name());
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);

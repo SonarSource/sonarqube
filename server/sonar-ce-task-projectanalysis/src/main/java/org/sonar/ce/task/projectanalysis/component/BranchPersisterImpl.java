@@ -81,7 +81,7 @@ public class BranchPersisterImpl implements BranchPersister {
     dto.setUuid(componentDto.uuid());
 
     // MainBranchProjectUuid will be null if it's a main branch
-    String projectUuid = firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid());
+    String projectUuid = firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.branchUuid());
     dto.setProjectUuid(projectUuid);
     dto.setBranchType(branch.getType());
     dto.setExcludeFromPurge(excludeFromPurge);

@@ -721,7 +721,7 @@ public class LiveMeasureDaoTest {
   }
 
   private ComponentDto addProjectWithMeasure(String projectKey, MetricDto metric, double metricValue) {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey(projectKey));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectKey));
     addMeasureToComponent(project, metric, metricValue,true);
     return project;
   }

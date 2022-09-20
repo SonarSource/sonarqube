@@ -169,7 +169,7 @@ public class CancelActionTest {
   }
 
   private static ComponentDto nonExistentComponentDot() {
-    return new ComponentDto().setUuid("does_not_exist").setProjectUuid("unknown");
+    return new ComponentDto().setUuid("does_not_exist").setBranchUuid("unknown");
   }
 
   private void logInAsSystemAdministrator() {

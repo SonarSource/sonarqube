@@ -486,7 +486,7 @@ public class IssueMapperTest {
       .setRuleUuid(rule.getUuid())
       .setType(rule.getType())
       .setComponentUuid(component.uuid())
-      .setProjectUuid(component.projectUuid())
+      .setProjectUuid(component.branchUuid())
       .setStatus(Issue.STATUS_CLOSED)
       .setIssueCloseTime(issueCloseTime);
     Arrays.asList(consumers).forEach(c -> c.accept(res));

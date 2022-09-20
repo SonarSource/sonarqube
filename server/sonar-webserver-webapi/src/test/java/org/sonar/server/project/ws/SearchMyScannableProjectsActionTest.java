@@ -51,10 +51,10 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void projects_filtered_by_query() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setDbKey("project:four").setName("Project Four"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Project Three"));
+    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setKey("project:four").setName("Project Four"));
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
     List<Project> result = ws.newRequest()
@@ -71,10 +71,10 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void projects_not_filtered_by_empty_query() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setDbKey("project:four").setName("Project Four"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Project Three"));
+    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setKey("project:four").setName("Project Four"));
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
     List<Project> result = ws.newRequest()
@@ -93,10 +93,10 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void projects_filtered_by_scan_permission() {
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Project Three"));
-    db.components().insertPublicProjectDto(p -> p.setDbKey("project:four").setName("Project Four"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Project Three"));
+    db.components().insertPublicProjectDto(p -> p.setKey("project:four").setName("Project Four"));
 
     List<Project> result = ws.newRequest()
       .executeProtobuf(SearchMyScannableProjectsResponse.class)
@@ -107,10 +107,10 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void projects_filtered_for_anonymous_user() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setDbKey("project:four").setName("Project Four"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Project Three"));
+    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setKey("project:four").setName("Project Four"));
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
     WsActionTester ws = new WsActionTester(
@@ -125,10 +125,10 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void projects_not_filtered_due_to_global_scan_permission() {
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Project Three"));
-    db.components().insertPublicProjectDto(p -> p.setDbKey("project:four").setName("Project Four"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Project Three"));
+    db.components().insertPublicProjectDto(p -> p.setKey("project:four").setName("Project Four"));
     userSession.addPermission(GlobalPermission.SCAN);
 
     List<Project> result = ws.newRequest()
@@ -146,9 +146,9 @@ public class SearchMyScannableProjectsActionTest {
 
   @Test
   public void json_example() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project-key-1").setName("Project 1"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project-key-2").setName("Project 2"));
-    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setDbKey("public-project-without-scan-permissions")
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project-key-1").setName("Project 1"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project-key-2").setName("Project 2"));
+    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setKey("public-project-without-scan-permissions")
       .setName("Public Project with Scan Permissions"));
     userSession.addProjectPermission(SCAN, project1, project2);
     userSession.registerProjects(project3);

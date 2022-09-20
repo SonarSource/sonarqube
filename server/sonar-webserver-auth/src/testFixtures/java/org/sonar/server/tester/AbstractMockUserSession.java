@@ -71,13 +71,13 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public T registerComponents(ComponentDto... components) {
     Arrays.stream(components)
       .forEach(component -> {
-        if (component.projectUuid().equals(component.uuid()) && !component.isPrivate()) {
+        if (component.branchUuid().equals(component.uuid()) && !component.isPrivate()) {
           this.projectUuidByPermission.put(UserRole.USER, component.uuid());
           this.projectUuidByPermission.put(UserRole.CODEVIEWER, component.uuid());
           this.projectPermissions.add(UserRole.USER);
           this.projectPermissions.add(UserRole.CODEVIEWER);
         }
-        this.projectUuidByComponentUuid.put(component.uuid(), component.projectUuid());
+        this.projectUuidByComponentUuid.put(component.uuid(), component.branchUuid());
       });
     return clazz.cast(this);
   }
@@ -156,7 +156,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     registerComponents(components);
     this.projectPermissions.add(permission);
     Arrays.stream(components)
-      .forEach(component -> this.projectUuidByPermission.put(permission, component.projectUuid()));
+      .forEach(component -> this.projectUuidByPermission.put(permission, component.branchUuid()));
     return clazz.cast(this);
   }
 

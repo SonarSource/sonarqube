@@ -103,7 +103,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       }
       issueVisitors.afterComponent(component);
     } catch (Exception e) {
-      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getDbKey()), e);
+      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
     }
   }
 

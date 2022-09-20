@@ -82,18 +82,18 @@ public class ShowActionTest {
   @Test
   public void get_duplications_by_file_key() {
     TestRequest request = newBaseRequest();
-    verifyCallToFileWithDuplications(file -> request.setParam("key", file.getDbKey()));
+    verifyCallToFileWithDuplications(file -> request.setParam("key", file.getKey()));
   }
 
   @Test
   public void return_file_with_missing_duplication_data() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
-    TestResponse result = newBaseRequest().setParam("key", file.getDbKey()).execute();
+    TestResponse result = newBaseRequest().setParam("key", file.getKey()).execute();
 
     assertJson(result.getInput()).isSimilarTo("{\n" +
       "  \"duplications\": [],\n" +
@@ -112,7 +112,7 @@ public class ShowActionTest {
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
       "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
       "  </g>\n" +
-      "</duplications>\n", file.getDbKey(), file.getDbKey())));
+      "</duplications>\n", file.getKey(), file.getKey())));
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
@@ -164,7 +164,7 @@ public class ShowActionTest {
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
       "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
       "  </g>\n" +
-      "</duplications>\n", file.getDbKey(), file.getDbKey())));
+      "</duplications>\n", file.getKey(), file.getKey())));
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
@@ -217,7 +217,7 @@ public class ShowActionTest {
   public void fail_if_user_is_not_allowed_to_access_project() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    TestRequest request = newBaseRequest().setParam("key", file.getDbKey());
+    TestRequest request = newBaseRequest().setParam("key", file.getKey());
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
@@ -238,11 +238,11 @@ public class ShowActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     TestRequest request = ws.newRequest()
-      .setParam("key", branch.getDbKey());
+      .setParam("key", branch.getKey());
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   private TestRequest newBaseRequest() {
@@ -252,7 +252,7 @@ public class ShowActionTest {
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     String xml = "<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"foo.js\"/>\n" +

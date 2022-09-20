@@ -215,7 +215,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     }
 
     List<ComponentDto> favorites = favoriteFinder.list();
-    Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getDbKey).collect(MoreCollectors.toSet(favorites.size()));
+    Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
     SuggestionQuery.Builder queryBuilder = SuggestionQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
@@ -283,7 +283,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private Map<String, ComponentDto> loadProjects(DbSession dbSession, Collection<ComponentDto> components) {
     Set<String> projectUuids = components.stream()
       .filter(c -> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(c.qualifier()))
-      .map(ComponentDto::projectUuid)
+      .map(ComponentDto::branchUuid)
       .collect(MoreCollectors.toSet());
     return dbClient.componentDao().selectByUuids(dbSession, projectUuids).stream()
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
@@ -330,17 +330,17 @@ public class SuggestionsAction implements ComponentsWsAction {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
     if (result == null
       // SONAR-11419 this has happened in production while code does not really allow it. An inconsistency in DB may be the cause.
-      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.projectUuid()) == null)) {
+      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.branchUuid()) == null)) {
       return null;
     }
     Suggestion.Builder builder = Suggestion.newBuilder()
-      .setKey(result.getDbKey())
+      .setKey(result.getKey())
       .setName(result.name())
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
-      .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getDbKey()))
+      .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
       .setIsFavorite(favoriteUuids.contains(result.uuid()));
     if (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier())) {
-      builder.setProject(projectsByUuids.get(result.projectUuid()).getDbKey());
+      builder.setProject(projectsByUuids.get(result.branchUuid()).getKey());
     }
     return builder.build();
   }
@@ -348,7 +348,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private static List<Project> toProjects(Map<String, ComponentDto> projectsByUuids) {
     return projectsByUuids.values().stream()
       .map(p -> Project.newBuilder()
-        .setKey(p.getDbKey())
+        .setKey(p.getKey())
         .setName(p.longName())
         .build())
       .collect(Collectors.toList());

@@ -48,14 +48,14 @@ public class ExportSettingsStepTest {
     .setUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid("project_uuid")
-    .setProjectUuid("project_uuid")
-    .setDbKey("the_project");
+    .setBranchUuid("project_uuid")
+    .setKey("the_project");
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
     .setUuid("another_project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid("another_project_uuid")
-    .setProjectUuid("another_project_uuid")
-    .setDbKey("another_project");
+    .setBranchUuid("another_project_uuid")
+    .setKey("another_project");
 
   @Rule
   public LogTester logTester = new LogTester();

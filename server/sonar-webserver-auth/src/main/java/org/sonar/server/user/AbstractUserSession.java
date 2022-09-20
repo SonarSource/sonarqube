@@ -89,7 +89,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
-    String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
+    String projectUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
     return hasProjectUuidPermission(permission, projectUuid);
   }
 
@@ -105,7 +105,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
-    String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
+    String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.branchUuid());
     return hasChildProjectsPermission(permission, applicationUuid);
   }
 

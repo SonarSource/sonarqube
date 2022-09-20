@@ -138,7 +138,7 @@ public class ComponentAction implements MeasuresWsAction {
       String pullRequest = request.getPullRequest();
       ComponentDto component = loadComponent(dbSession, request, branch, pullRequest);
       checkPermissions(component);
-      SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
+      SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.branchUuid()).orElse(null);
 
       boolean isPR = isPR(pullRequest);
 

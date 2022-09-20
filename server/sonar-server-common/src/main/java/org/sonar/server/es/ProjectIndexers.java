@@ -46,7 +46,7 @@ public interface ProjectIndexers {
 
   default void commitAndIndexComponents(DbSession dbSession, Collection<ComponentDto> projects, ProjectIndexer.Cause cause) {
     Collection<String> projectUuids = projects.stream()
-      .map(ComponentDto::projectUuid)
+      .map(ComponentDto::branchUuid)
       .collect(MoreCollectors.toSet(projects.size()));
     commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
   }

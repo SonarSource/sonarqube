@@ -233,11 +233,11 @@ public class BuildComponentTreeStepTest {
   @Test
   public void return_existing_uuids() {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
-    insertComponent(directory.setDbKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
+    insertComponent(directory.setKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
     insertComponent(newFileDto(project, directory, "DEFG")
-      .setDbKey(REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1)
+      .setKey(REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1)
       .setPath(REPORT_FILE_PATH_1));
 
     // new structure, without modules
@@ -247,7 +247,7 @@ public class BuildComponentTreeStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), "ABCD");
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1, "CDEF");
     verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, "DEFG");
   }
 
@@ -259,7 +259,7 @@ public class BuildComponentTreeStepTest {
     when(branch.generateKey(any(), any())).thenReturn("generated");
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
-      .setProject(Project.from(newPrivateProjectDto().setDbKey(REPORT_PROJECT_KEY)))
+      .setProject(Project.from(newPrivateProjectDto().setKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
     BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
@@ -267,10 +267,8 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
-
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated", REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
+    verifyComponentByRef(ROOT_REF, "generated", analysisMetadataHolder.getProject().getName(), null);
+    verifyComponentByRef(FILE_1_REF, "generated", REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -280,7 +278,7 @@ public class BuildComponentTreeStepTest {
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchDto.getBranch());
     when(branch.isMain()).thenReturn(false);
-    when(branch.generateKey(any(), any())).thenReturn(branchDto.getDbKey());
+    when(branch.generateKey(any(), any())).thenReturn(branchDto.getKey());
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(projectDto))
@@ -290,7 +288,7 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, branchDto.getDbKey(), branchDto.getKey(), analysisMetadataHolder.getProject().getName(), branchDto.uuid());
+    verifyComponentByRef(ROOT_REF, branchDto.getKey(), analysisMetadataHolder.getProject().getName(), branchDto.uuid());
   }
 
   @Test
@@ -302,9 +300,9 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
     verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -348,7 +346,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_no_base_project_snapshot_when_no_last_snapshot() {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setLast(false));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -360,7 +358,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_base_project_snapshot_when_last_snapshot_exist() {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setLast(true));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -383,7 +381,7 @@ public class BuildComponentTreeStepTest {
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_projectVersion_to_previous_analysis_when_not_set(@Nullable String previousAnalysisProjectVersion) {
     setAnalysisMetadataHolder();
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
@@ -416,7 +414,7 @@ public class BuildComponentTreeStepTest {
     String scannerProjectVersion = randomAlphabetic(12);
     setAnalysisMetadataHolder();
     reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
-    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
@@ -454,27 +452,18 @@ public class BuildComponentTreeStepTest {
   }
 
   private void verifyComponentByRef(int ref, String key, String shortName) {
-    verifyComponentByRef(ref, key, key, shortName, null);
+    verifyComponentByRef(ref, key, shortName, null);
   }
 
-  private void verifyComponentByRef(int ref, String key, String shortName, @Nullable String uuid) {
-    verifyComponentByRef(ref, key, key, shortName, uuid);
+  private void verifyComponentByKey(String key, String shortName) {
+    verifyComponentByKey(key, shortName, null);
   }
 
-  private void verifyComponentByKey(String publicKey, String shortName) {
-    verifyComponentByKey(publicKey, publicKey, shortName, null);
-  }
-
-  private void verifyComponentByKey(String publicKey, String key, String shortName) {
-    verifyComponentByKey(publicKey, key, shortName, null);
-  }
-
-  private void verifyComponentByKey(String publicKey, String key, String shortName, @Nullable String uuid) {
+  private void verifyComponentByKey(String key, String shortName, @Nullable String uuid) {
     Map<String, Component> componentsByKey = indexAllComponentsInTreeByKey(treeRootHolder.getRoot());
-    Component component = componentsByKey.get(publicKey);
-    assertThat(component.getDbKey()).isEqualTo(key);
+    Component component = componentsByKey.get(key);
+    assertThat(component.getKey()).isEqualTo(key);
     assertThat(component.getReportAttributes().getRef()).isNull();
-    assertThat(component.getKey()).isEqualTo(publicKey);
     assertThat(component.getShortName()).isEqualTo(shortName);
     if (uuid != null) {
       assertThat(component.getUuid()).isEqualTo(uuid);
@@ -483,11 +472,10 @@ public class BuildComponentTreeStepTest {
     }
   }
 
-  private void verifyComponentByRef(int ref, String key, String publicKey, String shortName, @Nullable String uuid) {
+  private void verifyComponentByRef(int ref, String key, String shortName, @Nullable String uuid) {
     Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(treeRootHolder.getRoot());
     Component component = componentsByRef.get(ref);
-    assertThat(component.getDbKey()).isEqualTo(key);
-    assertThat(component.getKey()).isEqualTo(publicKey);
+    assertThat(component.getKey()).isEqualTo(key);
     assertThat(component.getShortName()).isEqualTo(shortName);
     if (uuid != null) {
       assertThat(component.getUuid()).isEqualTo(uuid);
@@ -572,7 +560,7 @@ public class BuildComponentTreeStepTest {
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setBranch(branch)
-      .setProject(Project.from(newPrivateProjectDto().setDbKey(REPORT_PROJECT_KEY).setName(REPORT_PROJECT_KEY)));
+      .setProject(Project.from(newPrivateProjectDto().setKey(REPORT_PROJECT_KEY).setName(REPORT_PROJECT_KEY)));
   }
 
   public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String buildString) {

@@ -108,8 +108,7 @@ public class ComponentFinder {
     return getBranchOrPullRequest(dbSession, project.getUuid(), project.getKey(), branchKey, pullRequestKey);
   }
 
-  public BranchDto getBranchOrPullRequest(DbSession dbSession, String projectUuid, String projectKey,
-    @Nullable String branchKey, @Nullable String pullRequestKey) {
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, String projectUuid, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
     if (branchKey != null) {
       return dbClient.branchDao().selectByBranchKey(dbSession, projectUuid, branchKey)
         .orElseThrow(() -> new NotFoundException(String.format("Branch '%s' in project '%s' not found", branchKey, projectKey)));
@@ -171,7 +170,7 @@ public class ComponentFinder {
     checkRequest(component.scope().equals(Scopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
       format(
         "Component '%s' (id: %s) must be a project%s.",
-        component.getDbKey(), component.uuid(),
+        component.getKey(), component.uuid(),
         rootQualifiers.contains(Qualifiers.VIEW) ? " or a view" : ""));
 
     return component;

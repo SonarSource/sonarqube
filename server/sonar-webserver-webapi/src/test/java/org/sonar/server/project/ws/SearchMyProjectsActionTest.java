@@ -193,7 +193,7 @@ public class SearchMyProjectsActionTest {
 
     assertThat(result.getProjectsList())
       .extracting(Project::getKey)
-      .containsExactlyInAnyOrder(project.getDbKey());
+      .containsExactlyInAnyOrder(project.getKey());
   }
 
   @Test
@@ -249,13 +249,13 @@ public class SearchMyProjectsActionTest {
   private ComponentDto insertClang() {
     return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
-      .setDbKey("clang"));
+      .setKey("clang"));
   }
 
   private ComponentDto insertJdk7() {
     return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
-      .setDbKey("net.java.openjdk:jdk7")
+      .setKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));
   }
 
@@ -263,7 +263,7 @@ public class SearchMyProjectsActionTest {
     String uuid = "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc";
     return db.components().insertPublicPortfolio(p -> p.setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
         .setName("Java")
-        .setDbKey("Java"),
+        .setKey("Java"),
       p -> p.setRootUuid(uuid));
   }
 

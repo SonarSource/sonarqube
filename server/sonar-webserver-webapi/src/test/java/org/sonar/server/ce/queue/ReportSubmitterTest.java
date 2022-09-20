@@ -138,7 +138,7 @@ public class ReportSubmitterTest {
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getDbKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8));
 
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
@@ -237,7 +237,7 @@ public class ReportSubmitterTest {
     userSession.addPermission(SCAN);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getDbKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -248,7 +248,7 @@ public class ReportSubmitterTest {
     userSession.addProjectPermission(SCAN_EXECUTION, project);
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getDbKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -259,7 +259,7 @@ public class ReportSubmitterTest {
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, component);
     mockSuccessfulPrepareSubmitCall();
 
-    String dbKey = component.getDbKey();
+    String dbKey = component.getKey();
     String name = component.name();
     Map<String, String> emptyMap = emptyMap();
     InputStream stream = IOUtils.toInputStream("{binary}", UTF_8);
@@ -275,7 +275,7 @@ public class ReportSubmitterTest {
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
     mockSuccessfulPrepareSubmitCall();
 
-    String moduleDbKey = module.getDbKey();
+    String moduleDbKey = module.getKey();
     String name = module.name();
     Map<String, String> emptyMap = emptyMap();
     InputStream inputStream = IOUtils.toInputStream("{binary}", UTF_8);

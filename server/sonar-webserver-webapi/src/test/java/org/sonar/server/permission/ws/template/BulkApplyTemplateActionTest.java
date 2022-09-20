@@ -178,11 +178,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key_public_project() {
-    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto().setDbKey("sonar");
+    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto().setKey("sonar");
     db.components().insertProjectAndSnapshot(publicProjectFoundByKey);
     ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto().setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(publicProjectFoundByName);
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setDbKey("new-sona").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setKey("new-sona").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin();
 
@@ -199,11 +199,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Test
   public void apply_template_by_query_on_name_and_key() {
     // partial match on key
-    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto().setDbKey("sonarqube");
+    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto().setKey("sonarqube");
     db.components().insertProjectAndSnapshot(privateProjectFoundByKey);
     ComponentDto privateProjectFoundByName = ComponentTesting.newPrivateProjectDto().setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(privateProjectFoundByName);
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setDbKey("new-sona").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setKey("new-sona").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin();
 

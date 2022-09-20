@@ -66,7 +66,7 @@ public class SourceBranchComponentUuids {
     String sourceBranchUuid = branchDtoOpt.map(BranchDto::getUuid).orElse(null);
     hasSourceBranchAnalysis = sourceBranchUuid != null && dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, sourceBranchUuid).isPresent();
     if (hasSourceBranchAnalysis) {
-      List<ComponentDto> targetComponents = dbClient.componentDao().selectByProjectUuid(sourceBranchUuid, dbSession);
+      List<ComponentDto> targetComponents = dbClient.componentDao().selectByBranchUuid(sourceBranchUuid, dbSession);
       for (ComponentDto dto : targetComponents) {
         sourceBranchComponentsUuidsByKey.put(dto.getKey(), dto.uuid());
       }

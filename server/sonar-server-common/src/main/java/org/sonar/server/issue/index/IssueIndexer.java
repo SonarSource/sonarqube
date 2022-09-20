@@ -111,7 +111,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
-    try (IssueIterator issues = issueIteratorFactory.createForProject(branchUuid)) {
+    try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
       doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
     }
   }
@@ -217,7 +217,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
     for (String projectUuid : itemsByProjectUuid.keySet()) {
       // TODO support loading of multiple projects in a single SQL request
-      try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
+      try (IssueIterator issues = issueIteratorFactory.createForBranch(projectUuid)) {
         if (issues.hasNext()) {
           do {
             IssueDoc doc = issues.next();

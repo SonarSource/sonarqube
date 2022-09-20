@@ -330,14 +330,14 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
   public void filter_by_application_branch_having_project_branches() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
     ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     indexView(applicationBranch1.uuid(), asList(project1Branch1.uuid(), project2.uuid()));
     indexView(applicationBranch2.uuid(), singletonList(project1Branch2.uuid()));
 

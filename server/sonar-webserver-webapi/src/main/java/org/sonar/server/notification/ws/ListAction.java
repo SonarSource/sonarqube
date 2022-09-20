@@ -182,7 +182,7 @@ public class ListAction implements NotificationsWsAction {
     Map<String, ComponentDto> projectsByUuid) {
     ComponentDto project = projectsByUuid.get(componentUuid);
     notification
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setProjectName(project.name());
   }
 

@@ -106,7 +106,7 @@ public class DeleteActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .setParam("branch", "branch1")
       .execute())
       .isInstanceOf(NotFoundException.class)

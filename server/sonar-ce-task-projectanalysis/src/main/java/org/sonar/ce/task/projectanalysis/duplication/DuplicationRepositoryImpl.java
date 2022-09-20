@@ -39,7 +39,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
   public Iterable<Duplication> getDuplications(Component file) {
     checkFileComponentArgument(file);
 
-    Collection<Duplication> res = this.duplications.asMap().get(file.getDbKey());
+    Collection<Duplication> res = this.duplications.asMap().get(file.getKey());
     if (res == null) {
       return Collections.emptyList();
     }
@@ -51,7 +51,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
     checkFileComponentArgument(file);
     checkNotNull(duplication, "duplication can not be null");
 
-    duplications.put(file.getDbKey(), duplication);
+    duplications.put(file.getKey(), duplication);
   }
 
   private static void checkFileComponentArgument(Component file) {

@@ -334,8 +334,8 @@ public class IntegrateIssuesVisitorTest {
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setDbKey(PROJECT_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
@@ -351,8 +351,8 @@ public class IntegrateIssuesVisitorTest {
   }
 
   private void addBaseIssueOnBranch(RuleKey ruleKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID_ON_BRANCH).setDbKey(PROJECT_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setDbKey(FILE_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID_ON_BRANCH).setKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setKey(FILE_KEY);
     dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);

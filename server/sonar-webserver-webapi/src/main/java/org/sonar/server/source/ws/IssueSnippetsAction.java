@@ -121,7 +121,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     }
 
     Supplier<Optional<Long>> periodDateSupplier = () -> dbClient.snapshotDao()
-      .selectLastAnalysisByComponentUuid(dbSession, fileDto.projectUuid())
+      .selectLastAnalysisByComponentUuid(dbSession, fileDto.branchUuid())
       .map(SnapshotDto::getPeriodDate);
 
     Iterable<DbFileSources.Line> lineSources = lineSourcesOpt.get();

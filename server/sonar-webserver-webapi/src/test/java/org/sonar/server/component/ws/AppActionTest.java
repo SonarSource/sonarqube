@@ -174,7 +174,7 @@ public class AppActionTest {
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
-      .setParam("component", file.getDbKey())
+      .setParam("component", file.getKey())
       .execute()
       .getInput();
 
@@ -299,7 +299,7 @@ public class AppActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     String result = ws.newRequest()
-      .setParam("component", file.getDbKey())
+      .setParam("component", file.getKey())
       .setParam("branch", file.getBranch())
       .execute()
       .getInput();
@@ -328,7 +328,7 @@ public class AppActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     String result = ws.newRequest()
-      .setParam("component", file.getDbKey())
+      .setParam("component", file.getKey())
       .setParam("pullRequest", file.getPullRequest())
       .execute()
       .getInput();
@@ -357,7 +357,7 @@ public class AppActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     TestRequest request = ws.newRequest()
-      .setParam("component", file.getDbKey())
+      .setParam("component", file.getKey())
       .setParam("branch", "unknown_branch")
       .setParam("pullRequest", "unknown_component");
     assertThatThrownBy(request::execute)

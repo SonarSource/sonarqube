@@ -83,7 +83,7 @@ public class ScmInfoDbLoader {
     }
 
     if (isReferenceBranch()) {
-      var referencedBranchComponentUuid = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getDbKey());
+      var referencedBranchComponentUuid = newCodeReferenceBranchComponentUuids.getComponentUuid(file.getKey());
       if (referencedBranchComponentUuid != null) {
         return Optional.of(referencedBranchComponentUuid);
       }
@@ -94,7 +94,7 @@ public class ScmInfoDbLoader {
     // at this point, it's the first analysis of a branch with copyFromPrevious flag true or any analysis of a PR
     Branch branch = analysisMetadataHolder.getBranch();
     if (!branch.isMain()) {
-      return Optional.ofNullable(referenceBranchComponentUuid.getComponentUuid(file.getDbKey()));
+      return Optional.ofNullable(referenceBranchComponentUuid.getComponentUuid(file.getKey()));
     }
 
     return Optional.empty();

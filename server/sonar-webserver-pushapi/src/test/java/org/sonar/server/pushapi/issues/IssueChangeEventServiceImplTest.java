@@ -143,13 +143,13 @@ public class IssueChangeEventServiceImplTest {
 
     Set<DefaultIssue> issues = Set.of(defaultIssue1, defaultIssue2, issue3.toDefaultIssue());
     Map<String, ComponentDto> projectsByUuid = new HashMap<>();
-    projectsByUuid.put(componentDto1.projectUuid(), componentDto1);
-    projectsByUuid.put(componentDto2.projectUuid(), componentDto2);
-    projectsByUuid.put(componentDto3.projectUuid(), componentDto3);
+    projectsByUuid.put(componentDto1.branchUuid(), componentDto1);
+    projectsByUuid.put(componentDto2.branchUuid(), componentDto2);
+    projectsByUuid.put(componentDto3.branchUuid(), componentDto3);
     Map<String, BranchDto> branchesByProjectUuid = new HashMap<>();
-    branchesByProjectUuid.put(componentDto1.projectUuid(), branch1);
-    branchesByProjectUuid.put(componentDto2.projectUuid(), branch2);
-    branchesByProjectUuid.put(componentDto3.projectUuid(), branch3);
+    branchesByProjectUuid.put(componentDto1.branchUuid(), branch1);
+    branchesByProjectUuid.put(componentDto2.branchUuid(), branch2);
+    branchesByProjectUuid.put(componentDto3.branchUuid(), branch3);
 
     underTest.distributeIssueChangeEvent(issues, projectsByUuid, branchesByProjectUuid);
 
@@ -203,9 +203,9 @@ public class IssueChangeEventServiceImplTest {
 
     Set<DefaultIssue> issues = Set.of(defaultIssue1);
     Map<String, ComponentDto> projectsByUuid = new HashMap<>();
-    projectsByUuid.put(project.projectUuid(), project);
+    projectsByUuid.put(project.branchUuid(), project);
     Map<String, BranchDto> branchesByProjectUuid = new HashMap<>();
-    branchesByProjectUuid.put(project.projectUuid(), branch1);
+    branchesByProjectUuid.put(project.branchUuid(), branch1);
 
     underTest.distributeIssueChangeEvent(issues, projectsByUuid, branchesByProjectUuid);
 

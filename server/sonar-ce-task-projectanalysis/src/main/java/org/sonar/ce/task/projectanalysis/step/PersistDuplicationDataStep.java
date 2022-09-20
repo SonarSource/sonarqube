@@ -106,7 +106,7 @@ public class PersistDuplicationDataStep implements ComputationStep {
     }
 
     private void computeDuplications(Component component, Iterable<Duplication> duplications) {
-      Measure measure = generateMeasure(component.getDbKey(), duplications);
+      Measure measure = generateMeasure(component.getKey(), duplications);
       LiveMeasureDto dto = measureToMeasureDto.toLiveMeasureDto(measure, duplicationDataMetric, component);
       nonPersistedBuffer.add(dto);
       persist(false);
@@ -161,10 +161,10 @@ public class PersistDuplicationDataStep implements ComputationStep {
         appendDuplication(xml, componentDbKey, duplicate);
       } else if (duplicate instanceof InExtendedProjectDuplicate) {
         // Duplication is on a different file that is not saved in the DB
-        appendDuplication(xml, ((InExtendedProjectDuplicate) duplicate).getFile().getDbKey(), duplicate.getTextBlock(), true);
+        appendDuplication(xml, ((InExtendedProjectDuplicate) duplicate).getFile().getKey(), duplicate.getTextBlock(), true);
       } else if (duplicate instanceof InProjectDuplicate) {
         // Duplication is on a different file
-        appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getDbKey(), duplicate);
+        appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getKey(), duplicate);
       } else if (duplicate instanceof CrossProjectDuplicate) {
         // Only componentKey is set for cross project duplications
         String crossProjectComponentKey = ((CrossProjectDuplicate) duplicate).getFileKey();

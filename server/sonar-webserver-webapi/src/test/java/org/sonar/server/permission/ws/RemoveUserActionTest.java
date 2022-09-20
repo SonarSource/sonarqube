@@ -165,7 +165,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
@@ -181,7 +181,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, view.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, view.getKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
@@ -258,7 +258,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
+      .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
@@ -309,7 +309,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -338,7 +338,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -404,13 +404,13 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
   @Test

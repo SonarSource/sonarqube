@@ -243,10 +243,10 @@ public class SearchActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -292,7 +292,7 @@ public class SearchActionTest {
     userSession.logIn().addProjectPermission(USER, root);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, component.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, component.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Project '" + component.getKey() + "' not found");

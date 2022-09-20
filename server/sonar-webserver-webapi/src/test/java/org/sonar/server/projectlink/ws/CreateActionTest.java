@@ -67,7 +67,7 @@ public class CreateActionTest {
 
     String result = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute().getInput();
@@ -222,12 +222,12 @@ public class CreateActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, branch.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -261,10 +261,10 @@ public class CreateActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .setParam(PARAM_PROJECT_KEY, component.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, component.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project '" + component.getDbKey() + "' not found");
+      .hasMessageContaining("Project '" + component.getKey() + "' not found");
   }
 
   private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
@@ -282,7 +282,7 @@ public class CreateActionTest {
   private void createAndTest(ComponentDto project, String name, String url, String type) {
     ProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, name)
       .setParam(PARAM_URL, url)
       .executeProtobuf(ProjectLinks.CreateWsResponse.class);

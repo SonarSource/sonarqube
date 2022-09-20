@@ -65,8 +65,8 @@ public class WebhookDeliveriesActionTest {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertPrivateProject(c -> c.setDbKey("my-project"));
-    otherProject = db.components().insertPrivateProject(c -> c.setDbKey("other-project"));
+    project = db.components().insertPrivateProject(c -> c.setKey("my-project"));
+    otherProject = db.components().insertPrivateProject(c -> c.setKey("other-project"));
   }
 
   @Test
@@ -89,7 +89,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
+      .setParam("componentKey", project.getKey())
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isZero();
@@ -134,7 +134,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String json = ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
+      .setParam("componentKey", project.getKey())
       .execute()
       .getInput();
 
@@ -184,10 +184,10 @@ public class WebhookDeliveriesActionTest {
       .containsOnly(dto1.getUuid(), dto2.getUuid(), dto4.getUuid(), dto5.getUuid());
     assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId, Webhooks.Delivery::getComponentKey)
       .containsOnly(
-        tuple(dto1.getUuid(), project.getDbKey()),
-        tuple(dto2.getUuid(), project.getDbKey()),
-        tuple(dto4.getUuid(), otherProject.getDbKey()),
-        tuple(dto5.getUuid(), otherProject.getDbKey()));
+        tuple(dto1.getUuid(), project.getKey()),
+        tuple(dto2.getUuid(), project.getKey()),
+        tuple(dto4.getUuid(), otherProject.getKey()),
+        tuple(dto5.getUuid(), otherProject.getKey()));
   }
 
   @Test
@@ -256,7 +256,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     TestRequest request = ws.newRequest()
-      .setParam("componentKey", project.getDbKey());
+      .setParam("componentKey", project.getKey());
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
@@ -282,7 +282,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn();
 
     TestRequest request = ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
+      .setParam("componentKey", project.getKey())
       .setParam("ceTaskId", "t1");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -294,7 +294,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn();
 
     TestRequest request = ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
+      .setParam("componentKey", project.getKey())
       .setParam("webhook", "wh-uuid");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)

@@ -110,7 +110,7 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
   }
@@ -124,7 +124,7 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
   }
@@ -137,7 +137,7 @@ public class AddActionTest {
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
@@ -155,7 +155,7 @@ public class AddActionTest {
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
     userSession.addProjectPermission(USER, project);
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
@@ -171,7 +171,7 @@ public class AddActionTest {
     userSession.registerComponents(project);
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), null);
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
@@ -295,7 +295,7 @@ public class AddActionTest {
   public void fail_when_component_is_not_a_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    db.components().insertPortfolioAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
+    db.components().insertPortfolioAndSnapshot(newPortfolio().setKey("VIEW_1"));
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
@@ -321,9 +321,9 @@ public class AddActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, branch.getDbKey(), null))
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, branch.getKey(), null))
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -333,7 +333,7 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), userSession.getLogin()))
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), userSession.getLogin()))
       .isInstanceOf(ForbiddenException.class);
   }
 

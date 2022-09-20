@@ -95,7 +95,7 @@ public class ComponentActionTest {
     assertThat(response.getMetrics().getMetricsCount()).isOne();
     assertThat(response.hasPeriod()).isFalse();
     assertThat(response.getPeriods().getPeriodsCount()).isZero();
-    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getKey());
   }
 
   @Test
@@ -243,11 +243,11 @@ public class ComponentActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = ws.newRequest()
-      .setParam("component", project.getDbKey())
+      .setParam("component", project.getKey())
       .setParam(PARAM_METRIC_KEYS, metric.getKey())
       .executeProtobuf(ComponentWsResponse.class);
 
-    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getKey());
   }
 
   @Test
@@ -386,12 +386,12 @@ public class ComponentActionTest {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam(PARAM_COMPONENT, branch.getDbKey())
+        .setParam(PARAM_COMPONENT, branch.getKey())
         .setParam(PARAM_METRIC_KEYS, metric.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -403,7 +403,7 @@ public class ComponentActionTest {
         .setPeriodMode("previous_version")
         .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto file = db.components().insertComponent(newFileDto(project)
-      .setDbKey("MY_PROJECT:ElementImpl.java")
+      .setKey("MY_PROJECT:ElementImpl.java")
       .setName("ElementImpl.java")
       .setLanguage("java")
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));

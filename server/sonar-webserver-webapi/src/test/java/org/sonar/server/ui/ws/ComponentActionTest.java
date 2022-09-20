@@ -132,7 +132,7 @@ public class ComponentActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     init();
 
-    verifySuccess(project.getDbKey());
+    verifySuccess(project.getKey());
   }
 
   @Test
@@ -141,7 +141,7 @@ public class ComponentActionTest {
     userSession.logIn().setSystemAdministrator();
     init();
 
-    verifySuccess(project.getDbKey());
+    verifySuccess(project.getKey());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_component_info_when_anonymous_no_snapshot.json");
+    executeAndVerify(project.getKey(), "return_component_info_when_anonymous_no_snapshot.json");
   }
 
   @Test
@@ -162,7 +162,7 @@ public class ComponentActionTest {
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_component_info_with_favourite.json");
+    executeAndVerify(project.getKey(), "return_component_info_with_favourite.json");
   }
 
   @Test
@@ -211,7 +211,7 @@ public class ComponentActionTest {
       .getInput();
 
     assertJson(json).isSimilarTo("{" +
-      "  \"key\": \"" + subportfolio.getDbKey() + "\"," +
+      "  \"key\": \"" + subportfolio.getKey() + "\"," +
       "  \"isFavorite\": true," +
       "  \"id\": \"" + subportfolio.uuid() + "\"," +
       "  \"name\": \"" + subportfolio.name() + "\"" +
@@ -238,7 +238,7 @@ public class ComponentActionTest {
       .getInput();
 
     assertJson(json).isSimilarTo("{" +
-      "  \"key\": \"" + portfolio.getDbKey() + "\"," +
+      "  \"key\": \"" + portfolio.getKey() + "\"," +
       "  \"isFavorite\": true," +
       "  \"id\": \"" + portfolio.uuid() + "\"," +
       "  \"name\": \"" + portfolio.name() + "\"" +
@@ -269,13 +269,13 @@ public class ComponentActionTest {
     init();
 
     // access to all projects (project11, project12)
-    String json = execute(application1.getDbKey());
+    String json = execute(application1.getKey());
     assertJson(json).isSimilarTo("{" +
       "\"canBrowseAllChildProjects\":true" +
       "}");
 
     // access to some projects (project11)
-    json = execute(application2.getDbKey());
+    json = execute(application2.getKey());
     assertJson(json).isSimilarTo("{" +
       "\"canBrowseAllChildProjects\":false" +
       "}");
@@ -290,13 +290,13 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_component_info_when_snapshot.json");
+    executeAndVerify(project.getKey(), "return_component_info_when_snapshot.json");
   }
 
   @Test
   public void return_component_info_when_file_on_master() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setDbKey("sample"));
+    ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
     userSession.addProjectPermission(UserRole.USER, main);
     init();
 
@@ -305,15 +305,15 @@ public class ComponentActionTest {
     ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(main, dirDto)
       .setUuid("abcd")
       .setName("Main.xoo")
-      .setDbKey("sample:src/Main.xoo"));
+      .setKey("sample:src/Main.xoo"));
 
-    executeAndVerify(fileDto.getDbKey(), "return_component_info_when_file_on_master.json");
+    executeAndVerify(fileDto.getKey(), "return_component_info_when_file_on_master.json");
   }
 
   @Test
   public void return_component_info_when_file_on_branch() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setDbKey("sample"));
+    ComponentDto project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
@@ -363,12 +363,12 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_quality_profiles.json");
+    executeAndVerify(project.getKey(), "return_quality_profiles.json");
 
     db.getDbClient().qualityProfileDao().deleteOrgQProfilesByUuids(db.getSession(), ImmutableSet.of(qp1.getKee(), qp2.getKee()));
     db.commit();
 
-    executeAndVerify(project.getDbKey(), "return_deleted_quality_profiles.json");
+    executeAndVerify(project.getKey(), "return_deleted_quality_profiles.json");
   }
 
   @Test
@@ -377,7 +377,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_empty_quality_profiles_when_no_measure.json");
+    executeAndVerify(project.getKey(), "return_empty_quality_profiles_when_no_measure.json");
   }
 
   @Test
@@ -418,7 +418,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_default_quality_gate.json");
+    executeAndVerify(project.getKey(), "return_default_quality_gate.json");
   }
 
   @Test
@@ -427,7 +427,7 @@ public class ComponentActionTest {
     userSession.anonymous().addProjectPermission(UserRole.USER, project);
     init(createPages());
 
-    executeAndVerify(project.getDbKey(), "return_extensions.json");
+    executeAndVerify(project.getKey(), "return_extensions.json");
   }
 
   @Test
@@ -446,7 +446,7 @@ public class ComponentActionTest {
     init(page);
 
     String result = ws.newRequest()
-      .setParam(PARAM_COMPONENT, application.getDbKey())
+      .setParam(PARAM_COMPONENT, application.getKey())
       .execute().getInput();
 
     assertThat(result).contains("my_plugin/app_page");
@@ -460,7 +460,7 @@ public class ComponentActionTest {
       .addProjectPermission(UserRole.ADMIN, project);
     init(createPages());
 
-    executeAndVerify(project.getDbKey(), "return_extensions_for_admin.json");
+    executeAndVerify(project.getKey(), "return_extensions_for_admin.json");
   }
 
   @Test
@@ -484,7 +484,7 @@ public class ComponentActionTest {
       .build();
     init(page1, page2);
 
-    executeAndVerify(project.getDbKey(), "return_configuration_for_admin.json");
+    executeAndVerify(project.getKey(), "return_configuration_for_admin.json");
   }
 
   @Test
@@ -505,7 +505,7 @@ public class ComponentActionTest {
       .thenReturn(projectResourceType);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_configuration_with_all_properties.json");
+    executeAndVerify(project.getKey(), "return_configuration_with_all_properties.json");
   }
 
   @Test
@@ -516,7 +516,7 @@ public class ComponentActionTest {
       .addPermission(ADMINISTER_QUALITY_PROFILES);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_configuration_for_quality_profile_admin.json");
+    executeAndVerify(project.getKey(), "return_configuration_for_quality_profile_admin.json");
   }
 
   @Test
@@ -527,7 +527,7 @@ public class ComponentActionTest {
       .addPermission(ADMINISTER_QUALITY_GATES);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_configuration_for_quality_gate_admin.json");
+    executeAndVerify(project.getKey(), "return_configuration_for_quality_gate_admin.json");
   }
 
   @Test
@@ -538,7 +538,7 @@ public class ComponentActionTest {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    String json = execute(project.getDbKey());
+    String json = execute(project.getKey());
 
     assertJson(json).isSimilarTo("{\n" +
       "  \"configuration\": {\n" +
@@ -566,7 +566,7 @@ public class ComponentActionTest {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    String json = execute(project.getDbKey());
+    String json = execute(project.getKey());
 
     assertJson(json).isSimilarTo("{\n" +
       "  \"configuration\": {\n" +
@@ -592,7 +592,7 @@ public class ComponentActionTest {
     init();
     userSessionRule.addProjectPermission(UserRole.USER, project);
 
-    String json = execute(project.getDbKey());
+    String json = execute(project.getKey());
 
     assertThat(json).doesNotContain("\"configuration\"");
   }
@@ -600,15 +600,15 @@ public class ComponentActionTest {
   @Test
   public void return_bread_crumbs_on_several_levels() {
     ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
+    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
     ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
     ComponentDto file = componentDbTester.insertComponent(newFileDto(directory, directory, "cdef").setName("Source.xoo")
-      .setDbKey("palap:src/main/xoo/Source.xoo")
+      .setKey("palap:src/main/xoo/Source.xoo")
       .setPath(directory.path()));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(file.getDbKey(), "return_bread_crumbs_on_several_levels.json");
+    executeAndVerify(file.getKey(), "return_bread_crumbs_on_several_levels.json");
   }
 
   @Test
@@ -617,7 +617,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.ADMIN, project);
     init(createPages());
 
-    execute(project.getDbKey());
+    execute(project.getKey());
   }
 
   @Test
@@ -629,7 +629,7 @@ public class ComponentActionTest {
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
       .addPermission(GlobalPermission.ADMINISTER);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"private\"}");
+    assertJson(execute(project.getKey())).isSimilarTo("{\"visibility\": \"private\"}");
   }
 
   @Test
@@ -641,7 +641,7 @@ public class ComponentActionTest {
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
       .addPermission(GlobalPermission.ADMINISTER);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"public\"}");
+    assertJson(execute(project.getKey())).isSimilarTo("{\"visibility\": \"public\"}");
   }
 
   @Test
@@ -653,12 +653,12 @@ public class ComponentActionTest {
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
       .addPermission(GlobalPermission.ADMINISTER);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
+    assertJson(execute(project.getKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project);
 
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
+    assertJson(execute(project.getKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
   }
 
   @Test
@@ -668,7 +668,7 @@ public class ComponentActionTest {
     init(createPages());
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": true}}");
+    assertJson(execute(project.getKey())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": true}}");
   }
 
   @Test
@@ -696,7 +696,7 @@ public class ComponentActionTest {
     init();
     userSession.logIn();
 
-    String projectDbKey = project.getDbKey();
+    String projectDbKey = project.getKey();
     assertThatThrownBy(() -> execute(projectDbKey))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -705,7 +705,7 @@ public class ComponentActionTest {
   public void test_example_response() {
     init(createPages());
     ComponentDto project = newPrivateProjectDto("ABCD")
-      .setDbKey("org.codehaus.sonar:sonar")
+      .setKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");
     componentDbTester.insertPrivateProject(project);
@@ -727,7 +727,7 @@ public class ComponentActionTest {
       .addProjectPermission(UserRole.USER, project)
       .addProjectPermission(UserRole.ADMIN, project);
 
-    String result = execute(project.getDbKey());
+    String result = execute(project.getKey());
     assertJson(result).ignoreFields("snapshotDate", "canBrowseAllChildProjects", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
@@ -756,7 +756,7 @@ public class ComponentActionTest {
   @Test
   public void fail_on_module_key_as_param() {
     ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
+    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
     init();
 
     assertThatThrownBy(() -> execute(module.getKey()))
@@ -766,18 +766,18 @@ public class ComponentActionTest {
   @Test
   public void fail_on_directory_key_as_param() {
     ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
+    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
     ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    assertThatThrownBy(() -> execute(directory.getDbKey()))
+    assertThatThrownBy(() -> execute(directory.getKey()))
       .isInstanceOf(BadRequestException.class);
   }
 
   private ComponentDto insertProject() {
     db.qualityGates().createDefaultQualityGate();
-    return db.components().insertPrivateProject("abcd", p -> p.setDbKey("polop")
+    return db.components().insertPrivateProject("abcd", p -> p.setKey("polop")
       .setName("Polop")
       .setDescription("test project")
       .setQualifier(Qualifiers.PROJECT)

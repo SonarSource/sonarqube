@@ -97,7 +97,7 @@ public class QualityGateEventsStepTest {
   public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
     analysisMetadataHolder
-      .setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getDbKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
+      .setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
     analysisMetadataHolder.setBranch(mock(Branch.class));
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }

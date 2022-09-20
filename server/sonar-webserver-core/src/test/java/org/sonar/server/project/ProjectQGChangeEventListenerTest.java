@@ -137,7 +137,7 @@ public class ProjectQGChangeEventListenerTest {
     ComponentDto projectComponentDto = new ComponentDto();
     projectComponentDto.setQualifier("TRK");
     projectComponentDto.setUuid("uuid");
-    when(componentDao.selectByProjectUuid(anyString(), any())).thenReturn(List.of(projectComponentDto));
+    when(componentDao.selectByBranchUuid(anyString(), any())).thenReturn(List.of(projectComponentDto));
 
     underTest.onIssueChanges(qualityGateEvent, Set.of());
 

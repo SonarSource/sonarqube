@@ -123,7 +123,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ComponentDto componentDto, AlmSettingDto almSettingDto) {
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
-        .setProjectUuid(componentDto.projectUuid())
+        .setProjectUuid(componentDto.branchUuid())
         .setAlmSettingUuid(almSettingDto.getUuid())
         .setAlmRepo(gitlabProjectId.toString())
         .setAlmSlug(null)

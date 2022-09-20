@@ -30,7 +30,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.UuidWithProjectUuidDto;
+import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
@@ -71,8 +71,8 @@ public class ViewIndexer implements ResilientIndexer {
   private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
-      for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
-        viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
+      for (UuidWithBranchUuidDto uuidWithBranchUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
+        viewAndProjectViewUuidMap.put(uuidWithBranchUuidDto.getUuid(), uuidWithBranchUuidDto.getBranchUuid());
       }
       index(dbSession, viewAndProjectViewUuidMap, false, bulkSize);
     }
@@ -88,7 +88,7 @@ public class ViewIndexer implements ResilientIndexer {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
       for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
-        viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.projectUuid());
+        viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
       }
       index(dbSession, viewAndProjectViewUuidMap, true, Size.REGULAR);
     }

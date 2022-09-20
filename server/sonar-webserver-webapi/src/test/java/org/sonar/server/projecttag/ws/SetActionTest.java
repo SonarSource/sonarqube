@@ -153,7 +153,7 @@ public class SetActionTest {
 
   @Test
   public void fail_if_component_is_a_view() {
-    ComponentDto view = db.components().insertPrivatePortfolio(v -> v.setDbKey("VIEW_KEY"));
+    ComponentDto view = db.components().insertPrivatePortfolio(v -> v.setKey("VIEW_KEY"));
 
     String viewKey = view.getKey();
     assertThatThrownBy(() -> call(viewKey, "point-of-view"))
@@ -164,7 +164,7 @@ public class SetActionTest {
   @Test
   public void fail_if_component_is_a_module() {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
-    ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setDbKey("MODULE_KEY"));
+    ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setKey("MODULE_KEY"));
 
     String moduleKey = module.getKey();
     assertThatThrownBy(() -> call(moduleKey, "modz"))
@@ -175,7 +175,7 @@ public class SetActionTest {
   @Test
   public void fail_if_component_is_a_file() {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
-    ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setDbKey("FILE_KEY"));
+    ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setKey("FILE_KEY"));
 
     String fileKey = file.getKey();
     assertThatThrownBy(() -> call(fileKey, "secret"))
@@ -189,7 +189,7 @@ public class SetActionTest {
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    String branchDbKey = branch.getDbKey();
+    String branchDbKey = branch.getKey();
     assertThatThrownBy(() -> call(branchDbKey, "secret"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Project '%s' not found", branchDbKey));

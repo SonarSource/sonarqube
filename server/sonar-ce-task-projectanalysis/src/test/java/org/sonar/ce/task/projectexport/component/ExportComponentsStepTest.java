@@ -53,7 +53,7 @@ public class ExportComponentsStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)
-    .setDbKey("the_project")
+    .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
     .setEnabled(true)
@@ -63,7 +63,7 @@ public class ExportComponentsStepTest {
     .setModuleUuid(null)
     .setModuleUuidPath("." + PROJECT_UUID + ".")
     .setCreatedAt(new Date(1596749115856L))
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   private static final String MODULE_UUID = "MODULE_UUID";
   private static final String MODULE_UUID_PATH = UUID_PATH_OF_ROOT + MODULE_UUID + UUID_PATH_SEPARATOR;
@@ -71,7 +71,7 @@ public class ExportComponentsStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.MODULE)
-    .setDbKey("the_module")
+    .setKey("the_module")
     .setName("The Module")
     .setDescription("description of module")
     .setEnabled(true)
@@ -81,7 +81,7 @@ public class ExportComponentsStepTest {
     .setModuleUuid(PROJECT_UUID)
     .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
     .setCreatedAt(new Date(1596749132539L))
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   private static final String FILE_UUID = "FILE_UUID";
   private static final String FILE_UUID_PATH = MODULE_UUID_PATH + FILE_UUID + UUID_PATH_SEPARATOR;
@@ -89,7 +89,7 @@ public class ExportComponentsStepTest {
     // no id yet
     .setScope(Scopes.FILE)
     .setQualifier(Qualifiers.FILE)
-    .setDbKey("the_file")
+    .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
     .setRootUuid(MODULE_UUID)
@@ -98,7 +98,7 @@ public class ExportComponentsStepTest {
     .setModuleUuid(MODULE_UUID)
     .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
     .setCreatedAt(new Date(1596749148406L))
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

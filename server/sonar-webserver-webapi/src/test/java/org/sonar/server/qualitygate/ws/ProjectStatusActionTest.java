@@ -406,10 +406,10 @@ public class ProjectStatusActionTest {
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test

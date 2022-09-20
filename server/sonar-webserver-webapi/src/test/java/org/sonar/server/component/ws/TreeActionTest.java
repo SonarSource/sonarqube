@@ -118,7 +118,7 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     String response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .execute()
       .getInput();
 
@@ -145,7 +145,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_COMPONENT, module.getDbKey())
+      .setParam(PARAM_COMPONENT, module.getKey())
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -175,7 +175,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
-      .setParam(PARAM_COMPONENT, module.getDbKey())
+      .setParam(PARAM_COMPONENT, module.getKey())
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -200,7 +200,7 @@ public class TreeActionTest {
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(PARAM_QUALIFIERS, FILE)
-      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getKey()).executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("key").containsExactly("file-key-1", "file-key-2");
   }
@@ -221,7 +221,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_QUALIFIERS, FILE).executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
@@ -244,7 +244,7 @@ public class TreeActionTest {
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(Param.SORT, "qualifier, name")
-      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getKey()).executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("key").containsExactly("MODULE_KEY_module-uuid-1", "KEY_project-uuid:directory-uuid-1", "file-key-1", "file-key-2");
   }
@@ -253,7 +253,7 @@ public class TreeActionTest {
   public void project_reference_from_portfolio() {
     ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
     db.components().insertPortfolioAndSnapshot(view);
-    ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setDbKey("project-key-1");
+    ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setKey("project-key-1");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
@@ -263,7 +263,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_COMPONENT, view.getDbKey())
+      .setParam(PARAM_COMPONENT, view.getKey())
       .setParam(Param.TEXT_QUERY, "name").executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("key").containsExactly("KEY_view-uuidproject-key-1", "sub-view-key");
@@ -273,12 +273,12 @@ public class TreeActionTest {
 
   @Test
   public void project_branch_reference_from_application_branch() {
-    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setDbKey("app-key"));
+    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("project-key"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setDbKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getDbKey()));
+      .setKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getKey()));
     logInWithBrowsePermission(application);
 
     TreeWsResponse result = ws.newRequest()
@@ -300,9 +300,9 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getKey()).executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent().getKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getBaseComponent().getKey()).isEqualTo(project.getKey());
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getPaging().getTotal()).isZero();
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
@@ -320,13 +320,13 @@ public class TreeActionTest {
       .registerComponents(project, view);
 
     TreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, view.getDbKey())
+      .setParam(PARAM_COMPONENT, view.getKey())
       .executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent().getKey()).isEqualTo(view.getDbKey());
+    assertThat(response.getBaseComponent().getKey()).isEqualTo(view.getKey());
     assertThat(response.getComponentsCount()).isOne();
-    assertThat(response.getComponents(0).getKey()).isEqualTo(projectCopy.getDbKey());
-    assertThat(response.getComponents(0).getRefKey()).isEqualTo(project.getDbKey());
+    assertThat(response.getComponents(0).getKey()).isEqualTo(projectCopy.getKey());
+    assertThat(response.getComponents(0).getRefKey()).isEqualTo(project.getKey());
   }
 
   @Test
@@ -382,10 +382,10 @@ public class TreeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey());
+      .setParam(PARAM_COMPONENT, branch.getKey());
     assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -395,10 +395,10 @@ public class TreeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey());
+      .setParam(PARAM_COMPONENT, branch.getKey());
     assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -409,7 +409,7 @@ public class TreeActionTest {
     db.commit();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey());
+      .setParam(PARAM_COMPONENT, project.getKey());
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
@@ -420,7 +420,7 @@ public class TreeActionTest {
     db.commit();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(Param.PAGE_SIZE, "501");
 
     assertThatThrownBy(request::execute)
@@ -434,7 +434,7 @@ public class TreeActionTest {
     db.commit();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(Param.TEXT_QUERY, "fi");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -476,7 +476,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_base_component_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    db.components().insertComponent(ComponentTesting.newFileDto(project).setDbKey("file-key").setEnabled(false));
+    db.components().insertComponent(ComponentTesting.newFileDto(project).setKey("file-key").setEnabled(false));
     logInWithBrowsePermission(project);
 
     TestRequest request = ws.newRequest()
@@ -511,7 +511,7 @@ public class TreeActionTest {
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
     return ComponentTesting.newFileDto(moduleOrProject, directory, "file-uuid-" + i)
       .setName("file-name-" + i)
-      .setDbKey("file-key-" + i)
+      .setKey("file-key-" + i)
       .setPath("file-path-" + i);
   }
 
@@ -522,9 +522,9 @@ public class TreeActionTest {
   private ComponentDto initJsonExampleComponents() throws IOException {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("MY_PROJECT_ID")
       .setDescription("MY_PROJECT_DESCRIPTION")
-      .setDbKey("MY_PROJECT_KEY")
+      .setKey("MY_PROJECT_KEY")
       .setName("Project Name")
-      .setProjectUuid("MY_PROJECT_ID"),
+      .setBranchUuid("MY_PROJECT_ID"),
       p -> p.setTagsString("abc,def"));
     db.components().insertSnapshot(project);
 
@@ -537,7 +537,7 @@ public class TreeActionTest {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       String uuid = format("child-component-uuid-%d", i);
       db.components().insertComponent(newChildComponent(uuid, project, project)
-        .setDbKey(getJsonField(componentAsJsonObject, "key"))
+        .setKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
         .setLanguage(getJsonField(componentAsJsonObject, "language"))
         .setPath(getJsonField(componentAsJsonObject, "path"))

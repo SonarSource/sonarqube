@@ -186,7 +186,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_file_is_removed() {
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto file = newFileDto(privateProject).setDbKey("file-key").setEnabled(false);
+    ComponentDto file = newFileDto(privateProject).setKey("file-key").setEnabled(false);
     db.components().insertComponents(file);
     setUserWithValidPermission(file);
 
@@ -334,10 +334,10 @@ public class LinesActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     assertThatThrownBy(() -> tester.newRequest()
-      .setParam("key", branch.getDbKey())
+      .setParam("key", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -393,7 +393,7 @@ public class LinesActionTest {
     ComponentDto file = insertFile(project);
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
-      .setProjectUuid(project.projectUuid())
+      .setProjectUuid(project.branchUuid())
       .setFileUuid(file.uuid())
       .setSourceData(fileData));
     db.commit();

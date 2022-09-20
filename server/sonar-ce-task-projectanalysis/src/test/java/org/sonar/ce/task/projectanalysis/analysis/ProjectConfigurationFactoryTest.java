@@ -57,7 +57,7 @@ public class ProjectConfigurationFactoryTest {
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getDbKey(), new DefaultBranchImpl());
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), new DefaultBranchImpl());
 
     assertThat(config.get("1")).hasValue("val1");
     assertThat(config.get("2")).hasValue("val2");
@@ -71,7 +71,7 @@ public class ProjectConfigurationFactoryTest {
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
-    Configuration projectConfig = underTest.newProjectConfiguration(project.getDbKey(), new DefaultBranchImpl());
+    Configuration projectConfig = underTest.newProjectConfiguration(project.getKey(), new DefaultBranchImpl());
 
     assertThat(projectConfig.get("key")).hasValue("value2");
   }

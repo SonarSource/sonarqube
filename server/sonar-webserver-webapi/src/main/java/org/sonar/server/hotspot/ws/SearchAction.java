@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
@@ -56,6 +57,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -131,9 +133,8 @@ public class SearchAction implements HotspotsWsAction {
   private final TextRangeResponseFormatter textRangeFormatter;
   private final System2 system2;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, HotspotWsResponseFormatter responseFormatter,
-    TextRangeResponseFormatter textRangeFormatter, System2 system2) {
+  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
+    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
@@ -347,7 +348,7 @@ public class SearchAction implements HotspotsWsAction {
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
     Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result).value);
-    return new SearchResponseData(paging, hotspots);
+    return new SearchResponseData(paging, hotspots, wsRequest.getBranch().orElse(null), wsRequest.getPullRequest().orElse(null));
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -635,7 +636,7 @@ public class SearchAction implements HotspotsWsAction {
 
     Hotspots.Component.Builder builder = Hotspots.Component.newBuilder();
     for (ComponentDto component : components) {
-      responseBuilder.addComponents(responseFormatter.formatComponent(builder, component));
+      responseBuilder.addComponents(responseFormatter.formatComponent(builder, component, searchResponseData.getBranch(), searchResponseData.getPullRequest()));
     }
   }
 
@@ -660,8 +661,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
     private final Set<String> files;
-
-
+    
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest, Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod, @Nullable Boolean onlyMine,
@@ -774,12 +774,26 @@ public class SearchAction implements HotspotsWsAction {
   private static final class SearchResponseData {
     private final Paging paging;
     private final List<IssueDto> orderedHotspots;
+    private final String branch;
+    private final String pullRequest;
     private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
     private final Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
 
-    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
+    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots, @Nullable String branch, @Nullable String pullRequest) {
       this.paging = paging;
       this.orderedHotspots = orderedHotspots;
+      this.branch = branch;
+      this.pullRequest = pullRequest;
+    }
+
+    @CheckForNull
+    public String getBranch() {
+      return branch;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
     }
 
     boolean isEmpty() {

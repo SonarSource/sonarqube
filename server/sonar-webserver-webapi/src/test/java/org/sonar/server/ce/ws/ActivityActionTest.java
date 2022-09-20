@@ -294,7 +294,7 @@ public class ActivityActionTest {
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.getDbKey()));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.getKey()));
 
     assertThat(activityResponse.getTasksCount()).isOne();
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");

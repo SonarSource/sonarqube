@@ -117,9 +117,9 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    assertThatThrownBy(() -> call(branch.getDbKey()))
+    assertThatThrownBy(() -> call(branch.getKey()))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test

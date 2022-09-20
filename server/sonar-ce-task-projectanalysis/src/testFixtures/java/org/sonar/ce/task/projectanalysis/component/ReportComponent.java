@@ -40,7 +40,6 @@ public class ReportComponent implements Component {
 
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1)
     .setKey("PROJECT_KEY")
-    .setPublicKey("PUBLIC_PROJECT_KEY")
     .setUuid("PROJECT_UUID")
     .setName("Project Name")
     .setProjectVersion("1.0-SNAPSHOT")
@@ -53,7 +52,6 @@ public class ReportComponent implements Component {
   @CheckForNull
   private final String description;
   private final String key;
-  private final String publicKey;
   private final String uuid;
   private final ProjectAttributes projectAttributes;
   private final ReportAttributes reportAttributes;
@@ -64,7 +62,6 @@ public class ReportComponent implements Component {
     this.type = builder.type;
     this.status = builder.status;
     this.key = builder.key;
-    this.publicKey = builder.publicKey;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
     this.shortName = builder.shortName == null ? this.name : builder.shortName;
     this.description = builder.description;
@@ -97,19 +94,11 @@ public class ReportComponent implements Component {
   }
 
   @Override
-  public String getDbKey() {
+  public String getKey() {
     if (key == null) {
       throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
     return key;
-  }
-
-  @Override
-  public String getKey() {
-    if (publicKey == null) {
-      throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
-    }
-    return publicKey;
   }
 
   @Override
@@ -192,7 +181,7 @@ public class ReportComponent implements Component {
   }
 
   public static Builder builder(Type type, int ref, String key) {
-    return new Builder(type, ref).setKey(key).setPublicKey(key).setUuid("uuid_" + ref).setName("name_" + ref);
+    return new Builder(type, ref).setKey(key).setUuid("uuid_" + ref).setName("name_" + ref);
   }
 
   public static Builder builder(Type type, int ref) {
@@ -205,7 +194,6 @@ public class ReportComponent implements Component {
     private Status status;
     private String uuid;
     private String key;
-    private String publicKey;
     private String name;
     private String shortName;
     private String projectVersion;
@@ -246,11 +234,6 @@ public class ReportComponent implements Component {
 
     public Builder setKey(String s) {
       this.key = requireNonNull(s);
-      return this;
-    }
-
-    public Builder setPublicKey(String publicKey) {
-      this.publicKey = requireNonNull(publicKey);
       return this;
     }
 

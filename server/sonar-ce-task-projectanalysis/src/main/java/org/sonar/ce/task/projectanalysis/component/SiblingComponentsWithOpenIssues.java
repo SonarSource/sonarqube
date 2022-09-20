@@ -76,7 +76,7 @@ public class SiblingComponentsWithOpenIssues {
 
     List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentsFromBranchesThatHaveOpenIssues(dbSession, branchUuids);
     for (KeyWithUuidDto dto : components) {
-      uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
+      uuidsByKey.computeIfAbsent(dto.key(), s -> new HashSet<>()).add(dto.uuid());
     }
   }
 
@@ -84,7 +84,7 @@ public class SiblingComponentsWithOpenIssues {
     List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(
       dbSession, referenceBranchUuid, currentBranchUuid);
     for (KeyWithUuidDto dto : components) {
-      uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
+      uuidsByKey.computeIfAbsent(dto.key(), s -> new HashSet<>()).add(dto.uuid());
     }
   }
 

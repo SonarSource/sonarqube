@@ -112,7 +112,7 @@ public class ScmInfoDbLoaderTest {
     String referenceFileUuid = "referenceFileUuid";
     String hash = computeSourceHash(1);
 
-    when(referenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(referenceFileUuid);
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(referenceFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, referenceFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -131,7 +131,7 @@ public class ScmInfoDbLoaderTest {
     String targetBranchFileUuid = "targetBranchFileUuid";
     String hash = computeSourceHash(1);
 
-    when(referenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -152,7 +152,7 @@ public class ScmInfoDbLoaderTest {
     String targetBranchFileUuid = "targetBranchFileUuid";
     String hash = computeSourceHash(1);
 
-    when(newCodeReferenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
+    when(newCodeReferenceBranchComponentUuids.getComponentUuid(FILE.getKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();

@@ -159,7 +159,7 @@ public class WebhookDaoWithPersisterTest {
   @Test
   public void deleteProjectWebhooksIsPersisted() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p ->
-      p.setUuid("puuid").setName("pname").setDbKey("pkey"));
+      p.setUuid("puuid").setName("pname").setKey("pkey"));
     webhookDbTester.insertWebhook(projectDto);
 
     underTest.deleteByProject(dbSession, projectDto);

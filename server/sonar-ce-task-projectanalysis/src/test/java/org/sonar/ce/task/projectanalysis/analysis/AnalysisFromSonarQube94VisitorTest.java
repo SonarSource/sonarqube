@@ -57,7 +57,7 @@ public class AnalysisFromSonarQube94VisitorTest {
   @Test
   public void visitProject_createMeasureForMetric() {
     Component project = builder(FILE).setUuid("uuid")
-      .setDbKey("dbKey")
+      .setKey("dbKey")
       .setName("name")
       .setStatus(Component.Status.SAME)
       .setReportAttributes(mock(ReportAttributes.class))

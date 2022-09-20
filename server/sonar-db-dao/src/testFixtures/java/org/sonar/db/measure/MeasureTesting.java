@@ -70,7 +70,7 @@ public class MeasureTesting {
     return new LiveMeasureDto()
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(component.uuid())
-      .setProjectUuid(component.projectUuid())
+      .setProjectUuid(component.branchUuid())
       .setData(String.valueOf(cursor++))
       .setValue((double) cursor++)
       .setVariation((double) cursor++);

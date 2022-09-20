@@ -76,7 +76,7 @@ public class ProjectTrackerBaseLazyInputTest {
     ruleRepositoryRule.add(rule.getKey());
     rootProjectDto = dbTester.components().insertPublicProject();
     ReportComponent rootProject = ReportComponent.builder(Component.Type.FILE, 1)
-      .setKey(rootProjectDto.getDbKey())
+      .setKey(rootProjectDto.getKey())
       .setUuid(rootProjectDto.uuid()).build();
     reportModulesPath = mock(ReportModulesPath.class);
     underTest = new ProjectTrackerBaseLazyInput(analysisMetadataHolder, mock(ComponentsWithUnprocessedIssues.class), dbClient, new IssueFieldsSetter(), issuesLoader,
@@ -112,7 +112,7 @@ public class ProjectTrackerBaseLazyInputTest {
   @Test
   public void migrate_and_return_module_and_folder_issues_on_module() {
     ComponentDto module = dbTester.components().insertComponent(newModuleDto(rootProjectDto).setPath("moduleAInDb"));
-    when(reportModulesPath.get()).thenReturn(ImmutableMap.of(module.getDbKey(), "moduleAInReport"));
+    when(reportModulesPath.get()).thenReturn(ImmutableMap.of(module.getKey(), "moduleAInReport"));
     ComponentDto folder = dbTester.components().insertComponent(newDirectory(module, "src"));
     ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
     IssueDto openIssueOnProject = dbTester.issues().insert(rule, rootProjectDto, rootProjectDto, i -> i.setStatus("OPEN").setResolution(null));

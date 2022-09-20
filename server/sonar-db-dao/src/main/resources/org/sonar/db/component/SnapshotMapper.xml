@@ -38,7 +38,7 @@
   <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
-    inner join components p on s.component_uuid = p.project_uuid
+    inner join components p on s.component_uuid = p.branch_uuid
     where
       s.islast=${_true}
       and p.uuid = #{componentUuid,jdbcType=VARCHAR}
@@ -47,10 +47,10 @@
   <select id="selectLastAnalysisDateByProject" resultType="long">
     select max(s.created_at)
     from snapshots s
-    inner join components p on s.component_uuid = p.project_uuid
+    inner join components p on s.component_uuid = p.branch_uuid
     where
       s.islast=${_true}
-      and coalesce(p.main_branch_project_uuid, p.project_uuid) = #{projectUuid,jdbcType=VARCHAR}
+      and coalesce(p.main_branch_project_uuid, p.branch_uuid) = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectLastAnalysisDateByProjects" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
@@ -65,7 +65,7 @@
       from
         snapshots s
       inner join components c on
-        s.component_uuid = c.project_uuid
+        s.component_uuid = c.branch_uuid
       where
         s.islast = ${_true}
         and c.main_branch_project_uuid in
@@ -76,21 +76,21 @@
         c.main_branch_project_uuid
     union
       select
-        c.project_uuid as project_uuid,
+        c.branch_uuid as project_uuid,
         max(s.created_at) as last_analysis_date
       from
         snapshots s
       inner join components c on
-        s.component_uuid = c.project_uuid
+        s.component_uuid = c.branch_uuid
       where
         s.islast = ${_true}
         and c.main_branch_project_uuid is null
-        and c.project_uuid in
+        and c.branch_uuid in
       <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
         #{projectUuid,jdbcType=VARCHAR}
       </foreach>
       group by
-        c.project_uuid
+        c.branch_uuid
     ) result_with_duplicates
     group by
       result_with_duplicates.project_uuid

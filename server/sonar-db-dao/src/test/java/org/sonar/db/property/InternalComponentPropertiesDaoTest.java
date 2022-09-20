@@ -176,7 +176,7 @@ public class InternalComponentPropertiesDaoTest {
     underTest.insertOrUpdate(dbSession, portfolio2.uuid(), SOME_KEY, "bar");
     underTest.insertOrUpdate(dbSession, portfolio3.uuid(), "foo", SOME_VALUE);
 
-    assertThat(underTest.selectDbKeys(dbSession, SOME_KEY, SOME_VALUE)).containsOnly(portfolio1.getDbKey());
+    assertThat(underTest.selectDbKeys(dbSession, SOME_KEY, SOME_VALUE)).containsOnly(portfolio1.getKey());
   }
 
   private InternalComponentPropertyDto saveDto() {

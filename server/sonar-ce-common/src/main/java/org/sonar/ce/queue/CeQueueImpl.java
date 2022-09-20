@@ -352,14 +352,14 @@ public class CeQueueImpl implements CeQueue {
 
     String componentUuid = taskDto.getComponentUuid();
     if (component != null) {
-      builder.setComponent(new CeTask.Component(component.uuid(), component.getDbKey(), component.name()));
+      builder.setComponent(new CeTask.Component(component.uuid(), component.getKey(), component.name()));
     } else if (componentUuid != null) {
       builder.setComponent(new CeTask.Component(componentUuid, null, null));
     }
 
     String mainComponentUuid = taskDto.getMainComponentUuid();
     if (mainComponent != null) {
-      builder.setMainComponent(new CeTask.Component(mainComponent.uuid(), mainComponent.getDbKey(), mainComponent.name()));
+      builder.setMainComponent(new CeTask.Component(mainComponent.uuid(), mainComponent.getKey(), mainComponent.name()));
     } else if (mainComponentUuid != null) {
       builder.setMainComponent(new CeTask.Component(mainComponentUuid, null, null));
     }

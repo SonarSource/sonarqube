@@ -157,7 +157,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
           .build()),
       singletonList(
         new Block.Builder()
-          .setResourceId(otherFile.getDbKey())
+          .setResourceId(otherFile.getKey())
           .setBlockHash(new ByteArray(hash))
           .setIndexInFile(duplicate.getIndexInFile())
           .setLines(duplicate.getStartLine(), duplicate.getEndLine())
@@ -238,14 +238,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     Map<Integer, Block> duplicationBlocksByIndex = blocksByIndexInFile(duplicationBlocks.getValue());
     assertThat(duplicationBlocksByIndex.get(0)).isEqualTo(
       new Block.Builder()
-        .setResourceId(otherFile.getDbKey())
+        .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock1.getHash()))
         .setIndexInFile(duplicate1.getIndexInFile())
         .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
         .build());
     assertThat(duplicationBlocksByIndex.get(1)).isEqualTo(
       new Block.Builder()
-        .setResourceId(otherFile.getDbKey())
+        .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock2.getHash()))
         .setIndexInFile(duplicate2.getIndexInFile())
         .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
@@ -319,7 +319,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   private ComponentDto createProject(String projectKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto().setDbKey(projectKey);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto().setKey(projectKey);
     return dbTester.components().insertComponent(project);
   }
 
@@ -332,7 +332,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   private ComponentDto createFile(String fileKey, ComponentDto project) {
     ComponentDto file = ComponentTesting.newFileDto(project, null)
-      .setDbKey(fileKey)
+      .setKey(fileKey)
       .setLanguage(XOO_LANGUAGE);
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();

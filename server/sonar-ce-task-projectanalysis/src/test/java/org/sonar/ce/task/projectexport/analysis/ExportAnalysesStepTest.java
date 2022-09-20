@@ -60,7 +60,7 @@ public class ExportAnalysesStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)
-    .setDbKey("the_project")
+    .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
     .setEnabled(true)
@@ -69,7 +69,7 @@ public class ExportAnalysesStepTest {
     .setRootUuid(PROJECT_UUID)
     .setModuleUuid(null)
     .setModuleUuidPath("." + PROJECT_UUID + ".")
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   private static final String MODULE_UUID = "MODULE_UUID";
   private static final String MODULE_UUID_PATH = UUID_PATH_OF_ROOT + UUID_PATH_SEPARATOR + MODULE_UUID;
@@ -77,7 +77,7 @@ public class ExportAnalysesStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.MODULE)
-    .setDbKey("the_module")
+    .setKey("the_module")
     .setName("The Module")
     .setDescription("description of module")
     .setEnabled(true)
@@ -86,14 +86,14 @@ public class ExportAnalysesStepTest {
     .setRootUuid(MODULE_UUID)
     .setModuleUuid(PROJECT_UUID)
     .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   private static final String FILE_UUID = "FILE_UUID";
   private static final ComponentDto FILE = new ComponentDto()
     // no id yet
     .setScope(Scopes.FILE)
     .setQualifier(Qualifiers.FILE)
-    .setDbKey("the_file")
+    .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
     .setUuidPath(MODULE_UUID_PATH + UUID_PATH_SEPARATOR + FILE_UUID)
@@ -101,7 +101,7 @@ public class ExportAnalysesStepTest {
     .setEnabled(true)
     .setModuleUuid(MODULE_UUID)
     .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

@@ -1065,13 +1065,13 @@ public class ShowActionTest {
     ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
       .setLongName("test-project")
-      .setDbKey("com.sonarsource:test-project"));
+      .setKey("com.sonarsource:test-project"));
     userSessionRule.registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
 
     ComponentDto file = dbTester.components().insertComponent(
       newFileDto(project)
-        .setDbKey("com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java")
+        .setKey("com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java")
         .setName("FourthClass.java")
         .setLongName("src/main/java/com/sonarsource/FourthClass.java")
         .setPath("src/main/java/com/sonarsource/FourthClass.java"));

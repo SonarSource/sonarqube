@@ -81,13 +81,13 @@ public class ComponentUpdaterTest {
     ComponentDto returned = underTest.create(db.getSession(), project, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
-    assertThat(loaded.getDbKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);
     assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
-    assertThat(loaded.projectUuid()).isEqualTo(loaded.uuid());
+    assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
     assertThat(loaded.moduleUuid()).isNull();
     assertThat(loaded.moduleUuidPath()).isEqualTo("." + loaded.uuid() + ".");
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
@@ -140,7 +140,7 @@ public class ComponentUpdaterTest {
     ComponentDto returned = underTest.create(db.getSession(), view, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
-    assertThat(loaded.getDbKey()).isEqualTo("view-key");
+    assertThat(loaded.getKey()).isEqualTo("view-key");
     assertThat(loaded.name()).isEqualTo("view-name");
     assertThat(loaded.qualifier()).isEqualTo("VW");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
@@ -159,7 +159,7 @@ public class ComponentUpdaterTest {
     ComponentDto returned = underTest.create(db.getSession(), application, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
-    assertThat(loaded.getDbKey()).isEqualTo("app-key");
+    assertThat(loaded.getKey()).isEqualTo("app-key");
     assertThat(loaded.name()).isEqualTo("app-name");
     assertThat(loaded.qualifier()).isEqualTo("APP");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
@@ -248,12 +248,12 @@ public class ComponentUpdaterTest {
 
     DbSession session = db.getSession();
     NewComponent newComponent = NewComponent.newComponentBuilder()
-      .setKey(existing.getDbKey())
+      .setKey(existing.getKey())
       .setName(DEFAULT_PROJECT_NAME)
       .build();
     assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", existing.getDbKey(), existing.getDbKey());
+      .hasMessage("Could not create Project, key already exists: " + existing.getKey());
   }
 
   @Test
@@ -283,7 +283,7 @@ public class ComponentUpdaterTest {
   @Test
   public void create_shouldFail_whenCreatingProjectWithExistingKeyButDifferentCase() {
     String existingKey = randomAlphabetic(5).toUpperCase();
-    db.components().insertPrivateProject(component -> component.setDbKey(existingKey));
+    db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
 
     NewComponent newComponent = NewComponent.newComponentBuilder()

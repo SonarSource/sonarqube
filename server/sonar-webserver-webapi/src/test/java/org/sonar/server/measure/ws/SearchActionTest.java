@@ -70,9 +70,9 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_1").setName("Project 1"));
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_2").setName("Project 2"));
-    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_3").setName("Project 3"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_1").setName("Project 1"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_2").setName("Project 2"));
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT_3").setName("Project 3"));
 
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
@@ -93,7 +93,7 @@ public class SearchActionTest {
     db.measures().insertLiveMeasure(project2, newViolations, m -> m.setVariation(25.0d));
     db.measures().insertLiveMeasure(project3, newViolations, m -> m.setVariation(255.0d));
 
-    List<String> projectKeys = Arrays.asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey());
+    List<String> projectKeys = Arrays.asList(project1.getKey(), project2.getKey(), project3.getKey());
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT_KEYS, Joiner.on(",").join(projectKeys))
@@ -111,7 +111,7 @@ public class SearchActionTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(project.getKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -131,7 +131,7 @@ public class SearchActionTest {
     MetricDto noBestValue = db.measures().insertMetric(m -> m.setValueType(INT.name()).setBestValue(null));
     db.measures().insertLiveMeasure(project, noBestValue, m -> m.setValue(123d));
 
-    SearchWsResponse result = call(singletonList(project.getDbKey()),
+    SearchWsResponse result = call(singletonList(project.getKey()),
       asList(matchBestValue.getKey(), doesNotMatchBestValue.getKey(), noBestValue.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
@@ -150,7 +150,7 @@ public class SearchActionTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d).setVariation(10d));
 
-    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(project.getKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -179,12 +179,12 @@ public class SearchActionTest {
     db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(15d));
     db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(20d));
 
-    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()), asList(coverage.getKey(), complexity.getKey()));
+    SearchWsResponse result = call(asList(project1.getKey(), project2.getKey(), project3.getKey()), asList(coverage.getKey(), complexity.getKey()));
 
     assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
       .containsExactly(
-        tuple(complexity.getKey(), project2.getDbKey()), tuple(complexity.getKey(), project3.getDbKey()), tuple(complexity.getKey(), project1.getDbKey()),
-        tuple(coverage.getKey(), project2.getDbKey()), tuple(coverage.getKey(), project3.getDbKey()), tuple(coverage.getKey(), project1.getDbKey()));
+        tuple(complexity.getKey(), project2.getKey()), tuple(complexity.getKey(), project3.getKey()), tuple(complexity.getKey(), project1.getKey()),
+        tuple(coverage.getKey(), project2.getKey()), tuple(coverage.getKey(), project3.getKey()), tuple(coverage.getKey(), project1.getKey()));
   }
 
   @Test
@@ -194,7 +194,7 @@ public class SearchActionTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(view, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(view.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(view.getKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -210,7 +210,7 @@ public class SearchActionTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(application, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(application.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(application.getKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -227,7 +227,7 @@ public class SearchActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(subView, metric, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(subView.getDbKey()), singletonList(metric.getKey()));
+    SearchWsResponse result = call(singletonList(subView.getKey()), singletonList(metric.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
@@ -245,9 +245,9 @@ public class SearchActionTest {
     db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
     Arrays.stream(new ComponentDto[] {project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
 
-    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey()), singletonList(metric.getKey()));
+    SearchWsResponse result = call(asList(project1.getKey(), project2.getKey()), singletonList(metric.getKey()));
 
-    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.getDbKey());
+    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.getKey());
   }
 
   @Test
@@ -258,7 +258,7 @@ public class SearchActionTest {
     db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(10d));
     userSession.addProjectPermission(UserRole.USER, project);
 
-    SearchWsResponse result = call(singletonList(branch.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(branch.getKey()), singletonList(coverage.getKey()));
 
     assertThat(result.getMeasuresList()).isEmpty();
   }
@@ -289,7 +289,7 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    assertThatThrownBy(() ->  call(singletonList(project.getDbKey()), newArrayList("violations", metric.getKey(), "ncloc")))
+    assertThatThrownBy(() ->  call(singletonList(project.getKey()), newArrayList("violations", metric.getKey(), "ncloc")))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The following metrics are not found: ncloc, violations");
   }
@@ -316,7 +316,7 @@ public class SearchActionTest {
   public void fail_if_more_than_100_project_keys() {
     List<String> keys = IntStream.rangeClosed(1, 101)
       .mapToObj(i -> db.components().insertPrivateProject())
-      .map(ComponentDto::getDbKey)
+      .map(ComponentDto::getKey)
       .collect(Collectors.toList());
     MetricDto metric = db.measures().insertMetric();
 
@@ -329,7 +329,7 @@ public class SearchActionTest {
   public void does_not_fail_on_100_projects() {
     List<String> keys = IntStream.rangeClosed(1, 100)
       .mapToObj(i -> db.components().insertPrivateProject())
-      .map(ComponentDto::getDbKey)
+      .map(ComponentDto::getKey)
       .collect(Collectors.toList());
     MetricDto metric = db.measures().insertMetric();
 
@@ -343,7 +343,7 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    assertThatThrownBy(() -> call(singletonList(module.getDbKey()), singletonList(metric.getKey())))
+    assertThatThrownBy(() -> call(singletonList(module.getKey()), singletonList(metric.getKey())))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
@@ -355,7 +355,7 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    assertThatThrownBy(() -> call(singletonList(dir.getDbKey()), singletonList(metric.getKey())))
+    assertThatThrownBy(() -> call(singletonList(dir.getKey()), singletonList(metric.getKey())))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
@@ -367,7 +367,7 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    assertThatThrownBy(() -> call(singletonList(file.getDbKey()), singletonList(metric.getKey())))
+    assertThatThrownBy(() -> call(singletonList(file.getKey()), singletonList(metric.getKey())))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }

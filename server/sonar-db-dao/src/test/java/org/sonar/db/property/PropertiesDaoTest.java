@@ -529,7 +529,7 @@ public class PropertiesDaoTest {
     insertProperty("project.one", "Pone", projectUuid, null, null, projectDto.getKey(), projectDto.name());
     insertProperty("project.two", "Ptwo", projectUuid, null, null, projectDto.getKey(), projectDto.name());
 
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getDbKey());
+    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getKey());
     assertThat(dtos)
       .hasSize(2);
     assertThat(findByKey(dtos, "project.one"))
@@ -547,7 +547,7 @@ public class PropertiesDaoTest {
     ComponentDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.uuid(), null, null, projectDto.getKey(), projectDto.name());
 
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getDbKey());
+    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getKey());
     assertThat(dtos).hasSize(1);
 
     assertThat(dtos.iterator().next())
@@ -1316,7 +1316,7 @@ public class PropertiesDaoTest {
   }
 
   private ComponentDto insertPrivateProject(String projectKey) {
-    return db.components().insertPrivateProject(t -> t.setDbKey(projectKey));
+    return db.components().insertPrivateProject(t -> t.setKey(projectKey));
   }
 
   private static Consumer<UserDto> withEmail(String login) {

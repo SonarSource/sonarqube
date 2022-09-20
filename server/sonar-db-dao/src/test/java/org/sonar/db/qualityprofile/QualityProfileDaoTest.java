@@ -771,8 +771,8 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectSelectedProjects(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.uuid(), project1.getDbKey(), project1.name(), profile1.getKee()),
-        tuple(project2.uuid(), project2.getDbKey(), project2.name(), profile1.getKee()));
+        tuple(project1.uuid(), project1.getKey(), project1.name(), profile1.getKee()),
+        tuple(project2.uuid(), project2.getKey(), project2.name(), profile1.getKee()));
 
     assertThat(underTest.selectSelectedProjects(dbSession, profile1, "ect1")).hasSize(1);
     assertThat(underTest.selectSelectedProjects(dbSession, profile3, null)).isEmpty();
@@ -796,8 +796,8 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectDeselectedProjects(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsExactly(
-        tuple(project2.uuid(), project2.getDbKey(), project2.name(), null),
-        tuple(project3.uuid(), project3.getDbKey(), project3.name(), null));
+        tuple(project2.uuid(), project2.getKey(), project2.name(), null),
+        tuple(project3.uuid(), project3.getKey(), project3.name(), null));
 
     assertThat(underTest.selectDeselectedProjects(dbSession, profile1, "ect2")).hasSize(1);
     assertThat(underTest.selectDeselectedProjects(dbSession, profile3, null)).hasSize(3);
@@ -822,9 +822,9 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectProjectAssociations(dbSession, profile1, null))
       .extracting("projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.uuid(), project1.getDbKey(), project1.name(), profile1.getKee()),
-        tuple(project2.uuid(), project2.getDbKey(), project2.name(), null),
-        tuple(project3.uuid(), project3.getDbKey(), project3.name(), null));
+        tuple(project1.uuid(), project1.getKey(), project1.name(), profile1.getKee()),
+        tuple(project2.uuid(), project2.getKey(), project2.name(), null),
+        tuple(project3.uuid(), project3.getKey(), project3.name(), null));
 
     assertThat(underTest.selectProjectAssociations(dbSession, profile1, "ect2")).hasSize(1);
     assertThat(underTest.selectProjectAssociations(dbSession, profile3, null)).hasSize(3);

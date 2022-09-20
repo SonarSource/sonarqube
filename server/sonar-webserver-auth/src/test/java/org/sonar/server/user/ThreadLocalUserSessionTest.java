@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,7 +124,7 @@ public class ThreadLocalUserSessionTest {
       .setGroups(group);
 
     ProjectDto subProjectDto = new ProjectDto().setQualifier(Qualifiers.PROJECT).setUuid("subproject-uuid");
-    ComponentDto applicationAsComponentDto = new ComponentDto().setQualifier(Qualifiers.APP).setUuid("application-component-uuid").setProjectUuid("application-project-uuid");
+    ComponentDto applicationAsComponentDto = new ComponentDto().setQualifier(Qualifiers.APP).setUuid("application-component-uuid").setBranchUuid("application-project-uuid");
     ProjectDto applicationAsProjectDto = new ProjectDto().setQualifier(Qualifiers.APP).setUuid("application-project-uuid");
 
     expected.registerProjects(subProjectDto);

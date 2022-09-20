@@ -34,7 +34,7 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
     super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
       @Override
       public Integer createForAny(Component component) {
-        return component.getType().isReportType() ? component.getReportAttributes().getRef() : Integer.valueOf(component.getDbKey());
+        return component.getType().isReportType() ? component.getReportAttributes().getRef() : Integer.valueOf(component.getKey());
       }
     });
   }
@@ -80,7 +80,7 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   private static PathAwareCallRecord viewsCallRecord(Component component, Path<Integer> path, String method) {
-    return PathAwareCallRecord.viewsCallRecord(method, component.getDbKey(), path.current(), getParent(path), path.root(),
+    return PathAwareCallRecord.viewsCallRecord(method, component.getKey(), path.current(), getParent(path), path.root(),
       toValueList(path));
   }
 

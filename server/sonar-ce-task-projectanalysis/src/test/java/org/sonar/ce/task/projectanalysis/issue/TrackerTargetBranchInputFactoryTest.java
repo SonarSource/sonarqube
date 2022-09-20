@@ -59,7 +59,7 @@ public class TrackerTargetBranchInputFactoryTest {
     db.fileSources().insertFileSource(fileDto, 3);
 
     Component component = mock(Component.class);
-    when(component.getDbKey()).thenReturn(COMPONENT_KEY);
+    when(component.getKey()).thenReturn(COMPONENT_KEY);
     when(component.getType()).thenReturn(Component.Type.FILE);
     Input<DefaultIssue> input = underTest.createForTargetBranch(component);
 
@@ -76,7 +76,7 @@ public class TrackerTargetBranchInputFactoryTest {
     db.fileSources().insertFileSource(fileDto, 0);
 
     Component component = mock(Component.class);
-    when(component.getDbKey()).thenReturn(COMPONENT_KEY);
+    when(component.getKey()).thenReturn(COMPONENT_KEY);
     when(component.getType()).thenReturn(Component.Type.FILE);
     Input<DefaultIssue> input = underTest.createForTargetBranch(component);
 
@@ -87,7 +87,7 @@ public class TrackerTargetBranchInputFactoryTest {
   @Test
   public void gets_nothing_when_there_is_no_matching_component() {
     Component component = mock(Component.class);
-    when(component.getDbKey()).thenReturn(COMPONENT_KEY);
+    when(component.getKey()).thenReturn(COMPONENT_KEY);
     when(component.getType()).thenReturn(Component.Type.FILE);
     Input<DefaultIssue> input = underTest.createForTargetBranch(component);
 

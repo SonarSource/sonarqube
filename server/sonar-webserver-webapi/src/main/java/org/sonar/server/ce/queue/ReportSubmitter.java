@@ -63,8 +63,7 @@ public class ReportSubmitter {
   private final ProjectDefaultVisibility projectDefaultVisibility;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
-    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport,
-    ProjectDefaultVisibility projectDefaultVisibility) {
+    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport, ProjectDefaultVisibility projectDefaultVisibility) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
@@ -87,17 +86,17 @@ public class ReportSubmitter {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
       } else {
-        mainBranchComponent = createProject(dbSession, componentKey.getMainBranchComponentKey(), projectName);
+        mainBranchComponent = createProject(dbSession, componentKey.getKey(), projectName);
         projectCreated = true;
       }
 
-      BranchDto mainBranch = dbClient.branchDao().selectByUuid(dbSession, mainBranchComponent.projectUuid())
+      BranchDto mainBranch = dbClient.branchDao().selectByUuid(dbSession, mainBranchComponent.branchUuid())
         .orElseThrow(() -> new IllegalStateException("Couldn't find the main branch of the project"));
       ComponentDto branchComponent;
       if (isMainBranch(componentKey, mainBranch)) {
         branchComponent = mainBranchComponent;
       } else {
-        branchComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey())
+        branchComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getKey())
           .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, mainBranchComponent, mainBranch));
       }
 
@@ -137,9 +136,9 @@ public class ReportSubmitter {
     if (!Qualifiers.PROJECT.equals(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
       errors.add(format("Component '%s' is not a project", rawProjectKey));
     }
-    if (!component.projectUuid().equals(component.uuid())) {
+    if (!component.branchUuid().equals(component.uuid())) {
       // Project key is already used as a module of another project
-      ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
+      ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.branchUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
         + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
@@ -149,20 +148,19 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
+  private ComponentDto createProject(DbSession dbSession, String projectKey, @Nullable String projectName) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
     String userUuid = userSession.getUuid();
     String userName = userSession.getLogin();
 
-    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, userUuid, componentKey.getDbKey());
+    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userUuid, projectKey);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
 
     NewComponent newProject = newComponentBuilder()
-      .setKey(componentKey.getKey())
-      .setName(defaultIfBlank(projectName, componentKey.getKey()))
+      .setKey(projectKey)
+      .setName(defaultIfBlank(projectName, projectKey))
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();

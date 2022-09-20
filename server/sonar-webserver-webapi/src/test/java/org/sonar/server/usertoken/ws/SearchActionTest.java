@@ -68,7 +68,7 @@ public class SearchActionTest {
 
   @Test
   public void search_json_example() {
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setDbKey("project-1").setName("Project 1"));
+    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("project-1").setName("Project 1"));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("grace.hopper"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("ada.lovelace"));
     db.users().insertToken(user1, t -> t.setName("Project scan on Travis").setCreatedAt(1448523067221L));

@@ -118,7 +118,7 @@ public class ComponentActionTest {
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     Ce.Task current = response.getCurrent();

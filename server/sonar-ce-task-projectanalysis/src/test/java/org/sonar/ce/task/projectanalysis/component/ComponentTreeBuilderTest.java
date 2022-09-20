@@ -46,17 +46,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
 public class ComponentTreeBuilderTest {
 
-  private static final ComponentKeyGenerator KEY_GENERATOR = (projectKey, path) -> "generated_"
-    + ComponentKeys.createEffectiveKey(projectKey, path);
-  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (projectKey, path) -> "public_"
-    + ComponentKeys.createEffectiveKey(projectKey, path);
+  private static final ComponentKeyGenerator KEY_GENERATOR = (projectKey, path) -> "generated_" + ComponentKeys.createEffectiveKey(projectKey, path);
   private static final UnaryOperator<String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, FILE);
   private static final String NO_SCM_BASE_PATH = "";
@@ -64,11 +61,10 @@ public class ComponentTreeBuilderTest {
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
     randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12), "1def5123");
 
-
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
 
-  private Project projectInDb = Project.from(newPrivateProjectDto(UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
+  private Project projectInDb = Project.from(newPrivateProjectDto(UUID_SUPPLIER.apply("K1")).setKey("K1").setDescription(null));
 
   @Test
   public void build_throws_IAE_for_all_types_except_PROJECT_and_FILE() {
@@ -130,8 +126,7 @@ public class ComponentTreeBuilderTest {
       .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString, "4124af4"));
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
-    assertThat(root.getDbKey()).isEqualTo("generated_K1");
-    assertThat(root.getKey()).isEqualTo("public_K1");
+    assertThat(root.getKey()).isEqualTo("generated_K1");
     assertThat(root.getType()).isEqualTo(Component.Type.PROJECT);
     assertThat(root.getName()).isEqualTo(nameInReport);
     assertThat(root.getShortName()).isEqualTo(nameInReport);
@@ -294,18 +289,15 @@ public class ComponentTreeBuilderTest {
     ScannerReport.Component project = createProject();
 
     Component root = call(project);
-    assertThat(root.getDbKey()).isEqualTo("generated_" + projectInDb.getKey());
-    assertThat(root.getKey()).isEqualTo("public_" + projectInDb.getKey());
+    assertThat(root.getKey()).isEqualTo("generated_" + projectInDb.getKey());
     assertThat(root.getChildren()).hasSize(1);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getDbKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js");
-    assertThat(directory.getKey()).isEqualTo("public_" + projectInDb.getKey() + ":src/js");
+    assertThat(directory.getKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js");
     assertThat(directory.getChildren()).hasSize(1);
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getDbKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js/Foo.js");
-    assertThat(file.getKey()).isEqualTo("public_" + projectInDb.getKey() + ":src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js/Foo.js");
     assertThat(file.getChildren()).isEmpty();
   }
 
@@ -359,21 +351,21 @@ public class ComponentTreeBuilderTest {
     assertThat(root.getChildren()).hasSize(2);
 
     Component pom = root.getChildren().get(1);
-    assertThat(pom.getKey()).isEqualTo("public_K1:pom.xml");
+    assertThat(pom.getKey()).isEqualTo("generated_K1:pom.xml");
     assertThat(pom.getName()).isEqualTo("pom.xml");
 
     Component directory = root.getChildren().get(0);
-    assertThat(directory.getKey()).isEqualTo("public_K1:src");
+    assertThat(directory.getKey()).isEqualTo("generated_K1:src");
     assertThat(directory.getName()).isEqualTo("src");
 
     // folders are collapsed and they only contain one directory
     Component d1 = directory.getChildren().get(0);
-    assertThat(d1.getKey()).isEqualTo("public_K1:src/main/xoo");
+    assertThat(d1.getKey()).isEqualTo("generated_K1:src/main/xoo");
     assertThat(d1.getName()).isEqualTo("src/main/xoo");
     assertThat(d1.getShortName()).isEqualTo("main/xoo");
 
     Component d2 = directory.getChildren().get(1);
-    assertThat(d2.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(d2.getKey()).isEqualTo("generated_K1:src/test/xoo/org/sonar");
     assertThat(d2.getName()).isEqualTo("src/test/xoo/org/sonar");
     assertThat(d2.getShortName()).isEqualTo("test/xoo/org/sonar");
   }
@@ -396,12 +388,12 @@ public class ComponentTreeBuilderTest {
 
     // folders are collapsed and they only contain one directory
     Component dir = root.getChildren().get(0);
-    assertThat(dir.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(dir.getKey()).isEqualTo("generated_K1:src/test/xoo/org/sonar");
     assertThat(dir.getName()).isEqualTo("src/test/xoo/org/sonar");
     assertThat(dir.getShortName()).isEqualTo("src/test/xoo/org/sonar");
 
     Component file = dir.getChildren().get(0);
-    assertThat(file.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar/Foo2.js");
+    assertThat(file.getKey()).isEqualTo("generated_K1:src/test/xoo/org/sonar/Foo2.js");
     assertThat(file.getName()).isEqualTo("src/test/xoo/org/sonar/Foo2.js");
     assertThat(file.getShortName()).isEqualTo("Foo2.js");
   }
@@ -423,12 +415,12 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getKey()).isEqualTo("public_K1:src/js");
+    assertThat(directory.getKey()).isEqualTo("generated_K1:src/js");
     assertThat(directory.getName()).isEqualTo("src/js");
     assertThat(directory.getShortName()).isEqualTo("src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getKey()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("generated_K1:src/js/Foo.js");
     assertThat(file.getName()).isEqualTo("src/js/Foo.js");
     assertThat(file.getShortName()).isEqualTo("Foo.js");
   }
@@ -484,22 +476,22 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getKey()).isEqualTo("public_K1:src");
+    assertThat(directory.getKey()).isEqualTo("generated_K1:src");
     assertThat(directory.getName()).isEqualTo("src");
     assertThat(directory.getShortName()).isEqualTo("src");
 
     Component directoryJava = directory.getChildren().get(0);
-    assertThat(directoryJava.getKey()).isEqualTo("public_K1:src/java");
+    assertThat(directoryJava.getKey()).isEqualTo("generated_K1:src/java");
     assertThat(directoryJava.getName()).isEqualTo("src/java");
     assertThat(directoryJava.getShortName()).isEqualTo("java");
 
     Component directoryJs = directory.getChildren().get(1);
-    assertThat(directoryJs.getKey()).isEqualTo("public_K1:src/js");
+    assertThat(directoryJs.getKey()).isEqualTo("generated_K1:src/js");
     assertThat(directoryJs.getName()).isEqualTo("src/js");
     assertThat(directoryJs.getShortName()).isEqualTo("js");
 
     Component file = directoryJs.getChildren().iterator().next();
-    assertThat(file.getKey()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("generated_K1:src/js/Foo.js");
     assertThat(file.getName()).isEqualTo("src/js/Foo.js");
     assertThat(file.getShortName()).isEqualTo("Foo.js");
   }
@@ -524,8 +516,7 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
     Map<String, Component> componentsByKey = indexComponentByKey(root);
 
-    assertThat(componentsByKey.values()).extracting("key").startsWith("public_project 1");
-    assertThat(componentsByKey.values()).extracting("dbKey").startsWith("generated_project 1");
+    assertThat(componentsByKey.values()).extracting("key").startsWith("generated_project 1");
   }
 
   @Test
@@ -740,7 +731,7 @@ public class ComponentTreeBuilderTest {
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js"));
 
-    assertThatThrownBy(() ->  call(project))
+    assertThatThrownBy(() -> call(project))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("File 'src/js/Foo.js' has no line");
   }
@@ -758,7 +749,7 @@ public class ComponentTreeBuilderTest {
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(0));
 
-    assertThatThrownBy(() ->  call(project))
+    assertThatThrownBy(() -> call(project))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("File 'src/js/Foo.js' has no line");
   }
@@ -776,7 +767,7 @@ public class ComponentTreeBuilderTest {
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(-10));
 
-    assertThatThrownBy(() ->  call(project))
+    assertThatThrownBy(() -> call(project))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("File 'src/js/Foo.js' has no line");
   }
@@ -817,8 +808,7 @@ public class ComponentTreeBuilderTest {
   private ComponentTreeBuilder newUnderTest(ProjectAttributes projectAttributes, boolean mainBranch) {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(mainBranch);
-    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider,
-      projectInDb, branch, projectAttributes);
+    return new ComponentTreeBuilder(KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, projectAttributes);
   }
 
   private static Map<String, Component> indexComponentByKey(Component root) {
@@ -827,7 +817,7 @@ public class ComponentTreeBuilderTest {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, PRE_ORDER) {
         @Override
         public void visitAny(Component any) {
-          componentsByKey.put(any.getDbKey(), any);
+          componentsByKey.put(any.getKey(), any);
         }
       }).visit(root);
     return componentsByKey;

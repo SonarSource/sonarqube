@@ -70,7 +70,7 @@ public class ComponentViewerJsonWriter {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
+    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.branchUuid());
 
     json.prop("project", project.getKey());
     json.prop("projectName", project.longName());

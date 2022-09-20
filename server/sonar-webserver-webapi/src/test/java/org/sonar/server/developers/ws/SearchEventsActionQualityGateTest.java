@@ -173,7 +173,7 @@ public class SearchEventsActionQualityGateTest {
 
   @Test
   public void encode_link() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("M&M's"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's"));
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
     EventDto event = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));

@@ -89,7 +89,7 @@ public class BulkDeleteActionTest {
     ComponentDto toKeep = db.components().insertPrivateProject();
 
     TestResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project1ToDelete.getDbKey() + "," + project2ToDelete.getDbKey())
+      .setParam(PARAM_PROJECTS, project1ToDelete.getKey() + "," + project2ToDelete.getKey())
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -106,7 +106,7 @@ public class BulkDeleteActionTest {
     ComponentDto toKeep = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam(PARAM_PROJECTS, toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
+      .setParam(PARAM_PROJECTS, toDeleteInOrg1.getKey() + "," + toDeleteInOrg2.getKey())
       .execute();
 
     verifyComponentDeleted(toDeleteInOrg1, toDeleteInOrg2);
@@ -136,7 +136,7 @@ public class BulkDeleteActionTest {
     ComponentDto toDelete2 = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("projects", toDelete1.getDbKey() + ",missing," + toDelete2.getDbKey() + ",doesNotExist")
+      .setParam("projects", toDelete1.getKey() + ",missing," + toDelete2.getKey() + ",doesNotExist")
       .execute();
 
     verifyComponentDeleted(toDelete1, toDelete2);
@@ -207,9 +207,9 @@ public class BulkDeleteActionTest {
   @Test
   public void delete_by_key_query_with_partial_match_case_insensitive() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("project-_%-key"));
-    ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("PROJECT-_%-KEY"));
-    ComponentDto noMatchProject = db.components().insertPrivateProject(p -> p.setDbKey("project-key-without-escaped-characters"));
+    ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
+    ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY"));
+    ComponentDto noMatchProject = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
 
     ws.newRequest().setParam(Param.TEXT_QUERY, "JeCt-_%-k").execute();
 
@@ -224,7 +224,7 @@ public class BulkDeleteActionTest {
   public void delete_only_the_1000_first_projects() {
     userSession.logIn().addPermission(ADMINISTER);
     List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
-    keys.forEach(key -> db.components().insertPrivateProject(p -> p.setDbKey(key)));
+    keys.forEach(key -> db.components().insertPrivateProject(p -> p.setKey(key)));
 
     ws.newRequest()
       .setParam("projects", StringUtils.join(keys, ","))
@@ -251,7 +251,7 @@ public class BulkDeleteActionTest {
 
     try {
       ws.newRequest()
-        .setParam("projects", project1.getDbKey() + "," + project2.getDbKey() + "," + project3.getDbKey())
+        .setParam("projects", project1.getKey() + "," + project2.getKey() + "," + project3.getKey())
         .execute();
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(expectedException);
@@ -266,7 +266,7 @@ public class BulkDeleteActionTest {
     ComponentDto toDelete2 = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("projects", toDelete1.getDbKey() + "," + toDelete2.getDbKey())
+      .setParam("projects", toDelete1.getKey() + "," + toDelete2.getKey())
       .execute();
 
     verifyComponentDeleted(toDelete1, toDelete2);

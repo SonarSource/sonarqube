@@ -282,7 +282,7 @@ public class ListDefinitionsActionTest {
       .onQualifiers(PROJECT)
       .build());
 
-    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
+    ListDefinitionsWsResponse result = executeRequest(project.getKey());
 
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
@@ -310,7 +310,7 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
       PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
 
-    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
+    ListDefinitionsWsResponse result = executeRequest(project.getKey());
 
     assertThat(result.getDefinitionsList()).extracting("key").containsOnly("global-and-project", "only-on-project");
   }
@@ -380,7 +380,7 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
 
-    ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
+    ListDefinitionsWsResponse result = executeRequest(project.getKey());
 
     assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured");
   }
@@ -390,7 +390,7 @@ public class ListDefinitionsActionTest {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    assertThatThrownBy(() -> executeRequest(project.getDbKey()))
+    assertThatThrownBy(() -> executeRequest(project.getKey()))
       .isInstanceOf(ForbiddenException.class);
   }
 

@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -47,7 +46,6 @@ public class ComponentDto {
   public static final String BRANCH_KEY_SEPARATOR = ":BRANCH:";
   public static final String PULL_REQUEST_SEPARATOR = ":PULL_REQUEST:";
 
-  private static final Splitter BRANCH_OR_PULL_REQUEST_SPLITTER = Splitter.on(Pattern.compile(BRANCH_KEY_SEPARATOR + "|" + PULL_REQUEST_SEPARATOR));
   private static final Splitter BRANCH_KEY_SPLITTER = Splitter.on(BRANCH_KEY_SEPARATOR);
   private static final Splitter PULL_REQUEST_SPLITTER = Splitter.on(PULL_REQUEST_SEPARATOR);
 
@@ -93,7 +91,7 @@ public class ComponentDto {
    * - on view: UUID="5" PROJECT_UUID="5"
    * - on sub-view: UUID="6" PROJECT_UUID="5"
   */
-  private String projectUuid;
+  private String branchUuid;
 
   /**
    * Badly named, it is not the root !
@@ -177,21 +175,13 @@ public class ComponentDto {
     return UUID_PATH_SPLITTER.splitToList(uuidPath);
   }
 
-  public String getDbKey() {
+  public String getKey() {
     return kee;
   }
 
-  public ComponentDto setDbKey(String key) {
+  public ComponentDto setKey(String key) {
     this.kee = checkComponentKey(key);
     return this;
-  }
-
-  /**
-   * The key to be displayed to user, doesn't contain information on branches
-   */
-  public String getKey() {
-    List<String> split = BRANCH_OR_PULL_REQUEST_SPLITTER.splitToList(kee);
-    return split.size() == 2 ? split.get(0) : kee;
   }
 
   /**
@@ -233,12 +223,12 @@ public class ComponentDto {
   /**
    * Return the root project uuid. On a root project, return itself
    */
-  public String projectUuid() {
-    return projectUuid;
+  public String branchUuid() {
+    return branchUuid;
   }
 
-  public ComponentDto setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
+  public ComponentDto setBranchUuid(String branchUuid) {
+    this.branchUuid = branchUuid;
     return this;
   }
 
@@ -320,7 +310,7 @@ public class ComponentDto {
   }
 
   /**
-   * Use {@link #projectUuid()}, {@link #moduleUuid()} or {@link #moduleUuidPath()}
+   * Use {@link #branchUuid()}, {@link #moduleUuid()} or {@link #moduleUuidPath()}
    */
   @Deprecated
   public String getRootUuid() {
@@ -409,7 +399,7 @@ public class ComponentDto {
       .append("kee", kee)
       .append("scope", scope)
       .append("qualifier", qualifier)
-      .append("projectUuid", projectUuid)
+      .append("branchUuid", branchUuid)
       .append("moduleUuid", moduleUuid)
       .append("moduleUuidPath", moduleUuidPath)
       .append("rootUuid", rootUuid)
@@ -426,11 +416,10 @@ public class ComponentDto {
 
   public ComponentDto copy() {
     ComponentDto copy = new ComponentDto();
-    copy.projectUuid = projectUuid;
     copy.kee = kee;
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;
-    copy.projectUuid = projectUuid;
+    copy.branchUuid = branchUuid;
     copy.rootUuid = rootUuid;
     copy.mainBranchProjectUuid = mainBranchProjectUuid;
     copy.moduleUuid = moduleUuid;

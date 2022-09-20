@@ -76,13 +76,6 @@ public interface Component {
   String getUuid();
 
   /**
-   * Returns the component key <b>as defined in database</b>
-   * It may differ from keys listed in scanner report
-   * when analyzing a branch.
-   */
-  String getDbKey();
-
-  /**
    * Returns the key as it will be displayed in the ui.
    * If legacy branch feature is used, the key will contain the branch name
    * If new branch feature is used, the key will not contain the branch name

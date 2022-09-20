@@ -69,7 +69,7 @@ public class UserTokenDaoTest {
   @Test
   public void insert_project_analysis_token() {
     UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey(projectAnalysisToken.getProjectKey()));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setKey(projectAnalysisToken.getProjectKey()));
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
 
     UserTokenDto projectAnalysisTokenFromDb = underTest.selectByTokenHash(db.getSession(), projectAnalysisToken.getTokenHash());

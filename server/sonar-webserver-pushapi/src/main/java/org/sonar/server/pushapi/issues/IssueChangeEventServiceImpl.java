@@ -106,7 +106,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       IssueChangedEvent event = getIssueChangedEvent(projectKey, issuesInProject, issueChanges);
 
       if (event != null) {
-        persistEvent(event, entry.getValue().projectUuid());
+        persistEvent(event, entry.getValue().branchUuid());
       }
     }
   }

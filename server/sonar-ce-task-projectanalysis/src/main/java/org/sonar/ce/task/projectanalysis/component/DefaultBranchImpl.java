@@ -73,12 +73,4 @@ public class DefaultBranchImpl implements Branch {
   public String getTargetBranchName() {
     throw new IllegalStateException("Only on a pull request");
   }
-
-  @Override
-  public String generateKey(String projectKey, @Nullable String fileOrDirPath) {
-    if (isEmpty(fileOrDirPath)) {
-      return projectKey;
-    }
-    return ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
-  }
 }

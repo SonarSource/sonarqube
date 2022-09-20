@@ -48,13 +48,13 @@ public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoade
     Map<String, ChildSettings> mainBranchSettingsByDbKey = loadMainBranchConfigurations(dbSession, mainBranchDbKeys);
     return projects.stream()
       .collect(uniqueIndex(ComponentDto::uuid, component -> {
-        if (component.getDbKey().equals(component.getKey())) {
+        if (component.getKey().equals(component.getKey())) {
           return mainBranchSettingsByDbKey.get(component.getKey()).asConfiguration();
         }
 
         ChildSettings settings = new ChildSettings(mainBranchSettingsByDbKey.get(component.getKey()));
         dbClient.propertiesDao()
-            .selectProjectProperties(dbSession, component.getDbKey())
+            .selectProjectProperties(dbSession, component.getKey())
           .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
         return settings.asConfiguration();
       }));

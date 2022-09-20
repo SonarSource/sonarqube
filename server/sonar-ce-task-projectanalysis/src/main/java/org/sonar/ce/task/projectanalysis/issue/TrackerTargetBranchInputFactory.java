@@ -50,7 +50,7 @@ public class TrackerTargetBranchInputFactory {
   }
 
   public Input<DefaultIssue> createForTargetBranch(Component component) {
-    String targetBranchComponentUuid = targetBranchComponentUuids.getTargetBranchComponentUuid(component.getDbKey());
+    String targetBranchComponentUuid = targetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey());
     return new TargetLazyInput(component.getType(), targetBranchComponentUuid);
   }
 

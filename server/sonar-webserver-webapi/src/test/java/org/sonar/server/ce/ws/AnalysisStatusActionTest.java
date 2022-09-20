@@ -293,7 +293,7 @@ public class AnalysisStatusActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("com.github.kevinsawicki:http-request-parent")
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("com.github.kevinsawicki:http-request-parent")
       .setName("HttpRequest"));
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);

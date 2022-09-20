@@ -74,7 +74,7 @@ public class DbLineHashVersion {
   @CheckForNull
   private String getReferenceComponentUuid(Component component) {
     if (analysisMetadataHolder.isPullRequest()) {
-      return referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+      return referenceBranchComponentUuids.getComponentUuid(component.getKey());
     } else {
       return component.getUuid();
     }

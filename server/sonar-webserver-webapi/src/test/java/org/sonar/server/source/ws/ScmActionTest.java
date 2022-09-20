@@ -67,7 +67,7 @@ public class ScmActionTest {
   @Before
   public void setUp() {
     project = dbTester.components().insertPrivateProject(PROJECT_UUID);
-    file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
+    file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), file);
     dbTester.getSession().commit();
   }
@@ -222,10 +222,10 @@ public class ScmActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
     assertThatThrownBy(() -> tester.newRequest()
-      .setParam("key", branch.getDbKey())
+      .setParam("key", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {

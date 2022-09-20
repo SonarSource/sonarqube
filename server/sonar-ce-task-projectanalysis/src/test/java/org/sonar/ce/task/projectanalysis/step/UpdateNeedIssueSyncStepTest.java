@@ -49,7 +49,7 @@ public class UpdateNeedIssueSyncStepTest {
   @Test
   public void analysis_step_updates_need_issue_sync_flag() {
     ComponentDto project = db.components()
-      .insertPrivateProject(c -> c.setUuid(PROJECT.getUuid()).setDbKey(PROJECT.getDbKey()));
+      .insertPrivateProject(c -> c.setUuid(PROJECT.getUuid()).setKey(PROJECT.getKey()));
     dbClient.branchDao().updateNeedIssueSync(db.getSession(), PROJECT.getUuid(), true);
     db.getSession().commit();
 

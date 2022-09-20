@@ -87,9 +87,9 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER);
 
-    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
     verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
@@ -98,9 +98,9 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
 
-    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
+    assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
     verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
@@ -117,7 +117,7 @@ public class DeleteActionTest {
 
     new WsActionTester(underTest)
       .newRequest()
-      .setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .execute();
 
     UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, insert.getUuid());
@@ -156,7 +156,7 @@ public class DeleteActionTest {
       .addProjectPermission(UserRole.ISSUE_ADMIN, project)
       .addProjectPermission(UserRole.USER, project);
 
-    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey());
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -167,7 +167,7 @@ public class DeleteActionTest {
 
     userSessionRule.anonymous();
 
-    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey());
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(UnauthorizedException.class);
   }
@@ -178,10 +178,10 @@ public class DeleteActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, branch.getDbKey());
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, branch.getKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Project '%s' not found", branch.getDbKey()));
+      .hasMessage(String.format("Project '%s' not found", branch.getKey()));
   }
 
   private String verifyDeletedKey() {

@@ -66,7 +66,7 @@ public class ImportHelper {
   public static CreateWsResponse toCreateResponse(ComponentDto componentDto) {
     return newBuilder()
       .setProject(Project.newBuilder()
-        .setKey(componentDto.getDbKey())
+        .setKey(componentDto.getKey())
         .setName(componentDto.name())
         .setQualifier(componentDto.qualifier())
         .setVisibility(Visibility.getLabel(componentDto.isPrivate())))

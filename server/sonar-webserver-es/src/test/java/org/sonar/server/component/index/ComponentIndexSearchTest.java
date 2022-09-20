@@ -67,9 +67,9 @@ public class ComponentIndexSearchTest {
 
   @Test
   public void filter_by_key_with_exact_match() {
-    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setDbKey("ignored-project"));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("shiny-project"));
-    db.components().insertPrivateProject(p -> p.setDbKey("another-shiny-project"));
+    ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setKey("ignored-project"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("shiny-project"));
+    db.components().insertPrivateProject(p -> p.setKey("another-shiny-project"));
     index(ignoredProject, project);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny-project").build(), new SearchOptions());

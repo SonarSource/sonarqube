@@ -114,10 +114,10 @@ public class ListGithubRepositoriesActionTest {
               "https://github-enterprise.sonarqube.com/api/v3/github/HelloWorld", "main"))
             .collect(Collectors.toList())));
 
-    ProjectDto project = db.components().insertPrivateProjectDto(componentDto -> componentDto.setDbKey("github_HelloWorld"));
+    ProjectDto project = db.components().insertPrivateProjectDto(componentDto -> componentDto.setKey("github_HelloWorld"));
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSettings, project, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("github/HelloWorld"));
 
-    ProjectDto project2 = db.components().insertPrivateProjectDto(componentDto -> componentDto.setDbKey("github_HelloWorld2"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(componentDto -> componentDto.setKey("github_HelloWorld2"));
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSettings, project2, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("github/HelloWorld"));
 
     ListGithubRepositoriesWsResponse response = ws.newRequest()

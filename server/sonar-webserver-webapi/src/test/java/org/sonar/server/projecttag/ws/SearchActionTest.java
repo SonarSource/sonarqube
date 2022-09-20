@@ -110,7 +110,7 @@ public class SearchActionTest {
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
     return new ProjectMeasuresDoc()
       .setId(project.uuid())
-      .setKey(project.getDbKey())
+      .setKey(project.getKey())
       .setName(project.name());
   }
 

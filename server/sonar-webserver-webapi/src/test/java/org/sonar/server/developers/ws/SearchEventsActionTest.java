@@ -107,7 +107,7 @@ public class SearchEventsActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project").setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001));
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
     EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));

@@ -96,7 +96,7 @@ public class ListActionTest {
 
   @Test
   public void test_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -115,7 +115,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(USER, project);
 
     String json = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .execute()
       .getInput();
 
@@ -125,7 +125,7 @@ public class ListActionTest {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -143,7 +143,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
 
     String json = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .execute()
       .getInput();
 
@@ -156,7 +156,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
@@ -188,7 +188,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
@@ -252,7 +252,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(USER, application);
 
     ListWsResponse response = ws.newRequest()
-      .setParam("project", application.getDbKey())
+      .setParam("project", application.getKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
@@ -270,10 +270,10 @@ public class ListActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("project", branch.getDbKey())
+      .setParam("project", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -289,9 +289,9 @@ public class ListActionTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(USER, project);
 
-    assertThatThrownBy(() -> ws.newRequest().setParam("project", file.getDbKey()).execute())
+    assertThatThrownBy(() -> ws.newRequest().setParam("project", file.getKey()).execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project '" + file.getDbKey() + "' not found");
+      .hasMessageContaining("Project '" + file.getKey() + "' not found");
   }
 
   @Test

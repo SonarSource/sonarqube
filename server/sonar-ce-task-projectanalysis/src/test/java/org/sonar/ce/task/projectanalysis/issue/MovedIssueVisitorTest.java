@@ -43,7 +43,6 @@ public class MovedIssueVisitorTest {
   private static final String FILE_UUID = "file uuid";
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1)
     .setKey("key_1")
-    .setPublicKey("public_key_1")
     .setUuid(FILE_UUID)
     .build();
 

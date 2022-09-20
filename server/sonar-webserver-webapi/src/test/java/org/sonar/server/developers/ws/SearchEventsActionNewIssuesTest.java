@@ -151,7 +151,7 @@ public class SearchEventsActionNewIssuesTest {
   @Test
   public void return_link_to_issue_search_for_new_issues_event() {
     userSession.logIn("my_login");
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("my_project"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("my_project"));
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, 1_400_000_000_000L);
     insertIssue(project, analysis);
@@ -240,7 +240,7 @@ public class SearchEventsActionNewIssuesTest {
   public void encode_link() {
     userSession.logIn("rågnar").setSystemAdministrator();
     long from = 1_500_000_000_000L;
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("M&M's"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's"));
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = insertAnalysis(project, from);
     insertIssue(project, analysis);

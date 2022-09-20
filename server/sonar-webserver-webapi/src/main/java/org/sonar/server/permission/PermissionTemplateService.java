@@ -80,7 +80,7 @@ public class PermissionTemplateService {
       return true;
     }
 
-    ComponentDto dto = new ComponentDto().setDbKey(projectKey).setQualifier(Qualifiers.PROJECT);
+    ComponentDto dto = new ComponentDto().setKey(projectKey).setQualifier(Qualifiers.PROJECT);
     PermissionTemplateDto template = findTemplate(dbSession, dto);
     if (template == null) {
       return false;
@@ -195,11 +195,11 @@ public class PermissionTemplateService {
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();
-      if (StringUtils.isNotBlank(keyPattern) && component.getDbKey().matches(keyPattern)) {
+      if (StringUtils.isNotBlank(keyPattern) && component.getKey().matches(keyPattern)) {
         matchingTemplates.add(permissionTemplateDto);
       }
     }
-    checkAtMostOneMatchForComponentKey(component.getDbKey(), matchingTemplates);
+    checkAtMostOneMatchForComponentKey(component.getKey(), matchingTemplates);
     if (matchingTemplates.size() == 1) {
       return matchingTemplates.get(0);
     }

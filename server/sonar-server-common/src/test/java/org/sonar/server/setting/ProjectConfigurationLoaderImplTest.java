@@ -182,7 +182,7 @@ public class ProjectConfigurationLoaderImplTest {
   }
 
   private ComponentDto newComponentDto(String componentDbKey, String componentUuid) {
-    return new ComponentDto().setDbKey(componentDbKey).setUuid(componentUuid);
+    return new ComponentDto().setKey(componentDbKey).setUuid(componentUuid);
   }
 
   private PropertyDto newPropertyDto(String projectKey1, String projectValue1) {

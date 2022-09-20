@@ -92,29 +92,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_if_invalid_project_name() {
-    userSession.addPermission(PROVISION_PROJECTS);
-
-    var createRequestBRANCHinKey = CreateRequest.builder()
-      .setProjectKey("test:BRANCH:test")
-      .setName(DEFAULT_PROJECT_NAME)
-      .build();
-    assertThatThrownBy(() -> call(createRequestBRANCHinKey))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContainingAll("Invalid project key. Project key must not contain following phrases",
-        ":PULLREQUEST:", ":BRANCH:");
-
-    var createRequestPRinKey = CreateRequest.builder()
-      .setProjectKey("test:PULLREQUEST:test")
-      .setName(DEFAULT_PROJECT_NAME)
-      .build();
-    assertThatThrownBy(() -> call(createRequestPRinKey))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContainingAll("Invalid project key. Project key must not contain following phrases",
-        ":PULLREQUEST:", ":BRANCH:");
-  }
-
-  @Test
   public void create_project() {
     userSession.addPermission(PROVISION_PROJECTS);
 
@@ -127,7 +104,7 @@ public class CreateActionTest {
       .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get())
-      .extracting(ComponentDto::getDbKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate, ComponentDto::getMainBranchProjectUuid)
+      .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate, ComponentDto::getMainBranchProjectUuid)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false, null);
   }
 
@@ -230,7 +207,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_project_already_exists() {
-    db.components().insertPublicProject(project -> project.setDbKey(DEFAULT_PROJECT_KEY));
+    db.components().insertPublicProject(project -> project.setKey(DEFAULT_PROJECT_KEY));
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateRequest request = CreateRequest.builder()

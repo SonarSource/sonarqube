@@ -40,7 +40,7 @@ public class TargetBranchComponentUuidsTest {
   private static final String BRANCH_KEY = "branch1";
   private static final String PR_KEY = "pr1";
 
-  @org.junit.Rule
+  @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
@@ -80,7 +80,7 @@ public class TargetBranchComponentUuidsTest {
     when(branch.getPullRequestKey()).thenReturn(PR_KEY);
     db.components().insertSnapshot(newAnalysis(branch1));
 
-    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
     assertThat(underTest.hasTargetBranchAnalysis()).isTrue();
   }
 
@@ -112,7 +112,7 @@ public class TargetBranchComponentUuidsTest {
     when(branch.getName()).thenReturn("prBranch");
     when(branch.getTargetBranchName()).thenReturn(BRANCH_KEY);
 
-    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getKey())).isNull();
   }
 
   @Test
@@ -121,6 +121,6 @@ public class TargetBranchComponentUuidsTest {
     when(branch.getName()).thenReturn("prBranch");
     when(branch.getTargetBranchName()).thenReturn(BRANCH_KEY);
 
-    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isNull();
+    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getKey())).isNull();
   }
 }

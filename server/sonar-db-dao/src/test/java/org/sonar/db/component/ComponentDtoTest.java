@@ -30,7 +30,7 @@ public class ComponentDtoTest {
   @Test
   public void setters_and_getters() {
     ComponentDto componentDto = new ComponentDto()
-      .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setQualifier("FIL")
@@ -41,7 +41,7 @@ public class ComponentDtoTest {
       .setCopyComponentUuid("uuid_5")
       .setRootUuid("uuid_3");
 
-    assertThat(componentDto.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(componentDto.getKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.getBranch()).isNull();
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");
@@ -108,27 +108,5 @@ public class ComponentDtoTest {
 
     ComponentDto nonRoot = new ComponentDto().setUuidPath(".12.34.56.");
     assertThat(nonRoot.getUuidPathAsList()).containsExactly("12", "34", "56");
-  }
-
-  @Test
-  public void getKey_and_getBranch() {
-    ComponentDto underTest = new ComponentDto().setDbKey("my_key:BRANCH:my_branch");
-    assertThat(underTest.getKey()).isEqualTo("my_key");
-    assertThat(underTest.getBranch()).isEqualTo("my_branch");
-
-    underTest = new ComponentDto().setDbKey("my_key");
-    assertThat(underTest.getKey()).isEqualTo("my_key");
-    assertThat(underTest.getBranch()).isNull();
-  }
-
-  @Test
-  public void getKey_and_getPullRequest() {
-    ComponentDto underTest = new ComponentDto().setDbKey("my_key:PULL_REQUEST:pr-123");
-    assertThat(underTest.getKey()).isEqualTo("my_key");
-    assertThat(underTest.getPullRequest()).isEqualTo("pr-123");
-
-    underTest = new ComponentDto().setDbKey("my_key");
-    assertThat(underTest.getKey()).isEqualTo("my_key");
-    assertThat(underTest.getPullRequest()).isNull();
   }
 }

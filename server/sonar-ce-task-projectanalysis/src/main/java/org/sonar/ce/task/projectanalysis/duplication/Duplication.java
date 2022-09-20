@@ -148,7 +148,7 @@ public final class Duplication {
         return "";
       }
       if (duplicate instanceof InProjectDuplicate) {
-        return ((InProjectDuplicate) duplicate).getFile().getDbKey();
+        return ((InProjectDuplicate) duplicate).getFile().getKey();
       }
       if (duplicate instanceof CrossProjectDuplicate) {
         return ((CrossProjectDuplicate) duplicate).getFileKey();

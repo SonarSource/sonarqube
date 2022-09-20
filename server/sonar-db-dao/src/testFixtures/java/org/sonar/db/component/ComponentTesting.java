@@ -34,8 +34,6 @@ import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.db.component.ComponentDto.generateBranchKey;
-import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentTesting {
 
@@ -51,7 +49,7 @@ public class ComponentTesting {
     String filename = "NAME_" + fileUuid;
     String path = directory != null ? directory.path() + "/" + filename : module.path() + "/" + filename;
     return newChildComponent(fileUuid, module, directory == null ? module : directory)
-      .setDbKey(generateKey("FILE_KEY_" + fileUuid, module))
+      .setKey("FILE_KEY_" + fileUuid)
       .setName(filename)
       .setLongName(path)
       .setScope(Scopes.FILE)
@@ -68,7 +66,7 @@ public class ComponentTesting {
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
     String key = !path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/";
     return newChildComponent(uuid, module, module)
-      .setDbKey(generateKey(key, module))
+      .setKey(key)
       .setName(path)
       .setLongName(path)
       .setPath(path)
@@ -78,7 +76,7 @@ public class ComponentTesting {
 
   public static ComponentDto newSubPortfolio(ComponentDto portfolioOrSubPortfolio, String uuid, String key) {
     return newModuleDto(uuid, portfolioOrSubPortfolio)
-      .setDbKey(key)
+      .setKey(key)
       .setName(key)
       .setLongName(key)
       .setScope(Scopes.PROJECT)
@@ -94,26 +92,13 @@ public class ComponentTesting {
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
     return newChildComponent(uuid, parentModuleOrProject, parentModuleOrProject)
       .setModuleUuidPath(parentModuleOrProject.moduleUuidPath() + uuid + UUID_PATH_SEPARATOR)
-      .setDbKey(generateKey("MODULE_KEY_" + uuid, parentModuleOrProject))
+      .setKey("MODULE_KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
       .setPath("module")
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.MODULE)
       .setLanguage(null);
-  }
-
-  private static String generateKey(String key, ComponentDto parentModuleOrProject) {
-    String branch = parentModuleOrProject.getBranch();
-    if (branch != null) {
-      return generateBranchKey(key, branch);
-    }
-    String pullRequest = parentModuleOrProject.getPullRequest();
-    if (pullRequest != null) {
-      return generatePullRequestKey(key, pullRequest);
-    }
-
-    return key;
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
@@ -140,10 +125,10 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
+      .setBranchUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
-      .setDbKey("KEY_" + uuid)
+      .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
@@ -177,7 +162,7 @@ public class ComponentTesting {
 
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     return newChildComponent(uuid, view, view)
-      .setDbKey(view.getDbKey() + project.getDbKey())
+      .setKey(view.getKey() + project.getKey())
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())
@@ -194,8 +179,8 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(formatUuidPathFromParent(parent))
-      .setDbKey(uuid)
-      .setProjectUuid(moduleOrProject.projectUuid())
+      .setKey(uuid)
+      .setBranchUuid(moduleOrProject.branchUuid())
       .setRootUuid(moduleOrProject.uuid())
       .setModuleUuid(moduleOrProject.uuid())
       .setModuleUuidPath(moduleOrProject.moduleUuidPath())
@@ -216,7 +201,7 @@ public class ComponentTesting {
   }
 
   public static BranchDto newBranchDto(ComponentDto project) {
-    return newBranchDto(project.projectUuid(), BranchType.BRANCH);
+    return newBranchDto(project.branchUuid(), BranchType.BRANCH);
   }
 
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
@@ -238,11 +223,11 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
+      .setBranchUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
       // name of the branch is not mandatory on the main branch
-      .setDbKey(branchName != null ? project.getKey() + branchSeparator + branchName : project.getKey())
+      .setKey(branchName != null ? project.getKey() + branchSeparator + branchName : project.getKey())
       .setMainBranchProjectUuid(project.getUuid())
       .setName(project.getName())
       .setLongName(project.getName())
@@ -259,16 +244,14 @@ public class ComponentTesting {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));
     checkArgument(project.getMainBranchProjectUuid() == null);
     String branchName = branchDto.getKey();
-    String branchSeparator = branchDto.getBranchType() == PULL_REQUEST ? PULL_REQUEST_SEPARATOR : BRANCH_KEY_SEPARATOR;
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
+      .setBranchUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
-      // name of the branch is not mandatory on the main branch
-      .setDbKey(branchName != null ? project.getDbKey() + branchSeparator + branchName : project.getKey())
+      .setKey(project.getKey())
       .setMainBranchProjectUuid(project.uuid())
       .setName(project.name())
       .setLongName(project.longName())

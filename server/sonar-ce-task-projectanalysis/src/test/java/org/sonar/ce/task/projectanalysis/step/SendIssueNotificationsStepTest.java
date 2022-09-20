@@ -497,8 +497,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void do_not_send_new_issues_notifications_for_hotspot() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
-    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
+    ComponentDto project = newPrivateProjectDto().setKey(PROJECT.getKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setKey(FILE.getKey()).setLongName(FILE.getName());
     RuleDto ruleDefinitionDto = newRule();
     prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
@@ -519,12 +519,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private void sendIssueChangeNotification(long issueCreatedAt) {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto project = newPrivateProjectDto().setKey(PROJECT.getKey()).setLongName(PROJECT.getName());
     analysisMetadataHolder.setProject(Project.from(project));
-    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
-    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(project.getDbKey()).setPublicKey(project.getKey()).setName(project.longName()).setUuid(project.uuid())
+    ComponentDto file = newFileDto(project).setKey(FILE.getKey()).setLongName(FILE.getName());
+    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(project.getKey()).setName(project.longName()).setUuid(project.uuid())
       .addChildren(
-        builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build())
+        builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build())
       .build());
     RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
@@ -550,7 +550,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).setType(type).toDefaultIssue()
       .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
     protoIssueCache.newAppender().append(issue).close();
-    when(notificationService.hasProjectSubscribersForTypes(project.projectUuid(), NOTIF_TYPES)).thenReturn(true);
+    when(notificationService.hasProjectSubscribersForTypes(project.branchUuid(), NOTIF_TYPES)).thenReturn(true);
     return issue;
   }
 
@@ -568,8 +568,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
-    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
-      builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
+    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
+      builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());
     analysisMetadataHolder.setProject(Project.from(project));
     RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
@@ -599,8 +599,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void sends_one_issue_change_notification_every_1000_issues() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
-    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
+    ComponentDto project = newPrivateProjectDto().setKey(PROJECT.getKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setKey(FILE.getKey()).setLongName(FILE.getName());
     RuleDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     List<DefaultIssue> issues = IntStream.range(0, 2001 + new Random().nextInt(10))
@@ -700,8 +700,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private ComponentDto setUpBranch(ComponentDto project, BranchType branchType) {
     ComponentDto branch = newBranchComponent(project, newBranchDto(project, branchType).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
-    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
-      builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
+    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
+      builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());
     return branch;
   }
 

@@ -69,9 +69,9 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String uuid;
       if (analysisMetadataHolder.isPullRequest()) {
-        uuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+        uuid = referenceBranchComponentUuids.getComponentUuid(component.getKey());
       } else if (periodHolder.hasPeriod() && periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name())) {
-        uuid = newCodeReferenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+        uuid = newCodeReferenceBranchComponentUuids.getComponentUuid(component.getKey());
       } else {
         Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
         uuid = originalFile.map(MovedFilesRepository.OriginalFile::getUuid).orElse(component.getUuid());

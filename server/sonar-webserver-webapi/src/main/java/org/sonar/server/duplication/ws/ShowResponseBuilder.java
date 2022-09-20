@@ -98,7 +98,7 @@ public class ShowResponseBuilder {
       ComponentDto file = ref.getDto();
 
       if (file != null) {
-        ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
+        ComponentDto project = getProject(file.branchUuid(), projectsByUuid, session);
         response.putFiles(ref.getId(), toWsFile(file, project, branch, pullRequest));
       } else {
         response.putFiles(ref.getId(), toWsFile(ref.getComponentKey(), branch, pullRequest));

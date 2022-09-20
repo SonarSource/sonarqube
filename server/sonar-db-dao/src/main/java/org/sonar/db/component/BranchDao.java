@@ -92,7 +92,7 @@ public class BranchDao implements Dao {
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
     String projectUuid = component.getMainBranchProjectUuid();
     if (projectUuid == null) {
-      projectUuid = component.projectUuid();
+      projectUuid = component.branchUuid();
     }
     return mapper(dbSession).selectByProjectUuid(projectUuid);
   }

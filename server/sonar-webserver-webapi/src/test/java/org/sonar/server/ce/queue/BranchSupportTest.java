@@ -57,8 +57,6 @@ public class BranchSupportTest {
     assertThat(componentKey)
       .isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
-    assertThat(componentKey.getDbKey()).isEqualTo(projectKey);
-    assertThat(componentKey.getMainBranchComponentKey()).isSameAs(componentKey);
     assertThat(componentKey.getBranchName()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
   }

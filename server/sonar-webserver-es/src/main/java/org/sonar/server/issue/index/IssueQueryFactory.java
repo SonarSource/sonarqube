@@ -100,7 +100,7 @@ public class IssueQueryFactory {
     .filter(t -> t != RuleType.SECURITY_HOTSPOT)
     .map(Enum::name)
     .collect(MoreCollectors.toSet(RuleType.values().length - 1));
-  private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setProjectUuid(UNKNOWN);
+  private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setBranchUuid(UNKNOWN);
   private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW));
   private final DbClient dbClient;
   private final Clock clock;
@@ -443,11 +443,11 @@ public class IssueQueryFactory {
 
   private static String toProjectUuid(ComponentDto componentDto) {
     String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
-    return mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid;
+    return mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid;
   }
 
   private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
-    builder.branchUuid(branch == null && pullRequest == null ? null : component.projectUuid());
+    builder.branchUuid(branch == null && pullRequest == null ? null : component.branchUuid());
     builder.mainBranch(UNKNOWN_COMPONENT.equals(component)
       || (branch == null && pullRequest == null)
       || (branch != null && !branch.equals(component.getBranch()))

@@ -47,7 +47,7 @@ public class BranchSupport {
 
   ComponentKey createComponentKey(String projectKey, Map<String, String> characteristics) {
     if (characteristics.isEmpty()) {
-      return new ComponentKeyImpl(projectKey, projectKey);
+      return new ComponentKeyImpl(projectKey);
     } else {
       checkState(delegate != null, "Current edition does not support branch feature");
     }
@@ -55,8 +55,7 @@ public class BranchSupport {
     return delegate.createComponentKey(projectKey, characteristics);
   }
 
-  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey,
-    ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {
+  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey, ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {
     checkState(delegate != null, "Current edition does not support branch feature");
 
     return delegate.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto);
@@ -65,8 +64,6 @@ public class BranchSupport {
   public abstract static class ComponentKey {
     public abstract String getKey();
 
-    public abstract String getDbKey();
-
     public abstract Optional<String> getBranchName();
 
     public abstract Optional<String> getPullRequestKey();
@@ -74,30 +71,18 @@ public class BranchSupport {
     public final boolean isMainBranch() {
       return !getBranchName().isPresent() && !getPullRequestKey().isPresent();
     }
-
-    /**
-     * @return the {@link ComponentKey} of the main branch for this component.
-     */
-    public abstract ComponentKey getMainBranchComponentKey();
   }
 
   private static final class ComponentKeyImpl extends ComponentKey {
     private final String key;
-    private final String dbKey;
 
-    public ComponentKeyImpl(String key, String dbKey) {
+    public ComponentKeyImpl(String key) {
       this.key = key;
-      this.dbKey = dbKey;
     }
 
     @Override
     public String getKey() {
       return key;
-    }
-
-    @Override
-    public String getDbKey() {
-      return dbKey;
     }
 
     @Override
@@ -111,11 +96,6 @@ public class BranchSupport {
     }
 
     @Override
-    public ComponentKey getMainBranchComponentKey() {
-      return this;
-    }
-
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -124,13 +104,12 @@ public class BranchSupport {
         return false;
       }
       ComponentKeyImpl that = (ComponentKeyImpl) o;
-      return Objects.equals(key, that.key) &&
-        Objects.equals(dbKey, that.dbKey);
+      return Objects.equals(key, that.key);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(key, dbKey);
+      return Objects.hash(key);
     }
   }
 }

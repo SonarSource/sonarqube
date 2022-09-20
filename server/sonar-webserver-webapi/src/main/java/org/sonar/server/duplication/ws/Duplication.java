@@ -47,7 +47,7 @@ public class Duplication {
   }
 
   static Duplication newComponent(ComponentDto componentDto, Integer from, Integer size) {
-    return new Duplication(componentDto, componentDto.getDbKey(), from, size, false);
+    return new Duplication(componentDto, componentDto.getKey(), from, size, false);
   }
 
   String componentDbKey() {

@@ -32,11 +32,11 @@ public class IssueIteratorFactory {
   }
 
   public IssueIterator createForAll() {
-    return createForProject(null);
+    return createForBranch(null);
   }
 
-  public IssueIterator createForProject(@Nullable String projectUuid) {
-    return new IssueIteratorForSingleChunk(dbClient, projectUuid, null);
+  public IssueIterator createForBranch(@Nullable String branchUuid) {
+    return new IssueIteratorForSingleChunk(dbClient, branchUuid, null);
   }
 
   public IssueIterator createForIssueKeys(Collection<String> issueKeys) {

@@ -56,7 +56,7 @@ public class DuplicationsParser {
       return blocks;
     }
 
-    DuplicationComparator duplicationComparator = new DuplicationComparator(component.uuid(), component.projectUuid());
+    DuplicationComparator duplicationComparator = new DuplicationComparator(component.uuid(), component.branchUuid());
 
     try {
       SMInputFactory inputFactory = initStax();
@@ -123,7 +123,7 @@ public class DuplicationsParser {
   }
 
   private static String convertToKey(String dbKey) {
-    return new ComponentDto().setDbKey(dbKey).getKey();
+    return new ComponentDto().setKey(dbKey).getKey();
   }
 
   private static SMInputFactory initStax() {
@@ -191,7 +191,7 @@ public class DuplicationsParser {
     }
 
     private boolean sameProject(@Nullable ComponentDto otherDto) {
-      return otherDto == null || StringUtils.equals(otherDto.projectUuid(), projectUuid);
+      return otherDto == null || StringUtils.equals(otherDto.branchUuid(), projectUuid);
     }
   }
 

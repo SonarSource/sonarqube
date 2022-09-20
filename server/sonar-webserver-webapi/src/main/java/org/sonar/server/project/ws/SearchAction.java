@@ -210,7 +210,7 @@ public class SearchAction implements ProjectsWsAction {
 
   private static Component dtoToProject(ComponentDto dto, @Nullable SnapshotDto snapshot, @Nullable Long lastAnalysisDate) {
     Component.Builder builder = Component.newBuilder()
-      .setKey(dto.getDbKey())
+      .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());

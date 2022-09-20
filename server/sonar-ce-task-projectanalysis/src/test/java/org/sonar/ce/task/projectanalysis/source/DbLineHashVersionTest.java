@@ -66,7 +66,7 @@ public class DbLineHashVersionTest {
     assertThat(underTest.hasLineHashesWithSignificantCode(component)).isFalse();
 
     verify(analysisMetadataHolder).isPullRequest();
-    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getKey());
   }
 
   @Test
@@ -81,7 +81,7 @@ public class DbLineHashVersionTest {
     assertThat(underTest.hasLineHashesWithSignificantCode(component)).isFalse();
 
     verify(analysisMetadataHolder).isPullRequest();
-    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getKey());
   }
 
   @Test
@@ -97,7 +97,7 @@ public class DbLineHashVersionTest {
     assertThat(underTest.hasLineHashesWithSignificantCode(component)).isTrue();
 
     verify(analysisMetadataHolder).isPullRequest();
-    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getKey());
   }
 
   @Test

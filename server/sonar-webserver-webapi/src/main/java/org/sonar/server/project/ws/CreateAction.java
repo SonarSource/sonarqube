@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -100,16 +99,7 @@ public class CreateAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     CreateRequest createRequest = toCreateRequest(request);
-    validate(createRequest);
     writeProtobuf(doHandle(createRequest), request, response);
-  }
-
-  private static void validate(CreateRequest createRequest) {
-    Set<String> forbiddenNamePhrases = Set.of(":BRANCH:", ":PULLREQUEST:");
-    if (forbiddenNamePhrases.stream().anyMatch(createRequest.getProjectKey()::contains)) {
-      throw new IllegalArgumentException(String.format("Invalid project key. Project key must not contain following phrases [%s]",
-        String.join(", ", forbiddenNamePhrases)));
-    }
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
@@ -119,11 +109,11 @@ public class CreateAction implements ProjectsWsAction {
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-        .setKey(request.getProjectKey())
-        .setName(request.getName())
-        .setPrivate(changeToPrivate)
-        .setQualifier(PROJECT)
-        .build(),
+          .setKey(request.getProjectKey())
+          .setName(request.getName())
+          .setPrivate(changeToPrivate)
+          .setQualifier(PROJECT)
+          .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null,
         userSession.isLoggedIn() ? userSession.getLogin() : null);
       return toCreateResponse(componentDto);
@@ -141,7 +131,7 @@ public class CreateAction implements ProjectsWsAction {
   private static CreateWsResponse toCreateResponse(ComponentDto componentDto) {
     return CreateWsResponse.newBuilder()
       .setProject(CreateWsResponse.Project.newBuilder()
-        .setKey(componentDto.getDbKey())
+        .setKey(componentDto.getKey())
         .setName(componentDto.name())
         .setQualifier(componentDto.qualifier())
         .setVisibility(Visibility.getLabel(componentDto.isPrivate())))

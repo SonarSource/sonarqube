@@ -129,14 +129,14 @@ public class SearchAction implements ComponentsWsAction {
 
   private Map<String, String> searchProjectsKeysByUuids(DbSession dbSession, List<ComponentDto> components) {
     Set<String> projectUuidsToSearch = components.stream()
-      .map(ComponentDto::projectUuid)
+      .map(ComponentDto::branchUuid)
       .collect(toHashSet());
     List<ComponentDto> projects = dbClient.componentDao()
       .selectByUuids(dbSession, projectUuidsToSearch)
       .stream()
       .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
       .collect(Collectors.toList());
-    return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
+    return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getKey));
   }
 
   private static ComponentQuery buildEsQuery(SearchRequest request) {
@@ -155,7 +155,7 @@ public class SearchAction implements ComponentsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToComponent(dto, projectKeysByUuids.get(dto.projectUuid())))
+      .map(dto -> dtoToComponent(dto, projectKeysByUuids.get(dto.branchUuid())))
       .forEach(responseBuilder::addComponents);
 
     return responseBuilder.build();
@@ -163,7 +163,7 @@ public class SearchAction implements ComponentsWsAction {
 
   private static Components.Component dtoToComponent(ComponentDto dto, String projectKey) {
     Components.Component.Builder builder = Components.Component.newBuilder()
-      .setKey(dto.getDbKey())
+      .setKey(dto.getKey())
       .setProject(projectKey)
       .setName(dto.name())
       .setQualifier(dto.qualifier());

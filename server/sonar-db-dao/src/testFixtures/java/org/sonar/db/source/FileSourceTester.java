@@ -45,7 +45,7 @@ public class FileSourceTester {
   public final FileSourceDto insertFileSource(ComponentDto file, Consumer<FileSourceDto>... dtoPopulators) {
     FileSourceDto dto = new FileSourceDto()
       .setUuid(Uuids.createFast())
-      .setProjectUuid(file.projectUuid())
+      .setProjectUuid(file.branchUuid())
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))
@@ -65,7 +65,7 @@ public class FileSourceTester {
   public final FileSourceDto insertFileSource(ComponentDto file, int numLines, Consumer<FileSourceDto>... dtoPopulators) {
     FileSourceDto dto = new FileSourceDto()
       .setUuid(Uuids.createFast())
-      .setProjectUuid(file.projectUuid())
+      .setProjectUuid(file.branchUuid())
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))

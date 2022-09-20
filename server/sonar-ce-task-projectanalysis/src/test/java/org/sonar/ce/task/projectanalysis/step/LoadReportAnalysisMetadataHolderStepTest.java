@@ -76,7 +76,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   public void setUp() {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY);
     underTest = createStep(defaultOrgCeTask);
-    project = db.components().insertPublicProject(p -> p.setDbKey(PROJECT_KEY));
+    project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY));
   }
 
   @Test
@@ -127,7 +127,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     Project project = analysisMetadataHolder.getProject();
     assertThat(project.getUuid()).isEqualTo(this.project.uuid());
-    assertThat(project.getKey()).isEqualTo(this.project.getDbKey());
+    assertThat(project.getKey()).isEqualTo(this.project.getKey());
     assertThat(project.getName()).isEqualTo(this.project.name());
     assertThat(project.getDescription()).isEqualTo(this.project.description());
   }
@@ -215,12 +215,12 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
-        .setProjectKey(otherProject.getDbKey())
+        .setProjectKey(otherProject.getKey())
         .build());
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
       .isInstanceOf(MessageException.class)
-      .hasMessage("ProjectKey in report (" + otherProject.getDbKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
+      .hasMessage("ProjectKey in report (" + otherProject.getKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
 
   }
 
@@ -229,7 +229,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
-        .setProjectKey(otherProject.getDbKey())
+        .setProjectKey(otherProject.getKey())
         .build());
 
     try {
@@ -244,7 +244,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
-        .setProjectKey(otherProject.getDbKey())
+        .setProjectKey(otherProject.getKey())
         .setAnalysisDate(ANALYSIS_DATE)
         .build());
 
@@ -260,11 +260,11 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComponentDto project = db.components().insertPublicProject();
     ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
     metadataBuilder
-      .setProjectKey(project.getDbKey());
+      .setProjectKey(project.getKey());
     metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
     reportReader.setMetadata(metadataBuilder.build());
 
-    ComputationStep underTest = createStep(createCeTask(project.getDbKey()));
+    ComputationStep underTest = createStep(createCeTask(project.getKey()));
 
     underTest.execute(new TestComputationStepContext());
   }

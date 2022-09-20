@@ -201,13 +201,13 @@ public class UpdateVisibilityActionTest {
     userSessionRule.addProjectPermission(UserRole.ADMIN, project, portfolio, application);
 
     Stream.of(project, portfolio, application).forEach(c -> request
-      .setParam(PARAM_PROJECT, c.getDbKey())
+      .setParam(PARAM_PROJECT, c.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility)
       .execute());
 
     Stream.of(module, dir, file, subView, projectCopy)
       .forEach(nonRootComponent -> {
-        request.setParam(PARAM_PROJECT, nonRootComponent.getDbKey())
+        request.setParam(PARAM_PROJECT, nonRootComponent.getKey())
           .setParam(PARAM_VISIBILITY, randomVisibility);
 
         try {
@@ -222,7 +222,7 @@ public class UpdateVisibilityActionTest {
   @Test
   public void execute_throws_ForbiddenException_if_user_has_no_permission_on_specified_component() {
     ComponentDto project = dbTester.components().insertPrivateProject();
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
 
     assertThatThrownBy(request::execute)
@@ -233,7 +233,7 @@ public class UpdateVisibilityActionTest {
   @Test
   public void execute_throws_ForbiddenException_if_user_has_all_permissions_but_ADMIN_on_specified_component() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project);
     Arrays.stream(GlobalPermission.values())
@@ -249,7 +249,7 @@ public class UpdateVisibilityActionTest {
   public void execute_throws_ForbiddenException_if_user_has_ADMIN_permission_but_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
     ComponentDto project = dbTester.components().insertPublicProject();
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
@@ -263,7 +263,7 @@ public class UpdateVisibilityActionTest {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.setSystemAdministrator().addProjectPermission(UserRole.ADMIN, project);
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, "private");
 
     request.execute();
@@ -276,7 +276,7 @@ public class UpdateVisibilityActionTest {
     ComponentDto project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .forEach(i -> insertPendingTask(project));
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
@@ -290,7 +290,7 @@ public class UpdateVisibilityActionTest {
     ComponentDto project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .forEach(i -> insertInProgressTask(project));
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
@@ -315,7 +315,7 @@ public class UpdateVisibilityActionTest {
     dbTester.components().insertComponents(branch, module, dir, file);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PUBLIC : PRIVATE)
       .execute();
 
@@ -346,7 +346,7 @@ public class UpdateVisibilityActionTest {
     dbTester.components().insertComponents(branch, module, dir, file);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PRIVATE : PUBLIC)
       .execute();
 
@@ -365,7 +365,7 @@ public class UpdateVisibilityActionTest {
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -380,7 +380,7 @@ public class UpdateVisibilityActionTest {
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -395,7 +395,7 @@ public class UpdateVisibilityActionTest {
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PUBLIC)
       .execute();
 
@@ -410,7 +410,7 @@ public class UpdateVisibilityActionTest {
     unsafeGiveAllPermissionsToRootComponent(project, user, group);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PUBLIC)
       .execute();
 
@@ -423,7 +423,7 @@ public class UpdateVisibilityActionTest {
     boolean initiallyPrivate = project.isPrivate();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PUBLIC : PRIVATE)
       .execute();
 
@@ -436,7 +436,7 @@ public class UpdateVisibilityActionTest {
     boolean initiallyPrivate = project.isPrivate();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, initiallyPrivate ? PRIVATE : PUBLIC)
       .execute();
 
@@ -454,7 +454,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnUser(user2, "p2", project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -477,7 +477,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnGroup(group2, "p2", project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    request.setParam(PARAM_PROJECT, project.getDbKey())
+    request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -498,7 +498,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
     userSessionRule.addProjectPermission(UserRole.ADMIN, portfolio);
 
-    request.setParam(PARAM_PROJECT, portfolio.getDbKey())
+    request.setParam(PARAM_PROJECT, portfolio.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -522,7 +522,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, portfolio);
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, portfolio);
 
-    request.setParam(PARAM_PROJECT, portfolio.getDbKey())
+    request.setParam(PARAM_PROJECT, portfolio.getKey())
       .setParam(PARAM_VISIBILITY, PUBLIC)
       .execute();
 
@@ -542,7 +542,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, application);
     userSessionRule.addProjectPermission(UserRole.ADMIN, application);
 
-    request.setParam(PARAM_PROJECT, application.getDbKey())
+    request.setParam(PARAM_PROJECT, application.getKey())
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
@@ -566,7 +566,7 @@ public class UpdateVisibilityActionTest {
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, portfolio);
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, portfolio);
 
-    request.setParam(PARAM_PROJECT, portfolio.getDbKey())
+    request.setParam(PARAM_PROJECT, portfolio.getKey())
       .setParam(PARAM_VISIBILITY, PUBLIC)
       .execute();
 
@@ -583,11 +583,11 @@ public class UpdateVisibilityActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
 
-    TestRequest request = this.request.setParam(PARAM_PROJECT, branch.getDbKey())
+    TestRequest request = this.request.setParam(PARAM_PROJECT, branch.getKey())
       .setParam(PARAM_VISIBILITY, PUBLIC);
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(String.format("Component key '%s' not found", branch.getKey()));
   }
 
   private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group) {

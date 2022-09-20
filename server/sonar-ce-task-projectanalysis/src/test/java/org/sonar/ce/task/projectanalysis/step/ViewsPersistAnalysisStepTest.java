@@ -90,7 +90,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
-    ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setDbKey("KEY_VIEW"));
+    ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setKey("KEY_VIEW"));
     save(ComponentTesting.newSubPortfolio(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     save(newPrivateProjectDto("proj"));
     dbTester.getSession().commit();
@@ -116,7 +116,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_new_code_period() {
-    ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setDbKey("KEY_VIEW"));
+    ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setKey("KEY_VIEW"));
     ComponentDto subViewDto = save(ComponentTesting.newSubPortfolio(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 

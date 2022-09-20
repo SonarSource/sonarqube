@@ -57,7 +57,7 @@ public class ExportBranchesStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)
-    .setDbKey("the_project")
+    .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
     .setEnabled(true)
@@ -66,7 +66,7 @@ public class ExportBranchesStepTest {
     .setRootUuid(PROJECT_UUID)
     .setModuleUuid(null)
     .setModuleUuidPath("." + PROJECT_UUID + ".")
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   @Rule
   public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);

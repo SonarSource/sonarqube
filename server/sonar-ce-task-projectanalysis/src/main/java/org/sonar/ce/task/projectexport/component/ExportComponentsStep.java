@@ -45,9 +45,9 @@ public class ExportComponentsStep implements ComputationStep {
   private static final String QUERY = "select" +
     " p.uuid, p.qualifier, p.uuid_path, p.kee, p.name," +
     " p.description, p.scope, p.language, p.long_name, p.path," +
-    " p.module_uuid, p.module_uuid_path, p.deprecated_kee, p.project_uuid, p.main_branch_project_uuid" +
+    " p.module_uuid, p.module_uuid_path, p.deprecated_kee, p.branch_uuid, p.main_branch_project_uuid" +
     " from components p" +
-    " join components pp on pp.uuid = p.project_uuid" +
+    " join components pp on pp.uuid = p.branch_uuid" +
     " join project_branches pb on pb.uuid = pp.uuid" +
     " where pb.project_uuid=? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=? and p.enabled=?";
   private final DbClient dbClient;

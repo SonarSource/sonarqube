@@ -298,7 +298,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     persistComponents(view, project);
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project, view)
-      .setDbKey(PROJECT_VIEW_1_KEY)
+      .setKey(PROJECT_VIEW_1_KEY)
       .setName("Old name")
       .setCreatedAt(now);
     persistComponents(projectView);
@@ -328,7 +328,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     // Project view in DB is associated to project1
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project1, view)
-      .setDbKey(PROJECT_VIEW_1_KEY)
+      .setKey(PROJECT_VIEW_1_KEY)
       .setCreatedAt(now);
     persistComponents(projectView);
 
@@ -393,7 +393,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void persists_new_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
     boolean isRootPrivate = new Random().nextBoolean();
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto());
-    ComponentDto view = newViewDto().setUuid(VIEW_UUID).setDbKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    ComponentDto view = newViewDto().setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
@@ -416,11 +416,11 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void persists_existing_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
     boolean isRootPrivate = new Random().nextBoolean();
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto());
-    ComponentDto view = newViewDto().setUuid(VIEW_UUID).setDbKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
+    ComponentDto view = newViewDto().setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
-    ComponentDto subView = newSubPortfolio(view).setUuid("BCDE").setDbKey("MODULE").setPrivate(!isRootPrivate);
+    ComponentDto subView = newSubPortfolio(view).setUuid("BCDE").setKey("MODULE").setPrivate(!isRootPrivate);
     dbTester.components().insertComponent(subView);
-    dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setDbKey("DIR").setPrivate(isRootPrivate));
+    dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setKey("DIR").setPrivate(isRootPrivate));
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
         .addChildren(
@@ -459,7 +459,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
       .setUuid(PROJECT_VIEW_1_UUID)
       .setName(PROJECT_VIEW_1_NAME)
       .setDescription("project view description is not persisted")
-      .setProjectViewAttributes(new ProjectViewAttributes(project.uuid(), project.getDbKey(), analysisDate, project.getBranch()));
+      .setProjectViewAttributes(new ProjectViewAttributes(project.uuid(), project.getKey(), analysisDate, project.getBranch()));
   }
 
   private void persistComponents(ComponentDto... componentDtos) {
@@ -480,7 +480,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   private ComponentDto newViewDto() {
     return ComponentTesting.newPortfolio(VIEW_UUID)
-      .setDbKey(VIEW_KEY)
+      .setKey(VIEW_KEY)
       .setName(VIEW_NAME);
   }
 
@@ -498,7 +498,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.projectUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.moduleUuid()).isNull();
     assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
@@ -517,7 +517,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.projectUuid()).isEqualTo(VIEW_UUID);
+    assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.moduleUuid()).isNull();
     assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
@@ -536,7 +536,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(sv1Dto.description()).isEqualTo(SUBVIEW_1_DESCRIPTION);
     assertThat(sv1Dto.path()).isNull();
     assertThat(sv1Dto.uuid()).isEqualTo(SUBVIEW_1_UUID);
-    assertThat(sv1Dto.projectUuid()).isEqualTo(viewDto.uuid());
+    assertThat(sv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
     assertThat(sv1Dto.getRootUuid()).isEqualTo(viewDto.uuid());
     assertThat(sv1Dto.moduleUuid()).isEqualTo(viewDto.uuid());
     assertThat(sv1Dto.moduleUuidPath()).isEqualTo(viewDto.moduleUuidPath() + sv1Dto.uuid() + ".");
@@ -552,7 +552,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(pv1Dto.description()).isNull();
     assertThat(pv1Dto.path()).isNull();
     assertThat(pv1Dto.uuid()).isEqualTo(PROJECT_VIEW_1_UUID);
-    assertThat(pv1Dto.projectUuid()).isEqualTo(viewDto.uuid());
+    assertThat(pv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
     assertThat(pv1Dto.getRootUuid()).isEqualTo(viewDto.uuid());
     assertThat(pv1Dto.moduleUuid()).isEqualTo(parentViewDto.uuid());
     assertThat(pv1Dto.moduleUuidPath()).isEqualTo(parentViewDto.moduleUuidPath() + pv1Dto.uuid() + ".");

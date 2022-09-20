@@ -19,17 +19,17 @@
  */
 package org.sonar.db.component;
 
-public class UuidWithProjectUuidDto {
+public class UuidWithBranchUuidDto {
 
   private String uuid;
-  private String projectUuid;
+  private String branchUuid;
 
-  public String getProjectUuid() {
-    return projectUuid;
+  public String getBranchUuid() {
+    return branchUuid;
   }
 
-  public UuidWithProjectUuidDto setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
+  public UuidWithBranchUuidDto setBranchUuid(String branchUuid) {
+    this.branchUuid = branchUuid;
     return this;
   }
 
@@ -37,7 +37,7 @@ public class UuidWithProjectUuidDto {
     return uuid;
   }
 
-  public UuidWithProjectUuidDto setUuid(String uuid) {
+  public UuidWithBranchUuidDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

@@ -85,7 +85,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.line()).isEqualTo(444);
     assertThat(issue.ruleUuid()).isEqualTo(rule.getUuid());
     assertThat(issue.componentUuid()).isEqualTo(file.uuid());
-    assertThat(issue.projectUuid()).isEqualTo(file.projectUuid());
+    assertThat(issue.projectUuid()).isEqualTo(file.branchUuid());
     assertThat(issue.modulePath()).isEqualTo(file.moduleUuidPath());
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
@@ -142,11 +142,11 @@ public class IssueIteratorFactoryTest {
       .map(project2Component -> dbTester.issues().insert(rule, project2, project2Component).getKey())
       .toArray(String[]::new);
 
-    assertThat(issuesByKey(factory -> factory.createForProject(project1.uuid())).keySet())
+    assertThat(issuesByKey(factory -> factory.createForBranch(project1.uuid())).keySet())
       .containsOnly(project1IssueKeys);
-    assertThat(issuesByKey(factory -> factory.createForProject(project2.uuid())).keySet())
+    assertThat(issuesByKey(factory -> factory.createForBranch(project2.uuid())).keySet())
       .containsOnly(project2IssueKeys);
-    assertThat(issuesByKey(factory -> factory.createForProject("does not exist")))
+    assertThat(issuesByKey(factory -> factory.createForBranch("does not exist")))
       .isEmpty();
   }
 

@@ -116,7 +116,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT")
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT")
       .setName("My Project"));
     userSession.addProjectPermission(USER, project);
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
@@ -124,21 +124,21 @@ public class ComponentTreeActionTest {
       .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
+      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
       .setName("ElementImpl.java")
       .setLanguage("java")
       .setQualifier(FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
-      .setDbKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
+      .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
       .setLanguage("java")
       .setQualifier(UNIT_TEST_FILE)
       .setPath("src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"));
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "src/main/java/com/sonarsource/markdown/impl")
       .setUuid("AVIwDXE-bJbJqrw6wFv8")
-      .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
+      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setQualifier(DIRECTORY));
 
     MetricDto complexity = insertComplexityMetric();
@@ -353,15 +353,15 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     SnapshotDto projectSnapshot = db.components().insertSnapshot(project);
-    ComponentDto file9 = db.components().insertComponent(newFileDto(project, null, "file-uuid-9").setName("file-1").setDbKey("file-9-key"));
-    ComponentDto file8 = db.components().insertComponent(newFileDto(project, null, "file-uuid-8").setName("file-1").setDbKey("file-8-key"));
-    ComponentDto file7 = db.components().insertComponent(newFileDto(project, null, "file-uuid-7").setName("file-1").setDbKey("file-7-key"));
-    ComponentDto file6 = db.components().insertComponent(newFileDto(project, null, "file-uuid-6").setName("file-1").setDbKey("file-6-key"));
-    ComponentDto file5 = db.components().insertComponent(newFileDto(project, null, "file-uuid-5").setName("file-1").setDbKey("file-5-key"));
-    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setName("file-1").setDbKey("file-4-key"));
-    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setName("file-1").setDbKey("file-3-key"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setName("file-1").setDbKey("file-2-key"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-1").setDbKey("file-1-key"));
+    ComponentDto file9 = db.components().insertComponent(newFileDto(project, null, "file-uuid-9").setName("file-1").setKey("file-9-key"));
+    ComponentDto file8 = db.components().insertComponent(newFileDto(project, null, "file-uuid-8").setName("file-1").setKey("file-8-key"));
+    ComponentDto file7 = db.components().insertComponent(newFileDto(project, null, "file-uuid-7").setName("file-1").setKey("file-7-key"));
+    ComponentDto file6 = db.components().insertComponent(newFileDto(project, null, "file-uuid-6").setName("file-1").setKey("file-6-key"));
+    ComponentDto file5 = db.components().insertComponent(newFileDto(project, null, "file-uuid-5").setName("file-1").setKey("file-5-key"));
+    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setName("file-1").setKey("file-4-key"));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setName("file-1").setKey("file-3-key"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setName("file-1").setKey("file-2-key"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-1").setKey("file-1-key"));
     MetricDto coverage = insertCoverageMetric();
     db.commit();
     db.measures().insertLiveMeasure(file1, coverage, m -> m.setValue(1.0d));
@@ -396,10 +396,10 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     SnapshotDto projectSnapshot = db.components().insertSnapshot(project);
-    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setDbKey("file-4-key"));
-    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setDbKey("file-3-key"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setDbKey("file-1-key"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setDbKey("file-2-key"));
+    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setKey("file-4-key"));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setKey("file-3-key"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setKey("file-1-key"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setKey("file-2-key"));
     MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     db.commit();
@@ -423,10 +423,10 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     SnapshotDto projectSnapshot = db.components().insertSnapshot(project);
-    ComponentDto file1 = newFileDto(project, null, "file-uuid-1").setDbKey("file-1-key");
-    ComponentDto file2 = newFileDto(project, null, "file-uuid-2").setDbKey("file-2-key");
-    ComponentDto file3 = newFileDto(project, null, "file-uuid-3").setDbKey("file-3-key");
-    ComponentDto file4 = newFileDto(project, null, "file-uuid-4").setDbKey("file-4-key");
+    ComponentDto file1 = newFileDto(project, null, "file-uuid-1").setKey("file-1-key");
+    ComponentDto file2 = newFileDto(project, null, "file-uuid-2").setKey("file-2-key");
+    ComponentDto file3 = newFileDto(project, null, "file-uuid-3").setKey("file-3-key");
+    ComponentDto file4 = newFileDto(project, null, "file-uuid-4").setKey("file-4-key");
     db.components().insertComponent(file1);
     db.components().insertComponent(file2);
     db.components().insertComponent(file3);
@@ -459,9 +459,9 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     SnapshotDto projectSnapshot = db.components().insertSnapshot(project);
-    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setDbKey("file-3-key"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setDbKey("file-1-key"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setDbKey("file-2-key"));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setKey("file-3-key"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setKey("file-1-key"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setKey("file-2-key"));
     MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     db.commit();
@@ -485,10 +485,10 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     SnapshotDto projectSnapshot = db.components().insertSnapshot(project);
-    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setDbKey("file-4-key"));
-    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setDbKey("file-3-key"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setDbKey("file-2-key"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setDbKey("file-1-key"));
+    ComponentDto file4 = db.components().insertComponent(newFileDto(project, null, "file-uuid-4").setKey("file-4-key"));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "file-uuid-3").setKey("file-3-key"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "file-uuid-2").setKey("file-2-key"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setKey("file-1-key"));
     MetricDto ncloc = newMetricDto().setKey("new_ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     db.measures().insertLiveMeasure(file1, ncloc, m -> m.setData((String) null).setValue(null).setVariation(1.0d));
@@ -674,7 +674,7 @@ public class ComponentTreeActionTest {
   @Test
   public void portfolio_local_reference_in_portfolio() {
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID")
-      .setDbKey("Apache-Projects").setName("Apache Projects"));
+      .setKey("Apache-Projects").setName("Apache Projects"));
     userSession.registerComponents(view);
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(USER, view2);
@@ -697,7 +697,7 @@ public class ComponentTreeActionTest {
   @Test
   public void application_local_reference_in_portfolio() {
     ComponentDto apache_projects = ComponentTesting.newPortfolio("VIEW1-UUID")
-      .setDbKey("Apache-Projects").setName("Apache Projects").setPrivate(true);
+      .setKey("Apache-Projects").setName("Apache Projects").setPrivate(true);
     userSession.addProjectPermission(USER, apache_projects);
     ComponentDto view = db.components().insertComponent(apache_projects);
     ComponentDto application = db.components().insertPrivateApplication();
@@ -721,13 +721,13 @@ public class ComponentTreeActionTest {
   @Test
   public void project_branch_reference_from_application_branch() {
     MetricDto ncloc = insertNclocMetric();
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app-key"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app-key"));
     userSession.registerApplication(application);
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"), a -> a.setUuid("custom-uuid"));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("project-key"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setDbKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getDbKey()));
+      .setKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getKey()));
     SnapshotDto applicationBranchAnalysis = db.components().insertSnapshot(applicationBranch);
     db.measures().insertLiveMeasure(applicationBranch, ncloc, m -> m.setValue(5d));
     db.measures().insertLiveMeasure(techProjectBranch, ncloc, m -> m.setValue(1d));
@@ -993,7 +993,7 @@ public class ComponentTreeActionTest {
   public void fail_when_component_is_removed() {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
     userSession.anonymous().addProjectPermission(USER, project);
     insertNclocMetric();
 
@@ -1034,12 +1034,12 @@ public class ComponentTreeActionTest {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam(PARAM_COMPONENT, branch.getDbKey())
+        .setParam(PARAM_COMPONENT, branch.getKey())
         .setParam(PARAM_METRIC_KEYS, "ncloc")
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   private static MetricDto newMetricDto() {

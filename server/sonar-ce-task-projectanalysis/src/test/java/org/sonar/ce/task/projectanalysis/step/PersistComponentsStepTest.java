@@ -51,7 +51,7 @@ public class PersistComponentsStepTest {
     String projectKey = randomAlphabetic(20);
 
     doReturn(component).when(treeRootHolder).getRoot();
-    doReturn(projectKey).when(component).getDbKey();
+    doReturn(projectKey).when(component).getKey();
     doReturn(componentDao).when(dbClient).componentDao();
     doReturn(emptyList()).when(componentDao).selectAllComponentsFromProjectKey(any(DbSession.class), eq(projectKey));
 

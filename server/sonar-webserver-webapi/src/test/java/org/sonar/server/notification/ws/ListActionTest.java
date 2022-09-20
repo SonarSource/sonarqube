@@ -241,7 +241,7 @@ public class ListActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);

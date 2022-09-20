@@ -120,7 +120,7 @@ public class ImportGithubProjectActionTest {
   public void importProject_ifProjectWithSameNameAlreadyExists_importSucceed() {
     AlmSettingDto githubAlmSetting = setupAlm();
     db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
-    db.components().insertPublicProject(p -> p.setDbKey("Hello-World"));
+    db.components().insertPublicProject(p -> p.setKey("Hello-World"));
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "Hello-World",
       "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "main");

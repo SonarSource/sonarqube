@@ -405,7 +405,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
-      Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
+      Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.branchUuid());
       if (baseSnapshot.isEmpty()) {
         return ComponentTreeData.builder()
           .setBaseComponent(baseComponent)

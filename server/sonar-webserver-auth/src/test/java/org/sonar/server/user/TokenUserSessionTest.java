@@ -68,8 +68,8 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.projectUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.projectUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
   }
 
   @Test
@@ -84,8 +84,8 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.projectUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.projectUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
   }
 
   @Test
@@ -99,8 +99,8 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.projectUuid())).isTrue();
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.projectUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isTrue();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project2.branchUuid())).isFalse();
   }
 
   @Test
@@ -140,7 +140,7 @@ public class TokenUserSessionTest {
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
-    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.projectUuid())).isFalse();
+    assertThat(userSession.hasProjectUuidPermission(SCAN, project1.branchUuid())).isFalse();
     assertThat(userSession.hasPermission(GlobalPermission.SCAN)).isTrue();
   }
 
@@ -205,7 +205,7 @@ public class TokenUserSessionTest {
     userTokenDto.setUserUuid("userUid");
     userTokenDto.setProjectKey(componentDto.getKey());
     userTokenDto.setProjectName(componentDto.name());
-    userTokenDto.setProjectUuid(componentDto.projectUuid());
+    userTokenDto.setProjectUuid(componentDto.branchUuid());
     return userTokenDto;
   }
 

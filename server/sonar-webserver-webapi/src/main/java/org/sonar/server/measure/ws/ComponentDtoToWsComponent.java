@@ -39,7 +39,7 @@ class ComponentDtoToWsComponent {
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
-      wsComponent.setRefKey(referenceComponent.getDbKey());
+      wsComponent.setRefKey(referenceComponent.getKey());
     }
 
     Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();

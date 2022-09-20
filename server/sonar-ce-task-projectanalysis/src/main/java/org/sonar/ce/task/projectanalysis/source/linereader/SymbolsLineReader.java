@@ -72,7 +72,7 @@ public class SymbolsLineReader implements LineReader {
         processSymbols(lineBuilder);
       } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
         readError = new ReadError(Data.SYMBOLS, lineBuilder.getLine());
-        LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getDbKey()), e);
+        LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getKey()), e);
       }
     }
     return Optional.ofNullable(readError);

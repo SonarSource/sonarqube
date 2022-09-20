@@ -70,7 +70,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       throw new UnsupportedOperationException(
         format(
           "a measure can be set only once for a specific Component (key=%s), Metric (key=%s). Use update method",
-          component.getDbKey(),
+          component.getKey(),
           metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);
@@ -86,7 +86,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       throw new UnsupportedOperationException(
         format(
           "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s). Use add method",
-          component.getDbKey(),
+          component.getKey(),
           metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);

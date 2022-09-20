@@ -161,13 +161,13 @@ public class SearchResponseFormatFormatOperationTest {
     RuleDto ruleDto = newRule();
     String projectUuid = "project_uuid_" + randomAlphanumeric(5);
     ComponentDto projectDto = newPrivateProjectDto();
-    projectDto.setProjectUuid(projectUuid);
+    projectDto.setBranchUuid(projectUuid);
     return newIssue(ruleDto, projectUuid, "project_key_" + randomAlphanumeric(5), projectDto);
   }
 
   @Test
   public void formatOperation_should_add_branch_on_issue() {
-    componentDto.setDbKey(randomAlphanumeric(5) + BRANCH_KEY_SEPARATOR + randomAlphanumeric(5));
+    componentDto.setKey(randomAlphanumeric(5) + BRANCH_KEY_SEPARATOR + randomAlphanumeric(5));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
 
@@ -176,7 +176,7 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_pullrequest_on_issue() {
-    componentDto.setDbKey(randomAlphanumeric(5) + PULL_REQUEST_SEPARATOR + randomAlphanumeric(5));
+    componentDto.setKey(randomAlphanumeric(5) + PULL_REQUEST_SEPARATOR + randomAlphanumeric(5));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
 
@@ -283,7 +283,7 @@ public class SearchResponseFormatFormatOperationTest {
 
     String projectUuid = "project_uuid_" + randomAlphanumeric(5);
     ComponentDto projectDto = newPrivateProjectDto();
-    projectDto.setProjectUuid(projectUuid);
+    projectDto.setBranchUuid(projectUuid);
 
     UserDto userDto = newUserDto();
 

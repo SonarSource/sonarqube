@@ -125,7 +125,7 @@ public class ScrollForFileMoveComponentDaoTest {
     List<ComponentAndSource> files = IntStream.range(0, 300 + random.nextInt(500))
       .mapToObj(i -> {
         String qualifier = random.nextBoolean() ? FILE : UNIT_TEST_FILE;
-        ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setDbKey("f_" + i).setQualifier(qualifier));
+        ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setKey("f_" + i).setQualifier(qualifier));
         FileSourceDto fileSource = db.fileSources().insertFileSource(file);
         return new ComponentAndSource(file, fileSource);
       })
@@ -233,7 +233,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   private static void verifyFileMoveRowDto(RecordingResultHandler resultHander, ComponentAndSource componentAndSource) {
     FileMoveRowDto dto = resultHander.getByUuid(componentAndSource.component.uuid()).get();
-    assertThat(dto.getKey()).isEqualTo(componentAndSource.component.getDbKey());
+    assertThat(dto.getKey()).isEqualTo(componentAndSource.component.getKey());
     assertThat(dto.getUuid()).isEqualTo(componentAndSource.component.uuid());
     assertThat(dto.getPath()).isEqualTo(componentAndSource.component.path());
     assertThat(dto.getLineCount()).isEqualTo(componentAndSource.source.getLineCount());

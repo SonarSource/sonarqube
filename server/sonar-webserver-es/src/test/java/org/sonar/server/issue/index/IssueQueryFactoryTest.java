@@ -92,7 +92,7 @@ public class IssueQueryFactoryTest {
       .setStatuses(asList("CLOSED"))
       .setResolutions(asList("FALSE-POSITIVE"))
       .setResolved(true)
-      .setProjects(asList(project.getDbKey()))
+      .setProjects(asList(project.getKey()))
       .setDirectories(asList("aDirPath"))
       .setFiles(asList(file.uuid()))
       .setAssigneesUuid(asList(user.getUuid()))
@@ -479,7 +479,7 @@ public class IssueQueryFactoryTest {
   public void onComponentOnly_restricts_search_to_specified_componentKeys() {
     ComponentDto project = db.components().insertPrivateProject();
     SearchRequest request = new SearchRequest()
-      .setComponents(asList(project.getDbKey()))
+      .setComponents(asList(project.getKey()))
       .setOnComponentOnly(true);
 
     IssueQuery query = underTest.create(request);
@@ -633,14 +633,14 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key_and_branch() {
-    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
     ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
     ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));

@@ -122,7 +122,7 @@ class MeasureMatrix {
     if (cell == null) {
       LiveMeasureDto measure = new LiveMeasureDto()
         .setComponentUuid(component.uuid())
-        .setProjectUuid(component.projectUuid())
+        .setProjectUuid(component.branchUuid())
         .setMetricUuid(metricsByKeys.get(metricKey).getUuid());
       cell = new MeasureCell(measure);
       table.put(component.uuid(), metricKey, cell);

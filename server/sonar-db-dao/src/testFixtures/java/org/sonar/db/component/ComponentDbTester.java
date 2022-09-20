@@ -478,7 +478,7 @@ public class ComponentDbTester {
   @SafeVarargs
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
     // MainBranchProjectUuid will be null if it's a main branch
-    BranchDto branchDto = ComponentTesting.newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), BRANCH);
+    BranchDto branchDto = ComponentTesting.newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.branchUuid()), BRANCH);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
     return insertProjectBranch(project, branchDto);
   }
@@ -502,7 +502,7 @@ public class ComponentDbTester {
 
   public final ComponentDto insertProjectBranch(ComponentDto project, BranchDto branchDto) {
     // MainBranchProjectUuid will be null if it's a main branch
-    checkArgument(branchDto.getProjectUuid().equals(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid())));
+    checkArgument(branchDto.getProjectUuid().equals(firstNonNull(project.getMainBranchProjectUuid(), project.branchUuid())));
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
     insertComponent(branch);
     dbClient.branchDao().insert(dbSession, branchDto);
@@ -518,7 +518,7 @@ public class ComponentDbTester {
   public static ProjectDto toProjectDto(ComponentDto componentDto, long createTime) {
     return new ProjectDto()
       .setUuid(componentDto.uuid())
-      .setKey(componentDto.getDbKey())
+      .setKey(componentDto.getKey())
       .setQualifier(componentDto.qualifier() != null ? componentDto.qualifier() : Qualifiers.PROJECT)
       .setCreatedAt(createTime)
       .setUpdatedAt(createTime)
@@ -530,8 +530,8 @@ public class ComponentDbTester {
   public static PortfolioDto toPortfolioDto(ComponentDto componentDto, long createTime) {
     return new PortfolioDto()
       .setUuid(componentDto.uuid())
-      .setKey(componentDto.getDbKey())
-      .setRootUuid(componentDto.projectUuid())
+      .setKey(componentDto.getKey())
+      .setRootUuid(componentDto.branchUuid())
       .setSelectionMode(NONE.name())
       .setCreatedAt(createTime)
       .setUpdatedAt(createTime)

@@ -1165,7 +1165,7 @@ public class PurgeDaoTest {
       newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid(), disabledComponentUuids),
       purgeListener, new PurgeProfiler());
 
-    assertThat(db.getDbClient().componentDao().selectByProjectUuid(project.uuid(), dbSession))
+    assertThat(db.getDbClient().componentDao().selectByBranchUuid(project.uuid(), dbSession))
       .extracting("uuid")
       .containsOnly(project.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
         enabledFileWithoutIssues.uuid());

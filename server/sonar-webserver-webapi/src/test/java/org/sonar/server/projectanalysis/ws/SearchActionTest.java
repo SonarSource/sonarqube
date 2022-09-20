@@ -119,7 +119,7 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey(KEY_PROJECT_EXAMPLE_001));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey(KEY_PROJECT_EXAMPLE_001));
 
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
@@ -202,7 +202,7 @@ public class SearchActionTest {
 
   @Test
   public void return_only_processed_analyses() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
@@ -215,7 +215,7 @@ public class SearchActionTest {
 
   @Test
   public void return_events() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto()).setUuid("A42"));
@@ -241,7 +241,7 @@ public class SearchActionTest {
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
     SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result)
       .hasSize(3)
@@ -262,7 +262,7 @@ public class SearchActionTest {
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, REMOVED, "Another project", "app2", "master", uuidFactoryFast.create());
     insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -287,7 +287,7 @@ public class SearchActionTest {
     EventComponentChangeDto changeDto2 = generateEventComponentChange(event, ADDED, "My project", "app1", newBranch, changeDto1.getComponentUuid());
     insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -312,7 +312,7 @@ public class SearchActionTest {
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -339,7 +339,7 @@ public class SearchActionTest {
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -369,7 +369,7 @@ public class SearchActionTest {
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto3, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -401,7 +401,7 @@ public class SearchActionTest {
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getSession().commit();
 
-    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(application.getKey()).getAnalysesList();
 
     assertThat(result).hasSize(1);
     List<Event> events = result.get(0).getEventsList();
@@ -426,7 +426,7 @@ public class SearchActionTest {
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(2_000_000L));
     SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(3_000_000L));
 
-    List<Analysis> result = call(view.getDbKey()).getAnalysesList();
+    List<Analysis> result = call(view.getKey()).getAnalysesList();
 
     assertThat(result)
       .hasSize(3)
@@ -440,7 +440,7 @@ public class SearchActionTest {
     IntStream.rangeClosed(1, 9).forEach(i -> db.components().insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000L * i).setUuid("A" + i)));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setPage(2)
       .setPageSize(3)
       .build());
@@ -451,7 +451,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
@@ -472,7 +472,7 @@ public class SearchActionTest {
 
   @Test
   public void paginate_with_filter_on_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
@@ -507,7 +507,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .build());
 
@@ -527,7 +527,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setTo(formatDateTime(2_000_000_000L))
       .build());
 
@@ -547,7 +547,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setFrom(formatDateTime(2_000_000_000L))
       .setTo(formatDateTime(3_000_000_000L))
       .build());
@@ -568,7 +568,7 @@ public class SearchActionTest {
     SnapshotDto a4 = db.components().insertSnapshot(newAnalysis(project).setUuid("a4").setCreatedAt(4_000_000_000L));
 
     SearchResponse result = call(SearchRequest.builder()
-      .setProject(project.getDbKey())
+      .setProject(project.getKey())
       .setFrom(formatDate(new Date(2_000_000_000L)))
       .setTo(formatDate(new Date(3_000_000_000L)))
       .build());
@@ -602,7 +602,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    SearchResponse result = call(project.getDbKey());
+    SearchResponse result = call(project.getKey());
 
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
@@ -620,7 +620,7 @@ public class SearchActionTest {
       db.components().insertSnapshot(newAnalysis(project).setProjectVersion("c").setBuildString("d"))
     };
 
-    SearchResponse result = call(project.getDbKey());
+    SearchResponse result = call(project.getKey());
 
     assertThat(result.getAnalysesList())
       .extracting(Analysis::getKey, Analysis::getProjectVersion, Analysis::getBuildString)
@@ -636,7 +636,7 @@ public class SearchActionTest {
     userSession.anonymous();
     ComponentDto project = db.components().insertPrivateProject();
 
-    var projectDbKey = project.getDbKey();
+    var projectDbKey = project.getKey();
     assertThatThrownBy(() -> call(projectDbKey))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -654,7 +654,7 @@ public class SearchActionTest {
         toProjectDto(project2, 1L))
       .addProjectPermission(UserRole.USER, application, project1);
 
-    var projectDbKey = application.getDbKey();
+    var projectDbKey = application.getKey();
     assertThatThrownBy(() -> call(projectDbKey))
       .isInstanceOf(ForbiddenException.class);
   }
@@ -672,7 +672,7 @@ public class SearchActionTest {
     db.components().insertSnapshot(newAnalysis(project));
     userSession.registerComponents(project, file);
 
-    var fileDbKey = file.getDbKey();
+    var fileDbKey = file.getKey();
     assertThatThrownBy(() -> call(fileDbKey))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A project, portfolio or application is required");

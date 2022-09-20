@@ -76,10 +76,10 @@ public class SearchActionTest {
 
   @Test
   public void return_favorites() {
-    ComponentDto project = newPrivateProjectDto("P1").setDbKey("K1").setName("N1");
+    ComponentDto project = newPrivateProjectDto("P1").setKey("K1").setName("N1");
     addComponent(project);
-    addComponent(newFileDto(project).setDbKey("K11").setName("N11"));
-    addComponent(newPrivateProjectDto("P2").setDbKey("K2").setName("N2"));
+    addComponent(newFileDto(project).setKey("K11").setName("N11"));
+    addComponent(newPrivateProjectDto("P2").setKey("K2").setName("N2"));
 
     SearchResponse result = call();
 
@@ -104,7 +104,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_authorized_components() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1"));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
     db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
@@ -117,7 +117,7 @@ public class SearchActionTest {
   @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
-      .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K" + i).setName("N" + i)));
+      .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto().setKey("K" + i).setName("N" + i)));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
     db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
@@ -132,8 +132,8 @@ public class SearchActionTest {
 
   @Test
   public void return_only_users_favorite() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
-    ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto().setDbKey("K42");
+    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1"));
+    ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto().setKey("K42");
     db.components().insertComponent(otherUserFavorite);
     db.favorites().add(otherUserFavorite, "42", userLogin);
     db.commit();
@@ -157,9 +157,9 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1").setName("Samba"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K2").setName("Apache HBase"));
-    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K3").setName("JDK9"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K1").setName("Samba"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K2").setName("Apache HBase"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setKey("K3").setName("JDK9"));
 
     String result = ws.newRequest().execute().getInput();
 

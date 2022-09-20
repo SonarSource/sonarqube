@@ -65,7 +65,7 @@ public class ComponentIndexSearchWindowExceededTest {
       .setId(componentDoc.uuid())
       .setKey(componentDoc.getKey())
       .setName(componentDoc.name())
-      .setProjectUuid(componentDoc.projectUuid())
+      .setProjectUuid(componentDoc.branchUuid())
       .setQualifier(componentDoc.qualifier());
   }
 }

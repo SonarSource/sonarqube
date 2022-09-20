@@ -351,8 +351,8 @@ public class InternalCeQueueImplTest {
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(peek.get().getComponent()).contains(new CeTask.Component(branch.uuid(), branch.getDbKey(), branch.name()));
-    assertThat(peek.get().getMainComponent()).contains(new CeTask.Component(project.uuid(), project.getDbKey(), project.name()));
+    assertThat(peek.get().getComponent()).contains(new CeTask.Component(branch.uuid(), branch.getKey(), branch.name()));
+    assertThat(peek.get().getMainComponent()).contains(new CeTask.Component(project.uuid(), project.getKey(), project.name()));
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);
@@ -608,7 +608,7 @@ public class InternalCeQueueImplTest {
     if (componentDto != null) {
       CeTask.Component component = task.getComponent().get();
       assertThat(component.getUuid()).isEqualTo(componentDto.uuid());
-      assertThat(component.getKey()).contains(componentDto.getDbKey());
+      assertThat(component.getKey()).contains(componentDto.getKey());
       assertThat(component.getName()).contains(componentDto.name());
     } else if (taskSubmit.getComponent().isPresent()) {
       assertThat(task.getComponent()).contains(new CeTask.Component(taskSubmit.getComponent().get().getUuid(), null, null));
@@ -644,7 +644,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto newProjectDto(String uuid) {
-    return ComponentTesting.newPublicProjectDto(uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
+    return ComponentTesting.newPublicProjectDto(uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, ComponentDto componentDto) {

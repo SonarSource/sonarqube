@@ -32,7 +32,7 @@ public class SnapshotTesting {
 
   public static SnapshotDto newAnalysis(ComponentDto rootComponent) {
     checkNotNull(rootComponent.uuid(), "Project UUID must be set");
-    checkArgument(rootComponent.uuid().equals(rootComponent.projectUuid()), "Component is not a tree root");
+    checkArgument(rootComponent.uuid().equals(rootComponent.branchUuid()), "Component is not a tree root");
     return newAnalysis(rootComponent.uuid());
   }
 

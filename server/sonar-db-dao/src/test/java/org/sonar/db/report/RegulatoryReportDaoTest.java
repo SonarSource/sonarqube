@@ -56,8 +56,8 @@ public class RegulatoryReportDaoTest {
   public void prepare() {
     rule = db.rules().insertRule();
     hotspotRule = db.rules().insertHotspotRule();
-    project = db.components().insertPrivateProject(t -> t.setProjectUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
-    file = db.components().insertComponent(newFileDto(project).setUuid(FILE_UUID).setDbKey(FILE_KEY));
+    project = db.components().insertPrivateProject(t -> t.setBranchUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    file = db.components().insertComponent(newFileDto(project).setUuid(FILE_UUID).setKey(FILE_KEY));
   }
 
   @Test

@@ -19,9 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.analysis;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.db.component.BranchType;
+
+import static org.apache.logging.log4j.util.Strings.trimToNull;
+import static org.sonar.core.component.ComponentKeys.createEffectiveKey;
 
 @Immutable
 public interface Branch extends ComponentKeyGenerator {
@@ -61,4 +65,13 @@ public interface Branch extends ComponentKeyGenerator {
    * @throws IllegalStateException if this branch configuration is not a pull request.
    */
   String getTargetBranchName();
+
+  @Override
+  default String generateKey(String projectKey, @Nullable String fileOrDirPath) {
+    if (fileOrDirPath == null) {
+      return projectKey;
+    } else {
+      return createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
+    }
+  }
 }

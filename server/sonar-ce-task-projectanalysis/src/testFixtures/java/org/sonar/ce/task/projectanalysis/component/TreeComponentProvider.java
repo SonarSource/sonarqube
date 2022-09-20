@@ -34,7 +34,7 @@ public final class TreeComponentProvider extends AbstractComponentProvider {
   }
 
   private static String getRef(Component component) {
-    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getDbKey();
+    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
   }
 
   @Override

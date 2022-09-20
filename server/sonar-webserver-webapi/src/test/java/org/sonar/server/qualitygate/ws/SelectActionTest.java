@@ -180,7 +180,7 @@ public class SelectActionTest {
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
-      .setParam("projectKey", project.getDbKey())
+      .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }
@@ -193,7 +193,7 @@ public class SelectActionTest {
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
-      .setParam("projectKey", project.getDbKey())
+      .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }
@@ -207,10 +207,10 @@ public class SelectActionTest {
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
-      .setParam("projectKey", branch.getDbKey())
+      .setParam("projectKey", branch.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {

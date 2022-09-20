@@ -206,7 +206,7 @@ public class PullTaintActionTest {
 
   @Test
   public void givenValidProjectKeyAndOneTaintOnBranch_returnOneTaint_WithMetadataSeverity() throws IOException {
-    loginWithBrowsePermission(correctProject.projectUuid(), correctFile.uuid());
+    loginWithBrowsePermission(correctProject.branchUuid(), correctFile.uuid());
     DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
       .setStartLine(1)
       .setEndLine(2)

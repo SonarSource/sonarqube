@@ -54,7 +54,7 @@ public class RecentTasksDurationTaskTest {
     when(dbClient.ceActivityDao()).thenReturn(ceActivityDao);
     when(dbClient.componentDao()).thenReturn(componentDao);
     ComponentDto componentDto = new ComponentDto();
-    componentDto.setDbKey("key");
+    componentDto.setKey("key");
   }
 
   @Test
@@ -116,7 +116,7 @@ public class RecentTasksDurationTaskTest {
     for(int i=0; i<5; i++) {
       ComponentDto component = new ComponentDto();
       component.setUuid(i + "");
-      component.setDbKey(i + "");
+      component.setKey(i + "");
       componentDtos.add(component);
     }
     return componentDtos;

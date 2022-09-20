@@ -52,7 +52,7 @@ public class SiblingsIssuesLoader {
   }
 
   public Collection<SiblingIssue> loadCandidateSiblingIssuesForMerging(Component component) {
-    String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getDbKey());
+    String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getKey());
     Set<String> uuids = siblingComponentsWithOpenIssues.getUuids(componentKey);
     if (uuids.isEmpty()) {
       return Collections.emptyList();

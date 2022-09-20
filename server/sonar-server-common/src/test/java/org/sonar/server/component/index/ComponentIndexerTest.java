@@ -102,8 +102,8 @@ public class ComponentIndexerTest {
     assertThatIndexContainsOnly(project);
     ComponentDoc doc = es.getDocuments(TYPE_COMPONENT, ComponentDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(project.uuid());
-    assertThat(doc.getKey()).isEqualTo(project.getDbKey());
-    assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
+    assertThat(doc.getKey()).isEqualTo(project.getKey());
+    assertThat(doc.getProjectUuid()).isEqualTo(project.branchUuid());
     assertThat(doc.getName()).isEqualTo(project.name());
   }
 

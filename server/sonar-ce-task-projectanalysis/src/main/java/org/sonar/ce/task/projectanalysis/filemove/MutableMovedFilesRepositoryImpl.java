@@ -37,11 +37,11 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
     requireNonNull(originalFile, "originalFile can't be null");
     checkArgument(file.getType() == Component.Type.FILE, "file must be of type FILE");
 
-    OriginalFile existingOriginalFile = originalFiles.get(file.getDbKey());
+    OriginalFile existingOriginalFile = originalFiles.get(file.getKey());
     checkState(existingOriginalFile == null || existingOriginalFile.equals(originalFile),
       "Original file %s already registered for file %s. Unable to register %s.", existingOriginalFile, file, originalFile);
     if (existingOriginalFile == null) {
-      originalFiles.put(file.getDbKey(), originalFile);
+      originalFiles.put(file.getKey(), originalFile);
     }
   }
 
@@ -52,6 +52,6 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
       return Optional.empty();
     }
 
-    return Optional.ofNullable(originalFiles.get(file.getDbKey()));
+    return Optional.ofNullable(originalFiles.get(file.getKey()));
   }
 }

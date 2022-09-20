@@ -5,7 +5,7 @@
   <sql id="componentColumns">
     p.uuid as uuid,
     p.uuid_path as uuidPath,
-    p.project_uuid as projectUuid,
+    p.branch_uuid as branchUuid,
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
     p.main_branch_project_uuid as mainBranchProjectUuid,
@@ -30,6 +30,7 @@
     FROM components p
     where
       p.kee=#{key,jdbcType=VARCHAR}
+      and p.main_branch_project_uuid is null
   </select>
 
   <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component">
@@ -40,25 +41,25 @@
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
   </select>
 
-  <select id="selectBranchByKeyAndBranchKey" parameterType="String" resultType="Component">
+  <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
     from components p
-    inner join project_branches pb on pb.uuid = p.project_uuid
+    inner join project_branches pb on pb.uuid = p.branch_uuid
     where
-      (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
+      p.kee=#{key,jdbcType=VARCHAR}
       and pb.kee=#{branch,jdbcType=VARCHAR}
-      and (pb.branch_type='BRANCH')
+      and pb.branch_type='BRANCH'
   </select>
 
-  <select id="selectPrByKeyAndBranchKey" parameterType="String" resultType="Component">
+  <select id="selectByKeyAndPrKey" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
     from components p
-    inner join project_branches pb on pb.uuid = p.project_uuid
+    inner join project_branches pb on pb.uuid = p.branch_uuid
     where
-      (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
-      and pb.kee=#{branch,jdbcType=VARCHAR}
+      p.kee=#{key,jdbcType=VARCHAR}
+      and pb.kee=#{pr,jdbcType=VARCHAR}
       and pb.branch_type='PULL_REQUEST'
   </select>
 
@@ -70,13 +71,13 @@
       p.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByProjectUuid" parameterType="string" resultType="Component">
+  <select id="selectByBranchUuid" parameterType="string" resultType="Component">
     select
     <include refid="componentColumns"/>
     from components root
-    inner join components p on p.project_uuid=root.uuid
+    inner join components p on p.branch_uuid=root.uuid
     where
-      root.uuid=#{projectUuid,jdbcType=VARCHAR}
+      root.uuid=#{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKeys" parameterType="String" resultType="Component">
@@ -92,23 +93,11 @@
       </foreach>
   </select>
 
-  <select id="selectByDbKeys" parameterType="String" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from components p
-    where
-    p.enabled=${_true}
-    and p.kee in
-    <foreach collection="dbKeys" open="(" close=")" item="key" separator=",">
-      #{key,jdbcType=VARCHAR}
-    </foreach>
-  </select>
-
   <select id="selectByKeysAndBranch" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM components p
-    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
+    INNER JOIN project_branches pb on pb.uuid = p.branch_uuid
     <where>
     p.enabled=${_true}
     AND p.kee IN
@@ -165,7 +154,7 @@
 
   <sql id="modulesTreeQuery">
     INNER JOIN components module ON
-      module.project_uuid = p.project_uuid
+      module.branch_uuid = p.branch_uuid
       and module.uuid = #{moduleUuid}
       and module.scope='PRJ' AND module.enabled = ${_true}
     where
@@ -193,7 +182,7 @@
       fs.revision
     FROM components root
     INNER JOIN components p on
-      p.project_uuid=root.uuid
+      p.branch_uuid=root.uuid
       and p.enabled=${_true}
       and p.scope='FIL'
     INNER JOIN file_sources fs ON
@@ -236,13 +225,13 @@
       </foreach>
   </select>
 
-  <select id="countEnabledModulesByProjectUuid" resultType="int">
+  <select id="countEnabledModulesByBranchUuid" resultType="int">
     select
       count(1)
     from components p
     where
       p.enabled=${_true}
-      and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
       and p.qualifier = 'BRC'
   </select>
 
@@ -388,7 +377,7 @@
       <include refid="componentColumns"/>
     from components p
     where
-    p.project_uuid = #{branchUuid,jdbcType=VARCHAR}
+    p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
     and p.uuid_path in
     <foreach collection="uuidPaths" item="uuidPath" open="(" close=")" separator=",">
         #{uuidPath,jdbcType=VARCHAR}
@@ -407,7 +396,7 @@
   </select>
 
   <sql id="selectDescendantsJoins">
-    inner join components base on base.project_uuid = p.project_uuid and base.uuid = #{baseUuid}
+    inner join components base on base.branch_uuid = p.branch_uuid and base.uuid = #{baseUuid}
     <choose>
       <when test="query.getStrategy().name() == 'CHILDREN'">
         and p.uuid_path = #{baseUuidPath,jdbcType=VARCHAR}
@@ -441,8 +430,8 @@
     </if>
   </sql>
 
-  <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
-    SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM components p
+  <select id="selectUuidsForQualifiers" resultType="UuidWithBranchUuid">
+    SELECT p.uuid as "uuid", p.branch_uuid as "branchUuid" FROM components p
     where
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
         p.qualifier=#{qualifier,jdbcType=VARCHAR}
@@ -461,7 +450,7 @@
         <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
     where
       p.enabled = ${_true}
-      and p.uuid = leaf.project_uuid
+      and p.uuid = leaf.branch_uuid
       and p.scope = 'PRJ'
       and p.qualifier in ('VW', 'APP')
   </select>
@@ -470,7 +459,7 @@
     from components p
     where
       p.enabled = ${_true}
-      and p.project_uuid = #{projectViewUuid,jdbcType=VARCHAR}
+      and p.branch_uuid = #{projectViewUuid,jdbcType=VARCHAR}
     <choose>
       <when test="_databaseId == 'mssql'">
         and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} {escape '\'}
@@ -487,7 +476,7 @@
     SELECT
     <include refid="componentColumns"/>
     FROM components p
-    INNER JOIN components root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+    INNER JOIN components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -504,7 +493,7 @@
     FROM
       components p
     INNER JOIN
-      components root ON root.uuid=p.project_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
+      components root ON root.uuid=p.branch_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
   <select id="selectUuidsByKeyFromProjectKey" parameterType="string" resultType="KeyWithUuid">
@@ -513,7 +502,7 @@
     FROM
       components p
     INNER JOIN
-      components root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+      components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
   <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -527,7 +516,7 @@
       and p.scope = 'PRJ'
       and p.qualifier in ('TRK','VW','SVW','APP')
       <if test="projectUuid != null">
-        and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+        and p.branch_uuid = #{projectUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
@@ -541,7 +530,7 @@
     inner join file_sources fs on
       fs.file_uuid = p.uuid
     where
-      p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
       and p.enabled = ${_true}
       and p.scope = 'FIL'
       and p.qualifier in ('FIL', 'UTS')
@@ -553,7 +542,7 @@
       kee,
       uuid,
       uuid_path,
-      project_uuid,
+      branch_uuid,
       module_uuid,
       module_uuid_path,
       main_branch_project_uuid,
@@ -586,7 +575,7 @@
     #{kee,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},
     #{uuidPath,jdbcType=VARCHAR},
-    #{projectUuid,jdbcType=VARCHAR},
+    #{branchUuid,jdbcType=VARCHAR},
     #{moduleUuid,jdbcType=VARCHAR},
     #{moduleUuidPath,jdbcType=VARCHAR},
     #{mainBranchProjectUuid, jdbcType=VARCHAR},
@@ -699,7 +688,7 @@
     b_path = null,
     b_qualifier = null
     where
-    project_uuid = #{projectUuid,jdbcType=VARCHAR} and
+    branch_uuid = #{branchUuid,jdbcType=VARCHAR} and
     b_changed = ${_true}
   </update>
 
@@ -709,7 +698,7 @@
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     deprecated_kee = kee
     where
-    project_uuid = #{projectUuid,jdbcType=VARCHAR} and
+    branch_uuid = #{branchUuid,jdbcType=VARCHAR} and
     b_changed = ${_true}
   </update>
 
@@ -717,7 +706,7 @@
     update components set
       private = #{isPrivate,jdbcType=BOOLEAN}
     where
-      project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      branch_uuid = #{branchUuid,jdbcType=VARCHAR}
       and private &lt;&gt; #{isPrivate,jdbcType=BOOLEAN}
   </update>
 

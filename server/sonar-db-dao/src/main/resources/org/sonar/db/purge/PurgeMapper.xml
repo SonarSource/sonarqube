@@ -69,7 +69,7 @@
       components p
     where
       (
-        p.project_uuid=#{rootUuid,jdbcType=VARCHAR}
+        p.branch_uuid=#{rootUuid,jdbcType=VARCHAR}
         and p.scope = 'PRJ' and p.qualifier in ('SVW','BRC')
       )
       or (
@@ -85,7 +85,7 @@
     inner join components p on
       p.uuid = fs.file_uuid
       and p.enabled = ${_false}
-      and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectDisabledComponentsWithUnresolvedIssues" parameterType="map" resultType="String">
@@ -95,7 +95,7 @@
     inner join components p on
       p.uuid = i.component_uuid
       and p.enabled = ${_false}
-      and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
     where
       resolution is null
   </select>
@@ -107,7 +107,7 @@
     inner join components p on
       p.uuid = lm.component_uuid
       and p.enabled = ${_false}
-      and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="deleteAnalysisMeasures" parameterType="map">
@@ -220,7 +220,7 @@
   <delete id="deleteComponentsByProjectUuid" parameterType="map">
     delete from components
     where
-      project_uuid = #{rootUuid,jdbcType=VARCHAR}
+      branch_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
     <delete id="deleteComponentsByMainBranchProjectUuid" parameterType="map">
@@ -322,7 +322,7 @@
       components p
     WHERE
       p.enabled = ${_false}
-      AND p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+      AND p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
       AND NOT EXISTS (SELECT 1 FROM issues i WHERE i.component_uuid = p.uuid)
   </select>
 

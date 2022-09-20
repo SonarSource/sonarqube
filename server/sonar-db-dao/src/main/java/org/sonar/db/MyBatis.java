@@ -62,7 +62,7 @@ import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ScrapAnalysisPropertyDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
-import org.sonar.db.component.UuidWithProjectUuidDto;
+import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
@@ -243,7 +243,7 @@ public class MyBatis {
     confBuilder.loadAlias("UserTelemetry", UserTelemetryDto.class);
     confBuilder.loadAlias("UserToken", UserTokenDto.class);
     confBuilder.loadAlias("UserTokenCount", UserTokenCount.class);
-    confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
+    confBuilder.loadAlias("UuidWithBranchUuid", UuidWithBranchUuidDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
     confExtensions.forEach(ext -> ext.loadAliases(confBuilder::loadAlias));
 

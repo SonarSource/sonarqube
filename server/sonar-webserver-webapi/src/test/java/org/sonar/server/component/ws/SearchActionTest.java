@@ -125,8 +125,8 @@ public class SearchActionTest {
   @Test
   public void search_by_key_query() {
     insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto().setDbKey("project-_%-key"),
-      ComponentTesting.newPrivateProjectDto().setDbKey("project-key-without-escaped-characters"));
+      ComponentTesting.newPrivateProjectDto().setKey("project-_%-key"),
+      ComponentTesting.newPrivateProjectDto().setKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(new SearchRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
@@ -137,7 +137,7 @@ public class SearchActionTest {
   public void search_with_pagination() {
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newPrivateProjectDto("project-uuid-" + i).setDbKey("project-key-" + i).setName("Project Name " + i));
+      componentDtoList.add(newPrivateProjectDto("project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
@@ -158,7 +158,7 @@ public class SearchActionTest {
     SearchWsResponse response = call(new SearchRequest().setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
-      .containsExactlyInAnyOrder(project1.getDbKey());
+      .containsExactlyInAnyOrder(project1.getKey());
     assertThat(response.getPaging().getTotal()).isOne();
   }
 
@@ -166,16 +166,16 @@ public class SearchActionTest {
   public void return_project_key() {
     ComponentDto project = ComponentTesting.newPublicProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto dir1 = newDirectory(module, "dir1").setDbKey("dir1");
-    ComponentDto dir2 = newDirectory(module, "dir2").setDbKey("dir2");
-    ComponentDto dir3 = newDirectory(project, "dir3").setDbKey("dir3");
+    ComponentDto dir1 = newDirectory(module, "dir1").setKey("dir1");
+    ComponentDto dir2 = newDirectory(module, "dir2").setKey("dir2");
+    ComponentDto dir3 = newDirectory(project, "dir3").setKey("dir3");
     db.components().insertComponents(project, module, dir1, dir2, dir3);
     setBrowsePermissionOnUserAndIndex(project);
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, APP)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
-      .containsOnly(tuple(project.getDbKey(), project.getDbKey()));
+      .containsOnly(tuple(project.getKey(), project.getKey()));
   }
 
   @Test
@@ -187,7 +187,7 @@ public class SearchActionTest {
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
-      .containsOnly(project.getDbKey());
+      .containsOnly(project.getKey());
   }
 
   @Test
@@ -209,9 +209,9 @@ public class SearchActionTest {
   @Test
   public void test_json_example() {
     db.components().insertComponent(newPortfolio());
-    ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setDbKey("project-key");
-    ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setDbKey("module-key");
-    ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
+    ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setKey("project-key");
+    ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setKey("module-key");
+    ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     ComponentDto view = newPortfolio();
     db.components().insertComponents(project, module, directory, view);
     setBrowsePermissionOnUserAndIndex(project);

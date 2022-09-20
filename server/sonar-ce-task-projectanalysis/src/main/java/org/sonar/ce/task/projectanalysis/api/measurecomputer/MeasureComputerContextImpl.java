@@ -169,7 +169,7 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
     checkArgument(definition.getOutputMetrics().contains(metric.getKey()), "Only metrics in %s can be used to add measures. Metric '%s' is not allowed.",
       definition.getOutputMetrics(), metric.getKey());
     if (measureRepository.getRawMeasure(internalComponent, metric).isPresent()) {
-      throw new UnsupportedOperationException(String.format("A measure on metric '%s' already exists on component '%s'", metric.getKey(), internalComponent.getDbKey()));
+      throw new UnsupportedOperationException(String.format("A measure on metric '%s' already exists on component '%s'", metric.getKey(), internalComponent.getKey()));
     }
   }
 
@@ -180,7 +180,7 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
 
   private static Component newComponent(org.sonar.ce.task.projectanalysis.component.Component component) {
     return new ComponentImpl(
-      component.getDbKey(),
+      component.getKey(),
       Component.Type.valueOf(component.getType().name()),
       component.getType() == org.sonar.ce.task.projectanalysis.component.Component.Type.FILE
         ? new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest())

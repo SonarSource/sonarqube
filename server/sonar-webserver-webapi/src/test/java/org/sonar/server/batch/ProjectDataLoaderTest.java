@@ -180,10 +180,10 @@ public class ProjectDataLoaderTest {
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)
-        .setProjectUuid(uuid)
+        .setBranchUuid(uuid)
         .setScope(scope)
         .setModuleUuid(moduleUuid)
-        .setDbKey(key));
+        .setKey(key));
       dbSession.commit();
 
       try {
@@ -209,7 +209,7 @@ public class ProjectDataLoaderTest {
     return new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setFileUuid(file.uuid())
-      .setProjectUuid(file.projectUuid())
+      .setProjectUuid(file.branchUuid())
       .setDataHash("0263047cd758c68c27683625f072f010")
       .setLineHashes(of("8d7b3d6b83c0a517eac07e1aac94b773"))
       .setCreatedAt(System.currentTimeMillis())

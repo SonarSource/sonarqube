@@ -49,24 +49,24 @@ import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 public class ExportMeasuresStepTest {
 
   private static final ComponentDto PROJECT = new ComponentDto()
-    .setDbKey("project_key")
+    .setKey("project_key")
     .setUuid("project_uuid")
     .setRootUuid("project_uuid")
-    .setProjectUuid("project_uuid")
+    .setBranchUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setEnabled(true);
   private static final ComponentDto FILE = new ComponentDto()
-    .setDbKey("file_key")
+    .setKey("file_key")
     .setUuid("file_uuid")
     .setRootUuid("project_uuid")
-    .setProjectUuid("project_uuid")
+    .setBranchUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT + PROJECT.uuid() + UUID_PATH_SEPARATOR)
     .setEnabled(true);
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
-    .setDbKey("another_project_key")
+    .setKey("another_project_key")
     .setUuid("another_project_uuid")
     .setRootUuid("another_project_uuid")
-    .setProjectUuid("another_project_uuid")
+    .setBranchUuid("another_project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setEnabled(true);
 

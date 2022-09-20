@@ -243,7 +243,7 @@ public class ImportAzureProjectActionTest {
       dto.setUserUuid(user.getUuid());
     });
     GsonAzureRepo repo = getGsonAzureRepo();
-    db.components().insertPublicProject(p -> p.setDbKey(GENERATED_PROJECT_KEY));
+    db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY));
 
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name")).thenReturn(repo);

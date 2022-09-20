@@ -127,7 +127,7 @@ public class SearchAction implements FavoritesWsAction {
   private static Favorite toWsFavorite(Favorite.Builder builder, ComponentDto componentDto) {
     builder
       .clear()
-      .setKey(componentDto.getDbKey());
+      .setKey(componentDto.getKey());
     ofNullable(componentDto.name()).ifPresent(builder::setName);
     ofNullable(componentDto.qualifier()).ifPresent(builder::setQualifier);
     return builder.build();

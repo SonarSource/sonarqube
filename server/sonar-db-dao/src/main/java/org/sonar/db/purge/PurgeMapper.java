@@ -34,11 +34,11 @@ public interface PurgeMapper {
    */
   List<String> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
-  Set<String> selectDisabledComponentsWithFileSource(@Param("projectUuid") String projectUuid);
+  Set<String> selectDisabledComponentsWithFileSource(@Param("branchUuid") String branchUuid);
 
-  Set<String> selectDisabledComponentsWithUnresolvedIssues(@Param("projectUuid") String projectUuid);
+  Set<String> selectDisabledComponentsWithUnresolvedIssues(@Param("branchUuid") String branchUuid);
 
-  Set<String> selectDisabledComponentsWithLiveMeasures(@Param("projectUuid") String projectUuid);
+  Set<String> selectDisabledComponentsWithLiveMeasures(@Param("branchUuid") String branchUuid);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
@@ -97,7 +97,7 @@ public interface PurgeMapper {
   @CheckForNull
   String selectSpecificAnalysisNewCodePeriod(@Param("projectUuid") String projectUuid);
 
-  List<String> selectDisabledComponentsWithoutIssues(@Param("projectUuid") String projectUuid);
+  List<String> selectDisabledComponentsWithoutIssues(@Param("branchUuid") String branchUuid);
 
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 

@@ -45,10 +45,10 @@ public class IssueDocTesting {
     String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
     return newDoc()
       .setKey(key)
-      .setBranchUuid(componentDto.projectUuid())
+      .setBranchUuid(componentDto.branchUuid())
       .setComponentUuid(componentDto.uuid())
       .setModuleUuidPath(componentDto.moduleUuidPath())
-      .setProjectUuid(mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid)
+      .setProjectUuid(mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid)
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
       .setIsMainBranch(mainBranchProjectUuid == null)

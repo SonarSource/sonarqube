@@ -91,7 +91,7 @@ public class IntegrateCrossProjectDuplications {
     for (CloneGroup duplication : duplications) {
       cloneGroupCount++;
       if (cloneGroupCount > MAX_CLONE_GROUP_PER_FILE) {
-        LOGGER.warn("Too many duplication groups on file {}. Keeping only the first {} groups.", file.getDbKey(), MAX_CLONE_GROUP_PER_FILE);
+        LOGGER.warn("Too many duplication groups on file {}. Keeping only the first {} groups.", file.getKey(), MAX_CLONE_GROUP_PER_FILE);
         break;
       }
       addDuplication(file, duplication);
@@ -174,7 +174,7 @@ public class IntegrateCrossProjectDuplications {
     public boolean test(@Nonnull ClonePart input) {
       if (counter == MAX_CLONE_PART_PER_GROUP) {
         LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
-          file.getDbKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
+          file.getKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
       }
       boolean res = counter < MAX_CLONE_GROUP_PER_FILE;
       counter++;

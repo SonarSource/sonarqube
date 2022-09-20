@@ -126,7 +126,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_id() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
     loginAsAdmin();
 
     newRequest()
@@ -142,7 +142,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
     loginAsAdmin();
 
     newRequest()
@@ -230,7 +230,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
+      .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
@@ -325,7 +325,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -356,7 +356,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -467,13 +467,13 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
   @Test

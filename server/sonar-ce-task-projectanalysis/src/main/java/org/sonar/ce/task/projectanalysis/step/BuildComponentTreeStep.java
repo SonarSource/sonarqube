@@ -23,14 +23,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactoryWithMigration;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -75,7 +73,6 @@ public class BuildComponentTreeStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
       ComponentKeyGenerator keyGenerator = loadKeyGenerator();
-      ComponentKeyGenerator publicKeyGenerator = loadPublicKeyGenerator();
       ScannerReport.Metadata metadata = reportReader.readMetadata();
 
       // root key of branch, not necessarily of project
@@ -87,7 +84,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       String rootUuid = componentUuidFactoryWithMigration.getOrCreateForKey(rootKey);
       Optional<SnapshotDto> baseAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, rootUuid);
 
-      ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator, publicKeyGenerator,
+      ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
         componentUuidFactoryWithMigration::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
@@ -129,16 +126,6 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   private ComponentKeyGenerator loadKeyGenerator() {
     return analysisMetadataHolder.getBranch();
-  }
-
-  private ComponentKeyGenerator loadPublicKeyGenerator() {
-    Branch branch = analysisMetadataHolder.getBranch();
-
-    // for non-legacy branches, the public key is different from the DB key.
-    if (!branch.isMain()) {
-      return new DefaultBranchImpl();
-    }
-    return branch;
   }
 
   private static Analysis toAnalysis(SnapshotDto dto) {

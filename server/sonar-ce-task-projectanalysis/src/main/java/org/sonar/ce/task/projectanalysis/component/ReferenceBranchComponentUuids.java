@@ -69,7 +69,7 @@ public class ReferenceBranchComponentUuids {
     hasReferenceBranchAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, referenceBranchUuid).isPresent();
 
     if (hasReferenceBranchAnalysis) {
-      List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(referenceBranchUuid, dbSession);
+      List<ComponentDto> components = dbClient.componentDao().selectByBranchUuid(referenceBranchUuid, dbSession);
       for (ComponentDto dto : components) {
         referenceBranchComponentsUuidsByKey.put(dto.getKey(), dto.uuid());
       }

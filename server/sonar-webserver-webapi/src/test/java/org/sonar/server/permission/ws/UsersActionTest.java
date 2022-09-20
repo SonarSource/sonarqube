@@ -336,13 +336,13 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
   @Test

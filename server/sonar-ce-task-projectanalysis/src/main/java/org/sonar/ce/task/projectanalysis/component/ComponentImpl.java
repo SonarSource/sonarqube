@@ -41,7 +41,6 @@ public class ComponentImpl implements Component {
   private final Status status;
   private final String name;
   private final String shortName;
-  private final String dbKey;
   private final String key;
   private final String uuid;
 
@@ -57,8 +56,7 @@ public class ComponentImpl implements Component {
   private ComponentImpl(Builder builder) {
     this.type = builder.type;
     this.status = builder.status;
-    this.dbKey = builder.dbKey;
-    this.key = MoreObjects.firstNonNull(builder.key, builder.dbKey);
+    this.key = builder.key;
     this.name = builder.name;
     this.shortName = MoreObjects.firstNonNull(builder.shortName, builder.name).intern();
     this.description = builder.description;
@@ -82,11 +80,6 @@ public class ComponentImpl implements Component {
   @Override
   public String getUuid() {
     return uuid;
-  }
-
-  @Override
-  public String getDbKey() {
-    return dbKey;
   }
 
   @Override
@@ -153,7 +146,6 @@ public class ComponentImpl implements Component {
 
   public static final class Builder {
 
-    private static final String DB_KEY_CANNOT_BE_NULL = "DB key can't be null";
     private static final String KEY_CANNOT_BE_NULL = "Key can't be null";
     private static final String UUID_CANNOT_BE_NULL = "uuid can't be null";
     private static final String REPORT_ATTRIBUTES_CANNOT_BE_NULL = "reportAttributes can't be null";
@@ -165,7 +157,6 @@ public class ComponentImpl implements Component {
     private ProjectAttributes projectAttributes;
     private ReportAttributes reportAttributes;
     private String uuid;
-    private String dbKey;
     private String key;
     private String name;
     private String shortName;
@@ -189,11 +180,6 @@ public class ComponentImpl implements Component {
 
     public Builder setStatus(Status status) {
       this.status = requireNonNull(status, STATUS_CANNOT_BE_NULL);
-      return this;
-    }
-
-    public Builder setDbKey(String s) {
-      this.dbKey = requireNonNull(s, DB_KEY_CANNOT_BE_NULL);
       return this;
     }
 
@@ -244,7 +230,7 @@ public class ComponentImpl implements Component {
     public ComponentImpl build() {
       requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
       requireNonNull(uuid, UUID_CANNOT_BE_NULL);
-      requireNonNull(dbKey, DB_KEY_CANNOT_BE_NULL);
+      requireNonNull(key, KEY_CANNOT_BE_NULL);
       requireNonNull(name, NAME_CANNOT_BE_NULL);
       requireNonNull(status, STATUS_CANNOT_BE_NULL);
       checkProjectAttributes(this.projectAttributes);
@@ -262,7 +248,6 @@ public class ComponentImpl implements Component {
       "type=" + type +
       ", status=" + status +
       ", name='" + name + '\'' +
-      ", dbKey='" + dbKey + '\'' +
       ", key='" + key + '\'' +
       ", uuid='" + uuid + '\'' +
       ", description='" + description + '\'' +

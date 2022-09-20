@@ -197,9 +197,9 @@ public class GetByProjectActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() -> ws.newRequest().setParam("project", branch.getDbKey()).execute())
+    assertThatThrownBy(() -> ws.newRequest().setParam("project", branch.getKey()).execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   private void logInAsProjectUser(ProjectDto project) {

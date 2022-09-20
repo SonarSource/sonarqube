@@ -105,8 +105,8 @@ public class SearchBitbucketCloudReposActionTest {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("B"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("A"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("B"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("A"));
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project1, s -> s.setAlmRepo("repo-slug-2"));
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project2, s -> s.setAlmRepo("repo-slug-2"));
 

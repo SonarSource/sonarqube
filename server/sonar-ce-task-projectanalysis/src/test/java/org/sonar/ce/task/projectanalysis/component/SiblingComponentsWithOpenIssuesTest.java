@@ -93,11 +93,11 @@ public class SiblingComponentsWithOpenIssuesTest {
 
     String fileKey = "file-x";
     fileXWithOneResolvedIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null)
-      .setDbKey(fileKey + ":BRANCH:branch1pr1"));
+      .setKey(fileKey));
     db.issues().insert(rule, branch1pr1, fileXWithOneResolvedIssueOnBranch1Pr1, i -> i.setStatus("RESOLVED"));
 
     fileXWithOneResolvedIssueOnBranch1Pr2 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr2, null)
-      .setDbKey(fileKey + ":BRANCH:branch1pr2"));
+      .setKey(fileKey));
     db.issues().insert(rule, branch1pr2, fileXWithOneResolvedIssueOnBranch1Pr2, i -> i.setStatus("RESOLVED"));
 
     branch2 = db.components().insertProjectBranch(project, b -> b.setKey("branch2"), b -> b.setBranchType(BranchType.BRANCH));
@@ -141,8 +141,7 @@ public class SiblingComponentsWithOpenIssuesTest {
     assertThat(underTest.getUuids(fileWithOneResolvedIssueOnBranch1Pr1.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1.getKey())).isEmpty();
 
-    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnBranch1Pr1.getKey())).containsOnly(
-      fileXWithOneResolvedIssueOnBranch1Pr2.uuid());
+    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnBranch1Pr1.getKey())).containsOnly(fileXWithOneResolvedIssueOnBranch1Pr2.uuid());
   }
 
   @Test

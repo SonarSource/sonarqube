@@ -425,7 +425,7 @@ public class BranchDaoTest {
     featureBranch.setMergeBranchUuid("U3");
     underTest.insert(dbSession, featureBranch);
 
-    ComponentDto component = new ComponentDto().setProjectUuid(mainBranch.getUuid());
+    ComponentDto component = new ComponentDto().setBranchUuid(mainBranch.getUuid());
 
     // select the component
     Collection<BranchDto> branches = underTest.selectByComponent(dbSession, component);
@@ -736,7 +736,7 @@ public class BranchDaoTest {
   @Test
   public void doAnyOfComponentsNeedIssueSync_test_more_than_1000() {
     List<String> componentKeys = IntStream.range(0, 1100).mapToObj(value -> db.components().insertPrivateProject())
-      .map(ComponentDto::getDbKey)
+      .map(ComponentDto::getKey)
       .collect(Collectors.toList());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isFalse();
@@ -745,7 +745,7 @@ public class BranchDaoTest {
     ProjectDto projectDto = db.components().getProjectDto(project);
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
 
-    componentKeys.add(project.getDbKey());
+    componentKeys.add(project.getKey());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
   }

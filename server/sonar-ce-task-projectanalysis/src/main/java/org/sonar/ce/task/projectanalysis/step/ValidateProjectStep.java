@@ -67,8 +67,8 @@ public class ValidateProjectStep implements ComputationStep {
       validateTargetBranch(dbSession);
       Component root = treeRootHolder.getRoot();
       // FIXME if module have really be dropped, no more need to load them
-      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getDbKey());
-      Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getDbKey, x -> x));
+      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey());
+      Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getKey, x -> x));
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
@@ -83,7 +83,7 @@ public class ValidateProjectStep implements ComputationStep {
       return;
     }
     String referenceBranchUuid = analysisMetadataHolder.getBranch().getReferenceBranchUuid();
-    int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, referenceBranchUuid);
+    int moduleCount = dbClient.componentDao().countEnabledModulesByBranchUuid(session, referenceBranchUuid);
     if (moduleCount > 0) {
       Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, referenceBranchUuid);
       checkState(opt.isPresent(), "Reference branch '%s' does not exist", referenceBranchUuid);
@@ -112,7 +112,7 @@ public class ValidateProjectStep implements ComputationStep {
 
     @Override
     public void visitProject(Component rawProject) {
-      String rawProjectKey = rawProject.getDbKey();
+      String rawProjectKey = rawProject.getKey();
       Optional<ComponentDto> baseProjectOpt = loadBaseComponent(rawProjectKey);
       if (baseProjectOpt.isPresent()) {
         ComponentDto baseProject = baseProjectOpt.get();

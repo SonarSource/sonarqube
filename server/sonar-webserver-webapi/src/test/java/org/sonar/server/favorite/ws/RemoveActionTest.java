@@ -110,7 +110,7 @@ public class RemoveActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    String branchKey = branch.getDbKey();
+    String branchKey = branch.getKey();
 
     assertThatThrownBy(() -> call(branchKey))
       .isInstanceOf(NotFoundException.class)
@@ -129,7 +129,7 @@ public class RemoveActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(newPrivateProjectDto(PROJECT_UUID).setDbKey(PROJECT_KEY));
+    return db.components().insertComponent(newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
   private ComponentDto insertProjectAndPermissions() {

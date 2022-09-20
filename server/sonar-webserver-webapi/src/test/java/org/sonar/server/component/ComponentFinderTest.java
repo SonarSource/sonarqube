@@ -103,10 +103,10 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    String branchDbKey = branch.getDbKey();
+    String branchDbKey = branch.getKey();
     assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, branchDbKey, ID_AND_KEY))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -133,7 +133,7 @@ public class ComponentFinderTest {
   @Test
   public void fail_when_component_key_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
 
     assertThatThrownBy(() -> underTest.getByKey(dbSession, "file-key"))
       .isInstanceOf(NotFoundException.class)
@@ -145,7 +145,7 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    String branchDbKey = branch.getDbKey();
+    String branchDbKey = branch.getKey();
     assertThatThrownBy(() -> underTest.getByKey(dbSession, branchDbKey))
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Component key '%s' not found", branchDbKey));
@@ -162,11 +162,11 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(newPrivateProjectDto().setDbKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto().setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
-    assertThat(component.getDbKey()).isEqualTo("project-key");
+    assertThat(component.getKey()).isEqualTo("project-key");
   }
 
   @Test

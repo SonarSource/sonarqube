@@ -37,10 +37,10 @@ public interface ComponentMapper {
   ComponentDto selectByKeyCaseInsensitive(@Param("key") String key);
 
   @CheckForNull
-  ComponentDto selectBranchByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
+  ComponentDto selectByKeyAndBranchKey(@Param("key") String key, @Param("branch") String branch);
 
   @CheckForNull
-  ComponentDto selectPrByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
+  ComponentDto selectByKeyAndPrKey(@Param("key") String key, @Param("pr") String pr);
 
   @CheckForNull
   ComponentDto selectByUuid(@Param("uuid") String uuid);
@@ -52,19 +52,17 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
 
-  List<ComponentDto> selectByDbKeys(@Param("dbKeys") Collection<String> dbKeys);
-
   List<ComponentDto> selectByKeysAndBranch(@Param("keys") Collection<String> keys, @Param("branch") String branch);
 
   List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
-  List<ComponentDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+  List<ComponentDto> selectByBranchUuid(@Param("branchUuid") String branchUuid);
 
   List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
   List<ComponentDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifiers);
 
-  int countEnabledModulesByProjectUuid(@Param("projectUuid") String projectUuid);
+  int countEnabledModulesByBranchUuid(@Param("branchUuid") String branchUuid);
 
   List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
 
@@ -103,7 +101,7 @@ public interface ComponentMapper {
    * <p/>
    * It's using a join on snapshots in order to use he indexed columns snapshots.qualifier
    */
-  List<UuidWithProjectUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
+  List<UuidWithBranchUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
 
   /**
    * Return components of a given scope of a project
@@ -127,7 +125,7 @@ public interface ComponentMapper {
 
   void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
 
-  void scrollAllFilesForFileMove(@Param("projectUuid") String projectUuid, ResultHandler<FileMoveRowDto> handler);
+  void scrollAllFilesForFileMove(@Param("branchUuid") String branchUuid, ResultHandler<FileMoveRowDto> handler);
 
   void insert(ComponentDto componentDto);
 
@@ -135,11 +133,11 @@ public interface ComponentMapper {
 
   void updateBEnabledToFalse(@Param("uuids") List<String> uuids);
 
-  void applyBChangesForRootComponentUuid(@Param("projectUuid") String projectUuid);
+  void applyBChangesForRootComponentUuid(@Param("branchUuid") String branchUuid);
 
-  void resetBChangedForRootComponentUuid(@Param("projectUuid") String projectUuid);
+  void resetBChangedForRootComponentUuid(@Param("branchUuid") String branchUuid);
 
-  void setPrivateForRootComponentUuid(@Param("projectUuid") String projectUuid, @Param("isPrivate") boolean isPrivate);
+  void setPrivateForRootComponentUuid(@Param("branchUuid") String branchUuid, @Param("isPrivate") boolean isPrivate);
 
   void delete(String componentUuid);
 

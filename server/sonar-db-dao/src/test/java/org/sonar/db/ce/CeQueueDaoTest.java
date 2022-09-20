@@ -702,12 +702,12 @@ public class CeQueueDaoTest {
   private void insertView(String view_uuid) {
     ComponentDto view = new ComponentDto();
     view.setQualifier("VW");
-    view.setDbKey(view_uuid + "_key");
+    view.setKey(view_uuid + "_key");
     view.setUuid(view_uuid);
     view.setPrivate(false);
     view.setRootUuid(view_uuid);
     view.setUuidPath("uuid_path");
-    view.setProjectUuid(view_uuid);
+    view.setBranchUuid(view_uuid);
     db.components().insertPortfolioAndSnapshot(view);
     db.commit();
   }
@@ -715,12 +715,12 @@ public class CeQueueDaoTest {
   private void insertBranch(String uuid) {
     ComponentDto branch = new ComponentDto();
     branch.setQualifier("TRK");
-    branch.setDbKey(uuid + "_key");
+    branch.setKey(uuid + "_key");
     branch.setUuid(uuid);
     branch.setPrivate(false);
     branch.setRootUuid(uuid);
     branch.setUuidPath("uuid_path");
-    branch.setProjectUuid(uuid);
+    branch.setBranchUuid(uuid);
     db.components().insertComponent(branch);
     db.commit();
   }

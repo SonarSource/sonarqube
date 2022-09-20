@@ -507,7 +507,7 @@ public class CeQueueImplTest {
     if (componentDto != null) {
       CeTask.Component component = task.getComponent().get();
       assertThat(component.getUuid()).isEqualTo(componentDto.uuid());
-      assertThat(component.getKey()).contains(componentDto.getDbKey());
+      assertThat(component.getKey()).contains(componentDto.getKey());
       assertThat(component.getName()).contains(componentDto.name());
     } else if (taskSubmit.getComponent().isPresent()) {
       assertThat(task.getComponent()).contains(new CeTask.Component(taskSubmit.getComponent().get().getUuid(), null, null));
@@ -517,7 +517,7 @@ public class CeQueueImplTest {
     if (mainComponentDto != null) {
       CeTask.Component component = task.getMainComponent().get();
       assertThat(component.getUuid()).isEqualTo(mainComponentDto.uuid());
-      assertThat(component.getKey()).contains(mainComponentDto.getDbKey());
+      assertThat(component.getKey()).contains(mainComponentDto.getKey());
       assertThat(component.getName()).contains(mainComponentDto.name());
     } else if (taskSubmit.getComponent().isPresent()) {
       assertThat(task.getMainComponent()).contains(new CeTask.Component(taskSubmit.getComponent().get().getMainComponentUuid(), null, null));

@@ -23,6 +23,7 @@ import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
@@ -44,14 +46,10 @@ import org.sonar.db.audit.model.ComponentNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
-import static org.sonar.db.component.ComponentDto.generateBranchKey;
-import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentDao implements Dao {
   private final AuditPersister auditPersister;
@@ -85,11 +83,7 @@ public class ComponentDao implements Dao {
   }
 
   public ComponentDto selectOrFailByUuid(DbSession session, String uuid) {
-    Optional<ComponentDto> componentDto = selectByUuid(session, uuid);
-    if (!componentDto.isPresent()) {
-      throw new RowNotFoundException(String.format("Component with uuid '%s' not found", uuid));
-    }
-    return componentDto.get();
+    return selectByUuid(session, uuid).orElseThrow(() -> new RowNotFoundException(String.format("Component with uuid '%s' not found", uuid)));
   }
 
   /**
@@ -156,8 +150,8 @@ public class ComponentDao implements Dao {
     return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, excludeDisabled);
   }
 
-  public int countEnabledModulesByProjectUuid(DbSession session, String projectUuid) {
-    return mapper(session).countEnabledModulesByProjectUuid(projectUuid);
+  public int countEnabledModulesByBranchUuid(DbSession session, String branchUuid) {
+    return mapper(session).countEnabledModulesByBranchUuid(branchUuid);
   }
 
   public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey) {
@@ -169,30 +163,45 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
-    List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
-    List<String> allKeys = Stream.of(keys, dbKeys).flatMap(Collection::stream).collect(toList());
-    return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
-  }
-
-  /**
-   * Return list of components that will will mix main and branch components.
-   * Please note that a project can only appear once in the list, it's not possible to ask for many branches on same project with this method.
-   */
-  public List<ComponentDto> selectByKeysAndBranches(DbSession session, Map<String, String> branchesByKey) {
-    Set<String> dbKeys = branchesByKey.entrySet().stream()
-      .map(entry -> generateBranchKey(entry.getKey(), entry.getValue()))
-      .collect(toSet());
-    return selectByDbKeys(session, dbKeys);
-  }
-
-  public List<ComponentDto> selectByDbKeys(DbSession session, Set<String> dbKeys) {
-    return executeLargeInputs(dbKeys, subKeys -> mapper(session).selectByDbKeys(subKeys));
+    return executeLargeInputs(keys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
   }
 
   public List<ComponentDto> selectByKeysAndPullRequest(DbSession session, Collection<String> keys, String pullRequestId) {
-    List<String> dbKeys = keys.stream().map(k -> generatePullRequestKey(k, pullRequestId)).collect(toList());
-    List<String> allKeys = Stream.of(keys, dbKeys).flatMap(Collection::stream).collect(toList());
-    return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, pullRequestId));
+    return executeLargeInputs(keys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, pullRequestId));
+  }
+
+  public List<ComponentDto> selectByDbKeys(DbSession session, Collection<String> dbKeys) {
+    Map<String, List<String>> keyByBranchKey = new HashMap<>();
+    Map<String, List<String>> keyByPrKey = new HashMap<>();
+    List<String> mainBranchKeys = new LinkedList<>();
+
+    for (String dbKey : dbKeys) {
+      String branchKey = StringUtils.substringAfterLast(dbKey, ComponentDto.BRANCH_KEY_SEPARATOR);
+      if (!StringUtils.isEmpty(branchKey)) {
+        keyByBranchKey.computeIfAbsent(branchKey, b -> new LinkedList<>())
+          .add(StringUtils.substringBeforeLast(dbKey, ComponentDto.BRANCH_KEY_SEPARATOR));
+        continue;
+      }
+
+      String prKey = StringUtils.substringAfterLast(dbKey, ComponentDto.PULL_REQUEST_SEPARATOR);
+      if (!StringUtils.isEmpty(prKey)) {
+        keyByPrKey.computeIfAbsent(prKey, b -> new LinkedList<>())
+          .add(StringUtils.substringBeforeLast(dbKey, ComponentDto.PULL_REQUEST_SEPARATOR));
+        continue;
+      }
+
+      mainBranchKeys.add(dbKey);
+    }
+
+    List<ComponentDto> components = new LinkedList<>();
+    for (Map.Entry<String, List<String>> e : keyByBranchKey.entrySet()) {
+      components.addAll(selectByKeysAndBranch(session, e.getValue(), e.getKey()));
+    }
+    for (Map.Entry<String, List<String>> e : keyByPrKey.entrySet()) {
+      components.addAll(selectByKeysAndPullRequest(session, e.getValue(), e.getKey()));
+    }
+    components.addAll(selectByKeys(session, mainBranchKeys));
+    return components;
   }
 
   /**
@@ -230,11 +239,7 @@ public class ComponentDao implements Dao {
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {
-    Optional<ComponentDto> component = selectByKey(session, key);
-    if (!component.isPresent()) {
-      throw new RowNotFoundException(String.format("Component key '%s' not found", key));
-    }
-    return component.get();
+    return selectByKey(session, key).orElseThrow(() -> new RowNotFoundException(String.format("Component key '%s' not found", key)));
   }
 
   public Optional<ComponentDto> selectByKey(DbSession session, String key) {
@@ -246,14 +251,14 @@ public class ComponentDao implements Dao {
   }
 
   public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return Optional.ofNullable(mapper(session).selectBranchByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, branch));
   }
 
   public Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
-    return Optional.ofNullable(mapper(session).selectPrByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
+    return Optional.ofNullable(mapper(session).selectByKeyAndPrKey(key, pullRequestId));
   }
 
-  public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
+  public List<UuidWithBranchUuidDto> selectAllViewsAndSubViews(DbSession session) {
     return mapper(session).selectUuidsForQualifiers(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
@@ -295,12 +300,12 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Retrieves all components with a specific root project Uuid, no other filtering is done by this method.
+   * Retrieves all components with a specific branch UUID, no other filtering is done by this method.
    * <p>
    * Used by Views plugin
    */
-  public List<ComponentDto> selectByProjectUuid(String projectUuid, DbSession dbSession) {
-    return mapper(dbSession).selectByProjectUuid(projectUuid);
+  public List<ComponentDto> selectByBranchUuid(String branchUuid, DbSession dbSession) {
+    return mapper(dbSession).selectByBranchUuid(branchUuid);
   }
 
   /**
@@ -340,8 +345,8 @@ public class ComponentDao implements Dao {
    * Scroll all <strong>enabled</strong> files of the specified project (same project_uuid) in no specific order with
    * 'SOURCE' source and a non null path.
    */
-  public void scrollAllFilesForFileMove(DbSession session, String projectUuid, ResultHandler<FileMoveRowDto> handler) {
-    mapper(session).scrollAllFilesForFileMove(projectUuid, handler);
+  public void scrollAllFilesForFileMove(DbSession session, String branchUuid, ResultHandler<FileMoveRowDto> handler) {
+    mapper(session).scrollAllFilesForFileMove(branchUuid, handler);
   }
 
   public void insert(DbSession session, ComponentDto item) {
@@ -373,23 +378,23 @@ public class ComponentDao implements Dao {
     executeLargeUpdates(uuids, mapper(session)::updateBEnabledToFalse);
   }
 
-  public void applyBChangesForRootComponentUuid(DbSession session, String projectUuid) {
-    mapper(session).applyBChangesForRootComponentUuid(projectUuid);
+  public void applyBChangesForRootComponentUuid(DbSession session, String branchUuid) {
+    mapper(session).applyBChangesForRootComponentUuid(branchUuid);
   }
 
-  public void resetBChangedForRootComponentUuid(DbSession session, String projectUuid) {
-    mapper(session).resetBChangedForRootComponentUuid(projectUuid);
+  public void resetBChangedForRootComponentUuid(DbSession session, String branchUuid) {
+    mapper(session).resetBChangedForRootComponentUuid(branchUuid);
   }
 
-  public void setPrivateForRootComponentUuidWithoutAudit(DbSession session, String projectUuid, boolean isPrivate) {
-    mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
+  public void setPrivateForRootComponentUuidWithoutAudit(DbSession session, String branchUuid, boolean isPrivate) {
+    mapper(session).setPrivateForRootComponentUuid(branchUuid, isPrivate);
   }
 
-  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate,
+  public void setPrivateForRootComponentUuid(DbSession session, String branchUuid, boolean isPrivate,
     @Nullable String qualifier, String componentKey, String componentName) {
-    ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, componentKey, isPrivate, qualifier);
+    ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, componentName, componentKey, isPrivate, qualifier);
     auditPersister.updateComponentVisibility(session, componentNewValue);
-    mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
+    mapper(session).setPrivateForRootComponentUuid(branchUuid, isPrivate);
   }
 
   private static void checkThatNotTooManyComponents(ComponentQuery query) {

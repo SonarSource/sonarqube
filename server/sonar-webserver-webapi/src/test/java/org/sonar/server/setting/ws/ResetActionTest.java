@@ -376,11 +376,11 @@ public class ResetActionTest {
     assertThatThrownBy(() -> {
       ws.newRequest()
         .setParam("keys", "foo")
-        .setParam("component", branch.getDbKey())
+        .setParam("component", branch.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test
@@ -451,11 +451,11 @@ public class ResetActionTest {
   }
 
   private void executeRequestOnProjectSetting(String key) {
-    executeRequest(key, project.getDbKey());
+    executeRequest(key, project.getKey());
   }
 
   private void executeRequestOnComponentSetting(String key, ComponentDto componentDto) {
-    executeRequest(key, componentDto.getDbKey());
+    executeRequest(key, componentDto.getKey());
   }
 
   private void executeRequest(String key, @Nullable String componentKey) {

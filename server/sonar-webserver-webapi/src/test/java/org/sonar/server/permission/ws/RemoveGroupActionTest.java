@@ -161,7 +161,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
 
@@ -249,7 +249,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
+      .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
@@ -302,7 +302,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
         .setParam(PARAM_GROUP_NAME, aGroup.getName())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -338,7 +338,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       newRequest()
         .setParam(PARAM_GROUP_NAME, aGroup.getName())
         .setParam(PARAM_PERMISSION, PROVISIONING)
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -457,13 +457,13 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
   @Test

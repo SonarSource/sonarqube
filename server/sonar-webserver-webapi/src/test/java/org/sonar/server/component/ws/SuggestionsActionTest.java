@@ -132,15 +132,15 @@ public class SuggestionsActionTest {
 
   @Test
   public void test_example_json_response() {
-    ComponentDto project1 = db.components().insertPublicProject(p -> p.setDbKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
-    ComponentDto project2 = db.components().insertPublicProject(p -> p.setDbKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
+    ComponentDto project1 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
+    ComponentDto project2 = db.components().insertPublicProject(p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
     TestResponse wsResponse = ws.newRequest()
       .setParam(PARAM_QUERY, "Sonar")
-      .setParam(PARAM_RECENTLY_BROWSED, project1.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project1.getKey())
       .setMethod("POST")
       .setMediaType(MediaTypes.JSON)
       .execute();
@@ -157,7 +157,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -170,7 +170,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getDbKey(), true));
+      .containsExactly(tuple(project.getKey(), true));
   }
 
   @Test
@@ -181,7 +181,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -194,7 +194,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getDbKey(), true));
+      .containsExactly(tuple(project.getKey(), true));
   }
 
   @Test
@@ -205,7 +205,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -235,7 +235,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(project.getDbKey(), true));
+      .containsExactly(tuple(project.getKey(), true));
   }
 
   @Test
@@ -264,7 +264,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -277,7 +277,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite, Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(tuple(project.getDbKey(), true, true));
+      .containsExactly(tuple(project.getKey(), true, true));
   }
 
   @Test
@@ -314,7 +314,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getDbKey).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getKey).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert order of keys
@@ -331,12 +331,12 @@ public class SuggestionsActionTest {
   @Test
   public void suggestions_without_query_should_return_empty_qualifiers() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    componentIndexer.indexOnAnalysis(project.projectUuid());
+    componentIndexer.indexOnAnalysis(project.branchUuid());
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -349,12 +349,12 @@ public class SuggestionsActionTest {
   public void suggestions_should_filter_allowed_qualifiers() {
     resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE, UNIT_TEST_FILE);
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    componentIndexer.indexOnAnalysis(project.projectUuid());
+    componentIndexer.indexOnAnalysis(project.branchUuid());
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RECENTLY_BROWSED, project.getDbKey())
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -371,7 +371,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, project.getDbKey())
+      .setParam(PARAM_QUERY, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -384,7 +384,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey)
-      .containsExactly(project.getDbKey());
+      .containsExactly(project.getKey());
   }
 
   @Test
@@ -399,7 +399,7 @@ public class SuggestionsActionTest {
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, project.getDbKey())
+      .setParam(PARAM_QUERY, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
@@ -449,14 +449,14 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey)
-      .contains(project.getDbKey());
+      .contains(project.getKey());
     assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
   @Test
   public void should_contain_component_names() {
     ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto().setName("Project1"));
-    componentIndexer.indexOnAnalysis(project1.projectUuid());
+    componentIndexer.indexOnAnalysis(project1.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project1);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -467,7 +467,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getName)
-      .containsExactlyInAnyOrder(tuple(project1.getDbKey(), project1.name()));
+      .containsExactlyInAnyOrder(tuple(project1.getKey(), project1.name()));
   }
 
   @Test
@@ -475,7 +475,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto().setName("ProjectWithModules"));
     db.components().insertComponent(newModuleDto(project).setName("Module1"));
     db.components().insertComponent(newModuleDto(project).setName("Module2"));
-    componentIndexer.indexOnAnalysis(project.projectUuid());
+    componentIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -486,7 +486,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey)
-      .containsOnly(project.getDbKey());
+      .containsOnly(project.getKey());
   }
 
   @Test
@@ -496,13 +496,13 @@ public class SuggestionsActionTest {
     db.components().insertComponent(module1);
     ComponentDto module2 = newModuleDto(project).setName("Module2");
     db.components().insertComponent(module2);
-    componentIndexer.indexOnAnalysis(project.projectUuid());
+    componentIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getDbKey(), project.getDbKey()).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey(), project.getKey()).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -517,8 +517,8 @@ public class SuggestionsActionTest {
     ComponentDto nonFavouriteProject = db.components().insertComponent(newPublicProjectDto().setName("Project2"));
 
     doReturn(singletonList(favouriteProject)).when(favoriteFinder).list();
-    componentIndexer.indexOnAnalysis(favouriteProject.projectUuid());
-    componentIndexer.indexOnAnalysis(nonFavouriteProject.projectUuid());
+    componentIndexer.indexOnAnalysis(favouriteProject.branchUuid());
+    componentIndexer.indexOnAnalysis(nonFavouriteProject.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(favouriteProject, nonFavouriteProject);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -529,13 +529,13 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(favouriteProject.getDbKey(), true), tuple(nonFavouriteProject.getDbKey(), false));
+      .containsExactly(tuple(favouriteProject.getKey(), true), tuple(nonFavouriteProject.getKey(), false));
   }
 
   @Test
   public void should_return_empty_qualifiers() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    componentIndexer.indexOnAnalysis(project.projectUuid());
+    componentIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()

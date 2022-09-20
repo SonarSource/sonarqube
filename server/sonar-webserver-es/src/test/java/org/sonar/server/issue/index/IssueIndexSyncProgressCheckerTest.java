@@ -262,7 +262,7 @@ public class IssueIndexSyncProgressCheckerTest {
     ComponentDto subview = db.components().insertSubView(view);
 
     DbSession session = db.getSession();
-    List<String> appViewOrSubviewKeys = Arrays.asList(projectDto1.getKey(), app.getDbKey(), view.getDbKey(), subview.getDbKey());
+    List<String> appViewOrSubviewKeys = Arrays.asList(projectDto1.getKey(), app.getKey(), view.getKey(), subview.getKey());
 
     // throws if flag set to TRUE
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session,

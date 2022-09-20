@@ -132,7 +132,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     public Project apply(ComponentDto dto) {
       Project.Builder project = Project.newBuilder();
       project
-        .setKey(dto.getDbKey())
+        .setKey(dto.getKey())
         .setName(dto.name());
       data.lastSnapshot(dto.uuid()).ifPresent(s -> {
         project.setLastAnalysisDate(formatDateTime(s.getCreatedAt()));
@@ -172,7 +172,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     SearchMyProjectsData.Builder data = builder();
     ProjectsResult searchResult = searchProjects(dbSession, request);
     List<ComponentDto> projects = searchResult.projects;
-    List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
+    List<String> projectUuids = Lists.transform(projects, ComponentDto::branchUuid);
     List<ProjectLinkDto> projectLinks = dbClient.projectLinkDao().selectByProjectUuids(dbSession, projectUuids);
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
     List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()

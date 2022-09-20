@@ -68,7 +68,7 @@ public class LoadProjectStepTest {
 
   @Test
   public void registers_project_if_valid() {
-    ComponentDto project = dbTester.components().insertPublicProject(c -> c.setDbKey(PROJECT_KEY));
+    ComponentDto project = dbTester.components().insertPublicProject(c -> c.setKey(PROJECT_KEY));
     underTest.execute(new TestComputationStepContext());
     assertThat(definitionHolder.projectDto().getKey()).isEqualTo(project.getKey());
   }

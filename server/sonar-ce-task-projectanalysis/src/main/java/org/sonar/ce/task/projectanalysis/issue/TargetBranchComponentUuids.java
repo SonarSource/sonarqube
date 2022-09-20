@@ -40,8 +40,6 @@ public class TargetBranchComponentUuids {
   private final DbClient dbClient;
   private Map<String, String> targetBranchComponentsUuidsByKey;
   private boolean hasTargetBranchAnalysis;
-  @CheckForNull
-  private String targetBranchUuid;
 
   public TargetBranchComponentUuids(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -65,10 +63,10 @@ public class TargetBranchComponentUuids {
   private void initForTargetBranch(DbSession dbSession) {
     Optional<BranchDto> branchDtoOpt = dbClient.branchDao().selectByBranchKey(dbSession, analysisMetadataHolder.getProject().getUuid(),
       analysisMetadataHolder.getBranch().getTargetBranchName());
-    targetBranchUuid = branchDtoOpt.map(BranchDto::getUuid).orElse(null);
+    String targetBranchUuid = branchDtoOpt.map(BranchDto::getUuid).orElse(null);
     hasTargetBranchAnalysis = targetBranchUuid != null && dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, targetBranchUuid).isPresent();
     if (hasTargetBranchAnalysis) {
-      List<ComponentDto> targetComponents = dbClient.componentDao().selectByProjectUuid(targetBranchUuid, dbSession);
+      List<ComponentDto> targetComponents = dbClient.componentDao().selectByBranchUuid(targetBranchUuid, dbSession);
       for (ComponentDto dto : targetComponents) {
         targetBranchComponentsUuidsByKey.put(dto.getKey(), dto.uuid());
       }
@@ -81,9 +79,8 @@ public class TargetBranchComponentUuids {
   }
 
   @CheckForNull
-  public String getTargetBranchComponentUuid(String dbKey) {
+  public String getTargetBranchComponentUuid(String key) {
     lazyInit();
-    String cleanComponentKey = removeBranchAndPullRequestFromKey(dbKey);
-    return targetBranchComponentsUuidsByKey.get(cleanComponentKey);
+    return targetBranchComponentsUuidsByKey.get(key);
   }
 }

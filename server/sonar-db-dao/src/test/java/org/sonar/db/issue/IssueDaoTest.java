@@ -639,7 +639,7 @@ public class IssueDaoTest {
     // return module or dir only if has issue with status different from CLOSED
     allModuleOrDirs
       .forEach(moduleOrDir -> {
-        String projectUuid = moduleOrDir.projectUuid();
+        String projectUuid = moduleOrDir.branchUuid();
         // CLOSED issue => not returned
         db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(STATUS_CLOSED));
         assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
@@ -663,7 +663,7 @@ public class IssueDaoTest {
     // never return project, view, subview, app or file, whatever the issue status
     Stream.of(project1, file11, application, view, subview, project2, file21)
       .forEach(neitherModuleNorDir -> {
-        String projectUuid = neitherModuleNorDir.projectUuid();
+        String projectUuid = neitherModuleNorDir.branchUuid();
         STATUSES
           .forEach(status -> {
             db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(neitherModuleNorDir).setStatus(status));
@@ -675,7 +675,7 @@ public class IssueDaoTest {
     // never return whatever the component if it is disabled
     allcomponents
       .forEach(component -> {
-        String projectUuid = component.projectUuid();
+        String projectUuid = component.branchUuid();
 
         // issues for each status => returned if component is dir or module
         STATUSES
@@ -808,8 +808,8 @@ public class IssueDaoTest {
 
   private static IssueDto newIssueDto(String key) {
     IssueDto dto = new IssueDto();
-    dto.setComponent(new ComponentDto().setDbKey("struts:Action").setUuid("component-uuid"));
-    dto.setProject(new ComponentDto().setDbKey("struts").setUuid("project-uuid"));
+    dto.setComponent(new ComponentDto().setKey("struts:Action").setUuid("component-uuid"));
+    dto.setProject(new ComponentDto().setKey("struts").setUuid("project-uuid"));
     dto.setRule(RuleTesting.newRule(RuleKey.of("java", "S001")).setUuid("uuid-200"));
     dto.setKee(key);
     dto.setType(2);
@@ -834,8 +834,8 @@ public class IssueDaoTest {
 
   private void prepareIssuesComponent() {
     db.rules().insert(RULE.setIsExternal(true));
-    ComponentDto projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
-    db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setDbKey(FILE_KEY));
+    ComponentDto projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
   }
 
   private void prepareTables() {

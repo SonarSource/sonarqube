@@ -100,7 +100,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
           cpdTextBlocks.add(blocksIt.next());
         }
       }
-      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getDbKey());
+      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getKey());
       if (cpdTextBlocks.isEmpty()) {
         return;
       }
@@ -112,8 +112,8 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
       }
 
       Collection<Block> duplicatedBlocks = dtos.stream().map(DtoToBlock.INSTANCE).collect(Collectors.toList());
-      Collection<Block> originBlocks = cpdTextBlocks.stream().map(new CpdTextBlockToBlock(file.getDbKey())).collect(Collectors.toList());
-      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getDbKey());
+      Collection<Block> originBlocks = cpdTextBlocks.stream().map(new CpdTextBlockToBlock(file.getKey())).collect(Collectors.toList());
+      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getKey());
 
       integrateCrossProjectDuplications.computeCpd(file, originBlocks, duplicatedBlocks);
     }

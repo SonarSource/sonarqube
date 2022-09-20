@@ -272,30 +272,6 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   private static String getRef(Component component) {
-    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getDbKey();
+    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
   }
-
-  private static class MatchMetric implements Predicate<Map.Entry<InternalKey, Measure>> {
-    private final Metric metric;
-
-    public MatchMetric(Metric metric) {
-      this.metric = metric;
-    }
-
-    @Override
-    public boolean apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
-      return input.getKey().getMetricKey().equals(metric.getKey());
-    }
-  }
-
-  private enum ToMeasure implements Function<Map.Entry<InternalKey, Measure>, Measure> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public Measure apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
-      return input.getValue();
-    }
-  }
-
 }

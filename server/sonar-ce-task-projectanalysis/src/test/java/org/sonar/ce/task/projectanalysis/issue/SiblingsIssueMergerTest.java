@@ -105,7 +105,7 @@ public class SiblingsIssueMergerTest {
     copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader),
       tracker,
       issueLifecycle);
-    projectDto = db.components().insertPublicProject(p -> p.setDbKey(PROJECT_KEY).setUuid(PROJECT_UUID));
+    projectDto = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY).setUuid(PROJECT_UUID));
     branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
@@ -115,9 +115,9 @@ public class SiblingsIssueMergerTest {
     branch3Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch3")
       .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
-    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch1"));
-    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch2"));
-    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch3"));
+    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setKey(FILE_1_KEY + ":PULL_REQUEST:myBranch1"));
+    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setKey(FILE_1_KEY + ":PULL_REQUEST:myBranch2"));
+    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setKey(FILE_1_KEY + ":PULL_REQUEST:myBranch3"));
     rule = db.rules().insert();
     when(branch.getReferenceBranchUuid()).thenReturn(projectDto.uuid());
     metadataHolder.setBranch(branch);

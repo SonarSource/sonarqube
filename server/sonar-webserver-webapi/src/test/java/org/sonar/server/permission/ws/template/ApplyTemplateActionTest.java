@@ -48,7 +48,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -130,7 +129,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   public void apply_template_with_project_key() {
     loginAsAdmin();
 
-    newRequest(template1.getUuid(), null, project.getDbKey());
+    newRequest(template1.getUuid(), null, project.getKey());
 
     assertTemplate1AppliedToProject();
   }

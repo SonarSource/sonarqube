@@ -74,7 +74,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "c.module_uuid_path",
     "c.path",
     "c.scope",
-    "c.project_uuid",
+    "c.branch_uuid",
     "c.main_branch_project_uuid",
 
     // column 21
@@ -91,17 +91,16 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   private static final String SQL_NEW_CODE_JOIN = "left join new_code_reference_issues n on n.issue_key = i.kee ";
 
-  private static final String PROJECT_FILTER = " and c.project_uuid = ? and i.project_uuid = ? ";
+  private static final String BRANCH_FILTER = " and c.branch_uuid = ? and i.project_uuid = ? ";
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
   private static final String ISSUE_KEY_FILTER_SUFFIX = ") ";
 
   static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
-  static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
 
   private final DbSession session;
 
   @CheckForNull
-  private final String projectUuid;
+  private final String branchUuid;
 
   @CheckForNull
   private final Collection<String> issueKeys;
@@ -109,10 +108,10 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   private final PreparedStatement stmt;
   private final ResultSetIterator<IssueDoc> iterator;
 
-  IssueIteratorForSingleChunk(DbClient dbClient, @Nullable String projectUuid, @Nullable Collection<String> issueKeys) {
+  IssueIteratorForSingleChunk(DbClient dbClient, @Nullable String branchUuid, @Nullable Collection<String> issueKeys) {
     checkArgument(issueKeys == null || issueKeys.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE,
       "Cannot search for more than " + DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + " issue keys at once. Please provide the keys in smaller chunks.");
-    this.projectUuid = projectUuid;
+    this.branchUuid = branchUuid;
     this.issueKeys = issueKeys;
     this.session = dbClient.openSession(false);
 
@@ -148,7 +147,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   private String createSql() {
     String sql = SQL_ALL;
-    sql += projectUuid == null ? "" : PROJECT_FILTER;
+    sql += branchUuid == null ? "" : BRANCH_FILTER;
     if (issueKeys != null && !issueKeys.isEmpty()) {
       sql += ISSUE_KEY_FILTER_PREFIX;
       sql += IntStream.range(0, issueKeys.size()).mapToObj(i -> "?").collect(Collectors.joining(","));
@@ -160,10 +159,10 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   private void setParameters(PreparedStatement stmt) throws SQLException {
     int index = 1;
-    if (projectUuid != null) {
-      stmt.setString(index, projectUuid);
+    if (branchUuid != null) {
+      stmt.setString(index, branchUuid);
       index++;
-      stmt.setString(index, projectUuid);
+      stmt.setString(index, branchUuid);
       index++;
     }
     if (issueKeys != null) {

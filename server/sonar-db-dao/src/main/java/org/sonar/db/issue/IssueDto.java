@@ -206,7 +206,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setComponent(ComponentDto component) {
-    this.componentKey = component.getDbKey();
+    this.componentKey = component.getKey();
     this.componentUuid = component.uuid();
     this.moduleUuidPath = component.moduleUuidPath();
     this.filePath = component.path();
@@ -214,7 +214,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setProject(ComponentDto project) {
-    this.projectKey = project.getDbKey();
+    this.projectKey = project.getKey();
     this.projectUuid = project.uuid();
     return this;
   }

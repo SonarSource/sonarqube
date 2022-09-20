@@ -42,7 +42,7 @@ public class ProjectDescriptor {
    * Build a {@link ProjectDescriptor} without checking qualifier of ComponentDto.
    */
   public static ProjectDescriptor of(ComponentDto project) {
-    return new ProjectDescriptor(project.uuid(), project.getDbKey(), project.name());
+    return new ProjectDescriptor(project.uuid(), project.getKey(), project.name());
   }
 
   public final String getUuid() {

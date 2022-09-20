@@ -66,7 +66,7 @@ public class ExportActionTest {
 
   @Before
   public void setUp() {
-    project = db.components().insertComponent(newPrivateProjectDto(PROJECT_ID).setDbKey(PROJECT_KEY).setName(PROJECT_NAME));
+    project = db.components().insertComponent(newPrivateProjectDto(PROJECT_ID).setKey(PROJECT_KEY).setName(PROJECT_NAME));
   }
 
   @Test
@@ -87,7 +87,7 @@ public class ExportActionTest {
   public void fails_if_not_project_administrator() {
     userSession.logIn();
 
-    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute())
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute())
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -96,8 +96,8 @@ public class ExportActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(UserRole.ADMIN, project);
 
-    when(exportSubmitter.submitProjectExport(project.getDbKey(), user.getUuid())).thenReturn(createResponseExampleTask());
-    TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute();
+    when(exportSubmitter.submitProjectExport(project.getKey(), user.getUuid())).thenReturn(createResponseExampleTask());
+    TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute();
 
     assertJson(response.getInput()).isSimilarTo(responseExample());
   }
@@ -106,7 +106,7 @@ public class ExportActionTest {
   public void fails_to_trigger_task_if_anonymous() {
     userSession.anonymous();
 
-    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute())
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute())
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -116,8 +116,8 @@ public class ExportActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(UserRole.ADMIN, project);
 
-    when(exportSubmitter.submitProjectExport(project.getDbKey(), user.getUuid())).thenReturn(createResponseExampleTask());
-    TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute();
+    when(exportSubmitter.submitProjectExport(project.getKey(), user.getUuid())).thenReturn(createResponseExampleTask());
+    TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute();
 
     assertJson(response.getInput()).isSimilarTo(responseExample());
   }
@@ -131,7 +131,7 @@ public class ExportActionTest {
     assertThatThrownBy(() -> {
       actionTester.newRequest()
         .setMethod("POST")
-        .setParam("key", branch.getDbKey())
+        .setParam("key", branch.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
@@ -146,7 +146,7 @@ public class ExportActionTest {
   }
 
   private CeTask createResponseExampleTask() {
-    CeTask.Component component = new CeTask.Component(project.uuid(), project.getDbKey(), project.name());
+    CeTask.Component component = new CeTask.Component(project.uuid(), project.getKey(), project.name());
     return new CeTask.Builder()
       .setType(CeTaskTypes.PROJECT_EXPORT)
       .setUuid(TASK_ID)

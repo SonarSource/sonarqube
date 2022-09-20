@@ -106,7 +106,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
@@ -116,7 +116,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() {
-    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setKey("view-key"));
     loginAsAdmin();
 
     newRequest()
@@ -186,7 +186,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
+      .hasMessage("Component '" + file.getKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
@@ -295,7 +295,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -312,7 +312,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
@@ -355,13 +355,13 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_PROJECT_KEY, branch.getKey())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project key '%s' not found", branch.getKey()));
   }
 
   @Test

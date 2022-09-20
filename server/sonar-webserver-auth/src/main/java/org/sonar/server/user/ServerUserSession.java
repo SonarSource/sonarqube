@@ -152,7 +152,7 @@ public class ServerUserSession extends AbstractUserSession {
       }
       // if component is part of a branch, then permissions must be
       // checked on the project (represented by its main branch)
-      projectUuid = defaultIfEmpty(component.get().getMainBranchProjectUuid(), component.get().projectUuid());
+      projectUuid = defaultIfEmpty(component.get().getMainBranchProjectUuid(), component.get().branchUuid());
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
       return of(projectUuid);
     }
@@ -294,14 +294,14 @@ public class ServerUserSession extends AbstractUserSession {
   protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<String> projectUuids = components.stream()
-        .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.projectUuid()))
+        .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.branchUuid()))
         .collect(MoreCollectors.toSet(components.size()));
 
       Map<String, ComponentDto> originalComponents = findComponentsByCopyComponentUuid(components,
           dbSession);
 
       Set<String> originalComponentsProjectUuids = originalComponents.values().stream()
-          .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.projectUuid()))
+          .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.branchUuid()))
           .collect(MoreCollectors.toSet(components.size()));
 
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
@@ -313,10 +313,10 @@ public class ServerUserSession extends AbstractUserSession {
         .filter(c -> {
           if (c.getCopyComponentUuid() != null) {
             var componentDto = originalComponents.get(c.getCopyComponentUuid());
-            return componentDto != null && authorizedProjectUuids.contains(defaultIfEmpty(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
+            return componentDto != null && authorizedProjectUuids.contains(defaultIfEmpty(componentDto.getMainBranchProjectUuid(), componentDto.branchUuid()));
           }
 
-          return authorizedProjectUuids.contains(c.projectUuid()) || authorizedProjectUuids.contains(
+          return authorizedProjectUuids.contains(c.branchUuid()) || authorizedProjectUuids.contains(
               c.getMainBranchProjectUuid());
         })
         .collect(MoreCollectors.toList(components.size()));

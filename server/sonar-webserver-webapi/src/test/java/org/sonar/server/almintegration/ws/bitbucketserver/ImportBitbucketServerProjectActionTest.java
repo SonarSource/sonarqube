@@ -149,7 +149,7 @@ public class ImportBitbucketServerProjectActionTest {
     });
     Project project = getGsonBBSProject();
     Repository repo = getGsonBBSRepo(project);
-    db.components().insertPublicProject(p -> p.setDbKey(GENERATED_PROJECT_KEY));
+    db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY));
 
     assertThatThrownBy(() -> {
       when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);

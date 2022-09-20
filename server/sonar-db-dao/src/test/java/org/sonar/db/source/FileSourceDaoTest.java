@@ -245,7 +245,7 @@ public class FileSourceDaoTest {
       .collect(Collectors.toList());
 
     Map<String, FileHashesDto> fileSourcesByUuid = new HashMap<>();
-    underTest.scrollFileHashesByProjectUuid(dbSession, project.projectUuid(), result -> fileSourcesByUuid.put(result.getResultObject().getFileUuid(), result.getResultObject()));
+    underTest.scrollFileHashesByProjectUuid(dbSession, project.branchUuid(), result -> fileSourcesByUuid.put(result.getResultObject().getFileUuid(), result.getResultObject()));
 
     assertThat(fileSourcesByUuid).hasSize(files.size());
     files.forEach(t -> assertThat(fileSourcesByUuid).containsKey(t.uuid()));
@@ -258,7 +258,7 @@ public class FileSourceDaoTest {
     FileSourceDto inserted = dbTester.fileSources().insertFileSource(file);
 
     List<FileHashesDto> fileSources = new ArrayList<>(1);
-    underTest.scrollFileHashesByProjectUuid(dbSession, project.projectUuid(), result -> fileSources.add(result.getResultObject()));
+    underTest.scrollFileHashesByProjectUuid(dbSession, project.branchUuid(), result -> fileSources.add(result.getResultObject()));
 
     assertThat(fileSources).hasSize(1);
     FileHashesDto fileSource = fileSources.iterator().next();

@@ -470,7 +470,7 @@ public class PermissionTemplateServiceTest {
       .map(x -> String.format("\"%s\"", x))
       .collect(Collectors.joining(", "));
 
-    ComponentDto project = dbTester.components().insertPrivateProject(p -> p.setDbKey(key));
+    ComponentDto project = dbTester.components().insertPrivateProject(p -> p.setKey(key));
 
     assertThatThrownBy(() -> underTest.applyDefaultToNewComponent(session, project, null))
       .isInstanceOf(TemplateMatchingKeyException.class)

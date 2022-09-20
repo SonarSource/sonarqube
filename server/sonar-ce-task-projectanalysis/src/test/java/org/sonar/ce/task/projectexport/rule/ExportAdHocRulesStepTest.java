@@ -61,7 +61,7 @@ public class ExportAdHocRulesStepTest {
     // no id yet
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)
-    .setDbKey("the_project")
+    .setKey("the_project")
     .setName("The Project")
     .setDescription("The project description")
     .setEnabled(true)
@@ -70,7 +70,7 @@ public class ExportAdHocRulesStepTest {
     .setRootUuid(PROJECT_UUID)
     .setModuleUuid(null)
     .setModuleUuidPath("." + PROJECT_UUID + ".")
-    .setProjectUuid(PROJECT_UUID);
+    .setBranchUuid(PROJECT_UUID);
 
   private static final List<BranchDto> BRANCHES = ImmutableList.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master"),

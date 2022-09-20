@@ -64,8 +64,8 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void update_project_key() {
     ComponentDto project = insertSampleProject();
-    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 
@@ -74,15 +74,15 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     // Check project key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.getDbKey())).isEmpty();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.getKey())).isEmpty();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root")).isNotNull();
 
     // Check file key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getDbKey())).isEmpty();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getKey())).isEmpty();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isNotNull();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/InactiveFile.xoo")).isNotNull();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isEmpty();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isEmpty();
 
     assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
 
@@ -108,7 +108,7 @@ public class ComponentServiceUpdateKeyTest {
     underTest.updateKey(dbSession, componentDb.getProjectDto(provisionedProject), "provisionedProject2");
     dbSession.commit();
 
-    assertComponentKeyHasBeenUpdated(provisionedProject.getDbKey(), "provisionedProject2");
+    assertComponentKeyHasBeenUpdated(provisionedProject.getKey(), "provisionedProject2");
     assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
@@ -129,7 +129,7 @@ public class ComponentServiceUpdateKeyTest {
     logInAsProjectAdministrator(project);
 
     ProjectDto projectDto = componentDb.getProjectDto(project);
-    String anotherProjectDbKey = anotherProject.getDbKey();
+    String anotherProjectDbKey = anotherProject.getKey();
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto,
       anotherProjectDbKey))
       .isInstanceOf(IllegalArgumentException.class)
@@ -163,7 +163,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    return componentDb.insertPrivateProject(c -> c.setDbKey(key));
+    return componentDb.insertPrivateProject(c -> c.setKey(key));
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {

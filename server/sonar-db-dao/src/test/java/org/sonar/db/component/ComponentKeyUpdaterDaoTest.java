@@ -52,8 +52,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
-
-
+  
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private AuditPersister auditPersister = mock(AuditPersister.class);
@@ -86,13 +85,13 @@ public class ComponentKeyUpdaterDaoTest {
   public void updateKey_updates_disabled_components() {
     ComponentDto project = db.components().insertComponent(
       newPrivateProjectDto("A")
-        .setDbKey("my_project"));
+        .setKey("my_project"));
     ComponentDto directory = db.components().insertComponent(
       newDirectory(project, "B")
-        .setDbKey("my_project:directory"));
-    db.components().insertComponent(newFileDto(project, directory).setDbKey("my_project:directory/file"));
-    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setDbKey("my_project:inactive_directory").setEnabled(false));
-    db.components().insertComponent(newFileDto(project, inactiveDirectory).setDbKey("my_project:inactive_directory/file").setEnabled(false));
+        .setKey("my_project:directory"));
+    db.components().insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
+    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
+    db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
     underTest.updateKey(dbSession, "A", "your_project");
     dbSession.commit();
@@ -100,7 +99,7 @@ public class ComponentKeyUpdaterDaoTest {
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
     assertThat(result)
       .hasSize(5)
-      .extracting(ComponentDto::getDbKey)
+      .extracting(ComponentDto::getKey)
       .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "your_project:inactive_directory", "your_project:inactive_directory/file");
   }
 
@@ -109,20 +108,20 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto app = db.components().insertPublicProject();
     ComponentDto appBranch = db.components().insertProjectBranch(app);
     ComponentDto appBranchProj1 = appBranch.copy()
-      .setDbKey(appBranch.getDbKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj1:BRANCH:1").setUuid("appBranchProj1").setScope(Qualifiers.FILE);
+      .setKey(appBranch.getKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj1").setUuid("appBranchProj1").setScope(Qualifiers.FILE);
     ComponentDto appBranchProj2 = appBranch.copy()
-      .setDbKey(appBranch.getDbKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj2:BRANCH:2").setUuid("appBranchProj2").setScope(Qualifiers.FILE);
+      .setKey(appBranch.getKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj2").setUuid("appBranchProj2").setScope(Qualifiers.FILE);
     db.components().insertComponent(appBranchProj1);
     db.components().insertComponent(appBranchProj2);
     int branchComponentCount = 3;
 
-    String oldBranchKey = appBranch.getDbKey();
+    String oldBranchKey = appBranch.getKey();
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
 
     String newBranchName = "newKey";
-    String newAppBranchKey = ComponentDto.generateBranchKey(app.getDbKey(), newBranchName);
-    String newAppBranchFragment = app.getDbKey() + newBranchName;
-    underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), newBranchName);
+    String newAppBranchKey = ComponentDto.generateBranchKey(app.getKey(), newBranchName);
+    String newAppBranchFragment = app.getKey() + newBranchName;
+    underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getKey(), newBranchName);
 
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
 
@@ -140,9 +139,9 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto appBranch = db.components().insertProjectBranch(app);
     db.components().insertProjectBranch(app, b -> b.setKey("newName"));
 
-    assertThatThrownBy(() -> underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName"))
+    assertThatThrownBy(() -> underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getKey(), "newName"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getDbKey(), "newName")));
+      .hasMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getKey(), "newName")));
   }
 
   @Test
@@ -151,7 +150,7 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto appBranch = db.components().insertProjectBranch(app);
     db.components().insertProjectBranch(app, b -> b.setKey("newName"));
 
-    underTestWithAuditPersister.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName2");
+    underTestWithAuditPersister.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getKey(), "newName2");
 
     verify(auditPersister, times(1))
       .componentKeyBranchUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
@@ -168,7 +167,7 @@ public class ComponentKeyUpdaterDaoTest {
     String oldProjectKey = project.getKey();
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
 
-    String oldBranchKey = branch.getDbKey();
+    String oldBranchKey = branch.getKey();
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
 
     String newProjectKey = "newKey";
@@ -195,7 +194,7 @@ public class ComponentKeyUpdaterDaoTest {
     String oldProjectKey = project.getKey();
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
 
-    String oldBranchKey = pullRequest.getDbKey();
+    String oldBranchKey = pullRequest.getKey();
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
 
     String newProjectKey = "newKey";
@@ -212,7 +211,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   private ComponentDto prefixDbKeyWithKey(ComponentDto componentDto, String key) {
-    return componentDto.setDbKey(key + ":" + componentDto.getDbKey());
+    return componentDto.setKey(key + ":" + componentDto.getKey());
   }
 
   @Test
@@ -226,9 +225,9 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
-    ComponentDto project = newPrivateProjectDto("project-uuid").setDbKey("old-project-key");
+    ComponentDto project = newPrivateProjectDto("project-uuid").setKey("old-project-key");
     db.components().insertComponent(project);
-    db.components().insertComponent(newFileDto(project, null).setDbKey("old-project-key:file"));
+    db.components().insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
 
     assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), newLongProjectKey))
@@ -244,7 +243,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_callsAuditPersister() {
-    db.components().insertComponent(newPrivateProjectDto("A").setDbKey("my_project"));
+    db.components().insertComponent(newPrivateProjectDto("A").setKey("my_project"));
 
     underTestWithAuditPersister.updateKey(dbSession, "A", "your_project");
 
@@ -258,13 +257,13 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   private void populateSomeData() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setDbKey("org.struts:struts").setUuid("A"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setKey("org.struts:struts-core").setUuid("B"));
     ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-ui").setUuid("E"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
+    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setKey("org.struts:struts-ui").setUuid("E"));
     ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("org.struts:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
-    ComponentDto project2 = db.components().insertPublicProject(t -> t.setDbKey("foo:struts-core").setUuid("H"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setKey("org.struts:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
+    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("H"));
   }
 }

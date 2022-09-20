@@ -58,10 +58,10 @@ public class ProjectFinderTest {
 
   @Test
   public void sort_project_by_name() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Projet Trois"));
-    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:four").setName("Projet Quatre"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Projet Trois"));
+    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setKey("project:four").setName("Projet Quatre"));
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
     assertThat(underTest.search(db.getSession(), "projet")
@@ -72,11 +72,11 @@ public class ProjectFinderTest {
 
   @Test
   public void projects_are_filtered_by_permissions() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Projet Trois"));
-    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:four").setName("Projet Quatre"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:five").setName("Projet Cinq"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Projet Trois"));
+    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setKey("project:four").setName("Projet Quatre"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:five").setName("Projet Cinq"));
 
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
@@ -93,11 +93,11 @@ public class ProjectFinderTest {
 
   @Test
   public void projects_are_not_filtered_due_to_global_scan_permission() {
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Projet Trois"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:four").setName("Projet Quatre"));
-    db.components().insertPrivateProjectDto(p -> p.setDbKey("project:five").setName("Projet Cinq"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Projet Trois"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:four").setName("Projet Quatre"));
+    db.components().insertPrivateProjectDto(p -> p.setKey("project:five").setName("Projet Cinq"));
 
     userSession.addPermission(GlobalPermission.SCAN);
 
@@ -115,10 +115,10 @@ public class ProjectFinderTest {
 
   @Test
   public void search_by_query_on_name_case_insensitive() {
-    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
-    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
-    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:three").setName("Projet Trois"));
-    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:four").setName("Projet Quatre"));
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setKey("project:one").setName("Projet Un"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setKey("project:two").setName("Projet Deux"));
+    ProjectDto project3 = db.components().insertPrivateProjectDto(p -> p.setKey("project:three").setName("Projet Trois"));
+    ProjectDto project4 = db.components().insertPrivateProjectDto(p -> p.setKey("project:four").setName("Projet Quatre"));
 
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 

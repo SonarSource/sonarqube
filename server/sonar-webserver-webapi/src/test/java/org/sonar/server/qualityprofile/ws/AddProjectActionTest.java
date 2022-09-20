@@ -217,12 +217,12 @@ public class AddProjectActionTest {
 
     assertThatThrownBy(() -> {
       tester.newRequest()
-        .setParam("project", branch.getDbKey())
+        .setParam("project", branch.getKey())
         .setParam("profileKey", profile.getKee())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project '%s' not found", branch.getKey()));
   }
 
   private void assertProjectIsAssociatedToProfile(ProjectDto project, QProfileDto profile) {

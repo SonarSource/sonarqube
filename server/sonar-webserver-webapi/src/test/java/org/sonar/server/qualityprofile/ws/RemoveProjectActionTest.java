@@ -205,7 +205,7 @@ public class RemoveProjectActionTest {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("project", project.getDbKey())
+        .setParam("project", project.getKey())
         .setParam("language", "xoo")
         .setParam("qualityProfile", "unknown")
         .execute();
@@ -223,13 +223,13 @@ public class RemoveProjectActionTest {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("project", branch.getDbKey())
+        .setParam("project", branch.getKey())
         .setParam("language", profile.getLanguage())
         .setParam("qualityProfile", profile.getName())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project '%s' not found", branch.getKey()));
   }
 
   private void assertProjectIsAssociatedToProfile(ProjectDto project, QProfileDto profile) {

@@ -183,7 +183,7 @@ public class ViewsPreOrderDepthTraversalTypeAwareCrawlerTest {
   }
 
   private static CallRecord viewsCallRecord(String methodName, Component component) {
-    return CallRecord.viewsCallRecord(methodName, component.getDbKey());
+    return CallRecord.viewsCallRecord(methodName, component.getKey());
   }
 
 }

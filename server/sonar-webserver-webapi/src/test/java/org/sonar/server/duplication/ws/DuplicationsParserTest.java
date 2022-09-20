@@ -57,7 +57,7 @@ public class DuplicationsParserTest {
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file.getDbKey(), file.getDbKey()));
+        "</duplications>", file.getKey(), file.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -86,7 +86,7 @@ public class DuplicationsParserTest {
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file2.getDbKey(), file1.getDbKey()));
+        "</duplications>", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -118,7 +118,7 @@ public class DuplicationsParserTest {
         "    <b s=\"137\" l=\"24\" r=\"%s\"/>\n" +
         "    <b s=\"111\" l=\"24\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file1.getDbKey(), fileOnProject2.getDbKey(), file2.getDbKey()));
+        "</duplications>", file1.getKey(), fileOnProject2.getKey(), file2.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -148,11 +148,11 @@ public class DuplicationsParserTest {
   public void duplications_on_many_blocks() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1)
-      .setDbKey("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java")
+      .setKey("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java")
       .setLongName("CommandExecutor"));
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2)
-      .setDbKey("com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java")
+      .setKey("com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java")
       .setLongName("CommandExecutor"));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
       format("<duplications>\n" +
@@ -164,7 +164,7 @@ public class DuplicationsParserTest {
         "    <b s=\"38\" l=\"40\" r=\"%s\"/>\n" +
         "    <b s=\"29\" l=\"39\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>\n", file2.getDbKey(), file1.getDbKey(), file2.getDbKey(), file1.getDbKey()));
+        "</duplications>\n", file2.getKey(), file1.getKey(), file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(2);
 
     // Block with smaller line should come first
@@ -186,7 +186,7 @@ public class DuplicationsParserTest {
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file.getDbKey(), "not_existing"));
+        "</duplications>", file.getKey(), "not_existing"));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -198,7 +198,7 @@ public class DuplicationsParserTest {
     assertThat(duplication1.from()).isEqualTo(31);
     assertThat(duplication1.size()).isEqualTo(5);
 
-    Duplication duplication2 = duplication(duplications, file.getDbKey());
+    Duplication duplication2 = duplication(duplications, file.getKey());
     assertThat(duplication2.componentDto()).isEqualTo(file);
     assertThat(duplication2.from()).isEqualTo(20);
     assertThat(duplication2.size()).isEqualTo(5);
@@ -212,7 +212,7 @@ public class DuplicationsParserTest {
     ComponentDto fileOnSameProject = db.components().insertComponent(newFileDto(project1, null));
     ComponentDto fileOnDifferentProject = db.components().insertComponent(newFileDto(project2, null));
 
-    DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.projectUuid());
+    DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.branchUuid());
 
     // On same file
     assertThat(comparator.compare(Duplication.newComponent(currentFile, 2, 2),
@@ -256,7 +256,7 @@ public class DuplicationsParserTest {
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file2.getDbKey(), file1.getDbKey()));
+        "</duplications>", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -288,7 +288,7 @@ public class DuplicationsParserTest {
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
         "  </g>\n" +
-        "</duplications>", file2.getDbKey(), file1.getDbKey()));
+        "</duplications>", file2.getKey(), file1.getKey()));
     assertThat(blocks).hasSize(1);
 
     List<Duplication> duplications = blocks.get(0).getDuplications();
@@ -310,7 +310,7 @@ public class DuplicationsParserTest {
 
   private static Duplication duplication(List<Duplication> duplications, @Nullable final String componentKey) {
     return Iterables.find(duplications, input -> input != null && (componentKey == null ? input.componentDto() == null
-      : input.componentDto() != null && componentKey.equals(input.componentDto().getDbKey())));
+      : input.componentDto() != null && componentKey.equals(input.componentDto().getKey())));
   }
 
 }

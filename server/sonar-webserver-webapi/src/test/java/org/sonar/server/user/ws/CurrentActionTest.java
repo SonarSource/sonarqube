@@ -205,7 +205,7 @@ public class CurrentActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setDbKey("death-star-key"));
+    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setKey("death-star-key"));
     UserDto obiwan = db.users().insertUser(user -> user
       .setLogin("obiwan.kenobi")
       .setName("Obiwan Kenobi")

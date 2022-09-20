@@ -80,7 +80,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     }
 
     List<QGChangeEvent> result = new ArrayList<>();
-    Map<String, List<ComponentDto>> componentsByProjectUuid = components.stream().collect(groupingBy(ComponentDto::projectUuid));
+    Map<String, List<ComponentDto>> componentsByProjectUuid = components.stream().collect(groupingBy(ComponentDto::branchUuid));
     for (List<ComponentDto> groupedComponents : componentsByProjectUuid.values()) {
       Optional<QGChangeEvent> qgChangeEvent = refreshComponentsOnSameProject(dbSession, groupedComponents);
       qgChangeEvent.ifPresent(result::add);

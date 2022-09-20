@@ -122,15 +122,15 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
     assertSearch(SuggestionQuery.builder()
       .setQuery("File")
       .setQualifiers(asList(PROJECT, MODULE, FILE))
-      .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getDbKey()))
-      .setFavoriteKeys(ImmutableSet.of(file2.getDbKey()))
+      .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getKey()))
+      .setFavoriteKeys(ImmutableSet.of(file2.getKey()))
       .build()).containsExactly(uuids(file2, file1));
 
     assertSearch(SuggestionQuery.builder()
       .setQuery("File")
       .setQualifiers(asList(PROJECT, MODULE, FILE))
-      .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getDbKey()))
-      .setFavoriteKeys(ImmutableSet.of(file1.getDbKey()))
+      .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getKey()))
+      .setFavoriteKeys(ImmutableSet.of(file1.getKey()))
       .build()).containsExactly(uuids(file1, file2));
   }
 
@@ -161,12 +161,12 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
     index(ComponentTesting.newFileDto(project)
       .setName("DbTester.java")
-      .setDbKey("java/org/example/DbTester.java")
+      .setKey("java/org/example/DbTester.java")
       .setUuid("UUID-DbTester"));
 
     index(ComponentTesting.newFileDto(project)
       .setName("WebhookDbTesting.java")
-      .setDbKey("java/org/example/WebhookDbTesting.java")
+      .setKey("java/org/example/WebhookDbTesting.java")
       .setUuid("UUID-WebhookDbTesting"));
 
     assertSearch("dbt").containsExactly(

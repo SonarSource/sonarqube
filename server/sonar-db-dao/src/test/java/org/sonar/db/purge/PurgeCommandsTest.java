@@ -210,7 +210,7 @@ public class PurgeCommandsTest {
   @Test
   public void deleteProjects() {
     ComponentDto project = dbTester.components().insertPrivateProject();
-    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), project.getDbKey()).get();
+    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), project.getKey()).get();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     dbTester.events().insertEvent(analysis);
@@ -754,7 +754,7 @@ public class PurgeCommandsTest {
   }
 
   private int countComponentOfRoot(ComponentDto projectOrView) {
-    return dbTester.countSql("select count(1) from components where project_uuid='" + projectOrView.uuid() + "'");
+    return dbTester.countSql("select count(1) from components where branch_uuid='" + projectOrView.uuid() + "'");
   }
 
   private void insertDuplication(ComponentDto project, SnapshotDto analysis) {

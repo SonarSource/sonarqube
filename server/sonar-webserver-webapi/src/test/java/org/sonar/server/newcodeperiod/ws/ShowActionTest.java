@@ -218,7 +218,7 @@ public class ShowActionTest {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectScan(project);
 
-    tester.insert(project.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");
+    tester.insert(project.branchUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");
 
     ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())

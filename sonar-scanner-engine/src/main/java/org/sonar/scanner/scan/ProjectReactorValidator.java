@@ -20,9 +20,7 @@
 package org.sonar.scanner.scan;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -103,11 +101,6 @@ public class ProjectReactorValidator {
   private static void validateModule(ProjectDefinition projectDefinition, List<String> validationMessages) {
     if (!ComponentKeys.isValidProjectKey(projectDefinition.getKey())) {
       validationMessages.add(format("\"%s\" is not a valid project key. %s.", projectDefinition.getKey(), ALLOWED_CHARACTERS_MESSAGE));
-    }
-    Set<String> forbiddenNamePhrases = Set.of(":BRANCH:", ":PULLREQUEST:");
-    if (forbiddenNamePhrases.stream().anyMatch(projectDefinition.getKey()::contains)) {
-      validationMessages.add(format("\"%s\" is not a valid project key. Project key must not contain following phrases [%s]", projectDefinition.getKey(),
-        String.join(", ", forbiddenNamePhrases)));
     }
   }
 
