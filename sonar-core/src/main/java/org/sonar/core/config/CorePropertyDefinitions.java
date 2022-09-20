@@ -31,9 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
-import static org.sonar.api.PropertyType.BOOLEAN;
-import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
-import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.api.PropertyType.*;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 
 public class CorePropertyDefinitions {
@@ -43,6 +41,10 @@ public class CorePropertyDefinitions {
   public static final String SONAR_ANALYSIS_DETECTEDCI = "sonar.analysis.detectedci";
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
+
+  public static final String SUB_SYSTEM_ANNOUNCEMENT = "announcement";
+  public static final String SYSTEM_ANNOUNCEMENT_MESSAGE = "sonar.systemAnnouncement.message";
+  public static final String SYSTEM_ANNOUNCEMENT_DISPLAY_MESSAGE = "sonar.systemAnnouncement.displayMessage";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
@@ -69,7 +71,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_MODULES)
         .onlyOnQualifiers(Qualifiers.PROJECT)
-        .type(PropertyType.TEXT)
+        .type(TEXT)
         .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
@@ -89,6 +91,21 @@ public class CorePropertyDefinitions {
         .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()
+        .build(),
+      PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_MESSAGE)
+        .name("System announcement message")
+        .description("If \"Display system announcement message\" is set to True, this message will be displayed in a banner to all authenticate SonarQube users.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
+        .type(TEXT)
+        .build(),
+      PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_DISPLAY_MESSAGE)
+        .name("Display system announcement message")
+        .description("If set to True, the \"System announcement message\" will be displayed in a banner to all authenticate SonarQube users.")
+        .defaultValue(Boolean.toString(false))
+        .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(BOOLEAN)
         .build(),
       PropertyDefinition.builder(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)
         .name("Avoid quality profiles notification")
