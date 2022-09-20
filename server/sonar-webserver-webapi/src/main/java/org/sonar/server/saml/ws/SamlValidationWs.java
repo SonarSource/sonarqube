@@ -21,10 +21,11 @@ package org.sonar.server.saml.ws;
 
 import java.util.List;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.authentication.SamlValidationRedirectionFilter;
 
 public class SamlValidationWs implements WebService {
 
-  public static final String SAML_VALIDATION_CONTROLLER = "api/saml";
+  public static final String SAML_VALIDATION_CONTROLLER = SamlValidationRedirectionFilter.SAML_VALIDATION_CONTROLLER_CONTEXT;
   private final List<SamlAction> actions;
 
   public SamlValidationWs(List<SamlAction> actions) {

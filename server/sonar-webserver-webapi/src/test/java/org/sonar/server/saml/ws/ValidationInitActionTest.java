@@ -41,10 +41,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class SamlValidationInitActionTest {
+public class ValidationInitActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  private SamlValidationInitAction underTest;
+  private ValidationInitAction underTest;
   private SamlAuthenticator samlAuthenticator;
   private OAuth2ContextFactory oAuth2ContextFactory;
 
@@ -52,14 +52,15 @@ public class SamlValidationInitActionTest {
   public void setUp() throws Exception {
     samlAuthenticator = mock(SamlAuthenticator.class);
     oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-    underTest = new SamlValidationInitAction(samlAuthenticator, oAuth2ContextFactory, userSession);
+    underTest = new ValidationInitAction(samlAuthenticator, oAuth2ContextFactory, userSession);
   }
 
   @Test
   public void do_get_pattern() {
-    assertThat(underTest.doGetPattern().matches("/api/saml/validation_init")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/saml/validation_init")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/saml")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/api/saml/validation_init2")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/saml/validation_init")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/saml/validation_init2")).isFalse();
   }
 
   @Test
@@ -75,7 +76,7 @@ public class SamlValidationInitActionTest {
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verify(samlAuthenticator).initLogin(matches(callbackUrl),
-      matches(SamlValidationInitAction.VALIDATION_RELAY_STATE),
+      matches(ValidationInitAction.VALIDATION_RELAY_STATE),
       any(), any());
   }
 

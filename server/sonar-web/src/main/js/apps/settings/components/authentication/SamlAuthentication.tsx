@@ -49,7 +49,7 @@ interface SamlAuthenticationState {
   success?: boolean;
 }
 
-const CONFIG_TEST_PATH = '/api/saml/validation_init';
+const CONFIG_TEST_PATH = '/saml/validation_init';
 
 const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';
 

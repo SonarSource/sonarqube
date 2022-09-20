@@ -36,15 +36,16 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
-public class SamlValidationInitAction extends ServletFilter implements SamlAction {
+public class ValidationInitAction extends ServletFilter implements SamlAction {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
+  public static final String VALIDATION_INIT_KEY = "validation_init";
   private final SamlAuthenticator samlAuthenticator;
 
   private final OAuth2ContextFactory oAuth2ContextFactory;
   private final UserSession userSession;
 
-  public SamlValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory, UserSession userSession) {
+  public ValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory, UserSession userSession) {
     this.samlAuthenticator = samlAuthenticator;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.userSession = userSession;
@@ -52,13 +53,13 @@ public class SamlValidationInitAction extends ServletFilter implements SamlActio
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create("/api/saml/validation_init");
+    return UrlPattern.create("/" + SamlValidationWs.SAML_VALIDATION_CONTROLLER + "/" + VALIDATION_INIT_KEY);
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller
-      .createAction("validation_init")
+      .createAction(VALIDATION_INIT_KEY)
       .setInternal(true)
       .setPost(false)
       .setHandler(ServletFilterHandler.INSTANCE)

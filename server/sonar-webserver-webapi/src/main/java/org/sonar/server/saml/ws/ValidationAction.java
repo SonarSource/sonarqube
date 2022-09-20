@@ -28,22 +28,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.authentication.SamlValidationRedirectionFilter;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.ws.ServletFilterHandler;
 
-import static org.sonar.server.authentication.SamlValidationRedirectionFilter.SAML_VALIDATION_URL;
+public class ValidationAction extends ServletFilter implements SamlAction {
 
-public class SamlValidationCallbackFilter extends ServletFilter {
-
+  static final String VALIDATION_CALLBACK_KEY = SamlValidationRedirectionFilter.SAML_VALIDATION_KEY;
   private final ThreadLocalUserSession userSession;
   private final SamlAuthenticator samlAuthenticator;
   private final OAuth2ContextFactory oAuth2ContextFactory;
 
-  public SamlValidationCallbackFilter(ThreadLocalUserSession userSession, SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory) {
+  public ValidationAction(ThreadLocalUserSession userSession, SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory) {
     this.samlAuthenticator = samlAuthenticator;
     this.userSession = userSession;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
@@ -51,7 +53,7 @@ public class SamlValidationCallbackFilter extends ServletFilter {
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(SAML_VALIDATION_URL);
+    return UrlPattern.create("/" + SamlValidationWs.SAML_VALIDATION_CONTROLLER + "/" + VALIDATION_CALLBACK_KEY);
   }
 
   @Override
@@ -72,5 +74,20 @@ public class SamlValidationCallbackFilter extends ServletFilter {
 
     httpResponse.setContentType("text/html");
     httpResponse.getWriter().print(samlAuthenticator.getAuthenticationStatusPage(httpRequest, httpResponse));
+  }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller
+      .createAction(VALIDATION_CALLBACK_KEY)
+      .setInternal(true)
+      .setPost(true)
+      .setHandler(ServletFilterHandler.INSTANCE)
+      .setDescription("Handle the callback of a SAML assertion from the identity Provider and produces " +
+        "a HTML page with all information available in the assertion.")
+      .setSince("9.7");
+    action.createParam("SAMLResponse")
+      .setDescription("SAML assertion value")
+      .setRequired(true);
   }
 }

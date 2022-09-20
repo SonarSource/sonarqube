@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 
 import com.google.common.io.Resources;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.FilterChain;
@@ -41,7 +42,8 @@ import static org.sonar.server.authentication.AuthenticationFilter.CALLBACK_PATH
 public class SamlValidationRedirectionFilter extends ServletFilter {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
-  public static final String SAML_VALIDATION_URL = "/saml/validation_callback";
+  public static final String SAML_VALIDATION_CONTROLLER_CONTEXT = "saml";
+  public static final String SAML_VALIDATION_KEY = "validation";
   private String redirectionPageTemplate;
   private final Server server;
 
@@ -76,10 +78,13 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
       HttpServletResponse httpResponse = (HttpServletResponse) response;
 
       String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter("SAMLResponse"));
+      URI redirectionEndpointUrl = URI.create(server.getContextPath() + "/")
+        .resolve(SAML_VALIDATION_CONTROLLER_CONTEXT + "/")
+        .resolve(SAML_VALIDATION_KEY);
 
       String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
         new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%"},
-        new String[]{server.getContextPath() + SAML_VALIDATION_URL, samlResponse});
+        new String[]{redirectionEndpointUrl.toString(), samlResponse});
 
       httpResponse.setContentType("text/html");
       httpResponse.getWriter().print(template);

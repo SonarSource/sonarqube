@@ -100,6 +100,7 @@ public class SamlValidationRedirectionFilterTest {
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
     assertThat(htmlProduced.getValue()).doesNotContain("<script>/*hack website*/</script>");
+    assertThat(htmlProduced.getValue()).contains("action=\"/saml/validation\"");
   }
 
   @Test

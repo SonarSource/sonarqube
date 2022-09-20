@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -41,9 +42,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class SamlValidationCallbackFilterTest {
+public class ValidationActionTest {
 
-  private SamlValidationCallbackFilter underTest;
+  private ValidationAction underTest;
   private SamlAuthenticator samlAuthenticator;
   private ThreadLocalUserSession userSession;
 
@@ -52,12 +53,14 @@ public class SamlValidationCallbackFilterTest {
     samlAuthenticator = mock(SamlAuthenticator.class);
     userSession = mock(ThreadLocalUserSession.class);
     var oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-    underTest = new SamlValidationCallbackFilter(userSession, samlAuthenticator, oAuth2ContextFactory);
+    underTest = new ValidationAction(userSession, samlAuthenticator, oAuth2ContextFactory);
   }
 
   @Test
   public void do_get_pattern() {
-    assertThat(underTest.doGetPattern().matches("/saml/validation_callback")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/saml/validation")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/saml/validation2")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/saml/validation")).isFalse();
     assertThat(underTest.doGetPattern().matches("/saml/validation_callback2")).isFalse();
     assertThat(underTest.doGetPattern().matches("/saml/")).isFalse();
   }
@@ -93,5 +96,20 @@ public class SamlValidationCallbackFilterTest {
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verifyNoInteractions(samlAuthenticator);
+  }
+
+  @Test
+  public void verify_definition() {
+    String controllerKey = "foo";
+    WebService.Context context = new WebService.Context();
+    WebService.NewController newController = context.createController(controllerKey);
+    underTest.define(newController);
+    newController.done();
+
+    WebService.Action validationInitAction = context.controller(controllerKey)
+      .action(ValidationAction.VALIDATION_CALLBACK_KEY);
+    assertThat(validationInitAction).isNotNull();
+    assertThat(validationInitAction.description()).isNotEmpty();
+    assertThat(validationInitAction.handler()).isNotNull();
   }
 }
