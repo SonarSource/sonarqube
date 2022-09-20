@@ -306,7 +306,11 @@ export class TokensForm extends React.PureComponent<Props, State> {
                 onChange={this.handleNewTokenTypeChange}
                 options={tokenTypeOptions}
                 placeholder={translate('users.tokens.select_type')}
-                value={tokenTypeOptions.find(option => option.value === newTokenType)}
+                value={
+                  newTokenType
+                    ? tokenTypeOptions.find(option => option.value === newTokenType)
+                    : null
+                }
               />
             </div>
             {newTokenType === TokenType.Project && (
