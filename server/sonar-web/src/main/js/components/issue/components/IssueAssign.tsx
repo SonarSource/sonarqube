@@ -23,6 +23,7 @@ import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
+import Tooltip from '../../controls/Tooltip';
 import Avatar from '../../ui/Avatar';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 
@@ -77,21 +78,23 @@ export default class IssueAssign extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={isOpen}
             overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}>
-            <ButtonLink
-              aria-expanded={isOpen}
-              aria-label={
-                assigneeName
-                  ? translateWithParameters(
-                      'issue.assign.assigned_to_x_click_to_change',
-                      assigneeName
-                    )
-                  : translate('issue.assign.unassigned_click_to_assign')
-              }
-              className="issue-action issue-action-with-options js-issue-assign"
-              onClick={this.toggleAssign}>
-              {this.renderAssignee()}
-              <DropdownIcon className="little-spacer-left" />
-            </ButtonLink>
+            <Tooltip overlay={assigneeName}>
+              <ButtonLink
+                aria-expanded={isOpen}
+                aria-label={
+                  assigneeName
+                    ? translateWithParameters(
+                        'issue.assign.assigned_to_x_click_to_change',
+                        assigneeName
+                      )
+                    : translate('issue.assign.unassigned_click_to_assign')
+                }
+                className="issue-action issue-action-with-options js-issue-assign"
+                onClick={this.toggleAssign}>
+                {this.renderAssignee()}
+                <DropdownIcon className="little-spacer-left" />
+              </ButtonLink>
+            </Tooltip>
           </Toggler>
         </div>
       );
