@@ -3,7 +3,7 @@ title: Telemetry
 url: /instance-administration/telemetry/
 ---
 
-SonarQube periodically sends telemetry data to SonarSource.
+SonarQube sends anonymized telemetry data to SonarSource daily.
 This data helps us understand how SonarQube is used, which helps us improve our products.
 
 
@@ -15,7 +15,7 @@ No IP addresses are sent.
 The data is sent securely, held under restricted access, and not published outside of SonarSource.
 
 Protecting your privacy is important to us.
-If you suspect the telemetry is collecting sensitive data or the data is being insecurely or inappropriately handled, please send an email to `security@sonarsource.com` so that we can investigate.
+If you have any concerns about telemetry collection, please email us at `security@sonarsource.com`.
 
 
 ## Turning it off
@@ -28,92 +28,116 @@ By default, it is set to `true`.
 
 Once a day (every 24 hours), SonarQube sends a `JSON` payload to `https://telemetry.sonarsource.com/sonarqube`.
 
-The data that is sent includes:
+The data that is sent consists of:
 
-* Information about the SonarQube instances itself (version, edition, database type, etc.)
-* The list of projects on the instance including, for each:
-  * A traceable unique project identifier (but one which doesn’t reveal any identifying information about the project)
+* Anonymized information about the SonarQube instance (version, license type, edition, database type, etc.)
+* Anonymized information about each project on the instance, consisting of:
+  * A technical identifier that does not reveal any project-specific details.
   * Information about the project like language, last analysis time, number of lines of code, etc.
-* The list of users on that instance including, for each:
-  * A traceable unique user identifier (but one which doesn’t reveal any identifiying information about the user)
-  * Information about the user's usage of the system like time of last login and current status.
+* Anonymized information about each user on the instance, consisting of:
+  * A technical identifier that does not reveal any personal information about the user.
+  * Information about the user's usage of the instance like last activity time and current status.
 
 Here is an example of a telemetry payload:
 
 ```
 {
-  "id": "ID",
-  "version": "9.6",
-  "edition": "enterprise",
-  "licenseType": "TEST-LICENCE",
-  "database": {
-    "name": "oracle",
-    "version": "2.0.0"
-  },
-  "plugins": [
-    {
-      "name": "plugin-name",
-      "version": "9.6"
-    }
-  ],
-  "externalAuthProviders": [
-    "sonarqube"
-  ],
-  "installationDate": 1661933380862,
-  "installationVersion": "9.6",
-  "docker": false,
-  "users": [
-    {
-      "userUuid": "UUID-1",
-      "status": "active",
-      "lastActivity": "2022-01-01T08:00:00+00"
-    }
-  ],
-  "projects": [
-    {
-      "projectUuid": "UUID-1",
-      "lastAnalysis": "2022-01-01T08:00:00+00"
-      "language": "java",
-      "loc": 40
+    "id": "ABB010CE-AVcdRncGX_RgEGt_NVoS",
+    "version": "9.7.0.59880",
+    "edition": "datacenter",
+    "licenseType": "PRODUCTION",
+    "database": {
+        "name": "PostgreSQL",
+        "version": "12.8"
     },
-    {
-      "projectUuid": "UUID-2",
-      "lastAnalysis": "2022-01-01T08:00:00+00"
-      "language": "ts",
-      "loc": 24
-    },
-    {
-      "projectUuid": "UUID-3",
-      "lastAnalysis": "2022-08-31T10:09:56+0200",
-      "language": "css",
-      "loc": 7
-    }
-  ],
-  "projects-general-stats": [
-    {
-      "projectUuid": "UUID-1",
-      "branchCount": 2,
-      "pullRequestCount": 0,
-      "scm": "undetected",
-      "ci": "cirrus_ci",
-      "alm": "gitlab_cloud"
-    },
-    {
-      "projectUuid":"UUID-2",
-      "branchCount": 1,
-      "pullRequestCount": 0,
-      "scm": "undetected",
-      "ci": "undetected",
-      "alm": "github_cloud"
-    },
-    {
-      "projectUuid": "UUID-3",
-      "branchCount": 1,
-      "pullRequestCount": 0,
-      "scm": "undetected",
-      "ci": "undetected",
-      "alm": "undetected"
-    }
-  ]
+    "plugins": [{
+            "name": "iac",
+            "version": "1.10.0.2310"
+        },
+        {
+            "name": "plsql",
+            "version": "3.7.0.4372"
+        },
+    ],
+    "externalAuthProviders": [
+        "github"
+    ],
+    "installationDate": "2022-02-01T09:12:32+0000",
+    "docker": true,
+    "users": [{
+            "userUuid": "UI9126NM8DFghgCCDUI9",
+            "status": "active",
+            "lastActivity": "2022-03-22T13:18:56+0000"
+        },
+        {
+            "userUuid": "YY456Uio878YHOJOM891",
+            "status": "active",
+            "lastActivity": "2022-09-06T14:08:46+0000"
+        },
+        {
+            "userUuid": "G5GH76gb65F69Jygf789",
+            "status": "active",
+            "lastActivity": "2022-09-07T00:28:14+0000",
+            "lastSonarlintActivity": "2022-09-07T00:28:14+0000"
+        },
+        {
+            "userUuid": "AG7HK457TYITdsYIH67Y",
+            "status": "inactive"
+        }
+    ],
+    "projects": [
+        {
+            "projectUuid": "AV8WJCz7leTHsONfkGE1",
+            "lastAnalysis": "2022-04-14T07:39:45+0000",
+            "language": "css",
+            "loc": 9722
+        },
+        {
+            "projectUuid": "AV8WJCz7leTHsONfkGE1",
+            "lastAnalysis": "2022-04-14T07:39:45+0000",
+            "language": "js",
+            "loc": 251210
+        },
+        {
+            "projectUuid": "AWHotC4Cb9YxAwKuZDEk",
+            "lastAnalysis": "2022-09-05T15:04:31+0000",
+            "language": "java",
+            "loc": 462
+        },
+        {
+            "projectUuid": "AYAYr6o1Mi128diYBjFX",
+            "lastAnalysis": "2022-09-05T15:04:31+0000",
+            "language": "ts",
+            "loc": 5835
+        }
+    ],
+    "projects-general-stats": [
+        {
+            "projectUuid": "AV8WJCz7leTHsONfkGE1",
+            "branchCount": 1,
+            "pullRequestCount": 0,
+            "scm": "git",
+            "ci": "GitLab CI",
+            "alm": "gitlab_cloud"
+        },
+        {
+            "projectUuid": "AWHotC4Cb9YxAwKuZDEk",
+            "branchCount": 1,
+            "pullRequestCount": 8,
+            "scm": "git",
+            "ci": "Azure DevOps",
+            "alm": "azure_devops_cloud"
+        },
+        {
+            "projectUuid": "AYAYr6o1Mi128diYBjFX",
+            "branchCount": 1,
+            "pullRequestCount": 0,
+            "scm": "git",
+            "ci": "Github Actions",
+            "alm": "github_cloud"
+        },
+    ],
+    "timestamp": "2022-09-07T01:15:23.901Z",
+    "type": "ping"
 }
 ```
