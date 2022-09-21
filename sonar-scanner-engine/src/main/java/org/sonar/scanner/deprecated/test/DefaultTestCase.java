@@ -35,7 +35,6 @@ public class DefaultTestCase {
   private Long durationInMs;
   private Status status;
   private String name;
-  private String message;
 
   public String type() {
     return type;
@@ -73,15 +72,6 @@ public class DefaultTestCase {
 
   public DefaultTestCase setName(String s) {
     this.name = s;
-    return this;
-  }
-
-  public String message() {
-    return message;
-  }
-
-  public DefaultTestCase setMessage(String s) {
-    this.message = s;
     return this;
   }
 }

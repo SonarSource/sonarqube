@@ -54,8 +54,7 @@ public class GenericTestExecutionReportParser {
 
   private static final String NAME_ATTR = "name";
   private static final String DURATION_ATTR = "duration";
-  private static final String MESSAGE_ATTR = "message";
-  public static final String OK = "ok";
+
   public static final String ERROR = "error";
   public static final String FAILURE = "failure";
   public static final String SKIPPED = "skipped";
@@ -149,9 +148,6 @@ public class GenericTestExecutionReportParser {
         status = Status.FAILURE;
       } else if (ERROR.equals(elementName)) {
         status = Status.ERROR;
-      }
-      if (Status.OK != status) {
-        testCase.setMessage(mandatoryAttribute(child, MESSAGE_ATTR));
       }
     }
     testCase.setStatus(status);

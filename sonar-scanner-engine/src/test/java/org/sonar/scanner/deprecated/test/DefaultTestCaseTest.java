@@ -29,7 +29,6 @@ public class DefaultTestCaseTest {
   @Test
   public void getters_after_setters() {
     testCase
-      .setMessage("message")
       .setName("name")
       .setType("type")
       .setDurationInMs(1234L)
@@ -39,6 +38,5 @@ public class DefaultTestCaseTest {
     assertThat(testCase.name()).isEqualTo("name");
     assertThat(testCase.type()).isEqualTo("type");
     assertThat(testCase.durationInMs()).isEqualTo(1234L);
-    assertThat(testCase.message()).isEqualTo("message");
   }
 }

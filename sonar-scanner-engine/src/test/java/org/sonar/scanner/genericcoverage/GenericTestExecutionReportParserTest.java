@@ -117,34 +117,6 @@ public class GenericTestExecutionReportParserTest {
   }
 
   @Test(expected = MessageException.class)
-  public void unittest_duration_in_testCase_should_be_a_number() throws Exception {
-    addFileToFs(setupFile("file1"));
-    parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
-      + "<testCase name=\"test1\" duration=\"aaa\"/></file></unitTest>");
-  }
-
-  @Test(expected = MessageException.class)
-  public void unittest_failure_should_have_a_message() throws Exception {
-    addFileToFs(setupFile("file1"));
-    parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
-      + "<testCase name=\"test1\" duration=\"2\"><failure /></testCase></file></unitTest>");
-  }
-
-  @Test(expected = MessageException.class)
-  public void unittest_error_should_have_a_message() throws Exception {
-    addFileToFs(setupFile("file1"));
-    parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
-      + "<testCase name=\"test1\" duration=\"2\"><error /></testCase></file></unitTest>");
-  }
-
-  @Test(expected = MessageException.class)
-  public void unittest_skipped_should_have_a_message() throws Exception {
-    addFileToFs(setupFile("file1"));
-    parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
-      + "<testCase name=\"test1\" duration=\"2\"><skipped notmessage=\"\"/></testCase></file></unitTest>");
-  }
-
-  @Test(expected = MessageException.class)
   public void unittest_duration_in_testCase_should_not_be_negative() throws Exception {
     addFileToFs(setupFile("file1"));
     parseUnitTestReport("<unitTest version=\"1\"><file path=\"file1\">"
@@ -187,7 +159,6 @@ public class GenericTestExecutionReportParserTest {
     DefaultTestCase testCase = mock(DefaultTestCase.class);
     when(testCase.setDurationInMs(anyLong())).thenReturn(testCase);
     when(testCase.setStatus(any(DefaultTestCase.Status.class))).thenReturn(testCase);
-    when(testCase.setMessage(anyString())).thenReturn(testCase);
     when(testCase.setType(anyString())).thenReturn(testCase);
     return testCase;
   }

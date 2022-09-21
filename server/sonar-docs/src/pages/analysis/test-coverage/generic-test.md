@@ -84,13 +84,13 @@ The supported format looks like this:
   <file path="testx/ClassOneTest.xoo">
 	<testCase name="test1" duration="5"/>
 	<testCase name="test2" duration="500">
-	  <skipped message="short message"/>
+	  <skipped/>
 	</testCase>
 	<testCase name="test3" duration="100">
-	  <failure message="short"/>
+	  <failure/>
 	</testCase>
 	<testCase name="test4" duration="500">
-	  <error message="short"/>
+	  <error/>
 	</testCase>
   </file>
 </testExecutions>
@@ -110,5 +110,4 @@ It can have the following attributes/children:
 * `testCase` (mandatory)
   * `name` (mandatory): name of the test case
   * `duration` (mandatory): long value in milliseconds
-  * `failure|error|skipped` (optional): if the test is not OK, report the cause with a message.
-    * `message` (mandatory): short message describing the cause. This attribute is mandatory but not displayed in the UI.
+  * `failure|error|skipped` (optional): if the test is not OK, report its status.
