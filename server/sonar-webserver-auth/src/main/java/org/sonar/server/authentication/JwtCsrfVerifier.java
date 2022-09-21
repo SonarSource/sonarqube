@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -47,7 +49,13 @@ public class JwtCsrfVerifier {
     // Create a state token to prevent request forgery.
     // Store it in the cookie for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(state).setHttpOnly(false).setExpiry(timeoutInSeconds).build());
+    response.addHeader(SET_COOKIE, newCookieBuilder(request)
+      .setName(CSRF_STATE_COOKIE)
+      .setValue(state)
+      .setHttpOnly(false)
+      .setExpiry(timeoutInSeconds)
+      .setSameSite(SAMESITE_LAX)
+      .toValueString());
     return state;
   }
 
@@ -78,7 +86,14 @@ public class JwtCsrfVerifier {
   }
 
   public void refreshState(HttpServletRequest request, HttpServletResponse response, String csrfState, int timeoutInSeconds) {
-    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(csrfState).setHttpOnly(false).setExpiry(timeoutInSeconds).build());
+    response.addHeader(SET_COOKIE,
+      newCookieBuilder(request)
+        .setName(CSRF_STATE_COOKIE)
+        .setValue(csrfState)
+        .setHttpOnly(false)
+        .setExpiry(timeoutInSeconds)
+        .setSameSite(SAMESITE_LAX)
+        .toValueString());
   }
 
   public void removeState(HttpServletRequest request, HttpServletResponse response) {

@@ -42,6 +42,8 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
+import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.JwtSerializer.LAST_REFRESH_TIME_PARAM;
@@ -92,7 +94,7 @@ public class JwtHttpHandler {
         .put(LAST_REFRESH_TIME_PARAM, system2.now())
         .put(CSRF_JWT_PARAM, csrfState)
         .build()));
-    response.addCookie(createCookie(request, JWT_COOKIE, token, sessionTimeoutInSeconds));
+    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, token, sessionTimeoutInSeconds));
   }
 
   private SessionTokenDto createSessionToken(UserDto user, long expirationTime) {
@@ -176,7 +178,7 @@ public class JwtHttpHandler {
   private void refreshToken(DbSession dbSession, SessionTokenDto tokenFromDb, Claims tokenFromCookie, HttpServletRequest request, HttpServletResponse response) {
     long expirationTime = system2.now() + sessionTimeoutInSeconds * 1000L;
     String refreshToken = jwtSerializer.refresh(tokenFromCookie, expirationTime);
-    response.addCookie(createCookie(request, JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
+    response.addHeader(SET_COOKIE, createJwtSession(request, JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
     jwtCsrfVerifier.refreshState(request, response, (String) tokenFromCookie.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
 
     dbClient.sessionTokensDao().update(dbSession, tokenFromDb.setExpirationDate(expirationTime));
@@ -206,6 +208,10 @@ public class JwtHttpHandler {
 
   private static Cookie createCookie(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
     return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).build();
+  }
+
+  private static String createJwtSession(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
+    return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).setSameSite(SAMESITE_LAX).toValueString();
   }
 
   private Optional<UserDto> selectUserFromUuid(DbSession dbSession, String userUuid) {

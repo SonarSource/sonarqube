@@ -34,6 +34,8 @@ import static java.util.Objects.requireNonNull;
  * The {@link javax.servlet.http.Cookie#setSecure(boolean)} will automatically be set to true.
  */
 public class Cookies {
+  public static final String SET_COOKIE = "Set-Cookie";
+  public static final String SAMESITE_LAX = "Lax";
 
   private static final String HTTPS_HEADER = "X-Forwarded-Proto";
   private static final String HTTPS_VALUE = "https";
@@ -65,6 +67,8 @@ public class Cookies {
     private boolean httpOnly;
     private int expiry;
 
+    private String sameSite;
+
     CookieBuilder(HttpServletRequest request) {
       this.request = request;
     }
@@ -82,6 +86,14 @@ public class Cookies {
      */
     public CookieBuilder setValue(@Nullable String value) {
       this.value = value;
+      return this;
+    }
+
+    /**
+     * SameSite attribute, only work for toString()
+     */
+    public CookieBuilder setSameSite(@Nullable String sameSite) {
+      this.sameSite = sameSite;
       return this;
     }
 
@@ -108,6 +120,17 @@ public class Cookies {
       cookie.setHttpOnly(httpOnly);
       cookie.setMaxAge(expiry);
       return cookie;
+    }
+
+    public String toValueString() {
+      String output = String.format("%s=%s; Path=%s; SameSite=%s; Max-Age=%d", name, value, getContextPath(request), sameSite, expiry);
+      if (httpOnly) {
+        output += "; HttpOnly";
+      }
+      if (isHttps(request)) {
+        output += "; Secure";
+      }
+      return output;
     }
 
     private static boolean isHttps(HttpServletRequest request) {

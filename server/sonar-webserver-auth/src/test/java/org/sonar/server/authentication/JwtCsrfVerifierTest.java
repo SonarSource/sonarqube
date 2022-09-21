@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 
 public class JwtCsrfVerifierTest {
@@ -59,8 +60,7 @@ public class JwtCsrfVerifierTest {
     String state = underTest.generateState(request, response, TIMEOUT);
     assertThat(state).isNotEmpty();
 
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    verifyCookie(cookieArgumentCaptor.getValue());
+    verify(response).addHeader(SET_COOKIE, String.format("XSRF-TOKEN=%s; Path=/; SameSite=Lax; Max-Age=30", state));
   }
 
   @Test
@@ -164,8 +164,7 @@ public class JwtCsrfVerifierTest {
   public void refresh_state() {
     underTest.refreshState(request, response, CSRF_STATE, 30);
 
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    verifyCookie(cookieArgumentCaptor.getValue());
+    verify(response).addHeader(SET_COOKIE, String.format("XSRF-TOKEN=%s; Path=/; SameSite=Lax; Max-Age=30", CSRF_STATE));
   }
 
   @Test

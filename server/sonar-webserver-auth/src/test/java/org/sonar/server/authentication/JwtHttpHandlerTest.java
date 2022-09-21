@@ -56,6 +56,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
 public class JwtHttpHandlerTest {
 
@@ -99,9 +100,7 @@ public class JwtHttpHandlerTest {
     UserDto user = db.users().insertUser();
     underTest.generateToken(user, request, response);
 
-    Optional<Cookie> jwtCookie = findCookie("JWT-SESSION");
-    assertThat(jwtCookie).isPresent();
-    verifyCookie(jwtCookie.get(), JWT_TOKEN, 3 * 24 * 60 * 60);
+    verify(response).addHeader(SET_COOKIE, "JWT-SESSION=TOKEN; Path=/; SameSite=Lax; Max-Age=259200; HttpOnly");
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     verifyToken(jwtArgumentCaptor.getValue(), user, 3 * 24 * 60 * 60, NOW);
