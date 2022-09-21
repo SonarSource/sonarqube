@@ -33,6 +33,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.utils.log.Logger;
@@ -82,10 +83,11 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     try (okhttp3.Response response = client.newCall(newGetRequest(appUrl, token, endPoint)).execute()) {
       int responseCode = response.code();
       if (responseCode != HTTP_OK) {
+        String content = StringUtils.trimToNull(attemptReadContent(response));
         if (withLog) {
-          LOG.warn("GET response did not have expected HTTP code (was {}): {}", responseCode, attemptReadContent(response));
+          LOG.warn("GET response did not have expected HTTP code (was {}): {}", responseCode, content);
         }
-        return new GetResponseImpl(responseCode, null, null);
+        return new GetResponseImpl(responseCode, content, null);
       }
       return new GetResponseImpl(responseCode, readContent(response.body()).orElse(null), readNextEndPoint(response));
     }

@@ -157,7 +157,7 @@ public class GithubApplicationHttpClientImplTest {
 
     GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
 
-    assertThat(response.getContent()).isEmpty();
+    assertThat(response.getContent()).contains(randomBody);
   }
 
   @Test
