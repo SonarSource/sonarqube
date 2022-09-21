@@ -50,7 +50,7 @@ interface State {
 
 function getPatUrl(alm: AlmKeys, url = '') {
   if (alm === AlmKeys.BitbucketServer) {
-    return `${url.replace(/\/$/, '')}/plugins/servlet/access-tokens/add`;
+    return `${url.replace(/\/$/, '')}/account`;
   } else if (alm === AlmKeys.BitbucketCloud) {
     return 'https://bitbucket.org/account/settings/app-passwords/new';
   } else if (alm === AlmKeys.GitLab) {
@@ -166,9 +166,149 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
     }
   };
 
-  render() {
+  renderHelpBox(suffixTranslationKey: string) {
     const {
       almSetting: { alm, url }
+    } = this.props;
+
+    return (
+      <Alert className="big-spacer-left width-50" display="block" variant="info">
+        {alm === AlmKeys.BitbucketCloud && (
+          <>
+            <h3>
+              {translate(
+                'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title'
+              )}
+            </h3>
+            <p className="big-spacer-top big-spacer-bottom">
+              {translate('onboarding.create_project.pat_help.instructions_username.bitbucketcloud')}
+            </p>
+
+            <div className="text-middle big-spacer-bottom">
+              <img
+                alt="" // Should be ignored by screen readers
+                className="spacer-right"
+                height="16"
+                src={`${getBaseUrl()}/images/alm/${AlmKeys.BitbucketServer}.svg`}
+              />
+              <a
+                href="https://bitbucket.org/account/settings/"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate(
+                  'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link'
+                )}
+              </a>
+            </div>
+          </>
+        )}
+
+        <h3>{translate(`onboarding.create_project.pat_help${suffixTranslationKey}.title`)}</h3>
+
+        <p className="big-spacer-top big-spacer-bottom">
+          {alm === AlmKeys.BitbucketServer ? (
+            <FormattedMessage
+              id="onboarding.create_project.pat_help.instructions"
+              defaultMessage={translate(
+                `onboarding.create_project.pat_help.bitbucket.instructions`
+              )}
+              values={{
+                menu: (
+                  <strong>
+                    {translate('onboarding.create_project.pat_help.bitbucket.instructions.menu')}
+                  </strong>
+                ),
+                button: (
+                  <strong>
+                    {translate('onboarding.create_project.pat_help.bitbucket.instructions.button')}
+                  </strong>
+                )
+              }}
+            />
+          ) : (
+            <FormattedMessage
+              id="onboarding.create_project.pat_help.instructions"
+              defaultMessage={translate(
+                `onboarding.create_project.pat_help${suffixTranslationKey}.instructions`
+              )}
+              values={{
+                alm: translate('onboarding.alm', alm)
+              }}
+            />
+          )}
+        </p>
+
+        {(url || alm === AlmKeys.BitbucketCloud) && (
+          <div className="text-middle">
+            <img
+              alt="" // Should be ignored by screen readers
+              className="spacer-right"
+              height="16"
+              src={`${getBaseUrl()}/images/alm/${
+                alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm
+              }.svg`}
+            />
+            <a href={getPatUrl(alm, url)} rel="noopener noreferrer" target="_blank">
+              {translate(`onboarding.create_project.pat_help${suffixTranslationKey}.link`)}
+            </a>
+          </div>
+        )}
+
+        <p className="big-spacer-top big-spacer-bottom">
+          {translate('onboarding.create_project.pat_help.instructions2', alm)}
+        </p>
+
+        <ul>
+          {alm === AlmKeys.BitbucketServer && (
+            <li>
+              <FormattedMessage
+                defaultMessage={translate(
+                  'onboarding.create_project.pat_help.bbs_permission_projects'
+                )}
+                id="onboarding.create_project.pat_help.bbs_permission_projects"
+                values={{
+                  perm: (
+                    <strong>
+                      {translate('onboarding.create_project.pat_help.read_permission')}
+                    </strong>
+                  )
+                }}
+              />
+            </li>
+          )}
+          {(alm === AlmKeys.BitbucketServer || alm === AlmKeys.BitbucketCloud) && (
+            <li>
+              <FormattedMessage
+                defaultMessage={translate(
+                  'onboarding.create_project.pat_help.bbs_permission_repos'
+                )}
+                id="onboarding.create_project.pat_help.bbs_permission_repos"
+                values={{
+                  perm: (
+                    <strong>
+                      {translate('onboarding.create_project.pat_help.read_permission')}
+                    </strong>
+                  )
+                }}
+              />
+            </li>
+          )}
+
+          {alm === AlmKeys.GitLab && (
+            <li className="spacer-bottom">
+              <strong>
+                {translate('onboarding.create_project.pat_help.gitlab.read_api_permission')}
+              </strong>
+            </li>
+          )}
+        </ul>
+      </Alert>
+    );
+  }
+
+  render() {
+    const {
+      almSetting: { alm }
     } = this.props;
     const {
       checkingPat,
@@ -255,116 +395,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
           </ValidationInput>
         </form>
 
-        <Alert className="big-spacer-left width-50" display="block" variant="info">
-          {alm === AlmKeys.BitbucketCloud && (
-            <>
-              <h3>
-                {translate(
-                  'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title'
-                )}
-              </h3>
-              <p className="big-spacer-top big-spacer-bottom">
-                {translate(
-                  'onboarding.create_project.pat_help.instructions_username.bitbucketcloud'
-                )}
-              </p>
-
-              <div className="text-middle big-spacer-bottom">
-                <img
-                  alt="" // Should be ignored by screen readers
-                  className="spacer-right"
-                  height="16"
-                  src={`${getBaseUrl()}/images/alm/${AlmKeys.BitbucketServer}.svg`}
-                />
-                <a
-                  href="https://bitbucket.org/account/settings/"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  {translate(
-                    'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link'
-                  )}
-                </a>
-              </div>
-            </>
-          )}
-
-          <h3>{translate(`onboarding.create_project.pat_help${suffixTranslationKey}.title`)}</h3>
-
-          <p className="big-spacer-top big-spacer-bottom">
-            <FormattedMessage
-              id="onboarding.create_project.pat_help.instructions"
-              defaultMessage={translate(
-                `onboarding.create_project.pat_help${suffixTranslationKey}.instructions`
-              )}
-              values={{ alm: translate('onboarding.alm', alm) }}
-            />
-          </p>
-
-          {(url || alm === AlmKeys.BitbucketCloud) && (
-            <div className="text-middle">
-              <img
-                alt="" // Should be ignored by screen readers
-                className="spacer-right"
-                height="16"
-                src={`${getBaseUrl()}/images/alm/${
-                  alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm
-                }.svg`}
-              />
-              <a href={getPatUrl(alm, url)} rel="noopener noreferrer" target="_blank">
-                {translate(`onboarding.create_project.pat_help${suffixTranslationKey}.link`)}
-              </a>
-            </div>
-          )}
-
-          <p className="big-spacer-top big-spacer-bottom">
-            {translate('onboarding.create_project.pat_help.instructions2', alm)}
-          </p>
-
-          <ul>
-            {alm === AlmKeys.BitbucketServer && (
-              <li>
-                <FormattedMessage
-                  defaultMessage={translate(
-                    'onboarding.create_project.pat_help.bbs_permission_projects'
-                  )}
-                  id="onboarding.create_project.pat_help.bbs_permission_projects"
-                  values={{
-                    perm: (
-                      <strong>
-                        {translate('onboarding.create_project.pat_help.read_permission')}
-                      </strong>
-                    )
-                  }}
-                />
-              </li>
-            )}
-            {(alm === AlmKeys.BitbucketServer || alm === AlmKeys.BitbucketCloud) && (
-              <li>
-                <FormattedMessage
-                  defaultMessage={translate(
-                    'onboarding.create_project.pat_help.bbs_permission_repos'
-                  )}
-                  id="onboarding.create_project.pat_help.bbs_permission_repos"
-                  values={{
-                    perm: (
-                      <strong>
-                        {translate('onboarding.create_project.pat_help.read_permission')}
-                      </strong>
-                    )
-                  }}
-                />
-              </li>
-            )}
-
-            {alm === AlmKeys.GitLab && (
-              <li className="spacer-bottom">
-                <strong>
-                  {translate('onboarding.create_project.pat_help.gitlab.read_api_permission')}
-                </strong>
-              </li>
-            )}
-          </ul>
-        </Alert>
+        {this.renderHelpBox(suffixTranslationKey)}
       </div>
     );
   }

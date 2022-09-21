@@ -66,11 +66,16 @@ exports[`should render correctly: bitbucket 1`] = `
       className="big-spacer-top big-spacer-bottom"
     >
       <FormattedMessage
-        defaultMessage="onboarding.create_project.pat_help.instructions"
+        defaultMessage="onboarding.create_project.pat_help.bitbucket.instructions"
         id="onboarding.create_project.pat_help.instructions"
         values={
           Object {
-            "alm": "onboarding.alm.bitbucket",
+            "button": <strong>
+              onboarding.create_project.pat_help.bitbucket.instructions.button
+            </strong>,
+            "menu": <strong>
+              onboarding.create_project.pat_help.bitbucket.instructions.menu
+            </strong>,
           }
         }
       />
@@ -85,7 +90,7 @@ exports[`should render correctly: bitbucket 1`] = `
         src="/images/alm/bitbucket.svg"
       />
       <a
-        href="http://www.example.com/plugins/servlet/access-tokens/add"
+        href="http://www.example.com/account"
         rel="noopener noreferrer"
         target="_blank"
       >
