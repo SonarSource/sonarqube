@@ -40,6 +40,22 @@ interface Props {
 }
 
 export default class ListItem extends React.PureComponent<Props> {
+  nodeRef: HTMLLIElement | null = null;
+
+  componentDidMount() {
+    const { selected } = this.props;
+    if (this.nodeRef && selected) {
+      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { selected } = this.props;
+    if (!prevProps.selected && selected && this.nodeRef) {
+      this.nodeRef.scrollIntoView({ block: 'center', inline: 'center' });
+    }
+  }
+
   handleFilter = (property: string, issue: TypeIssue) => {
     const { onFilterChange } = this.props;
 
@@ -94,7 +110,7 @@ export default class ListItem extends React.PureComponent<Props> {
       previousIssue.branch !== issue.branch;
 
     return (
-      <li className="issues-workspace-list-item">
+      <li className="issues-workspace-list-item" ref={node => (this.nodeRef = node)}>
         {displayComponent && (
           <div className="issues-workspace-list-component note">
             <ComponentBreadcrumbs component={component} issue={this.props.issue} />

@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import {
-  scrollToIssue,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -98,34 +96,6 @@ describe('serialize/deserialize', () => {
       tags: 'a,b',
       types: 'a,b'
     });
-  });
-});
-
-describe('scrollToIssue', () => {
-  it('should scroll to the issue', () => {
-    document.querySelector = jest.fn(() => ({}));
-
-    scrollToIssue('issue1', false);
-    expect(scrollToElement).toHaveBeenCalled();
-  });
-  it("should ignore issue if it doesn't exist", () => {
-    document.querySelector = jest.fn(() => null);
-
-    scrollToIssue('issue1', false);
-    expect(scrollToElement).not.toHaveBeenCalled();
-  });
-  it('should scroll smoothly by default', () => {
-    document.querySelector = jest.fn(() => ({}));
-
-    scrollToIssue('issue1');
-    expect(scrollToElement).toHaveBeenCalledWith(
-      {},
-      {
-        bottomOffset: 100,
-        smooth: true,
-        topOffset: 250
-      }
-    );
   });
 });
 

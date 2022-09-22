@@ -31,7 +31,6 @@ import {
   serializeString,
   serializeStringArray
 } from '../../helpers/query';
-import { scrollToElement } from '../../helpers/scrolling';
 import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
@@ -239,14 +238,6 @@ export function allLocationsEmpty(
   selectedFlowIndex: number | undefined
 ) {
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
-}
-
-// TODO: drop as it's useless now
-export function scrollToIssue(issue: string, smooth = true) {
-  const element = document.querySelector(`[data-issue="${issue}"]`);
-  if (element) {
-    scrollToElement(element, { topOffset: 250, bottomOffset: 100, smooth });
-  }
 }
 
 export function shouldOpenStandardsFacet(

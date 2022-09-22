@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
-import { Query, scrollToIssue } from '../utils';
+import { Query } from '../utils';
 import ListItem from './ListItem';
 
 interface Props {
@@ -52,9 +52,6 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     //      list of issues. See https://jira.sonarsource.com/browse/SONAR-11681
     setTimeout(() => {
       this.setState({ prerender: false });
-      if (this.props.selectedIssue) {
-        scrollToIssue(this.props.selectedIssue.key, false);
-      }
     }, 42);
   }
 
