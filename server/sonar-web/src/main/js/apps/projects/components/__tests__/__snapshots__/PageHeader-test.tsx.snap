@@ -49,7 +49,7 @@ exports[`should render correctly 1`] = `
           12
         </strong>
          
-        projects._projects
+        projects_
       </span>
     </div>
     <div
@@ -124,7 +124,7 @@ exports[`should render correctly while loading 1`] = `
           2
         </strong>
          
-        projects._projects
+        projects_
       </span>
     </div>
     <div

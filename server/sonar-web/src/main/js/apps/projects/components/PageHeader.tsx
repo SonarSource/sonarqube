@@ -65,7 +65,7 @@ export default function PageHeader(props: Props) {
           })}>
           {total != null && (
             <span className="projects-total-label">
-              <strong id="projects-total">{total}</strong> {translate('projects._projects')}
+              <strong id="projects-total">{total}</strong> {translate('projects_')}
             </span>
           )}
         </div>
