@@ -44,6 +44,7 @@ export default function CommentForm(props: CommentFormProps) {
           autoFocus={true}
           style={{ resize: 'vertical' }}
           placeholder={placeholder}
+          aria-label={translate('issue.comment.enter_comment')}
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
             setEditComment(event.target.value)
           }
