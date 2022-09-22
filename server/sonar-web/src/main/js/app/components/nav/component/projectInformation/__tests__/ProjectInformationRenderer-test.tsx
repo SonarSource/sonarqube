@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
-import { mockAppState } from '../../../../../../helpers/testMocks';
 import {
   ProjectInformationRenderer,
   ProjectInformationRendererProps
@@ -65,12 +64,10 @@ it('should handle missing quality profiles and quality gates', () => {
   ).toMatchSnapshot();
 });
 
-it('should render app correctly when regulatoryReportFeatureEnabled is false', () => {
+it('should render app correctly when regulatoryReport feature is not enabled', () => {
   expect(
     shallowRender({
-      appState: mockAppState({
-        regulatoryReportFeatureEnabled: false
-      })
+      hasFeature: jest.fn().mockReturnValue(false)
     })
   ).toMatchSnapshot();
 });
@@ -87,9 +84,7 @@ it('should set focus on the heading when rendered', () => {
 function shallowRender(props: Partial<ProjectInformationRendererProps> = {}) {
   return shallow(
     <ProjectInformationRenderer
-      appState={mockAppState({
-        regulatoryReportFeatureEnabled: true
-      })}
+      hasFeature={jest.fn().mockReturnValue(true)}
       canConfigureNotifications={true}
       canUseBadges={true}
       component={mockComponent({ qualifier: 'TRK', visibility: 'public' })}

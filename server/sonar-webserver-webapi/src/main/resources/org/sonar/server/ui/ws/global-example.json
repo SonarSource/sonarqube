@@ -27,7 +27,6 @@
   "productionDatabase": true,
   "branchesEnabled": false,
   "projectImportFeatureEnabled": false,
-  "regulatoryReportFeatureEnabled": false,
   "canAdmin": false,
   "standalone": true,
   "edition": "community"

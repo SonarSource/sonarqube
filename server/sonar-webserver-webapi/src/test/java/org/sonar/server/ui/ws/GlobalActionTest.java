@@ -273,29 +273,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void regulatory_report_feature_enabled_ee_dce() {
-    init();
-    when(editionProvider.get()).thenReturn(Optional.of(ENTERPRISE));
-    assertJson(call()).isSimilarTo("{\"regulatoryReportFeatureEnabled\":true}");
-
-    when(editionProvider.get()).thenReturn(Optional.of(DATACENTER));
-    assertJson(call()).isSimilarTo("{\"regulatoryReportFeatureEnabled\":true}");
-  }
-
-  @Test
-  public void regulatory_report_feature_disabled_ce_de() {
-    init();
-    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
-    assertJson(call()).isSimilarTo("{\"regulatoryReportFeatureEnabled\":false}");
-
-    when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
-    assertJson(call()).isSimilarTo("{\"regulatoryReportFeatureEnabled\":false}");
-
-    when(editionProvider.get()).thenReturn(Optional.empty());
-    assertJson(call()).isSimilarTo("{\"regulatoryReportFeatureEnabled\":false}");
-  }
-
-  @Test
   public void instance_uses_default_admin_credentials() {
     init();
 

@@ -69,8 +69,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     SONAR_LF_GRAVATAR_SERVER_URL,
     RATING_GRID,
     DEVELOPER_AGGREGATED_INFO_DISABLED);
-
-  private static final String REGULATORY_REPORT_FEATURE_ENABLED_FLAG  = "regulatoryReportFeatureEnabled";
   
   private final Map<String, String> systemSettingValuesByKey;
 
@@ -143,7 +141,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeInstanceUsesDefaultAdminCredentials(json);
       writeMultipleAlmEnabled(json);
       writeProjectImportFeature(json);
-      writeRegulatoryReportFeature(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
       json.prop("standalone", webServer.isStandalone());
@@ -224,12 +221,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeWebAnalytics(JsonWriter json) {
     webAnalyticsLoader.getUrlPathToJs().ifPresent(p -> json.prop("webAnalyticsJsPath", p));
-  }
-
-  private void writeRegulatoryReportFeature(JsonWriter json) {
-    Edition edition = editionProvider.get().orElse(null);
-    boolean isEnabled = isEditionEEorDCE(edition);
-    json.prop(REGULATORY_REPORT_FEATURE_ENABLED_FLAG, isEnabled);
   }
 
   private static boolean isEditionEEorDCE(@Nullable Edition edition) {

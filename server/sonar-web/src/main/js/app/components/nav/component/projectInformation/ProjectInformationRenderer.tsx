@@ -18,12 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
 import { ButtonLink } from '../../../../../components/controls/buttons';
 import ModalButton from '../../../../../components/controls/ModalButton';
-import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
 import { translate } from '../../../../../helpers/l10n';
+import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Feature } from '../../../../../types/features';
 import { Component, Measure } from '../../../../../types/types';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../available-features/withAvailableFeatures';
 import DrawerLink from './DrawerLink';
 import MetaKey from './meta/MetaKey';
 import MetaLinks from './meta/MetaLinks';
@@ -33,12 +38,8 @@ import MetaSize from './meta/MetaSize';
 import MetaTags from './meta/MetaTags';
 import { ProjectInformationPages } from './ProjectInformationPages';
 import RegulatoryReportModal from './projectRegulatoryReport/RegulatoryReportModal';
-import withAppStateContext from '../../../app-state/withAppStateContext';
-import { AppState } from '../../../../../types/appstate';
-import { BranchLike } from '../../../../../types/branch-like';
 
-export interface ProjectInformationRendererProps {
-  appState: AppState;
+export interface ProjectInformationRendererProps extends WithAvailableFeaturesProps {
   canConfigureNotifications: boolean;
   canUseBadges: boolean;
   component: Component;
@@ -49,14 +50,7 @@ export interface ProjectInformationRendererProps {
 }
 
 export function ProjectInformationRenderer(props: ProjectInformationRendererProps) {
-  const {
-    canConfigureNotifications,
-    canUseBadges,
-    component,
-    measures = [],
-    appState,
-    branchLike
-  } = props;
+  const { canConfigureNotifications, canUseBadges, component, measures = [], branchLike } = props;
 
   const heading = React.useRef<HTMLHeadingElement>(null);
   const isApp = component.qualifier === ComponentQualifier.Application;
@@ -67,6 +61,8 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
       heading.current.focus();
     }
   }, [heading]);
+
+  const regulatoryReportFeatureEnabled = props.hasFeature(Feature.RegulatoryReport);
 
   return (
     <>
@@ -139,27 +135,26 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
               />
             </li>
           )}
-          {component.qualifier === ComponentQualifier.Project &&
-            appState.regulatoryReportFeatureEnabled && (
-              <li className="big-padded bordered-bottom">
-                <ModalButton
-                  modal={({ onClose }) => (
-                    <RegulatoryReportModal
-                      component={component}
-                      branchLike={branchLike}
-                      onClose={onClose}
-                    />
-                  )}>
-                  {({ onClick }) => (
-                    <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
-                  )}
-                </ModalButton>
-              </li>
-            )}
+          {component.qualifier === ComponentQualifier.Project && regulatoryReportFeatureEnabled && (
+            <li className="big-padded bordered-bottom">
+              <ModalButton
+                modal={({ onClose }) => (
+                  <RegulatoryReportModal
+                    component={component}
+                    branchLike={branchLike}
+                    onClose={onClose}
+                  />
+                )}>
+                {({ onClick }) => (
+                  <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
+                )}
+              </ModalButton>
+            </li>
+          )}
         </ul>
       </div>
     </>
   );
 }
 
-export default withAppStateContext(React.memo(ProjectInformationRenderer));
+export default withAvailableFeatures(React.memo(ProjectInformationRenderer));

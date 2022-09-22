@@ -390,7 +390,7 @@ exports[`should render an app correctly: default 1`] = `
 </Fragment>
 `;
 
-exports[`should render app correctly when regulatoryReportFeatureEnabled is false 1`] = `
+exports[`should render app correctly when regulatoryReport feature is not enabled 1`] = `
 <Fragment>
   <div>
     <h2
