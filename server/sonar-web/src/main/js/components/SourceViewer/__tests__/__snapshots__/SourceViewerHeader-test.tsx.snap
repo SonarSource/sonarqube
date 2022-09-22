@@ -107,6 +107,7 @@ exports[`should render correctly for a regular file 1`] = `
     overlayPlacement="bottom-right"
   >
     <ButtonIcon
+      aria-label="component_viewer.action_menu"
       className="js-actions"
     >
       <ListIcon />
@@ -240,6 +241,7 @@ exports[`should render correctly for a unit test 1`] = `
     overlayPlacement="bottom-right"
   >
     <ButtonIcon
+      aria-label="component_viewer.action_menu"
       className="js-actions"
     >
       <ListIcon />
@@ -504,6 +506,7 @@ exports[`should render correctly if issue details are passed 1`] = `
     overlayPlacement="bottom-right"
   >
     <ButtonIcon
+      aria-label="component_viewer.action_menu"
       className="js-actions"
     >
       <ListIcon />

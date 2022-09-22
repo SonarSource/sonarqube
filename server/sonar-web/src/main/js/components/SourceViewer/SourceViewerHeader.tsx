@@ -233,7 +233,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             </ul>
           }
           overlayPlacement={PopupPlacement.BottomRight}>
-          <ButtonIcon className="js-actions">
+          <ButtonIcon className="js-actions" aria-label={translate('component_viewer.action_menu')}>
             <ListIcon />
           </ButtonIcon>
         </Dropdown>
