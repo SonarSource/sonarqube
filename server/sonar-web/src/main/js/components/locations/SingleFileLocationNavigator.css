@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.locations-navigator {
+button.locations-navigator {
   display: flex;
   align-items: flex-start;
   border: 1px solid transparent;
@@ -28,12 +28,12 @@
   text-align: left;
 }
 
-.locations-navigator:hover,
-.locations-navigator:active {
+button.locations-navigator:hover,
+button.locations-navigator:active {
   border-color: var(--info400);
 }
 
-.locations-navigator:focus {
+button.locations-navigator:focus {
   border-color: transparent;
 }
 
