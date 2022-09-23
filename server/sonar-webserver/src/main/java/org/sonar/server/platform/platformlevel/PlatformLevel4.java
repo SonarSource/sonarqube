@@ -57,7 +57,7 @@ import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
@@ -563,7 +563,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CoreExtensionBootstraper.class,
       CoreExtensionStopper.class,
 
-      MultipleAlmFeatureProvider.class,
+      MultipleAlmFeature.class,
 
       // ServerPush endpoints
       new ServerPushModule(),

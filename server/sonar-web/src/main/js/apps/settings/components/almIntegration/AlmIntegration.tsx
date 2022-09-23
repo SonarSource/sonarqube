@@ -25,6 +25,7 @@ import {
   validateAlmSettings
 } from '../../../../api/alm-settings';
 import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures from '../../../../app/components/available-features/withAvailableFeatures';
 import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
@@ -34,11 +35,13 @@ import {
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
 import { AppState } from '../../../../types/appstate';
+import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
 interface Props {
   appState: AppState;
+  hasFeature: (feature: Feature) => boolean;
   location: Location;
   router: Router;
 }
@@ -210,7 +213,8 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      appState: { branchesEnabled, multipleAlmEnabled }
+      appState: { branchesEnabled },
+      hasFeature
     } = this.props;
     const {
       currentAlmTab,
@@ -225,7 +229,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     return (
       <AlmIntegrationRenderer
         branchesEnabled={Boolean(branchesEnabled)}
-        multipleAlmEnabled={Boolean(multipleAlmEnabled)}
+        multipleAlmEnabled={hasFeature(Feature.MultipleAlm)}
         onCancelDelete={this.handleCancelDelete}
         onConfirmDelete={this.handleConfirmDelete}
         onCheckConfiguration={this.handleCheck}
@@ -244,4 +248,4 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(AlmIntegration));
+export default withRouter(withAppStateContext(withAvailableFeatures(AlmIntegration)));

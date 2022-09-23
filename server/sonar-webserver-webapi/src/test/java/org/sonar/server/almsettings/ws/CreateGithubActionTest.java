@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -55,15 +55,15 @@ public class CreateGithubActionTest {
   public DbTester db = DbTester.create();
 
   private final Encryption encryption = mock(Encryption.class);
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
 
   private final WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
-      multipleAlmFeatureProvider)));
+      multipleAlmFeature)));
 
   @Before
   public void setUp() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
   }
@@ -120,7 +120,7 @@ public class CreateGithubActionTest {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
+    when(multipleAlmFeature.isEnabled()).thenReturn(true);
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
     TestRequest request = buildTestRequest().setParam("key", gitHubAlmSetting.getKey());
@@ -132,7 +132,7 @@ public class CreateGithubActionTest {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
     db.almSettings().insertGitHubAlmSetting();
 
     TestRequest request = buildTestRequest();

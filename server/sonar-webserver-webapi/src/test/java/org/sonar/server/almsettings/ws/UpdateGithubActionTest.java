@@ -39,7 +39,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -71,7 +71,7 @@ public class UpdateGithubActionTest {
 
   private final WsActionTester ws = new WsActionTester(new UpdateGithubAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
-      mock(MultipleAlmFeatureProvider.class))));
+      mock(MultipleAlmFeature.class))));
 
   private AlmSettingDto almSettingDto;
 

@@ -191,6 +191,7 @@ function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
     <AlmIntegration
       appState={mockAppState({ branchesEnabled: true })}
       location={mockLocation()}
+      hasFeature={jest.fn()}
       router={mockRouter()}
       {...props}
     />

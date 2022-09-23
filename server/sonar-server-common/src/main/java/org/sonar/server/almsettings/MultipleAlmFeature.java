@@ -19,30 +19,32 @@
  */
 package org.sonar.server.almsettings;
 
-import java.util.Optional;
-import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.server.feature.SonarQubeFeature;
 
-public class MultipleAlmFeatureProvider {
+import static org.sonar.api.SonarEdition.DATACENTER;
+import static org.sonar.api.SonarEdition.ENTERPRISE;
 
-  private PlatformEditionProvider editionProvider;
+@ServerSide
+@ComputeEngineSide
+public class MultipleAlmFeature implements SonarQubeFeature {
 
-  public MultipleAlmFeatureProvider(PlatformEditionProvider editionProvider) {
-    this.editionProvider = editionProvider;
+  private final SonarRuntime sonarRuntime;
+
+  public MultipleAlmFeature(SonarRuntime sonarRuntime) {
+    this.sonarRuntime = sonarRuntime;
   }
 
-  public boolean enabled() {
-    Optional<EditionProvider.Edition> edition = editionProvider.get();
-    if (!edition.isPresent()) {
-      return false;
-    }
-    switch (edition.get()) {
-      case ENTERPRISE:
-      case DATACENTER:
-        return true;
-      default:
-        return false;
-    }
+  @Override
+  public String getName()  {
+    return "multiple-alm";
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return sonarRuntime.getEdition() == ENTERPRISE || sonarRuntime.getEdition() == DATACENTER;
   }
 
 }

@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -52,14 +52,14 @@ public class CreateGitlabActionTest {
   private static String GITLAB_URL = "gitlab.com/api/v4";
 
   private final Encryption encryption = mock(Encryption.class);
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
 
   private WsActionTester ws = new WsActionTester(new CreateGitlabAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeatureProvider)));
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeature)));
 
   @Before
   public void before() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
   }
 
   @Test
@@ -109,7 +109,7 @@ public class CreateGitlabActionTest {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
+    when(multipleAlmFeature.isEnabled()).thenReturn(true);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto gitlabAlmSetting = db.almSettings().insertGitlabAlmSetting();
@@ -125,7 +125,7 @@ public class CreateGitlabActionTest {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertGitlabAlmSetting();

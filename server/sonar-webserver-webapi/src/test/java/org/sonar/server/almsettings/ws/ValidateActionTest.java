@@ -38,7 +38,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,9 +64,9 @@ public class ValidateActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
-  private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeatureProvider);
+  private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeature);
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final GitlabGlobalSettingsValidator gitlabSettingsValidator = mock(GitlabGlobalSettingsValidator.class);

@@ -30,7 +30,6 @@ export interface AppState {
   edition?: EditionKey;
   globalPages?: Extension[];
   instanceUsesDefaultAdminCredentials?: boolean;
-  multipleAlmEnabled?: boolean;
   needIssueSync?: boolean;
   productionDatabase: boolean;
   qualifiers: string[];

@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -52,7 +52,7 @@ public class UpdateAzureActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateAzureAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
-      mock(MultipleAlmFeatureProvider.class))));
+      mock(MultipleAlmFeature.class))));
 
   @Test
   public void update() {

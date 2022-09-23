@@ -51,7 +51,7 @@ exports[`should render almintegration correctly 1`] = `
           className="big-padded"
           key="almintegration"
         >
-          <withRouter(withAppStateContext(AlmIntegration))
+          <withRouter(withAppStateContext(withAvailableFeaturesContext(AlmIntegration)))
             categories={
               Array [
                 "foo category",

@@ -37,7 +37,6 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.PostgreSql;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.WebServer;
@@ -67,7 +66,6 @@ public class GlobalActionTest {
   private final IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final BranchFeatureRule branchFeature = new BranchFeatureRule();
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
   private final WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier = mock(DefaultAdminCredentialsVerifier.class);
 
@@ -227,17 +225,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void multiple_alm_enabled() {
-    init();
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
-    assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":true}");
-
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
-    assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":false}");
-
-  }
-
-  @Test
   public void return_need_issue_sync() {
     init();
     when(indexSyncProgressChecker.isIssueSyncInProgress(any())).thenReturn(true);
@@ -366,7 +353,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
+      webServer, dbClient, branchFeature, userSession, editionProvider, webAnalyticsLoader,
       indexSyncProgressChecker, defaultAdminCredentialsVerifier);
     ws = new WsActionTester(wsAction);
     wsAction.start();

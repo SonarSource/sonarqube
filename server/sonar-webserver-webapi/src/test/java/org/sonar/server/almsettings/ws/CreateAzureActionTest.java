@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -48,15 +48,15 @@ public class CreateAzureActionTest {
   public DbTester db = DbTester.create();
 
   private final Encryption encryption = mock(Encryption.class);
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
 
   private WsActionTester ws = new WsActionTester(new CreateAzureAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
-      multipleAlmFeatureProvider)));
+      multipleAlmFeature)));
 
   @Before
   public void before() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class CreateAzureActionTest {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
+    when(multipleAlmFeature.isEnabled()).thenReturn(true);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
@@ -95,7 +95,7 @@ public class CreateAzureActionTest {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    when(multipleAlmFeature.isEnabled()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertAzureAlmSetting();

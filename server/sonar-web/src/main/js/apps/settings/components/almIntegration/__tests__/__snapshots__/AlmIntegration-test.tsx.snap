@@ -16,7 +16,6 @@ exports[`should render correctly 1`] = `
   }
   loadingAlmDefinitions={true}
   loadingProjectCount={false}
-  multipleAlmEnabled={false}
   onCancelDelete={[Function]}
   onCheckConfiguration={[Function]}
   onConfirmDelete={[Function]}

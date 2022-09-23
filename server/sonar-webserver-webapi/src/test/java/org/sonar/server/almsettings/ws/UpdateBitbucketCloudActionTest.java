@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -55,7 +55,7 @@ public class UpdateBitbucketCloudActionTest {
 
   private final WsActionTester ws = new WsActionTester(new UpdateBitbucketCloudAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
-      mock(MultipleAlmFeatureProvider.class))));
+      mock(MultipleAlmFeature.class))));
 
   @Test
   public void update() {

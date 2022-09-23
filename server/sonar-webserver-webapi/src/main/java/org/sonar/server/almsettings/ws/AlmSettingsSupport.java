@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -44,18 +44,18 @@ public class AlmSettingsSupport {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider;
+  private final MultipleAlmFeature multipleAlmFeature;
 
   public AlmSettingsSupport(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder,
-    MultipleAlmFeatureProvider multipleAlmFeatureProvider) {
+    MultipleAlmFeature multipleAlmFeature) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
-    this.multipleAlmFeatureProvider = multipleAlmFeatureProvider;
+    this.multipleAlmFeature = multipleAlmFeature;
   }
 
-  public MultipleAlmFeatureProvider getMultipleAlmFeatureProvider() {
-    return multipleAlmFeatureProvider;
+  public MultipleAlmFeature getMultipleAlmFeatureProvider() {
+    return multipleAlmFeature;
   }
 
   public void checkAlmSettingDoesNotAlreadyExist(DbSession dbSession, String almSetting) {
@@ -67,7 +67,7 @@ public class AlmSettingsSupport {
 
   public void checkAlmMultipleFeatureEnabled(ALM alm) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!multipleAlmFeatureProvider.enabled() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
+      if (!multipleAlmFeature.isEnabled() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
         throw BadRequestException.create("A " + alm + " setting is already defined");
       }
     }

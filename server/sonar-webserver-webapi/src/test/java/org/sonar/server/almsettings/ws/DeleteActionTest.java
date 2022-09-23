@@ -27,7 +27,7 @@ import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -48,7 +48,7 @@ public class DeleteActionTest {
 
   private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
-      mock(MultipleAlmFeatureProvider.class))));
+      mock(MultipleAlmFeature.class))));
 
   @Test
   public void delete() {

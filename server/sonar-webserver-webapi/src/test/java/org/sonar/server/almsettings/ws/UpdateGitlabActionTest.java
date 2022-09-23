@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,14 +53,14 @@ public class UpdateGitlabActionTest {
   private static String GITLAB_URL = "gitlab.com/api/v4";
 
   private final Encryption encryption = mock(Encryption.class);
-  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
 
   private WsActionTester ws = new WsActionTester(new UpdateGitlabAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeatureProvider)));
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeature)));
 
   @Before
   public void before() {
-    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
+    when(multipleAlmFeature.isEnabled()).thenReturn(true);
   }
 
   @Test
