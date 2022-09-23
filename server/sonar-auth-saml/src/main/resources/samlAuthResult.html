@@ -76,6 +76,7 @@
         padding: 4px 24px 4px 8px;
         vertical-align: top;
         font-family: "Courier New", Courier, monospace;
+        white-space: pre-line;
       }
 
       #content {
@@ -154,7 +155,7 @@
 
           const valueNode = document.createElement("td");
           // wrap in array, to handle single values as well
-          valueNode.innerHTML = [].concat(obj[key]).join("<br />");
+          valueNode.textContent = [].concat(obj[key]).join("\r\n");
           row.appendChild(valueNode);
 
           tbody.appendChild(row);
