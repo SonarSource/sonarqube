@@ -43,5 +43,6 @@ dependencies {
   testCompile testFixtures(project(':server:sonar-webserver-es'))
   testCompile testFixtures(project(':server:sonar-webserver-ws'))
   testCompile project(':sonar-testing-harness')
+  testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 }
 

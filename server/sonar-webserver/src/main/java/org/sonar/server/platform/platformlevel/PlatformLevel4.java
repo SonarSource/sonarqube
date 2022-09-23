@@ -68,7 +68,6 @@ import org.sonar.server.authentication.ws.AuthenticationWsModule;
 import org.sonar.server.badge.ws.ProjectBadgesWsModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.branch.BranchFeatureProxyImpl;
-import org.sonar.server.branch.pr.ws.PullRequestWsModule;
 import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
@@ -413,7 +412,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // components
       new BranchWsModule(),
-      new PullRequestWsModule(),
       new ProjectsWsModule(),
       new ProjectsEsModule(),
       new ProjectTagsWsModule(),

@@ -155,6 +155,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   fetchBranches = async (componentWithQualifier: Component) => {
+    const {
+      appState: { branchesEnabled }
+    } = this.props;
+
     const breadcrumb = componentWithQualifier.breadcrumbs.find(({ qualifier }) => {
       return ([ComponentQualifier.Application, ComponentQualifier.Project] as string[]).includes(
         qualifier
@@ -168,7 +172,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       const { key } = breadcrumb;
       const [branches, pullRequests] = await Promise.all([
         getBranches(key),
-        breadcrumb.qualifier === ComponentQualifier.Application
+        !branchesEnabled || breadcrumb.qualifier === ComponentQualifier.Application
           ? Promise.resolve([])
           : getPullRequests(key)
       ]);

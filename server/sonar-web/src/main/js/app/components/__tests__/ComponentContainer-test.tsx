@@ -141,6 +141,7 @@ it("doesn't load branches portfolio", async () => {
 it('updates branches on change', async () => {
   const updateBranchStatus = jest.fn();
   const wrapper = shallowRender({
+    appState: mockAppState({ branchesEnabled: true }),
     location: mockLocation({ query: { id: 'portfolioKey' } }),
     updateBranchStatus
   });
