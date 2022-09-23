@@ -22,5 +22,6 @@ export enum Feature {
   MonoRepositoryPullRequestDecoration = 'monorepo',
   RegulatoryReport = 'regulatory-reports',
   ProjectImport = 'project-import',
-  MultipleAlm = 'multiple-alm'
+  MultipleAlm = 'multiple-alm',
+  Announcement = 'announcement'
 }

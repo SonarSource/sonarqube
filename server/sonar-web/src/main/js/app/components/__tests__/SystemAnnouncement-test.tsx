@@ -21,6 +21,8 @@ import { fireEvent, screen } from '@testing-library/dom';
 import * as React from 'react';
 import { getValues } from '../../../api/settings';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../types/features';
+import { AvailableFeaturesContext } from '../available-features/AvailableFeaturesContext';
 import SystemAnnouncement from '../SystemAnnouncement';
 
 jest.mock('../../../api/settings', () => ({
@@ -31,41 +33,41 @@ it('should display system announcement', async () => {
   (getValues as jest.Mock)
     .mockResolvedValueOnce([
       {
-        key: 'sonar.systemAnnouncement.displayMessage',
+        key: 'sonar.announcement.displayMessage',
         value: 'false',
         inherited: true
       }
     ])
     .mockResolvedValueOnce([
       {
-        key: 'sonar.systemAnnouncement.displayMessage',
+        key: 'sonar.announcement.displayMessage',
         value: 'false',
         inherited: true
       }
     ])
     .mockResolvedValueOnce([
       {
-        key: 'sonar.systemAnnouncement.displayMessage',
+        key: 'sonar.announcement.displayMessage',
         value: 'true'
       }
     ])
     .mockResolvedValueOnce([
       {
-        key: 'sonar.systemAnnouncement.displayMessage',
+        key: 'sonar.announcement.displayMessage',
         value: 'true'
       },
       {
-        key: 'sonar.systemAnnouncement.message',
+        key: 'sonar.announcement.message',
         value: ''
       }
     ])
     .mockResolvedValueOnce([
       {
-        key: 'sonar.systemAnnouncement.displayMessage',
+        key: 'sonar.announcement.displayMessage',
         value: 'true'
       },
       {
-        key: 'sonar.systemAnnouncement.message',
+        key: 'sonar.announcement.message',
         value: 'Foo'
       }
     ]);
@@ -85,5 +87,9 @@ it('should display system announcement', async () => {
 });
 
 function renderSystemAnnouncement() {
-  return renderComponent(<SystemAnnouncement />);
+  return renderComponent(
+    <AvailableFeaturesContext.Provider value={[Feature.Announcement]}>
+      <SystemAnnouncement />
+    </AvailableFeaturesContext.Provider>
+  );
 }

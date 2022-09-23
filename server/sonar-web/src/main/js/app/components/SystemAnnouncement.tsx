@@ -22,7 +22,11 @@ import { isEmpty, keyBy } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
 import { Alert } from '../../components/ui/Alert';
+import { Feature } from '../../types/features';
 import { GlobalSettingKeys, SettingValue } from '../../types/settings';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from './available-features/withAvailableFeatures';
 import './SystemAnnouncement.css';
 
 interface State {
@@ -30,29 +34,33 @@ interface State {
   message: string;
 }
 
-export default class SystemAnnouncement extends React.PureComponent<{}, State> {
+export class SystemAnnouncement extends React.PureComponent<WithAvailableFeaturesProps, State> {
   state: State = { displayMessage: false, message: '' };
 
   componentDidMount() {
-    this.getSettings();
-    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    if (this.props.hasFeature(Feature.Announcement)) {
+      this.getSettings();
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    if (this.props.hasFeature(Feature.Announcement)) {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
   }
 
   getSettings = async () => {
     const values: SettingValue[] = await getValues({
-      keys: [GlobalSettingKeys.DisplaySystemMessage, GlobalSettingKeys.SystemMessage]
+      keys: [GlobalSettingKeys.DisplayAnnouncementMessage, GlobalSettingKeys.AnnouncementMessage]
     });
     const settings = keyBy(values, 'key');
 
     this.setState({
-      displayMessage: settings[GlobalSettingKeys.DisplaySystemMessage].value === 'true',
+      displayMessage: settings[GlobalSettingKeys.DisplayAnnouncementMessage].value === 'true',
       message:
-        (settings[GlobalSettingKeys.SystemMessage] &&
-          settings[GlobalSettingKeys.SystemMessage].value) ||
+        (settings[GlobalSettingKeys.AnnouncementMessage] &&
+          settings[GlobalSettingKeys.AnnouncementMessage].value) ||
         ''
     });
   };
@@ -82,3 +90,5 @@ export default class SystemAnnouncement extends React.PureComponent<{}, State> {
     );
   }
 }
+
+export default withAvailableFeatures(SystemAnnouncement);

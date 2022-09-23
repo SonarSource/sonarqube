@@ -37,8 +37,8 @@ export enum GlobalSettingKeys {
   RatingGrid = 'sonar.technicalDebt.ratingGrid',
   DeveloperAggregatedInfoDisabled = 'sonar.developerAggregatedInfo.disabled',
   UpdatecenterActivated = 'sonar.updatecenter.activate',
-  DisplaySystemMessage = 'sonar.systemAnnouncement.displayMessage',
-  SystemMessage = 'sonar.systemAnnouncement.message'
+  DisplayAnnouncementMessage = 'sonar.announcement.displayMessage',
+  AnnouncementMessage = 'sonar.announcement.message'
 }
 
 export type SettingDefinitionAndValue = {

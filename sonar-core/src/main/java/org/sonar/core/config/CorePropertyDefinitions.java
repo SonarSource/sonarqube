@@ -42,10 +42,6 @@ public class CorePropertyDefinitions {
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
-  public static final String SUB_SYSTEM_ANNOUNCEMENT = "announcement";
-  public static final String SYSTEM_ANNOUNCEMENT_MESSAGE = "sonar.systemAnnouncement.message";
-  public static final String SYSTEM_ANNOUNCEMENT_DISPLAY_MESSAGE = "sonar.systemAnnouncement.displayMessage";
-
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
   private CorePropertyDefinitions() {
@@ -91,22 +87,6 @@ public class CorePropertyDefinitions {
         .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()
-        .build(),
-      PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_MESSAGE)
-        .name("System announcement message")
-        .description("If \"Display system announcement message\" is set to True, this message will be displayed in a warning banner to all SonarQube users."
-          +" If this field is empty, no message will be displayed, even if \"Display system announcement message\" is set to True.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
-        .type(TEXT)
-        .build(),
-      PropertyDefinition.builder(SYSTEM_ANNOUNCEMENT_DISPLAY_MESSAGE)
-        .name("Display system announcement message")
-        .description("If set to True, the \"System announcement message\" will be displayed in a warning banner to all SonarQube users.")
-        .defaultValue(Boolean.toString(false))
-        .subCategory(SUB_SYSTEM_ANNOUNCEMENT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .type(BOOLEAN)
         .build(),
       PropertyDefinition.builder(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)
         .name("Avoid quality profiles notification")
