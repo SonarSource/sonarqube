@@ -20,7 +20,6 @@
 package org.sonar.server.app;
 
 import org.apache.catalina.startup.Tomcat;
-import org.apache.catalina.valves.ErrorReportValve;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -35,6 +34,6 @@ public class TomcatErrorHandlingTest {
   public void enable_access_logs_by_Default() {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     underTest.configure(tomcat);
-    verify(tomcat.getHost().getPipeline()).addValve(any(ErrorReportValve.class));
+    verify(tomcat.getHost().getPipeline()).addValve(any(SecureErrorReportValve.class));
   }
 }

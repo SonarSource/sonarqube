@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.app;
 
-import org.apache.catalina.startup.Tomcat;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ErrorReportValve;
+import org.sonar.server.platform.web.SecurityServletFilter;
 
-public class TomcatErrorHandling {
-  void configure(Tomcat tomcat) {
-    ErrorReportValve valve = new SecureErrorReportValve();
-    valve.setShowServerInfo(false);
-    valve.setShowReport(false);
-    tomcat.getHost().getPipeline().addValve(valve);
+/**
+ * Extending the ErrorReportValve to add security HTTP headers in all responses.
+ */
+public class SecureErrorReportValve extends ErrorReportValve {
+
+  @Override
+  public void invoke(Request request, Response response) throws IOException, ServletException {
+    SecurityServletFilter.addSecurityHeaders(request, response);
+    super.invoke(request, response);
   }
 }

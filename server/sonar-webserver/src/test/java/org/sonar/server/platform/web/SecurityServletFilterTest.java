@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -82,14 +83,29 @@ public class SecurityServletFilterTest {
   }
 
   @Test
-  public void set_security_headers() throws Exception {
+  public void set_security_headers_non_secure_request() throws Exception {
     HttpServletRequest request = newRequest("GET", "/");
+    when(request.getHeader("x-forwarded-proto")).thenReturn("https");
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).addHeader("X-Frame-Options", "SAMEORIGIN");
-    verify(response).addHeader("X-XSS-Protection", "1; mode=block");
-    verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
+    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-Content-Type-Options", "nosniff");
+    assertNull(response.getHeader("Strict-Transport-Security"));
+  }
+
+  @Test
+  public void set_security_headers_secure_request() throws ServletException, IOException {
+    HttpServletRequest request = newRequest("GET", "/");
+    when(request.getHeader("x-forwarded-proto")).thenReturn("https");
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
+    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-Content-Type-Options", "nosniff");
+    verify(response).setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains;");
   }
 
   @Test
@@ -98,9 +114,9 @@ public class SecurityServletFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
-    verify(response).addHeader("X-XSS-Protection", "1; mode=block");
-    verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
+    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-Content-Type-Options", "nosniff");
   }
 
   @Test
@@ -112,9 +128,9 @@ public class SecurityServletFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
-    verify(response).addHeader("X-XSS-Protection", "1; mode=block");
-    verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response, never()).setHeader(eq("X-Frame-Options"), anyString());
+    verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+    verify(response).setHeader("X-Content-Type-Options", "nosniff");
   }
 
   private static HttpServletRequest newRequest(String httpMethod, String path) {
