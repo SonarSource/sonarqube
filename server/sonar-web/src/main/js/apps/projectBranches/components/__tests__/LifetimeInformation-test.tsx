@@ -19,14 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getValues } from '../../../../api/settings';
+import { getValue } from '../../../../api/settings';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { SettingsKey } from '../../../../types/settings';
 import { LifetimeInformation } from '../LifetimeInformation';
 
 jest.mock('../../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([{ value: '45' }])
+  getValue: jest.fn().mockResolvedValue({ value: '45' })
 }));
 
 it('should render correctly', async () => {
@@ -35,8 +35,8 @@ it('should render correctly', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getValues).toHaveBeenCalledWith({
-    keys: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs
+  expect(getValue).toHaveBeenCalledWith({
+    key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs
   });
   expect(wrapper).toMatchSnapshot('after_fetching_data');
 });

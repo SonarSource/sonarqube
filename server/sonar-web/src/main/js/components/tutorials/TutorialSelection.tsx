@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getScannableProjects } from '../../api/components';
-import { getValues } from '../../api/settings';
+import { getValue } from '../../api/settings';
 import { getHostUrl } from '../../helpers/urls';
 import { hasGlobalPermission } from '../../helpers/users';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
@@ -102,8 +102,8 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   };
 
   fetchBaseUrl = async () => {
-    const settings = await getValues({ keys: SettingsKey.ServerBaseUrl }).catch(() => undefined);
-    const baseUrl = settings && settings.find(s => s.key === SettingsKey.ServerBaseUrl)?.value;
+    const setting = await getValue({ key: SettingsKey.ServerBaseUrl }).catch(() => undefined);
+    const baseUrl = setting?.value;
     if (baseUrl && baseUrl.length > 0 && this.mounted) {
       this.setState({ baseUrl });
     }

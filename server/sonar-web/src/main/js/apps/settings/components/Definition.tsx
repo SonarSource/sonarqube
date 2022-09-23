@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getValues, resetSettingValue, setSettingValue } from '../../../api/settings';
+import { getValue, resetSettingValue, setSettingValue } from '../../../api/settings';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../types/settings';
@@ -78,8 +78,7 @@ export default class Definition extends React.PureComponent<Props, State> {
 
     try {
       await resetSettingValue({ keys: definition.key, component: component?.key });
-      const result = await getValues({ keys: definition.key, component: component?.key });
-      const settingValue = result[0];
+      const settingValue = await getValue({ key: definition.key, component: component?.key });
 
       this.setState({
         changedValue: undefined,
@@ -164,8 +163,7 @@ export default class Definition extends React.PureComponent<Props, State> {
 
       try {
         await setSettingValue(definition, changedValue, component?.key);
-        const result = await getValues({ keys: definition.key, component: component?.key });
-        const settingValue = result[0];
+        const settingValue = await getValue({ key: definition.key, component: component?.key });
 
         this.setState({
           changedValue: undefined,

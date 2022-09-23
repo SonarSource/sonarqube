@@ -86,7 +86,7 @@ class SamlAuthentication extends React.PureComponent<
 
   componentDidMount() {
     const { definitions } = this.props;
-    const keys = definitions.map(definition => definition.key).join(',');
+    const keys = definitions.map(definition => definition.key);
     // Added setTimeout to make sure the component gets updated before scrolling
     setTimeout(() => {
       if (location.hash) {
@@ -134,7 +134,7 @@ class SamlAuthentication extends React.PureComponent<
     });
   };
 
-  async loadSettingValues(keys: string) {
+  async loadSettingValues(keys: string[]) {
     const { settingValue, securedFieldsSubmitted } = this.state;
     const values = await getValues({
       keys
@@ -212,7 +212,7 @@ class SamlAuthentication extends React.PureComponent<
       }
       this.setState({ success: dirtyFields.length !== dataWithError.length });
     });
-    await this.loadSettingValues(dirtyFields.join(','));
+    await this.loadSettingValues(dirtyFields);
     this.setState({ submitting: false, dirtyFields: [] });
   };
 

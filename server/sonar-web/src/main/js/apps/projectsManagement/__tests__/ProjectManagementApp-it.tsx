@@ -36,7 +36,7 @@ jest.mock('../../../api/components', () => ({
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([{ value: 'public' }])
+  getValue: jest.fn().mockResolvedValue({ value: 'public' })
 }));
 
 const components = mockComponents(11);

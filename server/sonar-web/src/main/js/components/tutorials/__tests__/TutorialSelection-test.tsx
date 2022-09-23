@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
 import { getScannableProjects } from '../../../api/components';
-import { getValues } from '../../../api/settings';
+import { getValue } from '../../../api/settings';
 import {
   mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse
@@ -44,7 +44,7 @@ jest.mock('../../../api/alm-settings', () => ({
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([])
+  getValue: jest.fn().mockResolvedValue({})
 }));
 
 jest.mock('../../../api/components', () => ({
@@ -90,14 +90,14 @@ it('should handle selection', () => {
 });
 
 it('should fetch the correct baseUrl', async () => {
-  (getValues as jest.Mock)
-    .mockResolvedValueOnce([{ key: SettingsKey.ServerBaseUrl, value: '' }])
-    .mockResolvedValueOnce([{ key: SettingsKey.ServerBaseUrl, value: 'http://sq.example.com' }])
+  (getValue as jest.Mock)
+    .mockResolvedValueOnce({ key: SettingsKey.ServerBaseUrl, value: '' })
+    .mockResolvedValueOnce({ key: SettingsKey.ServerBaseUrl, value: 'http://sq.example.com' })
     .mockRejectedValueOnce(null);
 
   let wrapper = shallowRender();
 
-  expect(getValues).toBeCalled();
+  expect(getValue).toBeCalled();
   expect(getHostUrl).toBeCalled();
 
   // No baseURL, fallback to the URL in the browser.

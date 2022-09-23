@@ -41,9 +41,7 @@ export default class AuthenticationServiceMock {
 
   getValuesHandler = (data: { keys: string; component?: string } & BranchParameters) => {
     if (data.keys) {
-      return Promise.resolve(
-        this.settingValues.filter(set => data.keys.split(',').includes(set.key))
-      );
+      return Promise.resolve(this.settingValues.filter(set => data.keys.includes(set.key)));
     }
     return Promise.resolve(this.settingValues);
   };

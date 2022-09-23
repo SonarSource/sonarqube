@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getComponents } from '../../../api/components';
 import { changeProjectDefaultVisibility } from '../../../api/permissions';
-import { getValues } from '../../../api/settings';
+import { getValue } from '../../../api/settings';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { ProjectManagementApp, Props } from '../ProjectManagementApp';
@@ -41,7 +41,7 @@ jest.mock('../../../api/permissions', () => ({
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([{ value: 'public' }])
+  getValue: jest.fn().mockResolvedValue({ value: 'public' })
 }));
 
 const defaultSearchParameters = {
@@ -58,7 +58,7 @@ it('fetches all projects on mount', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
-  expect(getValues).toBeCalled();
+  expect(getValue).toBeCalled();
   expect(wrapper.state().defaultProjectVisibility).toBe('public');
 });
 

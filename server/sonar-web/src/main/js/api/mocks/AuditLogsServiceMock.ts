@@ -20,15 +20,15 @@
 import { cloneDeep } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
 import { SettingValue } from '../../types/settings';
-import { getValues } from '../settings';
+import { getValue } from '../settings';
 
 export default class AuditLogsServiceMock {
-  settingValue: SettingValue[];
-  defaultValues: SettingValue[] = [{ key: 'test', value: HousekeepingPolicy.Weekly }];
+  settingValue: SettingValue;
+  defaultValues: SettingValue = { key: 'test', value: HousekeepingPolicy.Weekly };
 
   constructor() {
     this.settingValue = cloneDeep(this.defaultValues);
-    (getValues as jest.Mock).mockImplementation(this.getValuesHandler);
+    (getValue as jest.Mock).mockImplementation(this.getValuesHandler);
   }
 
   getValuesHandler = () => {

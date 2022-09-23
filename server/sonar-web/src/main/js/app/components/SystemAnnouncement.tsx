@@ -44,7 +44,7 @@ export default class SystemAnnouncement extends React.PureComponent<{}, State> {
 
   getSettings = async () => {
     const values: SettingValue[] = await getValues({
-      keys: [GlobalSettingKeys.DisplaySystemMessage, GlobalSettingKeys.SystemMessage].join(',')
+      keys: [GlobalSettingKeys.DisplaySystemMessage, GlobalSettingKeys.SystemMessage]
     });
     const settings = keyBy(values, 'key');
 

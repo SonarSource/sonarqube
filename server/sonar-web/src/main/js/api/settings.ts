@@ -36,10 +36,19 @@ export function getDefinitions(component?: string): Promise<ExtendedSettingDefin
   );
 }
 
+export function getValue(
+  data: { key: string; component?: string } & BranchParameters
+): Promise<SettingValue> {
+  return getValues({ keys: [data.key], component: data.component }).then(([result]) => result);
+}
+
 export function getValues(
-  data: { keys: string; component?: string } & BranchParameters
+  data: { keys: string[]; component?: string } & BranchParameters
 ): Promise<SettingValue[]> {
-  return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
+  return getJSON('/api/settings/values', {
+    keys: data.keys.join(','),
+    component: data.component
+  }).then((r: SettingValueResponse) => [
     ...r.settings,
     ...r.setSecuredSettings.map(key => ({ key }))
   ]);

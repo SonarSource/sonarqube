@@ -19,14 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getValues, resetSettingValue, setSettingValue } from '../../../../api/settings';
+import { getValue, resetSettingValue, setSettingValue } from '../../../../api/settings';
 import { mockDefinition, mockSettingValue } from '../../../../helpers/mocks/settings';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { SettingType } from '../../../../types/settings';
 import Definition from '../Definition';
 
 jest.mock('../../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([]),
+  getValue: jest.fn().mockResolvedValue({}),
   resetSettingValue: jest.fn().mockResolvedValue(undefined),
   setSettingValue: jest.fn().mockResolvedValue(undefined)
 }));
@@ -120,7 +120,7 @@ describe('handleSave', () => {
 
   it('should save and update setting value', async () => {
     const settingValue = mockSettingValue();
-    (getValues as jest.Mock).mockResolvedValueOnce([settingValue]);
+    (getValue as jest.Mock).mockResolvedValueOnce(settingValue);
     const definition = mockDefinition();
     const wrapper = shallowRender({ definition });
 
@@ -133,7 +133,7 @@ describe('handleSave', () => {
     await waitAndUpdate(wrapper);
 
     expect(setSettingValue).toBeCalledWith(definition, 'new value', undefined);
-    expect(getValues).toBeCalledWith({ keys: definition.key, component: undefined });
+    expect(getValue).toBeCalledWith({ key: definition.key, component: undefined });
     expect(wrapper.state().changedValue).toBeUndefined();
     expect(wrapper.state().loading).toBe(false);
     expect(wrapper.state().success).toBe(true);
@@ -146,7 +146,7 @@ describe('handleSave', () => {
 
 it('should reset and update setting value', async () => {
   const settingValue = mockSettingValue();
-  (getValues as jest.Mock).mockResolvedValueOnce([settingValue]);
+  (getValue as jest.Mock).mockResolvedValueOnce(settingValue);
   const definition = mockDefinition();
   const wrapper = shallowRender({ definition });
 
@@ -157,7 +157,7 @@ it('should reset and update setting value', async () => {
   await waitAndUpdate(wrapper);
 
   expect(resetSettingValue).toBeCalledWith({ keys: definition.key, component: undefined });
-  expect(getValues).toBeCalledWith({ keys: definition.key, component: undefined });
+  expect(getValue).toBeCalledWith({ key: definition.key, component: undefined });
   expect(wrapper.state().changedValue).toBeUndefined();
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().success).toBe(true);

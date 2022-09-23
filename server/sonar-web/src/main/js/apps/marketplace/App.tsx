@@ -27,7 +27,7 @@ import {
   getInstalledPluginsWithUpdates,
   getPluginUpdates
 } from '../../api/plugins';
-import { getValues, setSimpleSettingValue } from '../../api/settings';
+import { getValue, setSimpleSettingValue } from '../../api/settings';
 import Link from '../../components/common/Link';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
@@ -111,13 +111,11 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   fetchRiskConsent = async () => {
-    const result = await getValues({ keys: SettingsKey.PluginRiskConsent });
+    const consent = await getValue({ key: SettingsKey.PluginRiskConsent });
 
-    if (!result || result.length < 1) {
+    if (consent === undefined) {
       return;
     }
-
-    const [consent] = result;
 
     this.setState({ riskConsent: consent.value as RiskConsent | undefined });
   };

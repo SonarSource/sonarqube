@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getComponents, Project } from '../../api/components';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
-import { getValues } from '../../api/settings';
+import { getValue } from '../../api/settings';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
@@ -90,10 +90,10 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   }
 
   fetchDefaultProjectVisibility = async () => {
-    const results = await getValues({ keys: SettingsKey.DefaultProjectVisibility });
+    const results = await getValue({ key: SettingsKey.DefaultProjectVisibility });
 
-    if (this.mounted && results.length > 0 && results[0].value) {
-      this.setState({ defaultProjectVisibility: results[0].value as Visibility });
+    if (this.mounted && results?.value !== undefined) {
+      this.setState({ defaultProjectVisibility: results.value as Visibility });
     }
   };
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getValues } from '../../../api/settings';
+import { getValue } from '../../../api/settings';
 import withAdminPagesOutletContext from '../../../app/components/admin/withAdminPagesOutletContext';
 import { AdminPageExtension } from '../../../types/extension';
 import { SettingsKey } from '../../../types/settings';
@@ -62,11 +62,11 @@ export class AuditApp extends React.PureComponent<Props, State> {
   }
 
   fetchHouseKeepingPolicy = async () => {
-    const results = await getValues({ keys: SettingsKey.AuditHouseKeeping });
+    const result = await getValue({ key: SettingsKey.AuditHouseKeeping });
 
     this.setState({
       housekeepingPolicy:
-        (results[0]?.value as HousekeepingPolicy | undefined) ?? HousekeepingPolicy.Monthly
+        (result?.value as HousekeepingPolicy | undefined) ?? HousekeepingPolicy.Monthly
     });
   };
 
