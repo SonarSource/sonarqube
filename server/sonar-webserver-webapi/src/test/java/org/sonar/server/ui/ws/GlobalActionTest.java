@@ -52,7 +52,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.platform.EditionProvider.Edition.*;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class GlobalActionTest {
@@ -237,30 +236,6 @@ public class GlobalActionTest {
     assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":false}");
 
   }
-
-  @Test
-  public void project_import_feature_enabled_ee_dce() {
-    init();
-    when(editionProvider.get()).thenReturn(Optional.of(ENTERPRISE));
-    assertJson(call()).isSimilarTo("{\"projectImportFeatureEnabled\":true}");
-
-    when(editionProvider.get()).thenReturn(Optional.of(DATACENTER));
-    assertJson(call()).isSimilarTo("{\"projectImportFeatureEnabled\":true}");
-  }
-
-  @Test
-  public void project_import_feature_disabled_ce_de() {
-    init();
-    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
-    assertJson(call()).isSimilarTo("{\"projectImportFeatureEnabled\":false}");
-
-    when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
-    assertJson(call()).isSimilarTo("{\"projectImportFeatureEnabled\":false}");
-
-    when(editionProvider.get()).thenReturn(Optional.empty());
-    assertJson(call()).isSimilarTo("{\"projectImportFeatureEnabled\":false}");
-  }
-
 
   @Test
   public void return_need_issue_sync() {

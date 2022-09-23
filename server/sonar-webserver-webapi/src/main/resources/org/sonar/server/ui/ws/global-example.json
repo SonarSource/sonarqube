@@ -26,7 +26,6 @@
   "version": "6.2",
   "productionDatabase": true,
   "branchesEnabled": false,
-  "projectImportFeatureEnabled": false,
   "canAdmin": false,
   "standalone": true,
   "edition": "community"

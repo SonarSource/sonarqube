@@ -140,7 +140,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeBranchSupport(json);
       writeInstanceUsesDefaultAdminCredentials(json);
       writeMultipleAlmEnabled(json);
-      writeProjectImportFeature(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
       json.prop("standalone", webServer.isStandalone());
@@ -205,12 +204,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeMultipleAlmEnabled(JsonWriter json) {
     json.prop("multipleAlmEnabled", multipleAlmFeatureProvider.enabled());
-  }
-
-  private void writeProjectImportFeature(JsonWriter json) {
-    Edition edition = editionProvider.get().orElse(null);
-    boolean isEnabled = isEditionEEorDCE(edition);
-    json.prop("projectImportFeatureEnabled", isEnabled);
   }
 
   private void writeNeedIssueSync(JsonWriter json) {

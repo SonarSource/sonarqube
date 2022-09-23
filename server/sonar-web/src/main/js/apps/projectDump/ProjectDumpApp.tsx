@@ -20,11 +20,13 @@
 import * as React from 'react';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
-import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
-import { AppState } from '../../types/appstate';
+import { Feature } from '../../types/features';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
 import { ActivityRequestParameters, TaskStatuses, TaskTypes } from '../../types/tasks';
 import { Component } from '../../types/types';
@@ -34,8 +36,7 @@ import './styles.css';
 
 const POLL_INTERNAL = 5000;
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   component: Component;
 }
 
@@ -84,10 +85,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   }
 
   getLastTaskOfEachType(componentKey: string) {
-    const {
-      appState: { projectImportFeatureEnabled }
-    } = this.props;
-
+    const projectImportFeatureEnabled = this.props.hasFeature(Feature.ProjectImport);
     const all = projectImportFeatureEnabled
       ? [
           this.getLastTask(componentKey, TaskTypes.ProjectExport),
@@ -154,10 +152,8 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      component,
-      appState: { projectImportFeatureEnabled }
-    } = this.props;
+    const { component } = this.props;
+    const projectImportFeatureEnabled = this.props.hasFeature(Feature.ProjectImport);
     const { lastAnalysisTask, lastExportTask, lastImportTask, status } = this.state;
 
     return (
@@ -200,4 +196,4 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   }
 }
 
-export default withComponentContext(withAppStateContext(ProjectDumpApp));
+export default withComponentContext(withAvailableFeatures(ProjectDumpApp));

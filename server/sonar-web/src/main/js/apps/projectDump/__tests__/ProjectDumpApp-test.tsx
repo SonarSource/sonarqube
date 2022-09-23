@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getActivity } from '../../../api/ce';
 import { getStatus } from '../../../api/project-dump';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockAppState, mockDumpStatus, mockDumpTask } from '../../../helpers/testMocks';
+import { mockDumpStatus, mockDumpTask } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { TaskStatuses } from '../../../types/tasks';
 import { ProjectDumpApp } from '../ProjectDumpApp';
@@ -58,7 +58,7 @@ it('should render correctly', async () => {
 
   expect(wrapper).toMatchSnapshot('loaded');
 
-  wrapper = shallowRender({ appState: mockAppState({ projectImportFeatureEnabled: false }) });
+  wrapper = shallowRender({ hasFeature: jest.fn().mockReturnValue(false) });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('loaded without import');
 });
@@ -91,7 +91,7 @@ it('should poll for task status update', async () => {
 function shallowRender(overrides: Partial<ProjectDumpApp['props']> = {}) {
   return shallow<ProjectDumpApp>(
     <ProjectDumpApp
-      appState={mockAppState({ projectImportFeatureEnabled: true })}
+      hasFeature={jest.fn().mockReturnValue(true)}
       component={mockComponent()}
       {...overrides}
     />

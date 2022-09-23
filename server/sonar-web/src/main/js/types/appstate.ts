@@ -29,7 +29,6 @@ export interface AppState {
   canAdmin?: boolean;
   edition?: EditionKey;
   globalPages?: Extension[];
-  projectImportFeatureEnabled?: boolean;
   instanceUsesDefaultAdminCredentials?: boolean;
   multipleAlmEnabled?: boolean;
   needIssueSync?: boolean;
