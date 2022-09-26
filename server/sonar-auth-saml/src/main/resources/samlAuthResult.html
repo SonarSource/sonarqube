@@ -124,7 +124,7 @@
 
       function createSectionTitle(title) {
         const node = document.createElement("h2");
-        node.innerText = title;
+        node.textContent = title;
         return node;
       }
 
@@ -134,7 +134,7 @@
         arr.forEach((item) => {
           const message = document.createElement("li");
           message.className = className;
-          message.innerText = item;
+          message.textContent = item;
           list.appendChild(message);
         });
 
@@ -150,7 +150,7 @@
           const row = document.createElement("tr");
 
           const keyNode = document.createElement("td");
-          keyNode.innerText = key;
+          keyNode.textContent = key;
           row.appendChild(keyNode);
 
           const valueNode = document.createElement("td");
@@ -173,16 +173,18 @@
         container.appendChild(box);
       }
 
-      const status = %STATUS%;
-      const attributes = %AVAILABLE_ATTRIBUTES%;
-      const mappings = %ATTRIBUTE_MAPPINGS%;
-      const errors = %ERRORS%;
-      const warnings = %WARNINGS%;
+      const response = %SAML_AUTHENTICATION_STATUS%;
+      const decodedStatus = JSON.parse(atob(response));
+      const status = decodedStatus.status;
+      const attributes = decodedStatus.availableAttributes;
+      const mappings = decodedStatus.mappedAttributes;
+      const errors = decodedStatus.errors;
+      const warnings = decodedStatus.warnings;
 
       // Switch status class
       const statusNode = document.querySelector("#status");
       statusNode.classList.add(status);
-      statusNode.innerText = status;
+      statusNode.textContent = status;
 
       // generate content
       const container = document.querySelector("#content");

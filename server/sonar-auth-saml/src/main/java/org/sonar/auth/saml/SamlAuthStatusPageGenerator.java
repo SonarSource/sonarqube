@@ -23,20 +23,14 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Base64;
 import java.util.Map;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.json.JSONObject;
 
 public final class SamlAuthStatusPageGenerator {
 
   private static final String WEB_CONTEXT = "%WEB_CONTEXT%";
-  private static final String STATUS = "%STATUS%";
-  private static final String ERRORS = "%ERRORS%";
-  private static final String WARNINGS = "%WARNINGS%";
-  private static final String AVAILABLE_ATTRIBUTES = "%AVAILABLE_ATTRIBUTES%";
-  private static final String ATTRIBUTE_MAPPINGS = "%ATTRIBUTE_MAPPINGS%";
+  private static final String SAML_AUTHENTICATION_STATUS = "%SAML_AUTHENTICATION_STATUS%";
 
   private static final String HTML_TEMPLATE_NAME = "samlAuthResult.html";
 
@@ -57,21 +51,12 @@ public final class SamlAuthStatusPageGenerator {
   private static Map<String, String> getSubstitutionsMap(SamlAuthenticationStatus samlAuthenticationStatus) {
     return Map.of(
       WEB_CONTEXT, "",
-      STATUS, toJsString(samlAuthenticationStatus.getStatus()),
-      ERRORS, toJsArrayFromList(samlAuthenticationStatus.getErrors()),
-      WARNINGS, toJsArrayFromList(samlAuthenticationStatus.getWarnings()),
-      AVAILABLE_ATTRIBUTES, new JSONObject(samlAuthenticationStatus.getAvailableAttributes()).toString(),
-      ATTRIBUTE_MAPPINGS, new JSONObject(samlAuthenticationStatus.getMappedAttributes()).toString());
+      SAML_AUTHENTICATION_STATUS, getBase64EncodedStatus(samlAuthenticationStatus));
   }
 
-  private static String toJsString(@Nullable String inputString) {
-    return String.format("'%s'", inputString != null ? inputString.replace("'", "\\'") : "");
-  }
-
-  private static String toJsArrayFromList(List<String> inputArray) {
-    return "[" + inputArray.stream()
-      .map(SamlAuthStatusPageGenerator::toJsString)
-      .collect(Collectors.joining(",")) + "]";
+  private static String getBase64EncodedStatus(SamlAuthenticationStatus samlAuthenticationStatus) {
+    byte[] bytes = new JSONObject(samlAuthenticationStatus).toString().getBytes(StandardCharsets.UTF_8);
+    return String.format("'%s'", Base64.getEncoder().encodeToString(bytes));
   }
 
   private static String getPlainTemplate() {

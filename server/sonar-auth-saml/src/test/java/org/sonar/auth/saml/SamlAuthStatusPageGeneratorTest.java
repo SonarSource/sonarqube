@@ -25,8 +25,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,30 +33,11 @@ import static org.mockito.Mockito.when;
 import static org.sonar.auth.saml.SamlAuthStatusPageGenerator.getSamlAuthStatusHtml;
 
 public class SamlAuthStatusPageGeneratorTest {
-
-  private final SamlAuthenticationStatus samlAuthenticationStatus = mock(SamlAuthenticationStatus.class);
-
-  private static final String HTML_TEMPLATE_NAME = "samlAuthResultComplete.html";
   private static final String EMPTY_HTML_TEMPLATE_NAME = "samlAuthResultEmpty.html";
 
   @Test
-  public void test_full_html_generation() {
-
-    when(samlAuthenticationStatus.getStatus()).thenReturn("success");
-    when(samlAuthenticationStatus.getErrors()).thenReturn(List.of("error1", "error2 'with message'"));
-    when(samlAuthenticationStatus.getWarnings()).thenReturn(List.of("warning1", "warning2 'with message'"));
-    when(samlAuthenticationStatus.getAvailableAttributes()).thenReturn(Map.of("key1", List.of("value1", "value2 with weird chars \n\t\"\\"), "key2", List.of("value3", "value4")));
-    when(samlAuthenticationStatus.getMappedAttributes()).thenReturn(Map.of("key1", List.of("value1", "value2"), "key2", List.of("value3", "value4")));
-
-    String completeHtmlTemplate = getSamlAuthStatusHtml(samlAuthenticationStatus);
-    String expectedTemplate = loadTemplateFromResources(HTML_TEMPLATE_NAME);
-
-    assertEquals(expectedTemplate, completeHtmlTemplate);
-
-  }
-
-  @Test
   public void test_full_html_generation_with_empty_values() {
+    SamlAuthenticationStatus samlAuthenticationStatus = mock(SamlAuthenticationStatus.class);
 
     when(samlAuthenticationStatus.getStatus()).thenReturn(null);
     when(samlAuthenticationStatus.getErrors()).thenReturn(new ArrayList<>());
