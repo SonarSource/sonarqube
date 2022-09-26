@@ -144,6 +144,40 @@ public class TokenUserSessionTest {
     assertThat(userSession.hasPermission(GlobalPermission.SCAN)).isTrue();
   }
 
+  @Test
+  public void test_hasProvisionProjectsGlobalPermission_for_GlobalAnalysisToken_returnsTrueIfUserIsGranted() {
+    UserDto user = db.users().insertUser();
+
+    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
+
+    TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
+
+    assertThat(userSession.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isTrue();
+  }
+
+  @Test
+  public void test_hasProvisionProjectsGlobalPermission_for_GlobalAnalysisToken_returnsFalseIfUserIsNotGranted() {
+    UserDto user = db.users().insertUser();
+
+    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+
+    TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
+
+    assertThat(userSession.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isFalse();
+  }
+
+  @Test
+  public void test_hasAdministerGlobalPermission_for_GlobalAnalysisToken_returnsFalse() {
+    UserDto user = db.users().insertUser();
+
+    db.users().insertPermissionOnUser(user, GlobalPermission.ADMINISTER);
+
+    TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
+
+    assertThat(userSession.hasPermission(GlobalPermission.ADMINISTER)).isFalse();
+  }
+
   private TokenUserSession mockTokenUserSession(UserDto userDto) {
     return new TokenUserSession(dbClient, userDto, mockUserTokenDto());
   }
@@ -156,7 +190,7 @@ public class TokenUserSessionTest {
     return new TokenUserSession(dbClient, userDto, mockGlobalAnalysisTokenDto());
   }
 
-  private UserTokenDto mockUserTokenDto() {
+  private static UserTokenDto mockUserTokenDto() {
     UserTokenDto userTokenDto = new UserTokenDto();
     userTokenDto.setType(USER_TOKEN.name());
     userTokenDto.setName("User Token");
@@ -164,7 +198,7 @@ public class TokenUserSessionTest {
     return userTokenDto;
   }
 
-  private UserTokenDto mockProjectAnalysisTokenDto(ComponentDto componentDto) {
+  private static UserTokenDto mockProjectAnalysisTokenDto(ComponentDto componentDto) {
     UserTokenDto userTokenDto = new UserTokenDto();
     userTokenDto.setType(PROJECT_ANALYSIS_TOKEN.name());
     userTokenDto.setName("Project Analysis Token");
@@ -175,7 +209,7 @@ public class TokenUserSessionTest {
     return userTokenDto;
   }
 
-  private UserTokenDto mockGlobalAnalysisTokenDto() {
+  private static UserTokenDto mockGlobalAnalysisTokenDto() {
     UserTokenDto userTokenDto = new UserTokenDto();
     userTokenDto.setType(GLOBAL_ANALYSIS_TOKEN.name());
     userTokenDto.setName("Global Analysis Token");

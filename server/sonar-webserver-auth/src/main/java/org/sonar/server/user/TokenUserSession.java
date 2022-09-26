@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user;
 
+import java.util.EnumSet;
+import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.TokenType;
@@ -28,6 +30,7 @@ import org.sonar.db.user.UserTokenDto;
 public class TokenUserSession extends ServerUserSession {
 
   private static final String SCAN = "scan";
+  private static final Set<GlobalPermission> GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS = EnumSet.of(GlobalPermission.SCAN, GlobalPermission.PROVISION_PROJECTS);
   private final UserTokenDto userToken;
 
   public TokenUserSession(DbClient dbClient, UserDto user, UserTokenDto userToken) {
@@ -66,8 +69,7 @@ public class TokenUserSession extends ServerUserSession {
         //the project analysis token to work for multiple projects in case the user has Global Permissions.
         return false;
       case GLOBAL_ANALYSIS_TOKEN:
-        return GlobalPermission.SCAN.equals(permission) &&
-          super.hasPermissionImpl(permission);
+        return GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS.contains(permission) && super.hasPermissionImpl(permission);
       default:
         throw new IllegalArgumentException("Unsupported token type " + tokenType.name());
     }
