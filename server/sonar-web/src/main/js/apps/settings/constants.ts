@@ -42,6 +42,7 @@ export const CATEGORY_OVERRIDES: Dict<string> = {
   'javascript / typescript': LANGUAGES_CATEGORY,
   json: LANGUAGES_CATEGORY,
   kotlin: LANGUAGES_CATEGORY,
+  kubernetes: LANGUAGES_CATEGORY,
   php: LANGUAGES_CATEGORY,
   'pl/i': LANGUAGES_CATEGORY,
   'pl/sql': LANGUAGES_CATEGORY,
