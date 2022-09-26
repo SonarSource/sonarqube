@@ -10,11 +10,12 @@ With this integration, you'll be able to:
 - **Import your GitHub repositories** - Import your GitHub repositories into SonarQube to easily set up SonarQube projects.  
 - **Analyze projects with GitHub Actions** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in GitHub Actions jobs can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner.
 - **Report your Quality Gate status to your branches and pull requests** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitHub so you know if it's safe to merge your changes.
-- **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.  
+- **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.
+- **Display code scanning alerts for vulnerability issues in GitHub** - Display security vulnerability issues found by SonarQube as code scanning alerts in the GitHub interface.
 
 ## Prerequisites
-- To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.21+.
-- To analyze projects with GitHub Actions in GitHub Enterprise, you must be running [GitHub Enterprise version 3.0+](https://docs.github.com/en/enterprise-server@2.22/admin/github-actions/getting-started-with-github-actions-for-github-enterprise-server).
+
+If you're using GitHub Enterprise, you must be running [GitHub Enterprise version 3.2+](https://docs.github.com/en/enterprise-server@3.2/admin/github-actions/getting-started-with-github-actions-for-your-enterprise/getting-started-with-github-actions-for-github-enterprise-server).
 
 ### Branch Analysis
 Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
@@ -27,8 +28,8 @@ If you want to set up authentication without importing your GitHub repositories,
 In this section, you'll complete the following steps to connect SonarQube and GitHub with a GitHub App:
 
 1. Create your GitHub App.
-1. Install your GitHub App in your organization.
-1. Update your SonarQube global settings with your GitHub App information.
+2. Install your GitHub App in your organization.
+3. Update your SonarQube global settings with your GitHub App information.
 
 ### Step 1: Creating your GitHub App
 See GitHub's documentation on [creating a GitHub App](https://docs.github.com/apps/building-github-apps/creating-a-github-app/) for general information on creating your app. 
@@ -38,7 +39,7 @@ Specify the following settings in your app:
 - **GitHub App Name** – Your app's name.
 - **Homepage URL** – You can use any URL, such as `https://www.sonarqube.org/`.
 - **User authorization callback URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
-- **Webhook URL** – To improve security, webhooks, by default, are not allowed to point to the SonarQube server since version 8.9LTS, therefore we recommend that you disable the feature. You should clear the **Webhook Active** checkbox to silence a forthcoming deprecation warning, and clear the **Webhook URL** and **Webhook secret** fields when creating your Github app.
+- **Webhook URL** – To improve security, webhooks, by default, are not allowed to point to the SonarQube server since version 8.9LTS, therefore we recommend that you disable the feature. Unless you want to enable code scanning alerts for security vulnerabilities in GitHub, you should clear the **Webhook Active** checkbox to silence a forthcoming deprecation warning, and clear the **Webhook URL** and **Webhook secret** fields when creating your GitHub App.
 - Grant access for the following **Repository permissions**:
 
   | Permission          | Access       |
@@ -346,3 +347,75 @@ SonarQube can also report your Quality Gate status to GitHub pull requests and b
 ## Authenticating with GitHub
 
 See [Authenticating with GitHub](/instance-administration/authentication/github/) 
+
+## GitHub Code Scanning Alerts For Security Vulnerabilities
+
+Starting in Developer Edition, SonarQube can provide feedback about security vulnerabilities inside the GitHub interface itself. The security vulnerabilities found by SonarQube will appear both:
+* in the SonarQube interface, as part of the analysis results displayed
+* in the GitHub interface, as code scanning alerts under the **Security** tab 
+
+> Note: This feature is part of the [GitHub Advanced Security package](https://docs.github.com/en/get-started/learning-about-github/about-github-advanced-security) and is currently free for public projects. It is available as a paid option for private projects and GitHub Enterprise. This is entirely on the GitHub side. Sonar does not charge anything extra to enable the code scanning alerts feature.
+
+Before you can configure GitHub code scanning alerts for vulnerability issues, you must first import your GitHub repository to SonarQube as explained above.
+
+You might notice a button in the GitHub **Security** tab labeled **Add more scanning tools**. This is used to configure third-party plugins. To use code scanning alerts from SonarQube, however, you only configure permissions within GitHub and SonarQube. You do not need to add any third-party plugins. 
+
+### Enabling code scanning alerts in your GitHub App 
+
+1. Go to **Settings > Developer settings > GitHub Apps** and select your GitHub App.
+2. Go to the **General > Webhook** section and make sure the **active** checkbox is checked.
+3. Add the following Webhook URL: `https://yourinstance.sonarqube.com/api/alm_integrations/webhook_github`. Replace `yourinstance` with your SonarQube instance.
+4. Set a **Webhook secret** (see [GitHub's webhook security recommendations](https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks)).
+5. Under **Permissions & events > Repository permissions > Code scanning alerts**, set the access level to **Read and write**. When you update this permission, GitHub sends an email to the GitHub organization's administrator, asking them to validate the changes on the installation of the GitHub App.
+6. Under **Permissions & events > Subscribe to events**, check the **Code scanning alert** checkbox.
+
+You can now analyze a project in SonarQube and check that the detected vulnerability issues are displayed on the GitHub interface, in your repository's **Security** tab **>** **Code scanning alerts**. 
+
+Select **View alerts** to see the full list:
+
+![](/images/sq-github-code-scanning-alerts.png)
+
+> **Managing access to security alerts**<br/>
+  In GitHub, you can [configure access to security alerts for a repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository).
+
+### About synchronized status changes
+
+When you change the status of a security vulnerability in the SonarQube interface, that status change is immediately reflected in the GitHub interface. 
+
+For example, if you change an issue from **Open** to **Resolve as false positive** here in SonarQube:
+
+![](/images/sq-github-code-scanning-sync.png)
+
+That change is reflected in the code scanning alerts in GitHub:
+
+![](/images/sq-github-code-scanning-sync-2.png)
+
+To enable the syncing of status changes from GitHub to SonarQube, however, you must enter your GitHub App's webhook secret in SonarQube.
+
+### Enabling synchronized status changes in SonarQube
+
+1. In your SonarQube project, go to **Administration > DevOps Platform Integrations > GitHub**
+2. Select your GitHub App and click **edit**
+3. Enter the webhook secret defined in your GitHub App.
+
+Now if you change an issue from **Open** to **Dismiss: Won't Fix** in GitHub for example, that change is reflected in SonarQube.
+
+### Correspondence of statuses
+
+Initially, all issues marked **Open** on SonarQube are marked **Open** on GitHub. But because the available statuses on the two systems are not exactly the same, the following logic is used to manage the transitions. 
+
+| On SonarQube, a transition to | Results in this on GitHub| 
+|---|---| 
+|Confirm|Open| 
+|Resolve (Fixed)|Open|
+|Resolve (Won't Fix)|Dismiss: Won't fix|
+|Resolve (False Positive)|Dismiss: False positive|
+|Reopened|Open|
+
+| On GitHub, a transition to | Results in this on SonarQube|
+|---|---| 
+|Dismiss: False positive|Resolve (False Positive)|
+|Dismiss: Used in tests|Resolve (Won't Fix)|
+|Dismiss: Won't fix|Resolve (Won't Fix)|
+	
+	
