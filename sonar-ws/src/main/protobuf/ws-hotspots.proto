@@ -48,6 +48,7 @@ message SearchWsResponse {
     optional string updateDate = 13;
     optional sonarqube.ws.commons.TextRange textRange = 14;
     repeated sonarqube.ws.commons.Flow flows = 15;
+    optional string ruleKey = 16;
   }
 }
 

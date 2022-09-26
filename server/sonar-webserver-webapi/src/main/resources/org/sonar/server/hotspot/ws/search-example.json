@@ -17,7 +17,9 @@
       "assignee": "assignee-uuid",
       "author": "joe",
       "creationDate": "2020-01-02T15:43:10+0100",
-      "updateDate": "2020-01-02T15:43:10+0100"
+      "updateDate": "2020-01-02T15:43:10+0100",
+      "flows": [],
+      "ruleKey": "repository-0:rule-0"
     },
     {
       "key": "hotspot-1",
@@ -31,7 +33,9 @@
       "assignee": "assignee-uuid",
       "author": "joe",
       "creationDate": "2020-01-02T15:43:10+0100",
-      "updateDate": "2020-01-02T15:43:10+0100"
+      "updateDate": "2020-01-02T15:43:10+0100",
+      "flows": [],
+      "ruleKey": "repository-1:rule-1"
     },
     {
       "key": "hotspot-2",
@@ -45,7 +49,9 @@
       "assignee": "assignee-uuid",
       "author": "joe",
       "creationDate": "2020-01-02T15:43:10+0100",
-      "updateDate": "2020-01-02T15:43:10+0100"
+      "updateDate": "2020-01-02T15:43:10+0100",
+      "flows": [],
+      "ruleKey": "repository-2:rule-2"
     }
   ],
   "components": [

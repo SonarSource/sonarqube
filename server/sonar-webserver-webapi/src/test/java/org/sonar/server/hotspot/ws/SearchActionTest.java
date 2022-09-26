@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -1841,7 +1842,8 @@ public class SearchActionTest {
 
     IssueDto[] hotspots = IntStream.range(0, 3)
       .mapToObj(i -> {
-        RuleDto rule = newRule(SECURITY_HOTSPOT)
+        RuleKey ruleKey = RuleKey.of("repository-"+i,"rule-"+i);
+        RuleDto rule = newRule(SECURITY_HOTSPOT,ruleKey)
           .setSecurityStandards(Sets.newHashSet(SQCategory.WEAK_CRYPTOGRAPHY.getKey()));
         return insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
           .setAssigneeUuid("assignee-uuid")
@@ -1858,6 +1860,24 @@ public class SearchActionTest {
     newRequest(project)
       .execute()
       .assertJson(actionTester.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void returns_hotspots_with_ruleKey() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    insertHotspot(project, file, rule1);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getRuleKey)
+      .containsExactly(rule1.getKey().toString());
   }
 
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDto rule) {
@@ -1958,6 +1978,13 @@ public class SearchActionTest {
   private RuleDto newRule(RuleType ruleType) {
     return newRule(ruleType, t -> {
     });
+  }
+
+  private RuleDto newRule(RuleType ruleType, RuleKey ruleKey){
+    RuleDto ruleDto = RuleTesting.newRule(ruleKey)
+      .setType(ruleType);
+    dbTester.rules().insert(ruleDto);
+    return ruleDto;
   }
 
   private RuleDto newRule(RuleType ruleType, Consumer<RuleDto> populate) {

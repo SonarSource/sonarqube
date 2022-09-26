@@ -200,7 +200,8 @@ public class SearchAction implements HotspotsWsAction {
       .setInternal(true)
       .setChangelog(
         new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
-        new Change("9.7", "Hotspot flows in the response may contain a description and a type"));
+        new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
+        new Change("9.7", "Hotspot in the response contain the corresponding ruleKey"));
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
@@ -582,7 +583,8 @@ public class SearchAction implements HotspotsWsAction {
         .setComponent(hotspot.getComponentKey())
         .setProject(hotspot.getProjectKey())
         .setSecurityCategory(sqCategory.getKey())
-        .setVulnerabilityProbability(sqCategory.getVulnerability().name());
+        .setVulnerabilityProbability(sqCategory.getVulnerability().name())
+        .setRuleKey(hotspot.getRuleKey().toString());
       ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
       ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
       ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
