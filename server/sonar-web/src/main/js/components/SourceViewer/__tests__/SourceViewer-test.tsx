@@ -57,41 +57,11 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should use load props if provided', () => {
-  const loadIssues = jest.fn().mockResolvedValue([]);
-  const wrapper = shallowRender({
-    loadIssues
-  });
-
-  expect(wrapper.instance().loadIssues).toBe(loadIssues);
-});
-
-it('should reload', async () => {
-  (defaultLoadIssues as jest.Mock)
-    .mockResolvedValueOnce([mockIssue()])
-    .mockResolvedValueOnce([mockIssue()]);
-  (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
-  (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
-  });
-  (getSources as jest.Mock).mockResolvedValueOnce([mockSourceLine()]);
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().reloadIssues();
-
-  expect(defaultLoadIssues).toBeCalledTimes(2);
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().issues).toHaveLength(1);
-});
-
 it('should load sources before', async () => {
-  (defaultLoadIssues as jest.Mock)
-    .mockResolvedValueOnce([mockIssue(false, { key: 'issue1' })])
-    .mockResolvedValueOnce([mockIssue(false, { key: 'issue2' })]);
+  (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([
+    mockIssue(false, { key: 'issue1' }),
+    mockIssue(false, { key: 'issue2' })
+  ]);
   (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
   (getComponentData as jest.Mock).mockResolvedValueOnce({
     component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
@@ -106,7 +76,7 @@ it('should load sources before', async () => {
   wrapper.instance().loadSourcesBefore();
   expect(wrapper.state().loadingSourcesBefore).toBe(true);
 
-  expect(defaultLoadIssues).toBeCalledTimes(2);
+  expect(defaultLoadIssues).toBeCalledTimes(1);
   expect(getSources).toBeCalledTimes(2);
 
   await waitAndUpdate(wrapper);
@@ -115,9 +85,10 @@ it('should load sources before', async () => {
 });
 
 it('should load sources after', async () => {
-  (defaultLoadIssues as jest.Mock)
-    .mockResolvedValueOnce([mockIssue(false, { key: 'issue1' })])
-    .mockResolvedValueOnce([mockIssue(false, { key: 'issue2' })]);
+  (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([
+    mockIssue(false, { key: 'issue1' }),
+    mockIssue(false, { key: 'issue2' })
+  ]);
   (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
   (getComponentData as jest.Mock).mockResolvedValueOnce({
     component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
@@ -132,7 +103,7 @@ it('should load sources after', async () => {
   wrapper.instance().loadSourcesAfter();
   expect(wrapper.state().loadingSourcesAfter).toBe(true);
 
-  expect(defaultLoadIssues).toBeCalledTimes(2);
+  expect(defaultLoadIssues).toBeCalledTimes(1);
   expect(getSources).toBeCalledTimes(2);
 
   await waitAndUpdate(wrapper);

@@ -25,6 +25,8 @@ import { Issue, RawQuery } from '../../../types/types';
 
 // maximum possible value
 const PAGE_SIZE = 500;
+// Maximum issues return 20*500 for the API.
+const PAGE_MAX = 20;
 
 function buildQuery(component: string, branchLike: BranchLike | undefined) {
   return {
@@ -36,7 +38,7 @@ function buildQuery(component: string, branchLike: BranchLike | undefined) {
   };
 }
 
-export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
+function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
   return searchIssues({
     ...query,
     p: page,
@@ -46,42 +48,25 @@ export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): P
   );
 }
 
-export function loadPageAndNext(
-  query: RawQuery,
-  toLine: number,
-  page: number,
-  pageSize = PAGE_SIZE
-): Promise<Issue[]> {
-  return loadPage(query, page).then(issues => {
-    if (issues.length === 0) {
-      return [];
-    }
+async function loadPageAndNext(query: RawQuery, page = 1, pageSize = PAGE_SIZE): Promise<Issue[]> {
+  const issues = await loadPage(query, page);
 
-    const lastIssue = issues[issues.length - 1];
+  if (issues.length === 0) {
+    return [];
+  }
 
-    if (
-      (lastIssue.textRange != null && lastIssue.textRange.endLine > toLine) ||
-      issues.length < pageSize
-    ) {
-      return issues;
-    }
+  if (issues.length < pageSize || page >= PAGE_MAX) {
+    return issues;
+  }
 
-    return loadPageAndNext(query, toLine, page + 1, pageSize).then(nextIssues => {
-      return [...issues, ...nextIssues];
-    });
-  });
+  const nextIssues = await loadPageAndNext(query, page + 1, pageSize);
+  return [...issues, ...nextIssues];
 }
 
 export default function loadIssues(
   component: string,
-  _fromLine: number,
-  toLine: number,
   branchLike: BranchLike | undefined
 ): Promise<Issue[]> {
   const query = buildQuery(component, branchLike);
-  return new Promise(resolve => {
-    loadPageAndNext(query, toLine, 1).then(issues => {
-      resolve(issues);
-    });
-  });
+  return loadPageAndNext(query);
 }

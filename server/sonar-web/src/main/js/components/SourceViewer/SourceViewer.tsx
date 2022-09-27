@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { intersection, uniqBy } from 'lodash';
+import { intersection } from 'lodash';
 import * as React from 'react';
 import {
   getComponentData,
@@ -56,7 +56,7 @@ import {
   symbolsByLine
 } from './helpers/indexing';
 import { LINES_TO_LOAD } from './helpers/lines';
-import defaultLoadIssues from './helpers/loadIssues';
+import loadIssues from './helpers/loadIssues';
 import SourceViewerCode from './SourceViewerCode';
 import { SourceViewerContext } from './SourceViewerContext';
 import SourceViewerHeader from './SourceViewerHeader';
@@ -76,12 +76,6 @@ export interface Props {
   // but kept to maintaint the location indexes
   highlightedLocations?: (FlowLocation | undefined)[];
   highlightedLocationMessage?: { index: number; text: string | undefined };
-  loadIssues?: (
-    component: string,
-    from: number,
-    to: number,
-    branchLike: BranchLike | undefined
-  ) => Promise<Issue[]>;
   onLoaded?: (component: SourceViewerFile, sources: SourceLine[], issues: Issue[]) => void;
   onLocationSelect?: (index: number) => void;
   onIssueChange?: (issue: Issue) => void;
@@ -116,7 +110,6 @@ interface State {
 }
 
 export default class SourceViewer extends React.PureComponent<Props, State> {
-  node?: HTMLElement | null;
   mounted = false;
 
   static defaultProps = {
@@ -184,8 +177,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
           }
         );
       }
-    } else {
-      this.checkSelectedIssueChange();
     }
   }
 
@@ -203,18 +194,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     }));
   }
 
-  checkSelectedIssueChange() {
-    const { selectedIssue } = this.props;
-    const { issues } = this.state;
-    if (
-      selectedIssue !== undefined &&
-      issues !== undefined &&
-      issues.find(issue => issue.key === selectedIssue) === undefined
-    ) {
-      this.reloadIssues();
-    }
-  }
-
   loadSources(
     key: string,
     from: number | undefined,
@@ -222,10 +201,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     branchLike: BranchLike | undefined
   ) {
     return getSources({ key, from, to, ...getBranchLikeQuery(branchLike) });
-  }
-
-  get loadIssues() {
-    return this.props.loadIssues || defaultLoadIssues;
   }
 
   computeCoverageStatus(lines: SourceLine[]) {
@@ -246,9 +221,8 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   fetchComponent() {
     this.setState({ loading: true });
 
-    const to = (this.props.aroundLine || 0) + LINES_TO_LOAD;
-    const loadIssues = (component: SourceViewerFile, sources: SourceLine[]) => {
-      this.loadIssues(this.props.component, 1, to, this.props.branchLike).then(
+    const loadIssuesCallback = (component: SourceViewerFile, sources: SourceLine[]) => {
+      loadIssues(this.props.component, this.props.branchLike).then(
         issues => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES_TO_LOAD);
@@ -310,7 +284,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       const sourcesRequest =
         component.q === 'FIL' || component.q === 'UTS' ? this.fetchSources() : Promise.resolve([]);
       sourcesRequest.then(
-        sources => loadIssues(component, sources),
+        sources => loadIssuesCallback(component, sources),
         response => onFailLoadSources(response, component)
       );
     };
@@ -318,33 +292,6 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     this.loadComponent(this.props.component, this.props.branchLike).then(
       onResolve,
       onFailLoadComponent
-    );
-  }
-
-  reloadIssues() {
-    if (!this.state.sources) {
-      return;
-    }
-    const firstSourceLine = this.state.sources[0];
-    const lastSourceLine = this.state.sources[this.state.sources.length - 1];
-    this.loadIssues(
-      this.props.component,
-      firstSourceLine && firstSourceLine.line,
-      lastSourceLine && lastSourceLine.line,
-      this.props.branchLike
-    ).then(
-      issues => {
-        if (this.mounted) {
-          this.setState({
-            issues,
-            issuesByLine: issuesByLine(issues),
-            issueLocationsByLine: locationsByLine(issues)
-          });
-        }
-      },
-      () => {
-        /* no op */
-      }
     );
   }
 
@@ -387,18 +334,16 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     const firstSourceLine = this.state.sources[0];
     this.setState({ loadingSourcesBefore: true });
     const from = Math.max(1, firstSourceLine.line - LINES_TO_LOAD);
-    Promise.all([
-      this.loadSources(this.props.component, from, firstSourceLine.line - 1, this.props.branchLike),
-      this.loadIssues(this.props.component, from, firstSourceLine.line - 1, this.props.branchLike)
-    ]).then(
-      ([sources, issues]) => {
+    this.loadSources(
+      this.props.component,
+      from,
+      firstSourceLine.line - 1,
+      this.props.branchLike
+    ).then(
+      sources => {
         if (this.mounted) {
           this.setState(prevState => {
-            const nextIssues = uniqBy([...issues, ...(prevState.issues || [])], issue => issue.key);
             return {
-              issues: nextIssues,
-              issuesByLine: issuesByLine(nextIssues),
-              issueLocationsByLine: locationsByLine(nextIssues),
               loadingSourcesBefore: false,
               sources: [...this.computeCoverageStatus(sources), ...(prevState.sources || [])],
               symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
@@ -419,29 +364,22 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     const lastSourceLine = this.state.sources[this.state.sources.length - 1];
     this.setState({ loadingSourcesAfter: true });
     const fromLine = lastSourceLine.line + 1;
-    // request one additional line to define `hasSourcesAfter`
     const toLine = lastSourceLine.line + LINES_TO_LOAD + 1;
-    Promise.all([
-      this.loadSources(this.props.component, fromLine, toLine, this.props.branchLike),
-      this.loadIssues(this.props.component, fromLine, toLine, this.props.branchLike)
-    ]).then(
-      ([sources, issues]) => {
+    this.loadSources(this.props.component, fromLine, toLine, this.props.branchLike).then(
+      sources => {
         if (this.mounted) {
+          const hasSourcesAfter = LINES_TO_LOAD < sources.length;
+          if (hasSourcesAfter) {
+            sources.pop();
+          }
           this.setState(prevState => {
-            const nextIssues = uniqBy([...(prevState.issues || []), ...issues], issue => issue.key);
             return {
-              issues: nextIssues,
-              issuesByLine: issuesByLine(nextIssues),
-              issueLocationsByLine: locationsByLine(nextIssues),
-              hasSourcesAfter: sources.length > LINES_TO_LOAD,
+              hasSourcesAfter,
               loadingSourcesAfter: false,
-              sources: [
-                ...(prevState.sources || []),
-                ...this.computeCoverageStatus(sources.slice(0, LINES_TO_LOAD))
-              ],
+              sources: [...(prevState.sources || []), ...this.computeCoverageStatus(sources)],
               symbolsByLine: {
                 ...prevState.symbolsByLine,
-                ...symbolsByLine(sources.slice(0, LINES_TO_LOAD))
+                ...symbolsByLine(sources)
               }
             };
           });
@@ -646,7 +584,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
-        <div className="source-viewer" ref={node => (this.node = node)}>
+        <div className="source-viewer">
           {this.renderHeader(component)}
           {sourceRemoved && (
             <Alert className="spacer-top" variant="warning">

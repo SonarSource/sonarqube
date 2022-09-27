@@ -86,7 +86,9 @@ export function duplicationsByLine(duplications: Duplication[] | undefined) {
 export function symbolsByLine(sources: SourceLine[]) {
   const index: { [line: number]: string[] } = {};
   sources.forEach(line => {
-    const tokens = splitByTokens(line.code || '');
+    const container = document.createElement('div');
+    container.innerHTML = line.code || '';
+    const tokens = splitByTokens(container.childNodes);
     const symbols = flatten(
       tokens.map(token => {
         const keys = token.className.match(/sym-\d+/g);

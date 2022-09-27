@@ -24,10 +24,15 @@ import { SourceViewerServiceMock } from '../../../api/mocks/SourceViewerServiceM
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import loadIssues from '../helpers/loadIssues';
 import SourceViewer from '../SourceViewer';
 
 jest.mock('../../../api/components');
 jest.mock('../../../api/issues');
+jest.mock('../helpers/loadIssues', () => ({
+  __esModule: true,
+  default: jest.fn().mockResolvedValue([])
+}));
 jest.mock('../helpers/lines', () => {
   const lines = jest.requireActual('../helpers/lines');
   return {
@@ -98,34 +103,33 @@ it('should show a permalink on line number', async () => {
 });
 
 it('should show issue on empty file', async () => {
+  (loadIssues as jest.Mock).mockResolvedValueOnce([
+    mockIssue(false, {
+      key: 'first-issue',
+      message: 'First Issue',
+      line: undefined,
+      textRange: undefined
+    })
+  ]);
   renderSourceViewer({
-    component: handler.getEmptyFile(),
-    loadIssues: jest.fn().mockResolvedValue([
-      mockIssue(false, {
-        key: 'first-issue',
-        message: 'First Issue',
-        line: undefined,
-        textRange: undefined
-      })
-    ])
+    component: handler.getEmptyFile()
   });
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
 });
 
 it('should be able to interact with issue action', async () => {
+  (loadIssues as jest.Mock).mockResolvedValueOnce([
+    mockIssue(false, {
+      actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+      key: 'first-issue',
+      message: 'First Issue',
+      line: 1,
+      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
+    })
+  ]);
   const user = userEvent.setup();
-  renderSourceViewer({
-    loadIssues: jest.fn().mockResolvedValue([
-      mockIssue(false, {
-        actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
-        key: 'first-issue',
-        message: 'First Issue',
-        line: 1,
-        textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
-      })
-    ])
-  });
+  renderSourceViewer();
 
   //Open Issue type
   await user.click(
@@ -259,25 +263,25 @@ it('should show SCM information', async () => {
 });
 
 it('should show issue indicator', async () => {
+  (loadIssues as jest.Mock).mockResolvedValueOnce([
+    mockIssue(false, {
+      key: 'first-issue',
+      message: 'First Issue',
+      line: 1,
+      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
+    }),
+    mockIssue(false, {
+      key: 'second-issue',
+      message: 'Second Issue',
+      line: 1,
+      textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 }
+    })
+  ]);
   const user = userEvent.setup();
   const onIssueSelect = jest.fn();
   renderSourceViewer({
     onIssueSelect,
-    displayAllIssues: false,
-    loadIssues: jest.fn().mockResolvedValue([
-      mockIssue(false, {
-        key: 'first-issue',
-        message: 'First Issue',
-        line: 1,
-        textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
-      }),
-      mockIssue(false, {
-        key: 'second-issue',
-        message: 'Second Issue',
-        line: 1,
-        textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 }
-      })
-    ])
+    displayAllIssues: false
   });
   const row = await screen.findByRole('row', { name: /.*\/ \*$/ });
   const issueRow = within(row);
@@ -391,7 +395,6 @@ function getSourceViewerUi(override?: Partial<SourceViewer['props']>) {
       displayIssueLocationsCount={true}
       displayIssueLocationsLink={false}
       displayLocationMarkers={true}
-      loadIssues={jest.fn().mockResolvedValue([])}
       onIssueChange={jest.fn()}
       onIssueSelect={jest.fn()}
       onLoaded={jest.fn()}

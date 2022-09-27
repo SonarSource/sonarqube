@@ -23,7 +23,12 @@ import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/
 import { LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
-import { highlightIssueLocations, highlightSymbol, splitByTokens } from '../helpers/highlight';
+import {
+  highlightIssueLocations,
+  highlightSymbol,
+  splitByTokens,
+  Token
+} from '../helpers/highlight';
 
 interface Props {
   className?: string;
@@ -76,6 +81,37 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
     }
   };
 
+  renderToken(tokens: Token[]) {
+    const { highlightedLocationMessage, secondaryIssueLocations } = this.props;
+    const renderedTokens: React.ReactNode[] = [];
+
+    // track if the first marker is displayed before the source code
+    // set `false` for the first token in a row
+    let leadingMarker = false;
+
+    tokens.forEach((token, index) => {
+      if (this.props.displayLocationMarkers && token.markers.length > 0) {
+        token.markers.forEach(marker => {
+          const selected =
+            highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
+          const loc = secondaryIssueLocations.find(loc => loc.index === marker);
+          const message = loc && loc.text;
+          renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
+        });
+      }
+      renderedTokens.push(
+        // eslint-disable-next-line react/no-array-index-key
+        <span className={token.className} key={index}>
+          {token.text}
+        </span>
+      );
+
+      // keep leadingMarker truthy if previous token has only whitespaces
+      leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
+    });
+    return renderedTokens;
+  }
+
   renderMarker(index: number, message: string | undefined, selected: boolean, leading: boolean) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
@@ -112,7 +148,10 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
       secondaryIssueLocations
     } = this.props;
 
-    let tokens = splitByTokens(this.props.line.code || '');
+    const container = document.createElement('div');
+    container.innerHTML = this.props.line.code || '';
+
+    let tokens = splitByTokens(container.childNodes);
 
     if (highlightedSymbols) {
       highlightedSymbols.forEach(symbol => {
@@ -137,31 +176,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
       }
     }
 
-    const renderedTokens: React.ReactNode[] = [];
-
-    // track if the first marker is displayed before the source code
-    // set `false` for the first token in a row
-    let leadingMarker = false;
-
-    tokens.forEach((token, index) => {
-      if (this.props.displayLocationMarkers && token.markers.length > 0) {
-        token.markers.forEach(marker => {
-          const selected =
-            highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
-          const loc = secondaryIssueLocations.find(loc => loc.index === marker);
-          const message = loc && loc.text;
-          renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
-        });
-      }
-      renderedTokens.push(
-        <span className={token.className} key={index}>
-          {token.text}
-        </span>
-      );
-
-      // keep leadingMarker truthy if previous token has only whitespaces
-      leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
-    });
+    const renderedTokens = this.renderToken(tokens);
 
     const style = padding ? { paddingBottom: `${padding}px` } : undefined;
 

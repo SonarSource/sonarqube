@@ -82,7 +82,7 @@ jest.mock('../../../../api/issues', () => ({
 
 describe('loadIssues', () => {
   it('should load issues', async () => {
-    const result = await loadIssues('foo.java', 1, 500, mockMainBranch());
+    const result = await loadIssues('foo.java', mockMainBranch());
     expect(result).toMatchSnapshot();
   });
 });

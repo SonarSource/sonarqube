@@ -28,15 +28,13 @@ export interface Token {
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
 
-export function splitByTokens(code: string, rootClassName = ''): Token[] {
-  const container = document.createElement('div');
+export function splitByTokens(code: NodeListOf<ChildNode>, rootClassName = ''): Token[] {
   let tokens: Token[] = [];
-  container.innerHTML = code;
-  [].forEach.call(container.childNodes, (node: Element) => {
+  Array.prototype.forEach.call(code, (node: Element) => {
     if (node.nodeType === 1) {
       // ELEMENT NODE
       const fullClassName = rootClassName ? rootClassName + ' ' + node.className : node.className;
-      const innerTokens = splitByTokens(node.innerHTML, fullClassName);
+      const innerTokens = splitByTokens(node.childNodes, fullClassName);
       tokens = tokens.concat(innerTokens);
     }
     if (node.nodeType === 3 && node.nodeValue) {

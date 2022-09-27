@@ -20,7 +20,7 @@
 import { intersection } from 'lodash';
 import { LinearIssueLocation } from '../../../types/types';
 
-export const LINES_TO_LOAD = 500;
+export const LINES_TO_LOAD = 1000;
 
 export function optimizeHighlightedSymbols(
   symbolsForLine: string[] = [],
