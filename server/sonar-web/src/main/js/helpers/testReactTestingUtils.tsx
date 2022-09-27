@@ -21,7 +21,6 @@ import { render, RenderResult } from '@testing-library/react';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
-
 import { MemoryRouter, Outlet, parsePath, Route, Routes } from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
@@ -39,7 +38,7 @@ import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
 
-interface RenderContext {
+export interface RenderContext {
   metrics?: Dict<Metric>;
   appState?: AppState;
   languages?: Languages;

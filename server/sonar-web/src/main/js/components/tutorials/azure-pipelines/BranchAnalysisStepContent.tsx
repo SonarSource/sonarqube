@@ -58,11 +58,13 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
         optionLabelKey="onboarding.build"
         options={buildToolsList}
       />
-      <AnalysisCommand
-        onStepValidationChange={onStepValidationChange}
-        buildTool={buildTechnology}
-        projectKey={component.key}
-      />
+      <div data-testid="azure-tutorial__analysis-command">
+        <AnalysisCommand
+          onStepValidationChange={onStepValidationChange}
+          buildTool={buildTechnology}
+          projectKey={component.key}
+        />
+      </div>
     </>
   );
 }

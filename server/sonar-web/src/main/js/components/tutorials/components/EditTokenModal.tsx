@@ -31,12 +31,15 @@ import {
   EXPIRATION_OPTIONS,
   getAvailableExpirationOptions
 } from '../../../helpers/tokens';
+import { hasGlobalPermission } from '../../../helpers/users';
+import { Permissions } from '../../../types/permissions';
 import { TokenExpiration, TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import Link from '../../common/Link';
 import Select from '../../controls/Select';
 import { getUniqueTokenName } from '../utils';
+import ProjectTokenScopeInfo from './ProjectTokenScopeInfo';
 
 interface State {
   loading: boolean;
@@ -50,6 +53,7 @@ interface Props {
   component: Component;
   currentUser: LoggedInUser;
   onClose: (token?: string) => void;
+  preferredTokenType?: TokenType.Global | TokenType.Project;
 }
 
 export default class EditTokenModal extends React.PureComponent<Props, State> {
@@ -97,9 +101,11 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     } = this.props;
     const { tokenName, tokenExpiration } = this.state;
 
+    const type = this.getTokenType();
+
     const { token } = await generateToken({
       name: tokenName,
-      type: TokenType.Project,
+      type,
       projectKey: key,
       ...(tokenExpiration !== TokenExpiration.NoExpiration && {
         expirationDate: computeTokenExpirationDate(tokenExpiration)
@@ -112,6 +118,15 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
         tokenName
       });
     }
+  };
+
+  getTokenType = () => {
+    const { currentUser, preferredTokenType } = this.props;
+
+    return preferredTokenType === TokenType.Global &&
+      hasGlobalPermission(currentUser, Permissions.Scan)
+      ? TokenType.Global
+      : TokenType.Project;
   };
 
   handleTokenNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +157,9 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
   render() {
     const { loading, token, tokenName, tokenExpiration, tokenExpirationOptions } = this.state;
 
-    const header = translate('onboarding.token.generate_project_token');
+    const type = this.getTokenType();
+    const header = translate('onboarding.token.generate', type);
+    const intro = translate('onboarding.token.text', type);
 
     return (
       <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.props.onClose}>
@@ -155,8 +172,8 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
             <div className="modal-body">
               <p className="spacer-bottom">
                 <FormattedMessage
-                  defaultMessage={translate('onboarding.project_token.text')}
-                  id="onboarding.project_token.text"
+                  defaultMessage={intro}
+                  id={intro}
                   values={{
                     link: (
                       <Link target="_blank" to="/account/security">
@@ -178,7 +195,10 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
 
                     <ClipboardIconButton copyValue={token} />
 
-                    <DeleteButton onClick={this.handleTokenRevoke} />
+                    <DeleteButton
+                      aria-label={translate('users.tokens.revoke_token')}
+                      onClick={this.handleTokenRevoke}
+                    />
                   </div>
 
                   <Alert className="big-spacer-top" variant="warning">
@@ -186,52 +206,56 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                   </Alert>
                 </>
               ) : (
-                <div className="big-spacer-top display-flex-center">
-                  {loading ? (
-                    <DeferredSpinner />
-                  ) : (
-                    <>
-                      <div className="display-flex-column">
-                        <label className="text-bold little-spacer-bottom" htmlFor="token-name">
-                          {translate('onboarding.token.generate_token.placeholder')}
-                        </label>
-                        <input
-                          className="input-large spacer-right text-middle"
-                          onChange={this.handleTokenNameChange}
-                          required={true}
-                          id="token-name"
-                          type="text"
-                          value={tokenName}
-                        />
-                      </div>
-                      <div className="display-flex-column">
-                        <label
-                          className="text-bold little-spacer-bottom"
-                          htmlFor="token-expiration">
-                          {translate('users.tokens.expires_in')}
-                        </label>
-                        <div className="display-flex-center">
-                          <Select
-                            id="token-expiration"
-                            className="abs-width-100 spacer-right"
-                            isSearchable={false}
-                            onChange={this.handleTokenExpirationChange}
-                            options={tokenExpirationOptions}
-                            value={tokenExpirationOptions.find(
-                              option => option.value === tokenExpiration
-                            )}
+                <>
+                  <div className="big-spacer-top display-flex-center">
+                    {loading ? (
+                      <DeferredSpinner />
+                    ) : (
+                      <>
+                        <div className="display-flex-column">
+                          <label className="text-bold little-spacer-bottom" htmlFor="token-name">
+                            {translate('onboarding.token.name.label')}
+                          </label>
+                          <input
+                            className="input-large spacer-right text-middle"
+                            onChange={this.handleTokenNameChange}
+                            required={true}
+                            id="token-name"
+                            type="text"
+                            placeholder={translate('onboarding.token.name.placeholder')}
+                            value={tokenName}
                           />
-                          <Button
-                            className="text-middle"
-                            disabled={!tokenName}
-                            onClick={this.getNewToken}>
-                            {translate('onboarding.token.generate')}
-                          </Button>
                         </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                        <div className="display-flex-column">
+                          <label
+                            className="text-bold little-spacer-bottom"
+                            htmlFor="token-expiration">
+                            {translate('users.tokens.expires_in')}
+                          </label>
+                          <div className="display-flex-center">
+                            <Select
+                              id="token-expiration"
+                              className="abs-width-100 spacer-right"
+                              isSearchable={false}
+                              onChange={this.handleTokenExpirationChange}
+                              options={tokenExpirationOptions}
+                              value={tokenExpirationOptions.find(
+                                option => option.value === tokenExpiration
+                              )}
+                            />
+                            <Button
+                              className="text-middle"
+                              disabled={!tokenName}
+                              onClick={this.getNewToken}>
+                              {translate('onboarding.token.generate')}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {type === TokenType.Project && <ProjectTokenScopeInfo />}
+                </>
               )}
             </div>
             <div className="modal-foot">

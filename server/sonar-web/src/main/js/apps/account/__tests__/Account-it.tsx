@@ -306,9 +306,11 @@ describe('security page', () => {
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
-      const lastTokenCreated = tokenMock.getTokens().pop();
-      expect(lastTokenCreated).toBeDefined();
-      expect(screen.getByLabelText('users.new_token').textContent).toBe(lastTokenCreated!.token);
+      const lastTokenCreated = tokenMock.getLastToken();
+      if (lastTokenCreated === undefined) {
+        throw new Error("Couldn't find the latest generated token.");
+      }
+      expect(screen.getByLabelText('users.new_token').textContent).toBe(lastTokenCreated.token);
 
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
 

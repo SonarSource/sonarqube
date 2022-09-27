@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import ExtensionInstallationStepContent from '../ExtensionInstallationStepContent';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-
-function shallowRender() {
-  return shallow(<ExtensionInstallationStepContent />);
-}
+module.exports = {
+  ...jest.requireActual('react-intl'),
+  FormattedMessage: ({ id, values }: { id: string; values: { [x: string]: React.ReactNode } }) => {
+    return (
+      <>
+        {id}
+        {Object.entries(values).map(([key, value]) => (
+          <React.Fragment key={key}>{value}</React.Fragment>
+        ))}
+      </>
+    );
+  }
+};

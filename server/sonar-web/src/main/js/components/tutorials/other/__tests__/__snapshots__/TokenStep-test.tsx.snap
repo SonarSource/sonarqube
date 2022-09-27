@@ -16,9 +16,7 @@ exports[`generates token 1`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -29,7 +27,7 @@ exports[`generates token 1`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_project_token
+            onboarding.token.generate.PROJECT_ANALYSIS_TOKEN
           </Radio>
           <div
             className="big-spacer-top"
@@ -45,10 +43,10 @@ exports[`generates token 1`] = `
                   className="h3"
                   htmlFor="generate-token-input"
                 >
-                  onboarding.token.generate_project_token.label
+                  onboarding.token.name.label
                   <DocumentationTooltip
                     className="spacer-left"
-                    content="onboarding.token.generate_project_token.help"
+                    content="onboarding.token.name.help"
                     links={
                       Array [
                         Object {
@@ -122,6 +120,9 @@ exports[`generates token 1`] = `
                 </div>
               </div>
             </form>
+            <ProjectTokenScopeInfo
+              className="width-50"
+            />
           </div>
         </div>
         <div
@@ -175,9 +176,7 @@ exports[`generates token 2`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -188,7 +187,7 @@ exports[`generates token 2`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_project_token
+            onboarding.token.generate.PROJECT_ANALYSIS_TOKEN
           </Radio>
           <div
             className="big-spacer-top"
@@ -204,10 +203,10 @@ exports[`generates token 2`] = `
                   className="h3"
                   htmlFor="generate-token-input"
                 >
-                  onboarding.token.generate_project_token.label
+                  onboarding.token.name.label
                   <DocumentationTooltip
                     className="spacer-left"
-                    content="onboarding.token.generate_project_token.help"
+                    content="onboarding.token.name.help"
                     links={
                       Array [
                         Object {
@@ -278,6 +277,9 @@ exports[`generates token 2`] = `
                 </div>
               </div>
             </form>
+            <ProjectTokenScopeInfo
+              className="width-50"
+            />
           </div>
         </div>
         <div
@@ -331,9 +333,7 @@ exports[`generates token 3`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -405,9 +405,7 @@ exports[`revokes token 1`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -479,9 +477,7 @@ exports[`revokes token 2`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -552,9 +548,7 @@ exports[`revokes token 3`] = `
       onboarding.token.header
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div
       className="boxed-group-inner"
     >
@@ -565,7 +559,7 @@ exports[`revokes token 3`] = `
             onCheck={[Function]}
             value="generate"
           >
-            onboarding.token.generate_project_token
+            onboarding.token.generate.PROJECT_ANALYSIS_TOKEN
           </Radio>
           <div
             className="big-spacer-top"
@@ -581,10 +575,10 @@ exports[`revokes token 3`] = `
                   className="h3"
                   htmlFor="generate-token-input"
                 >
-                  onboarding.token.generate_project_token.label
+                  onboarding.token.name.label
                   <DocumentationTooltip
                     className="spacer-left"
-                    content="onboarding.token.generate_project_token.help"
+                    content="onboarding.token.name.help"
                     links={
                       Array [
                         Object {
@@ -658,6 +652,9 @@ exports[`revokes token 3`] = `
                 </div>
               </div>
             </form>
+            <ProjectTokenScopeInfo
+              className="width-50"
+            />
           </div>
         </div>
         <div

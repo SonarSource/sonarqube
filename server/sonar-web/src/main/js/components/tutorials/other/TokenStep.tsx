@@ -35,6 +35,7 @@ import Radio from '../../controls/Radio';
 import Select from '../../controls/Select';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../icons/AlertSuccessIcon';
+import ProjectTokenScopeInfo from '../components/ProjectTokenScopeInfo';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
 
@@ -197,20 +198,20 @@ export default class TokenStep extends React.PureComponent<Props, State> {
             checked={selection === 'generate'}
             onCheck={this.handleModeChange}
             value="generate">
-            {translate('onboarding.token.generate_project_token')}
+            {translate('onboarding.token.generate', TokenType.Project)}
           </Radio>
         ) : (
-          translate('onboarding.token.generate_project_token')
+          translate('onboarding.token.generate', TokenType.Project)
         )}
         {selection === 'generate' && (
           <div className="big-spacer-top">
             <form className="display-flex-center" onSubmit={this.handleTokenGenerate}>
               <div className="display-flex-column">
                 <label className="h3" htmlFor="generate-token-input">
-                  {translate('onboarding.token.generate_project_token.label')}
+                  {translate('onboarding.token.name.label')}
                   <DocumentationTooltip
                     className="spacer-left"
-                    content={translate('onboarding.token.generate_project_token.help')}
+                    content={translate('onboarding.token.name.help')}
                     links={[
                       {
                         href: '/documentation/user-guide/user-token/',
@@ -253,6 +254,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 </div>
               </div>
             </form>
+            <ProjectTokenScopeInfo className="width-50" />
           </div>
         )}
       </div>

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { cloneDeep } from 'lodash';
+import { cloneDeep, last } from 'lodash';
 import { mockUserToken } from '../../helpers/mocks/token';
 import { NewUserToken, TokenType, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
@@ -98,6 +98,10 @@ export default class UserTokensMock {
 
   getTokens = () => {
     return cloneDeep(this.tokens);
+  };
+
+  getLastToken = () => {
+    return last(this.getTokens());
   };
 
   reset = () => {

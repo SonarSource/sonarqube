@@ -17,38 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import Link from '../../common/Link';
+import { Alert } from '../../ui/Alert';
 
-export default function ExtensionInstallationStepContent() {
+export interface ProjectTokenScopeInfoProps {
+  className?: string;
+}
+
+export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeInfoProps) {
   return (
-    <span data-testid="azure-tutorial__extension">
+    <Alert variant="info" className={classNames('spacer-top', className)}>
       <FormattedMessage
-        defaultMessage={translate(
-          'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence'
-        )}
-        id="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence"
+        defaultMessage={translate('onboarding.token.warning_project_token_scope')}
+        id="onboarding.token.warning_project_token_scope"
         values={{
           link: (
-            <Link
-              to="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
-              target="_blank">
-              {translate(
-                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link'
-              )}
+            <Link target="_blank" to="/account/security">
+              {translate('onboarding.token.text.user_account')}
             </Link>
           ),
-          button: (
-            <strong>
-              {translate(
-                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button'
-              )}
-            </strong>
+          doc_link: (
+            <Link target="_blank" to="/documentation/user-guide/user-token/">
+              {translate('documentation')}
+            </Link>
           )
         }}
       />
-    </span>
+    </Alert>
   );
 }

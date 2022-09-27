@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
             className="spacer-left"
             onClick={[Function]}
           >
-            onboarding.token.generate_token
+            onboarding.token.generate.long
           </Button>,
           "field": <strong>
             onboarding.tutorial.env_variables.field

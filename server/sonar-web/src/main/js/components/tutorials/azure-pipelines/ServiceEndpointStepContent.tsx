@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
+import { TokenType } from '../../../types/token';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import EditTokenModal from '../components/EditTokenModal';
@@ -40,7 +41,7 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
 
   return (
     <>
-      <ol className="list-styled">
+      <ol className="list-styled" data-testid="azure-tutorial__service-endpoint">
         <li>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step1"
@@ -70,7 +71,7 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
             {translate('onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence')}:
           </span>
           <Button className="spacer-left" onClick={() => toggleModal(true)}>
-            {translate('onboarding.token.generate_token')}
+            {translate('onboarding.token.generate.long')}
           </Button>
         </li>
         <li>
@@ -86,6 +87,7 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
           component={component}
           currentUser={currentUser}
           onClose={() => toggleModal(false)}
+          preferredTokenType={TokenType.Global}
         />
       )}
     </>

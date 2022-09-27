@@ -46,7 +46,7 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
           values={{
             extra: (
               <Button className="spacer-left" onClick={toggleTokenModal}>
-                {translate('onboarding.token.generate_token')}
+                {translate('onboarding.token.generate.long')}
               </Button>
             ),
             field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,

@@ -16,9 +16,7 @@ exports[`renders 1`] = `
       First Step
     </h2>
   </div>
-  <div
-    className=""
-  >
+  <div>
     <div>
       form
     </div>
@@ -51,12 +49,5 @@ exports[`renders 2`] = `
   <div
     className="boxed-group-inner"
   />
-  <div
-    className="hidden"
-  >
-    <div>
-      form
-    </div>
-  </div>
 </div>
 `;

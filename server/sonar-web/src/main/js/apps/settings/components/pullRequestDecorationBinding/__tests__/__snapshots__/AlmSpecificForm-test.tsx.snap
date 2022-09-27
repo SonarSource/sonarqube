@@ -21,7 +21,6 @@ exports[`it should render correctly for azure 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
           id="settings.pr_decoration.binding.form.azure.project.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -69,7 +68,6 @@ exports[`it should render correctly for azure 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
           id="settings.pr_decoration.binding.form.azure.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -122,7 +120,6 @@ exports[`it should render correctly for bitbucket 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
           id="settings.pr_decoration.binding.form.bitbucket.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -172,7 +169,6 @@ exports[`it should render correctly for bitbucket 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
           id="settings.pr_decoration.binding.form.bitbucket.slug.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -227,7 +223,6 @@ exports[`it should render correctly for bitbucket if an instance URL is provided
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
           id="settings.pr_decoration.binding.form.bitbucket.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -277,7 +272,6 @@ exports[`it should render correctly for bitbucket if an instance URL is provided
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
           id="settings.pr_decoration.binding.form.bitbucket.slug.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -332,7 +326,6 @@ exports[`it should render correctly for bitbucketcloud 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
           id="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -386,7 +379,6 @@ exports[`it should render correctly for github 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
           id="settings.pr_decoration.binding.form.github.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -434,7 +426,6 @@ exports[`it should render correctly for github 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
           id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-          values={Object {}}
         />
       </div>
     </div>
@@ -480,7 +471,6 @@ exports[`it should render correctly for github if an instance URL is provided 1`
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
           id="settings.pr_decoration.binding.form.github.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -528,7 +518,6 @@ exports[`it should render correctly for github if an instance URL is provided 1`
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
           id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-          values={Object {}}
         />
       </div>
     </div>
@@ -574,7 +563,6 @@ exports[`it should render correctly for github if an instance URL is provided 2`
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
           id="settings.pr_decoration.binding.form.github.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -622,7 +610,6 @@ exports[`it should render correctly for github if an instance URL is provided 2`
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
           id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-          values={Object {}}
         />
       </div>
     </div>
@@ -668,7 +655,6 @@ exports[`it should render correctly for gitlab 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.gitlab.repository.help"
           id="settings.pr_decoration.binding.form.gitlab.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -721,7 +707,6 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
           id="settings.pr_decoration.binding.form.azure.project.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
@@ -769,7 +754,6 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
         <FormattedMessage
           defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
           id="settings.pr_decoration.binding.form.azure.repository.help"
-          values={Object {}}
         />
         <div
           className="spacer-top nowrap"
