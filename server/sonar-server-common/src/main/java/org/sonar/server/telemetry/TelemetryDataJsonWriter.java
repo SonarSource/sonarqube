@@ -70,7 +70,7 @@ public class TelemetryDataJsonWriter {
     json.endArray();
 
     if (statistics.getInstallationDate() != null) {
-      json.prop("installationDate", statistics.getInstallationDate());
+      json.prop("installationDate", toUtc(statistics.getInstallationDate()));
     }
     if (statistics.getInstallationVersion() != null) {
       json.prop("installationVersion", statistics.getInstallationVersion());

@@ -189,16 +189,15 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void write_installation_date() {
-    long installationDate = random.nextInt(590);
+  public void write_installation_date_in_utc_format() {
     TelemetryData data = SOME_TELEMETRY_DATA
-      .setInstallationDate(installationDate)
+      .setInstallationDate(1_000L)
       .build();
 
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("{" +
-      "  \"installationDate\": " + installationDate +
+      "  \"installationDate\":\"1970-01-01T00:00:01+0000\"," +
       "}");
   }
 
