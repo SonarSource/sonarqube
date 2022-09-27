@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -269,7 +270,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_users() {
+  public void writes_all_users_with_anonymous_md5_uuids() {
     TelemetryData data = SOME_TELEMETRY_DATA
       .setUsers(getUsers())
       .build();
@@ -279,20 +280,20 @@ public class TelemetryDataJsonWriterTest {
     assertJson(json).isSimilarTo("{" +
       "  \"users\": [" +
       "    {" +
-      "      \"userUuid\":\"uuid-0\"," +
+      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-0") + "\"," +
       "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"active\"" +
       "    }," +
       "    {" +
-      "      \"userUuid\":\"uuid-1\"," +
+      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-1") + "\"," +
       "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"inactive\"" +
       "    }," +
       "    {" +
-      "      \"userUuid\":\"uuid-2\"," +
-      "      \"lastActivity\":\"1970-01-01T01:00:00+0100\"," +
+      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-2") + "\"," +
+      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"active\"" +
       "    }" +

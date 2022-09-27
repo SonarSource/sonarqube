@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.text.JsonWriter;
 
@@ -89,7 +90,7 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       statistics.getUserTelemetries().forEach(user -> {
         json.beginObject();
-        json.prop("userUuid", user.getUuid());
+        json.prop("userUuid", DigestUtils.sha3_224Hex(user.getUuid()));
         json.prop("status", user.isActive() ? "active" : "inactive");
 
         if (user.getLastConnectionDate() != null) {
