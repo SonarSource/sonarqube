@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InfoActionTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone()
+  public final UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn("login")
     .setName("name");
 
-  private SystemInfoWriter jsonWriter = json -> json.prop("key", "value");
-  private InfoAction underTest = new InfoAction(userSessionRule, jsonWriter);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final SystemInfoWriter jsonWriter = json -> json.prop("key", "value");
+  private final InfoAction underTest = new InfoAction(userSessionRule, jsonWriter);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
