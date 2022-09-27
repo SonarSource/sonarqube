@@ -348,7 +348,7 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 2," +
       "      \"scm\": \"scm-0\"," +
       "      \"ci\": \"ci-0\"," +
-      "      \"alm\": \"alm-0\"" +
+      "      \"devopsPlatform\": \"devops-0\"" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-1\"," +
@@ -356,7 +356,7 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 4," +
       "      \"scm\": \"scm-1\"," +
       "      \"ci\": \"ci-1\"," +
-      "      \"alm\": \"alm-1\"" +
+      "      \"devopsPlatform\": \"devops-1\"" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-2\"," +
@@ -364,7 +364,7 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 6," +
       "      \"scm\": \"scm-2\"," +
       "      \"ci\": \"ci-2\"," +
-      "      \"alm\": \"alm-2\"" +
+      "      \"devopsPlatform\": \"devops-2\"" +
       "    }" +
       "  ]" +
       "}");
@@ -381,7 +381,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private List<TelemetryData.ProjectStatistics> getProjectStats() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "alm-" + i))
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "devops-" + i))
       .collect(Collectors.toList());
   }
 

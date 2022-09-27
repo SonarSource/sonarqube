@@ -41,9 +41,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
@@ -176,7 +173,7 @@ public class TelemetryDataLoaderImplTest {
         tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
       .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
-        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getAlm)
+        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getDevopsPlatform)
       .containsExactlyInAnyOrder(
         tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
         tuple(1L, 0L, "scm-2", "ci-2", "github_cloud"));
@@ -386,7 +383,7 @@ public class TelemetryDataLoaderImplTest {
     db.components().insertPublicProject();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getAlm, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .extracting(TelemetryData.ProjectStatistics::getDevopsPlatform, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
   }
 

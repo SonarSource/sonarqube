@@ -303,15 +303,15 @@ public class TelemetryData {
     private final Long pullRequestCount;
     private final String scm;
     private final String ci;
-    private final String alm;
+    private final String devopsPlatform;
 
-    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable String scm, @Nullable String ci, @Nullable String alm) {
+    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
       this.projectUuid = projectUuid;
       this.branchCount = branchCount;
       this.pullRequestCount = pullRequestCount;
       this.scm = scm;
       this.ci = ci;
-      this.alm = alm;
+      this.devopsPlatform = devopsPlatform;
     }
 
     public String getProjectUuid() {
@@ -337,8 +337,8 @@ public class TelemetryData {
     }
 
     @CheckForNull
-    public String getAlm() {
-      return alm;
+    public String getDevopsPlatform() {
+      return devopsPlatform;
     }
   }
 }

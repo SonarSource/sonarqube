@@ -45,7 +45,6 @@ import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.PrAndBranchCountByProjectDto;
 import org.sonar.db.measure.ProjectMeasureDto;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.telemetry.TelemetryData.Database;
@@ -138,14 +137,14 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         Long pullRequestCount = Optional.ofNullable(prAndBranchCountByProjects.get(projectUuid)).map(PrAndBranchCountByProjectDto::getPullRequest).orElse(0L);
         String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
         String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
-        String alm = null;
+        String devopsPlatform = null;
         if (almAndUrlByProject.containsKey(projectUuid)) {
           ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
-          alm = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
+          devopsPlatform = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
         }
-        alm = Optional.ofNullable(alm).orElse(UNDETECTED);
+        devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
 
-        projectStatistics.add(new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, scm, ci, alm));
+        projectStatistics.add(new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, scm, ci, devopsPlatform));
       }
       data.setProjectStatistics(projectStatistics);
 

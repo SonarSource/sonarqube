@@ -135,7 +135,7 @@ public class TelemetryDataJsonWriter {
         json.prop("pullRequestCount", project.getPullRequestCount());
         json.prop("scm", project.getScm());
         json.prop("ci", project.getCi());
-        json.prop("alm", project.getAlm());
+        json.prop("devopsPlatform", project.getDevopsPlatform());
         json.endObject();
       });
       json.endArray();
