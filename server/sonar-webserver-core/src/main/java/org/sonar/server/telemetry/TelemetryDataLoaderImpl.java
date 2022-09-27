@@ -121,8 +121,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
           data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
         });
 
-      data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
-
       Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
       Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
       Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);

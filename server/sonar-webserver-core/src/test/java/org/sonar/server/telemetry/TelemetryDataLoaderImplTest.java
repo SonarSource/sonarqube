@@ -154,7 +154,6 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getPlugins()).containsOnly(
       entry("java", "4.12.0.11033"), entry("scmgit", "1.2"), entry("other", "undefined"));
     assertThat(data.isInDocker()).isFalse();
-    assertThat(data.getExternalAuthenticationProviders()).containsExactlyInAnyOrder("provider0", "provider1", "provider2");
 
     assertThat(data.getUserTelemetries())
       .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate, UserTelemetryDto::isActive)

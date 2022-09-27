@@ -36,7 +36,6 @@ public class TelemetryData {
   private final String version;
   private final Map<String, String> plugins;
   private final Database database;
-  private final List<String> externalAuthenticationProviders;
   private final EditionProvider.Edition edition;
   private final String licenseType;
   private final Long installationDate;
@@ -62,7 +61,6 @@ public class TelemetryData {
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
-    externalAuthenticationProviders = builder.externalAuthenticationProviders;
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
@@ -116,10 +114,6 @@ public class TelemetryData {
     return customSecurityConfigs;
   }
 
-  public List<String> getExternalAuthenticationProviders() {
-    return externalAuthenticationProviders;
-  }
-
   public List<UserTelemetryDto> getUserTelemetries() {
     return users;
   }
@@ -149,18 +143,12 @@ public class TelemetryData {
     private Boolean hasUnanalyzedC;
     private Boolean hasUnanalyzedCpp;
     private List<String> customSecurityConfigs;
-    private List<String> externalAuthenticationProviders;
     private List<UserTelemetryDto> users;
     private List<Project> projects;
     private List<ProjectStatistics> projectStatistics;
 
     private Builder() {
       // enforce static factory method
-    }
-
-    Builder setExternalAuthenticationProviders(List<String> providers) {
-      this.externalAuthenticationProviders = providers;
-      return this;
     }
 
     Builder setServerId(String serverId) {
@@ -238,7 +226,6 @@ public class TelemetryData {
       requireNonNull(version);
       requireNonNull(plugins);
       requireNonNull(database);
-      requireNonNull(externalAuthenticationProviders);
 
       return new TelemetryData(this);
     }

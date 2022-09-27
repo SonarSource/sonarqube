@@ -34,7 +34,6 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.util.GlobalLockManager;
 import org.sonar.server.util.GlobalLockManagerImpl;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -64,8 +63,6 @@ public class TelemetryDaemonTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
-    .setExternalAuthenticationProviders(singletonList("github"))
-    .setExternalAuthenticationProviders(Collections.emptyList())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .build();
 

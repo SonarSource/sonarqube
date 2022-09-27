@@ -40,7 +40,6 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +52,6 @@ public class TelemetryDataJsonWriterTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
-    .setExternalAuthenticationProviders(asList("github", "gitlab"))
     .setDatabase(new TelemetryData.Database("H2", "11"));
 
   private final Random random = new Random();
@@ -79,15 +77,6 @@ public class TelemetryDataJsonWriterTest {
     String json = writeTelemetryData(data);
 
     assertThat(json).doesNotContain("edition");
-  }
-
-  @Test
-  public void write_external_auth_providers() {
-    TelemetryData data = SOME_TELEMETRY_DATA.build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{ \"externalAuthProviders\": [ \"github\", \"gitlab\" ] }");
   }
 
   @Test
@@ -281,18 +270,21 @@ public class TelemetryDataJsonWriterTest {
       "    {" +
       "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-0") + "\"," +
       "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"identityProvider\":\"gitlab\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"active\"" +
       "    }," +
       "    {" +
       "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-1") + "\"," +
       "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"identityProvider\":\"gitlab\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"inactive\"" +
       "    }," +
       "    {" +
       "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-2") + "\"," +
       "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"identityProvider\":\"gitlab\"," +
       "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
       "      \"status\":\"active\"" +
       "    }" +
@@ -372,7 +364,9 @@ public class TelemetryDataJsonWriterTest {
 
   @NotNull
   private static List<UserTelemetryDto> getUsers() {
-    return IntStream.range(0, 3).mapToObj(i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L))
+    return IntStream.range(0, 3)
+      .mapToObj(
+        i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L).setExternalIdentityProvider("gitlab"))
       .collect(Collectors.toList());
   }
 

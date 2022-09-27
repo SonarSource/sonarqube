@@ -64,11 +64,6 @@ public class TelemetryDataJsonWriter {
     statistics.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
     statistics.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
 
-    json.name("externalAuthProviders");
-    json.beginArray();
-    statistics.getExternalAuthenticationProviders().forEach(json::value);
-    json.endArray();
-
     if (statistics.getInstallationDate() != null) {
       json.prop("installationDate", toUtc(statistics.getInstallationDate()));
     }
@@ -92,6 +87,7 @@ public class TelemetryDataJsonWriter {
         json.beginObject();
         json.prop("userUuid", DigestUtils.sha3_224Hex(user.getUuid()));
         json.prop("status", user.isActive() ? "active" : "inactive");
+        json.prop("identityProvider", user.getExternalIdentityProvider());
 
         if (user.getLastConnectionDate() != null) {
           json.prop("lastActivity", toUtc(user.getLastConnectionDate()));

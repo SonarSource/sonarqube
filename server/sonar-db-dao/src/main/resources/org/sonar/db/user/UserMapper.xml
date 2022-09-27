@@ -108,6 +108,7 @@
         SELECT
             u.uuid as uuid,
             u.active as "active",
+            u.external_identity_provider as "externalIdentityProvider",
             u.last_connection_date as "lastConnectionDate",
             u.last_sonarlint_connection as "lastSonarlintConnectionDate"
         FROM users u

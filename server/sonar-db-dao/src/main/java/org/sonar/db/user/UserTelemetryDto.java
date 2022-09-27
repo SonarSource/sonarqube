@@ -23,12 +23,13 @@ import javax.annotation.Nullable;
 
 public class UserTelemetryDto {
 
-  private String uuid;
+  private String uuid = null;
   private boolean active = true;
+  private String externalIdentityProvider = null;
   @Nullable
-  private Long lastConnectionDate;
+  private Long lastConnectionDate = null;
   @Nullable
-  private Long lastSonarlintConnectionDate;
+  private Long lastSonarlintConnectionDate = null;
 
   public String getUuid() {
     return uuid;
@@ -45,6 +46,15 @@ public class UserTelemetryDto {
 
   public UserTelemetryDto setActive(boolean active) {
     this.active = active;
+    return this;
+  }
+
+  public String getExternalIdentityProvider() {
+    return externalIdentityProvider;
+  }
+
+  public UserTelemetryDto setExternalIdentityProvider(String externalIdentityProvider) {
+    this.externalIdentityProvider = externalIdentityProvider;
     return this;
   }
 
