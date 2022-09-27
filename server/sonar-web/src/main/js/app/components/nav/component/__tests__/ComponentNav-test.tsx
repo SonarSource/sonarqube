@@ -29,29 +29,39 @@ import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 
 it('renders correctly when there are warnings', () => {
   renderComponentNav({ warnings: [mockTaskWarning()] });
-  expect(screen.getByText('component_navigation.last_analysis_had_warnings')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_navigation.last_analysis_had_warnings', { exact: false })
+  ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a background task in progress', () => {
   renderComponentNav({ isInProgress: true });
-  expect(screen.getByText('component_navigation.status.in_progress')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_navigation.status.in_progress', { exact: false })
+  ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a background task pending', () => {
   renderComponentNav({ isPending: true });
-  expect(screen.getByText('component_navigation.status.pending')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_navigation.status.pending', { exact: false })
+  ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a failing background task', () => {
   renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
-  expect(screen.getByText('component_navigation.status.failed_X')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_navigation.status.failed_X', { exact: false })
+  ).toBeInTheDocument();
 });
 
 it('renders correctly when the project binding is incorrect', () => {
   renderComponentNav({
     projectBindingErrors: mockProjectAlmBindingConfigurationErrors()
   });
-  expect(screen.getByText('component_navigation.pr_deco.error_detected_X')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false })
+  ).toBeInTheDocument();
 });
 
 it('correctly returns focus to the Project Information link when the drawer is closed', () => {
