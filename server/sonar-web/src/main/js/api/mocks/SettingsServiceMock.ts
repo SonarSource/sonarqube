@@ -19,12 +19,15 @@
  */
 import { cloneDeep } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
-import { SettingValue } from '../../types/settings';
+import { SettingsKey, SettingValue } from '../../types/settings';
 import { getValue } from '../settings';
 
-export default class AuditLogsServiceMock {
-  settingValue: SettingValue;
-  defaultValues: SettingValue = { key: 'test', value: HousekeepingPolicy.Weekly };
+export default class SettingsServiceMock {
+  settingValue?: SettingValue;
+  defaultValues: SettingValue = {
+    key: SettingsKey.AuditHouseKeeping,
+    value: HousekeepingPolicy.Weekly
+  };
 
   constructor() {
     this.settingValue = cloneDeep(this.defaultValues);
@@ -34,6 +37,14 @@ export default class AuditLogsServiceMock {
   getValuesHandler = () => {
     return Promise.resolve(this.settingValue);
   };
+
+  unsetHousekeepingPolicy() {
+    this.settingValue = undefined;
+  }
+
+  setYearlyHousekeepingPolicy() {
+    this.settingValue = { key: 'test', value: HousekeepingPolicy.Yearly };
+  }
 
   resetSettingvalues = () => {
     this.settingValue = cloneDeep(this.defaultValues);

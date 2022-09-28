@@ -103,6 +103,7 @@ exports[`should render 3`] = `
           className="date-input-calender-month"
         >
           <Select
+            aria-label="select_month"
             className="date-input-calender-month-select"
             onChange={[Function]}
             options={
@@ -165,6 +166,7 @@ exports[`should render 3`] = `
             }
           />
           <Select
+            aria-label="select_year"
             className="date-input-calender-month-select spacer-left"
             onChange={[Function]}
             options={

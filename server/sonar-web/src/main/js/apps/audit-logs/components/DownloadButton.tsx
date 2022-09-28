@@ -45,6 +45,8 @@ const toISODateString = (date: Date) => date.toISOString();
 function getRangeParams(selection: RangeOption, dateRange?: { from?: Date; to?: Date }) {
   if (selection === RangeOption.Custom) {
     // dateRange should be complete if 'custom' is selected
+    // This is not strickly necessary since submit is disable
+    // when the if condition is true.
     if (!(dateRange?.to && dateRange?.from)) {
       return '';
     }
@@ -78,6 +80,7 @@ export default function DownloadButton(props: DownloadButtonProps) {
       <a
         className={classNames('button button-primary', { disabled: downloadDisabled })}
         download="audit_logs.json"
+        aria-disabled={downloadDisabled}
         onClick={downloadDisabled ? undefined : props.onStartDownload}
         href={downloadUrl}
         rel="noopener noreferrer"

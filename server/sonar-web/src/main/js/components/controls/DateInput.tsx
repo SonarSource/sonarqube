@@ -191,12 +191,14 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 </ButtonIcon>
                 <div className="date-input-calender-month">
                   <Select
+                    aria-label={translate('select_month')}
                     className="date-input-calender-month-select"
                     onChange={this.handleCurrentMonthChange}
                     options={monthOptions}
                     value={monthOptions.find(month => month.value === currentMonth.getMonth())}
                   />
                   <Select
+                    aria-label={translate('select_year')}
                     className="date-input-calender-month-select spacer-left"
                     onChange={this.handleCurrentYearChange}
                     options={yearOptions}

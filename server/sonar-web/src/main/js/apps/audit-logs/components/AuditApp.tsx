@@ -55,12 +55,6 @@ export class AuditApp extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.adminPages !== this.props.adminPages && this.hasGovernanceExtension()) {
-      this.fetchHouseKeepingPolicy();
-    }
-  }
-
   fetchHouseKeepingPolicy = async () => {
     const result = await getValue({ key: SettingsKey.AuditHouseKeeping });
 
