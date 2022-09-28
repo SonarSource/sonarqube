@@ -111,11 +111,19 @@
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="countPrAndBranchByProjectUuid" resultType="org.sonar.db.component.PrAndBranchCountByProjectDto">
-    select project_uuid as projectUuid,
+  <select id="countPrBranchAnalyzedLanguageByProjectUuid" resultType="org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto">
+    select pb.project_uuid as projectUuid,
       sum(case when pb.branch_type = 'PULL_REQUEST' then 1 else 0 end) as pullRequest,
-      sum(case when pb.branch_type = 'BRANCH' then 1 else 0 end) as branch
-    from project_branches pb
+      sum(case when pb.branch_type = 'BRANCH' then 1 else 0 end) as branch,
+      (
+      	select count(1) as counter from live_measures lm
+      	inner join metrics m on m.uuid = lm.metric_uuid and m.name = 'unanalyzed_c'
+      	where lm.project_uuid = pb.project_uuid) as unanalyzedCCount,
+      (
+      	select count(1) as counter from live_measures lm
+      	inner join metrics m on m.uuid = lm.metric_uuid and m.name = 'unanalyzed_cpp'
+      	where lm.project_uuid = pb.project_uuid) as unanalyzedCppCount
+	from project_branches pb
     group by pb.project_uuid
   </select>
 

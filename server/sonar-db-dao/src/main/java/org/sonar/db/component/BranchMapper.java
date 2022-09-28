@@ -47,7 +47,7 @@ public interface BranchMapper {
 
   Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  List<PrAndBranchCountByProjectDto> countPrAndBranchByProjectUuid();
+  List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid();
 
   List<BranchDto> selectByBranchKeys(@Param("branchKeyByProjectUuid") Map<String, String> branchKeyByProjectUuid);
 

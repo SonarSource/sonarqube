@@ -38,6 +38,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
@@ -562,12 +563,20 @@ public class BranchDaoTest {
     ComponentDto project3 = db.components().insertPrivateProject();
     db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setKey("p3-branch-1"));
 
-    assertThat(underTest.countPrAndBranchByProjectUuid(db.getSession()))
-      .extracting(PrAndBranchCountByProjectDto::getProjectUuid, PrAndBranchCountByProjectDto::getBranch, PrAndBranchCountByProjectDto::getPullRequest)
+    MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey("unanalyzed_c"));
+    MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey("unanalyzed_cpp"));
+    db.measures().insertLiveMeasure(project1, unanalyzedC);
+    db.measures().insertLiveMeasure(project1, unanalyzedCpp);
+    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
+    db.measures().insertLiveMeasure(project3, unanalyzedC);
+
+    assertThat(underTest.countPrBranchAnalyzedLanguageByProjectUuid(db.getSession()))
+      .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch, PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest,
+        PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCCount, PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCppCount)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), 3L, 3L),
-        tuple(project2.uuid(), 1L, 1L),
-        tuple(project3.uuid(), 2L, 0L)
+        tuple(project1.uuid(), 3L, 3L, 1L, 1L),
+        tuple(project2.uuid(), 1L, 1L, 0L, 1L),
+        tuple(project3.uuid(), 2L, 0L, 1L, 0L)
       );
   }
 

@@ -56,7 +56,7 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
-import org.sonar.db.component.PrAndBranchCountByProjectDto;
+import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.ProjectLinkMapper;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ScrapAnalysisPropertyDto;
@@ -224,7 +224,7 @@ public class MyBatis {
     confBuilder.loadAlias("ProjectBadgeToken", ProjectBadgeTokenDto.class);
     confBuilder.loadAlias("AnalysisPropertyValuePerProject", AnalysisPropertyValuePerProject.class);
     confBuilder.loadAlias("ProjectAlmKeyAndProject", ProjectAlmKeyAndProject.class);
-    confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrAndBranchCountByProjectDto.class);
+    confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrBranchAnalyzedLanguageCountByProjectDto.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);

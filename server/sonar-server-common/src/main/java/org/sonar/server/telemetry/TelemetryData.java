@@ -41,8 +41,6 @@ public class TelemetryData {
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
-  private final Boolean hasUnanalyzedC;
-  private final Boolean hasUnanalyzedCpp;
   private final List<String> customSecurityConfigs;
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
@@ -58,8 +56,6 @@ public class TelemetryData {
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
-    hasUnanalyzedC = builder.hasUnanalyzedC;
-    hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
     users = builder.users;
     projects = builder.projects;
@@ -102,14 +98,6 @@ public class TelemetryData {
     return inDocker;
   }
 
-  public Optional<Boolean> hasUnanalyzedC() {
-    return Optional.ofNullable(hasUnanalyzedC);
-  }
-
-  public Optional<Boolean> hasUnanalyzedCpp() {
-    return Optional.ofNullable(hasUnanalyzedCpp);
-  }
-
   public List<String> getCustomSecurityConfigs() {
     return customSecurityConfigs;
   }
@@ -140,8 +128,6 @@ public class TelemetryData {
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
-    private Boolean hasUnanalyzedC;
-    private Boolean hasUnanalyzedCpp;
     private List<String> customSecurityConfigs;
     private List<UserTelemetryDto> users;
     private List<Project> projects;
@@ -193,16 +179,6 @@ public class TelemetryData {
 
     Builder setInDocker(boolean inDocker) {
       this.inDocker = inDocker;
-      return this;
-    }
-
-    Builder setHasUnanalyzedC(@Nullable Boolean hasUnanalyzedC) {
-      this.hasUnanalyzedC = hasUnanalyzedC;
-      return this;
-    }
-
-    Builder setHasUnanalyzedCpp(@Nullable Boolean hasUnanalyzedCpp) {
-      this.hasUnanalyzedCpp = hasUnanalyzedCpp;
       return this;
     }
 
@@ -288,14 +264,19 @@ public class TelemetryData {
     private final String projectUuid;
     private final Long branchCount;
     private final Long pullRequestCount;
+    private final Boolean hasUnanalyzedC;
+    private final Boolean hasUnanalyzedCpp;
     private final String scm;
     private final String ci;
     private final String devopsPlatform;
 
-    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
+    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable Boolean hasUnanalyzedC, @Nullable Boolean hasUnanalyzedCpp,
+      @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
       this.projectUuid = projectUuid;
       this.branchCount = branchCount;
       this.pullRequestCount = pullRequestCount;
+      this.hasUnanalyzedC = hasUnanalyzedC;
+      this.hasUnanalyzedCpp = hasUnanalyzedCpp;
       this.scm = scm;
       this.ci = ci;
       this.devopsPlatform = devopsPlatform;
@@ -326,6 +307,14 @@ public class TelemetryData {
     @CheckForNull
     public String getDevopsPlatform() {
       return devopsPlatform;
+    }
+
+    public Optional<Boolean> hasUnanalyzedC() {
+      return Optional.ofNullable(hasUnanalyzedC);
+    }
+
+    public Optional<Boolean> hasUnanalyzedCpp() {
+      return Optional.ofNullable(hasUnanalyzedCpp);
     }
   }
 }

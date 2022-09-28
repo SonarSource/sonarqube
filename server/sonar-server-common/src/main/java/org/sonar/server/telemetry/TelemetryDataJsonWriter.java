@@ -61,9 +61,6 @@ public class TelemetryDataJsonWriter {
       json.endArray();
     }
 
-    statistics.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
-    statistics.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
-
     if (statistics.getInstallationDate() != null) {
       json.prop("installationDate", toUtc(statistics.getInstallationDate()));
     }
@@ -132,6 +129,8 @@ public class TelemetryDataJsonWriter {
         json.prop("scm", project.getScm());
         json.prop("ci", project.getCi());
         json.prop("devopsPlatform", project.getDevopsPlatform());
+        project.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
+        project.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
         json.endObject();
       });
       json.endArray();

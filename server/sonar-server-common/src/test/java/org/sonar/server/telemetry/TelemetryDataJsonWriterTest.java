@@ -230,21 +230,6 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_has_unanalyzed_languages() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setHasUnanalyzedC(true)
-      .setHasUnanalyzedCpp(false)
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"hasUnanalyzedC\":true," +
-      "  \"hasUnanalyzedCpp\":false," +
-      "}");
-  }
-
-  @Test
   public void writes_security_custom_config() {
     TelemetryData data = SOME_TELEMETRY_DATA
       .setCustomSecurityConfigs(Arrays.asList("php", "java"))
@@ -325,9 +310,9 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_projects_stats() {
+  public void writes_all_projects_stats_with_analyzed_languages() {
     TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectStatistics(getProjectStats())
+      .setProjectStatistics(getProjectStats(true))
       .build();
 
     String json = writeTelemetryData(data);
@@ -340,7 +325,9 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 2," +
       "      \"scm\": \"scm-0\"," +
       "      \"ci\": \"ci-0\"," +
-      "      \"devopsPlatform\": \"devops-0\"" +
+      "      \"devopsPlatform\": \"devops-0\"," +
+      "      \"hasUnanalyzedC\": true," +
+      "      \"hasUnanalyzedCpp\": false" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-1\"," +
@@ -348,7 +335,9 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 4," +
       "      \"scm\": \"scm-1\"," +
       "      \"ci\": \"ci-1\"," +
-      "      \"devopsPlatform\": \"devops-1\"" +
+      "      \"devopsPlatform\": \"devops-1\"," +
+      "      \"hasUnanalyzedC\": false," +
+      "      \"hasUnanalyzedCpp\": true" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-2\"," +
@@ -356,10 +345,22 @@ public class TelemetryDataJsonWriterTest {
       "      \"pullRequestCount\": 6," +
       "      \"scm\": \"scm-2\"," +
       "      \"ci\": \"ci-2\"," +
-      "      \"devopsPlatform\": \"devops-2\"" +
+      "      \"devopsPlatform\": \"devops-2\"," +
+      "      \"hasUnanalyzedC\": true," +
+      "      \"hasUnanalyzedCpp\": false" +
       "    }" +
       "  ]" +
       "}");
+  }
+
+  @Test
+  public void writes_all_projects_stats_with_unanalyzed_languages() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setProjectStatistics(getProjectStats(false))
+      .build();
+
+    String json = writeTelemetryData(data);
+    assertThat(json).doesNotContain("hasUnanalyzedC", "hasUnanalyzedCpp");
   }
 
   @NotNull
@@ -374,8 +375,8 @@ public class TelemetryDataJsonWriterTest {
     return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
   }
 
-  private List<TelemetryData.ProjectStatistics> getProjectStats() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "devops-" + i))
+  private List<TelemetryData.ProjectStatistics> getProjectStats(boolean hasUnanalyzedLanguages) {
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, hasUnanalyzedLanguages ? i % 2 == 0 : null, hasUnanalyzedLanguages ? i % 2 != 0 : null, "scm-" + i, "ci-" + i, "devops-" + i))
       .collect(Collectors.toList());
   }
 

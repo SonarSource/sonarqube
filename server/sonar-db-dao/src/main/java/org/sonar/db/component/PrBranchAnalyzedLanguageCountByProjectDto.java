@@ -19,11 +19,13 @@
  */
 package org.sonar.db.component;
 
-public class PrAndBranchCountByProjectDto {
+public class PrBranchAnalyzedLanguageCountByProjectDto {
 
   private String projectUuid = null;
   private Long pullRequest = null;
   private Long branch = null;
+  private Long unanalyzedCCount = null;
+  private Long unanalyzedCppCount = null;
 
   public String getProjectUuid() {
     return projectUuid;
@@ -47,5 +49,21 @@ public class PrAndBranchCountByProjectDto {
 
   public void setBranch(Long branch) {
     this.branch = branch;
+  }
+
+  public Long getUnanalyzedCCount() {
+    return unanalyzedCCount;
+  }
+
+  public void setUnanalyzedCCount(Long unanalyzedCCount) {
+    this.unanalyzedCCount = unanalyzedCCount;
+  }
+
+  public Long getUnanalyzedCppCount() {
+    return unanalyzedCppCount;
+  }
+
+  public void setUnanalyzedCppCount(Long unanalyzedCppCount) {
+    this.unanalyzedCppCount = unanalyzedCppCount;
   }
 }

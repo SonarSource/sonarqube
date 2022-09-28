@@ -322,8 +322,9 @@ public class TelemetryDataLoaderImplTest {
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.hasUnanalyzedC().get()).isTrue();
-    assertThat(data.hasUnanalyzedCpp().get()).isTrue();
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::hasUnanalyzedC, TelemetryData.ProjectStatistics::hasUnanalyzedCpp)
+      .containsExactlyInAnyOrder(tuple(Optional.of(true), Optional.of(true)), tuple(Optional.of(true), Optional.of(false)));
   }
 
   @Test
@@ -338,18 +339,9 @@ public class TelemetryDataLoaderImplTest {
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.hasUnanalyzedC()).isEmpty();
-    assertThat(data.hasUnanalyzedCpp()).isEmpty();
-  }
-
-  @Test
-  public void unanalyzed_languages_flags_are_set_to_false_when_no_unanalyzed_languages_and_edition_is_community() {
-    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
-
-    TelemetryData data = communityUnderTest.load();
-
-    assertThat(data.hasUnanalyzedC().get()).isFalse();
-    assertThat(data.hasUnanalyzedCpp().get()).isFalse();
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::hasUnanalyzedC, TelemetryData.ProjectStatistics::hasUnanalyzedCpp)
+      .containsExactlyInAnyOrder(tuple(Optional.empty(), Optional.empty()), tuple(Optional.empty(), Optional.empty()));
   }
 
   @Test

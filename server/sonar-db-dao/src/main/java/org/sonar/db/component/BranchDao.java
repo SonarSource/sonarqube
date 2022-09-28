@@ -101,8 +101,8 @@ public class BranchDao implements Dao {
     return mapper(dbSession).selectByProjectUuid(project.getUuid());
   }
 
-  public List<PrAndBranchCountByProjectDto> countPrAndBranchByProjectUuid(DbSession dbSession){
-    return mapper(dbSession).countPrAndBranchByProjectUuid();
+  public List<PrBranchAnalyzedLanguageCountByProjectDto> countPrBranchAnalyzedLanguageByProjectUuid(DbSession dbSession){
+    return mapper(dbSession).countPrBranchAnalyzedLanguageByProjectUuid();
   }
 
   public List<BranchDto> selectByUuids(DbSession session, Collection<String> uuids) {
