@@ -17,52 +17,66 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { DropdownOverlay } from '../../../../../components/controls/Dropdown';
-import Toggler from '../../../../../components/controls/Toggler';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../../helpers/testMocks';
-import { click } from '../../../../../helpers/testUtils';
-import { HotspotStatusOption } from '../../../../../types/security-hotspots';
 import { Status, StatusProps } from '../Status';
-import StatusSelection from '../StatusSelection';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('closed');
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { setSecurityHotspotStatus } from '../../../../../api/security-hotspots';
+import { HotspotResolution, HotspotStatus } from '../../../../../types/security-hotspots';
 
-  click(wrapper.find('#status-trigger'));
-  expect(wrapper).toMatchSnapshot('open');
+jest.mock('../../../../../api/security-hotspots', () => ({
+  setSecurityHotspotStatus: jest.fn().mockResolvedValue({})
+}));
 
-  wrapper
-    .find(Toggler)
-    .props()
-    .onRequestClose();
-  expect(wrapper.find(DropdownOverlay).length).toBe(0);
+it('should properly deal with comment/status/submit events', async () => {
+  const hotspot = mockHotspot();
+  renderStatusSelection({ hotspot });
+  const user = userEvent.setup();
+  const comment = 'COMMENT-TEXT';
 
-  expect(shallowRender({ hotspot: mockHotspot({ canChangeStatus: false }) })).toMatchSnapshot(
-    'readonly'
+  await user.click(screen.getByRole('button', { name: 'hotspots.status.select_status' }));
+
+  await user.click(
+    screen.getByRole('radio', {
+      name: 'hotspots.status_option.SAFE hotspots.status_option.SAFE.description'
+    })
   );
+
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard(comment);
+
+  await user.click(screen.getByRole('button', { name: 'hotspots.status.change_status' }));
+
+  expect(setSecurityHotspotStatus).toBeCalledWith(hotspot.key, {
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE,
+    comment
+  });
 });
 
-it('should properly deal with status changes', () => {
-  const onStatusChange = jest.fn();
-  const wrapper = shallowRender({ onStatusChange });
-
-  click(wrapper.find('#status-trigger'));
-  wrapper
-    .find(Toggler)
-    .dive()
-    .find(StatusSelection)
-    .props()
-    .onStatusOptionChange(HotspotStatusOption.SAFE);
-  expect(onStatusChange).toHaveBeenCalled();
-  expect(wrapper.find(DropdownOverlay).length).toBe(0);
+it('should open change status panel correctly', async () => {
+  renderStatusSelection();
+  const user = userEvent.setup();
+  expect(screen.queryByTestId('security-hotspot-test')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'hotspots.status.select_status' }));
+  expect(screen.getByTestId('security-hotspot-test')).toBeInTheDocument();
 });
 
-function shallowRender(props?: Partial<StatusProps>) {
-  return shallow<StatusProps>(
+it('should disallow status change for hotspot that are readonly', () => {
+  renderStatusSelection({ hotspot: mockHotspot({ canChangeStatus: false }) });
+  expect(screen.getByRole('button')).toBeDisabled();
+});
+
+it('should disallow status change for user that are not logged in', () => {
+  renderStatusSelection({ currentUser: mockCurrentUser({ isLoggedIn: false }) });
+  expect(screen.getByRole('button')).toBeDisabled();
+});
+
+function renderStatusSelection(props?: Partial<StatusProps>) {
+  render(
     <Status
       currentUser={mockCurrentUser({ isLoggedIn: true })}
       hotspot={mockHotspot()}

@@ -41,7 +41,13 @@ export interface StatusProps {
 
 export function Status(props: StatusProps) {
   const { currentUser, hotspot } = props;
+
   const [isOpen, setIsOpen] = React.useState(false);
+  const [comment, setComment] = React.useState('');
+
+  React.useEffect(() => {
+    setComment('');
+  }, [hotspot.key]);
 
   const statusOption = getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution);
   const readonly = !hotspot.canChangeStatus || !isLoggedIn(currentUser);
@@ -67,6 +73,8 @@ export function Status(props: StatusProps) {
                       await props.onStatusChange(status);
                       setIsOpen(false);
                     }}
+                    comment={comment}
+                    setComment={setComment}
                   />
                 </DropdownOverlay>
               }>

@@ -55,7 +55,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
   };
 
   return (
-    <div className="abs-width-400">
+    <div data-testid="security-hotspot-test" className="abs-width-400">
       <div className="big-padded">
         {renderOption(HotspotStatusOption.TO_REVIEW)}
         {renderOption(HotspotStatusOption.ACKNOWLEDGED)}

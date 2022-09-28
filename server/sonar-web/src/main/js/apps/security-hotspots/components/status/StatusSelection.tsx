@@ -29,10 +29,11 @@ import StatusSelectionRenderer from './StatusSelectionRenderer';
 interface Props {
   hotspot: Hotspot;
   onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
+  comment: string;
+  setComment: (comment: string) => void;
 }
 
 interface State {
-  comment?: string;
   loading: boolean;
   initialStatus: HotspotStatusOption;
   selectedStatus: HotspotStatusOption;
@@ -69,12 +70,12 @@ export default class StatusSelection extends React.PureComponent<Props, State> {
   };
 
   handleCommentChange = (comment: string) => {
-    this.setState({ comment });
+    this.props.setComment(comment);
   };
 
   handleSubmit = () => {
-    const { hotspot } = this.props;
-    const { comment, initialStatus, selectedStatus } = this.state;
+    const { hotspot, comment } = this.props;
+    const { initialStatus, selectedStatus } = this.state;
 
     if (selectedStatus && selectedStatus !== initialStatus) {
       this.setState({ loading: true });
@@ -84,14 +85,17 @@ export default class StatusSelection extends React.PureComponent<Props, State> {
       })
         .then(async () => {
           await this.props.onStatusOptionChange(selectedStatus);
-          this.setState({ loading: false });
+          if (this.mounted) {
+            this.setState({ loading: false });
+          }
         })
         .catch(() => this.setState({ loading: false }));
     }
   };
 
   render() {
-    const { comment, initialStatus, loading, selectedStatus } = this.state;
+    const { comment } = this.props;
+    const { initialStatus, loading, selectedStatus } = this.state;
     const submitDisabled = selectedStatus === initialStatus;
 
     return (
