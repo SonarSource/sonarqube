@@ -106,18 +106,6 @@ public class UpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    String branchDbKey = branch.getKey();
-    assertThatThrownBy(() -> call(branchDbKey, ANOTHER_KEY))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Project '%s' not found", branchDbKey));
-  }
-
-  @Test
   public void api_definition() {
     WebService.Action definition = ws.getDef();
 

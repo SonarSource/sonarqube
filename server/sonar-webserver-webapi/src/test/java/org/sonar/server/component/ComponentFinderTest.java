@@ -99,17 +99,6 @@ public class ComponentFinderTest {
   }
 
   @Test
-  public void fail_to_getByUuidOrKey_when_using_branch_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    String branchDbKey = branch.getKey();
-    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, branchDbKey, ID_AND_KEY))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_component_uuid_is_removed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project, null, "file-uuid").setEnabled(false));
@@ -138,17 +127,6 @@ public class ComponentFinderTest {
     assertThatThrownBy(() -> underTest.getByKey(dbSession, "file-key"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component key 'file-key' not found");
-  }
-
-  @Test
-  public void fail_getByKey_on_branch() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    String branchDbKey = branch.getKey();
-    assertThatThrownBy(() -> underTest.getByKey(dbSession, branchDbKey))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branchDbKey));
   }
 
   @Test

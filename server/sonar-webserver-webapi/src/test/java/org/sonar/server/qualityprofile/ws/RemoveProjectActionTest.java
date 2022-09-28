@@ -214,24 +214,6 @@ public class RemoveProjectActionTest {
       .hasMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    QProfileDto profile = db.qualityProfiles().insert();
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("project", branch.getKey())
-        .setParam("language", profile.getLanguage())
-        .setParam("qualityProfile", profile.getName())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project '%s' not found", branch.getKey()));
-  }
-
   private void assertProjectIsAssociatedToProfile(ProjectDto project, QProfileDto profile) {
     QProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
     assertThat(loaded.getKee()).isEqualTo(profile.getKee());

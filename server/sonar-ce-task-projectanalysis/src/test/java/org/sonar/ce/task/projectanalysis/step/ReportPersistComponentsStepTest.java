@@ -172,7 +172,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("components")).isEqualTo(3);
+    // 3 in this branch plus the project
+    assertThat(db.countRowsOfTable("components")).isEqualTo(4);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKeyAndBranch(db.getSession(), "PROJECT_KEY:src/main/java/dir", "feature/foo").get();
     assertThat(directoryDto.name()).isEqualTo("dir");

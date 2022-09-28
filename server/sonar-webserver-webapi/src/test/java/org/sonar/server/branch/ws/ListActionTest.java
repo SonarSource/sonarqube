@@ -45,7 +45,6 @@ import org.sonarqube.ws.ProjectBranches;
 import org.sonarqube.ws.ProjectBranches.Branch;
 import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -261,19 +260,6 @@ public class ListActionTest {
         tuple("master", BranchType.BRANCH),
         tuple("feature/foo", BranchType.BRANCH),
         tuple("feature/bar", BranchType.BRANCH));
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("project", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
   }
 
   @Test

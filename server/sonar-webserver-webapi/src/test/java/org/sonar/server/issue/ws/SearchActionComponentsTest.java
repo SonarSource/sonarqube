@@ -694,25 +694,6 @@ public class SearchActionComponentsTest {
       .doesNotContain(branchIssue.getKey());
   }
 
-  @Test
-  public void does_not_return_branch_issues_when_using_db_key() {
-    RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-    IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, branch.getKey())
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(result.getIssuesList()).isEmpty();
-  }
-
   private void allowAnyoneOnProjects(ComponentDto... projects) {
     userSession.registerComponents(projects);
     Arrays.stream(projects).forEach(p -> permissionIndexer.allowOnlyAnyone(p));

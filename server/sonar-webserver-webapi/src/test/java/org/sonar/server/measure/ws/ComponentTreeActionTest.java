@@ -1025,23 +1025,6 @@ public class ComponentTreeActionTest {
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    insertNclocMetric();
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(PARAM_COMPONENT, branch.getKey())
-        .setParam(PARAM_METRIC_KEYS, "ncloc")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
   private static MetricDto newMetricDto() {
     return MetricTesting.newMetricDto()
       .setWorstValue(null)

@@ -74,7 +74,7 @@ public class StatusActionTest {
 
   private final static String projectDumpsDirectoryPathname = "data/governance/project_dumps/";
   private final static String importDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "import").toString();
-  private final static String exportDirectoryPathname = Paths.get(projectDumpsDirectoryPathname,"export").toString();
+  private final static String exportDirectoryPathname = Paths.get(projectDumpsDirectoryPathname, "export").toString();
 
   private ProjectDto project;
 
@@ -275,19 +275,6 @@ public class StatusActionTest {
 
     assertThat(response)
       .doesNotContain("dumpToImport");
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> {
-      underTest.newRequest()
-        .setParam(KEY_PARAM, branch.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class);
   }
 
   @Test

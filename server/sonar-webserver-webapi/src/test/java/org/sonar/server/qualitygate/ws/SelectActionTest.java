@@ -198,21 +198,6 @@ public class SelectActionTest {
       .isInstanceOf(ForbiddenException.class);
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
-      .setParam("projectKey", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
-  }
-
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {
     Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
     assertThat(qGateUuid)

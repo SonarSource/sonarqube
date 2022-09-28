@@ -24,13 +24,11 @@ import org.apache.ibatis.annotations.Param;
 
 public interface ComponentKeyUpdaterMapper {
 
-  int countResourceByKey(String key);
+  int countComponentsByKey(String key);
 
   ResourceDto selectProjectByUuid(@Param("uuid") String uuid);
 
   List<ResourceDto> selectProjectResources(@Param("rootUuid") String rootUuid);
-
-  List<ResourceDto> selectDescendantProjects(@Param("rootUuid") String rootUuid);
 
   void updateComponent(ResourceDto resource);
 

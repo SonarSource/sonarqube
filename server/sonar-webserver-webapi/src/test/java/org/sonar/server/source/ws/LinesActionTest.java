@@ -330,19 +330,6 @@ public class LinesActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.addProjectPermission(UserRole.USER, project);
-
-    assertThatThrownBy(() -> tester.newRequest()
-      .setParam("key", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);

@@ -327,25 +327,6 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
-    UserDto user = db.users().insertUser(newUserDto());
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getKey())
-        .setParam(PARAM_USER_LOGIN, user.getLogin())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_uuid() {
     UserDto user = db.users().insertUser(newUserDto());
     ComponentDto project = db.components().insertPublicProject();

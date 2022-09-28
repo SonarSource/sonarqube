@@ -119,8 +119,8 @@ public class ComponentDto {
    * Example:
    * - project P : kee=P, uuid=U1, qualifier=TRK, project_uuid=U1, main_branch_project_uuid=NULL
    * - file F of project P : kee=P:F, uuid=U2, qualifier=FIL, project_uuid=U1, main_branch_project_uuid=NULL
-   * - branch B of project P : kee=P:BRANCH:B, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
-   * - file F in branch B of project P : kee=P:F:BRANCH:B, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
+   * - branch B of project P : kee=P, uuid=U3, qualifier=TRK, project_uuid=U3, main_branch_project_uuid=U1
+   * - file F in branch B of project P : kee=P:F, uuid=U4, qualifier=FIL, project_uuid=U3, main_branch_project_uuid=U1
    */
   @Nullable
   private String mainBranchProjectUuid;
@@ -431,10 +431,6 @@ public class ComponentDto {
 
   public static String generateBranchKey(String componentKey, String branch) {
     return format("%s%s%s", componentKey, BRANCH_KEY_SEPARATOR, branch);
-  }
-
-  public static String generatePullRequestKey(String componentKey, String pullRequest) {
-    return format("%s%s%s", componentKey, PULL_REQUEST_SEPARATOR, pullRequest);
   }
 
   public static String removeBranchAndPullRequestFromKey(String componentKey) {

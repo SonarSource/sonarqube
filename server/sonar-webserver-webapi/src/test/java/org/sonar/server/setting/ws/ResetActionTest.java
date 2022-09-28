@@ -367,23 +367,6 @@ public class ResetActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("keys", "foo")
-        .setParam("component", branch.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_component_not_found() {
     assertThatThrownBy(() -> {
       ws.newRequest()

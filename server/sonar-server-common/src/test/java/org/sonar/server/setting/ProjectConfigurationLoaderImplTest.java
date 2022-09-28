@@ -127,6 +127,7 @@ public class ProjectConfigurationLoaderImplTest {
 
   @Test
   public void return_configuration_with_global_settings_main_branch_settings_and_branch_settings() {
+    // TODO
     String globalKey = randomAlphanumeric(3);
     String globalValue = randomAlphanumeric(4);
     String mainBranchDbKey = randomAlphanumeric(5);

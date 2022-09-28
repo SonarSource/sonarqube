@@ -176,7 +176,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, "not-found")
@@ -222,7 +222,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, file.uuid())
@@ -238,7 +238,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       executeRequest(group, UserRole.ISSUE_ADMIN);
     })
       .isInstanceOf(BadRequestException.class);
@@ -251,7 +251,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, file.uuid())
@@ -265,7 +265,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void fail_when_get_request() {
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setMethod("GET")
         .setParam(PARAM_GROUP_NAME, "sonar-administrators")
@@ -279,7 +279,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void fail_when_group_name_and_group_id_are_missing() {
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
@@ -293,7 +293,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .execute();
@@ -306,7 +306,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .execute();
@@ -320,7 +320,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -337,7 +337,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     GroupDto group = db.users().insertGroup("sonar-administrators");
     userSession.logIn().addPermission(SCAN);
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
@@ -352,7 +352,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
@@ -459,31 +459,13 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() ->  {
-      newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getKey())
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_uuid() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_PROJECT_ID, branch.uuid())
         .setParam(PARAM_GROUP_NAME, group.getName())

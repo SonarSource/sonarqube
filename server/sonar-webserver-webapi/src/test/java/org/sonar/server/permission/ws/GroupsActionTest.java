@@ -329,23 +329,4 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Project id '%s' not found", branch.uuid()));
   }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
-    loginAsAdmin();
-
-    assertThatThrownBy(() ->  {
-      newRequest()
-        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-        .setParam(PARAM_PROJECT_KEY, branch.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getKey()));
-  }
-
 }

@@ -40,7 +40,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -299,21 +298,6 @@ public class RemoveActionTest {
 
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(UnauthorizedException.class);
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    RemoveRequest request = this.request.setProject(branch.getKey());
-    assertThatThrownBy(() -> call(request))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   private TestResponse call(RemoveRequest remove) {

@@ -36,13 +36,11 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScmActionTest {
@@ -213,19 +211,6 @@ public class ScmActionTest {
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-
-    assertThatThrownBy(() -> tester.newRequest()
-      .setParam("key", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {

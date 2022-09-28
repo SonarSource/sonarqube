@@ -151,6 +151,7 @@ public class PropertiesDao implements Dao {
     }
   }
 
+  // TODO distinguish branch from project
   public List<PropertyDto> selectProjectProperties(DbSession session, String projectKey) {
     return getMapper(session).selectProjectProperties(projectKey);
   }

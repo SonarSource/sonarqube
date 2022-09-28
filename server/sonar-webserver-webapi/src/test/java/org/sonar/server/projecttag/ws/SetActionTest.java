@@ -184,18 +184,6 @@ public class SetActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    String branchDbKey = branch.getKey();
-    assertThatThrownBy(() -> call(branchDbKey, "secret"))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project '%s' not found", branchDbKey));
-  }
-
-  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 

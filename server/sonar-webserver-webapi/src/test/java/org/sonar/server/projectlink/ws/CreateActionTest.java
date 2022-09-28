@@ -216,21 +216,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getKey())
-      .setParam(PARAM_NAME, "Custom")
-      .setParam(PARAM_URL, "http://example.org")
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_db_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);

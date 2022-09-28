@@ -397,23 +397,6 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_PROJECT_KEY, branch.getKey())
-        .setParam(PARAM_USER_LOGIN, user.getLogin())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

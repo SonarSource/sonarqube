@@ -42,7 +42,6 @@ import org.sonarqube.ws.Measures.Component;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static java.lang.Double.parseDouble;
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -375,23 +374,6 @@ public class ComponentActionTest {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(PARAM_COMPONENT, branch.getKey())
-        .setParam(PARAM_METRIC_KEYS, metric.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test

@@ -99,7 +99,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -748,7 +747,7 @@ public class SearchActionTest {
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(pr, null, "FILE_ID").setKey("FILE_KEY" + PULL_REQUEST_SEPARATOR + "pr"));
+    ComponentDto file = db.components().insertComponent(newFileDto(pr, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
     IssueDto issue1 = newDto(rule, file, pr)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))

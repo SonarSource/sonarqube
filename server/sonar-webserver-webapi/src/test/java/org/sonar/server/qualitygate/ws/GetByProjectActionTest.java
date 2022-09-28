@@ -191,17 +191,6 @@ public class GetByProjectActionTest {
       .hasMessageContaining("The 'project' parameter is missing");
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest().setParam("project", branch.getKey()).execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
-  }
-
   private void logInAsProjectUser(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
   }

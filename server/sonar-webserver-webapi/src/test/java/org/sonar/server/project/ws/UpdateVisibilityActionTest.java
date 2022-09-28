@@ -244,7 +244,6 @@ public class UpdateVisibilityActionTest {
       .hasMessage("Insufficient privileges");
   }
 
-
   @Test
   public void execute_throws_ForbiddenException_if_user_has_ADMIN_permission_but_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
@@ -575,19 +574,6 @@ public class UpdateVisibilityActionTest {
       .containsOnly(UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getUuid(), portfolio.uuid()))
       .containsOnly(UserRole.ADMIN);
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
-
-    TestRequest request = this.request.setParam(PARAM_PROJECT, branch.getKey())
-      .setParam(PARAM_VISIBILITY, PUBLIC);
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Component key '%s' not found", branch.getKey()));
   }
 
   private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group) {

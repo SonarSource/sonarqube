@@ -161,19 +161,6 @@ public class DeselectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("projectKey", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void definition() {
     WebService.Action def = ws.getDef();
 

@@ -820,22 +820,6 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> {
-      newTester().newRequest()
-        .setParam("keys", "foo")
-        .setParam("component", branch.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);

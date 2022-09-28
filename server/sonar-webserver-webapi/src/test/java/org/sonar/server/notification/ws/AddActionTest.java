@@ -39,7 +39,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -75,8 +74,8 @@ public class AddActionTest {
   private Dispatchers dispatchers = mock(Dispatchers.class);
 
   private WsActionTester ws = new WsActionTester(new AddAction(new NotificationCenter(
-    new NotificationDispatcherMetadata[]{},
-    new NotificationChannel[]{emailChannel, twitterChannel, defaultChannel}),
+    new NotificationDispatcherMetadata[] {},
+    new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}),
     new NotificationUpdater(dbClient), dispatchers, dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
@@ -311,19 +310,6 @@ public class AddActionTest {
 
     assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, null))
       .isInstanceOf(UnauthorizedException.class);
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, branch.getKey(), null))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test

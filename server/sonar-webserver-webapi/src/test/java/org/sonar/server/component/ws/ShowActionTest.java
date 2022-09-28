@@ -423,19 +423,6 @@ public class ShowActionTest {
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getKey());
-    assertThatThrownBy(() -> request.executeProtobuf(ShowWsResponse.class))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Component key '%s' not found", branch.getKey()));
-  }
-
   private ShowWsResponse newRequest(@Nullable String key) {
     TestRequest request = ws.newRequest();
     if (key != null) {

@@ -172,18 +172,6 @@ public class DeleteActionTest {
       .isInstanceOf(UnauthorizedException.class);
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, branch.getKey());
-    assertThatThrownBy(() -> call(request))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(String.format("Project '%s' not found", branch.getKey()));
-  }
-
   private String verifyDeletedKey() {
     ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
     verify(componentCleanerService).delete(any(DbSession.class), argument.capture());

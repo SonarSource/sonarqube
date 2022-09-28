@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -72,6 +71,7 @@ public class ComponentKeyUpdaterDao implements Dao {
   }
 
   public void updateApplicationBranchKey(DbSession dbSession, String appBranchUuid, String appKey, String newBranchName) {
+    // TODO review
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
 
     String newAppBranchKey = generateBranchKey(appKey, newBranchName);
@@ -121,43 +121,8 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
   }
 
-  public static final class RekeyedResource {
-    private final ResourceDto resource;
-    private final String oldKey;
-
-    public RekeyedResource(ResourceDto resource, String oldKey) {
-      this.resource = resource;
-      this.oldKey = oldKey;
-    }
-
-    public ResourceDto getResource() {
-      return resource;
-    }
-
-    public String getOldKey() {
-      return oldKey;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      RekeyedResource that = (RekeyedResource) o;
-      return Objects.equals(resource.getUuid(), that.resource.getUuid());
-    }
-
-    @Override
-    public int hashCode() {
-      return resource.getUuid().hashCode();
-    }
-  }
-
   public static void checkExistentKey(ComponentKeyUpdaterMapper mapper, String resourceKey) {
-    if (mapper.countResourceByKey(resourceKey) > 0) {
+    if (mapper.countComponentsByKey(resourceKey) > 0) {
       throw new IllegalArgumentException("Impossible to update key: a component with key \"" + resourceKey + "\" already exists.");
     }
   }

@@ -111,18 +111,6 @@ public class AddActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
-
-    assertThatThrownBy(() -> call(branch.getKey()))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_on_directory() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));

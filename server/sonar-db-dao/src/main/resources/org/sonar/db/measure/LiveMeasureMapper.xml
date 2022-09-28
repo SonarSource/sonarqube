@@ -81,12 +81,7 @@
       from
         (select counter.projectUuid as projectUuid,
           counter.maxncloc ncloc,
-          max(case
-            when c.main_branch_project_uuid is null
-            then 1
-            else 0
-          end) as mainBranch,
-          min(c.kee) as component_kee,
+          min(br.uuid) as branchUuid,
           counter.projectName,
           counter.projectKey
           from
@@ -102,12 +97,11 @@
                 group by b.project_uuid, p.name, p.kee) counter
           inner join live_measures lmo on lmo.value = counter.maxncloc
           inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
-          inner join components c on c.uuid = br.uuid
           group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
-      inner join components c2 on c2.kee  = tie_breaker.component_kee
-      inner join project_branches pb on c2.uuid = pb.uuid
+      inner join project_branches pb on tie_breaker.branchUuid = pb.uuid
       order by ncloc desc
   </select>
+
 
   <select id="countProjectsHavingMeasure" parameterType="map" resultType="long">
     select count(1)

@@ -50,7 +50,6 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 
 import static java.lang.Double.parseDouble;
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -339,20 +338,6 @@ public class SearchHistoryActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getKey())
-      .setParam(PARAM_METRICS, "ncloc")
-      .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_if_unknown_metric() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.getKey())
@@ -419,8 +404,8 @@ public class SearchHistoryActionTest {
       .setParam(PARAM_COMPONENT, "file-key")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining("Component key 'file-key' not found");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'file-key' not found");
   }
 
   @Test
@@ -435,8 +420,8 @@ public class SearchHistoryActionTest {
       .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test

@@ -36,7 +36,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
@@ -111,19 +110,6 @@ public class IndexActionTest {
       .setParam("resource", "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class);
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() throws Exception {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.addProjectPermission(USER, project);
-
-    assertThatThrownBy(() -> tester.newRequest()
-      .setParam("resource", branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getKey()));
   }
 
   private static DbFileSources.Data newData(String... lines) {

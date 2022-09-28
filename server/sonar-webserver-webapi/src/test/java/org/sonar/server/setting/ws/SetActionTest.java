@@ -1161,19 +1161,6 @@ public class SetActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    assertThatThrownBy(() -> {
-      callForProjectSettingByKey("my.key", "My Value", branch.getKey());
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_component_not_found() {
     assertThatThrownBy(() -> {
       ws.newRequest()

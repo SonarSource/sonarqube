@@ -33,7 +33,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.ce.projectdump.ExportSubmitter;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -120,21 +119,6 @@ public class ExportActionTest {
     TestResponse response = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute();
 
     assertJson(response.getInput()).isSimilarTo(responseExample());
-  }
-
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    assertThatThrownBy(() -> {
-      actionTester.newRequest()
-        .setMethod("POST")
-        .setParam("key", branch.getKey())
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class);
   }
 
   private void logInAsProjectAdministrator(String login) {

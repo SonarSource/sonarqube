@@ -234,19 +234,6 @@ public class ShowActionTest {
       .hasMessage("The 'key' parameter is missing");
   }
 
-  @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    TestRequest request = ws.newRequest()
-      .setParam("key", branch.getKey());
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
   private TestRequest newBaseRequest() {
     return ws.newRequest();
   }

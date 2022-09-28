@@ -402,20 +402,6 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    SnapshotDto snapshot = db.components().insertSnapshot(branch);
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getKey())
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

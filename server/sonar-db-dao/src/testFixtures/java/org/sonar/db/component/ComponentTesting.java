@@ -28,9 +28,6 @@ import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
@@ -217,8 +214,6 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {
-    String branchName = branchDto.getKey();
-    String branchSeparator = branchDto.getBranchType() == PULL_REQUEST ? PULL_REQUEST_SEPARATOR : BRANCH_KEY_SEPARATOR;
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)
@@ -226,8 +221,7 @@ public class ComponentTesting {
       .setBranchUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
-      // name of the branch is not mandatory on the main branch
-      .setKey(branchName != null ? project.getKey() + branchSeparator + branchName : project.getKey())
+      .setKey(project.getKey())
       .setMainBranchProjectUuid(project.getUuid())
       .setName(project.getName())
       .setLongName(project.getName())
@@ -243,7 +237,6 @@ public class ComponentTesting {
   public static ComponentDto newBranchComponent(ComponentDto project, BranchDto branchDto) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));
     checkArgument(project.getMainBranchProjectUuid() == null);
-    String branchName = branchDto.getKey();
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)

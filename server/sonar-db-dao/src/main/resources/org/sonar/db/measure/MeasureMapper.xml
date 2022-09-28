@@ -28,7 +28,7 @@
   </select>
 
 
-  <select id="selectLastMeasureForAllProjects" parameterType="map" resultType="ProjectMeasure">
+  <select id="selectMeasureFromLargestBranchForAllProjects" parameterType="map" resultType="ProjectMeasure">
     select tie_breaker.projectUuid as projectUuid,
     s.build_date as lastAnalysis,
     ncloc as loc,
@@ -36,12 +36,7 @@
       from
         (select counter.projectUuid as projectUuid,
           counter.maxncloc ncloc,
-          max(case
-            when c.main_branch_project_uuid is null
-            then 1
-            else 0
-          end) as mainBranch,
-          min(c.kee) as component_kee,
+          min(br.uuid) as branchUuid,
           counter.projectName,
           counter.projectKey
           from
@@ -59,8 +54,7 @@
           inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
           inner join components c on c.uuid = br.uuid
           group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
-      inner join components c2 on c2.kee  = tie_breaker.component_kee
-      inner join project_branches pb on c2.uuid = pb.uuid
+      inner join project_branches pb on tie_breaker.branchUuid = pb.uuid
       inner join project_measures pm on pb.uuid = pm.component_uuid
       inner join snapshots s on s.component_uuid = pb.uuid and s.islast = ${_true}
       inner join metrics m on m.name = #{metricKey,jdbcType=VARCHAR} and m.uuid = pm.metric_uuid

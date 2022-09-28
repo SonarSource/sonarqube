@@ -12,7 +12,7 @@
     <result property="enabled" column="enabled"/>
   </resultMap>
 
-  <select id="countResourceByKey" parameterType="String" resultType="int">
+  <select id="countComponentsByKey" parameterType="String" resultType="int">
     SELECT count(1)
     FROM components
     WHERE kee = #{key,jdbcType=VARCHAR}
@@ -28,14 +28,6 @@
     where
     root_uuid = #{rootUuid,jdbcType=VARCHAR}
     and scope != 'PRJ'
-  </select>
-
-  <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">
-    select * from components
-    where
-    scope='PRJ'
-    and root_uuid = #{rootUuid,jdbcType=VARCHAR}
-    and uuid != #{rootUuid,jdbcType=VARCHAR}
   </select>
 
   <update id="updateComponent" parameterType="Resource">

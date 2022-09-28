@@ -34,7 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
-import org.sonar.db.component.ComponentKeyUpdaterDao.RekeyedResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,14 +52,14 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
-  
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  private AuditPersister auditPersister = mock(AuditPersister.class);
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
-  private ComponentKeyUpdaterDao underTestWithAuditPersister = new ComponentKeyUpdaterDao(auditPersister);
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
+  private final ComponentKeyUpdaterDao underTestWithAuditPersister = new ComponentKeyUpdaterDao(auditPersister);
 
   @Test
   public void updateKey_changes_the_key_of_tree_of_components() {
@@ -160,26 +159,25 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_updates_branches_too() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
     db.components().insertComponent(newFileDto(branch));
     db.components().insertComponent(newFileDto(branch));
-    int branchComponentCount = 3;
+    int prComponentCount = 3;
 
     String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
-
-    String oldBranchKey = branch.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
+    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    String newBranchKey = ComponentDto.generateBranchKey(newProjectKey, branch.getBranch());
     underTest.updateKey(dbSession, project.uuid(), newProjectKey);
 
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
+    assertThat(dbClient.componentDao().selectByKeyAndBranch(dbSession, newProjectKey, branchKey)).isPresent();
+    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
     db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
   }
@@ -191,29 +189,24 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));
-    int branchComponentCount = 3;
+    int prComponentCount = 3;
 
     String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
-
-    String oldBranchKey = pullRequest.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
+    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(pullRequest.uuid(), dbSession)).hasSize(prComponentCount);
 
     String newProjectKey = "newKey";
-    String newBranchKey = ComponentDto.generatePullRequestKey(newProjectKey, pullRequestKey1);
     underTest.updateKey(dbSession, project.uuid(), newProjectKey);
 
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
+    assertThat(dbClient.componentDao().selectByKeyAndPullRequest(dbSession, newProjectKey, pullRequestKey1)).isPresent();
 
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
+    assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
+    assertThat(dbClient.componentDao().selectByBranchUuid(pullRequest.uuid(), dbSession)).hasSize(prComponentCount);
+
     db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
-  }
-
-  private ComponentDto prefixDbKeyWithKey(ComponentDto componentDto, String key) {
-    return componentDto.setKey(key + ":" + componentDto.getKey());
   }
 
   @Test
@@ -251,11 +244,6 @@ public class ComponentKeyUpdaterDaoTest {
 
     verify(auditPersister, times(1))
       .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
-  }
-
-
-  private Predicate<RekeyedResource> doNotReturnAnyRekeyedResource() {
-    return a -> false;
   }
 
   private void populateSomeData() {

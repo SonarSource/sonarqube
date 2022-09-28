@@ -376,19 +376,6 @@ public class TreeActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getKey());
-    assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
-  }
-
-  @Test
   public void fail_when_using_branch_key() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);

@@ -72,6 +72,16 @@ public class ComponentDbTester {
       .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
   }
 
+  public ComponentDto getComponentDto(ProjectDto project) {
+    return db.getDbClient().componentDao().selectByUuid(dbSession, project.getUuid())
+      .orElseThrow(() -> new IllegalStateException("Can't find project"));
+  }
+
+  public ComponentDto getComponentDto(BranchDto branch) {
+    return db.getDbClient().componentDao().selectByUuid(dbSession, branch.getUuid())
+      .orElseThrow(() -> new IllegalStateException("Can't find branch"));
+  }
+
   public ComponentDto insertPrivateProject(ComponentDto componentDto) {
     return insertComponentAndBranchAndProject(componentDto, true);
   }
@@ -141,6 +151,16 @@ public class ComponentDbTester {
   public ProjectDto insertPrivateProjectDto(Consumer<BranchDto> branchPopulator, Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     ComponentDto componentDto = insertPrivateProjectWithCustomBranch(branchPopulator, componentDtoPopulator, projectDtoPopulator);
     return getProjectDto(componentDto);
+  }
+
+  public final ComponentDto insertFile(ProjectDto project) {
+    ComponentDto projectComponent = getComponentDto(project);
+    return insertComponent(ComponentTesting.newFileDto(projectComponent));
+  }
+
+  public final ComponentDto insertFile(BranchDto branch) {
+    ComponentDto projectComponent = getComponentDto(branch);
+    return insertComponent(ComponentTesting.newFileDto(projectComponent));
   }
 
   public final ComponentDto insertPrivateProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
