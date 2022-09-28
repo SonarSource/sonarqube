@@ -303,7 +303,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             handleSymbolClick={this.handleSymbolClick}
             highlightedLocationMessage={this.props.highlightedLocationMessage}
             highlightedSymbols={this.state.highlightedSymbols}
-            index={index}
+            index={snippets[index].index}
             issue={this.props.issue}
             lastSnippetOfLastGroup={lastSnippetGroup && index === snippets.length - 1}
             loadDuplications={this.loadDuplications}
