@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
+import org.sonar.server.security.SecurityStandards.OwaspAsvs;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 
@@ -124,5 +125,12 @@ public class SecurityStandardsTest {
     List<String> pciDssCategories = Arrays.stream(PciDss.values()).map(PciDss::category).collect(Collectors.toList());
 
     assertThat(pciDssCategories).hasSize(12).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
+  }
+
+  @Test
+  public void owaspAsvs_categories_check() {
+    List<String> owaspAsvsCategories = Arrays.stream(OwaspAsvs.values()).map(OwaspAsvs::category).collect(Collectors.toList());
+
+    assertThat(owaspAsvsCategories).hasSize(14).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
   }
 }

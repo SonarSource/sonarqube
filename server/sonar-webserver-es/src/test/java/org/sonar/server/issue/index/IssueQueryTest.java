@@ -102,6 +102,15 @@ public class IssueQueryTest {
   }
 
   @Test
+  public void build_owasp_asvs_query() {
+    IssueQuery query = IssueQuery.builder()
+      .owaspAsvs40(List.of("1.2.3", "3.2.1"))
+      .build();
+
+    assertThat(query.owaspAsvs40()).containsOnly("1.2.3", "3.2.1");
+  }
+
+  @Test
   public void build_owasp_query() {
     IssueQuery query = IssueQuery.builder()
       .owaspTop10(List.of("a1", "a2"))

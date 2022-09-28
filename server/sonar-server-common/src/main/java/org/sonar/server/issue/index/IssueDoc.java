@@ -295,6 +295,16 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_PCI_DSS_40);
   }
 
+  public IssueDoc setOwaspAsvs40(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_OWASP_ASVS_40, o);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspAsvs40() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_ASVS_40);
+  }
+
   @CheckForNull
   public Collection<String> getOwaspTop10() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10);

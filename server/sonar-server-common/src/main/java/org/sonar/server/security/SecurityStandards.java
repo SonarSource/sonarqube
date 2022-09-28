@@ -32,13 +32,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
+import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
-import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V4_0;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -57,7 +58,8 @@ public final class SecurityStandards {
   private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
   private static final String OWASP_TOP10_2021_PREFIX = "owaspTop10-2021:";
   private static final String PCI_DSS_32_PREFIX = V3_2.prefix() + ":";
-  private static final String PCI_DSS_40_PREFIX = V4_0.prefix() + ":";
+  private static final String PCI_DSS_40_PREFIX = PciDssVersion.V4_0.prefix() + ":";
+  private static final String OWASP_ASVS_40_PREFIX = OwaspAsvsVersion.V4_0.prefix() + ":";
   private static final String CWE_PREFIX = "cwe:";
   // See https://www.sans.org/top25-software-errors
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
@@ -177,6 +179,20 @@ public final class SecurityStandards {
     }
   }
 
+  public enum OwaspAsvs {
+    C1("1"), C2("2"), C3("3"), C4("4"), C5("5"), C6("6"), C7("7"), C8("8"), C9("9"), C10("10"), C11("11"), C12("12"), C13("13"), C14("14");
+
+    private final String category;
+
+    OwaspAsvs(String category) {
+      this.category = category;
+    }
+
+    public String category() {
+      return category;
+    }
+  }
+
   public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
     .put(SQCategory.BUFFER_OVERFLOW, Set.of("119", "120", "131", "676", "788"))
     .put(SQCategory.SQL_INJECTION, Set.of("89", "564", "943"))
@@ -226,19 +242,23 @@ public final class SecurityStandards {
   }
 
   public Set<String> getPciDss32() {
-    return toPciDss(standards, PCI_DSS_32_PREFIX);
+    return getMatchingStandards(standards, PCI_DSS_32_PREFIX);
   }
 
   public Set<String> getPciDss40() {
-    return toPciDss(standards, PCI_DSS_40_PREFIX);
+    return getMatchingStandards(standards, PCI_DSS_40_PREFIX);
+  }
+
+  public Set<String> getOwaspAsvs40() {
+    return getMatchingStandards(standards, OWASP_ASVS_40_PREFIX);
   }
 
   public Set<String> getOwaspTop10() {
-    return toOwaspTop10(standards, OWASP_TOP10_PREFIX);
+    return getMatchingStandards(standards, OWASP_TOP10_PREFIX);
   }
 
   public Set<String> getOwaspTop10For2021() {
-    return toOwaspTop10(standards, OWASP_TOP10_2021_PREFIX);
+    return getMatchingStandards(standards, OWASP_TOP10_2021_PREFIX);
   }
 
   /**
@@ -276,14 +296,7 @@ public final class SecurityStandards {
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
-  private static Set<String> toPciDss(Set<String> securityStandards, String prefix) {
-    return securityStandards.stream()
-      .filter(s -> s.startsWith(prefix))
-      .map(s -> s.substring(prefix.length()))
-      .collect(toSet());
-  }
-
-  private static Set<String> toOwaspTop10(Set<String> securityStandards, String prefix) {
+  private static Set<String> getMatchingStandards(Set<String> securityStandards, String prefix) {
     return securityStandards.stream()
       .filter(s -> s.startsWith(prefix))
       .map(s -> s.substring(prefix.length()))
