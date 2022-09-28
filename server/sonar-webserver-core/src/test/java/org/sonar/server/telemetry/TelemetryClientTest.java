@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 public class TelemetryClientTest {
@@ -48,6 +49,7 @@ public class TelemetryClientTest {
   public void upload() throws IOException {
     ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), TELEMETRY_URL);
+    settings.setProperty(SONAR_TELEMETRY_COMPRESSION.getKey(), false);
     underTest.start();
 
     underTest.upload(JSON);

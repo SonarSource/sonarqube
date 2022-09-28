@@ -26,12 +26,16 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.BufferedSink;
+import okio.GzipSink;
+import okio.Okio;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 @ServerSide
@@ -42,10 +46,11 @@ public class TelemetryClient implements Startable {
   private final OkHttpClient okHttpClient;
   private final Configuration config;
   private String serverUrl;
+  private boolean compression;
 
   public TelemetryClient(OkHttpClient okHttpClient, Configuration config) {
-    this.okHttpClient = okHttpClient;
     this.config = config;
+    this.okHttpClient = okHttpClient;
   }
 
   void upload(String json) throws IOException {
@@ -68,10 +73,38 @@ public class TelemetryClient implements Startable {
 
   private Request buildHttpRequest(String json) {
     Request.Builder request = new Request.Builder();
+    request.addHeader("Content-Encoding", "gzip");
+    request.addHeader("Content-Type", "application/json");
     request.url(serverUrl);
     RequestBody body = RequestBody.create(JSON, json);
-    request.post(body);
+    if (compression) {
+      request.post(gzip(body));
+    } else {
+      request.post(body);
+    }
     return request.build();
+  }
+
+  private static RequestBody gzip(final RequestBody body) {
+    return new RequestBody() {
+      @Override
+      public MediaType contentType() {
+        return body.contentType();
+      }
+
+      @Override
+      public long contentLength() {
+        // We don't know the compressed length in advance!
+        return -1;
+      }
+
+      @Override
+      public void writeTo(BufferedSink sink) throws IOException {
+        BufferedSink gzipSink = Okio.buffer(new GzipSink(sink));
+        body.writeTo(gzipSink);
+        gzipSink.close();
+      }
+    };
   }
 
   private static void execute(Call call) throws IOException {
@@ -82,7 +115,9 @@ public class TelemetryClient implements Startable {
 
   @Override
   public void start() {
-    this.serverUrl = config.get(SONAR_TELEMETRY_URL.getKey()).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL)));
+    this.serverUrl = config.get(SONAR_TELEMETRY_URL.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL)));
+    this.compression = config.getBoolean(SONAR_TELEMETRY_COMPRESSION.getKey()).orElse(true);
   }
 
   @Override
