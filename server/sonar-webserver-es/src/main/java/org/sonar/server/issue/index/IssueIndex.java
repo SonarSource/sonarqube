@@ -68,6 +68,7 @@ import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import org.sonar.api.utils.DateUtils;
@@ -90,6 +91,7 @@ import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.OwaspAsvs;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
@@ -1154,9 +1156,18 @@ public class IssueIndex {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Arrays.stream(PciDss.values())
       .forEach(pciDss -> request.aggregation(
-        newPciDssSecurityReportSubAggregations(
-          AggregationBuilders.filter(pciDss.category(), boolQuery().filter(prefixQuery(version.prefix(), pciDss.category() + "."))), version)));
-    return searchPciDss(request, version.label());
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(pciDss.category(), boolQuery().filter(prefixQuery(version.prefix(), pciDss.category() + "."))), version.prefix())));
+    return searchWithDistribution(request, version.label());
+  }
+
+  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReport(String projectUuid, boolean isViewOrApp, OwaspAsvsVersion version) {
+    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    Arrays.stream(OwaspAsvs.values())
+      .forEach(owaspAsvs -> request.aggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(owaspAsvs.category(), boolQuery().filter(prefixQuery(version.prefix(), owaspAsvs.category() + "."))), version.prefix())));
+    return searchWithDistribution(request, version.label());
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
@@ -1170,12 +1181,12 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
-  private List<SecurityStandardCategoryStatistics> searchPciDss(SearchSourceBuilder sourceBuilder, String version) {
+  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version) {
     SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
       .source(sourceBuilder);
     SearchResponse response = client.search(request);
     return response.getAggregations().asList().stream()
-      .map(c -> processPciDssSecurityReportIssueSearchResults((ParsedFilter) c, version))
+      .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version))
       .collect(MoreCollectors.toList());
   }
 
@@ -1188,7 +1199,7 @@ public class IssueIndex {
       .collect(MoreCollectors.toList());
   }
 
-  private static SecurityStandardCategoryStatistics processPciDssSecurityReportIssueSearchResults(ParsedFilter categoryFilter, String version) {
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, String version) {
     Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
     var children = stream.filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null)).collect(toList());
@@ -1229,10 +1240,10 @@ public class IssueIndex {
       reviewedSecurityHotspots, securityReviewRating, children, version);
   }
 
-  private static AggregationBuilder newPciDssSecurityReportSubAggregations(AggregationBuilder categoriesAggs, PciDssVersion version) {
+  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, String securityStandardVersionPrefix) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     final TermsAggregationBuilder distributionAggregation = AggregationBuilders.terms(AGG_DISTRIBUTION)
-      .field(version.prefix())
+      .field(securityStandardVersionPrefix)
       // 100 should be enough to display all the requirements per category. If not, the UI will be broken anyway
       .size(MAX_FACET_SIZE);
     categoriesAggs.subAggregation(addSecurityReportIssueCountAggregations(distributionAggregation));
