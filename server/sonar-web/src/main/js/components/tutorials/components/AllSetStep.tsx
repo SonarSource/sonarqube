@@ -37,7 +37,7 @@ export default function AllSetStep(props: AllSetStepProps) {
       finished={false}
       open={open}
       renderForm={() => (
-        <div data-testid="azure-tutorial__all-set" className="boxed-group-inner">
+        <div className="boxed-group-inner">
           <AllSet alm={alm} willRefreshAutomatically={willRefreshAutomatically} />
         </div>
       )}

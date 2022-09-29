@@ -41,7 +41,7 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
 
   return (
     <>
-      <ol className="list-styled" data-testid="azure-tutorial__service-endpoint">
+      <ol className="list-styled">
         <li>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step1"

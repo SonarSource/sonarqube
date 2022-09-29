@@ -24,7 +24,7 @@ import Link from '../../common/Link';
 
 export default function ExtensionInstallationStepContent() {
   return (
-    <span data-testid="azure-tutorial__extension">
+    <span>
       <FormattedMessage
         defaultMessage={translate(
           'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence'

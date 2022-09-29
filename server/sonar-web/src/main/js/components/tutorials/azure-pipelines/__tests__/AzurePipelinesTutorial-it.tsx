@@ -27,6 +27,7 @@ import { mockAppState, mockLanguage, mockLoggedInUser } from '../../../../helper
 import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
+import { OSs } from '../../types';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
 
 jest.mock('../../../../api/user-tokens');
@@ -91,24 +92,14 @@ it('should render correctly and allow navigating between the different steps', a
   await clickButton(user, 'onboarding.build.gradle');
   assertGradleStepIsCorrectlyRendered();
 
-  //// Analysis step: Gradle
-  await clickButton(user, 'onboarding.build.gradle');
-  assertGradleStepIsCorrectlyRendered();
-
   //// Analysis step: C Family
   await clickButton(user, 'onboarding.build.cfamily');
 
-  // OS: Linux
-  await clickButton(user, 'onboarding.build.other.os.linux');
-  assertCFamilyLinuxStepIsCorrectlyRendered();
-
-  // OS: Windows
-  await clickButton(user, 'onboarding.build.other.os.win');
-  assertCFamilyWindowsStepIsCorrectlyRendered();
-
-  // OS: macOS
-  await clickButton(user, 'onboarding.build.other.os.mac');
-  assertCFamilyMacOSStepIsCorrectlyRendered();
+  // OS's
+  [OSs.Linux, OSs.Windows, OSs.MacOS].forEach(async os => {
+    await clickButton(user, `onboarding.build.other.os.${os}`);
+    assertCFamilyStepIsCorrectlyRendered(os);
+  });
 
   //// Analysis step: Other
   await clickButton(user, 'onboarding.build.other');
@@ -171,6 +162,62 @@ it('should not offer CFamily analysis if the language is not available', async (
   ).not.toBeInTheDocument();
 });
 
+function assertDefaultStepIsCorrectlyRendered() {
+  expect(
+    screen.getByRole('heading', {
+      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
+    })
+  ).toBeInTheDocument();
+}
+
+function assertServiceEndpointStepIsCorrectlyRendered() {
+  expect(
+    screen.getByRole('heading', {
+      name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title'
+    })
+  ).toBeInTheDocument();
+  expect(getCopyToClipboardValue()).toBe('https://sonarqube.example.com/');
+  expect(
+    screen.getByRole('button', { name: 'onboarding.token.generate.long' })
+  ).toBeInTheDocument();
+}
+
+function assertDotNetStepIsCorrectlyRendered() {
+  expect(
+    screen.getByRole('heading', {
+      name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title'
+    })
+  ).toBeInTheDocument();
+  expect(getCopyToClipboardValue()).toBe('foo');
+}
+
+function assertMavenStepIsCorrectlyRendered() {
+  expect(getCopyToClipboardValue()).toMatchSnapshot('maven, copy additional properties');
+}
+
+function assertGradleStepIsCorrectlyRendered() {
+  expect(getCopyToClipboardValue()).toMatchSnapshot('gradle, copy additional properties');
+}
+
+function assertCFamilyStepIsCorrectlyRendered(os: string) {
+  expect(getCopyToClipboardValue(0)).toMatchSnapshot(`cfamily ${os}, copy shell script`);
+  expect(getCopyToClipboardValue(1)).toBe('foo');
+  expect(getCopyToClipboardValue(2)).toMatchSnapshot(`cfamily ${os}, copy additional properties`);
+  expect(getCopyToClipboardValue(3)).toMatchSnapshot(`cfamily ${os}, copy build-wrapper command`);
+}
+
+function assertOtherStepIsCorrectlyRendered() {
+  expect(getCopyToClipboardValue()).toBe('foo');
+}
+
+function assertFinishStepIsCorrectlyRendered() {
+  expect(
+    screen.getByRole('heading', {
+      name: 'onboarding.tutorial.ci_outro.all_set.title'
+    })
+  ).toBeInTheDocument();
+}
+
 function renderAzurePipelinesTutorial(
   props: Partial<AzurePipelinesTutorialProps> = {},
   {
@@ -181,8 +228,8 @@ function renderAzurePipelinesTutorial(
   return renderApp(
     '/',
     <AzurePipelinesTutorial
-      baseUrl="http://localhost:9000"
-      component={mockComponent()}
+      baseUrl="https://sonarqube.example.com/"
+      component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
       willRefreshAutomatically={true}
       {...props}
@@ -203,82 +250,6 @@ async function goToNextStep(user: UserEvent) {
   await clickButton(user, 'continue');
 }
 
-function assertDefaultStepIsCorrectlyRendered() {
-  expect(
-    screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
-    })
-  ).toBeInTheDocument();
-  expect(screen.getByTestId('azure-tutorial__extension')).toMatchSnapshot('extension step');
-}
-
-function assertServiceEndpointStepIsCorrectlyRendered() {
-  expect(
-    screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title'
-    })
-  ).toBeInTheDocument();
-  expect(screen.getByTestId('azure-tutorial__service-endpoint')).toMatchSnapshot(
-    'service endpoint step'
-  );
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: 'onboarding.token.generate.long' })
-  ).toBeInTheDocument();
-}
-
-function assertDotNetStepIsCorrectlyRendered() {
-  expect(
-    screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title'
-    })
-  ).toBeInTheDocument();
-
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot('dotnet step');
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
-}
-
-function assertMavenStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot('maven step');
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
-}
-
-function assertGradleStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot('gradle step');
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
-}
-
-function assertCFamilyLinuxStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot(
-    'cfamily linux step'
-  );
-  expect(screen.getAllByRole('button', { name: 'copy_to_clipboard' })).toHaveLength(4);
-}
-
-function assertCFamilyWindowsStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot(
-    'cfamily windows step'
-  );
-  expect(screen.getAllByRole('button', { name: 'copy_to_clipboard' })).toHaveLength(4);
-}
-
-function assertCFamilyMacOSStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot(
-    'cfamily macos step'
-  );
-  expect(screen.getAllByRole('button', { name: 'copy_to_clipboard' })).toHaveLength(4);
-}
-
-function assertOtherStepIsCorrectlyRendered() {
-  expect(screen.getByTestId('azure-tutorial__analysis-command')).toMatchSnapshot('other step');
-  expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
-}
-
-function assertFinishStepIsCorrectlyRendered() {
-  expect(
-    screen.getByRole('heading', {
-      name: 'onboarding.tutorial.ci_outro.all_set.title'
-    })
-  ).toBeInTheDocument();
-  expect(screen.getByTestId('azure-tutorial__all-set')).toMatchSnapshot('all set step');
+function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
+  return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
 }
