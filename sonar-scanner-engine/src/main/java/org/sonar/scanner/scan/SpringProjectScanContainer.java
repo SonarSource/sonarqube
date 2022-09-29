@@ -228,7 +228,8 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
       MutableProjectSettings.class,
       ScannerProperties.class,
-      new ProjectConfigurationProvider(),
+      SonarGlobalPropertiesFilter.class,
+      ProjectConfigurationProvider.class,
 
       ProjectCoverageAndDuplicationExclusions.class,
 

@@ -55,7 +55,8 @@ public class SpringModuleScanContainer extends SpringComponentContainer {
       module.definition(),
       module,
       MutableModuleSettings.class,
-      new ModuleConfigurationProvider(),
+      SonarGlobalPropertiesFilter.class,
+      ModuleConfigurationProvider.class,
 
       ModuleSensorsExecutor.class,
 

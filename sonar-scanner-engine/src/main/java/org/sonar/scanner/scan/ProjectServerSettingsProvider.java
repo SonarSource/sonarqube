@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Bean;
 
 public class ProjectServerSettingsProvider {
 
-  private static final Logger LOG = Loggers.get(ProjectConfigurationProvider.class);
+  private static final Logger LOG = Loggers.get(ProjectServerSettingsProvider.class);
 
   private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = "Settings that were previously configured at " +
     "sub-project level are not used anymore. Transition the settings listed in ‘General Settings -> General -> " +

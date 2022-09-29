@@ -26,7 +26,15 @@ import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.springframework.context.annotation.Bean;
 
+
 public class ProjectConfigurationProvider {
+
+  private final SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
+
+  public ProjectConfigurationProvider(SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter) {
+    this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
+  }
+
   @Bean("ProjectConfiguration")
   public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings,
     ProjectServerSettings projectServerSettings, MutableProjectSettings projectSettings) {
@@ -35,8 +43,12 @@ public class ProjectConfigurationProvider {
     settings.putAll(projectServerSettings.properties());
     settings.putAll(project.properties());
 
+    settings = sonarGlobalPropertiesFilter.enforceOnlyServerSideSonarGlobalPropertiesAreUsed(settings, globalServerSettings.properties());
+
     ProjectConfiguration projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
     projectSettings.complete(projectConfig);
     return projectConfig;
   }
+
+
 }

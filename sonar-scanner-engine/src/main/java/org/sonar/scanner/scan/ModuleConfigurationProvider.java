@@ -30,6 +30,14 @@ import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.springframework.context.annotation.Bean;
 
 public class ModuleConfigurationProvider {
+
+  private final SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
+
+  public ModuleConfigurationProvider(SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter) {
+    this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
+  }
+
+
   @Bean("ModuleConfiguration")
   public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, GlobalServerSettings globalServerSettings,
     ProjectServerSettings projectServerSettings) {
@@ -37,6 +45,8 @@ public class ModuleConfigurationProvider {
     settings.putAll(globalServerSettings.properties());
     settings.putAll(projectServerSettings.properties());
     addScannerSideProperties(settings, module.definition());
+
+    settings = sonarGlobalPropertiesFilter.enforceOnlyServerSideSonarGlobalPropertiesAreUsed(settings, globalServerSettings.properties());
 
     return new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
   }

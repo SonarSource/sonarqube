@@ -50,6 +50,7 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.ModuleConfigurationProvider;
 import org.sonar.scanner.scan.ProjectServerSettings;
+import org.sonar.scanner.scan.SonarGlobalPropertiesFilter;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -63,6 +64,7 @@ public class ProjectFileIndexer {
 
   private static final Logger LOG = Loggers.get(ProjectFileIndexer.class);
   private final ProjectExclusionFilters projectExclusionFilters;
+  private final SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter;
   private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
   private final ScmConfiguration scmConfiguration;
   private final InputComponentStore componentStore;
@@ -77,9 +79,10 @@ public class ProjectFileIndexer {
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
+    SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
     FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, ScmConfiguration scmConfiguration) {
     this.componentStore = componentStore;
+    this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
     this.inputModuleHierarchy = inputModuleHierarchy;
     this.globalConfig = globalConfig;
     this.globalServerSettings = globalServerSettings;
@@ -140,7 +143,7 @@ public class ProjectFileIndexer {
 
   private void index(DefaultInputModule module, ExclusionCounter exclusionCounter) {
     // Emulate creation of module level settings
-    ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, globalServerSettings, projectServerSettings);
+    ModuleConfiguration moduleConfig = new ModuleConfigurationProvider(sonarGlobalPropertiesFilter).provide(globalConfig, module, globalServerSettings, projectServerSettings);
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
     ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions = new ModuleCoverageAndDuplicationExclusions(moduleConfig);
     if (componentStore.allModules().size() > 1) {
