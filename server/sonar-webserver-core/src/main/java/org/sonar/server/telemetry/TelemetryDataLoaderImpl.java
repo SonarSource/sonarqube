@@ -111,56 +111,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
 
-      Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
-      Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
-      Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
-      List<String> projectUuids = dbClient.projectDao().selectAllProjectUuids(dbSession);
-
-      Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
-        .stream().collect(Collectors.toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
-
-      boolean isCommunityEdition = editionProvider.get().filter(edition -> edition.equals(COMMUNITY)).isPresent();
-      List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
-      for (String projectUuid : projectUuids) {
-        Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProjects.get(projectUuid));
-
-        Long branchCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L);
-        Long pullRequestCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L);
-
-        Boolean hasUnanalyzedCMeasures = null;
-        Boolean hasUnanalyzedCppMeasures = null;
-        if (isCommunityEdition) {
-          hasUnanalyzedCMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCCount).orElse(0L) > 0;
-          hasUnanalyzedCppMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCppCount).orElse(0L) > 0;
-        }
-
-        String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
-        String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
-        String devopsPlatform = null;
-        if (almAndUrlByProject.containsKey(projectUuid)) {
-          ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
-          devopsPlatform = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
-        }
-        devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
-
-        projectStatistics.add(
-          new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, hasUnanalyzedCMeasures, hasUnanalyzedCppMeasures, scm, ci, devopsPlatform));
-      }
-      data.setProjectStatistics(projectStatistics);
-
-      data.setUsers(dbClient.userDao().selectUsersForTelemetry(dbSession));
-
-      List<ProjectMeasureDto> measures = dbClient.measureDao().selectLastMeasureForAllProjects(dbSession, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-      List<TelemetryData.Project> projects = new ArrayList<>();
-      for (ProjectMeasureDto measure : measures) {
-        for (String measureTextValue : measure.getTextValue().split(";")) {
-          String[] languageAndLoc = measureTextValue.split("=");
-          String language = languageAndLoc[0];
-          Long loc = Long.parseLong(languageAndLoc[1]);
-          projects.add(new TelemetryData.Project(measure.getProjectUuid(), measure.getLastAnalysis(), language, loc));
-        }
-      }
-      data.setProjects(projects);
+      resolveProjectStatistics(data, dbSession);
+      resolveProjects(data, dbSession);
+      resolveUsers(data, dbSession);
     }
 
     setSecurityCustomConfigIfPresent(data);
@@ -171,6 +124,62 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setInstallationVersion(installationVersionProperty.orElse(null));
     data.setInDocker(dockerSupport.isRunningInDocker());
     return data.build();
+  }
+
+  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession) {
+    List<String> projectUuids = dbClient.projectDao().selectAllProjectUuids(dbSession);
+    Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
+    Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
+    Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
+    Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
+      .stream().collect(Collectors.toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
+
+    boolean isCommunityEdition = editionProvider.get().filter(edition -> edition.equals(COMMUNITY)).isPresent();
+    List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
+    for (String projectUuid : projectUuids) {
+      Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProjects.get(projectUuid));
+
+      Long branchCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L);
+      Long pullRequestCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L);
+
+      Boolean hasUnanalyzedCMeasures = null;
+      Boolean hasUnanalyzedCppMeasures = null;
+      if (isCommunityEdition) {
+        hasUnanalyzedCMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCCount).orElse(0L) > 0;
+        hasUnanalyzedCppMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCppCount).orElse(0L) > 0;
+      }
+
+      String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
+      String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
+      String devopsPlatform = null;
+      if (almAndUrlByProject.containsKey(projectUuid)) {
+        ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
+        devopsPlatform = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
+      }
+      devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
+
+      projectStatistics.add(
+        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, hasUnanalyzedCMeasures, hasUnanalyzedCppMeasures, scm, ci, devopsPlatform));
+    }
+    data.setProjectStatistics(projectStatistics);
+  }
+
+  private void resolveProjects(TelemetryData.Builder data, DbSession dbSession) {
+    List<ProjectMeasureDto> measures = dbClient.measureDao().selectLastMeasureForAllProjects(dbSession, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    List<TelemetryData.Project> projects = new ArrayList<>();
+    for (ProjectMeasureDto measure : measures) {
+      for (String measureTextValue : measure.getTextValue().split(";")) {
+        String[] languageAndLoc = measureTextValue.split("=");
+        String language = languageAndLoc[0];
+        Long loc = Long.parseLong(languageAndLoc[1]);
+        projects.add(new TelemetryData.Project(measure.getProjectUuid(), measure.getLastAnalysis(), language, loc));
+      }
+    }
+    data.setProjects(projects);
+  }
+
+  private void resolveUsers(TelemetryData.Builder data, DbSession dbSession) {
+    data.setUsers(dbClient.userDao().selectUsersForTelemetry(dbSession));
   }
 
   private void setSecurityCustomConfigIfPresent(TelemetryData.Builder data) {

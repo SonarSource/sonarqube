@@ -48,19 +48,13 @@ import static org.sonar.test.JsonAssert.assertJson;
 @RunWith(DataProviderRunner.class)
 public class TelemetryDataJsonWriterTest {
 
-  private static final TelemetryData.Builder SOME_TELEMETRY_DATA = TelemetryData.builder()
-    .setServerId("foo")
-    .setVersion("bar")
-    .setPlugins(Collections.emptyMap())
-    .setDatabase(new TelemetryData.Database("H2", "11"));
-
   private final Random random = new Random();
 
   private final TelemetryDataJsonWriter underTest = new TelemetryDataJsonWriter();
 
   @Test
   public void write_server_id_and_version() {
-    TelemetryData data = SOME_TELEMETRY_DATA.build();
+    TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
 
@@ -72,7 +66,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void does_not_write_edition_if_null() {
-    TelemetryData data = SOME_TELEMETRY_DATA.build();
+    TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
 
@@ -82,7 +76,7 @@ public class TelemetryDataJsonWriterTest {
   @Test
   @UseDataProvider("allEditions")
   public void writes_edition_if_non_null(EditionProvider.Edition edition) {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setEdition(edition)
       .build();
 
@@ -95,7 +89,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void does_not_write_license_type_if_null() {
-    TelemetryData data = SOME_TELEMETRY_DATA.build();
+    TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
 
@@ -105,7 +99,7 @@ public class TelemetryDataJsonWriterTest {
   @Test
   public void writes_licenseType_if_non_null() {
     String expected = randomAlphabetic(12);
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setLicenseType(expected)
       .build();
 
@@ -120,7 +114,7 @@ public class TelemetryDataJsonWriterTest {
   public void writes_database() {
     String name = randomAlphabetic(12);
     String version = randomAlphabetic(10);
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setDatabase(new TelemetryData.Database(name, version))
       .build();
 
@@ -136,7 +130,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_no_plugins() {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setPlugins(Collections.emptyMap())
       .build();
 
@@ -152,7 +146,7 @@ public class TelemetryDataJsonWriterTest {
     Map<String, String> plugins = IntStream.range(0, 1 + random.nextInt(10))
       .boxed()
       .collect(MoreCollectors.uniqueIndex(i -> "P" + i, i -> "V" + i));
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setPlugins(plugins)
       .build();
 
@@ -168,7 +162,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void does_not_write_installation_date_if_null() {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setInstallationDate(null)
       .build();
 
@@ -179,7 +173,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void write_installation_date_in_utc_format() {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setInstallationDate(1_000L)
       .build();
 
@@ -192,7 +186,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void does_not_write_installation_version_if_null() {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setInstallationVersion(null)
       .build();
 
@@ -204,7 +198,7 @@ public class TelemetryDataJsonWriterTest {
   @Test
   public void write_installation_version() {
     String installationVersion = randomAlphabetic(5);
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setInstallationVersion(installationVersion)
       .build();
 
@@ -218,7 +212,7 @@ public class TelemetryDataJsonWriterTest {
   @Test
   public void write_docker_flag() {
     boolean inDocker = random.nextBoolean();
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setInDocker(inDocker)
       .build();
 
@@ -231,7 +225,7 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_security_custom_config() {
-    TelemetryData data = SOME_TELEMETRY_DATA
+    TelemetryData data = telemetryBuilder()
       .setCustomSecurityConfigs(Arrays.asList("php", "java"))
       .build();
 
@@ -244,8 +238,8 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_all_users_with_anonymous_md5_uuids() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setUsers(getUsers())
+    TelemetryData data = telemetryBuilder()
+      .setUsers(attachUsers())
       .build();
 
     String json = writeTelemetryData(data);
@@ -279,8 +273,8 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_all_projects() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjects(getProjects())
+    TelemetryData data = telemetryBuilder()
+      .setProjects(attachProjects())
       .build();
 
     String json = writeTelemetryData(data);
@@ -289,20 +283,20 @@ public class TelemetryDataJsonWriterTest {
       "  \"projects\": [" +
       "    {" +
       "      \"projectUuid\": \"uuid-0\"," +
-      "      \"language\": \"lang-0\"," +
       "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"language\": \"lang-0\"," +
       "      \"loc\": 2" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-1\"," +
-      "      \"language\": \"lang-1\"," +
       "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"language\": \"lang-1\"," +
       "      \"loc\": 4" +
       "    }," +
       "    {" +
       "      \"projectUuid\": \"uuid-2\"," +
-      "      \"language\": \"lang-2\"," +
       "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
+      "      \"language\": \"lang-2\"," +
       "      \"loc\": 6" +
       "    }" +
       "  ]" +
@@ -311,8 +305,8 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_all_projects_stats_with_analyzed_languages() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectStatistics(getProjectStats(true))
+    TelemetryData data = telemetryBuilder()
+      .setProjectStatistics(attachProjectStats(true))
       .build();
 
     String json = writeTelemetryData(data);
@@ -355,27 +349,35 @@ public class TelemetryDataJsonWriterTest {
 
   @Test
   public void writes_all_projects_stats_with_unanalyzed_languages() {
-    TelemetryData data = SOME_TELEMETRY_DATA
-      .setProjectStatistics(getProjectStats(false))
+    TelemetryData data = telemetryBuilder()
+      .setProjectStatistics(attachProjectStats(false))
       .build();
 
     String json = writeTelemetryData(data);
     assertThat(json).doesNotContain("hasUnanalyzedC", "hasUnanalyzedCpp");
   }
 
+  private static TelemetryData.Builder telemetryBuilder() {
+    return TelemetryData.builder()
+      .setServerId("foo")
+      .setVersion("bar")
+      .setPlugins(Collections.emptyMap())
+      .setDatabase(new TelemetryData.Database("H2", "11"));
+  }
+
   @NotNull
-  private static List<UserTelemetryDto> getUsers() {
+  private static List<UserTelemetryDto> attachUsers() {
     return IntStream.range(0, 3)
       .mapToObj(
         i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L).setExternalIdentityProvider("gitlab"))
       .collect(Collectors.toList());
   }
 
-  private static List<TelemetryData.Project> getProjects() {
+  private static List<TelemetryData.Project> attachProjects() {
     return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
   }
 
-  private List<TelemetryData.ProjectStatistics> getProjectStats(boolean hasUnanalyzedLanguages) {
+  private List<TelemetryData.ProjectStatistics> attachProjectStats(boolean hasUnanalyzedLanguages) {
     return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, hasUnanalyzedLanguages ? i % 2 == 0 : null, hasUnanalyzedLanguages ? i % 2 != 0 : null, "scm-" + i, "ci-" + i, "devops-" + i))
       .collect(Collectors.toList());
   }
