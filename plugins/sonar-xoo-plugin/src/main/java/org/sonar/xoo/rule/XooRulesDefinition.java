@@ -251,6 +251,13 @@ public class XooRulesDefinition implements RulesDefinition {
         .addPciDss(PciDssVersion.V3_2, "10.1a.2c");
     }
 
+    if (version != null && version.isGreaterThanOrEqual(Version.create(9, 6))) {
+      hotspot
+        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "3.1.1", "4.2.2");
+      oneVulnerabilityIssuePerModule
+        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "11.1.2", "14.5.1");
+    }
+
     NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
       .setName("Find security hotspots with contexts")
       .setType(RuleType.SECURITY_HOTSPOT)
