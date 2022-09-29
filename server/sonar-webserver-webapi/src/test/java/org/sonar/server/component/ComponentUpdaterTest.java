@@ -40,6 +40,7 @@ import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 
 import static java.util.stream.IntStream.rangeClosed;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +66,7 @@ public class ComponentUpdaterTest {
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
-  private ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
+  private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
     projectIndexers, new SequenceUuidFactory());
@@ -252,7 +253,7 @@ public class ComponentUpdaterTest {
       .build();
     assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create Project, key already exists: " + existing.getDbKey());
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", existing.getDbKey(), existing.getDbKey());
   }
 
   @Test
@@ -277,5 +278,22 @@ public class ComponentUpdaterTest {
     assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Malformed key for Project: 'roject%Key'");
+  }
+
+  @Test
+  public void create_shouldFail_whenCreatingProjectWithExistingKeyButDifferentCase() {
+    String existingKey = randomAlphabetic(5).toUpperCase();
+    db.components().insertPrivateProject(component -> component.setDbKey(existingKey));
+    String newKey = existingKey.toLowerCase();
+
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(newKey)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
   }
 }

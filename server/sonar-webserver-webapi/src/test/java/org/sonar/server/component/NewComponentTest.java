@@ -22,6 +22,7 @@ package org.sonar.server.component;
 import org.junit.Test;
 
 import static com.google.common.base.Strings.repeat;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -120,8 +121,28 @@ public class NewComponentTest {
     assertThat(newComponent.qualifier()).isEqualTo(PROJECT);
   }
 
+  @Test
+  public void isProject_shouldReturnTrue_whenQualifierIsProject() {
+    NewComponent newComponent = underTest.setKey(KEY)
+      .setName(NAME)
+      .setQualifier(PROJECT)
+      .build();
+
+    assertThat(newComponent.isProject()).isTrue();
+  }
+
+  @Test
+  public void isProject_shouldReturnFalse_whenQualifierIsNotProject() {
+    NewComponent newComponent = underTest.setKey(KEY)
+      .setName(NAME)
+      .setQualifier(randomAlphabetic(4))
+      .build();
+
+    assertThat(newComponent.isProject()).isFalse();
+  }
+
   private void expectBuildException(Class<? extends Exception> expectedExceptionType, String expectedMessage) {
-    assertThatThrownBy(() -> underTest.build())
+    assertThatThrownBy(underTest::build)
       .isInstanceOf(expectedExceptionType)
       .hasMessageContaining(expectedMessage);
   }

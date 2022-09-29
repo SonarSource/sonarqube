@@ -31,7 +31,10 @@ import org.apache.ibatis.session.RowBounds;
 public interface ComponentMapper {
 
   @CheckForNull
-  ComponentDto selectByKey(String key);
+  ComponentDto selectByKey(@Param("key") String key);
+
+  @CheckForNull
+  ComponentDto selectByKeyCaseInsensitive(@Param("key") String key);
 
   @CheckForNull
   ComponentDto selectBranchByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
@@ -40,7 +43,7 @@ public interface ComponentMapper {
   ComponentDto selectPrByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
 
   @CheckForNull
-  ComponentDto selectByUuid(String uuid);
+  ComponentDto selectByUuid(@Param("uuid") String uuid);
 
   /**
    * Return sub project of component keys

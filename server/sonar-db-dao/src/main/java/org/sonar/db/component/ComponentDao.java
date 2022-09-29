@@ -241,6 +241,10 @@ public class ComponentDao implements Dao {
     return Optional.ofNullable(mapper(session).selectByKey(key));
   }
 
+  public Optional<ComponentDto> selectByKeyCaseInsensitive(DbSession session, String key) {
+    return Optional.ofNullable(mapper(session).selectByKeyCaseInsensitive(key));
+  }
+
   public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
     return Optional.ofNullable(mapper(session).selectBranchByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
@@ -49,10 +48,13 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 
 public class ComponentUpdater {
 
-  private static final Set<String> MAIN_BRANCH_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> MAIN_BRANCH_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final String KEY_ALREADY_EXISTS_ERROR = "Could not create %s with key: \"%s\". A similar key already exists: \"%s\"";
+  private static final String MALFORMED_KEY_ERROR = "Malformed key for %s: '%s'. %s.";
 
   private final DbClient dbClient;
   private final I18n i18n;
@@ -87,6 +89,10 @@ public class ComponentUpdater {
     return componentDto;
   }
 
+  public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
+    projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
+  }
+
   /**
    * Create component without committing.
    * Don't forget to call commitAndIndex(...) when ready to commit.
@@ -104,6 +110,8 @@ public class ComponentUpdater {
     @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName,
     Consumer<ComponentDto> componentModifier) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
+    checkKeyAlreadyExists(dbSession, newComponent);
+
     ComponentDto componentDto = createRootComponent(dbSession, newComponent, componentModifier);
     if (isRootProject(componentDto)) {
       createMainBranch(dbSession, componentDto.uuid(), mainBranchName);
@@ -112,14 +120,20 @@ public class ComponentUpdater {
     return componentDto;
   }
 
-  public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
-    projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
+  private void checkKeyFormat(String qualifier, String key) {
+    checkRequest(isValidProjectKey(key), MALFORMED_KEY_ERROR, getQualifierToDisplay(qualifier), key, ALLOWED_CHARACTERS_MESSAGE);
+  }
+
+  private void checkKeyAlreadyExists(DbSession dbSession, NewComponent newComponent) {
+    Optional<ComponentDto> componentDto = newComponent.isProject()
+      ? dbClient.componentDao().selectByKeyCaseInsensitive(dbSession, newComponent.key())
+      : dbClient.componentDao().selectByKey(dbSession, newComponent.key());
+
+    componentDto.map(ComponentDto::getKey)
+      .ifPresent(existingKey -> throwBadRequestException(KEY_ALREADY_EXISTS_ERROR, getQualifierToDisplay(newComponent.qualifier()), newComponent.key(), existingKey));
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, Consumer<ComponentDto> componentModifier) {
-    checkRequest(!dbClient.componentDao().selectByKey(session, newComponent.key()).isPresent(),
-      "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), newComponent.key());
-
     long now = system2.now();
     String uuid = uuidFactory.create();
 
@@ -207,10 +221,6 @@ public class ComponentUpdater {
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
       favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, false);
     }
-  }
-
-  private void checkKeyFormat(String qualifier, String key) {
-    checkRequest(isValidProjectKey(key), "Malformed key for %s: '%s'. %s.", getQualifierToDisplay(qualifier), key, ALLOWED_CHARACTERS_MESSAGE);
   }
 
   private String getQualifierToDisplay(String qualifier) {

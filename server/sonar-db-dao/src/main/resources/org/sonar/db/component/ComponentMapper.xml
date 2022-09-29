@@ -32,6 +32,14 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component">
+    SELECT
+      <include refid="componentColumns"/>
+    FROM components p
+    where
+      lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
+  </select>
+
   <select id="selectBranchByKeyAndBranchKey" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>

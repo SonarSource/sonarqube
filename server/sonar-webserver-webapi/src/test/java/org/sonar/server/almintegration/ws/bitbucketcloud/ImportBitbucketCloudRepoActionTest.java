@@ -29,7 +29,6 @@ import org.sonar.alm.client.bitbucket.bitbucketcloud.Project;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -47,6 +46,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -75,11 +75,13 @@ public class ImportBitbucketCloudRepoActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
+  @Rule
+  public final I18nRule i18n = new I18nRule();
 
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
 
-  private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
+  private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
@@ -146,7 +148,7 @@ public class ImportBitbucketCloudRepoActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
-      .hasMessageContaining("Could not create null, key already exists: " + GENERATED_PROJECT_KEY);
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", GENERATED_PROJECT_KEY, GENERATED_PROJECT_KEY);
   }
 
   @Test

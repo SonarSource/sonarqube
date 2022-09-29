@@ -1979,6 +1979,27 @@ public class ComponentDaoTest {
     verifyNoInteractions(auditPersister);
   }
 
+  @Test
+  public void selectByKeyCaseInsensitive_shouldFindProject_whenCaseIsDifferent() {
+    String projectKey = randomAlphabetic(5).toLowerCase();
+    db.components().insertPrivateProject(c -> c.setDbKey(projectKey));
+
+    ComponentDto result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey.toUpperCase()).orElse(null);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getKey()).isEqualTo(projectKey);
+  }
+
+  @Test
+  public void selectByKeyCaseInsensitive_shouldNotFindProject_whenKeyIsDifferent() {
+    String projectKey = randomAlphabetic(5).toLowerCase();
+    db.components().insertPrivateProject(c -> c.setDbKey(projectKey));
+
+    Optional<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey + randomAlphabetic(1));
+
+    assertThat(result).isEmpty();
+  }
+
   private boolean privateFlagOfUuid(String uuid) {
     return underTest.selectByUuid(db.getSession(), uuid).get().isPrivate();
   }

@@ -69,6 +69,10 @@ public class NewComponent {
     return description;
   }
 
+  public boolean isProject() {
+    return PROJECT.equals(qualifier);
+  }
+
   public static class Builder {
     private String description;
     private String key;

@@ -51,14 +51,18 @@ public class BadRequestException extends ServerException {
     }
   }
 
-  public static BadRequestException create(List<String> errorMessages) {
-    checkArgument(!errorMessages.isEmpty(), "At least one error message is required");
-    checkArgument(errorMessages.stream().noneMatch(message -> message == null || message.isEmpty()), "Message cannot be empty");
-    return new BadRequestException(errorMessages);
+  public static void throwBadRequestException(String message, Object... messageArguments) {
+    throw create(format(message, messageArguments));
   }
 
   public static BadRequestException create(String... errorMessages) {
     return create(asList(errorMessages));
+  }
+
+  public static BadRequestException create(List<String> errorMessages) {
+    checkArgument(!errorMessages.isEmpty(), "At least one error message is required");
+    checkArgument(errorMessages.stream().noneMatch(message -> message == null || message.isEmpty()), "Message cannot be empty");
+    return new BadRequestException(errorMessages);
   }
 
   public List<String> errors() {
