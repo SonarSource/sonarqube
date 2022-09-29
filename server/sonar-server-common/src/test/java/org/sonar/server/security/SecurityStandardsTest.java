@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
+import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.server.security.SecurityStandards.OwaspAsvs;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -33,7 +34,11 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
+import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_40_LEVEL_BY_REQUIREMENT;
+import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_REQUIREMENTS_BY_LEVEL;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
@@ -133,4 +138,27 @@ public class SecurityStandardsTest {
 
     assertThat(owaspAsvsCategories).hasSize(14).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
   }
+
+  @Test
+  public void owaspAsvs40_requirements_distribution_by_level_check() {
+    assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.containsKey(OwaspAsvsVersion.V4_0));
+    assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).containsKey(1));
+    assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).containsKey(2));
+    assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).containsKey(3));
+    assertEquals(135, OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).get(1).size());
+    assertEquals(266, OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).get(2).size());
+    assertEquals(286, OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).get(3).size());
+  }
+
+  @Test
+  public void owaspAsvs40_level_by_requirements_check() {
+    assertEquals(286, OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.keySet().size());
+    assertEquals(Integer.valueOf(1), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("2.1.1"));
+    assertEquals(Integer.valueOf(1), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.5.3"));
+    assertEquals(Integer.valueOf(2), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("1.1.1"));
+    assertEquals(Integer.valueOf(2), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.5.4"));
+    assertEquals(Integer.valueOf(3), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("1.11.3"));
+    assertEquals(Integer.valueOf(3), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.1.5"));
+  }
+
 }

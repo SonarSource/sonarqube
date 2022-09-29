@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
@@ -77,11 +80,11 @@ public final class SecurityStandards {
 
   // https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html
   public static final List<String> CWE_TOP25_2019 = List.of("119", "79", "20", "200", "125", "89", "416", "190", "352", "22", "78", "787", "287", "476",
-        "732", "434", "611", "94", "798", "400", "772", "426", "502", "269", "295");
+    "732", "434", "611", "94", "798", "400", "772", "426", "502", "269", "295");
 
   // https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html
   public static final List<String> CWE_TOP25_2020 = List.of("79", "787", "20", "125", "119", "89", "200", "416", "352", "78", "190", "22", "476", "287",
-      "434", "732", "94", "522", "611", "798", "502", "269", "400", "306", "862");
+    "434", "732", "94", "522", "611", "798", "502", "269", "400", "306", "862");
 
   // https://cwe.mitre.org/top25/archive/2021/2021_cwe_top25.html
   public static final List<String> CWE_TOP25_2021 = List.of("787", "79", "125", "20", "78", "89", "416", "22", "352", "434", "306", "190", "502", "287", "476",
@@ -91,6 +94,40 @@ public final class SecurityStandards {
     "2019", CWE_TOP25_2019,
     "2020", CWE_TOP25_2020,
     "2021", CWE_TOP25_2021);
+
+  public static final List<String> OWASP_ASVS_40_LEVEL_1 = List.of("2.1.1", "2.1.10", "2.1.11", "2.1.12", "2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7", "2.1.8", "2.1.9",
+    "2.10.1", "2.10.2", "2.10.3", "2.10.4", "2.2.1", "2.2.2", "2.2.3", "2.3.1", "2.5.1", "2.5.2", "2.5.3", "2.5.4", "2.5.5", "2.5.6", "2.7.1", "2.7.2", "2.7.3", "2.7.4", "2.8.1",
+    "3.1.1", "3.2.1", "3.2.2", "3.2.3", "3.3.1", "3.3.2", "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.7.1", "4.1.1", "4.1.2", "4.1.3", "4.1.4", "4.1.5", "4.2.1", "4.2.2",
+    "4.3.1", "4.3.2", "5.1.1", "5.1.2", "5.1.3", "5.1.4", "5.1.5", "5.2.1", "5.2.2", "5.2.3", "5.2.4", "5.2.5", "5.2.6", "5.2.7", "5.2.8", "5.3.1", "5.3.10", "5.3.2", "5.3.3",
+    "5.3.4", "5.3.5", "5.3.6", "5.3.7", "5.3.8", "5.3.9", "5.5.1", "5.5.2", "5.5.3", "5.5.4", "6.2.1", "7.1.1", "7.1.2", "7.4.1", "8.2.1", "8.2.2", "8.2.3", "8.3.1", "8.3.2",
+    "8.3.3", "8.3.4", "9.1.1", "9.1.2", "9.1.3", "10.3.1", "10.3.2", "10.3.3", "11.1.1", "11.1.2", "11.1.3", "11.1.4", "11.1.5", "12.1.1", "12.3.1", "12.3.2", "12.3.3", "12.3.4",
+    "12.3.5", "12.4.1", "12.4.2", "12.5.1", "12.5.2", "12.6.1", "13.1.1", "13.1.2", "13.1.3", "13.2.1", "13.2.2", "13.2.3", "13.3.1", "14.2.1", "14.2.2", "14.2.3", "14.3.1",
+    "14.3.2", "14.3.3", "14.4.1", "14.4.2", "14.4.3", "14.4.4", "14.4.5", "14.4.6", "14.4.7", "14.5.1", "14.5.2", "14.5.3");
+
+  public static final List<String> OWASP_ASVS_40_LEVEL_2 = Collections.unmodifiableList(Stream.concat(Stream.of("1.1.1", "1.1.2", "1.1.3", "1.1.4", "1.1.5", "1.1.6",
+    "1.1.7", "1.10.1", "1.11.1", "1.11.2", "1.12.1", "1.12.2", "1.14.1", "1.14.2", "1.14.3", "1.14.4", "1.14.5", "1.14.6", "1.2.1", "1.2.2", "1.2.3", "1.2.4", "1.4.1", "1.4.2",
+    "1.4.3", "1.4.4", "1.4.5", "1.5.1", "1.5.2", "1.5.3", "1.5.4", "1.6.1", "1.6.2", "1.6.3", "1.6.4", "1.7.1", "1.7.2", "1.8.1", "1.8.2", "1.9.1", "1.9.2", "2.3.2", "2.3.3",
+    "2.4.1", "2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.5.7", "2.6.1", "2.6.2", "2.6.3", "2.7.5", "2.7.6", "2.8.2", "2.8.3", "2.8.4", "2.8.5", "2.8.6", "2.9.1", "2.9.2", "2.9.3",
+    "3.2.4", "3.3.3", "3.3.4", "3.5.1", "3.5.2", "3.5.3", "4.3.3", "5.4.1", "5.4.2", "5.4.3", "6.1.1", "6.1.2", "6.1.3", "6.2.2", "6.2.3", "6.2.4", "6.2.5", "6.2.6", "6.3.1",
+    "6.3.2", "6.4.1", "6.4.2", "7.1.3", "7.1.4", "7.2.1", "7.2.2", "7.3.1", "7.3.2", "7.3.3", "7.3.4", "7.4.2", "7.4.3", "8.1.1", "8.1.2", "8.1.3", "8.1.4", "8.3.5", "8.3.6",
+    "8.3.7", "8.3.8", "9.2.1", "9.2.2", "9.2.3", "9.2.4", "10.2.1", "10.2.2", "11.1.6", "11.1.7", "11.1.8", "12.1.2", "12.1.3", "12.2.1", "12.3.6", "13.1.4", "13.1.5", "13.2.4",
+    "13.2.5", "13.2.6", "13.3.2", "13.4.1", "13.4.2", "14.1.1", "14.1.2", "14.1.3", "14.1.4", "14.2.4", "14.2.5", "14.2.6", "14.5.4"), OWASP_ASVS_40_LEVEL_1.stream())
+    .collect(Collectors.toList()));
+
+  public static final List<String> OWASP_ASVS_40_LEVEL_3 = Collections.unmodifiableList(Stream
+    .concat(Stream.of("1.11.3", "2.2.4", "2.2.5", "2.2.6", "2.2.7", "2.8.7", "3.6.1", "3.6.2", "6.2.7", "6.2.8", "6.3.3", "8.1.5",
+      "8.1.6", "9.2.5", "10.1.1", "10.2.3", "10.2.4", "10.2.5", "10.2.6", "14.1.5"), OWASP_ASVS_40_LEVEL_2.stream())
+    .collect(Collectors.toList()));
+
+  public static final Map<Integer, List<String>> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL = Map.of(
+    1, OWASP_ASVS_40_LEVEL_1,
+    2, OWASP_ASVS_40_LEVEL_2,
+    3, OWASP_ASVS_40_LEVEL_3);
+
+  public static final Map<String, Integer> OWASP_ASVS_40_LEVEL_BY_REQUIREMENT = Collections.unmodifiableMap(getLevelByRequirementMap());
+
+  public static final Map<OwaspAsvsVersion, Map<Integer, List<String>>> OWASP_ASVS_REQUIREMENTS_BY_LEVEL = Map.of(
+    OwaspAsvsVersion.V4_0, OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL);
 
   public enum VulnerabilityProbability {
     HIGH(3),
@@ -296,6 +333,14 @@ public final class SecurityStandards {
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
+  private static Map<String, Integer> getLevelByRequirementMap() {
+    Map<String, Integer> levelByRequirement = new HashMap<>();
+    OWASP_ASVS_40_LEVEL_3.forEach(req -> levelByRequirement.put(req, 3));
+    OWASP_ASVS_40_LEVEL_2.forEach(req -> levelByRequirement.put(req, 2));
+    OWASP_ASVS_40_LEVEL_1.forEach(req -> levelByRequirement.put(req, 1));
+    return levelByRequirement;
+  }
+
   private static Set<String> getMatchingStandards(Set<String> securityStandards, String prefix) {
     return securityStandards.stream()
       .filter(s -> s.startsWith(prefix))
@@ -336,4 +381,5 @@ public final class SecurityStandards {
       .collect(toList());
     return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
   }
+
 }
