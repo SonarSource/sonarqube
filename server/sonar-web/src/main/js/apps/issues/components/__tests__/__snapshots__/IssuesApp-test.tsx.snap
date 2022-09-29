@@ -118,6 +118,7 @@ exports[`should show warnning when not all projects are accessible 1`] = `
               "inNewCodePeriod": false,
               "issues": Array [],
               "languages": Array [],
+              "owaspAsvs-4.0": Array [],
               "owaspTop10": Array [],
               "owaspTop10-2021": Array [],
               "pciDss-3.2": Array [],

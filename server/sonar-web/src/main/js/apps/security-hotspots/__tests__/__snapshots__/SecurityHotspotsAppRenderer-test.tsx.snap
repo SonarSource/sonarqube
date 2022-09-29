@@ -145,6 +145,11 @@ exports[`should render correctly when filtered by category or cwe: category 1`] 
               "title": "No CWE associated",
             },
           },
+          "owaspAsvs-4.0": Object {
+            "1": Object {
+              "title": "New OWASP ASVS cat 1",
+            },
+          },
           "owaspTop10": Object {
             "a1": Object {
               "title": "Injection",
@@ -284,6 +289,11 @@ exports[`should render correctly when filtered by category or cwe: cwe 1`] = `
             },
             "unknown": Object {
               "title": "No CWE associated",
+            },
+          },
+          "owaspAsvs-4.0": Object {
+            "1": Object {
+              "title": "New OWASP ASVS cat 1",
             },
           },
           "owaspTop10": Object {

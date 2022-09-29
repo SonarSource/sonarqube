@@ -20,6 +20,7 @@
 import { flatten, groupBy, sortBy } from 'lodash';
 import {
   renderCWECategory,
+  renderOwaspAsvs40Category,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderPciDss32Category,
@@ -56,7 +57,8 @@ export const SECURITY_STANDARDS = [
   SecurityStandard.SANS_TOP25,
   SecurityStandard.CWE,
   SecurityStandard.PCI_DSS_3_2,
-  SecurityStandard.PCI_DSS_4_0
+  SecurityStandard.PCI_DSS_4_0,
+  SecurityStandard.OWASP_ASVS_4_0
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
@@ -66,7 +68,8 @@ export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
   [SecurityStandard.CWE]: renderCWECategory,
   [SecurityStandard.PCI_DSS_3_2]: renderPciDss32Category,
-  [SecurityStandard.PCI_DSS_4_0]: renderPciDss40Category
+  [SecurityStandard.PCI_DSS_4_0]: renderPciDss40Category,
+  [SecurityStandard.OWASP_ASVS_4_0]: renderOwaspAsvs40Category
 };
 
 export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {

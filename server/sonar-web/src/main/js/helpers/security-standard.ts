@@ -101,6 +101,15 @@ export function renderPciDss40Category(standards: Standards, category: string): 
   return `${category} - ${record.title}`;
 }
 
+export function renderOwaspAsvs40Category(standards: Standards, category: string): string {
+  const record = standards['owaspAsvs-4.0'][category];
+  if (!record) {
+    return category;
+  }
+  const levelInfo = record.level ? ` (Level ${record.level})` : '';
+  return `${category} - ${record.title}${levelInfo}`;
+}
+
 function addPrefix(title: string, prefix: string, withPrefix: boolean) {
   return withPrefix ? `${prefix} ${title}` : title;
 }

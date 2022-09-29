@@ -193,6 +193,11 @@ export function mockStandards(): Standards {
       '2': {
         title: 'This is useless...'
       }
+    },
+    'owaspAsvs-4.0': {
+      '1': {
+        title: 'New OWASP ASVS cat 1'
+      }
     }
   };
 }

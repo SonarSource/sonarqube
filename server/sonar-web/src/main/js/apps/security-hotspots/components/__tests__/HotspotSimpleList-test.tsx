@@ -79,7 +79,8 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
         sansTop25: {},
         sonarsourceSecurity: {},
         'pciDss-3.2': {},
-        'pciDss-4.0': {}
+        'pciDss-4.0': {},
+        'owaspAsvs-4.0': {}
       }}
       {...props}
     />

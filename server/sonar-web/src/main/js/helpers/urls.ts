@@ -213,7 +213,8 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
         SecurityStandard.SANS_TOP25,
         SecurityStandard.CWE,
         SecurityStandard.PCI_DSS_3_2,
-        SecurityStandard.PCI_DSS_4_0
+        SecurityStandard.PCI_DSS_4_0,
+        SecurityStandard.OWASP_ASVS_4_0
       ])
     }),
     hash: ''

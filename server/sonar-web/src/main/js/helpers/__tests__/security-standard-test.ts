@@ -20,6 +20,7 @@
 import { Standards } from '../../types/security';
 import {
   renderCWECategory,
+  renderOwaspAsvs40Category,
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderPciDss32Category,
@@ -43,7 +44,8 @@ describe('renderCWECategory', () => {
     sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render cwe categories correctly', () => {
     expect(renderCWECategory(standards, '1004')).toEqual(
@@ -66,7 +68,8 @@ describe('renderOwaspTop10Category', () => {
     sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop10Category(standards, 'a1')).toEqual('A1 - Injection');
@@ -88,7 +91,8 @@ describe('renderOwaspTop102021Category', () => {
     sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop102021Category(standards, 'a1')).toEqual('A1 - Injection');
@@ -110,7 +114,8 @@ describe('renderPciDss32Category', () => {
         title: 'Install and maintain a firewall configuration to protect cardholder data'
       }
     },
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render Pci Dss 3.2 correctly', () => {
     expect(renderPciDss32Category(standards, '1')).toEqual(
@@ -132,13 +137,39 @@ describe('renderPciDss40Category', () => {
       '1': {
         title: 'Install and maintain a firewall configuration to protect cardholder data'
       }
-    }
+    },
+    'owaspAsvs-4.0': {}
   };
   it('should render Pci Dss 4.0 correctly', () => {
     expect(renderPciDss40Category(standards, '1')).toEqual(
       '1 - Install and maintain a firewall configuration to protect cardholder data'
     );
     expect(renderPciDss40Category(standards, '1.1')).toEqual('1.1');
+  });
+});
+
+describe('renderOwaspAsvs40Category', () => {
+  const standards: Standards = {
+    cwe: {},
+    owaspTop10: {},
+    'owaspTop10-2021': {},
+    sansTop25: {},
+    sonarsourceSecurity: {},
+    'pciDss-3.2': {},
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {
+      '1': {
+        title: 'Main category'
+      },
+      '1.1': {
+        title: 'Sub category',
+        level: '2'
+      }
+    }
+  };
+  it('should render OwaspAsvs 4.0 correctly', () => {
+    expect(renderOwaspAsvs40Category(standards, '1')).toEqual('1 - Main category');
+    expect(renderOwaspAsvs40Category(standards, '1.1')).toEqual('1.1 - Sub category (Level 2)');
   });
 });
 
@@ -154,7 +185,8 @@ describe('renderSansTop25Category', () => {
     },
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render sans categories correctly', () => {
     expect(renderSansTop25Category(standards, 'insecure-interaction')).toEqual(
@@ -183,7 +215,8 @@ describe('renderSonarSourceSecurityCategory', () => {
       }
     },
     'pciDss-3.2': {},
-    'pciDss-4.0': {}
+    'pciDss-4.0': {},
+    'owaspAsvs-4.0': {}
   };
   it('should render sonarsource categories correctly', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss')).toEqual(

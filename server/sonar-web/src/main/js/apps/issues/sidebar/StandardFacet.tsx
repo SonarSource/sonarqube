@@ -98,7 +98,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       cwe: {},
       sonarsourceSecurity: {},
       'pciDss-3.2': {},
-      'pciDss-4.0': {}
+      'pciDss-4.0': {},
+      'owaspAsvs-4.0': {}
     }
   };
 
@@ -137,7 +138,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         cwe,
         sonarsourceSecurity,
         'pciDss-3.2': pciDss3_2,
-        'pciDss-4.0': pciDss4_0
+        'pciDss-4.0': pciDss4_0,
+        'owaspAsvs-4.0': owaspAsvs4_0
       }: Standards) => {
         if (this.mounted) {
           this.setState({
@@ -148,7 +150,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               cwe,
               sonarsourceSecurity,
               'pciDss-3.2': pciDss3_2,
-              'pciDss-4.0': pciDss4_0
+              'pciDss-4.0': pciDss4_0,
+              'owaspAsvs-4.0': owaspAsvs4_0
             }
           });
         }

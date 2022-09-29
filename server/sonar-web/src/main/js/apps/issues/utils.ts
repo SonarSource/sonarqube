@@ -38,6 +38,8 @@ import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
 import { UserBase } from '../../types/users';
 
+const OWASP_ASVS_4_0 = 'owaspAsvs-4.0';
+
 export interface Query {
   assigned: boolean;
   assignees: string[];
@@ -55,6 +57,7 @@ export interface Query {
   'owaspTop10-2021': string[];
   'pciDss-3.2': string[];
   'pciDss-4.0': string[];
+  [OWASP_ASVS_4_0]: string[];
   projects: string[];
   resolutions: string[];
   resolved: boolean;
@@ -95,6 +98,7 @@ export function parseQuery(query: RawQuery): Query {
     'owaspTop10-2021': parseAsArray(query['owaspTop10-2021'], parseAsString),
     'pciDss-3.2': parseAsArray(query['pciDss-3.2'], parseAsString),
     'pciDss-4.0': parseAsArray(query['pciDss-4.0'], parseAsString),
+    [OWASP_ASVS_4_0]: parseAsArray(query[OWASP_ASVS_4_0], parseAsString),
     projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
@@ -139,6 +143,7 @@ export function serializeQuery(query: Query): RawQuery {
     'owaspTop10-2021': serializeStringArray(query['owaspTop10-2021']),
     'pciDss-3.2': serializeStringArray(query['pciDss-3.2']),
     'pciDss-4.0': serializeStringArray(query['pciDss-4.0']),
+    [OWASP_ASVS_4_0]: serializeStringArray(query[OWASP_ASVS_4_0]),
     projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
     resolved: query.resolved ? undefined : 'false',
@@ -228,9 +233,8 @@ export function getSelectedLocation(
     locations.length >= selectedLocationIndex
   ) {
     return locations[selectedLocationIndex];
-  } else {
-    return undefined;
   }
+  return undefined;
 }
 
 export function allLocationsEmpty(
