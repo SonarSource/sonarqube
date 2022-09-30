@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import * as React from 'react';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import BranchLikeIcon, { BranchLikeIconProps } from '../BranchLikeIcon';
 
 it('should render branch icon correctly', () => {
-  const wrapper = shallowRender({ branchLike: mockBranch() });
-  expect(wrapper).toMatchSnapshot();
+  renderBranchLikeIcon({ branchLike: mockBranch() });
+  expect(document.body.innerHTML).toMatchSnapshot();
 });
 
 it('should render pull request icon correctly', () => {
-  const wrapper = shallowRender({ branchLike: mockPullRequest() });
-  expect(wrapper).toMatchSnapshot();
+  renderBranchLikeIcon({ branchLike: mockPullRequest() });
+  expect(document.body.innerHTML).toMatchSnapshot();
 });
 
-function shallowRender(props: BranchLikeIconProps) {
-  return shallow(<BranchLikeIcon {...props} />);
+function renderBranchLikeIcon(props: BranchLikeIconProps) {
+  return render(<BranchLikeIcon {...props} />);
 }

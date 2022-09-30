@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import * as React from 'react';
 import Icon, { IconProps } from '../Icon';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  renderIcon();
+  expect(document.body.innerHTML).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<IconProps> = {}) {
-  return shallow(
+function renderIcon(props: Partial<IconProps> = {}) {
+  return render(
     <Icon {...props}>
       <path d="test-path" />
     </Icon>
