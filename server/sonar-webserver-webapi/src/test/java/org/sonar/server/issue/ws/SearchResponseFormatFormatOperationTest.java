@@ -176,11 +176,12 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_pullrequest_on_issue() {
-    componentDto.setKey(randomAlphanumeric(5) + PULL_REQUEST_SEPARATOR + randomAlphanumeric(5));
+    String pullRequestKey = randomAlphanumeric(5);
+    componentDto.setKey(randomAlphanumeric(5) + PULL_REQUEST_SEPARATOR + pullRequestKey);
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
 
-    assertThat(result.getIssue().getPullRequest()).isEqualTo(componentDto.getPullRequest());
+    assertThat(result.getIssue().getPullRequest()).isEqualTo(pullRequestKey);
   }
 
   @Test

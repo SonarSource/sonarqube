@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -684,7 +685,7 @@ public class SearchActionTest {
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST).setKey("prKey"));
     ComponentDto fileProject = dbTester.components().insertComponent(newFileDto(project));
     ComponentDto fileBranch = dbTester.components().insertComponent(newFileDto(branch));
     ComponentDto filePR = dbTester.components().insertComponent(newFileDto(pullRequest));
@@ -712,7 +713,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
     SearchWsResponse responseBranch = newRequest(branch)
       .executeProtobuf(SearchWsResponse.class);
-    SearchWsResponse responsePR = newRequest(pullRequest)
+    SearchWsResponse responsePR = newRequest(pullRequest, res -> res.setParam(PARAM_PULL_REQUEST, "prKey"))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseProject.getHotspotsList())
@@ -1121,7 +1122,9 @@ public class SearchActionTest {
   @Test
   public void returns_pullRequest_field_of_components_of_pullRequest() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST)
+      .setKey(pullRequestKey));
     userSessionRule.registerComponents(project, pullRequest);
     indexPermissions();
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(pullRequest, "donut/acme"));
@@ -1132,7 +1135,7 @@ public class SearchActionTest {
     IssueDto projectHotspot = insertHotspot(pullRequest, pullRequest, rule);
     indexIssues();
 
-    SearchWsResponse response = newRequest(pullRequest)
+    SearchWsResponse response = newRequest(pullRequest, r -> r.setParam(PARAM_PULL_REQUEST, "pullRequestKey"))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1144,13 +1147,13 @@ public class SearchActionTest {
     Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
     Component actualProject = componentByKey.get(project.getKey());
     assertThat(actualProject.hasBranch()).isFalse();
-    assertThat(actualProject.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
+    assertThat(actualProject.getPullRequest()).isEqualTo(pullRequestKey);
     Component actualDirectory = componentByKey.get(directory.getKey());
     assertThat(actualDirectory.hasBranch()).isFalse();
-    assertThat(actualDirectory.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
+    assertThat(actualDirectory.getPullRequest()).isEqualTo(pullRequestKey);
     Component actualFile = componentByKey.get(file.getKey());
     assertThat(actualFile.hasBranch()).isFalse();
-    assertThat(actualFile.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
+    assertThat(actualFile.getPullRequest()).isEqualTo(pullRequestKey);
   }
 
   @Test
@@ -2034,10 +2037,6 @@ public class SearchActionTest {
     String branch = project.getBranch();
     if (branch != null) {
       res.setParam(PARAM_BRANCH, branch);
-    }
-    String pullRequest = project.getPullRequest();
-    if (pullRequest != null) {
-      res.setParam(PARAM_PULL_REQUEST, pullRequest);
     }
     if (status != null) {
       res.setParam(PARAM_STATUS, status);

@@ -20,6 +20,7 @@
 package org.sonar.server.duplication.ws;
 
 import java.util.function.Function;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -43,6 +43,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -157,7 +158,8 @@ public class ShowActionTest {
   public void duplications_by_file_key_and_pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
@@ -168,7 +170,7 @@ public class ShowActionTest {
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
-      .setParam("pullRequest", pullRequest.getPullRequest())
+      .setParam("pullRequest", pullRequestKey)
       .execute()
       .getInput();
 
@@ -202,7 +204,7 @@ public class ShowActionTest {
           "    }\n" +
           "  }\n" +
           "}",
-        file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), file.getPullRequest()));
+        file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), pullRequestKey));
   }
 
   @Test

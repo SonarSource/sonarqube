@@ -193,15 +193,6 @@ public class ComponentDto {
     return split.size() == 2 ? split.get(1) : null;
   }
 
-  /**
-   * @return the pull request id. It will be null when the component is not on a pull request
-   */
-  @CheckForNull
-  public String getPullRequest() {
-    List<String> split = PULL_REQUEST_SPLITTER.splitToList(kee);
-    return split.size() == 2 ? split.get(1) : null;
-  }
-
   public String scope() {
     return scope;
   }

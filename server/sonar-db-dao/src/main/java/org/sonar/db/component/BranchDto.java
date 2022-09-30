@@ -200,6 +200,16 @@ public class BranchDto {
     return this;
   }
 
+  @CheckForNull
+  public String getBranchKey() {
+    return branchType == BranchType.BRANCH ? kee : null;
+  }
+
+  @CheckForNull
+  public String getPullRequestKey() {
+    return branchType == BranchType.PULL_REQUEST ? kee : null;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

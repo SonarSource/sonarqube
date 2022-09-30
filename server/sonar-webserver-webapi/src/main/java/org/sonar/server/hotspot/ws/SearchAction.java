@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
@@ -57,7 +56,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -348,7 +346,7 @@ public class SearchAction implements HotspotsWsAction {
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
     Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result).value);
-    return new SearchResponseData(paging, hotspots, wsRequest.getBranch().orElse(null), wsRequest.getPullRequest().orElse(null));
+    return new SearchResponseData(paging, hotspots);
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -505,8 +503,7 @@ public class SearchAction implements HotspotsWsAction {
     Map<String, IssueQuery.PeriodStart> leakByProjects = snapshots
       .stream()
       .filter(s -> isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s ->
-        new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);
@@ -527,7 +524,12 @@ public class SearchAction implements HotspotsWsAction {
       .collect(Collectors.toSet());
 
     if (!aggregatedComponentUuids.isEmpty()) {
-      searchResponseData.addComponents(dbClient.componentDao().selectByUuids(dbSession, aggregatedComponentUuids));
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, aggregatedComponentUuids);
+      searchResponseData.addComponents(componentDtos);
+
+      Set<String> branchUuids = componentDtos.stream().map(ComponentDto::branchUuid).collect(Collectors.toSet());
+      List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, branchUuids);
+      searchResponseData.addBranches(branchDtos);
     }
   }
 
@@ -636,7 +638,11 @@ public class SearchAction implements HotspotsWsAction {
 
     Hotspots.Component.Builder builder = Hotspots.Component.newBuilder();
     for (ComponentDto component : components) {
-      responseBuilder.addComponents(responseFormatter.formatComponent(builder, component, searchResponseData.getBranch(), searchResponseData.getPullRequest()));
+      BranchDto branchDto = searchResponseData.getBranch(component.branchUuid());
+      if (branchDto == null) {
+        throw new IllegalStateException("Could not find a branch for a component " + component.getKey() + " with uuid " + component.uuid());
+      }
+      responseBuilder.addComponents(responseFormatter.formatComponent(builder, component, branchDto));
     }
   }
 
@@ -774,26 +780,13 @@ public class SearchAction implements HotspotsWsAction {
   private static final class SearchResponseData {
     private final Paging paging;
     private final List<IssueDto> orderedHotspots;
-    private final String branch;
-    private final String pullRequest;
     private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
     private final Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
+    private final Map<String, BranchDto> branchesByBranchUuid = new HashMap<>();
 
-    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots, @Nullable String branch, @Nullable String pullRequest) {
+    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
       this.paging = paging;
       this.orderedHotspots = orderedHotspots;
-      this.branch = branch;
-      this.pullRequest = pullRequest;
-    }
-
-    @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
     }
 
     boolean isEmpty() {
@@ -812,6 +805,16 @@ public class SearchAction implements HotspotsWsAction {
       for (ComponentDto component : components) {
         componentsByUuid.put(component.uuid(), component);
       }
+    }
+
+    public void addBranches(List<BranchDto> branchDtos) {
+      for (BranchDto branch : branchDtos) {
+        branchesByBranchUuid.put(branch.getUuid(), branch);
+      }
+    }
+
+    public BranchDto getBranch(String branchUuid) {
+      return branchesByBranchUuid.get(branchUuid);
     }
 
     Collection<ComponentDto> getComponents() {

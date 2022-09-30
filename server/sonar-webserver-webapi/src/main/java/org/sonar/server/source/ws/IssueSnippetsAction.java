@@ -34,6 +34,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
@@ -98,13 +99,19 @@ public class IssueSnippetsAction implements SourcesWsAction {
         Map<String, TreeSet<Integer>> linesPerComponent = getLinesPerComponent(componentUuid, locations);
         Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, linesPerComponent.keySet())
           .stream().collect(Collectors.toMap(ComponentDto::uuid, c -> c));
+
+        Map<String, BranchDto> branches = dbClient.branchDao()
+          .selectByUuids(dbSession, componentsByUuid.keySet())
+          .stream()
+          .collect(Collectors.toMap(BranchDto::getUuid, b -> b));
+
         try (JsonWriter jsonWriter = response.newJsonWriter()) {
           jsonWriter.beginObject();
 
           for (Map.Entry<String, TreeSet<Integer>> e : linesPerComponent.entrySet()) {
             ComponentDto componentDto = componentsByUuid.get(e.getKey());
             if (componentDto != null) {
-              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue());
+              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue(), branches.get(componentDto.branchUuid()));
             }
           }
 
@@ -114,7 +121,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     }
   }
 
-  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines) {
+  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines, BranchDto branchDto) {
     Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileDto.uuid(), lines);
     if (lineSourcesOpt.isEmpty()) {
       return;
@@ -129,7 +136,9 @@ public class IssueSnippetsAction implements SourcesWsAction {
     writer.name(fileDto.getKey()).beginObject();
 
     writer.name("component").beginObject();
-    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession);
+    String branch = branchDto.isMain() ? null : branchDto.getBranchKey();
+    String pullRequest = branchDto.getPullRequestKey();
+    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession, branch, pullRequest);
     componentViewerJsonWriter.writeMeasures(writer, fileDto, dbSession);
     writer.endObject();
     linesJsonWriter.writeSource(lineSources, writer, periodDateSupplier);

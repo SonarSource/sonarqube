@@ -50,6 +50,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.rule.RuleDto;
@@ -284,11 +285,12 @@ public class IssueQueryFactory {
       .count() <= 1;
   }
 
-  private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly, List<ComponentDto> components, SearchRequest request) {
+  private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly, List<ComponentDto> components,
+    SearchRequest request) {
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
       builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
-      setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest());
+      setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), session);
       return;
     }
 
@@ -296,7 +298,7 @@ public class IssueQueryFactory {
     if (projectKeys != null) {
       List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
       builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
-      setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest());
+      setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest(), session);
     }
     builder.directories(request.getDirectories());
     builder.files(request.getFiles());
@@ -316,7 +318,7 @@ public class IssueQueryFactory {
     Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(toHashSet());
     checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
-    setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest());
+    setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), dbSession);
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
       case Qualifiers.VIEW:
@@ -343,6 +345,12 @@ public class IssueQueryFactory {
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));
     }
+  }
+
+  private BranchDto findComponentBranch(DbSession dbSession, ComponentDto componentDto) {
+    Optional<BranchDto> optionalBranch = dbClient.branchDao().selectByUuid(dbSession, componentDto.branchUuid());
+    checkArgument(optionalBranch.isPresent(), "All components must belong to a branch. This error may indicate corrupted data.");
+    return optionalBranch.get();
   }
 
   private void addProjectUuidsForApplication(IssueQuery.Builder builder, DbSession session, SearchRequest request) {
@@ -446,11 +454,14 @@ public class IssueQueryFactory {
     return mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid;
   }
 
-  private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
+  private void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest,
+    DbSession session) {
+    BranchDto branchDto = findComponentBranch(session, component);
+    String componentBranch = branchDto.isMain() ? null : branchDto.getBranchKey();
     builder.branchUuid(branch == null && pullRequest == null ? null : component.branchUuid());
     builder.mainBranch(UNKNOWN_COMPONENT.equals(component)
       || (branch == null && pullRequest == null)
-      || (branch != null && !branch.equals(component.getBranch()))
-      || (pullRequest != null && !pullRequest.equals(component.getPullRequest())));
+      || (branch != null && !branch.equals(componentBranch))
+      || (pullRequest != null && !pullRequest.equals(branchDto.getPullRequestKey())));
   }
 }

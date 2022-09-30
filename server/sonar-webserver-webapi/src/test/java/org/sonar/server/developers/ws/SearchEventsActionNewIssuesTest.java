@@ -211,7 +211,8 @@ public class SearchEventsActionNewIssuesTest {
     SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, 1_500_000_000_000L);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("42"));
+    String pullRequestKey = "42";
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto pullRequestAnalysis = insertAnalysis(pullRequest, 1_300_000_000_000L);
     insertIssue(pullRequest, pullRequestAnalysis);
     issueIndexer.indexAllIssues();
@@ -229,10 +230,10 @@ public class SearchEventsActionNewIssuesTest {
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&branch=%s", nonMainBranch.getKey(), encode(formatDateTime(from + 1_000L)),
             userSession.getLogin(), nonMainBranch.getBranch()),
           formatDateTime(nonMainBranchAnalysis.getCreatedAt())),
-        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on pull request '%s'", project.name(), pullRequest.getPullRequest()),
+        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on pull request '%s'", project.name(), pullRequestKey),
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&pullRequest=%s", pullRequest.getKey(),
             encode(formatDateTime(from + 1_000L)),
-            userSession.getLogin(), pullRequest.getPullRequest()),
+            userSession.getLogin(), pullRequestKey),
           formatDateTime(pullRequestAnalysis.getCreatedAt())));
   }
 

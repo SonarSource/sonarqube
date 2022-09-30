@@ -20,6 +20,7 @@
 package org.sonar.server.hotspot.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonarqube.ws.Hotspots;
 
@@ -31,7 +32,7 @@ public class HotspotWsResponseFormatter {
     // nothing to do here
   }
 
-  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pr) {
+  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
     builder
       .clear()
       .setKey(component.getKey())
@@ -39,9 +40,16 @@ public class HotspotWsResponseFormatter {
       .setName(component.name())
       .setLongName(component.longName());
     ofNullable(branch).ifPresent(builder::setBranch);
-    ofNullable(pr).ifPresent(builder::setPullRequest);
+    ofNullable(pullRequest).ifPresent(builder::setPullRequest);
     ofNullable(component.path()).ifPresent(builder::setPath);
     return builder.build();
+  }
+
+  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, BranchDto branchDto) {
+    if (branchDto.isMain()) {
+      return formatComponent(builder, component, null, null);
+    }
+    return formatComponent(builder, component, branchDto.getBranchKey(), branchDto.getPullRequestKey());
   }
 
 }

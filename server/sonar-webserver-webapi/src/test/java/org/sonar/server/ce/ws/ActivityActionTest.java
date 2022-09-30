@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
@@ -458,10 +459,11 @@ public class ActivityActionTest {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
     CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
-    insertCharacteristic(activity, PULL_REQUEST, pullRequest.getPullRequest());
+    insertCharacteristic(activity, PULL_REQUEST, pullRequestKey);
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
@@ -469,7 +471,7 @@ public class ActivityActionTest {
       .extracting(Task::getId, Ce.Task::getPullRequest, Ce.Task::hasPullRequestTitle, Ce.Task::getStatus, Ce.Task::getComponentKey)
       .containsExactlyInAnyOrder(
         // TODO the pull request title must be loaded from db
-        tuple("T1", pullRequest.getPullRequest(), false, Ce.TaskStatus.SUCCESS, pullRequest.getKey()));
+        tuple("T1", pullRequestKey, false, Ce.TaskStatus.SUCCESS, pullRequest.getKey()));
   }
 
   @Test

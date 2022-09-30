@@ -62,7 +62,7 @@ public class ComponentViewerJsonWriter {
     this.dbClient = dbClient;
   }
 
-  public void writeComponentWithoutFav(JsonWriter json, ComponentDto component, DbSession session) {
+  public void writeComponentWithoutFav(JsonWriter json, ComponentDto component, DbSession session, @Nullable String branch, @Nullable String pullRequest) {
     json.prop("key", component.getKey());
     json.prop("uuid", component.uuid());
     json.prop("path", component.path());
@@ -74,18 +74,17 @@ public class ComponentViewerJsonWriter {
 
     json.prop("project", project.getKey());
     json.prop("projectName", project.longName());
-    String branch = project.getBranch();
     if (branch != null) {
       json.prop("branch", branch);
     }
-    String pullRequest = project.getPullRequest();
     if (pullRequest != null) {
       json.prop("pullRequest", pullRequest);
     }
   }
 
-  public void writeComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
-    writeComponentWithoutFav(json, component, session);
+  public void writeComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session, @Nullable String branch,
+    @Nullable String pullRequest) {
+    writeComponentWithoutFav(json, component, session, branch, pullRequest);
 
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey("favourite")

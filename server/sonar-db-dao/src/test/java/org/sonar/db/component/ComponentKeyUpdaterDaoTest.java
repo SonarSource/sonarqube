@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -186,7 +187,8 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_updates_pull_requests_too() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    String pullRequestKey1 = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));
     int branchComponentCount = 3;
@@ -198,7 +200,7 @@ public class ComponentKeyUpdaterDaoTest {
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
 
     String newProjectKey = "newKey";
-    String newBranchKey = ComponentDto.generatePullRequestKey(newProjectKey, pullRequest.getPullRequest());
+    String newBranchKey = ComponentDto.generatePullRequestKey(newProjectKey, pullRequestKey1);
     underTest.updateKey(dbSession, project.uuid(), newProjectKey);
 
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();

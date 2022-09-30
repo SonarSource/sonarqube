@@ -20,6 +20,7 @@
 package org.sonar.server.duplication.ws;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Change;
@@ -29,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.component.ComponentFinder;
@@ -96,13 +98,22 @@ public class ShowAction implements DuplicationsWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
+      BranchDto branchDto = loadBranch(dbSession, component);
+      String branch = branchDto.isMain() ? null : branchDto.getBranchKey();
+      String pullRequest = branchDto.getPullRequestKey();
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       String duplications = findDataFromComponent(dbSession, component);
-      String branch = component.getBranch();
-      String pullRequest = component.getPullRequest();
       List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, branch, pullRequest, duplications);
       writeProtobuf(responseBuilder.build(dbSession, blocks, branch, pullRequest), request, response);
     }
+  }
+
+  private BranchDto loadBranch(DbSession dbSession, ComponentDto component) {
+    Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid());
+    if (branchDto.isEmpty()) {
+      throw new IllegalStateException("Could not find a branch for component with " + component.uuid());
+    }
+    return branchDto.get();
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {

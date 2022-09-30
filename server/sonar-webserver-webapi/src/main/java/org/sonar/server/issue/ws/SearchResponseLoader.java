@@ -37,6 +37,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -98,6 +99,9 @@ public class SearchResponseLoader {
       loadComments(collector, dbSession, fields, result);
       loadUsers(preloadedResponseData, collector, dbSession, result);
       loadComponents(preloadedResponseData, collector, dbSession, result);
+      // for all loaded components in result we "join" branches to know to which branch components belong
+      loadBranches(dbSession, result);
+
       loadActionsAndTransitions(result, fields);
       completeTotalEffortFromFacet(facets, result);
       return result;
@@ -148,6 +152,12 @@ public class SearchResponseLoader {
     // They should be dropped but are kept for backward-compatibility (see SearchResponseFormat)
     result.addComponents(dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, collector.getComponentUuids()));
     loadProjects(collector, dbSession, result);
+  }
+
+  private void loadBranches(DbSession dbSession, SearchResponseData result) {
+    Set<String> branchUuids = result.getComponents().stream().map(ComponentDto::branchUuid).collect(Collectors.toSet());
+    List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, branchUuids);
+    result.addBranches(branchDtos);
   }
 
   private void loadProjects(Collector collector, DbSession dbSession, SearchResponseData result) {

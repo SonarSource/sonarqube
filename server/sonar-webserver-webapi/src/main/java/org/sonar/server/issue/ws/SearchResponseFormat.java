@@ -35,6 +35,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.Paging;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -161,8 +163,7 @@ public class SearchResponseFormat {
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setComponent(component.getKey());
-    ofNullable(component.getBranch()).ifPresent(issueBuilder::setBranch);
-    ofNullable(component.getPullRequest()).ifPresent(issueBuilder::setPullRequest);
+    setBranchOrPr(component, issueBuilder, data);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
@@ -306,13 +307,33 @@ public class SearchResponseFormat {
         .setName(nullToEmpty(dto.name()))
         .setLongName(nullToEmpty(dto.longName()))
         .setEnabled(dto.isEnabled());
-      ofNullable(dto.getBranch()).ifPresent(builder::setBranch);
-      ofNullable(dto.getPullRequest()).ifPresent(builder::setPullRequest);
+      setBranchOrPr(dto, builder, data);
       ofNullable(emptyToNull(dto.path())).ifPresent(builder::setPath);
 
       result.add(builder.build());
     }
     return result;
+  }
+
+  private static void setBranchOrPr(ComponentDto componentDto, Component.Builder builder, SearchResponseData data) {
+    BranchDto branchDto = data.getBranch(componentDto.branchUuid());
+    if (branchDto.isMain()) {
+      return;
+    }
+    builder.setBranch(branchDto.getBranchKey());
+    builder.setPullRequest(branchDto.getPullRequestKey());
+  }
+
+  private static void setBranchOrPr(ComponentDto componentDto, Issue.Builder builder, SearchResponseData data) {
+    BranchDto branchDto = data.getBranch(componentDto.branchUuid());
+    if (branchDto.isMain()) {
+      return;
+    }
+    if (branchDto.getBranchType() == BranchType.BRANCH) {
+      builder.setBranch(branchDto.getKey());
+    } else if (branchDto.getBranchType() == BranchType.PULL_REQUEST) {
+      builder.setPullRequest(branchDto.getKey());
+    }
   }
 
   private Users.Builder formatUsers(SearchResponseData data) {

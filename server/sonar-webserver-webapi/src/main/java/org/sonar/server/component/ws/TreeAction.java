@@ -184,9 +184,8 @@ public class TreeAction implements ComponentsWsAction {
       components = paginateComponents(components, treeRequest);
 
       Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
-
-      return buildResponse(dbSession, baseComponent, components, referenceComponentsByUuid,
-        Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total));
+      Paging paging = Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total);
+      return buildResponse(dbSession, baseComponent, components, referenceComponentsByUuid, paging, treeRequest);
     }
   }
 
@@ -219,7 +218,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private TreeWsResponse buildResponse(DbSession dbSession, ComponentDto baseComponent, List<ComponentDto> components,
-    Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
+    Map<String, ComponentDto> referenceComponentsByUuid, Paging paging, Request request) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -227,16 +226,16 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid));
+    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, request));
     for (ComponentDto dto : components) {
-      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid));
+      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid, request));
     }
 
     return response.build();
   }
 
   private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component,
-    Map<String, ComponentDto> referenceComponentsByUuid) {
+    Map<String, ComponentDto> referenceComponentsByUuid, Request request) {
 
     Components.Component.Builder wsComponent;
     if (component.getMainBranchProjectUuid() == null && component.isRootProject() &&
@@ -246,7 +245,7 @@ public class TreeAction implements ComponentsWsAction {
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
-      wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null);
+      wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
     }
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());

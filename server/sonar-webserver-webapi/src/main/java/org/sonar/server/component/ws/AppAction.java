@@ -88,7 +88,7 @@ public class AppAction implements ComponentsWsAction {
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(session, request);
       userSession.checkComponentPermission(UserRole.USER, component);
-      writeJsonResponse(response, session, component);
+      writeJsonResponse(response, session, component, request);
     }
   }
 
@@ -100,10 +100,11 @@ public class AppAction implements ComponentsWsAction {
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private void writeJsonResponse(Response response, DbSession session, ComponentDto component) {
+  private void writeJsonResponse(Response response, DbSession session, ComponentDto component, Request request) {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      componentViewerJsonWriter.writeComponent(json, component, userSession, session);
+      componentViewerJsonWriter.writeComponent(json, component, userSession, session, request.param(PARAM_BRANCH),
+        request.param(PARAM_PULL_REQUEST));
       appendPermissions(json, userSession);
       componentViewerJsonWriter.writeMeasures(json, component, session);
       json.endObject();

@@ -22,6 +22,7 @@ package org.sonar.server.duplication.ws;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.DbTester;
@@ -279,10 +280,11 @@ public class DuplicationsParserTest {
   @Test
   public void duplication_on_pull_request() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, pullRequest.getPullRequest(),
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, pullRequestKey,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +

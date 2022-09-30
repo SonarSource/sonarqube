@@ -245,9 +245,10 @@ public class ComponentAction implements MeasuresWsAction {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
     if (refComponent.isPresent()) {
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(), refComponent.get())));
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(),
+        refComponent.get()), request.getBranch(), request.getPullRequest()));
     } else {
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap()));
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), request.getBranch(), request.getPullRequest()));
     }
 
     List<String> additionalFields = request.getAdditionalFields();

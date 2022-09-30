@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
@@ -627,7 +628,9 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest));
     IssueDto pullRequestIssue = db.issues().insertIssue(rule, pullRequest, pullRequestFile);
     allowAnyoneOnProjects(project);
@@ -635,17 +638,17 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, pullRequest.getKey())
-      .setParam(PARAM_PULL_REQUEST, pullRequest.getPullRequest())
+      .setParam(PARAM_PULL_REQUEST, pullRequestKey)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getKey, Issue::getComponent, Issue::getPullRequest)
-      .containsExactlyInAnyOrder(tuple(pullRequestIssue.getKey(), pullRequestFile.getKey(), pullRequestFile.getPullRequest()));
+      .containsExactlyInAnyOrder(tuple(pullRequestIssue.getKey(), pullRequestFile.getKey(), pullRequestKey));
     assertThat(result.getComponentsList())
       .extracting(Issues.Component::getKey, Issues.Component::getPullRequest)
       .containsExactlyInAnyOrder(
-        tuple(pullRequestFile.getKey(), pullRequestFile.getPullRequest()),
-        tuple(pullRequest.getKey(), pullRequest.getPullRequest()));
+        tuple(pullRequestFile.getKey(), pullRequestKey),
+        tuple(pullRequest.getKey(), pullRequestKey));
   }
 
   @Test

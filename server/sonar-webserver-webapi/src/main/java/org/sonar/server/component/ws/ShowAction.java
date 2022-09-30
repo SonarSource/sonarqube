@@ -112,7 +112,7 @@ public class ShowAction implements ComponentsWsAction {
       userSession.checkComponentPermission(UserRole.USER, component);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.branchUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
-      return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null));
+      return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null), request);
     }
   }
 
@@ -125,22 +125,23 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private ShowWsResponse buildResponse(DbSession dbSession, ComponentDto component, List<ComponentDto> orderedAncestors,
-    @Nullable SnapshotDto lastAnalysis) {
+    @Nullable SnapshotDto lastAnalysis, Request request) {
     ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(toWsComponent(dbSession, component, lastAnalysis));
-    addAncestorsToResponse(dbSession, response, orderedAncestors, lastAnalysis);
+    response.setComponent(toWsComponent(dbSession, component, lastAnalysis, request));
+    addAncestorsToResponse(dbSession, response, orderedAncestors, lastAnalysis, request);
     return response.build();
   }
 
   private void addAncestorsToResponse(DbSession dbSession, ShowWsResponse.Builder response, List<ComponentDto> orderedAncestors,
-    @Nullable SnapshotDto lastAnalysis) {
+    @Nullable SnapshotDto lastAnalysis, Request request) {
     // ancestors are ordered from root to leaf, whereas it's the opposite in WS response
     int size = orderedAncestors.size() - 1;
     IntStream.rangeClosed(0, size).forEach(
-      index -> response.addAncestors(toWsComponent(dbSession, orderedAncestors.get(size - index), lastAnalysis)));
+      index -> response.addAncestors(toWsComponent(dbSession, orderedAncestors.get(size - index), lastAnalysis, request)));
   }
 
-  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto lastAnalysis) {
+  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto lastAnalysis,
+    Request request) {
     if (isProjectOrApp(component)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
@@ -151,7 +152,7 @@ public class ShowAction implements ComponentsWsAction {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
       boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
-      return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis)
+      return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
         .setNeedIssueSync(needIssueSync);
     }
   }

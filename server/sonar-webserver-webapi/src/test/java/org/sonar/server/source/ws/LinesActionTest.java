@@ -47,6 +47,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -143,7 +144,8 @@ public class LinesActionTest {
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    String pullRequestKey = randomAlphanumeric(100);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -157,7 +159,7 @@ public class LinesActionTest {
 
     tester.newRequest()
       .setParam("key", file.getKey())
-      .setParam("pullRequest", file.getPullRequest())
+      .setParam("pullRequest", pullRequestKey)
       .execute()
       .assertJson(getClass(), "show_source.json");
   }

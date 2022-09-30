@@ -291,13 +291,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
       toWsComponent(
         data.getBaseComponent(),
         data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
-        data.getReferenceComponentsByUuid()));
+        data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
 
     for (ComponentDto componentDto : data.getComponents()) {
       response.addComponents(toWsComponent(
         componentDto,
         data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-        data.getReferenceComponentsByUuid()));
+        data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
     }
 
     if (areMetricsInResponse(request)) {
@@ -332,7 +332,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPageSize(request.getPageSize())
       .setTotal(0);
     if (baseComponent != null) {
-      response.setBaseComponent(componentDtoToWsComponent(baseComponent));
+      response.setBaseComponent(componentDtoToWsComponent(baseComponent, request.getBranch(), request.getPullRequest()));
     }
     return response.build();
   }
@@ -373,8 +373,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
-    Map<String, ComponentDto> referenceComponentsByUuid) {
-    Measures.Component.Builder wsComponent = componentDtoToWsComponent(component);
+    Map<String, ComponentDto> referenceComponentsByUuid, @Nullable String branch, @Nullable String pullRequest) {
+    Measures.Component.Builder wsComponent = componentDtoToWsComponent(component, branch, pullRequest);
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
       wsComponent.setRefKey(referenceComponent.getKey());

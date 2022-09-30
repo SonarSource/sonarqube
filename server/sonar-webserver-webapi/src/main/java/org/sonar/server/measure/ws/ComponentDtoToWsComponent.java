@@ -20,6 +20,7 @@
 package org.sonar.server.measure.ws;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -34,8 +35,9 @@ class ComponentDtoToWsComponent {
   }
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, LiveMeasureDto> measuresByMetric,
-                                                     Map<String, ComponentDto> referenceComponentsByUuid) {
-    Component.Builder wsComponent = componentDtoToWsComponent(component);
+                                                     Map<String, ComponentDto> referenceComponentsByUuid, @Nullable String branch,
+                                                     @Nullable String pullRequest) {
+    Component.Builder wsComponent = componentDtoToWsComponent(component, branch, pullRequest);
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
@@ -52,13 +54,13 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  static Component.Builder componentDtoToWsComponent(ComponentDto component) {
+  static Component.Builder componentDtoToWsComponent(ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
     Component.Builder wsComponent = Component.newBuilder()
       .setKey(component.getKey())
       .setName(component.name())
       .setQualifier(component.qualifier());
-    ofNullable(component.getBranch()).ifPresent(wsComponent::setBranch);
-    ofNullable(component.getPullRequest()).ifPresent(wsComponent::setPullRequest);
+    ofNullable(branch).ifPresent(wsComponent::setBranch);
+    ofNullable(pullRequest).ifPresent(wsComponent::setPullRequest);
     ofNullable(component.path()).ifPresent(wsComponent::setPath);
     ofNullable(component.description()).ifPresent(wsComponent::setDescription);
     ofNullable(component.language()).ifPresent(wsComponent::setLanguage);

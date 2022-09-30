@@ -66,13 +66,13 @@ class ComponentDtoToWsComponent {
   }
 
   public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto,
-    @Nullable SnapshotDto lastAnalysis) {
+    @Nullable SnapshotDto lastAnalysis, @Nullable String branch, @Nullable String pullRequest) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
-    ofNullable(emptyToNull(dto.getBranch())).ifPresent(wsComponent::setBranch);
-    ofNullable(emptyToNull(dto.getPullRequest())).ifPresent(wsComponent::setPullRequest);
+    ofNullable(emptyToNull(branch)).ifPresent(wsComponent::setBranch);
+    ofNullable(emptyToNull(pullRequest)).ifPresent(wsComponent::setPullRequest);
     ofNullable(emptyToNull(dto.path())).ifPresent(wsComponent::setPath);
     ofNullable(emptyToNull(dto.description())).ifPresent(wsComponent::setDescription);
     ofNullable(emptyToNull(dto.language())).ifPresent(wsComponent::setLanguage);

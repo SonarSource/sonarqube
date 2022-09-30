@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -930,8 +931,9 @@ public class ShowActionTest {
   @Test
   public void returns_pullRequest_but_no_branch_on_component_and_project_on_pullRequest() {
     ComponentDto project = dbTester.components().insertPublicProject();
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project,
-      t -> t.setBranchType(BranchType.PULL_REQUEST));
+      t -> t.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -944,8 +946,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    verifyComponent(response.getProject(), pullRequest, null, pullRequest.getPullRequest());
-    verifyComponent(response.getComponent(), file, null, pullRequest.getPullRequest());
+    verifyComponent(response.getProject(), pullRequest, null, pullRequestKey);
+    verifyComponent(response.getComponent(), file, null, pullRequestKey);
   }
 
   @Test

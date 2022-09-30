@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -324,12 +325,13 @@ public class AppActionTest {
   public void component_and_pull_request_parameters_provided() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
-      .setParam("pullRequest", file.getPullRequest())
+      .setParam("pullRequest", pullRequestKey)
       .execute()
       .getInput();
 
@@ -342,7 +344,7 @@ public class AppActionTest {
       "  \"q\": \"" + file.qualifier() + "\",\n" +
       "  \"project\": \"" + project.getKey() + "\",\n" +
       "  \"projectName\": \"" + project.longName() + "\",\n" +
-      "  \"pullRequest\": \"" + file.getPullRequest() + "\",\n" +
+      "  \"pullRequest\": \"" + pullRequestKey + "\",\n" +
       "  \"fav\": false,\n" +
       "  \"canMarkAsFavorite\": true,\n" +
       "  \"measures\": {}\n" +

@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -238,7 +239,9 @@ public class ProjectStatusActionTest {
   @Test
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
+      .setKey(pullRequestKey));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(pr)
       .setPeriodMode("last_version")
@@ -253,7 +256,7 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PULL_REQUEST, pr.getPullRequest())
+      .setParam(PARAM_PULL_REQUEST, pullRequestKey)
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));

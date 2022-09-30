@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
@@ -247,7 +248,8 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications_on_pull_request() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));
     List<DuplicationsParser.Block> blocks = newArrayList();
@@ -255,7 +257,7 @@ public class ShowResponseBuilderTest {
       Duplication.newComponent(file1, 57, 12),
       Duplication.newComponent(file2, 73, 12))));
 
-    test(blocks, null, pullRequest.getPullRequest(),
+    test(blocks, null, pullRequestKey,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -275,14 +277,14 @@ public class ShowResponseBuilderTest {
         "      \"name\": \"" + file1.longName() + "\",\n" +
         "      \"project\": \"" + pullRequest.getKey() + "\",\n" +
         "      \"projectName\": \"" + pullRequest.longName() + "\",\n" +
-        "      \"pullRequest\": \"" + pullRequest.getPullRequest() + "\",\n" +
+        "      \"pullRequest\": \"" + pullRequestKey + "\",\n" +
         "    },\n" +
         "    \"2\": {\n" +
         "      \"key\": \"" + file2.getKey() + "\",\n" +
         "      \"name\": \"" + file2.longName() + "\",\n" +
         "      \"project\": \"" + pullRequest.getKey() + "\",\n" +
         "      \"projectName\": \"" + pullRequest.longName() + "\",\n" +
-        "      \"pullRequest\": \"" + pullRequest.getPullRequest() + "\",\n" +
+        "      \"pullRequest\": \"" + pullRequestKey + "\",\n" +
         "    }\n" +
         "  }" +
         "}");
