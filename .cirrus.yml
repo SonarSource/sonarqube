@@ -1,5 +1,7 @@
-# content of service-account-credentials.json, used to access to Google Cloud Platform
-gcp_credentials: ENCRYPTED[!e5f7207bd8d02d383733bef47e18296ac32e3b7d22eb480354e8dd8fdc0004be45a8a4e72c797bd66ee94eb3340fa363!]
+aws_credentials:
+  role_arn: arn:aws:iam::275878209202:role/CirrusCI-prod
+  role_session_name: cirrus
+  region: eu-central-1
 
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
@@ -55,19 +57,21 @@ saml_nightly_task_template: &SAML_NIGHTLY_TASK_TEMPLATE
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-saml/src/main/java/**/*.java', 'server/sonar-auth-saml/src/main/resources/**/*', 'server/sonar-db-dao/src/main/**/SAML*.java', 'private/it-core/src/test/java/org/sonarqube/tests/saml/*.java', 'server/sonar-webserver-webapi/src/main/java/org/sonar/server/saml/**/*.java')
 
-docker_build_container_template: &GKE_CONTAINER_TEMPLATE
+docker_build_container_template: &CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
-  builder_image_project: sonarqube-team
-  builder_image_name: family/docker-builder
-  cluster_name: cirrus-ci-cluster
-  zone: us-central1-a
+  region: eu-central-1
+  cluster_name: CirrusCI-prod
+  builder_role: cirrus-builder
+  builder_image: docker-builder-v*
+  builder_instance_type: t2.small
+  builder_subnet_id: subnet-063c427f490da35b9
   namespace: default
   cpu: 1
   memory: 1Gb
 
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
-  image: us.gcr.io/sonarqube-team/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
+  image: 275878209202.dkr.ecr.eu-central-1.amazonaws.com/oracle:12.0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
   port: 1521
   cpu: 2
   memory: 5Gb
@@ -147,8 +151,8 @@ build_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 8Gb
   env:
@@ -166,8 +170,8 @@ yarn_lint_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 5
     memory: 6Gb
   script:
@@ -178,8 +182,8 @@ yarn_check_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 5
     memory: 6Gb
   script: |
@@ -192,8 +196,8 @@ yarn_validate_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 20Gb
   script:
@@ -204,8 +208,8 @@ junit_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 20Gb
   script:
@@ -224,8 +228,8 @@ validate_task:
     - yarn_validate
     - yarn_lint
     - junit
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 28Gb
   env:
@@ -239,8 +243,8 @@ qa_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 3
     memory: 7Gb
     additional_containers:
@@ -269,8 +273,8 @@ task: #bitbucket
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 3
     memory: 10Gb
     additional_containers:
@@ -294,8 +298,8 @@ qa_bb_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -313,8 +317,8 @@ qa_ha_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
     additional_containers:
@@ -325,26 +329,6 @@ qa_ha_task:
     - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-docker_gitlab_container_build_task:
-  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
-  gce_instance:
-    image_project: sonarqube-team
-    image_family: docker-builder
-    zone: us-central1-a
-    preemptible: true
-    disk: 10
-    cpu: 4
-    memory: 8G
-  env:
-    matrix:
-      - GITLAB_TAG: latest
-      - GITLAB_TAG: 11.7.0-ce.0
-  build_script:
-    - docker pull "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" || true
-    - docker build --build-arg "GITLAB_TAG=${GITLAB_TAG}" --cache-from "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" -t "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" private/docker/gitlab/
-    - docker push "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}"
-
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
@@ -352,9 +336,8 @@ qa_gitlab_task:
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
     - build
-    - docker_gitlab_container_build
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
     use_in_memory_disk: true
@@ -366,8 +349,8 @@ qa_gitlab_task:
         cpu: 2
         memory: 5Gb
         matrix:
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:11.7.0-ce.0
+          - image: 275878209202.dkr.ecr.eu-central-1.amazonaws.com/gitlab:latest
+          - image: 275878209202.dkr.ecr.eu-central-1.amazonaws.com/gitlab:11.7.0-ce.0
   env:
     QA_CATEGORY: GITLAB
   script:
@@ -379,8 +362,8 @@ qa_gitlab_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
     use_in_memory_disk: true
@@ -400,8 +383,8 @@ qa_azure_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -418,8 +401,8 @@ qa_github_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -436,8 +419,8 @@ qa_saml_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *SAML_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
     additional_containers:
@@ -462,8 +445,8 @@ qa_ldap_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
   env:
@@ -481,8 +464,8 @@ promote_task:
     - qa
     - qa_saml
     - qa_ldap
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
   stateful: true
   script:
     - ./private/cirrus/cirrus-promote.sh
@@ -491,10 +474,12 @@ package_docker_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   depends_on: promote
   only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
-  gce_instance:
-    image_project: sonarqube-team
-    image_family: docker-builder
-    zone: us-central1-a
+  ec2_instance:
+    experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
+    image: docker-builder-v*
+    type: t2.small
+    region: eu-central-1
+    subnet_id: subnet-063c427f490da35b9
     disk: 10
     cpu: 4
     memory: 8G
@@ -512,8 +497,8 @@ sql_mssql_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - name: mssql
@@ -534,8 +519,8 @@ sql_postgres_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
@@ -549,8 +534,8 @@ sql_postgres96_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
@@ -564,8 +549,8 @@ sql_oracle12_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
@@ -578,8 +563,8 @@ upgd_mssql_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
@@ -603,8 +588,8 @@ upgd_oracle12_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
@@ -624,8 +609,8 @@ ws_scan_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2
     memory: 4Gb
   env:
