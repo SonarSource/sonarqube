@@ -107,7 +107,6 @@ button.search-navigator-facet {
 .measure-details-value .rating {
   width: 18px;
   height: 18px;
-  line-height: 18px;
   margin-top: -2px;
   margin-bottom: -2px;
   font-size: var(--smallFontSize);
