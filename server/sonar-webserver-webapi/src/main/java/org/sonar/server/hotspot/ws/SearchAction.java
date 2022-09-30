@@ -110,8 +110,10 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
+  private static final String PARAM_OWASP_ASVS_LEVEL = "owaspAsvsLevel";
   private static final String PARAM_PCI_DSS_32 = "pciDss-3.2";
   private static final String PARAM_PCI_DSS_40 = "pciDss-4.0";
+  private static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
@@ -130,8 +132,8 @@ public class SearchAction implements HotspotsWsAction {
   private final System2 system2;
 
   public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2) {
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, HotspotWsResponseFormatter responseFormatter,
+    TextRangeResponseFormatter textRangeFormatter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
@@ -149,6 +151,7 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> hotspotKeys = setFromList(request.paramAsStrings(PARAM_HOTSPOTS));
     Set<String> pciDss32 = setFromList(request.paramAsStrings(PARAM_PCI_DSS_32));
     Set<String> pciDss40 = setFromList(request.paramAsStrings(PARAM_PCI_DSS_40));
+    Set<String> owaspAsvs40 = setFromList(request.paramAsStrings(PARAM_OWASP_ASVS_40));
     Set<String> owasp2017Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2017));
     Set<String> owasp2021Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     Set<String> sansTop25 = setFromList(request.paramAsStrings(PARAM_SANS_TOP_25));
@@ -159,8 +162,8 @@ public class SearchAction implements HotspotsWsAction {
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), pciDss32, pciDss40, owasp2017Top10, owasp2021Top10, sansTop25,
-      sonarsourceSecurity, cwes, files);
+      request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), request.paramAsInt(PARAM_OWASP_ASVS_LEVEL),
+      pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, sansTop25, sonarsourceSecurity, cwes, files);
   }
 
   @Override
@@ -184,6 +187,33 @@ public class SearchAction implements HotspotsWsAction {
     } else {
       // component keys not provided - asking for global
       issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
+    }
+  }
+
+  private static void addSecurityStandardFilters(WsRequest wsRequest, IssueQuery.Builder builder) {
+    if (!wsRequest.getPciDss32().isEmpty()) {
+      builder.pciDss32(wsRequest.getPciDss32());
+    }
+    if (!wsRequest.getPciDss40().isEmpty()) {
+      builder.pciDss40(wsRequest.getPciDss40());
+    }
+    if (!wsRequest.getOwaspAsvs40().isEmpty()) {
+      builder.owaspAsvs40(wsRequest.getOwaspAsvs40());
+    }
+    if (!wsRequest.getOwaspTop10For2017().isEmpty()) {
+      builder.owaspTop10(wsRequest.getOwaspTop10For2017());
+    }
+    if (!wsRequest.getOwaspTop10For2021().isEmpty()) {
+      builder.owaspTop10For2021(wsRequest.getOwaspTop10For2021());
+    }
+    if (!wsRequest.getSansTop25().isEmpty()) {
+      builder.sansTop25(wsRequest.getSansTop25());
+    }
+    if (!wsRequest.getSonarsourceSecurity().isEmpty()) {
+      builder.sonarsourceSecurity(wsRequest.getSonarsourceSecurity());
+    }
+    if (!wsRequest.getCwe().isEmpty()) {
+      builder.cwe(wsRequest.getCwe());
     }
   }
 
@@ -235,6 +265,11 @@ public class SearchAction implements HotspotsWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false")
       .setSince("9.5");
+    action.createParam(PARAM_OWASP_ASVS_LEVEL)
+      .setDescription("Filters hotspots with lower or equal OWASP ASVS level to the parameter value. Should be used in combination with the 'owaspAsvs-4.0' parameter.")
+      .setSince("9.7")
+      .setPossibleValues(1, 2, 3)
+      .setExampleValue("2");
     action.createParam(PARAM_PCI_DSS_32)
       .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
       .setSince("9.6")
@@ -243,6 +278,10 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of PCI DSS v4.0 categories.")
       .setSince("9.6")
       .setExampleValue("4,6.5.8,10.1");
+    action.createParam(PARAM_OWASP_ASVS_40)
+      .setDescription("Comma-separated list of OWASP ASVS v4.0 categories or rules.")
+      .setSince("9.7")
+      .setExampleValue("6,6.1.2");
     action.createParam(PARAM_ONLY_MINE)
       .setDescription("If 'projectKey' is provided, returns only Security Hotspots assigned to the current user")
       .setBooleanPossibleValues()
@@ -274,45 +313,6 @@ public class SearchAction implements HotspotsWsAction {
       .setSince("9.0");
 
     action.setResponseExample(getClass().getResource("search-example.json"));
-  }
-
-  private void validateParameters(WsRequest wsRequest) {
-    Optional<String> projectKey = wsRequest.getProjectKey();
-    Optional<String> branch = wsRequest.getBranch();
-    Optional<String> pullRequest = wsRequest.getPullRequest();
-    Set<String> hotspotKeys = wsRequest.getHotspotKeys();
-    checkArgument(
-      projectKey.isPresent() || !hotspotKeys.isEmpty(),
-      "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
-
-    checkArgument(
-      branch.isEmpty() || projectKey.isPresent(),
-      "Parameter '%s' must be used with parameter '%s'", PARAM_BRANCH, PARAM_PROJECT_KEY);
-    checkArgument(
-      pullRequest.isEmpty() || projectKey.isPresent(),
-      "Parameter '%s' must be used with parameter '%s'", PARAM_PULL_REQUEST, PARAM_PROJECT_KEY);
-    checkArgument(
-      !(branch.isPresent() && pullRequest.isPresent()),
-      "Only one of parameters '%s' and '%s' can be provided", PARAM_BRANCH, PARAM_PULL_REQUEST);
-
-    Optional<String> status = wsRequest.getStatus();
-    Optional<String> resolution = wsRequest.getResolution();
-    checkArgument(status.isEmpty() || hotspotKeys.isEmpty(),
-      "Parameter '%s' can't be used with parameter '%s'", PARAM_STATUS, PARAM_HOTSPOTS);
-    checkArgument(resolution.isEmpty() || hotspotKeys.isEmpty(),
-      "Parameter '%s' can't be used with parameter '%s'", PARAM_RESOLUTION, PARAM_HOTSPOTS);
-
-    resolution.ifPresent(
-      r -> checkArgument(status.filter(STATUS_REVIEWED::equals).isPresent(),
-        "Value '%s' of parameter '%s' can only be provided if value of parameter '%s' is '%s'",
-        r, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED));
-
-    if (wsRequest.isOnlyMine()) {
-      checkArgument(userSession.isLoggedIn(),
-        "Parameter '%s' requires user to be logged in", PARAM_ONLY_MINE);
-      checkArgument(wsRequest.getProjectKey().isPresent(),
-        "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT_KEY);
-    }
   }
 
   private Optional<ComponentDto> getAndValidateProjectOrApplication(DbSession dbSession, WsRequest wsRequest) {
@@ -411,28 +411,51 @@ public class SearchAction implements HotspotsWsAction {
     return issueIndex.search(query, searchOptions);
   }
 
-  private static void addSecurityStandardFilters(WsRequest wsRequest, IssueQuery.Builder builder) {
-    if (!wsRequest.getPciDss32().isEmpty()) {
-      builder.pciDss32(wsRequest.getPciDss32());
+  private void validateParameters(WsRequest wsRequest) {
+    Optional<String> projectKey = wsRequest.getProjectKey();
+    Optional<String> branch = wsRequest.getBranch();
+    Optional<String> pullRequest = wsRequest.getPullRequest();
+
+    Set<String> hotspotKeys = wsRequest.getHotspotKeys();
+    checkArgument(
+      projectKey.isPresent() || !hotspotKeys.isEmpty(),
+      "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
+
+    checkArgument(
+      branch.isEmpty() || projectKey.isPresent(),
+      "Parameter '%s' must be used with parameter '%s'", PARAM_BRANCH, PARAM_PROJECT_KEY);
+    checkArgument(
+      pullRequest.isEmpty() || projectKey.isPresent(),
+      "Parameter '%s' must be used with parameter '%s'", PARAM_PULL_REQUEST, PARAM_PROJECT_KEY);
+    checkArgument(
+      !(branch.isPresent() && pullRequest.isPresent()),
+      "Only one of parameters '%s' and '%s' can be provided", PARAM_BRANCH, PARAM_PULL_REQUEST);
+
+    Optional<String> status = wsRequest.getStatus();
+    Optional<String> resolution = wsRequest.getResolution();
+    checkArgument(status.isEmpty() || hotspotKeys.isEmpty(),
+      "Parameter '%s' can't be used with parameter '%s'", PARAM_STATUS, PARAM_HOTSPOTS);
+    checkArgument(resolution.isEmpty() || hotspotKeys.isEmpty(),
+      "Parameter '%s' can't be used with parameter '%s'", PARAM_RESOLUTION, PARAM_HOTSPOTS);
+
+    resolution.ifPresent(
+      r -> checkArgument(status.filter(STATUS_REVIEWED::equals).isPresent(),
+        "Value '%s' of parameter '%s' can only be provided if value of parameter '%s' is '%s'",
+        r, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED));
+
+    if (wsRequest.isOnlyMine()) {
+      checkArgument(userSession.isLoggedIn(),
+        "Parameter '%s' requires user to be logged in", PARAM_ONLY_MINE);
+      checkArgument(wsRequest.getProjectKey().isPresent(),
+        "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT_KEY);
     }
-    if (!wsRequest.getPciDss40().isEmpty()) {
-      builder.pciDss40(wsRequest.getPciDss40());
-    }
-    if (!wsRequest.getOwaspTop10For2017().isEmpty()) {
-      builder.owaspTop10(wsRequest.getOwaspTop10For2017());
-    }
-    if (!wsRequest.getOwaspTop10For2021().isEmpty()) {
-      builder.owaspTop10For2021(wsRequest.getOwaspTop10For2021());
-    }
-    if (!wsRequest.getSansTop25().isEmpty()) {
-      builder.sansTop25(wsRequest.getSansTop25());
-    }
-    if (!wsRequest.getSonarsourceSecurity().isEmpty()) {
-      builder.sonarsourceSecurity(wsRequest.getSonarsourceSecurity());
-    }
-    if (!wsRequest.getCwe().isEmpty()) {
-      builder.cwe(wsRequest.getCwe());
-    }
+    Set<Integer> validLevels = Set.of(1, 2, 3);
+    String levelsStringValue = "{1, 2, 3}";
+    wsRequest.getOwaspAsvsLevel().ifPresent(
+      oal -> checkArgument(validLevels.contains(oal),
+        "value \"%d\" is not valid for parameter %s. only one of %s is acceptable.",
+        oal, PARAM_OWASP_ASVS_LEVEL, levelsStringValue)
+    );
   }
 
   private static void addMainBranchFilter(@NotNull ComponentDto project, IssueQuery.Builder builder) {
@@ -632,8 +655,10 @@ public class SearchAction implements HotspotsWsAction {
     private final String resolution;
     private final boolean inNewCodePeriod;
     private final boolean onlyMine;
+    private final Integer owaspAsvsLevel;
     private final Set<String> pciDss32;
     private final Set<String> pciDss40;
+    private final Set<String> owaspAsvs40;
     private final Set<String> owaspTop10For2017;
     private final Set<String> owaspTop10For2021;
     private final Set<String> sansTop25;
@@ -641,12 +666,12 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> cwe;
     private final Set<String> files;
 
+
     private WsRequest(int page, int index,
-      @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
-      Set<String> hotspotKeys,
-      @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod,
-      @Nullable Boolean onlyMine, Set<String> pciDss32, Set<String> pciDss40, Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25,
-      Set<String> sonarsourceSecurity,
+      @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest, Set<String> hotspotKeys,
+      @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod, @Nullable Boolean onlyMine,
+      @Nullable Integer owaspAsvsLevel, Set<String> pciDss32, Set<String> pciDss40, Set<String> owaspAsvs40,
+      Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25, Set<String> sonarsourceSecurity,
       Set<String> cwe, @Nullable Set<String> files) {
       this.page = page;
       this.index = index;
@@ -658,8 +683,10 @@ public class SearchAction implements HotspotsWsAction {
       this.resolution = resolution;
       this.inNewCodePeriod = inNewCodePeriod != null && inNewCodePeriod;
       this.onlyMine = onlyMine != null && onlyMine;
+      this.owaspAsvsLevel = owaspAsvsLevel;
       this.pciDss32 = pciDss32;
       this.pciDss40 = pciDss40;
+      this.owaspAsvs40 = owaspAsvs40;
       this.owaspTop10For2017 = owaspTop10For2017;
       this.owaspTop10For2021 = owaspTop10For2021;
       this.sansTop25 = sansTop25;
@@ -708,12 +735,20 @@ public class SearchAction implements HotspotsWsAction {
       return onlyMine;
     }
 
+    public Optional<Integer> getOwaspAsvsLevel() {
+      return ofNullable(owaspAsvsLevel);
+    }
+
     public Set<String> getPciDss32() {
       return pciDss32;
     }
 
     public Set<String> getPciDss40() {
       return pciDss40;
+    }
+
+    public Set<String> getOwaspAsvs40() {
+      return owaspAsvs40;
     }
 
     public Set<String> getOwaspTop10For2017() {
