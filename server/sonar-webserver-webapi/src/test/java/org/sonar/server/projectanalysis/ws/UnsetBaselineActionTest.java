@@ -50,6 +50,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
@@ -86,11 +87,12 @@ public class UnsetBaselineActionTest {
   @Test
   public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_non_main_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    call(project.getKey(), branch.getBranch());
+    call(project.getKey(), branchName);
 
     verifyManualBaseline(branch, null);
   }
@@ -112,14 +114,15 @@ public class UnsetBaselineActionTest {
   @Test
   public void unset_baseline_when_it_is_set_non_main_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
     db.newCodePeriods().insert(project.branchUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, branchAnalysis.getUuid());
 
     logInAsProjectAdministrator(project);
 
-    call(project.getKey(), branch.getBranch());
+    call(project.getKey(), branchName);
 
     verifyManualBaseline(branch, null);
   }
@@ -137,9 +140,10 @@ public class UnsetBaselineActionTest {
   @Test
   public void fail_when_user_is_not_admin_on_project_of_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
-    assertThatThrownBy(() ->  call(project.getKey(), branch.getBranch()))
+    assertThatThrownBy(() ->  call(project.getKey(), branchName))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }

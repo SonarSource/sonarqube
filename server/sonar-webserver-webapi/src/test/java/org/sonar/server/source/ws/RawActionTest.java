@@ -35,6 +35,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -76,7 +77,8 @@ public class RawActionTest {
   public void raw_from_branch_file() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
@@ -86,7 +88,7 @@ public class RawActionTest {
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
-      .setParam("branch", file.getBranch())
+      .setParam("branch", branchName)
       .execute().getInput();
 
     assertThat(result).isEqualTo("public class HelloWorld {\n}\n");

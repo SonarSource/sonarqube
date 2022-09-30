@@ -22,7 +22,6 @@ package org.sonar.server.component.ws;
 import java.util.Date;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -42,6 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -316,7 +316,7 @@ public class ShowActionTest {
     ComponentDto portfolio2 = db.components().insertPublicPortfolio();
     ComponentDto subview = db.components().insertSubView(portfolio1);
 
-    String pullRequestKey1 = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey1 = randomAlphanumeric(100);
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1)
       .setNeedIssueSync(true));
@@ -325,16 +325,19 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
 
     ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto branch2 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(true));
-    ComponentDto branch3 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(false));
+    String branchName2 = randomAlphanumeric(248);
+    ComponentDto branch2 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(true).setKey(branchName2));
+    String branchName3 = randomAlphanumeric(248);
+    ComponentDto branch3 = db.components().insertProjectBranch(project2, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName3));
 
     ComponentDto project3 = db.components().insertPrivateProject();
-    String pullRequestKey4 = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey4 = randomAlphanumeric(100);
     ComponentDto branch4 = db.components().insertProjectBranch(project3, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey4).setNeedIssueSync(false));
     ComponentDto moduleOfBranch4 = db.components().insertComponent(newModuleDto(branch4));
     ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectory(moduleOfBranch4, "dir"));
     ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(directoryOfBranch4));
-    ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false));
+    String branchName5 = randomAlphanumeric(248);
+    ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName5));
 
     userSession.addProjectPermission(UserRole.USER, project1, project2, project3);
     userSession.registerComponents(portfolio1, portfolio2, subview, project1, project2, project3);
@@ -352,8 +355,8 @@ public class ShowActionTest {
     assertNeedIssueSyncEqual(pullRequestKey1, null, file, true);
 
     assertNeedIssueSyncEqual(null, null, project2, true);
-    assertNeedIssueSyncEqual(null, branch2.getBranch(), branch2, true);
-    assertNeedIssueSyncEqual(null, branch3.getBranch(), branch3, true);
+    assertNeedIssueSyncEqual(null, branchName2, branch2, true);
+    assertNeedIssueSyncEqual(null, branchName3, branch3, true);
 
     // if all branches are synced, need issue sync on project is is set to false
     assertNeedIssueSyncEqual(null, null, project3, false);
@@ -361,7 +364,7 @@ public class ShowActionTest {
     assertNeedIssueSyncEqual(pullRequestKey4, null, moduleOfBranch4, false);
     assertNeedIssueSyncEqual(pullRequestKey4, null, directoryOfBranch4, false);
     assertNeedIssueSyncEqual(pullRequestKey4, null, fileOfBranch4, false);
-    assertNeedIssueSyncEqual(null, branch5.getBranch(), branch5, false);
+    assertNeedIssueSyncEqual(null, branchName5, branch5, false);
   }
 
   private void assertNeedIssueSyncEqual(@Nullable String pullRequest, @Nullable String branch, ComponentDto component, boolean needIssueSync) {

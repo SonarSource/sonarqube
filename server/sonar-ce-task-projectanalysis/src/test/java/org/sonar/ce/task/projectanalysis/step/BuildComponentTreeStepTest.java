@@ -50,6 +50,7 @@ import org.sonar.server.project.Project;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -274,21 +275,22 @@ public class BuildComponentTreeStepTest {
   @Test
   public void generate_keys_when_using_existing_branch() {
     ComponentDto projectDto = dbTester.components().insertPublicProject();
-    ComponentDto branchDto = dbTester.components().insertProjectBranch(projectDto);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto componentDto = dbTester.components().insertProjectBranch(projectDto, b -> b.setKey(branchName));
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(branchDto.getBranch());
+    when(branch.getName()).thenReturn(branchName);
     when(branch.isMain()).thenReturn(false);
-    when(branch.generateKey(any(), any())).thenReturn(branchDto.getKey());
+    when(branch.generateKey(any(), any())).thenReturn(componentDto.getKey());
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(projectDto))
       .setBranch(branch);
     BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
-    reportReader.putComponent(component(ROOT_REF, PROJECT, branchDto.getKey()));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, componentDto.getKey()));
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, branchDto.getKey(), analysisMetadataHolder.getProject().getName(), branchDto.uuid());
+    verifyComponentByRef(ROOT_REF, componentDto.getKey(), analysisMetadataHolder.getProject().getName(), componentDto.uuid());
   }
 
   @Test

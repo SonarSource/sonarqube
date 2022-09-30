@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
@@ -58,6 +57,7 @@ import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -364,8 +364,10 @@ public class SearchActionComponentsTest {
   @Test
   public void search_by_application_key_and_branch() {
     ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app"));
-    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
-    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
+    String appBranch1 = "app-branch1";
+    String appBranch2 = "app-branch2";
+    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey(appBranch1));
+    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(appBranch2));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
     ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
     ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
@@ -391,24 +393,24 @@ public class SearchActionComponentsTest {
     // All issues on applicationBranch1
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
-      .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
+      .setParam(PARAM_BRANCH, appBranch1)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
         .containsExactlyInAnyOrder(
-          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
-          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), appBranch1, true),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), appBranch1, true),
           tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
 
     // Issues on project1Branch1
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
       .setParam(PARAM_PROJECTS, project1.getKey())
-      .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
+      .setParam(PARAM_BRANCH, appBranch1)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
         .containsExactlyInAnyOrder(
-          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
-          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), appBranch1),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), appBranch1));
   }
 
   @Test
@@ -568,7 +570,8 @@ public class SearchActionComponentsTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
 
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
@@ -577,25 +580,25 @@ public class SearchActionComponentsTest {
     // On component key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_BRANCH, branch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchName));
 
     // On project key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getKey())
-      .setParam(PARAM_BRANCH, branch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchName));
     // On file key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, branchFile.getKey())
-      .setParam(PARAM_BRANCH, branch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchName));
   }
 
   @Test
@@ -604,7 +607,8 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
@@ -612,14 +616,14 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, branch.getKey())
-      .setParam(PARAM_BRANCH, branch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getComponentsList())
       .extracting(Issues.Component::getKey, Issues.Component::getBranch)
       .containsExactlyInAnyOrder(
-        tuple(branchFile.getKey(), branchFile.getBranch()),
-        tuple(branch.getKey(), branch.getBranch()));
+        tuple(branchFile.getKey(), branchName),
+        tuple(branch.getKey(), branchName));
   }
 
   @Test
@@ -629,7 +633,7 @@ public class SearchActionComponentsTest {
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
 
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest));
     IssueDto pullRequestIssue = db.issues().insertIssue(rule, pullRequest, pullRequestFile);

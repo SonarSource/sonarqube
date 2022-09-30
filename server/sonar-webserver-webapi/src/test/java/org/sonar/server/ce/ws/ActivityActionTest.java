@@ -418,10 +418,11 @@ public class ActivityActionTest {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = "branch1";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
-    insertCharacteristic(activity, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
@@ -429,7 +430,7 @@ public class ActivityActionTest {
     assertThat(response.getTasksList())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
       .containsExactlyInAnyOrder(
-        tuple("T1", branch.getBranch(), Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, branch.getKey()));
+        tuple("T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, branch.getKey()));
   }
 
   @Test

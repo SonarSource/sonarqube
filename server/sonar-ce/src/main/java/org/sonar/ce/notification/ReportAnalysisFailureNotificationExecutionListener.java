@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.notification.NotificationService;
 
@@ -74,10 +75,12 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
     if (notificationService.hasProjectSubscribersForTypes(projectUuid, singleton(ReportAnalysisFailureNotification.class))) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         ComponentDto projectDto = dbClient.componentDao().selectOrFailByUuid(dbSession, projectUuid);
+        BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, projectDto.branchUuid())
+          .orElseThrow(() -> new IllegalStateException("Could not find a branch for component uuid " + projectDto.uuid()));
         checkScopeAndQualifier(projectDto);
         CeActivityDto ceActivityDto = dbClient.ceActivityDao().selectByUuid(dbSession, ceTask.getUuid())
           .orElseThrow(() -> new RowNotFoundException(format("CeActivity with uuid '%s' not found", ceTask.getUuid())));
-        ReportAnalysisFailureNotificationBuilder taskFailureNotification = buildNotification(ceActivityDto, projectDto, error);
+        ReportAnalysisFailureNotificationBuilder taskFailureNotification = buildNotification(ceActivityDto, projectDto, branchDto, error);
         ReportAnalysisFailureNotification notification = taskFailureNotificationSerializer.toNotification(taskFailureNotification);
         notificationService.deliverEmails(singleton(notification));
 
@@ -98,14 +101,16 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
       "Component %s must be a project (scope=%s, qualifier=%s)", projectDto.uuid(), scope, qualifier);
   }
 
-  private ReportAnalysisFailureNotificationBuilder buildNotification(CeActivityDto ceActivityDto, ComponentDto projectDto, @Nullable Throwable error) {
+  private ReportAnalysisFailureNotificationBuilder buildNotification(CeActivityDto ceActivityDto, ComponentDto projectDto, BranchDto branchDto,
+    @Nullable Throwable error) {
+    String projectBranch = branchDto.isMain() ? null : branchDto.getBranchKey();
     Long executedAt = ceActivityDto.getExecutedAt();
     return new ReportAnalysisFailureNotificationBuilder(
       new ReportAnalysisFailureNotificationBuilder.Project(
         projectDto.uuid(),
         projectDto.getKey(),
         projectDto.name(),
-        projectDto.getBranch()),
+        projectBranch),
       new ReportAnalysisFailureNotificationBuilder.Task(
         ceActivityDto.getUuid(),
         ceActivityDto.getSubmittedAt(),

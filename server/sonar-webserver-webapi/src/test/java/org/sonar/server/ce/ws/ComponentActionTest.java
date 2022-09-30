@@ -48,6 +48,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -172,10 +173,11 @@ public class ComponentActionTest {
   public void branch_in_activity() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
-    insertCharacteristic(activity, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -185,19 +187,20 @@ public class ComponentActionTest {
     assertThat(response.getCurrent())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        "T1", branch.getBranch(), Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, project.getKey(), 0, emptyList());
+        "T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, project.getKey(), 0, emptyList());
   }
 
   @Test
   public void branch_in_queue_analysis() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
-    insertCharacteristic(queue1, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(queue1, BRANCH_KEY, branchName);
     insertCharacteristic(queue1, BRANCH_TYPE_KEY, BRANCH.name());
     CeQueueDto queue2 = insertQueue("T2", project, PENDING);
-    insertCharacteristic(queue2, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(queue2, BRANCH_KEY, branchName);
     insertCharacteristic(queue2, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -207,8 +210,8 @@ public class ComponentActionTest {
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        tuple("T1", branch.getBranch(), Common.BranchType.BRANCH, Ce.TaskStatus.IN_PROGRESS, project.getKey(), 0, emptyList()),
-        tuple("T2", branch.getBranch(), Common.BranchType.BRANCH, Ce.TaskStatus.PENDING, project.getKey(), 0, emptyList()));
+        tuple("T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.IN_PROGRESS, project.getKey(), 0, emptyList()),
+        tuple("T2", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.PENDING, project.getKey(), 0, emptyList()));
   }
 
   @Test
@@ -216,13 +219,15 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     insertQueue("Main", project, IN_PROGRESS);
+    String branchName1 = "Branch1";
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch1"));
     CeQueueDto branchQueue1 = insertQueue("Branch1", project, IN_PROGRESS);
-    insertCharacteristic(branchQueue1, BRANCH_KEY, branch1.getBranch());
+    insertCharacteristic(branchQueue1, BRANCH_KEY, branchName1);
     insertCharacteristic(branchQueue1, BRANCH_TYPE_KEY, BRANCH.name());
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch2"));
+    String branchName2 = "Branch2";
     CeQueueDto branchQueue2 = insertQueue("Branch2", project, PENDING);
-    insertCharacteristic(branchQueue2, BRANCH_KEY, branch2.getBranch());
+    insertCharacteristic(branchQueue2, BRANCH_KEY, branchName2);
     insertCharacteristic(branchQueue2, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -233,8 +238,8 @@ public class ComponentActionTest {
       .extracting(Ce.Task::getId, Ce.Task::getComponentKey, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
         tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, 0, emptyList()),
-        tuple("Branch1", branch1.getKey(), branch1.getBranch(), Common.BranchType.BRANCH, 0, emptyList()),
-        tuple("Branch2", branch2.getKey(), branch2.getBranch(), Common.BranchType.BRANCH, 0, emptyList()));
+        tuple("Branch1", branch1.getKey(), branchName1, Common.BranchType.BRANCH, 0, emptyList()),
+        tuple("Branch2", branch2.getKey(), branchName2, Common.BranchType.BRANCH, 0, emptyList()));
   }
 
   @Test

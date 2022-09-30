@@ -128,7 +128,8 @@ public class SearchEventsActionTest {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     SnapshotDto projectAnalysis = insertAnalysis(project, 1_500_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Passed"));
     insertIssue(project, projectAnalysis);
@@ -147,9 +148,9 @@ public class SearchEventsActionTest {
       .extracting(Event::getCategory, Event::getProject, Event::getMessage)
       .containsOnly(
         tuple("QUALITY_GATE", project.getKey(), format("Quality Gate status of project '%s' changed to 'Passed'", project.name())),
-        tuple("QUALITY_GATE", project.getKey(), format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", project.name(), branch.getBranch())),
+        tuple("QUALITY_GATE", project.getKey(), format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", project.name(), branchName)),
         tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s'", project.name())),
-        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", project.name(), branch.getBranch())));
+        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", project.name(), branchName)));
     verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())));
   }
 

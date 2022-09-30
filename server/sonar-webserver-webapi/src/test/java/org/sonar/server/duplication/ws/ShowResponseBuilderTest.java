@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
@@ -33,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -204,7 +204,8 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications_on_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
     List<DuplicationsParser.Block> blocks = newArrayList();
@@ -212,7 +213,7 @@ public class ShowResponseBuilderTest {
       Duplication.newComponent(file1, 57, 12),
       Duplication.newComponent(file2, 73, 12))));
 
-    test(blocks, branch.getBranch(), null,
+    test(blocks, branchName, null,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -232,14 +233,14 @@ public class ShowResponseBuilderTest {
         "      \"name\": \"" + file1.longName() + "\",\n" +
         "      \"project\": \"" + branch.getKey() + "\",\n" +
         "      \"projectName\": \"" + branch.longName() + "\",\n" +
-        "      \"branch\": \"" + branch.getBranch() + "\",\n" +
+        "      \"branch\": \"" + branchName + "\",\n" +
         "    },\n" +
         "    \"2\": {\n" +
         "      \"key\": \"" + file2.getKey() + "\",\n" +
         "      \"name\": \"" + file2.longName() + "\",\n" +
         "      \"project\": \"" + branch.getKey() + "\",\n" +
         "      \"projectName\": \"" + branch.longName() + "\",\n" +
-        "      \"branch\": \"" + branch.getBranch() + "\",\n" +
+        "      \"branch\": \"" + branchName + "\",\n" +
         "    }\n" +
         "  }" +
         "}");
@@ -248,7 +249,7 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications_on_pull_request() {
     ComponentDto project = db.components().insertPublicProject();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));

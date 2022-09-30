@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,6 +85,7 @@ import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Hotspots;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -911,7 +911,8 @@ public class ShowActionTest {
   @Test
   public void returns_branch_but_no_pullRequest_on_component_and_project_on_non_main_branch() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
     userSessionRule.registerComponents(project);
     RuleDto rule = newRule(SECURITY_HOTSPOT);
@@ -924,14 +925,14 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    verifyComponent(response.getProject(), branch, branch.getBranch(), null);
-    verifyComponent(response.getComponent(), file, branch.getBranch(), null);
+    verifyComponent(response.getProject(), branch, branchName, null);
+    verifyComponent(response.getComponent(), file, branchName, null);
   }
 
   @Test
   public void returns_pullRequest_but_no_branch_on_component_and_project_on_pullRequest() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project,
       t -> t.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));

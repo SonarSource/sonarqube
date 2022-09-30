@@ -167,11 +167,12 @@ public class SearchResponseFormatFormatOperationTest {
 
   @Test
   public void formatOperation_should_add_branch_on_issue() {
-    componentDto.setKey(randomAlphanumeric(5) + BRANCH_KEY_SEPARATOR + randomAlphanumeric(5));
+    String branchName = randomAlphanumeric(5);
+    componentDto.setKey(randomAlphanumeric(5) + BRANCH_KEY_SEPARATOR + branchName);
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
 
-    assertThat(result.getIssue().getBranch()).isEqualTo(componentDto.getBranch());
+    assertThat(result.getIssue().getBranch()).isEqualTo(branchName);
   }
 
   @Test

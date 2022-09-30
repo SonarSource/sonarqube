@@ -118,20 +118,21 @@ public class ComponentActionTest {
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    String branchName = "my_branch";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentWsResponse.class);
 
     assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+      .containsExactlyInAnyOrder(file.getKey(), branchName);
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));

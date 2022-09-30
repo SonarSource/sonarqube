@@ -168,7 +168,8 @@ public class ComponentActionTest {
   @Test
   public void return_favourite_for_branch() {
     ComponentDto project = insertProject();
-    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));
+    String branchName = "feature1";
+    componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName).setUuid("xyz"));
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(user.getUuid()),
       project.getKey(), project.name(), project.qualifier(), user.getLogin());
@@ -177,7 +178,7 @@ public class ComponentActionTest {
 
     String json = ws.newRequest()
       .setParam("component", project.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .getInput();
 
@@ -314,7 +315,8 @@ public class ComponentActionTest {
   public void return_component_info_when_file_on_branch() {
     db.qualityGates().createDefaultQualityGate();
     ComponentDto project = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
-    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
+    String branchName = "feature1";
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey(branchName));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
@@ -324,7 +326,7 @@ public class ComponentActionTest {
 
     String json = ws.newRequest()
       .setParam("component", fileDto.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .getInput();
 

@@ -57,6 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -207,7 +208,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     assertThat(notificationProject.getName()).isEqualTo(project.name());
     assertThat(notificationProject.getKey()).isEqualTo(project.getKey());
     assertThat(notificationProject.getUuid()).isEqualTo(project.uuid());
-    assertThat(notificationProject.getBranchName()).isEqualTo(project.getBranch());
+    assertThat(notificationProject.getBranchName()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.getTask();
     assertThat(notificationTask.getUuid()).isEqualTo(taskUuid);
     assertThat(notificationTask.getCreatedAt()).isEqualTo(createdAt);

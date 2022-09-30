@@ -173,11 +173,13 @@ public class SearchEventsActionNewIssuesTest {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch1"));
+    String branchName1 = "branch1";
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName1));
     SnapshotDto branch1Analysis = insertAnalysis(branch1, 1_500_000_000_000L);
     insertIssue(branch1, branch1Analysis);
     insertIssue(branch1, branch1Analysis);
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setKey("branch"));
+    String branchName2 = "branch2";
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setKey(branchName2));
     SnapshotDto branch2Analysis = insertAnalysis(branch2, 1_300_000_000_000L);
     insertIssue(branch2, branch2Analysis);
     issueIndexer.indexAllIssues();
@@ -191,13 +193,13 @@ public class SearchEventsActionNewIssuesTest {
     assertThat(result.getEventsList())
       .extracting(Event::getCategory, Event::getProject, Event::getMessage, Event::getLink, Event::getDate)
       .containsOnly(
-        tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s' on branch '%s'", project.name(), branch1.getBranch()),
+        tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s' on branch '%s'", project.name(), branchName1),
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&branch=%s", branch1.getKey(), encode(formatDateTime(from + 1_000L)),
-            userSession.getLogin(), branch1.getBranch()),
+            userSession.getLogin(), branchName1),
           formatDateTime(branch1Analysis.getCreatedAt())),
-        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", project.name(), branch2.getBranch()),
+        tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on branch '%s'", project.name(), branchName2),
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&branch=%s", branch2.getKey(), encode(formatDateTime(from + 1_000L)),
-            userSession.getLogin(), branch2.getBranch()),
+            userSession.getLogin(), branchName2),
           formatDateTime(branch2Analysis.getCreatedAt())));
   }
 
@@ -207,7 +209,8 @@ public class SearchEventsActionNewIssuesTest {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("nonMain"));
+    String nonMainBranchName = "nonMain";
+    ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(nonMainBranchName));
     SnapshotDto nonMainBranchAnalysis = insertAnalysis(nonMainBranch, 1_500_000_000_000L);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
     insertIssue(nonMainBranch, nonMainBranchAnalysis);
@@ -226,9 +229,9 @@ public class SearchEventsActionNewIssuesTest {
     assertThat(result.getEventsList())
       .extracting(Event::getCategory, Event::getProject, Event::getMessage, Event::getLink, Event::getDate)
       .containsOnly(
-        tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s' on branch '%s'", project.name(), nonMainBranch.getBranch()),
+        tuple("NEW_ISSUES", project.getKey(), format("You have 2 new issues on project '%s' on branch '%s'", project.name(), nonMainBranchName),
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&branch=%s", nonMainBranch.getKey(), encode(formatDateTime(from + 1_000L)),
-            userSession.getLogin(), nonMainBranch.getBranch()),
+            userSession.getLogin(), nonMainBranchName),
           formatDateTime(nonMainBranchAnalysis.getCreatedAt())),
         tuple("NEW_ISSUES", project.getKey(), format("You have 1 new issue on project '%s' on pull request '%s'", project.name(), pullRequestKey),
           format("https://sonarcloud.io/project/issues?id=%s&createdAfter=%s&assignees=%s&resolved=false&pullRequest=%s", pullRequest.getKey(),

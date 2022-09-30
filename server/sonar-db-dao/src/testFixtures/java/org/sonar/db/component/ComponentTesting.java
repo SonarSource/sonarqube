@@ -28,6 +28,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
@@ -204,7 +205,7 @@ public class ComponentTesting {
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {
     boolean isMain = branchComponent.getMainBranchProjectUuid() == null;
     String projectUuid = isMain ? branchComponent.uuid() : branchComponent.getMainBranchProjectUuid();
-    String key = isMain ? "master" : "branch_" + randomAlphanumeric(248);
+    String key = isMain ? DEFAULT_MAIN_BRANCH_NAME : "branch_" + randomAlphanumeric(248);
 
     return new BranchDto()
       .setKey(key)

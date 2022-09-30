@@ -33,6 +33,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
@@ -253,7 +254,8 @@ public class AppActionTest {
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
@@ -262,13 +264,13 @@ public class AppActionTest {
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
-      .setParam("branch", file.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .getInput();
 
     assertJson(result).isSimilarTo("{\n" +
       "  \"key\": \"" + file.getKey() + "\",\n" +
-      "  \"branch\": \"" + file.getBranch() + "\",\n" +
+      "  \"branch\": \"" + branchName + "\",\n" +
       "  \"uuid\": \"" + file.uuid() + "\",\n" +
       "  \"path\": \"" + file.path() + "\",\n" +
       "  \"name\": \"" + file.name() + "\",\n" +
@@ -296,18 +298,19 @@ public class AppActionTest {
   public void component_and_branch_parameters_provided() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())
-      .setParam("branch", file.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .getInput();
 
     assertJson(result).isSimilarTo("{\n" +
       "  \"key\": \"" + file.getKey() + "\",\n" +
-      "  \"branch\": \"" + file.getBranch() + "\",\n" +
+      "  \"branch\": \"" + branchName + "\",\n" +
       "  \"uuid\": \"" + file.uuid() + "\",\n" +
       "  \"path\": \"" + file.path() + "\",\n" +
       "  \"name\": \"" + file.name() + "\",\n" +

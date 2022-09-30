@@ -47,7 +47,6 @@ public class ComponentDto {
   public static final String PULL_REQUEST_SEPARATOR = ":PULL_REQUEST:";
 
   private static final Splitter BRANCH_KEY_SPLITTER = Splitter.on(BRANCH_KEY_SEPARATOR);
-  private static final Splitter PULL_REQUEST_SPLITTER = Splitter.on(PULL_REQUEST_SEPARATOR);
 
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
@@ -182,15 +181,6 @@ public class ComponentDto {
   public ComponentDto setKey(String key) {
     this.kee = checkComponentKey(key);
     return this;
-  }
-
-  /**
-   * @return the key of the branch. It will be null on the main branch and when the component is not on a branch
-   */
-  @CheckForNull
-  public String getBranch() {
-    List<String> split = BRANCH_KEY_SPLITTER.splitToList(kee);
-    return split.size() == 2 ? split.get(1) : null;
   }
 
   public String scope() {

@@ -274,24 +274,26 @@ public class TreeActionTest {
   @Test
   public void project_branch_reference_from_application_branch() {
     ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
-    ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"));
+    String appBranchName = "app-branch";
+    String projectBranchName = "project-branch";
+    ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(appBranchName));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
-    ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
+    ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getKey()));
+      .setKey(applicationBranch.getKey() + appBranchName + projectBranch.getKey()));
     logInWithBrowsePermission(application);
 
     TreeWsResponse result = ws.newRequest()
       .setParam(MeasuresWsParameters.PARAM_COMPONENT, applicationBranch.getKey())
-      .setParam(MeasuresWsParameters.PARAM_BRANCH, applicationBranch.getBranch())
+      .setParam(MeasuresWsParameters.PARAM_BRANCH, appBranchName)
       .executeProtobuf(TreeWsResponse.class);
 
     assertThat(result.getBaseComponent())
       .extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(applicationBranch.getKey(), applicationBranch.getBranch());
+      .containsExactlyInAnyOrder(applicationBranch.getKey(), appBranchName);
     assertThat(result.getComponentsList())
       .extracting(Component::getKey, Component::getBranch, Component::getRefId, Component::getRefKey)
-      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), projectBranch.getBranch(), projectBranch.uuid(), project.getKey()));
+      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), projectBranchName, projectBranch.uuid(), project.getKey()));
   }
 
   @Test

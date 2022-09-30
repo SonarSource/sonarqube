@@ -20,7 +20,6 @@
 package org.sonar.server.duplication.ws;
 
 import java.util.function.Function;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +40,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -106,7 +106,8 @@ public class ShowActionTest {
   public void duplications_by_file_key_and_branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
@@ -117,7 +118,7 @@ public class ShowActionTest {
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .getInput();
 
@@ -151,14 +152,14 @@ public class ShowActionTest {
           "    }\n" +
           "  }\n" +
           "}",
-        file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), file.getBranch()));
+        file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), branchName));
   }
 
   @Test
   public void duplications_by_file_key_and_pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
     db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +

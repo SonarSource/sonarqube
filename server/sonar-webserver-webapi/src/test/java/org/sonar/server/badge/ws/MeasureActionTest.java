@@ -53,6 +53,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -246,13 +247,13 @@ public class MeasureActionTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 5_000);
-
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.measures().insertLiveMeasure(branch, metric, m -> m.setValue(10_000d));
 
     TestResponse response = ws.newRequest()
       .setParam("project", branch.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .setParam("metric", metric.getKey())
       .execute();
 
@@ -262,7 +263,7 @@ public class MeasureActionTest {
     response = ws.newRequest()
       .setHeader("If-None-Match", response.getHeader("ETag"))
       .setParam("project", branch.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .setParam("metric", metric.getKey())
       .execute();
 

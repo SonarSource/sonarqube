@@ -44,10 +44,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
@@ -122,12 +124,21 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = ValuesRequest.from(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
+      BranchDto branchDto = loadBranch(dbSession, component);
 
       Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
-      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
+      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet(), branchDto);
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     }
+  }
+
+  private BranchDto loadBranch(DbSession dbSession, Optional<ComponentDto> component) {
+    if (component.isEmpty()) {
+      return null;
+    }
+    return dbClient.branchDao().selectByUuid(dbSession, component.get().branchUuid())
+      .orElseThrow(() -> new NotFoundException("Could not find a branch for component uuid " + component.get().branchUuid()));
   }
 
   private Set<String> loadKeys(ValuesRequest valuesRequest) {
@@ -156,12 +167,13 @@ public class ValuesAction implements SettingsWsAction {
     return Optional.of(component);
   }
 
-  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
+  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys, @Nullable BranchDto branchDto) {
     // List of settings must be kept in the following orders : default -> global -> component -> branch
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultValues(keys));
     settings.addAll(loadGlobalSettings(dbSession, keys));
-    if (component.isPresent() && component.get().getBranch() != null && component.get().getMainBranchProjectUuid() != null) {
+    String branch = getBranchKeySafely(branchDto);
+    if (component.isPresent() && branch != null && component.get().getMainBranchProjectUuid() != null) {
       ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.get().getMainBranchProjectUuid());
       settings.addAll(loadComponentSettings(dbSession, keys, project).values());
     }
@@ -169,6 +181,13 @@ public class ValuesAction implements SettingsWsAction {
     return settings.stream()
       .filter(s -> settingsWsSupport.isVisible(s.getKey(), component))
       .collect(Collectors.toList());
+  }
+
+  private String getBranchKeySafely(@Nullable BranchDto branchDto) {
+    if(branchDto != null) {
+      return branchDto.isMain() ? null : branchDto.getBranchKey();
+    }
+    return null;
   }
 
   private List<Setting> loadDefaultValues(Set<String> keys) {

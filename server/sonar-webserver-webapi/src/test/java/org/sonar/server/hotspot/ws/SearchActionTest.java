@@ -36,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,6 +85,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -684,7 +684,7 @@ public class SearchActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("branch"));
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST).setKey("prKey"));
     ComponentDto fileProject = dbTester.components().insertComponent(newFileDto(project));
     ComponentDto fileBranch = dbTester.components().insertComponent(newFileDto(branch));
@@ -711,7 +711,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseProject = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
-    SearchWsResponse responseBranch = newRequest(branch)
+    SearchWsResponse responseBranch = newRequest(branch, res -> res.setParam(PARAM_BRANCH, "branch"))
       .executeProtobuf(SearchWsResponse.class);
     SearchWsResponse responsePR = newRequest(pullRequest, res -> res.setParam(PARAM_PULL_REQUEST, "prKey"))
       .executeProtobuf(SearchWsResponse.class);
@@ -1087,7 +1087,8 @@ public class SearchActionTest {
   @Test
   public void returns_branch_field_of_components_of_branch() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.registerComponents(project, branch);
     indexPermissions();
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(branch, "donut/acme"));
@@ -1098,7 +1099,7 @@ public class SearchActionTest {
     IssueDto projectHotspot = insertHotspot(branch, branch, rule);
     indexIssues();
 
-    SearchWsResponse response = newRequest(branch)
+    SearchWsResponse response = newRequest(branch, r -> r.setParam(PARAM_BRANCH, branchName))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1109,20 +1110,20 @@ public class SearchActionTest {
       .containsOnly(project.getKey(), directory.getKey(), file.getKey());
     Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
     Component actualProject = componentByKey.get(project.getKey());
-    assertThat(actualProject.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualProject.getBranch()).isEqualTo(branchName);
     assertThat(actualProject.hasPullRequest()).isFalse();
     Component actualDirectory = componentByKey.get(directory.getKey());
-    assertThat(actualDirectory.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualDirectory.getBranch()).isEqualTo(branchName);
     assertThat(actualDirectory.hasPullRequest()).isFalse();
     Component actualFile = componentByKey.get(file.getKey());
-    assertThat(actualFile.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualFile.getBranch()).isEqualTo(branchName);
     assertThat(actualFile.hasPullRequest()).isFalse();
   }
 
   @Test
   public void returns_pullRequest_field_of_components_of_pullRequest() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = randomAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
     userSessionRule.registerComponents(project, pullRequest);
@@ -2034,10 +2035,6 @@ public class SearchActionTest {
   private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution, Consumer<TestRequest> consumer) {
     TestRequest res = actionTester.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey());
-    String branch = project.getBranch();
-    if (branch != null) {
-      res.setParam(PARAM_BRANCH, branch);
-    }
     if (status != null) {
       res.setParam(PARAM_STATUS, status);
     }

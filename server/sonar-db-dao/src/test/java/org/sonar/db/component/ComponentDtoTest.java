@@ -42,7 +42,6 @@ public class ComponentDtoTest {
       .setRootUuid("uuid_3");
 
     assertThat(componentDto.getKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(componentDto.getBranch()).isNull();
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(componentDto.qualifier()).isEqualTo("FIL");

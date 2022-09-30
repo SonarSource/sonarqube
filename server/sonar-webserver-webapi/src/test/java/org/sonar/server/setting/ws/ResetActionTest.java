@@ -55,6 +55,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -205,7 +206,8 @@ public class ResetActionTest {
   @Test
   public void remove_setting_on_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(null, branch.name(), null, null, newComponentPropertyDto(branch).setKey("foo").setValue("value"));
     userSession.logIn().addProjectPermission(ADMIN, project);
@@ -214,7 +216,7 @@ public class ResetActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("keys", "foo")
       .setParam("component", branch.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("branch", branchName)
       .execute();
 
     assertProjectPropertyDoesNotExist(branch, "foo");

@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.project.Project;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -121,9 +122,10 @@ public class ConfigurationRepositoryTest {
   @Test
   public void branch_settings() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branchDto = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branchDto = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn(branchDto.getBranch());
+    when(branch.getName()).thenReturn(branchName);
     analysisMetadataHolder
       .setProject(Project.from(project))
       .setBranch(branch);

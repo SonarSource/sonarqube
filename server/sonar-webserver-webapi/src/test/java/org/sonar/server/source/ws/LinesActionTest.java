@@ -121,7 +121,8 @@ public class LinesActionTest {
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -135,7 +136,7 @@ public class LinesActionTest {
 
     tester.newRequest()
       .setParam("key", file.getKey())
-      .setParam("branch", file.getBranch())
+      .setParam("branch", branchName)
       .execute()
       .assertJson(getClass(), "show_source.json");
   }

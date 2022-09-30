@@ -22,8 +22,6 @@ package org.sonar.db.component;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
-import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -159,8 +158,8 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_updates_branches_too() {
     ComponentDto project = db.components().insertPublicProject();
-    String branchKey = RandomStringUtils.randomAlphanumeric(100);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     db.components().insertComponent(newFileDto(branch));
     db.components().insertComponent(newFileDto(branch));
     int prComponentCount = 3;
@@ -174,7 +173,7 @@ public class ComponentKeyUpdaterDaoTest {
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldProjectKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newProjectKey)).isPresent();
-    assertThat(dbClient.componentDao().selectByKeyAndBranch(dbSession, newProjectKey, branchKey)).isPresent();
+    assertThat(dbClient.componentDao().selectByKeyAndBranch(dbSession, newProjectKey, branchName)).isPresent();
     assertThat(dbClient.componentDao().selectByBranchUuid(project.uuid(), dbSession)).hasSize(1);
     assertThat(dbClient.componentDao().selectByBranchUuid(branch.uuid(), dbSession)).hasSize(prComponentCount);
 
@@ -185,7 +184,7 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_updates_pull_requests_too() {
     ComponentDto project = db.components().insertPublicProject();
-    String pullRequestKey1 = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey1 = randomAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));

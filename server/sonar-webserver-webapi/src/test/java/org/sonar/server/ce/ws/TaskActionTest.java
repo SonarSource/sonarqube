@@ -51,6 +51,7 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 
 import static java.util.Collections.singleton;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -162,10 +163,11 @@ public class TaskActionTest {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.components().insertSnapshot(branch);
     CeActivityDto activity = createAndPersistArchivedTask(project);
-    insertCharacteristic(activity, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.TaskResponse taskResponse = ws.newRequest()
@@ -174,7 +176,7 @@ public class TaskActionTest {
 
     assertThat(taskResponse.getTask())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getComponentKey)
-      .containsExactlyInAnyOrder(SOME_TASK_UUID, branch.getBranch(), Common.BranchType.BRANCH, branch.getKey());
+      .containsExactlyInAnyOrder(SOME_TASK_UUID, branchName, Common.BranchType.BRANCH, branch.getKey());
   }
 
   @Test

@@ -30,6 +30,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -248,10 +249,11 @@ public class DuplicationsParserTest {
   @Test
   public void duplication_on_branch() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branch.getBranch(), null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branchName, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +

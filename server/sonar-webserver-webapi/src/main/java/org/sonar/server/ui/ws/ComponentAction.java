@@ -43,6 +43,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -52,6 +53,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -59,6 +61,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySortedSet;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
@@ -121,7 +124,7 @@ public class ComponentAction implements NavigationWsAction {
       .setSince("5.2")
       .setChangelog(
         new Change("8.8", "Deprecated parameter 'componentKey' has been removed. Please use parameter 'component' instead"),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
         new Change("6.4", "The 'visibility' field is added"));
 
@@ -157,11 +160,14 @@ public class ComponentAction implements NavigationWsAction {
         throw insufficientPrivilegesException();
       }
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.branchUuid());
+      BranchDto branchDto = dbClient.branchDao().selectByUuid(session, component.branchUuid())
+        .orElseThrow(() -> new NotFoundException(format("Could not find a branch for component uuid " + component.uuid())));
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         boolean isFavourite = isFavourite(session, rootProject, component);
-        writeComponent(json, component, analysis.orElse(null), isFavourite);
+        String branchKey = branchDto.isMain() ? null : branchDto.getBranchKey();
+        writeComponent(json, component, analysis.orElse(null), isFavourite, branchKey);
         writeProfiles(json, session, component);
         writeQualityGate(json, session, rootProject);
         if (userSession.hasComponentPermission(ADMIN, component) ||
@@ -203,15 +209,14 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite) {
+  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite, String branchKey) {
     json.prop("key", component.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite);
-    String branch = component.getBranch();
-    if (branch != null) {
-      json.prop("branch", branch);
+    if (branchKey != null) {
+      json.prop("branch", branchKey);
     }
     if (Qualifiers.APP.equals(component.qualifier())) {
       json.prop("canBrowseAllChildProjects", userSession.hasChildProjectsPermission(USER, component));

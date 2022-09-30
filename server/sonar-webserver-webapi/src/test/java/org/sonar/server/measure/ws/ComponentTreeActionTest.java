@@ -535,20 +535,21 @@ public class ComponentTreeActionTest {
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    String branchName = "my-branch";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
+    db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+      .containsExactlyInAnyOrder(file.getKey(), branchName);
     assertThat(response.getBaseComponent().getMeasuresList())
       .extracting(Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
@@ -723,27 +724,28 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = insertNclocMetric();
     ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app-key"));
     userSession.registerApplication(application);
-    ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"), a -> a.setUuid("custom-uuid"));
+    String branchName = "app-branch";
+    ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey(branchName), a -> a.setUuid("custom-uuid"));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setKey(applicationBranch.getKey() + applicationBranch.getBranch() + projectBranch.getKey()));
+      .setKey(applicationBranch.getKey() + branchName + projectBranch.getKey()));
     SnapshotDto applicationBranchAnalysis = db.components().insertSnapshot(applicationBranch);
     db.measures().insertLiveMeasure(applicationBranch, ncloc, m -> m.setValue(5d));
     db.measures().insertLiveMeasure(techProjectBranch, ncloc, m -> m.setValue(1d));
 
     ComponentTreeWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT, applicationBranch.getKey())
-      .setParam(PARAM_BRANCH, applicationBranch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .setParam(PARAM_METRIC_KEYS, ncloc.getKey())
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(result.getBaseComponent())
       .extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(applicationBranch.getKey(), applicationBranch.getBranch());
+      .containsExactlyInAnyOrder(applicationBranch.getKey(), branchName);
     assertThat(result.getComponentsList())
       .extracting(Component::getKey, Component::getBranch, Component::getRefKey)
-      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), projectBranch.getBranch(), project.getKey()));
+      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), branchName, project.getKey()));
   }
 
   @Test

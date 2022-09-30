@@ -84,7 +84,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
-      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && dto.getBranch() != null && parentProjectDto != null) {
+      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && dto.getMainBranchProjectUuid() != null && parentProjectDto != null) {
         wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
       }
     }

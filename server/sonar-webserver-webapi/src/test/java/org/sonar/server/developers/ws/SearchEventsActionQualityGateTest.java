@@ -98,8 +98,9 @@ public class SearchEventsActionQualityGateTest {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
-    SnapshotDto projectAnalysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
+    insertSuccessfulActivity(project, 1_500_000_000_000L);
     SnapshotDto branchAnalysis = insertSuccessfulActivity(branch, 1_500_000_000_000L);
     insertActivity(branch, branchAnalysis, CeActivityDto.Status.SUCCESS);
     db.events().insertEvent(newQualityGateEvent(branchAnalysis).setDate(branchAnalysis.getCreatedAt()).setName("Failed"));
@@ -113,8 +114,8 @@ public class SearchEventsActionQualityGateTest {
       .extracting(Event::getCategory, Event::getProject, Event::getMessage, Event::getLink)
       .containsOnly(
         tuple("QUALITY_GATE", project.getKey(),
-          format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", project.name(), branch.getBranch()),
-          format("https://sonarcloud.io/dashboard?id=%s&branch=%s", project.getKey(), branch.getBranch()))
+          format("Quality Gate status of project '%s' on branch '%s' changed to 'Failed'", project.name(), branchName),
+          format("https://sonarcloud.io/dashboard?id=%s&branch=%s", project.getKey(), branchName))
       );
   }
 

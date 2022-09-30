@@ -45,6 +45,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -172,7 +173,8 @@ public class CurrentActionHomepageTest {
   @Test
   public void return_homepage_when_set_to_a_branch() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, project);
 
@@ -180,7 +182,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent, CurrentWsResponse.Homepage::getBranch)
-      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, branch.getKey(), branch.getBranch());
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, branch.getKey(), branchName);
   }
 
   @Test

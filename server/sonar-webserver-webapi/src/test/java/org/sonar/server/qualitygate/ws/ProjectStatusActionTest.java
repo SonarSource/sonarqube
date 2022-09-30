@@ -47,6 +47,7 @@ import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -215,7 +216,8 @@ public class ProjectStatusActionTest {
   @Test
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    String branchName = randomAlphanumeric(248);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
       .setPeriodMode("last_version")
@@ -230,7 +232,7 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_BRANCH, branch.getBranch())
+      .setParam(PARAM_BRANCH, branchName)
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
