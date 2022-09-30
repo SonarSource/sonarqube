@@ -1,6 +1,3 @@
-# content of service-account-credentials.json, used to access to Google Cloud Platform
-gcp_credentials: ENCRYPTED[!e5f7207bd8d02d383733bef47e18296ac32e3b7d22eb480354e8dd8fdc0004be45a8a4e72c797bd66ee94eb3340fa363!]
-
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
   # to be replaced by other credentials
@@ -60,15 +57,29 @@ github_nightly_task_template: &GITHUB_NIGHTLY_TASK_TEMPLATE
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')    
 
-docker_build_container_template: &GKE_CONTAINER_TEMPLATE
-  dockerfile: private/docker/Dockerfile-build
-  builder_image_project: sonarqube-team
-  builder_image_name: family/docker-builder
-  cluster_name: cirrus-ci-cluster
-  zone: us-central1-a
+docker_build_container_template: &CONTAINER_TEMPLATE
+  region: eu-central-1
+  cluster_name: ${CIRRUS_CLUSTER_NAME}
   namespace: default
+  builder_subnet_id: ${CIRRUS_AWS_SUBNET}
+  builder_role: cirrus-builder
+  builder_image: docker-builder-v*
+  builder_instance_type: t2.small
+  dockerfile: private/docker/Dockerfile-build
+  docker_arguments:
+    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
   cpu: 1
   memory: 2Gb
+
+vm_instance_template: &VM_TEMPLATE
+  experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
+  image: docker-builder-v*
+  type: t2.small
+  region: eu-central-1
+  subnet_id: ${CIRRUS_AWS_SUBNET}
+  disk: 10
+  cpu: 4
+  memory: 8G
 
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
@@ -83,7 +94,7 @@ oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
 
 postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   name: postgres
-  image: postgres:15
+  image: public.ecr.aws/docker/library/postgres:15
   port: 5432
   cpu: 1
   memory: 1Gb
@@ -171,8 +182,8 @@ build_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 8Gb
   elasticsearch_distribution_cache:
@@ -185,8 +196,8 @@ publish_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 4
     memory: 4Gb
   env:
@@ -201,10 +212,10 @@ yarn_lint_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 2
-    memory: 4Gb
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 6Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -213,8 +224,8 @@ yarn_check_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 3
     memory: 4Gb
   script: |
@@ -227,8 +238,8 @@ yarn_validate_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 20Gb
   script:
@@ -239,8 +250,8 @@ junit_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 10Gb
   script:
@@ -259,8 +270,8 @@ sq_analysis_task:
     - yarn_validate
     - yarn_lint
     - junit
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 15Gb
   script:
@@ -272,10 +283,10 @@ qa_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 2
-    memory: 6Gb
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
@@ -318,8 +329,8 @@ task: #bitbucket
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 3
     memory: 10Gb
     additional_containers:
@@ -344,8 +355,8 @@ qa_bb_cloud_task:
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -364,8 +375,8 @@ qa_ha_task:
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
     additional_containers:
@@ -376,26 +387,6 @@ qa_ha_task:
     - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-docker_gitlab_container_build_task:
-  <<: *DEFAULT_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
-  gce_instance:
-    image_project: sonarqube-team
-    image_family: docker-builder
-    zone: us-central1-a
-    preemptible: true
-    disk: 10
-    cpu: 4
-    memory: 8G
-  env:
-    matrix:
-      - GITLAB_TAG: latest
-      - GITLAB_TAG: 15.6.2-ce.0
-  build_script:
-    - docker pull "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" || true
-    - docker build --build-arg "GITLAB_TAG=${GITLAB_TAG}" --cache-from "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" -t "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" private/docker/gitlab/
-    - docker push "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}"
-
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *DEFAULT_TEMPLATE
@@ -404,9 +395,8 @@ qa_gitlab_task:
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
     - build
-    - docker_gitlab_container_build
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
     use_in_memory_disk: true
@@ -418,8 +408,8 @@ qa_gitlab_task:
         cpu: 2
         memory: 5Gb
         matrix:
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:15.6.2-ce.0
+          - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:latest
+          - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:15.6.2-ce.0
   env:
     QA_CATEGORY: GITLAB
   script:
@@ -432,8 +422,8 @@ qa_gitlab_cloud_task:
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
     use_in_memory_disk: true
@@ -454,8 +444,8 @@ qa_azure_task:
   <<: *NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -473,8 +463,8 @@ qa_github_task:
   <<: *GITHUB_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
   env:
@@ -492,13 +482,13 @@ qa_saml_task:
   <<: *SAML_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
     additional_containers:
       - name: keycloak
-        image: quay.io/keycloak/keycloak:17.0.1
+        image: public.ecr.aws/bitnami/keycloak:17.0.1
         port: 8080
         cpu: 1
         memory: 1Gb
@@ -519,8 +509,8 @@ qa_ldap_task:
   <<: *LDAP_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 10Gb
   env:
@@ -539,8 +529,8 @@ promote_task:
     - qa_saml
     - qa_ldap
     - publish
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 512M
   stateful: true
   script:
@@ -550,13 +540,8 @@ package_docker_task:
   <<: *DEFAULT_TEMPLATE
   depends_on: promote
   only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
-  gce_instance:
-    image_project: sonarqube-team
-    image_family: docker-builder
-    zone: us-central1-a
-    disk: 10
-    cpu: 4
-    memory: 8G
+  ec2_instance:
+    <<: *VM_TEMPLATE
   clone_script: |
     git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
     git fetch origin $CIRRUS_CHANGE_IN_REPO --depth=1
@@ -571,8 +556,8 @@ sql_mssql_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - name: mssql
@@ -593,8 +578,8 @@ sql_postgres_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
@@ -608,12 +593,12 @@ sql_postgres11_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
-        image: postgres:11
+        image: public.ecr.aws/docker/library/postgres:11
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -623,8 +608,8 @@ sql_oracle21_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
@@ -638,8 +623,8 @@ upgd_mssql_task:
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
@@ -664,8 +649,8 @@ upgd_oracle21_task:
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
@@ -685,8 +670,8 @@ ws_scan_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
     cpu: 2
     memory: 4Gb
   env:
