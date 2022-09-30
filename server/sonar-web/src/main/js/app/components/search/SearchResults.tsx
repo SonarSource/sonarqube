@@ -45,7 +45,7 @@ export default function SearchResults(props: Props): React.ReactElement<Props> {
       const more = props.more[qualifier];
 
       renderedComponents.push(
-        <ul className="menu" key={`header-${qualifier}`} role="group">
+        <ul className="menu" key={`header-${qualifier}`}>
           <li className="menu-header" role="presentation">
             {translate('qualifiers', qualifier)}
           </li>

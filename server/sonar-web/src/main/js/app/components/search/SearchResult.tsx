@@ -43,13 +43,13 @@ export default class SearchResult extends React.PureComponent<Props> {
     const to = getComponentOverviewUrl(component.key, component.qualifier);
 
     return (
-      <li
-        className={this.props.selected ? 'active' : undefined}
-        key={component.key}
-        ref={node => this.props.innerRef(component.key, node)}
-        role="option"
-        aria-selected={this.props.selected}>
-        <Link data-key={component.key} onClick={this.props.onClose} onFocus={this.doSelect} to={to}>
+      <li key={component.key} ref={node => this.props.innerRef(component.key, node)}>
+        <Link
+          className={this.props.selected ? 'hover' : undefined}
+          data-key={component.key}
+          onClick={this.props.onClose}
+          onFocus={this.doSelect}
+          to={to}>
           <div className="navbar-search-item-link little-padded-top" onMouseEnter={this.doSelect}>
             <div className="display-flex-center">
               <span className="navbar-search-item-icons little-spacer-right">

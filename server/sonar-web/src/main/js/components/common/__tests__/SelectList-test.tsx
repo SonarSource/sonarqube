@@ -53,15 +53,15 @@ it('should correclty handle user actions', () => {
     </SelectListItem>
   ));
   const list = shallowRender({ items, onSelect }, children);
-  expect(list.state().active).toBe('seconditem');
+  expect(list.state().selected).toBe('seconditem');
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(list.state().active).toBe('third');
+  expect(list.state().selected).toBe('third');
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(list.state().active).toBe('item');
+  expect(list.state().selected).toBe('item');
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(list.state().active).toBe('third');
+  expect(list.state().selected).toBe('third');
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(list.state().active).toBe('seconditem');
+  expect(list.state().selected).toBe('seconditem');
   keydown({ key: KeyboardKeys.Enter });
   expect(onSelect).toBeCalledWith('seconditem');
   list.instance().componentWillUnmount!();

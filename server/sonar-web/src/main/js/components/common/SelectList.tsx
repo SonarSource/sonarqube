@@ -31,13 +31,15 @@ interface Props {
 
 interface State {
   active: string;
+  selected: string;
 }
 
 export default class SelectList extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      active: props.currentItem
+      active: props.currentItem,
+      selected: props.currentItem
     };
   }
 
@@ -50,7 +52,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
       prevProps.currentItem !== this.props.currentItem &&
       !this.props.items.includes(this.state.active)
     ) {
-      this.setState({ active: this.props.currentItem });
+      this.setState({ active: this.props.currentItem, selected: this.props.currentItem });
     }
   }
 
@@ -70,8 +72,8 @@ export default class SelectList extends React.PureComponent<Props, State> {
     } else if (event.key === KeyboardKeys.Enter) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      if (this.state.active != null) {
-        this.handleSelect(this.state.active);
+      if (this.state.selected != null) {
+        this.handleSelect(this.state.selected);
       }
     }
   };
@@ -80,24 +82,24 @@ export default class SelectList extends React.PureComponent<Props, State> {
     this.props.onSelect(item);
   };
 
-  handleHover = (item: string) => {
-    this.setState({ active: item });
+  handleHover = (selected: string) => {
+    this.setState({ selected });
   };
 
   selectNextElement = (state: State, props: Props) => {
-    const idx = props.items.indexOf(state.active);
+    const idx = props.items.indexOf(state.selected);
     if (idx < 0) {
-      return { active: props.items[0] };
+      return { selected: props.items[0] };
     }
-    return { active: props.items[(idx + 1) % props.items.length] };
+    return { selected: props.items[(idx + 1) % props.items.length] };
   };
 
   selectPreviousElement = (state: State, props: Props) => {
-    const idx = props.items.indexOf(state.active);
+    const idx = props.items.indexOf(state.selected);
     if (idx <= 0) {
-      return { active: props.items[props.items.length - 1] };
+      return { selected: props.items[props.items.length - 1] };
     }
-    return { active: props.items[idx - 1] };
+    return { selected: props.items[idx - 1] };
   };
 
   renderChild = (child: any) => {
@@ -110,6 +112,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     }
     return React.cloneElement(child, {
       active: this.state.active,
+      selected: this.state.selected,
       onHover: this.handleHover,
       onSelect: this.handleSelect
     });
@@ -125,6 +128,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           this.props.items.map(item => (
             <SelectListItem
               active={this.state.active}
+              selected={this.state.selected}
               item={item}
               key={item}
               onHover={this.handleHover}

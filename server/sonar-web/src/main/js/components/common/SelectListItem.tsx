@@ -27,6 +27,7 @@ interface Props {
   item: string;
   onHover?: (item: string) => void;
   onSelect?: (item: string) => void;
+  selected?: string;
   title?: React.ReactNode;
 }
 
@@ -50,7 +51,10 @@ export default class SelectListItem extends React.PureComponent<Props> {
       <li>
         <a
           className={classNames(
-            { active: this.props.active === this.props.item },
+            {
+              active: this.props.active === this.props.item,
+              hover: this.props.selected === this.props.item
+            },
             this.props.className
           )}
           href="#"

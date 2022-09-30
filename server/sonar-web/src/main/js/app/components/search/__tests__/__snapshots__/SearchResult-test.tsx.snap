@@ -2,9 +2,7 @@
 
 exports[`renders favorite 1`] = `
 <li
-  aria-selected={false}
   key="foo"
-  role="option"
 >
   <ForwardRef(Link)
     data-key="foo"
@@ -54,9 +52,7 @@ exports[`renders favorite 1`] = `
 
 exports[`renders match 1`] = `
 <li
-  aria-selected={false}
   key="foo"
-  role="option"
 >
   <ForwardRef(Link)
     data-key="foo"
@@ -105,9 +101,7 @@ exports[`renders match 1`] = `
 
 exports[`renders recently browsed 1`] = `
 <li
-  aria-selected={false}
   key="foo"
-  role="option"
 >
   <ForwardRef(Link)
     data-key="foo"
@@ -156,9 +150,7 @@ exports[`renders recently browsed 1`] = `
 
 exports[`renders selected 1`] = `
 <li
-  aria-selected={false}
   key="foo"
-  role="option"
 >
   <ForwardRef(Link)
     data-key="foo"
@@ -204,12 +196,10 @@ exports[`renders selected 1`] = `
 
 exports[`renders selected 2`] = `
 <li
-  aria-selected={true}
-  className="active"
   key="foo"
-  role="option"
 >
   <ForwardRef(Link)
+    className="hover"
     data-key="foo"
     onClick={[MockFunction]}
     onFocus={[Function]}

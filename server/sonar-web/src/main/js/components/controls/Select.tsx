@@ -300,19 +300,37 @@ export function selectStyle<Option, IsMulti extends boolean, Group extends Group
       position: 'absolute',
       color: '#666'
     }),
-    option: (_provided, state) => ({
-      display: 'block',
-      lineHeight: '20px',
-      padding: props?.large ? '4px 8px' : '0 8px',
-      boxSizing: 'border-box',
-      color: state.isDisabled ? colors.disableGrayText : colors.baseFontColor,
-      backgroundColor: state.isFocused ? colors.barBackgroundColor : colors.white,
-      fontSize: `${sizes.smallFontSize}`,
-      cursor: state.isDisabled ? 'default' : 'pointer',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }),
+    option: (_provided, state) => {
+      let borderLeftColor = 'transparent';
+      let backgroundColor = colors.white;
+
+      if (state.isFocused && state.isSelected) {
+        borderLeftColor = colors.info500;
+        backgroundColor = colors.info100;
+      } else if (state.isFocused) {
+        borderLeftColor = colors.blacka60;
+        backgroundColor = colors.neutral50;
+      } else if (state.isSelected) {
+        borderLeftColor = colors.info500;
+        backgroundColor = colors.info50;
+      }
+
+      return {
+        display: 'block',
+        lineHeight: '20px',
+        padding: props?.large ? '4px 8px' : '0 8px',
+        boxSizing: 'border-box',
+        color: state.isDisabled ? colors.disableGrayText : colors.neutral800,
+        backgroundColor,
+        borderLeft: '2px solid transparent',
+        borderLeftColor,
+        fontSize: `${sizes.smallFontSize}`,
+        cursor: state.isDisabled ? 'default' : 'pointer',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      };
+    },
     input: () => ({
       display: 'flex',
       alignItems: 'center'

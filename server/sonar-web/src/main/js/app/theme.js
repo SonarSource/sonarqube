@@ -149,6 +149,7 @@ module.exports = {
     primary400: '#297BAE',
 
     info50: '#ECF6FE',
+    info100: '#D9EDF7',
     info500: '#0271B9',
     info400: '#4B9FD5',
 
@@ -168,6 +169,7 @@ module.exports = {
     error500: '#D02F3A',
     error500a20: 'rgba(208, 47, 58, 0.20)',
 
+    neutral50: '#F3F3F3',
     neutral200: '#CCCCCC',
     neutral600: '#666666',
     neutral800: '#333333',
@@ -175,8 +177,9 @@ module.exports = {
     white: '#FFFFFF',
 
     black: '#000000',
-    blacka87: 'rgba(0, 0, 0, 0.87)',
-    blacka38: 'rgba(0, 0, 0, 0.38)'
+    blacka38: 'rgba(0, 0, 0, 0.38)',
+    blacka60: 'rgba(0, 0, 0, 0.60)',
+    blacka87: 'rgba(0, 0, 0, 0.87)'
   },
 
   sizes: {

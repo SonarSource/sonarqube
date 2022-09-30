@@ -5,7 +5,6 @@ exports[`renders "Show More" link 1`] = `
   <ul
     className="menu"
     key="header-TRK"
-    role="group"
   >
     <li
       className="menu-header"
@@ -40,7 +39,6 @@ exports[`renders different components and dividers between them 1`] = `
   <ul
     className="menu"
     key="header-FIL"
-    role="group"
   >
     <li
       className="menu-header"
@@ -57,7 +55,6 @@ exports[`renders different components and dividers between them 1`] = `
   <ul
     className="menu"
     key="header-TRK"
-    role="group"
   >
     <li
       className="menu-header"

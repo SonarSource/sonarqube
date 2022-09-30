@@ -35,10 +35,6 @@
   border-top: 1px solid var(--barBorderColor);
 }
 
-.menu:focus {
-  outline: none;
-}
-
 .menu.is-container {
   padding: 5px;
 }
@@ -57,33 +53,18 @@
   white-space: nowrap;
 }
 
-.menu > li > a {
-  color: var(--baseFontColor);
-  border-bottom: none;
+.menu > li > a,
+.menu > li > button {
+  color: var(--neutral800);
+  border-width: 0 0 0 2px;
+  border-style: solid;
+  border-color: transparent;
   transition: none;
 }
 
 .menu > li > button {
-  color: var(--baseFontColor);
   text-align: left;
   width: 100%;
-}
-
-.menu > li > a.rich-item {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--gray80);
-  border-radius: 4px;
-  margin: 4px 10px;
-  padding: 2px 8px;
-  white-space: normal;
-}
-
-.menu .divider {
-  height: 1px;
-  margin: 6px 0;
-  overflow: hidden;
-  background-color: var(--barBorderColor);
 }
 
 .menu > li > a.disabled {
@@ -97,30 +78,34 @@
 }
 
 .menu > li > a:hover,
-.menu > li > a:focus,
-.menu > li > button:hover,
-.menu > li > button:focus {
-  text-decoration: none;
-  color: var(--baseFontColor);
-  background-color: var(--barBackgroundColor);
+.menu > li > a.hover,
+.menu > li > button:hover {
+  background-color: var(--neutral50);
+  border-left-color: var(--blacka60);
 }
 
-.menu > .active > a,
-.menu > li > .active,
-.menu > .active > a:hover,
-.menu > li > .active:hover,
-.menu > .active > a:focus,
-.menu > li > .active:focus {
-  color: var(--baseFontColor);
-  text-decoration: none;
-  outline: 0;
-  background-color: var(--barBackgroundColor);
+.menu > li > a.active,
+.menu > li > button.active {
+  background-color: var(--info50);
+  border-left-color: var(--info500);
 }
 
-.menu .menu-vertically-limited,
+.menu > li > a.active:hover,
+.menu > li > a.active.hover,
+.menu > li > button.active:hover {
+  background-color: var(--info100);
+}
+
 .menu.menu-vertically-limited {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.menu .divider {
+  height: 1px;
+  margin: 6px 0;
+  overflow: hidden;
+  background-color: var(--barBorderColor);
 }
 
 .menu-vertically-limited.with-top-separator {
