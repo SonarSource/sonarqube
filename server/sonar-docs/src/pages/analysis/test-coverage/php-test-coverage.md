@@ -45,9 +45,6 @@ Simply add the following to your `.github/workflows/build.yml` file:
 
 - name: Run tests with phpunit/phpunit
     run: vendor/bin/phpunit --coverage-clover=coverage.xml
-
-- name: Fix code coverage paths
-          run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
 ```
 
 The resulting file should look something like this:
@@ -75,8 +72,6 @@ jobs:
           run: composer update --no-ansi --no-interaction --no-progress
         - name: Run tests with phpunit/phpunit
           run: vendor/bin/phpunit --coverage-clover=coverage.xml
-        - name: Fix code coverage paths
-          run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
         - name: SonarQube Scan
           uses: SonarSource/sonarqube-scan-action@master
           env:
