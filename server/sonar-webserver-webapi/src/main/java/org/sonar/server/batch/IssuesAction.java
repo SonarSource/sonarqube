@@ -179,9 +179,6 @@ public class IssuesAction implements BatchWsAction {
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentKey = request.mandatoryParam(PARAM_KEY);
     String branch = request.param(PARAM_BRANCH);
-    if (branch != null) {
-      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
-    }
-    return componentFinder.getByKey(dbSession, componentKey);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, null);
   }
 }

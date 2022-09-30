@@ -46,8 +46,6 @@ public class ComponentDto {
   public static final String BRANCH_KEY_SEPARATOR = ":BRANCH:";
   public static final String PULL_REQUEST_SEPARATOR = ":PULL_REQUEST:";
 
-  private static final Splitter BRANCH_KEY_SPLITTER = Splitter.on(BRANCH_KEY_SEPARATOR);
-
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
   private static final Splitter UUID_PATH_SPLITTER = Splitter.on(UUID_PATH_SEPARATOR).omitEmptyStrings();

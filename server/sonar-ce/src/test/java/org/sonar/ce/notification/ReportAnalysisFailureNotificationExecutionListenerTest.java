@@ -25,11 +25,11 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -44,6 +44,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
@@ -57,7 +58,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -78,11 +78,6 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     notificationService, dbClientMock, serializer, system2);
   private final ReportAnalysisFailureNotificationExecutionListener underTest = new ReportAnalysisFailureNotificationExecutionListener(
     notificationService, dbClient, serializer, system2);
-
-  @Before
-  public void setUp() {
-
-  }
 
   @Test
   public void onStart_has_no_effect() {
@@ -132,7 +127,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   }
 
   @Test
-  public void onEnd_fails_with_RowNotFoundException_if_component_does_not_exist_in_DB() {
+  public void onEnd_fails_with_ISE_if_project_does_not_exist_in_DB() {
     String componentUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
@@ -140,8 +135,24 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .thenReturn(true);
 
     assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
-      .isInstanceOf(RowNotFoundException.class)
-      .hasMessage("Component with uuid '" + componentUuid + "' not found");
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Could not find project uuid " + componentUuid);
+  }
+
+  @Test
+  public void onEnd_fails_with_ISE_if_branch_does_not_exist_in_DB() {
+    String componentUuid = randomAlphanumeric(6);
+    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(randomAlphanumeric(5)).setQualifier(Qualifiers.PROJECT);
+    dbTester.getDbClient().projectDao().insert(dbTester.getSession(), project);
+    dbTester.getSession().commit();
+    when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
+    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
+      .thenReturn(true);
+
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Could not find a branch for project uuid " + componentUuid);
   }
 
   @Test
@@ -167,8 +178,9 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
           fail("An IllegalArgumentException should have been thrown for component " + component);
         } catch (IllegalArgumentException e) {
-          assertThat(e.getMessage()).isEqualTo(String.format(
-            "Component %s must be a project (scope=%s, qualifier=%s)", component.uuid(), component.scope(), component.qualifier()));
+          assertThat(e.getMessage()).isEqualTo(String.format("Component %s must be a project (qualifier=%s)", component.uuid(), component.qualifier()));
+        } catch (IllegalStateException e) {
+          assertThat(e.getMessage()).isEqualTo("Could not find project uuid " + component.uuid());
         }
       });
   }
@@ -184,7 +196,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .thenReturn(true);
     dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
 
-    assertThatThrownBy(() ->  underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
       .isInstanceOf(RowNotFoundException.class)
       .hasMessage("CeActivity with uuid '" + taskUuid + "' not found");
   }
@@ -208,7 +220,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     assertThat(notificationProject.getName()).isEqualTo(project.name());
     assertThat(notificationProject.getKey()).isEqualTo(project.getKey());
     assertThat(notificationProject.getUuid()).isEqualTo(project.uuid());
-    assertThat(notificationProject.getBranchName()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(notificationProject.getBranchName()).isNull();
     ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.getTask();
     assertThat(notificationTask.getUuid()).isEqualTo(taskUuid);
     assertThat(notificationTask.getCreatedAt()).isEqualTo(createdAt);
@@ -305,8 +317,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setComponentUuid(project.uuid())
       .setCreatedAt(createdAt))
-        .setExecutedAt(executedAt)
-        .setStatus(CeActivityDto.Status.FAILED));
+      .setExecutedAt(executedAt)
+      .setStatus(CeActivityDto.Status.FAILED));
     dbTester.getSession().commit();
   }
 

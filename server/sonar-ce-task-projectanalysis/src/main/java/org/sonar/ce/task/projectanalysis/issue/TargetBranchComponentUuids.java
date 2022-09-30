@@ -30,8 +30,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
-import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
-
 /**
  * Cache a map between component keys and uuids in the merge branch and optionally the target branch (for PR and SLB, and only if this target branch is analyzed)
  */

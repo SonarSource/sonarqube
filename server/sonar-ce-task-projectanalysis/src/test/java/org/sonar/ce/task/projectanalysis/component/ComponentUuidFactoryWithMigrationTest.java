@@ -26,6 +26,7 @@ import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -33,7 +34,7 @@ import org.sonar.db.component.ComponentTesting;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentUuidFactoryWithMigrationTest {
-
+  private final Branch mainBranch = new DefaultBranchImpl();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private Function<String, String> pathToKey = path -> path != null ? "project:" + path : "project";
@@ -45,7 +46,8 @@ public class ComponentUuidFactoryWithMigrationTest {
     Map<String, String> reportModulesPath = Collections.singletonMap(module.getKey(), "module1_path");
     pathToKey = path -> path != null ? project.getKey() + ":" + path : project.getKey();
 
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, reportModulesPath);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, reportModulesPath);
 
     assertThat(underTest.getOrCreateForKey(project.getKey())).isEqualTo(project.uuid());
     assertThat(underTest.getOrCreateForKey(module.getKey())).isEqualTo(module.uuid());
@@ -69,7 +71,8 @@ public class ComponentUuidFactoryWithMigrationTest {
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project:module1", "module1_path");
     modulesRelativePaths.put("project:module1:module2", "module1_path/module2_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:file1_path")).isEqualTo(file1.uuid());
@@ -94,7 +97,8 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project:module1", "module1_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:file1")).isEqualTo(file1.uuid());
@@ -118,7 +122,8 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project:module1", "module1_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:file1")).isEqualTo(file1.uuid());
@@ -142,7 +147,8 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project:module1", "module1_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // in theory we should migrate file1. But since disabledFileSameKey already have the expected migrated key, let's reuse it.
     assertThat(underTest.getOrCreateForKey("project:module1/file1")).isEqualTo(disabledFileSameKey.uuid());
@@ -170,7 +176,8 @@ public class ComponentUuidFactoryWithMigrationTest {
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project:module1", "module1_path");
     modulesRelativePaths.put("project:module1:module2", "module1_path/module2_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:file1_path")).isEqualTo(file1.uuid());
@@ -189,7 +196,8 @@ public class ComponentUuidFactoryWithMigrationTest {
       .setKey("project:module1:/"));
 
     Map<String, String> modulesRelativePaths = Collections.singletonMap("project:module1", "module1_path");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // project remains the same
     assertThat(underTest.getOrCreateForKey(project.getKey())).isEqualTo(project.uuid());
@@ -210,7 +218,8 @@ public class ComponentUuidFactoryWithMigrationTest {
     Map<String, String> modulesRelativePaths = new HashMap<>();
     modulesRelativePaths.put("project", "");
     modulesRelativePaths.put("project:module2", "module2");
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), pathToKey, modulesRelativePaths);
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getKey(), mainBranch, pathToKey, modulesRelativePaths);
 
     // check root project.
     assertThat(underTest.getOrCreateForKey("project")).isEqualTo(project.uuid());
@@ -218,7 +227,8 @@ public class ComponentUuidFactoryWithMigrationTest {
 
   @Test
   public void generate_uuid_if_it_does_not_exist_in_db() {
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), "theProjectKey", pathToKey, Collections.emptyMap());
+    ComponentUuidFactoryWithMigration underTest =
+      new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), "theProjectKey", mainBranch, pathToKey, Collections.emptyMap());
 
     String generatedKey = underTest.getOrCreateForKey("foo");
     assertThat(generatedKey).isNotEmpty();

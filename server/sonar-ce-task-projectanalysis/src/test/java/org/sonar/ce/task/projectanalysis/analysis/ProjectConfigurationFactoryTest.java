@@ -31,20 +31,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 
 public class ProjectConfigurationFactoryTest {
-
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-
   @Rule
   public DbTester db = DbTester.create();
 
   private MapSettings settings = new MapSettings();
-
   private ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());
 
   @Test
   public void return_global_settings() {
     settings.setProperty("key", "value");
-    Configuration config = underTest.newProjectConfiguration(PROJECT_KEY, new DefaultBranchImpl());
+    Configuration config = underTest.newProjectConfiguration("unknown", "unknown");
 
     assertThat(config.get("key")).hasValue("value");
   }
@@ -57,7 +53,7 @@ public class ProjectConfigurationFactoryTest {
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), new DefaultBranchImpl());
+    Configuration config = underTest.newProjectConfiguration(project.uuid(), project.uuid());
 
     assertThat(config.get("1")).hasValue("val1");
     assertThat(config.get("2")).hasValue("val2");
@@ -71,7 +67,7 @@ public class ProjectConfigurationFactoryTest {
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
-    Configuration projectConfig = underTest.newProjectConfiguration(project.getKey(), new DefaultBranchImpl());
+    Configuration projectConfig = underTest.newProjectConfiguration(project.uuid(), project.uuid());
 
     assertThat(projectConfig.get("key")).hasValue("value2");
   }

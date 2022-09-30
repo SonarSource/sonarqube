@@ -38,6 +38,7 @@ class ComponentTreeData {
   private final List<ComponentDto> components;
   private final int componentCount;
   private final Map<String, ComponentDto> referenceComponentsByUuid;
+  private final Map<String, String> branchByReferenceUuid;
   private final List<MetricDto> metrics;
   private final Measures.Period period;
   private final Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
@@ -47,9 +48,14 @@ class ComponentTreeData {
     this.components = builder.componentsFromDb;
     this.componentCount = builder.componentCount;
     this.referenceComponentsByUuid = builder.referenceComponentsByUuid;
+    this.branchByReferenceUuid = builder.branchByReferenceUuid;
     this.metrics = builder.metrics;
     this.measuresByComponentUuidAndMetric = builder.measuresByComponentUuidAndMetric;
     this.period = builder.period;
+  }
+
+  public Map<String, String> getBranchByReferenceUuid() {
+    return branchByReferenceUuid;
   }
 
   public ComponentDto getBaseComponent() {
@@ -93,6 +99,7 @@ class ComponentTreeData {
     private ComponentDto baseComponent;
     private List<ComponentDto> componentsFromDb;
     private Map<String, ComponentDto> referenceComponentsByUuid;
+    private Map<String, String> branchByReferenceUuid;
     private int componentCount;
     private List<MetricDto> metrics;
     private Measures.Period period;
@@ -100,6 +107,11 @@ class ComponentTreeData {
 
     private Builder() {
       // private constructor
+    }
+
+    public Builder setBranchByReferenceUuid(Map<String, String> branchByReferenceUuid) {
+      this.branchByReferenceUuid = branchByReferenceUuid;
+      return this;
     }
 
     public Builder setBaseComponent(ComponentDto baseComponent) {

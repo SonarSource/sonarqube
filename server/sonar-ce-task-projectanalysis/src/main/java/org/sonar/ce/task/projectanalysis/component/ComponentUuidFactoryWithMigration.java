@@ -30,9 +30,11 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.KeyWithUuidDto;
@@ -41,13 +43,22 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
   private final Map<String, String> uuidsByDbKey = new HashMap<>();
   private final Map<String, String> uuidsByMigratedKey = new HashMap<>();
 
-  public ComponentUuidFactoryWithMigration(DbClient dbClient, DbSession dbSession, String rootKey, Function<String, String> pathToKey, Map<String, String> reportModulesPath) {
+  public ComponentUuidFactoryWithMigration(DbClient dbClient, DbSession dbSession, String rootKey, Branch branch,
+    Function<String, String> pathToKey, Map<String, String> reportModulesPath) {
     Map<String, String> modulePathsByUuid;
-    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    List<KeyWithUuidDto> keys;
+    if (branch.isMain()) {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    } else if (branch.getType() == BranchType.PULL_REQUEST) {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKeyAndPullRequest(dbSession, rootKey, branch.getPullRequestKey());
+    } else {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKeyAndBranch(dbSession, rootKey, branch.getName());
+    }
+
     keys.forEach(dto -> uuidsByDbKey.put(dto.key(), dto.uuid()));
 
     if (!reportModulesPath.isEmpty()) {
-      modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, reportModulesPath);
+      modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, branch, reportModulesPath);
 
       if (!modulePathsByUuid.isEmpty()) {
         doMigration(dbClient, dbSession, rootKey, pathToKey, modulePathsByUuid);
@@ -96,9 +107,13 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
     return dbClient.componentDao().selectEnabledComponentsWithModuleUuidFromProjectKey(dbSession, rootKey);
   }
 
-  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> pathByModuleKey) {
+  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey,
+    Branch branch, Map<String, String> pathByModuleKey) {
+    String branchKey = branch.getType() == BranchType.BRANCH ? branch.getName() : null;
+    String prKey = branch.getType() == BranchType.PULL_REQUEST ? branch.getPullRequestKey() : null;
+
     List<ComponentDto> moduleDtos = dbClient.componentDao()
-      .selectProjectAndModulesFromProjectKey(dbSession, rootKey, true).stream()
+      .selectProjectAndModulesFromProjectKey(dbSession, rootKey, true, branchKey, prKey).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
       .collect(Collectors.toList());
 

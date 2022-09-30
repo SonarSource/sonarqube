@@ -30,7 +30,6 @@ import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssu
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.PrIssueDto;
 
@@ -52,8 +51,7 @@ public class SiblingsIssuesLoader {
   }
 
   public Collection<SiblingIssue> loadCandidateSiblingIssuesForMerging(Component component) {
-    String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getKey());
-    Set<String> uuids = siblingComponentsWithOpenIssues.getUuids(componentKey);
+    Set<String> uuids = siblingComponentsWithOpenIssues.getUuids(component.getKey());
     if (uuids.isEmpty()) {
       return Collections.emptyList();
     }

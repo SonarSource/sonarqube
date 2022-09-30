@@ -19,31 +19,18 @@
  */
 package org.sonar.server.setting;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-
 public interface ProjectConfigurationLoader {
   /**
    * Loads configuration for the specified components.
-   *
    * <p>
    * Returns the applicable component configuration with most specific configuration overriding more global ones
    * (eg. global > project > branch).
-   *
    * <p>
    * Any component is accepted but SQ only supports specific properties for projects and branches.
    */
-  Map<String, Configuration> loadProjectConfigurations(DbSession dbSession, Set<ComponentDto> projects);
-
-  default Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project) {
-    Map<String, Configuration> configurations = loadProjectConfigurations(dbSession, Collections.singleton(project));
-    return requireNonNull(configurations.get(project.uuid()), () -> format("Configuration for project '%s' is not found", project.getKey()));
-  }
+  Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project);
 }

@@ -366,12 +366,14 @@ public class SearchActionComponentsTest {
     ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app"));
     String appBranch1 = "app-branch1";
     String appBranch2 = "app-branch2";
+    String proj1branch1 = "proj1branch1";
+    String proj1branch2 = "proj1branch2";
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey(appBranch1));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey(appBranch2));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setKey("prj1"));
-    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1, b -> b.setKey(proj1branch1));
     ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
-    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
+    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1, b -> b.setKey(proj1branch2));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setKey("prj2"));
     db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
@@ -397,8 +399,8 @@ public class SearchActionComponentsTest {
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
         .containsExactlyInAnyOrder(
-          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), appBranch1, true),
-          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), appBranch1, true),
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), proj1branch1, true),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), proj1branch1, true),
           tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
 
     // Issues on project1Branch1
@@ -409,8 +411,8 @@ public class SearchActionComponentsTest {
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
         .containsExactlyInAnyOrder(
-          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), appBranch1),
-          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), appBranch1));
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), proj1branch1),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), proj1branch1));
   }
 
   @Test

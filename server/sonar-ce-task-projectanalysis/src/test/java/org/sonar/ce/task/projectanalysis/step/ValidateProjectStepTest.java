@@ -80,8 +80,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY);
-    db.components().insertComponent(project);
+    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY));
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(PAST_ANALYSIS_TIME));
     db.getSession().commit();
 
@@ -112,8 +111,7 @@ public class ValidateProjectStepTest {
   public void fail_if_analysis_date_is_before_last_analysis() {
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 
-    ComponentDto project = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY);
-    db.components().insertComponent(project);
+    ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY));
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
     db.getSession().commit();
 

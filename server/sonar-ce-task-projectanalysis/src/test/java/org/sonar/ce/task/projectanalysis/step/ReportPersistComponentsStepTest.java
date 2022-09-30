@@ -184,7 +184,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getUuidPath()).isEqualTo(UUID_PATH_SEPARATOR + branch.uuid() + UUID_PATH_SEPARATOR);
     assertThat(directoryDto.moduleUuid()).isEqualTo(branch.uuid());
     assertThat(directoryDto.moduleUuidPath()).isEqualTo(branch.moduleUuidPath());
-    assertThat(directoryDto.getMainBranchProjectUuid()).isEqualTo(branch.uuid());
+    assertThat(directoryDto.getMainBranchProjectUuid()).isEqualTo(analysisMetadataHolder.getProject().getUuid());
     assertThat(directoryDto.branchUuid()).isEqualTo(branch.uuid());
     assertThat(directoryDto.qualifier()).isEqualTo("DIR");
     assertThat(directoryDto.scope()).isEqualTo("DIR");
@@ -201,7 +201,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(fileDto.getUuidPath()).isEqualTo(directoryDto.getUuidPath() + directoryDto.uuid() + UUID_PATH_SEPARATOR);
     assertThat(fileDto.moduleUuid()).isEqualTo(branch.uuid());
     assertThat(fileDto.moduleUuidPath()).isEqualTo(branch.moduleUuidPath());
-    assertThat(fileDto.getMainBranchProjectUuid()).isEqualTo(branch.uuid());
+    assertThat(fileDto.getMainBranchProjectUuid()).isEqualTo(analysisMetadataHolder.getProject().getUuid());
     assertThat(fileDto.branchUuid()).isEqualTo(branch.uuid());
     assertThat(fileDto.qualifier()).isEqualTo("FIL");
     assertThat(fileDto.scope()).isEqualTo("FIL");

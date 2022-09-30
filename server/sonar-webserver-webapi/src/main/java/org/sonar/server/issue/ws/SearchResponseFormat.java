@@ -316,16 +316,21 @@ public class SearchResponseFormat {
   }
 
   private static void setBranchOrPr(ComponentDto componentDto, Component.Builder builder, SearchResponseData data) {
-    BranchDto branchDto = data.getBranch(componentDto.branchUuid());
+    String branchUuid = componentDto.getCopyComponentUuid() != null ? componentDto.getCopyComponentUuid() : componentDto.branchUuid();
+    BranchDto branchDto = data.getBranch(branchUuid);
     if (branchDto.isMain()) {
       return;
     }
-    builder.setBranch(branchDto.getBranchKey());
-    builder.setPullRequest(branchDto.getPullRequestKey());
+    if (branchDto.getBranchType() == BranchType.BRANCH) {
+      builder.setBranch(branchDto.getKey());
+    } else if (branchDto.getBranchType() == BranchType.PULL_REQUEST) {
+      builder.setPullRequest(branchDto.getKey());
+    }
   }
 
   private static void setBranchOrPr(ComponentDto componentDto, Issue.Builder builder, SearchResponseData data) {
-    BranchDto branchDto = data.getBranch(componentDto.branchUuid());
+    String branchUuid = componentDto.getCopyComponentUuid() != null ? componentDto.getCopyComponentUuid() : componentDto.branchUuid();
+    BranchDto branchDto = data.getBranch(branchUuid);
     if (branchDto.isMain()) {
       return;
     }

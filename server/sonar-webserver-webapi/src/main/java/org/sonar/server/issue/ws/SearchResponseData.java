@@ -54,7 +54,7 @@ public class SearchResponseData {
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, Transition> transitionsByIssueKey = ArrayListMultimap.create();
   private final Set<String> updatableComments = new HashSet<>();
-  private final Map<String, BranchDto> branchesByBranchUuid = new HashMap<>();
+  private final Map<String, BranchDto> branchesByUuid = new HashMap<>();
 
   public SearchResponseData(IssueDto issue) {
     checkNotNull(issue);
@@ -143,12 +143,12 @@ public class SearchResponseData {
 
   public void addBranches(List<BranchDto> branchDtos) {
     for (BranchDto branch : branchDtos) {
-      branchesByBranchUuid.put(branch.getUuid(), branch);
+      branchesByUuid.put(branch.getUuid(), branch);
     }
   }
 
   public BranchDto getBranch(String branchUuid) {
-    return branchesByBranchUuid.get(branchUuid);
+    return branchesByUuid.get(branchUuid);
   }
 
   void addActions(String issueKey, Iterable<String> actions) {

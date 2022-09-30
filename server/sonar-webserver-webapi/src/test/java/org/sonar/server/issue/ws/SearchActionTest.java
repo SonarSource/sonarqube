@@ -451,7 +451,7 @@ public class SearchActionTest {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
     grantPermissionToAnyone(project, ISSUE_ADMIN);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
@@ -475,7 +475,7 @@ public class SearchActionTest {
   @Test
   public void search_by_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -496,7 +496,7 @@ public class SearchActionTest {
   @Test
   public void search_by_non_existing_rule_key() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setLanguage("java"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule, project, file);
@@ -517,7 +517,7 @@ public class SearchActionTest {
   @Test
   public void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project, null).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -542,7 +542,7 @@ public class SearchActionTest {
   @Test
   public void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -558,7 +558,7 @@ public class SearchActionTest {
 
   @Test
   public void components_contains_sub_projects() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("ProjectHavingModule"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("ProjectHavingModule"));
     indexPermissions();
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setKey("ModuleHavingFile"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "BCDE").setKey("FileLinkedToModule"));
@@ -575,7 +575,7 @@ public class SearchActionTest {
   public void filter_by_assigned_to_me() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid("PROJECT_ID"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -621,7 +621,7 @@ public class SearchActionTest {
   public void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
@@ -692,7 +692,7 @@ public class SearchActionTest {
   public void filter_by_leak_period_without_a_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(project);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -743,7 +743,7 @@ public class SearchActionTest {
   public void filter_by_leak_period_has_no_effect_on_prs() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
@@ -798,7 +798,7 @@ public class SearchActionTest {
   public void return_empty_when_login_is_unknown() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -847,7 +847,7 @@ public class SearchActionTest {
     userSession.logIn(poy);
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -908,7 +908,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_test_scope() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -949,7 +949,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_main_scope() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -993,7 +993,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_scope_always_returns_all_scope_facet_values() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -1028,7 +1028,7 @@ public class SearchActionTest {
   @Test
   public void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newDto(rule, file, project)
@@ -1693,7 +1693,7 @@ public class SearchActionTest {
   @Test
   public void paging() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
@@ -1712,7 +1712,6 @@ public class SearchActionTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() {
-
     TestRequest requestWithNegativePageSize = ws.newRequest()
       .setParam(WebService.Param.PAGE, "1")
       .setParam(WebService.Param.PAGE_SIZE, "-1");

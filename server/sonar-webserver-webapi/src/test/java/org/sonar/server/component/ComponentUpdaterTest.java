@@ -92,7 +92,7 @@ public class ComponentUpdaterTest {
     assertThat(loaded.moduleUuidPath()).isEqualTo("." + loaded.uuid() + ".");
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
     assertThat(loaded.getCreatedAt()).isNotNull();
-    assertThat(db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isNotNull();
+    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isPresent();
 
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
 

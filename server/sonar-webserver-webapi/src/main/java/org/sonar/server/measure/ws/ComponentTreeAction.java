@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -58,6 +59,7 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
@@ -294,10 +296,18 @@ public class ComponentTreeAction implements MeasuresWsAction {
         data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
 
     for (ComponentDto componentDto : data.getComponents()) {
-      response.addComponents(toWsComponent(
-        componentDto,
-        data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-        data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
+      if (componentDto.getCopyComponentUuid() != null) {
+        String branch = data.getBranchByReferenceUuid().get(componentDto.getCopyComponentUuid());
+        response.addComponents(toWsComponent(
+          componentDto,
+          data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
+          data.getReferenceComponentsByUuid(), branch, null));
+      } else {
+        response.addComponents(toWsComponent(
+          componentDto,
+          data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
+          data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
+      }
     }
 
     if (areMetricsInResponse(request)) {
@@ -440,16 +450,24 @@ public class ComponentTreeAction implements MeasuresWsAction {
       int componentCount = components.size();
       components = paginateComponents(components, wsRequest);
 
+      Map<String, ComponentDto> referencesByUuid = searchReferenceComponentsById(dbSession, components);
+      Map<String, String> branchByReferenceUuid = searchReferenceBranchKeys(dbSession, referencesByUuid.keySet());
+
       return ComponentTreeData.builder()
         .setBaseComponent(baseComponent)
         .setComponentsFromDb(components)
         .setComponentCount(componentCount)
+        .setBranchByReferenceUuid(branchByReferenceUuid)
         .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
         .setMetrics(metrics)
         .setPeriod(snapshotToWsPeriods(baseSnapshot.get()).orElse(null))
-        .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
+        .setReferenceComponentsByUuid(referencesByUuid)
         .build();
     }
+  }
+
+  private Map<String, String> searchReferenceBranchKeys(DbSession dbSession, Set<String> referenceUuids) {
+    return dbClient.branchDao().selectByUuids(dbSession, referenceUuids).stream().collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
   }
 
   private static boolean isPR(@Nullable String pullRequest) {
@@ -460,9 +478,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
     String componentKey = request.getComponent();
     String branch = request.getBranch();
     String pullRequest = request.getPullRequest();
-    if (branch == null && pullRequest == null) {
-      return componentFinder.getByKey(dbSession, componentKey);
-    }
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 

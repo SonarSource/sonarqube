@@ -26,9 +26,9 @@ public interface ComponentKeyUpdaterMapper {
 
   int countComponentsByKey(String key);
 
-  ResourceDto selectProjectByUuid(@Param("uuid") String uuid);
+  ResourceDto selectComponentByUuid(@Param("uuid") String uuid);
 
-  List<ResourceDto> selectProjectResources(@Param("rootUuid") String rootUuid);
+  List<ResourceDto> selectBranchResources(@Param("rootUuid") String rootUuid);
 
   void updateComponent(ResourceDto resource);
 

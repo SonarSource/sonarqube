@@ -18,12 +18,12 @@
     WHERE kee = #{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectProjectByUuid" parameterType="String" resultMap="resourceResultMap">
+  <select id="selectComponentByUuid" parameterType="String" resultMap="resourceResultMap">
     select * from components
     where uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectProjectResources" parameterType="String" resultMap="resourceResultMap">
+  <select id="selectBranchResources" parameterType="String" resultMap="resourceResultMap">
     select * from components
     where
     root_uuid = #{rootUuid,jdbcType=VARCHAR}

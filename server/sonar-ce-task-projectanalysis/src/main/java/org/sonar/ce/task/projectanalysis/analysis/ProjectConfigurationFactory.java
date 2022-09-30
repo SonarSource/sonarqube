@@ -37,17 +37,18 @@ public class ProjectConfigurationFactory {
     this.dbClient = dbClient;
   }
 
-  public Configuration newProjectConfiguration(String projectKey, Branch branch) {
+  public Configuration newProjectConfiguration(String projectUuid, String branchUuid) {
     Settings projectSettings = new ChildSettings(globalSettings);
-    addSettings(projectSettings, projectKey);
-    // TODO branch / PR
-    addSettings(projectSettings, projectKey);
+    addSettings(projectSettings, projectUuid);
+    if (!projectUuid.equals(branchUuid)) {
+      addSettings(projectSettings, branchUuid);
+    }
     return new ConfigurationBridge(projectSettings);
   }
 
-  private void addSettings(Settings settings, String componentDbKey) {
+  private void addSettings(Settings settings, String componentUuid) {
     dbClient.propertiesDao()
-      .selectProjectProperties(componentDbKey)
+      .selectComponentProperties(componentUuid)
       .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
@@ -152,6 +153,13 @@ public class ShowAction implements ComponentsWsAction {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
       boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
+      if (component.getCopyComponentUuid() != null) {
+        String branch = dbClient.branchDao().selectByUuid(dbSession, component.getCopyComponentUuid())
+          .map(BranchDto::getKey)
+          .orElse(null);
+        componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, branch, null)
+          .setNeedIssueSync(needIssueSync);
+      }
       return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
         .setNeedIssueSync(needIssueSync);
     }

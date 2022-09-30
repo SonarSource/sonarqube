@@ -42,6 +42,8 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PropertyNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
@@ -67,7 +69,6 @@ public class PropertiesDao implements Dao {
   /**
    * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
    * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
-   *
    * Note that {@link  UserRole#USER} permission is not checked here, filter the results with
    * {@link org.sonar.db.permission.AuthorizationDao#keepAuthorizedLoginsOnProject}
    *
@@ -151,14 +152,13 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  // TODO distinguish branch from project
-  public List<PropertyDto> selectProjectProperties(DbSession session, String projectKey) {
-    return getMapper(session).selectProjectProperties(projectKey);
+  public List<PropertyDto> selectComponentProperties(DbSession session, String uuid) {
+    return getMapper(session).selectByComponentUuids(singletonList(uuid));
   }
 
-  public List<PropertyDto> selectProjectProperties(String resourceKey) {
+  public List<PropertyDto> selectComponentProperties(String uuid) {
     try (DbSession session = mybatis.openSession(false)) {
-      return selectProjectProperties(session, resourceKey);
+      return selectComponentProperties(session, uuid);
     }
   }
 
@@ -261,7 +261,6 @@ public class PropertiesDao implements Dao {
    * Delete either global, user, component or component per user properties.
    * <p>Behaves in exactly the same way as {@link #selectByQuery(PropertyQuery, DbSession)} but deletes rather than
    * selects</p>
-   *
    * Used by Governance.
    */
   public int deleteByQuery(DbSession dbSession, PropertyQuery query) {

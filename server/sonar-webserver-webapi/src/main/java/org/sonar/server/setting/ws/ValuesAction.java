@@ -49,7 +49,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
@@ -124,21 +123,14 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = ValuesRequest.from(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      BranchDto branchDto = loadBranch(dbSession, component);
+      // TODO can portfolios fail here?
+      BranchDto branchDto = component.map(c -> componentFinder.getBranchByUuid(dbSession, c.branchUuid())).orElse(null);
 
       Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet(), branchDto);
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     }
-  }
-
-  private BranchDto loadBranch(DbSession dbSession, Optional<ComponentDto> component) {
-    if (component.isEmpty()) {
-      return null;
-    }
-    return dbClient.branchDao().selectByUuid(dbSession, component.get().branchUuid())
-      .orElseThrow(() -> new NotFoundException("Could not find a branch for component uuid " + component.get().branchUuid()));
   }
 
   private Set<String> loadKeys(ValuesRequest valuesRequest) {
@@ -159,6 +151,7 @@ public class ValuesAction implements SettingsWsAction {
       return Optional.empty();
     }
     ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+
     if (!userSession.hasComponentPermission(USER, component) &&
       !userSession.hasComponentPermission(UserRole.SCAN, component) &&
       !userSession.hasPermission(GlobalPermission.SCAN)) {
@@ -174,7 +167,7 @@ public class ValuesAction implements SettingsWsAction {
     settings.addAll(loadGlobalSettings(dbSession, keys));
     String branch = getBranchKeySafely(branchDto);
     if (component.isPresent() && branch != null && component.get().getMainBranchProjectUuid() != null) {
-      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.get().getMainBranchProjectUuid());
+      ComponentDto project = componentFinder.getByUuidFromMainBranch(dbSession, component.get().getMainBranchProjectUuid());
       settings.addAll(loadComponentSettings(dbSession, keys, project).values());
     }
     component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
@@ -183,8 +176,9 @@ public class ValuesAction implements SettingsWsAction {
       .collect(Collectors.toList());
   }
 
+  @CheckForNull
   private String getBranchKeySafely(@Nullable BranchDto branchDto) {
-    if(branchDto != null) {
+    if (branchDto != null) {
       return branchDto.isMain() ? null : branchDto.getBranchKey();
     }
     return null;

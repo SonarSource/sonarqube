@@ -149,7 +149,7 @@ public class PersistComponentsStep implements ComputationStep {
    * disabled components.
    */
   private Map<String, ComponentDto> indexExistingDtosByUuids(DbSession session) {
-    return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
+    return dbClient.componentDao().selectByBranchUuid(treeRootHolder.getRoot().getUuid(), session)
       .stream()
       .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
   }

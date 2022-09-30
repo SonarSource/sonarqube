@@ -32,17 +32,14 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.property.PropertyDbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -75,23 +72,22 @@ import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUE
 
 public class ValuesActionTest {
 
-  private static Joiner COMMA_JOINER = Joiner.on(",");
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private PropertyDbTester propertyDb = new PropertyDbTester(db);
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
-  private SettingsWsSupport support = new SettingsWsSupport(userSession);
+  private final DbClient dbClient = db.getDbClient();
+  private final PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
+  private final SettingsWsSupport support = new SettingsWsSupport(userSession);
+  private final WsActionTester wsActionTester = new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
   private ComponentDto project;
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
+    project = db.components().insertPrivateProject();
   }
 
   @Test
@@ -100,7 +96,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
-    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("foo");
 
@@ -123,7 +119,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition.builder("global")
       .multiValues(true)
       .build());
-    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("global").setValue("three,four"));
+    db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("global").setValue("three,four"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("default", "global");
     assertThat(result.getSettingsList()).hasSize(2);
@@ -141,7 +137,7 @@ public class ValuesActionTest {
   public void return_multi_value_with_coma() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
-    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
+    db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("global");
 
@@ -161,7 +157,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
+    db.properties().insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("foo");
 
@@ -182,7 +178,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertPropertySet("foo", project, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
+    db.properties().insertPropertySet("foo", project, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("foo");
 
@@ -210,7 +206,7 @@ public class ValuesActionTest {
   public void return_global_values() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
-    propertyDb.insertProperties(null, null, null,
+    db.properties().insertProperties(null, null, null,
       // The property is overriding default value
       null, newGlobalPropertyDto().setKey("property").setValue("one"));
 
@@ -225,9 +221,9 @@ public class ValuesActionTest {
     logInAsProjectUser();
     definitions.addComponent(
       PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT).build());
-    propertyDb.insertProperties(null, null, null,
+    db.properties().insertProperties(null, null, null,
       null, newGlobalPropertyDto().setKey("property").setValue("one"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       // The property is overriding global value
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
@@ -244,9 +240,9 @@ public class ValuesActionTest {
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global.default").defaultValue("default").build(),
       PropertyDefinition.builder("project").onQualifiers(PROJECT).build()));
-    propertyDb.insertProperties(null, null, null,
+    db.properties().insertProperties(null, null, null,
       null, newGlobalPropertyDto().setKey("global").setValue("one"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("project").setValue("two"));
 
     ValuesWsResponse result = executeRequestForProjectProperties();
@@ -260,7 +256,7 @@ public class ValuesActionTest {
     logInAsProjectUser();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT).build());
     // The property is not defined on project
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("property").setValue("one"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("property");
@@ -272,7 +268,7 @@ public class ValuesActionTest {
   @Test
   public void return_values_even_if_no_property_definition() {
     logIn();
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("globalPropertyWithoutDefinition");
@@ -286,7 +282,7 @@ public class ValuesActionTest {
   @Test
   public void return_values_of_component_even_if_no_property_definition() {
     logInAsProjectUser();
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("property").setValue("foo"));
 
     ValuesWsResponse response = executeRequestForComponentProperties(project, "property");
@@ -313,7 +309,7 @@ public class ValuesActionTest {
       .builder("foo")
       .defaultValue("default")
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("bar").setValue(""));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("unknown");
@@ -324,11 +320,11 @@ public class ValuesActionTest {
   @Test
   public void return_module_values() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT, MODULE).build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("property").setValue("one"));
-    propertyDb.insertProperties(null, module.getKey(), module.name(), module.qualifier(),
+    db.properties().insertProperties(null, module.getKey(), module.name(), module.qualifier(),
       // The property is overriding global value
       newComponentPropertyDto(module).setKey("property").setValue("two"));
 
@@ -341,17 +337,17 @@ public class ValuesActionTest {
   @Test
   public void return_inherited_values_on_module() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").onQualifiers(PROJECT, MODULE).build(),
       PropertyDefinition.builder("globalProperty").onQualifiers(PROJECT, MODULE).build(),
       PropertyDefinition.builder("projectProperty").onQualifiers(PROJECT, MODULE).build(),
       PropertyDefinition.builder("moduleProperty").onQualifiers(PROJECT, MODULE).build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("globalProperty").setValue("global"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("projectProperty").setValue("project"));
-    propertyDb.insertProperties(null, module.getKey(), module.name(), module.qualifier(),
+    db.properties().insertProperties(null, module.getKey(), module.name(), module.qualifier(),
       newComponentPropertyDto(module).setKey("moduleProperty").setValue("module"));
 
     ValuesWsResponse result = executeRequestForComponentProperties(module, "defaultProperty", "globalProperty", "projectProperty", "moduleProperty");
@@ -369,7 +365,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("globalProperty").setValue("global"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("defaultProperty", "globalProperty");
@@ -382,15 +378,15 @@ public class ValuesActionTest {
   @Test
   public void return_parent_value() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").defaultValue("default").onQualifiers(PROJECT, MODULE).build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("global"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("project"));
-    propertyDb.insertProperties(null, module.getKey(), module.name(), module.qualifier(),
+    db.properties().insertProperties(null, module.getKey(), module.name(), module.qualifier(),
       newComponentPropertyDto(module).setKey("foo").setValue("module"));
 
     assertParentValue(executeRequestForComponentProperties(subModule, "foo").getSettings(0), "module");
@@ -402,15 +398,15 @@ public class ValuesActionTest {
   @Test
   public void return_parent_values() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").defaultValue("default1,default2").multiValues(true).onQualifiers(PROJECT, MODULE).build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("global1,global2"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("project1,project2"));
-    propertyDb.insertProperties(null, module.getKey(), module.name(), module.qualifier(),
+    db.properties().insertProperties(null, module.getKey(), module.name(), module.qualifier(),
       newComponentPropertyDto(module).setKey("foo").setValue("module1,module2"));
 
     assertParentValues(executeRequestForComponentProperties(subModule, "foo").getSettings(0), "module1", "module2");
@@ -422,8 +418,8 @@ public class ValuesActionTest {
   @Test
   public void return_parent_field_values() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .onQualifiers(PROJECT, MODULE)
@@ -432,9 +428,9 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "keyG1", "size", "sizeG1"));
-    propertyDb.insertPropertySet("foo", project, ImmutableMap.of("key", "keyP1", "size", "sizeP1"));
-    propertyDb.insertPropertySet("foo", module, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
+    db.properties().insertPropertySet("foo", null, ImmutableMap.of("key", "keyG1", "size", "sizeG1"));
+    db.properties().insertPropertySet("foo", project, ImmutableMap.of("key", "keyP1", "size", "sizeP1"));
+    db.properties().insertPropertySet("foo", module, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
 
     assertParentFieldValues(executeRequestForComponentProperties(subModule, "foo").getSettings(0), ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
     assertParentFieldValues(executeRequestForComponentProperties(module, "foo").getSettings(0), ImmutableMap.of("key", "keyP1", "size", "sizeP1"));
@@ -445,8 +441,8 @@ public class ValuesActionTest {
   @Test
   public void return_no_parent_value() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
       PropertyDefinition.builder("simple").onQualifiers(PROJECT, MODULE).build(),
       PropertyDefinition.builder("multi").multiValues(true).onQualifiers(PROJECT, MODULE).build(),
@@ -457,10 +453,10 @@ public class ValuesActionTest {
           PropertyFieldDefinition.build("key").name("Key").build(),
           PropertyFieldDefinition.build("size").name("Size").build()))
         .build()));
-    propertyDb.insertProperties(null, module.getKey(), module.name(), module.qualifier(),
+    db.properties().insertProperties(null, module.getKey(), module.name(), module.qualifier(),
       newComponentPropertyDto(module).setKey("simple").setValue("module"),
       newComponentPropertyDto(module).setKey("multi").setValue("module1,module2"));
-    propertyDb.insertPropertySet("set", module, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
+    db.properties().insertPropertySet("set", module, ImmutableMap.of("key", "keyM1", "size", "sizeM1"));
 
     assertParentValue(executeRequestForComponentProperties(subModule, "simple").getSettings(0), null);
     assertParentValues(executeRequestForComponentProperties(subModule, "multi").getSettings(0));
@@ -470,10 +466,10 @@ public class ValuesActionTest {
   @Test
   public void return_parent_value_when_no_definition() {
     logInAsProjectUser();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    propertyDb.insertProperties(null, null, null, null,
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("global"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("project"));
 
     assertParentValue(executeRequestForComponentProperties(module, "foo").getSettings(0), "project");
@@ -488,7 +484,7 @@ public class ValuesActionTest {
       .builder("foo")
       .deprecatedKey("deprecated")
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("deprecated");
@@ -504,7 +500,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
@@ -522,7 +518,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
       .build());
-    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "secret.secured", "123456"));
+    db.properties().insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "secret.secured", "123456"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
@@ -535,7 +531,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
@@ -554,9 +550,9 @@ public class ValuesActionTest {
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -571,7 +567,7 @@ public class ValuesActionTest {
     userSession
       .addProjectPermission(USER, project)
       .addProjectPermission(SCAN_EXECUTION, project);
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -585,7 +581,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
@@ -602,9 +598,9 @@ public class ValuesActionTest {
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -619,7 +615,7 @@ public class ValuesActionTest {
   @Test
   public void return_secured_settings_even_if_not_defined_when_project_admin() {
     logInAsProjectAdmin();
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -638,7 +634,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
       .build());
-    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "secret.secured", "123456"));
+    db.properties().insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "secret.secured", "123456"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
@@ -657,7 +653,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Value admin only").build()))
       .build());
     ImmutableMap<String, String> keyValuePairs = ImmutableMap.of(anyAdminOnlySettingKey, "test_val");
-    propertyDb.insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
+    db.properties().insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
@@ -676,7 +672,7 @@ public class ValuesActionTest {
         PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Value admin only").build()))
       .build());
     ImmutableMap<String, String> keyValuePairs = ImmutableMap.of(anyAdminOnlySettingKey, "test_val");
-    propertyDb.insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
+    db.properties().insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
@@ -689,7 +685,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
@@ -705,7 +701,7 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
-    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"));
 
@@ -719,7 +715,7 @@ public class ValuesActionTest {
   public void return_additional_settings_specific_for_scanner_when_no_keys() {
     logInAsAdmin();
     definitions.addComponent(PropertyDefinition.builder("secret.secured").build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("sonar.core.id").setValue("ID"),
       newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"));
 
@@ -734,7 +730,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("ﬁ±∞…"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("foo");
@@ -760,7 +756,7 @@ public class ValuesActionTest {
       .builder("foo")
       .deprecatedKey("deprecated")
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     assertThatThrownBy(() -> {
@@ -773,7 +769,7 @@ public class ValuesActionTest {
   @Test
   public void fail_when_component_not_found() {
     assertThatThrownBy(() -> {
-      newTester().newRequest()
+      wsActionTester.newRequest()
         .setParam("keys", "foo")
         .setParam("component", "unknown")
         .execute();
@@ -793,7 +789,7 @@ public class ValuesActionTest {
       .builder("sonar.autogenerated")
       .multiValues(true)
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("sonar.autogenerated").setValue("val1,val2,val3"));
     definitions.addComponent(PropertyDefinition
       .builder("sonar.demo")
@@ -801,22 +797,22 @@ public class ValuesActionTest {
       .fields(PropertyFieldDefinition.build("text").name("Text").build(),
         PropertyFieldDefinition.build("boolean").name("Boolean").build())
       .build());
-    propertyDb.insertPropertySet("sonar.demo", null, ImmutableMap.of("text", "foo", "boolean", "true"), ImmutableMap.of("text", "bar", "boolean", "false"));
+    db.properties().insertPropertySet("sonar.demo", null, ImmutableMap.of("text", "foo", "boolean", "true"), ImmutableMap.of("text", "bar", "boolean", "false"));
 
     definitions.addComponent(PropertyDefinition
       .builder("email.smtp_port.secured")
       .defaultValue("25")
       .build());
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("email.smtp_port.secured").setValue("25"));
 
-    String result = newTester().newRequest()
+    String result = wsActionTester.newRequest()
       .setParam("keys", "sonar.test.jira,sonar.autogenerated,sonar.demo,email.smtp_port.secured")
       .setMediaType(JSON)
       .execute()
       .getInput();
 
-    JsonAssert.assertJson(newTester().getDef().responseExampleAsString()).isSimilarTo(result);
+    JsonAssert.assertJson(wsActionTester.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
   @Test
@@ -826,7 +822,7 @@ public class ValuesActionTest {
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
     assertThatThrownBy(() -> {
-      newTester().newRequest()
+      wsActionTester.newRequest()
         .setParam("keys", settingKey)
         .setParam("component", project.getKey())
         .execute();
@@ -837,7 +833,7 @@ public class ValuesActionTest {
 
   @Test
   public void test_ws_definition() {
-    WebService.Action action = newTester().getDef();
+    WebService.Action action = wsActionTester.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
@@ -850,30 +846,29 @@ public class ValuesActionTest {
     PropertyDefinition securedDef = PropertyDefinition.builder("my.password.secured").build();
     PropertyDefinition standardDef = PropertyDefinition.builder("my.property").build();
     definitions.addComponents(asList(securedDef, standardDef));
-    propertyDb.insertProperties(null, null, null, null,
+    db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey(securedDef.key()).setValue("securedValue"),
       newGlobalPropertyDto().setKey(standardDef.key()).setValue("standardValue"));
 
     // anonymous
-    WsActionTester tester = newTester();
-    ValuesWsResponse response = executeRequest(tester, null, securedDef.key(), standardDef.key());
+    ValuesWsResponse response = executeRequest(null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey).containsExactly("my.property");
 
     // only scan global permission
     userSession.logIn()
       .addPermission(GlobalPermission.SCAN);
-    response = executeRequest(tester, null, securedDef.key(), standardDef.key());
+    response = executeRequest(null, securedDef.key(), standardDef.key());
     assertThat(response.getSetSecuredSettingsList()).contains("my.password.secured");
 
     // global administrator
     userSession.logIn()
       .addPermission(GlobalPermission.ADMINISTER);
-    response = executeRequest(tester, null, securedDef.key(), standardDef.key());
+    response = executeRequest(null, securedDef.key(), standardDef.key());
     assertThat(response.getSetSecuredSettingsList()).contains("my.password.secured");
 
     // system administrator
     userSession.logIn().setSystemAdministrator();
-    response = executeRequest(tester, null, securedDef.key(), standardDef.key());
+    response = executeRequest(null, securedDef.key(), standardDef.key());
     assertThat(response.getSetSecuredSettingsList()).contains("my.password.secured");
   }
 
@@ -890,11 +885,7 @@ public class ValuesActionTest {
   }
 
   private ValuesWsResponse executeRequest(@Nullable String componentKey, String... keys) {
-    return executeRequest(newTester(), componentKey, keys);
-  }
-
-  private ValuesWsResponse executeRequest(WsActionTester tester, @Nullable String componentKey, String... keys) {
-    TestRequest request = tester.newRequest();
+    TestRequest request = wsActionTester.newRequest();
     if (keys.length > 0) {
       request.setParam("keys", COMMA_JOINER.join(keys));
     }
@@ -965,10 +956,4 @@ public class ValuesActionTest {
       }
     }
   }
-
-  private WsActionTester newTester() {
-    MapSettings settings = new MapSettings();
-    return new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
-  }
-
 }

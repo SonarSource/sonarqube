@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
@@ -55,8 +56,7 @@ public class PropertyDbTester {
   }
 
   public void insertProperties(@Nullable String userLogin, @Nullable String projectKey,
-    @Nullable String projectName, @Nullable String qualifier,
-    PropertyDto... properties) {
+    @Nullable String projectName, @Nullable String qualifier, PropertyDto... properties) {
     insertProperties(asList(properties), userLogin, projectKey, projectName, qualifier);
   }
 
@@ -66,6 +66,14 @@ public class PropertyDbTester {
       dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectKey, projectName, qualifier);
     }
     dbSession.commit();
+  }
+
+  public void insertProperty(String propKey, String propValue, @Nullable String componentUuid) {
+    insertProperties(singletonList(new PropertyDto()
+        .setKey(propKey)
+        .setValue(propValue)
+        .setComponentUuid(componentUuid)),
+      null, null, null, null);
   }
 
   public void insertPropertySet(String settingBaseKey, @Nullable ComponentDto componentDto, Map<String, String>... fieldValues) {
@@ -94,22 +102,6 @@ public class PropertyDbTester {
     String componentName = componentDto == null ? null : componentDto.name();
     String qualififer = componentDto == null ? null : componentDto.qualifier();
     insertProperties(propertyDtos, null, componentKey, componentName, qualififer);
-  }
-
-  public PropertyDbTester verifyInternal(String key, @Nullable String expectedValue) {
-    Optional<String> value = dbClient.internalPropertiesDao().selectByKey(dbSession, key);
-    if (expectedValue == null) {
-      assertThat(value).isEmpty();
-    } else {
-      assertThat(value).hasValue(expectedValue);
-    }
-    return this;
-  }
-
-  public PropertyDbTester insertInternal(String key, String value) {
-    dbClient.internalPropertiesDao().save(dbSession, key, value);
-    dbSession.commit();
-    return this;
   }
 
   public Optional<PropertyDto> findFirstUserProperty(String userUuid, String key) {

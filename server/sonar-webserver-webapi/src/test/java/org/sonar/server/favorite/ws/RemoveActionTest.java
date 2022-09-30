@@ -106,18 +106,6 @@ public class RemoveActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    String branchKey = branch.getKey();
-
-    assertThatThrownBy(() -> call(branchKey))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branchKey));
-  }
-
-  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 

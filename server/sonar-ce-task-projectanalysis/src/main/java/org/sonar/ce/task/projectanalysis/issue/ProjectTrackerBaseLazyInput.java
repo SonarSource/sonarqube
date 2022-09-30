@@ -72,7 +72,11 @@ class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
       if (!dirOrModulesUuidsWithIssues.isEmpty()) {
         Map<String, String> pathByModuleKey = reportModulesPath.get();
         // Migrate issues that were previously on modules or directories to the root project
-        Map<String, ComponentDto> modulesByUuid = dbClient.componentDao().selectProjectAndModulesFromProjectKey(dbSession, component.getKey(), true)
+        String branchKey = analysisMetadataHolder.isBranch() ? analysisMetadataHolder.getBranch().getName() : null;
+        String prKey = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getBranch().getPullRequestKey() : null;
+
+        Map<String, ComponentDto> modulesByUuid = dbClient.componentDao()
+          .selectProjectAndModulesFromProjectKey(dbSession, component.getKey(), true, branchKey, prKey)
           .stream().collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
         List<ComponentDto> dirOrModulesWithIssues = dbClient.componentDao().selectByUuids(dbSession, dirOrModulesUuidsWithIssues);
         dirOrModulesWithIssues.forEach(c -> {

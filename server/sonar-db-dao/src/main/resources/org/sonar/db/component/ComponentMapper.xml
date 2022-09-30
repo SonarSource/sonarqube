@@ -52,15 +52,28 @@
       and pb.branch_type='BRANCH'
   </select>
 
-  <select id="selectByKeyAndPrKey" parameterType="String" resultType="Component">
+  <select id="selectByKeyAndBranchOrPr" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
     from components p
-    inner join project_branches pb on pb.uuid = p.branch_uuid
+    <if test="branch != null || pullRequest != null">
+      inner join project_branches pb on pb.uuid = p.branch_uuid
+    </if>
     where
       p.kee=#{key,jdbcType=VARCHAR}
-      and pb.kee=#{pr,jdbcType=VARCHAR}
-      and pb.branch_type='PULL_REQUEST'
+    <choose>
+      <when test="branch != null">
+        AND pb.kee=#{branch,jdbcType=VARCHAR}
+        AND pb.branch_type = 'BRANCH'
+      </when>
+      <when test="pullRequest != null">
+        AND pb.kee=#{pullRequest,jdbcType=VARCHAR}
+        AND pb.branch_type = 'PULL_REQUEST'
+      </when>
+      <otherwise>
+        AND p.main_branch_project_uuid is NULL
+      </otherwise>
+    </choose>
   </select>
 
   <select id="selectByUuid" parameterType="String" resultType="Component">
@@ -71,41 +84,32 @@
       p.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByBranchUuid" parameterType="string" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from components root
-    inner join components p on p.branch_uuid=root.uuid
-    where
-      root.uuid=#{branchUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByKeys" parameterType="String" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from components p
-    where
-      p.enabled=${_true}
-      and p.main_branch_project_uuid is null
-      and p.kee in
-      <foreach collection="keys" open="(" close=")" item="key" separator=",">
-        #{key,jdbcType=VARCHAR}
-      </foreach>
-  </select>
-
-  <select id="selectByKeysAndBranch" parameterType="String" resultType="Component">
+  <select id="selectByKeysAndBranchOrPr" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM components p
-    INNER JOIN project_branches pb on pb.uuid = p.branch_uuid
-    <where>
+    <if test="branch != null || pullRequest != null">
+      INNER JOIN project_branches pb on pb.uuid = p.branch_uuid
+    </if>
+    WHERE
     p.enabled=${_true}
     AND p.kee IN
     <foreach collection="keys" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
     </foreach>
-    AND pb.kee=#{branch,jdbcType=VARCHAR}
-    </where>
+    <choose>
+      <when test="branch != null">
+        AND pb.kee=#{branch,jdbcType=VARCHAR}
+        AND pb.branch_type = 'BRANCH'
+      </when>
+      <when test="pullRequest != null">
+        AND pb.kee=#{pullRequest,jdbcType=VARCHAR}
+        AND pb.branch_type = 'PULL_REQUEST'
+      </when>
+      <otherwise>
+        AND p.main_branch_project_uuid IS NULL
+      </otherwise>
+    </choose>
   </select>
 
   <select id="selectByUuids" parameterType="String" resultType="Component">
@@ -477,6 +481,9 @@
     <include refid="componentColumns"/>
     FROM components p
     INNER JOIN components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+    <if test="branch != null || pullRequest != null">
+      INNER JOIN project_branches pb ON pb.uuid=p.branch_uuid
+    </if>
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -484,7 +491,26 @@
       <if test="scope != null">
         AND p.scope=#{scope,jdbcType=VARCHAR}
       </if>
+      <choose>
+        <when test="branch != null">
+          AND pb.kee=#{branch,jdbcType=VARCHAR} AND pb.branch_type = 'BRANCH'
+        </when>
+        <when test="pullRequest != null">
+          AND pb.kee=#{pullRequest,jdbcType=VARCHAR} AND pb.branch_type = 'PULL_REQUEST'
+        </when>
+        <otherwise>
+          AND root.main_branch_project_uuid is null
+        </otherwise>
+      </choose>
     </where>
+  </select>
+
+  <select id="selectByBranchUuid" parameterType="map" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM components p
+    WHERE
+      p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectEnabledComponentsWithModuleUuidFromProjectKey" resultType="ComponentWithModuleUuid">
@@ -496,13 +522,31 @@
       components root ON root.uuid=p.branch_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectUuidsByKeyFromProjectKey" parameterType="string" resultType="KeyWithUuid">
+  <select id="selectUuidsByKeyFromProjectKeyAndBranchOrPr" parameterType="string" resultType="KeyWithUuid">
     SELECT
      p.kee, p.uuid
     FROM
       components p
     INNER JOIN
       components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+    <if test="branch != null || pullRequest != null">
+      INNER JOIN project_branches pb ON pb.uuid = root.uuid
+    </if>
+
+    <choose>
+      <when test="branch != null">
+        AND pb.kee = #{branch,jdbcType=VARCHAR}
+        AND pb.branch_type = 'BRANCH'
+      </when>
+      <when test="pullRequest != null">
+        AND pb.kee=#{pullRequest,jdbcType=VARCHAR}
+        AND pb.branch_type = 'PULL_REQUEST'
+      </when>
+      <otherwise>
+        AND root.main_branch_project_uuid is NULL
+      </otherwise>
+    </choose>
+
   </select>
 
   <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">

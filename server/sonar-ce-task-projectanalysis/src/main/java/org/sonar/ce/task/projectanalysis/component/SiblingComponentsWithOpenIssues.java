@@ -30,8 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.KeyWithUuidDto;
 
-import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
-
 /**
  * Cache a map of component key -> set&lt;uuid&gt; in:
  * - sibling PRs that have open issues

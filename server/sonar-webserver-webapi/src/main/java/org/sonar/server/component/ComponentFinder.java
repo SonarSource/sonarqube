@@ -58,7 +58,7 @@ public class ComponentFinder {
     checkByUuidOrKey(componentUuid, componentKey, parameterNames);
 
     if (componentUuid != null) {
-      return getByUuid(dbSession, checkParamNotEmpty(componentUuid, parameterNames.getUuidParam()));
+      return getByUuidFromMainBranch(dbSession, checkParamNotEmpty(componentUuid, parameterNames.getUuidParam()));
     }
 
     return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
@@ -100,6 +100,11 @@ public class ComponentFinder {
     return value;
   }
 
+  public BranchDto getBranchByUuid(DbSession dbSession, String branchUuid) {
+    return dbClient.branchDao().selectByUuid(dbSession, branchUuid)
+      .orElseThrow(() -> new NotFoundException(String.format("Branch uuid '%s' not found", branchUuid)));
+  }
+
   public BranchDto getBranchOrPullRequest(DbSession dbSession, ComponentDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
     return getBranchOrPullRequest(dbSession, project.uuid(), project.getKey(), branchKey, pullRequestKey);
   }
@@ -137,11 +142,14 @@ public class ComponentFinder {
     return checkComponent(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
   }
 
-  public ComponentDto getByUuid(DbSession dbSession, String uuid) {
-    return getByUuid(dbSession, uuid, LABEL_COMPONENT);
+  /**
+   * This method only returns components in main branches.
+   */
+  public ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid) {
+    return getByUuidFromMainBranch(dbSession, uuid, LABEL_COMPONENT);
   }
 
-  private ComponentDto getByUuid(DbSession dbSession, String uuid, String label) {
+  private ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid, String label) {
     return checkComponent(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
   }
 
@@ -155,7 +163,7 @@ public class ComponentFinder {
   public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
     ComponentDto project;
     if (projectUuid != null) {
-      project = getByUuid(dbSession, projectUuid, LABEL_PROJECT);
+      project = getByUuidFromMainBranch(dbSession, projectUuid, LABEL_PROJECT);
     } else {
       project = getByKey(dbSession, projectKey, LABEL_PROJECT);
     }
@@ -204,12 +212,20 @@ public class ComponentFinder {
     checkArgument(branch == null || pullRequest == null, "Either branch or pull request can be provided, not both");
     if (branch != null) {
       return getByKeyAndBranch(dbSession, key, branch);
-    }
-    if (pullRequest != null) {
+    } else if (pullRequest != null) {
       return getByKeyAndPullRequest(dbSession, key, pullRequest);
     }
-
     return getByKey(dbSession, key);
+  }
+
+  public Optional<ComponentDto> getOptionalByKeyAndOptionalBranchOrPullRequest(DbSession dbSession, String key, @Nullable String branch, @Nullable String pullRequest) {
+    checkArgument(branch == null || pullRequest == null, "Either branch or pull request can be provided, not both");
+    if (branch != null) {
+      return dbClient.componentDao().selectByKeyAndBranch(dbSession, key, branch);
+    } else if (pullRequest != null) {
+      return dbClient.componentDao().selectByKeyAndPullRequest(dbSession, key, pullRequest);
+    }
+    return dbClient.componentDao().selectByKey(dbSession, key);
   }
 
   public enum ParamNames {

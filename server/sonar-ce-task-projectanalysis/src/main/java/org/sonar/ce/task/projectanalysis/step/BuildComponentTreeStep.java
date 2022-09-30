@@ -79,7 +79,8 @@ public class BuildComponentTreeStep implements ComputationStep {
       String rootKey = keyGenerator.generateKey(reportProject.getKey(), null);
       Function<String, String> pathToKey = path -> keyGenerator.generateKey(reportProject.getKey(), path);
       // loads the UUIDs from database. If they don't exist, then generate new ones
-      ComponentUuidFactoryWithMigration componentUuidFactoryWithMigration = new ComponentUuidFactoryWithMigration(dbClient, dbSession, rootKey, pathToKey, reportModulesPath.get());
+      ComponentUuidFactoryWithMigration componentUuidFactoryWithMigration =
+        new ComponentUuidFactoryWithMigration(dbClient, dbSession, rootKey, analysisMetadataHolder.getBranch(), pathToKey, reportModulesPath.get());
 
       String rootUuid = componentUuidFactoryWithMigration.getOrCreateForKey(rootKey);
       Optional<SnapshotDto> baseAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, rootUuid);

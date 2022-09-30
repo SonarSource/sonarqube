@@ -155,7 +155,9 @@ public class SearchResponseLoader {
   }
 
   private void loadBranches(DbSession dbSession, SearchResponseData result) {
-    Set<String> branchUuids = result.getComponents().stream().map(ComponentDto::branchUuid).collect(Collectors.toSet());
+    Set<String> branchUuids = result.getComponents().stream()
+      .map(c -> c.getCopyComponentUuid() != null ? c.getCopyComponentUuid() : c.branchUuid())
+      .collect(Collectors.toSet());
     List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, branchUuids);
     result.addBranches(branchDtos);
   }
@@ -178,7 +180,7 @@ public class SearchResponseLoader {
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
     preloadedRules.stream().map(RuleDto::getUuid).collect(toList(preloadedRules.size()))
-        .forEach(ruleUuidsToLoad::remove);
+      .forEach(ruleUuidsToLoad::remove);
 
     List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, ruleUuidsToLoad);
     updateNamesOfAdHocRules(rules);
@@ -190,7 +192,6 @@ public class SearchResponseLoader {
       .filter(RuleDto::isAdHoc)
       .forEach(r -> r.setName(r.getAdHocName()));
   }
-
 
   private void loadComments(Collector collector, DbSession dbSession, Set<SearchAdditionalField> fields, SearchResponseData result) {
     if (fields.contains(COMMENTS)) {

@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
@@ -43,7 +44,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -53,7 +53,6 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -153,20 +152,18 @@ public class ComponentAction implements NavigationWsAction {
       checkComponentNotAModuleAndNotADirectory(component);
       ComponentDto rootProjectOrBranch = getRootProjectOrBranch(component, session);
       ComponentDto rootProject = rootProjectOrBranch.getMainBranchProjectUuid() == null ? rootProjectOrBranch
-        : componentFinder.getByUuid(session, rootProjectOrBranch.getMainBranchProjectUuid());
+        : componentFinder.getByUuidFromMainBranch(session, rootProjectOrBranch.getMainBranchProjectUuid());
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
         !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.branchUuid());
-      BranchDto branchDto = dbClient.branchDao().selectByUuid(session, component.branchUuid())
-        .orElseThrow(() -> new NotFoundException(format("Could not find a branch for component uuid " + component.uuid())));
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         boolean isFavourite = isFavourite(session, rootProject, component);
-        String branchKey = branchDto.isMain() ? null : branchDto.getBranchKey();
+        String branchKey = getBranchKey(session, component);
         writeComponent(json, component, analysis.orElse(null), isFavourite, branchKey);
         writeProfiles(json, session, component);
         writeQualityGate(json, session, rootProject);
@@ -179,6 +176,14 @@ public class ComponentAction implements NavigationWsAction {
         json.endObject().close();
       }
     }
+  }
+
+  @CheckForNull
+  private String getBranchKey(DbSession session, ComponentDto component) {
+    // TODO portfolios may have no branch, so we shouldn't faul?
+    return dbClient.branchDao().selectByUuid(session, component.branchUuid())
+      .map(b -> b.isMain() ? null : b.getBranchKey())
+      .orElse(null);
   }
 
   private static void checkComponentNotAModuleAndNotADirectory(ComponentDto component) {
@@ -209,7 +214,7 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite, String branchKey) {
+  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite, @Nullable String branchKey) {
     json.prop("key", component.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())

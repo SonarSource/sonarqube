@@ -108,9 +108,8 @@ public class ShowResponseBuilder {
 
   private static Duplications.File toWsFile(String componentKey, @Nullable String branch, @Nullable String pullRequest) {
     Duplications.File.Builder wsFile = Duplications.File.newBuilder();
-    String keyWithoutBranch = ComponentDto.removeBranchAndPullRequestFromKey(componentKey);
-    wsFile.setKey(keyWithoutBranch);
-    wsFile.setName(StringUtils.substringAfterLast(keyWithoutBranch, ":"));
+    wsFile.setKey(componentKey);
+    wsFile.setName(StringUtils.substringAfterLast(componentKey, ":"));
     ofNullable(branch).ifPresent(wsFile::setBranch);
     ofNullable(pullRequest).ifPresent(wsFile::setPullRequest);
     return wsFile.build();

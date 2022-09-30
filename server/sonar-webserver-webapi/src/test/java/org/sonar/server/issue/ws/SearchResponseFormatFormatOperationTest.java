@@ -25,16 +25,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -49,14 +53,13 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.issue.IssueTesting.newIssuechangeDto;
@@ -67,33 +70,23 @@ import static org.sonar.server.issue.index.IssueScope.TEST;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchResponseFormatFormatOperationTest {
-
-  private SearchResponseFormat searchResponseFormat;
-
+  @Rule
+  public DbTester db = DbTester.create();
   private final Durations durations = new Durations();
-  @Mock
-  private Languages languages;
-  @Mock
-  private TextRangeResponseFormatter textRangeResponseFormatter;
-  @Mock
-  private UserResponseFormatter userResponseFormatter;
-  @Mock
-  private Common.User user;
+  private final Languages languages = mock(Languages.class);
+  private final TextRangeResponseFormatter textRangeResponseFormatter = mock(TextRangeResponseFormatter.class);
+  private final UserResponseFormatter userResponseFormatter = mock(UserResponseFormatter.class);
+  private final Common.User user = mock(Common.User.class);
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(durations, languages, textRangeResponseFormatter, userResponseFormatter);
 
   private SearchResponseData searchResponseData;
   private IssueDto issueDto;
   private ComponentDto componentDto;
   private UserDto userDto;
 
-
   @Before
   public void setUp() {
-    searchResponseFormat = new SearchResponseFormat(durations, languages, textRangeResponseFormatter, userResponseFormatter);
-    searchResponseData = newSearchResponseData();
-    issueDto = searchResponseData.getIssues().get(0);
-    componentDto = searchResponseData.getComponents().iterator().next();
-    userDto = searchResponseData.getUsers().get(0);
-    when(userResponseFormatter.formatUser(any(Common.User.Builder.class), eq(userDto))).thenReturn(user);
+    searchResponseData = newSearchResponseDataMainBranch();
   }
 
   @Test
@@ -168,21 +161,16 @@ public class SearchResponseFormatFormatOperationTest {
   @Test
   public void formatOperation_should_add_branch_on_issue() {
     String branchName = randomAlphanumeric(5);
-    componentDto.setKey(randomAlphanumeric(5) + BRANCH_KEY_SEPARATOR + branchName);
-
+    searchResponseData = newSearchResponseDataBranch(branchName);
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
-
     assertThat(result.getIssue().getBranch()).isEqualTo(branchName);
   }
 
   @Test
   public void formatOperation_should_add_pullrequest_on_issue() {
-    String pullRequestKey = randomAlphanumeric(5);
-    componentDto.setKey(randomAlphanumeric(5) + PULL_REQUEST_SEPARATOR + pullRequestKey);
-
+    searchResponseData = newSearchResponseDataPr("pr1");
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
-
-    assertThat(result.getIssue().getPullRequest()).isEqualTo(pullRequestKey);
+    assertThat(result.getIssue().getPullRequest()).isEqualTo("pr1");
   }
 
   @Test
@@ -280,16 +268,31 @@ public class SearchResponseFormatFormatOperationTest {
     assertThat(result.getIssue().hasSeverity()).isFalse();
   }
 
-  private static SearchResponseData newSearchResponseData() {
+  private SearchResponseData newSearchResponseDataMainBranch() {
+    ComponentDto projectDto = db.components().insertPublicProject();
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), projectDto.uuid()).get();
+    return newSearchResponseData(projectDto, branchDto);
+  }
+
+  private SearchResponseData newSearchResponseDataBranch(String name) {
+    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name));
+    ComponentDto branchComponent = db.components().getComponentDto(branch);
+    return newSearchResponseData(branchComponent, branch);
+  }
+
+  private SearchResponseData newSearchResponseDataPr(String name) {
+    ProjectDto projectDto = db.components().insertPublicProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(projectDto, b -> b.setKey(name).setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto branchComponent = db.components().getComponentDto(branch);
+    return newSearchResponseData(branchComponent, branch);
+  }
+
+  private SearchResponseData newSearchResponseData(ComponentDto component, BranchDto branch) {
     RuleDto ruleDto = newRule();
-
-    String projectUuid = "project_uuid_" + randomAlphanumeric(5);
-    ComponentDto projectDto = newPrivateProjectDto();
-    projectDto.setBranchUuid(projectUuid);
-
-    UserDto userDto = newUserDto();
-
-    IssueDto issueDto = newIssue(ruleDto, projectUuid, "project_key_" + randomAlphanumeric(5), projectDto)
+    userDto = newUserDto();
+    componentDto = component;
+    issueDto = newIssue(ruleDto, component.branchUuid(), component.getKey(), component)
       .setType(CODE_SMELL)
       .setRuleDescriptionContextKey("context_key_" + randomAlphanumeric(5))
       .setAssigneeUuid(userDto.getUuid())
@@ -299,10 +302,13 @@ public class SearchResponseFormatFormatOperationTest {
       .setIssueCloseDate(new Date(currentTimeMillis()));
 
     SearchResponseData searchResponseData = new SearchResponseData(issueDto);
-    searchResponseData.addComponents(List.of(projectDto));
+    searchResponseData.addComponents(List.of(component));
     searchResponseData.addRules(List.of(ruleDto));
     searchResponseData.addUsers(List.of(userDto));
+    searchResponseData.addBranches(List.of(branch));
+
+    when(userResponseFormatter.formatUser(any(Common.User.Builder.class), eq(userDto))).thenReturn(user);
+
     return searchResponseData;
   }
-
 }

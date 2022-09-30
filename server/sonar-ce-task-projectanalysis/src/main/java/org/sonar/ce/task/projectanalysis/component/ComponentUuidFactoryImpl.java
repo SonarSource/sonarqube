@@ -22,9 +22,11 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.KeyWithUuidDto;
 
 public class ComponentUuidFactoryImpl implements ComponentUuidFactory {
@@ -32,6 +34,18 @@ public class ComponentUuidFactoryImpl implements ComponentUuidFactory {
 
   public ComponentUuidFactoryImpl(DbClient dbClient, DbSession dbSession, String rootKey) {
     List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
+  }
+
+  public ComponentUuidFactoryImpl(DbClient dbClient, DbSession dbSession, String rootKey, Branch branch) {
+    List<KeyWithUuidDto> keys;
+    if (branch.isMain()) {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    } else if (branch.getType() == BranchType.PULL_REQUEST) {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKeyAndPullRequest(dbSession, rootKey, branch.getPullRequestKey());
+    } else {
+      keys = dbClient.componentDao().selectUuidsByKeyFromProjectKeyAndBranch(dbSession, rootKey, branch.getName());
+    }
     keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
   }
 

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -45,6 +46,7 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
@@ -67,8 +69,8 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrA
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
@@ -113,8 +115,8 @@ public class TreeAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy.<br>" +
-        "Requires the following permission: 'Browse' on the specified project.<br>" +
-        "When limiting search with the %s parameter, directories are not returned.",
+          "Requires the following permission: 'Browse' on the specified project.<br>" +
+          "When limiting search with the %s parameter, directories are not returned.",
         Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
@@ -226,29 +228,38 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, request));
+    Map<String, String> branchKeyByReferenceUuid = dbClient.branchDao().selectByUuids(dbSession, referenceComponentsByUuid.keySet())
+      .stream()
+      .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
+
+    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     for (ComponentDto dto : components) {
-      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid, request));
+      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     }
 
     return response.build();
   }
 
   private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component,
-    Map<String, ComponentDto> referenceComponentsByUuid, Request request) {
+    Map<String, ComponentDto> referenceComponentsByUuid, Map<String, String> branchKeyByReferenceUuid, Request request) {
+
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
 
     Components.Component.Builder wsComponent;
-    if (component.getMainBranchProjectUuid() == null && component.isRootProject() &&
-      PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
+    if (component.getMainBranchProjectUuid() == null && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
       wsComponent = projectOrAppToWsComponent(projectDto, null);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
-      wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
+
+      if (referenceComponent != null) {
+        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
+      } else {
+        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
+      }
     }
 
-    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.getKey());

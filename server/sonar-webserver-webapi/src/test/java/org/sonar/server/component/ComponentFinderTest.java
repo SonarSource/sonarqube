@@ -103,7 +103,7 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project, null, "file-uuid").setEnabled(false));
 
-    assertThatThrownBy(() -> underTest.getByUuid(dbSession, "file-uuid"))
+    assertThatThrownBy(() -> underTest.getByUuidFromMainBranch(dbSession, "file-uuid"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component id 'file-uuid' not found");
   }
@@ -114,7 +114,7 @@ public class ComponentFinderTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     String branchUuid = branch.uuid();
-    assertThatThrownBy(() -> underTest.getByUuid(dbSession, branchUuid))
+    assertThatThrownBy(() -> underTest.getByUuidFromMainBranch(dbSession, branchUuid))
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Component id '%s' not found", branchUuid));
   }
@@ -173,6 +173,33 @@ public class ComponentFinderTest {
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, module.getKey(), null, "pr-123").uuid()).isEqualTo(module.uuid());
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, "pr-123").uuid()).isEqualTo(file.uuid());
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, directory.getKey(), null, "pr-123").uuid()).isEqualTo(directory.uuid());
+  }
+
+  @Test
+  public void get_optional_by_key_and_optional_branch_or_pull_request() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
+
+
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null)).isPresent();
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null).get().uuid())
+      .isEqualTo(project.uuid());
+
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, branch.getKey(), "branch", null)).isPresent();
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, branch.getKey(), "branch", null).get().uuid())
+      .isEqualTo(branch.uuid());
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, branchFile.getKey(), "branch", null)).isPresent();
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, branchFile.getKey(), "branch", null).get().uuid())
+      .isEqualTo(branchFile.uuid());
+
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, pr.getKey(), null, "pr")).isPresent();
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, pr.getKey(), null, "pr").get().uuid())
+      .isEqualTo(pr.uuid());
+
+    assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, "unknown", null, null)).isEmpty();
+
   }
 
   @Test

@@ -320,7 +320,7 @@ public class SetActionTest {
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
-    assertThat(dbClient.propertiesDao().selectProjectProperties(dbSession, project.getKey())).hasSize(5);
+    assertThat(dbClient.propertiesDao().selectComponentProperties(dbSession, project.uuid())).hasSize(5);
     assertGlobalSetting("my.key", "1");
     assertGlobalSetting("my.key.1.firstField", "oldFirstValue");
     assertGlobalSetting("my.key.1.secondField", "oldSecondValue");

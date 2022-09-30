@@ -32,9 +32,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 
-import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.generateBranchKey;
-
 /**
  * Class used to rename the key of a project and its resources.
  *
@@ -52,45 +49,22 @@ public class ComponentKeyUpdaterDao implements Dao {
     checkExistentKey(mapper, newKey);
 
     // must SELECT first everything
-    ResourceDto project = mapper.selectProjectByUuid(projectUuid);
+    ResourceDto project = mapper.selectComponentByUuid(projectUuid);
     String projectOldKey = project.getKey();
-    List<ResourceDto> resources = mapper.selectProjectResources(projectUuid);
+    List<ResourceDto> resources = mapper.selectBranchResources(projectUuid);
     resources.add(project);
 
     // add branch components
     dbSession.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid).stream()
       .filter(branch -> !projectUuid.equals(branch.getUuid()))
       .forEach(branch -> {
-        resources.addAll(mapper.selectProjectResources(branch.getUuid()));
-        resources.add(mapper.selectProjectByUuid(branch.getUuid()));
+        resources.addAll(mapper.selectBranchResources(branch.getUuid()));
+        resources.add(mapper.selectComponentByUuid(branch.getUuid()));
       });
 
     // and then proceed with the batch UPDATE at once
     runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper, (resource, oldKey) -> {
     }, dbSession);
-  }
-
-  public void updateApplicationBranchKey(DbSession dbSession, String appBranchUuid, String appKey, String newBranchName) {
-    // TODO review
-    ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
-
-    String newAppBranchKey = generateBranchKey(appKey, newBranchName);
-    checkExistentKey(mapper, newAppBranchKey);
-
-    ResourceDto appBranch = mapper.selectProjectByUuid(appBranchUuid);
-    String appBranchOldKey = appBranch.getKey();
-    appBranch.setKey(newAppBranchKey);
-    mapper.updateComponent(appBranch);
-
-    auditPersister.componentKeyBranchUpdate(dbSession, new ComponentKeyNewValue(appBranchUuid, appBranchOldKey, newAppBranchKey), Qualifiers.APP);
-
-    String oldAppBranchFragment = appBranchOldKey.replace(BRANCH_KEY_SEPARATOR, "");
-    String newAppBranchFragment = appKey + newBranchName;
-    for (ResourceDto appBranchResource : mapper.selectProjectResources(appBranchUuid)) {
-      String newKey = computeNewKey(appBranchResource.getKey(), oldAppBranchFragment, newAppBranchFragment);
-      appBranchResource.setKey(newKey);
-      mapper.updateComponent(appBranchResource);
-    }
   }
 
   @VisibleForTesting

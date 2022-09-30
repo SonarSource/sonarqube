@@ -19,9 +19,6 @@
  */
 package org.sonar.server.setting;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -35,11 +32,7 @@ public class TestProjectConfigurationLoader implements ProjectConfigurationLoade
   }
 
   @Override
-  public Map<String, Configuration> loadProjectConfigurations(DbSession dbSession, Set<ComponentDto> projects) {
-    Map<String, Configuration> map = new HashMap<>();
-    for (ComponentDto project : projects) {
-      map.put(project.uuid(), config);
-    }
-    return map;
+  public Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto project) {
+    return config;
   }
 }

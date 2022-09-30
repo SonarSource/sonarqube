@@ -745,7 +745,7 @@ public class ComponentTreeActionTest {
       .containsExactlyInAnyOrder(applicationBranch.getKey(), branchName);
     assertThat(result.getComponentsList())
       .extracting(Component::getKey, Component::getBranch, Component::getRefKey)
-      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), branchName, project.getKey()));
+      .containsExactlyInAnyOrder(tuple(techProjectBranch.getKey(), "project-branch", project.getKey()));
   }
 
   @Test

@@ -67,7 +67,9 @@ public class ValidateProjectStep implements ComputationStep {
       validateTargetBranch(dbSession);
       Component root = treeRootHolder.getRoot();
       // FIXME if module have really be dropped, no more need to load them
-      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey());
+      String branchKey = analysisMetadataHolder.isBranch() ? analysisMetadataHolder.getBranch().getName() : null;
+      String prKey = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getBranch().getPullRequestKey() : null;
+      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey(), branchKey, prKey);
       Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getKey, x -> x));
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
@@ -134,7 +136,7 @@ public class ValidateProjectStep implements ComputationStep {
       Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
       if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {
         validationMessages.add(format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
-          "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
           formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
       }
     }
@@ -143,7 +145,11 @@ public class ValidateProjectStep implements ComputationStep {
       ComponentDto baseComponent = baseModulesByKey.get(rawComponentKey);
       if (baseComponent == null) {
         // Load component from key to be able to detect issue (try to analyze a module, etc.)
-        return componentDao.selectByKey(session, rawComponentKey);
+        if (analysisMetadataHolder.isBranch()) {
+          return componentDao.selectByKeyAndBranch(session, rawComponentKey, analysisMetadataHolder.getBranch().getName());
+        } else {
+          return componentDao.selectByKeyAndPullRequest(session, rawComponentKey, analysisMetadataHolder.getBranch().getPullRequestKey());
+        }
       }
       return Optional.of(baseComponent);
     }

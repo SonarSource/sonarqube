@@ -243,12 +243,13 @@ public class ComponentAction implements MeasuresWsAction {
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
     Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
+    boolean isMainBranch = component.getMainBranchProjectUuid() == null;
 
     if (refComponent.isPresent()) {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(),
-        refComponent.get()), request.getBranch(), request.getPullRequest()));
+        refComponent.get()), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     } else {
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), request.getBranch(), request.getPullRequest()));
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
 
     List<String> additionalFields = request.getAdditionalFields();

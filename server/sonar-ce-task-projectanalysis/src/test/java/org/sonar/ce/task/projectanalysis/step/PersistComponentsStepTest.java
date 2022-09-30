@@ -53,7 +53,7 @@ public class PersistComponentsStepTest {
     doReturn(component).when(treeRootHolder).getRoot();
     doReturn(projectKey).when(component).getKey();
     doReturn(componentDao).when(dbClient).componentDao();
-    doReturn(emptyList()).when(componentDao).selectAllComponentsFromProjectKey(any(DbSession.class), eq(projectKey));
+    doReturn(emptyList()).when(componentDao).selectByBranchUuid(eq(projectKey), any(DbSession.class));
 
     assertThatThrownBy(() -> {
       new PersistComponentsStep(

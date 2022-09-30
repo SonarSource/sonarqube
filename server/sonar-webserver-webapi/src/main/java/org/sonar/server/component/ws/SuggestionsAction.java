@@ -89,7 +89,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private final UserSession userSession;
   private final ResourceTypes resourceTypes;
 
-  private DbClient dbClient;
+  private final DbClient dbClient;
 
   public SuggestionsAction(DbClient dbClient, ComponentIndex index, FavoriteFinder favoriteFinder, UserSession userSession, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;

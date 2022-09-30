@@ -57,7 +57,8 @@ public class ShowActionTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  private final DuplicationsParser parser = new DuplicationsParser(db.getDbClient().componentDao());
+  private final TestComponentFinder componentFinder = TestComponentFinder.from(db);
+  private final DuplicationsParser parser = new DuplicationsParser(componentFinder);
   private final ShowResponseBuilder showResponseBuilder = new ShowResponseBuilder(db.getDbClient());
   private final WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), parser, showResponseBuilder, userSessionRule,
     TestComponentFinder.from(db)));

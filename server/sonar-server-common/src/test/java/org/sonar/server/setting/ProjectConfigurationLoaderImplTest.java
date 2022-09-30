@@ -19,176 +19,92 @@
  */
 package org.sonar.server.setting;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectConfigurationLoaderImplTest {
-  private final DbClient dbClient = mock(DbClient.class);
-  private final DbSession dbSession = mock(DbSession.class);
-  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  @Rule
+  public DbTester db = DbTester.create();
+
+  private final String globalPropKey = randomAlphanumeric(9);
+  private final String globalPropValue = randomAlphanumeric(10);
+  private final String mainBranchPropKey = randomAlphanumeric(7);
+  private final String mainBranchPropValue = randomAlphanumeric(8);
+  private final String branchPropKey = randomAlphanumeric(9);
+  private final String branchPropValue = randomAlphanumeric(10);
+
+  private final String mainBranchUuid = randomAlphanumeric(6);
+  private final String branchUuid = randomAlphanumeric(6);
   private final MapSettings globalSettings = new MapSettings();
-  private final ProjectConfigurationLoaderImpl underTest = new ProjectConfigurationLoaderImpl(globalSettings, dbClient);
+  private ProjectConfigurationLoaderImpl underTest;
 
   @Before
   public void setUp() {
-    when(dbClient.openSession(anyBoolean()))
-      .thenThrow(new IllegalStateException("ProjectConfigurationLoaderImpl should not open DB session"));
-    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
-  }
-
-  @Test
-  public void returns_empty_map_when_no_component() {
-    assertThat(underTest.loadProjectConfigurations(dbSession, Collections.emptySet()))
-      .isEmpty();
-
-    verifyNoInteractions(propertiesDao);
+    underTest = new ProjectConfigurationLoaderImpl(globalSettings, db.getDbClient());
   }
 
   @Test
   public void return_configuration_with_just_global_settings_when_no_component_settings() {
-    String key = randomAlphanumeric(3);
-    String value = randomAlphanumeric(4);
-    String componentDbKey = randomAlphanumeric(5);
-    String componentUuid = randomAlphanumeric(6);
-    globalSettings.setProperty(key, value);
-    when(propertiesDao.selectProjectProperties(dbSession, componentDbKey))
-      .thenReturn(emptyList());
-    ComponentDto component = newComponentDto(componentDbKey, componentUuid);
+    globalSettings.setProperty(mainBranchPropKey, mainBranchPropValue);
+    ComponentDto component = newComponentDto(mainBranchUuid);
 
-    Map<String, Configuration> configurations = underTest.loadProjectConfigurations(dbSession, singleton(component));
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
 
-    assertThat(configurations)
-      .containsOnlyKeys(componentUuid);
-    assertThat(configurations.get(componentUuid).get(key)).contains(value);
-  }
-
-  @Test
-  public void returns_single_configuration_for_single_project_load() {
-    String key = randomAlphanumeric(3);
-    String value = randomAlphanumeric(4);
-    String componentDbKey = randomAlphanumeric(5);
-    String componentUuid = randomAlphanumeric(6);
-    globalSettings.setProperty(key, value);
-    when(propertiesDao.selectProjectProperties(dbSession, componentDbKey))
-      .thenReturn(emptyList());
-    ComponentDto component = newComponentDto(componentDbKey, componentUuid);
-
-    Configuration configuration = underTest.loadProjectConfiguration(dbSession, component);
-    assertThat(configuration.get(key)).hasValue(value);
+    assertThat(configuration.get(mainBranchPropKey)).contains(mainBranchPropValue);
   }
 
   @Test
   public void return_configuration_with_global_settings_and_component_settings() {
-    String globalKey = randomAlphanumeric(3);
-    String globalValue = randomAlphanumeric(4);
-    String componentDbKey = randomAlphanumeric(5);
-    String componentUuid = randomAlphanumeric(6);
     String projectPropKey1 = randomAlphanumeric(7);
     String projectPropValue1 = randomAlphanumeric(8);
     String projectPropKey2 = randomAlphanumeric(9);
     String projectPropValue2 = randomAlphanumeric(10);
-    globalSettings.setProperty(globalKey, globalValue);
-    when(propertiesDao.selectProjectProperties(dbSession, componentDbKey))
-      .thenReturn(ImmutableList.of(newPropertyDto(projectPropKey1, projectPropValue1), newPropertyDto(projectPropKey2, projectPropValue2)));
-    ComponentDto component = newComponentDto(componentDbKey, componentUuid);
+    globalSettings.setProperty(globalPropKey, globalPropValue);
+    db.properties().insertProperty(projectPropKey1, projectPropValue1, mainBranchUuid);
+    db.properties().insertProperty(projectPropKey2, projectPropValue2, mainBranchUuid);
+    ComponentDto component = newComponentDto(mainBranchUuid);
 
-    Map<String, Configuration> configurations = underTest.loadProjectConfigurations(dbSession, singleton(component));
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
 
-    assertThat(configurations)
-      .containsOnlyKeys(componentUuid);
-    assertThat(configurations.get(componentUuid).get(globalKey)).contains(globalValue);
-    assertThat(configurations.get(componentUuid).get(projectPropKey1)).contains(projectPropValue1);
-    assertThat(configurations.get(componentUuid).get(projectPropKey2)).contains(projectPropValue2);
+    assertThat(configuration.get(globalPropKey)).contains(globalPropValue);
+    assertThat(configuration.get(projectPropKey1)).contains(projectPropValue1);
+    assertThat(configuration.get(projectPropKey2)).contains(projectPropValue2);
   }
 
   @Test
   public void return_configuration_with_global_settings_main_branch_settings_and_branch_settings() {
-    // TODO
-    String globalKey = randomAlphanumeric(3);
-    String globalValue = randomAlphanumeric(4);
-    String mainBranchDbKey = randomAlphanumeric(5);
-    String branchDbKey = mainBranchDbKey + ComponentDto.BRANCH_KEY_SEPARATOR + randomAlphabetic(5);
-    String branchUuid = randomAlphanumeric(6);
-    String mainBranchPropKey = randomAlphanumeric(7);
-    String mainBranchPropValue = randomAlphanumeric(8);
-    String branchPropKey = randomAlphanumeric(9);
-    String branchPropValue = randomAlphanumeric(10);
-    globalSettings.setProperty(globalKey, globalValue);
-    when(propertiesDao.selectProjectProperties(dbSession, mainBranchDbKey))
-      .thenReturn(ImmutableList.of(newPropertyDto(mainBranchPropKey, mainBranchPropValue)));
-    when(propertiesDao.selectProjectProperties(dbSession, branchDbKey))
-      .thenReturn(ImmutableList.of(newPropertyDto(branchPropKey, branchPropValue)));
-    ComponentDto component = newComponentDto(branchDbKey, branchUuid);
+    globalSettings.setProperty(globalPropKey, globalPropValue);
 
-    Map<String, Configuration> configurations = underTest.loadProjectConfigurations(dbSession, singleton(component));
+    db.properties().insertProperty(mainBranchPropKey, mainBranchPropValue, mainBranchUuid);
+    db.properties().insertProperty(branchPropKey, branchPropValue, branchUuid);
 
-    assertThat(configurations)
-      .containsOnlyKeys(branchUuid);
-    assertThat(configurations.get(branchUuid).get(globalKey)).contains(globalValue);
-    assertThat(configurations.get(branchUuid).get(mainBranchPropKey)).contains(mainBranchPropValue);
-    assertThat(configurations.get(branchUuid).get(branchPropKey)).contains(branchPropValue);
+    ComponentDto component = newComponentDto(branchUuid, mainBranchUuid);
+    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), component);
+
+    assertThat(configuration.get(globalPropKey)).contains(globalPropValue);
+    assertThat(configuration.get(mainBranchPropKey)).contains(mainBranchPropValue);
+    assertThat(configuration.get(branchPropKey)).contains(branchPropValue);
   }
 
-  @Test
-  public void loads_configuration_of_any_given_component_only_once() {
-    String mainBranch1DbKey = randomAlphanumeric(4);
-    String mainBranch1Uuid = randomAlphanumeric(5);
-    String branch1DbKey = mainBranch1DbKey + ComponentDto.BRANCH_KEY_SEPARATOR + randomAlphabetic(5);
-    String branch1Uuid = randomAlphanumeric(6);
-    String branch2DbKey = mainBranch1DbKey + ComponentDto.BRANCH_KEY_SEPARATOR + randomAlphabetic(7);
-    String branch2Uuid = randomAlphanumeric(8);
-    String mainBranch2DbKey = randomAlphanumeric(14);
-    String mainBranch2Uuid = randomAlphanumeric(15);
-    String branch3DbKey = mainBranch2DbKey + ComponentDto.BRANCH_KEY_SEPARATOR + randomAlphabetic(5);
-    String branch3Uuid = randomAlphanumeric(16);
-
-    ComponentDto mainBranch1 = newComponentDto(mainBranch1DbKey, mainBranch1Uuid);
-    ComponentDto branch1 = newComponentDto(branch1DbKey, branch1Uuid);
-    ComponentDto branch2 = newComponentDto(branch2DbKey, branch2Uuid);
-    ComponentDto mainBranch2 = newComponentDto(mainBranch2DbKey, mainBranch2Uuid);
-    ComponentDto branch3 = newComponentDto(branch3DbKey, branch3Uuid);
-
-    underTest.loadProjectConfigurations(dbSession, ImmutableSet.of(mainBranch1, mainBranch2, branch1, branch2, branch3));
-
-    verify(propertiesDao, times(1)).selectProjectProperties(dbSession, mainBranch1DbKey);
-    verify(propertiesDao, times(1)).selectProjectProperties(dbSession, mainBranch2DbKey);
-    verify(propertiesDao, times(1)).selectProjectProperties(dbSession, branch1DbKey);
-    verify(propertiesDao, times(1)).selectProjectProperties(dbSession, branch2DbKey);
-    verify(propertiesDao, times(1)).selectProjectProperties(dbSession, branch3DbKey);
-    verifyNoMoreInteractions(propertiesDao);
+  private ComponentDto newComponentDto(String uuid) {
+    return newComponentDto(uuid, null);
   }
 
-  private ComponentDto newComponentDto(String componentDbKey, String componentUuid) {
-    return new ComponentDto().setKey(componentDbKey).setUuid(componentUuid);
-  }
-
-  private PropertyDto newPropertyDto(String projectKey1, String projectValue1) {
-    return new PropertyDto()
-      .setKey(projectKey1)
-      .setValue(projectValue1);
+  private ComponentDto newComponentDto(String uuid, @Nullable String mainBranchUuid) {
+    return new ComponentDto().setUuid(uuid).setBranchUuid(uuid).setMainBranchProjectUuid(mainBranchUuid);
   }
 }

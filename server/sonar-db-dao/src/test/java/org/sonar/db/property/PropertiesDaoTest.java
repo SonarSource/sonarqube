@@ -155,7 +155,7 @@ public class PropertiesDaoTest {
       user1.getLogin(), projectKey, projectName);
     // global subscription
     insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, user2.getUuid(),
-      user2.getLogin(), null,null);
+      user2.getLogin(), null, null);
 
     // Nobody is subscribed
     assertThat(underTest.hasProjectNotificationSubscribersForDispatchers(projectUuid, singletonList("NotSexyDispatcher")))
@@ -459,8 +459,8 @@ public class PropertiesDaoTest {
   @Test
   public void selectGlobalProperties() {
     // global
-    insertProperty("global.one", "one", null, null, null, null,null);
-    insertProperty("global.two", "two", null, null, null, null,null);
+    insertProperty("global.one", "one", null, null, null, null, null);
+    insertProperty("global.two", "two", null, null, null, null, null);
 
     List<PropertyDto> properties = underTest.selectGlobalProperties();
     assertThat(properties.size())
@@ -492,7 +492,7 @@ public class PropertiesDaoTest {
   @Test
   public void selectGlobalProperty() {
     // global
-    insertProperty("global.one", "one", null, null, null, null,null);
+    insertProperty("global.one", "one", null, null, null, null, null);
     insertProperty("global.two", "two", null, null, null, null, null);
     // project
     insertProperty("project.one", "one", "uuid10", null, null, "component", "component");
@@ -519,35 +519,12 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectProjectProperties() {
-    ComponentDto projectDto = insertPrivateProject("A");
-    String projectUuid = projectDto.uuid();
-    // global
-    insertProperty("global.one", "one", null, null, null, null, null);
-    insertProperty("global.two", "two", null, null, null, null, null);
-    // project
-    insertProperty("project.one", "Pone", projectUuid, null, null, projectDto.getKey(), projectDto.name());
-    insertProperty("project.two", "Ptwo", projectUuid, null, null, projectDto.getKey(), projectDto.name());
-
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getKey());
-    assertThat(dtos)
-      .hasSize(2);
-    assertThat(findByKey(dtos, "project.one"))
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getValue)
-      .containsExactly("project.one", projectUuid, "Pone");
-
-    assertThat(findByKey(dtos, "project.two"))
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getValue)
-      .containsExactly("project.two", projectUuid, "Ptwo");
-  }
-
-  @Test
   @UseDataProvider("allValuesForSelect")
   public void selectProjectProperties_supports_all_values(String dbValue, String expected) {
     ComponentDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.uuid(), null, null, projectDto.getKey(), projectDto.name());
 
-    List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.getKey());
+    List<PropertyDto> dtos = underTest.selectComponentProperties(projectDto.uuid());
     assertThat(dtos).hasSize(1);
 
     assertThat(dtos.iterator().next())
@@ -654,6 +631,8 @@ public class PropertiesDaoTest {
 
     assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet(project.uuid())))
       .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
+    assertThat(underTest.selectComponentProperties(session, (project.uuid())))
+      .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
     assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet(project.uuid(), project2.uuid())))
       .extracting("key", "componentUuid").containsOnly(
         tuple(key, project.uuid()),
@@ -671,7 +650,7 @@ public class PropertiesDaoTest {
 
     String key = "key";
     String anotherKey = "anotherKey";
-    insertProperties(null, null,null, newGlobalPropertyDto().setKey(key));
+    insertProperties(null, null, null, newGlobalPropertyDto().setKey(key));
     insertProperties(null, project.getKey(), project.name(), newComponentPropertyDto(project).setKey(key));
     insertProperties(null, project2.getKey(), project2.name(), newComponentPropertyDto(project2).setKey(key),
       newComponentPropertyDto(project2).setKey(anotherKey));
@@ -1250,7 +1229,7 @@ public class PropertiesDaoTest {
 
   @Test
   public void rename_to_same_key_has_no_effect() {
-    String uuid = insertProperty("foo", "bar", null, null, null, null,null);
+    String uuid = insertProperty("foo", "bar", null, null, null, null, null);
 
     assertThatPropertiesRowByUuid(uuid)
       .hasCreatedAt(INITIAL_DATE);

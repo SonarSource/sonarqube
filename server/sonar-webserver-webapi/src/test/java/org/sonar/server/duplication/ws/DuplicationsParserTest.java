@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -39,7 +40,7 @@ public class DuplicationsParserTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DuplicationsParser parser = new DuplicationsParser(db.getDbClient().componentDao());
+  private final DuplicationsParser parser = new DuplicationsParser(new ComponentFinder(db.getDbClient(), null));
 
   @Test
   public void empty_list_when_no_data() {

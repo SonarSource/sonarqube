@@ -217,7 +217,7 @@
       </foreach>
   </delete>
 
-  <delete id="deleteComponentsByProjectUuid" parameterType="map">
+  <delete id="deleteComponentsByBranchUuid" parameterType="map">
     delete from components
     where
       branch_uuid = #{rootUuid,jdbcType=VARCHAR}

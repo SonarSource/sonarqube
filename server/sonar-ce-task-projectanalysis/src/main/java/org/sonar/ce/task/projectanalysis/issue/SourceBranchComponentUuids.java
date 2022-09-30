@@ -30,8 +30,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
-import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
-
 /**
  * Cache a map between component keys and uuids in the source branch of a pull request
  */
@@ -79,9 +77,8 @@ public class SourceBranchComponentUuids {
   }
 
   @CheckForNull
-  public String getSourceBranchComponentUuid(String dbKey) {
+  public String getSourceBranchComponentUuid(String key) {
     lazyInit();
-    String cleanComponentKey = removeBranchAndPullRequestFromKey(dbKey);
-    return sourceBranchComponentsUuidsByKey.get(cleanComponentKey);
+    return sourceBranchComponentsUuidsByKey.get(key);
   }
 }

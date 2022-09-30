@@ -20,18 +20,12 @@
 package org.sonar.server.setting;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
-
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoader {
   private final Settings globalSettings;
@@ -43,31 +37,26 @@ public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoade
   }
 
   @Override
-  public Map<String, Configuration> loadProjectConfigurations(DbSession dbSession, Set<ComponentDto> projects) {
-    Set<String> mainBranchDbKeys = projects.stream().map(ComponentDto::getKey).collect(Collectors.toSet());
-    Map<String, ChildSettings> mainBranchSettingsByDbKey = loadMainBranchConfigurations(dbSession, mainBranchDbKeys);
-    return projects.stream()
-      .collect(uniqueIndex(ComponentDto::uuid, component -> {
-        if (component.getKey().equals(component.getKey())) {
-          return mainBranchSettingsByDbKey.get(component.getKey()).asConfiguration();
-        }
+  public Configuration loadProjectConfiguration(DbSession dbSession, ComponentDto projectOrBranch) {
+    boolean isMainBranch = projectOrBranch.getMainBranchProjectUuid() == null;
+    String mainBranchUuid = isMainBranch ? projectOrBranch.branchUuid() : projectOrBranch.getMainBranchProjectUuid();
+    ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, mainBranchUuid);
 
-        ChildSettings settings = new ChildSettings(mainBranchSettingsByDbKey.get(component.getKey()));
-        dbClient.propertiesDao()
-            .selectProjectProperties(dbSession, component.getKey())
-          .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
-        return settings.asConfiguration();
-      }));
+    if (isMainBranch) {
+      return mainBranchSettings.asConfiguration();
+    }
+
+    ChildSettings settings = new ChildSettings(mainBranchSettings);
+    dbClient.propertiesDao()
+      .selectComponentProperties(dbSession, projectOrBranch.uuid())
+      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    return settings.asConfiguration();
   }
 
-  private Map<String, ChildSettings> loadMainBranchConfigurations(DbSession dbSession, Set<String> dbKeys) {
-    return dbKeys.stream().collect(uniqueIndex(Function.identity(), dbKey -> {
-      ChildSettings settings = new ChildSettings(globalSettings);
-      List<PropertyDto> propertyDtos = dbClient.propertiesDao()
-          .selectProjectProperties(dbSession, dbKey);
-      propertyDtos
-        .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
-      return settings;
-    }));
+  private ChildSettings loadMainBranchConfiguration(DbSession dbSession, String uuid) {
+    ChildSettings settings = new ChildSettings(globalSettings);
+    List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectComponentProperties(dbSession, uuid);
+    propertyDtos.forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    return settings;
   }
 }

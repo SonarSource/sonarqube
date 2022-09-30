@@ -420,14 +420,7 @@ public class IssueQueryFactory {
   }
 
   private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch, @Nullable String pullRequest) {
-    List<ComponentDto> componentDtos;
-    if (branch != null) {
-      componentDtos = dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, branch);
-    } else if (pullRequest != null) {
-      componentDtos = dbClient.componentDao().selectByKeysAndPullRequest(dbSession, componentKeys, pullRequest);
-    } else {
-      componentDtos = dbClient.componentDao().selectByKeys(dbSession, componentKeys);
-    }
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByKeys(dbSession, componentKeys, branch, pullRequest);
     if (!componentKeys.isEmpty() && componentDtos.isEmpty()) {
       return singletonList(UNKNOWN_COMPONENT);
     }
@@ -456,12 +449,12 @@ public class IssueQueryFactory {
 
   private void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest,
     DbSession session) {
-    BranchDto branchDto = findComponentBranch(session, component);
-    String componentBranch = branchDto.isMain() ? null : branchDto.getBranchKey();
     builder.branchUuid(branch == null && pullRequest == null ? null : component.branchUuid());
-    builder.mainBranch(UNKNOWN_COMPONENT.equals(component)
-      || (branch == null && pullRequest == null)
-      || (branch != null && !branch.equals(componentBranch))
-      || (pullRequest != null && !pullRequest.equals(branchDto.getPullRequestKey())));
+    if (UNKNOWN_COMPONENT.equals(component) || (pullRequest == null && branch == null)) {
+      builder.mainBranch(true);
+    } else {
+      BranchDto branchDto = findComponentBranch(session, component);
+      builder.mainBranch(branchDto.isMain());
+    }
   }
 }

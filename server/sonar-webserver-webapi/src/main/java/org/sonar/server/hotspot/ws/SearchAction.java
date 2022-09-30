@@ -56,6 +56,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -130,9 +131,10 @@ public class SearchAction implements HotspotsWsAction {
   private final HotspotWsResponseFormatter responseFormatter;
   private final TextRangeResponseFormatter textRangeFormatter;
   private final System2 system2;
+  private final ComponentFinder componentFinder;
 
   public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2) {
+    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
@@ -140,6 +142,7 @@ public class SearchAction implements HotspotsWsAction {
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
     this.system2 = system2;
+    this.componentFinder = componentFinder;
   }
 
   private static Set<String> setFromList(@Nullable List<String> list) {
@@ -318,23 +321,18 @@ public class SearchAction implements HotspotsWsAction {
 
   private Optional<ComponentDto> getAndValidateProjectOrApplication(DbSession dbSession, WsRequest wsRequest) {
     return wsRequest.getProjectKey().map(projectKey -> {
-      ComponentDto project = getProject(dbSession, projectKey, wsRequest.getBranch().orElse(null), wsRequest.getPullRequest().orElse(null))
-        .filter(t -> Scopes.PROJECT.equals(t.scope()) && SUPPORTED_QUALIFIERS.contains(t.qualifier()))
-        .filter(ComponentDto::isEnabled)
-        .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", projectKey)));
+      ComponentDto project = getProject(dbSession, projectKey, wsRequest.getBranch().orElse(null), wsRequest.getPullRequest().orElse(null));
+      if (!Scopes.PROJECT.equals(project.scope()) || !SUPPORTED_QUALIFIERS.contains(project.qualifier()) || !project.isEnabled()) {
+        throw new NotFoundException(format("Project '%s' not found", projectKey));
+      }
       userSession.checkComponentPermission(USER, project);
       userSession.checkChildProjectsPermission(USER, project);
       return project;
     });
   }
 
-  private Optional<ComponentDto> getProject(DbSession dbSession, String projectKey, @Nullable String branch, @Nullable String pullRequest) {
-    if (branch != null) {
-      return dbClient.componentDao().selectByKeyAndBranch(dbSession, projectKey, branch);
-    } else if (pullRequest != null) {
-      return dbClient.componentDao().selectByKeyAndPullRequest(dbSession, projectKey, pullRequest);
-    }
-    return dbClient.componentDao().selectByKey(dbSession, projectKey);
+  private ComponentDto getProject(DbSession dbSession, String projectKey, @Nullable String branch, @Nullable String pullRequest) {
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
   }
 
   private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, @Nullable ComponentDto project) {
@@ -527,7 +525,7 @@ public class SearchAction implements HotspotsWsAction {
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, aggregatedComponentUuids);
       searchResponseData.addComponents(componentDtos);
 
-      Set<String> branchUuids = componentDtos.stream().map(ComponentDto::branchUuid).collect(Collectors.toSet());
+      Set<String> branchUuids = componentDtos.stream().map(c -> c.getCopyComponentUuid() != null ? c.getCopyComponentUuid() : c.branchUuid()).collect(Collectors.toSet());
       List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, branchUuids);
       searchResponseData.addBranches(branchDtos);
     }
@@ -638,7 +636,8 @@ public class SearchAction implements HotspotsWsAction {
 
     Hotspots.Component.Builder builder = Hotspots.Component.newBuilder();
     for (ComponentDto component : components) {
-      BranchDto branchDto = searchResponseData.getBranch(component.branchUuid());
+      String branchUuid = component.getCopyComponentUuid() != null ? component.getCopyComponentUuid() : component.branchUuid();
+      BranchDto branchDto = searchResponseData.getBranch(branchUuid);
       if (branchDto == null) {
         throw new IllegalStateException("Could not find a branch for a component " + component.getKey() + " with uuid " + component.uuid());
       }

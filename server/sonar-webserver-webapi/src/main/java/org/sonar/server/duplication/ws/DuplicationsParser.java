@@ -39,14 +39,15 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 
 @ServerSide
 public class DuplicationsParser {
   private static final BlockComparator BLOCK_COMPARATOR = new BlockComparator();
-  private final ComponentDao componentDao;
+  private final ComponentFinder componentFinder;
 
-  public DuplicationsParser(ComponentDao componentDao) {
-    this.componentDao = componentDao;
+  public DuplicationsParser(ComponentFinder componentFinder) {
+    this.componentFinder = componentFinder;
   }
 
   public List<Block> parse(DbSession session, ComponentDto component, @Nullable String branch, @Nullable String pullRequest, @Nullable String duplicationsData) {
@@ -113,13 +114,7 @@ public class DuplicationsParser {
 
   @CheckForNull
   private ComponentDto loadComponent(DbSession session, String componentKey, @Nullable String branch, @Nullable String pullRequest) {
-    if (branch != null) {
-      return componentDao.selectByKeyAndBranch(session, componentKey, branch).orElse(null);
-    } else if (pullRequest != null) {
-      return componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest).orElse(null);
-    } else {
-      return componentDao.selectByKey(session, componentKey).orElse(null);
-    }
+    return componentFinder.getOptionalByKeyAndOptionalBranchOrPullRequest(session, componentKey, branch, pullRequest).orElse(null);
   }
 
   private static String convertToKey(String dbKey) {

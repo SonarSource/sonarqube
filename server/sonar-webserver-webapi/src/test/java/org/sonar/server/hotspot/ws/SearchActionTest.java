@@ -57,6 +57,8 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -153,8 +155,9 @@ public class SearchActionTest {
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final ComponentFinder componentFinder = TestComponentFinder.from(dbTester);
   private final SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
-    issueIndexSyncProgressChecker, responseFormatter, new TextRangeResponseFormatter(), system2);
+    issueIndexSyncProgressChecker, responseFormatter, new TextRangeResponseFormatter(), system2, componentFinder);
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -333,7 +336,7 @@ public class SearchActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project '%s' not found", key);
+      .hasMessage("Component key '%s' not found", key);
   }
 
   @Test
@@ -638,7 +641,7 @@ public class SearchActionTest {
   @Test
   public void returns_hotspots_of_specified_application_branch() {
     ComponentDto application = dbTester.components().insertPublicApplication();
-    ComponentDto applicationBranch = dbTester.components().insertProjectBranch(application);
+    ComponentDto applicationBranch = dbTester.components().insertProjectBranch(application, b -> b.setKey("appBranch"));
     ComponentDto project1 = dbTester.components().insertPublicProject();
     ComponentDto project2 = dbTester.components().insertPublicProject();
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application));
@@ -667,7 +670,7 @@ public class SearchActionTest {
       .extracting(Component::getKey)
       .containsOnly(project1.getKey(), file1.getKey());
 
-    SearchWsResponse responseApplicationBranch = newRequest(applicationBranch)
+    SearchWsResponse responseApplicationBranch = newRequest(application, null, null, "appBranch", null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseApplicationBranch.getHotspotsList())
@@ -818,7 +821,7 @@ public class SearchActionTest {
       .collect(toList());
     indexIssues();
 
-    SearchWsResponse response = newRequest(project, null, null)
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -837,7 +840,7 @@ public class SearchActionTest {
       .collect(toList());
     indexIssues();
 
-    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, null)
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, null, null, null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -856,7 +859,7 @@ public class SearchActionTest {
       .collect(toList());
     indexIssues();
 
-    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_SAFE)
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_SAFE, null, null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -875,7 +878,7 @@ public class SearchActionTest {
       .collect(toList());
     indexIssues();
 
-    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_FIXED)
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_FIXED, null, null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -897,7 +900,7 @@ public class SearchActionTest {
     IssueDto badlyClosedHotspot = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
     indexIssues();
 
-    SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null)
+    SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null, null, null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -1136,7 +1139,7 @@ public class SearchActionTest {
     IssueDto projectHotspot = insertHotspot(pullRequest, pullRequest, rule);
     indexIssues();
 
-    SearchWsResponse response = newRequest(pullRequest, r -> r.setParam(PARAM_PULL_REQUEST, "pullRequestKey"))
+    SearchWsResponse response = newRequest(pullRequest, r -> r.setParam(PARAM_PULL_REQUEST, pullRequestKey))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -2020,21 +2023,29 @@ public class SearchActionTest {
   }
 
   private TestRequest newRequest(ComponentDto project) {
-    return newRequest(project, null, null);
+    return newRequest(project, null, null, null, null);
   }
 
   private TestRequest newRequest(ComponentDto project, Consumer<TestRequest> consumer) {
-    return newRequest(project, null, null, consumer);
+    return newRequest(project, null,
+      null, null, null, consumer);
   }
 
-  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution) {
-    return newRequest(project, status, resolution, t -> {
+  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution, @Nullable String branch, @Nullable String pullRequest) {
+    return newRequest(project, status, resolution, branch, pullRequest, t -> {
     });
   }
 
-  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution, Consumer<TestRequest> consumer) {
+  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution,
+    @Nullable String branch, @Nullable String pullRequest, Consumer<TestRequest> consumer) {
     TestRequest res = actionTester.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey());
+    if (branch != null) {
+      res.setParam(PARAM_BRANCH, branch);
+    }
+    if (pullRequest != null) {
+      res.setParam(PARAM_PULL_REQUEST, pullRequest);
+    }
     if (status != null) {
       res.setParam(PARAM_STATUS, status);
     }

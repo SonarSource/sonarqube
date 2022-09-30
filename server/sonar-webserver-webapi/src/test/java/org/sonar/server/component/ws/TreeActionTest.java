@@ -280,7 +280,7 @@ public class TreeActionTest {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey(projectBranchName));
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
-      .setKey(applicationBranch.getKey() + appBranchName + projectBranch.getKey()));
+      .setKey(applicationBranch.getKey() + project.getKey()));
     logInWithBrowsePermission(application);
 
     TreeWsResponse result = ws.newRequest()
@@ -375,19 +375,6 @@ public class TreeActionTest {
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), pullRequestId),
         tuple(file.getKey(), pullRequestId));
-  }
-
-  @Test
-  public void fail_when_using_branch_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getKey());
-    assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component key '%s' not found", branch.getKey()));
   }
 
   @Test

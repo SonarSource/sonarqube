@@ -29,18 +29,11 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 public interface ComponentMapper {
-
-  @CheckForNull
-  ComponentDto selectByKey(@Param("key") String key);
-
   @CheckForNull
   ComponentDto selectByKeyCaseInsensitive(@Param("key") String key);
 
   @CheckForNull
-  ComponentDto selectByKeyAndBranchKey(@Param("key") String key, @Param("branch") String branch);
-
-  @CheckForNull
-  ComponentDto selectByKeyAndPrKey(@Param("key") String key, @Param("pr") String pr);
+  ComponentDto selectByKeyAndBranchOrPr(@Param("key") String key, @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
 
   @CheckForNull
   ComponentDto selectByUuid(@Param("uuid") String uuid);
@@ -50,9 +43,8 @@ public interface ComponentMapper {
    */
   List<ComponentDto> selectSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
-  List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
-
-  List<ComponentDto> selectByKeysAndBranch(@Param("keys") Collection<String> keys, @Param("branch") String branch);
+  List<ComponentDto> selectByKeysAndBranchOrPr(@Param("keys") Collection<String> keys,
+    @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
 
   List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
@@ -109,12 +101,13 @@ public interface ComponentMapper {
    * @param scope scope of components to return. If null, all components are returned
    */
   List<ComponentDto> selectComponentsFromProjectKeyAndScope(@Param("projectKey") String projectKey, @Nullable @Param("scope") String scope,
-    @Param(value = "excludeDisabled") boolean excludeDisabled);
+    @Param(value = "excludeDisabled") boolean excludeDisabled, @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
 
   /**
    * Return keys and UUIDs of all components belonging to a project
    */
-  List<KeyWithUuidDto> selectUuidsByKeyFromProjectKey(@Param("projectKey") String projectKey);
+  List<KeyWithUuidDto> selectUuidsByKeyFromProjectKeyAndBranchOrPr(@Param("projectKey") String projectKey,
+    @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
 
   Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("projectUuids") Collection<String> projectUuids);
 
@@ -142,7 +135,7 @@ public interface ComponentMapper {
   void delete(String componentUuid);
 
   List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
-                                                                                                @Param("currentBranchUuid") String currentBranchUuid);
+    @Param("currentBranchUuid") String currentBranchUuid);
 
   List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(@Param("branchUuids") List<String> branchUuids);
 

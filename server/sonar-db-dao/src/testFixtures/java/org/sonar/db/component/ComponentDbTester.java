@@ -94,6 +94,11 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false);
   }
 
+  public ComponentDto insertPublicProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false, defaults(), dtoPopulator);
+  }
+
+
   public ComponentDto insertPublicProject(ComponentDto componentDto) {
     return insertComponentAndBranchAndProject(componentDto, false);
   }
