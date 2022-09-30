@@ -100,8 +100,12 @@ public class IssueSnippetsAction implements SourcesWsAction {
         Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, linesPerComponent.keySet())
           .stream().collect(Collectors.toMap(ComponentDto::uuid, c -> c));
 
+        Set<String> branchUuids = componentsByUuid.values().stream()
+          .map(ComponentDto::branchUuid)
+          .collect(Collectors.toSet());
+
         Map<String, BranchDto> branches = dbClient.branchDao()
-          .selectByUuids(dbSession, componentsByUuid.keySet())
+          .selectByUuids(dbSession, branchUuids)
           .stream()
           .collect(Collectors.toMap(BranchDto::getUuid, b -> b));
 
