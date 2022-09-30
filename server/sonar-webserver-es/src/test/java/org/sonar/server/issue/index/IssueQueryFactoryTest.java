@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -67,6 +68,8 @@ public class IssueQueryFactoryTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private final RuleDbTester ruleDbTester = new RuleDbTester(db);
   private final Clock clock = mock(Clock.class);
@@ -330,13 +333,13 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
-  public void fail_if_invalid_timezone() {
-    SearchRequest request = new SearchRequest()
-      .setTimeZone("Poitou-Charentes");
+  public void timeZone_ifZoneFromQueryIsUnknown_fallbacksToClockZone() {
+    SearchRequest request = new SearchRequest().setTimeZone("Poitou-Charentes");
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-    assertThatThrownBy(() -> underTest.create(request))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("TimeZone 'Poitou-Charentes' cannot be parsed as a valid zone ID");
+    IssueQuery issueQuery = underTest.create(request);
+    assertThat(issueQuery.timeZone()).isEqualTo(clock.getZone());
+    assertThat(logTester.logs()).containsOnly("TimeZone 'Poitou-Charentes' cannot be parsed as a valid zone ID");
   }
 
   @Test

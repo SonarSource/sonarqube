@@ -45,6 +45,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -86,6 +88,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
  */
 @ServerSide
 public class IssueQueryFactory {
+
+  private static final Logger LOGGER = Loggers.get(IssueQueryFactory.class);
 
   public static final String UNKNOWN = "<UNKNOWN>";
   public static final List<String> ISSUE_STATUSES = STATUSES.stream()
@@ -167,7 +171,8 @@ public class IssueQueryFactory {
     try {
       return Optional.of(ZoneId.of(timeZone));
     } catch (DateTimeException e) {
-      throw new IllegalArgumentException("TimeZone '" + timeZone + "' cannot be parsed as a valid zone ID");
+      LOGGER.warn("TimeZone '" + timeZone + "' cannot be parsed as a valid zone ID");
+      return Optional.empty();
     }
   }
 
