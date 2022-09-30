@@ -64,6 +64,7 @@ public class SearchRequest {
   private List<String> pciDss32;
   private List<String> pciDss40;
   private List<String> owaspTop10;
+  private List<String> owaspAsvs40;
   private List<String> owaspTop10For2021;
   private List<String> sansTop25;
   private List<String> sonarsourceSecurity;
@@ -387,6 +388,16 @@ public class SearchRequest {
 
   public SearchRequest setPciDss40(@Nullable List<String> pciDss40) {
     this.pciDss40 = pciDss40;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getOwaspAsvs40() {
+    return owaspAsvs40;
+  }
+
+  public SearchRequest setOwaspAsvs40(@Nullable List<String> owaspAsvs40) {
+    this.owaspAsvs40 = owaspAsvs40;
     return this;
   }
 

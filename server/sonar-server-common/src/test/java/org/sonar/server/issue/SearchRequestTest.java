@@ -50,6 +50,7 @@ public class SearchRequestTest {
       .setAsc(true)
       .setInNewCodePeriod(true)
       .setOwaspTop10For2021(asList("a2", "a3"))
+      .setOwaspAsvs40(asList("1.1.1", "4.2.2"))
       .setPciDss32(asList("1", "4"))
       .setPciDss40(asList("3", "5"));
 
@@ -73,6 +74,7 @@ public class SearchRequestTest {
     assertThat(underTest.getAsc()).isTrue();
     assertThat(underTest.getInNewCodePeriod()).isTrue();
     assertThat(underTest.getOwaspTop10For2021()).containsExactly("a2", "a3");
+    assertThat(underTest.getOwaspAsvs40()).containsExactly("1.1.1", "4.2.2");
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
   }

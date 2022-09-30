@@ -461,8 +461,9 @@ public class IssueIndex {
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
 
     // security category
-    addPciDssSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
-    addPciDssSecurityCategoryFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
+    addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
+    addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
+    addSecurityCategoryPrefixFilter(FIELD_ISSUE_OWASP_ASVS_40, OWASP_ASVS_40, query.owaspAsvs40(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
@@ -511,7 +512,7 @@ public class IssueIndex {
    * @param values The PCI DSS categories to search for
    * @param allFilters Object that holds all the filters for the Elastic search call
    */
-  private static void addPciDssSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
+  private static void addSecurityCategoryPrefixFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
     if (values.isEmpty()) {
       return;
     }
@@ -522,7 +523,7 @@ public class IssueIndex {
       // the field type must be vulnerability or security hotspot
       .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name()));
     // for top level categories a prefix query is added, while for subcategories a term query is used for exact matching
-    values.stream().map(v -> choosePciDssQuery(fieldName, v)).forEach(boolQueryBuilder::should);
+    values.stream().map(v -> choosePrefixQuery(fieldName, v)).forEach(boolQueryBuilder::should);
 
     allFilters.addFilter(
       fieldName,
@@ -530,7 +531,7 @@ public class IssueIndex {
       boolQueryBuilder);
   }
 
-  private static QueryBuilder choosePciDssQuery(String fieldName, String value) {
+  private static QueryBuilder choosePrefixQuery(String fieldName, String value) {
     return value.contains(".") ? createTermFilter(fieldName, value) : createPrefixFilter(fieldName, value + ".");
   }
 
@@ -626,11 +627,11 @@ public class IssueIndex {
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
     Set<TopAggregationDefinition<?>> facets = Stream.concat(
-      Stream.of(EFFORT_TOP_AGGREGATION),
-      facetNames.stream()
-        .map(FACETS_BY_NAME::get)
-        .filter(Objects::nonNull)
-        .map(Facet::getTopAggregationDef))
+        Stream.of(EFFORT_TOP_AGGREGATION),
+        facetNames.stream()
+          .map(FACETS_BY_NAME::get)
+          .filter(Objects::nonNull)
+          .map(Facet::getTopAggregationDef))
       .collect(MoreCollectors.toSet(facetNames.size()));
 
     return new RequestFiltersComputer(allFilters, facets);
@@ -835,11 +836,11 @@ public class IssueIndex {
       RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
       t ->
-      // add aggregation of type "missing" to return count of unresolved issues in the facet
-      t.subAggregation(
-        addEffortAggregationIfNeeded(query, AggregationBuilders
-          .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
-          .field(RESOLUTIONS.getFieldName()))));
+        // add aggregation of type "missing" to return count of unresolved issues in the facet
+        t.subAggregation(
+          addEffortAggregationIfNeeded(query, AggregationBuilders
+            .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
+            .field(RESOLUTIONS.getFieldName()))));
     esRequest.aggregation(aggregation);
   }
 
@@ -959,10 +960,10 @@ public class IssueIndex {
         ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
         t ->
-        // add sub-aggregation to return issue count for current user
-        aggregationHelper.getSubAggregationHelper()
-          .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
-          .ifPresent(t::subAggregation));
+          // add sub-aggregation to return issue count for current user
+          aggregationHelper.getSubAggregationHelper()
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
+            .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }
   }

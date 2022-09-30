@@ -26,6 +26,7 @@ import java.util.Map;
 import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.Facets;
@@ -188,6 +189,22 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
       newDoc("I3", file));
 
     assertThatFacetHasOnly(IssueQuery.builder(), V4_0.prefix(),
+      entry("1", 1L),
+      entry("2", 1L),
+      entry("3", 1L));
+  }
+
+  @Test
+  public void facets_on_owaspAsvs40() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1", "2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(singletonList("3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), OwaspAsvsVersion.V4_0.prefix(),
       entry("1", 1L),
       entry("2", 1L),
       entry("3", 1L));
@@ -521,8 +538,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -537,8 +554,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -555,8 +572,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+        .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -573,8 +590,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+        .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+        .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -606,7 +623,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
