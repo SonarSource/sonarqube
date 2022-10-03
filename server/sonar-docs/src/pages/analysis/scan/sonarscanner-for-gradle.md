@@ -16,7 +16,7 @@ The SonarScanner for Gradle provides an easy way to start SonarQube analysis of 
 The ability to execute the SonarQube analysis via a regular Gradle task makes it available anywhere Gradle is available (developer build, CI server, etc.), without the need to manually download, setup, and maintain a SonarQube Runner installation. The Gradle build already has much of the information needed for SonarQube to successfully analyze a project. By preconfiguring the analysis based on that information, the need for manual configuration is reduced significantly. 
 
 ## Prerequisites
-* Gradle versions 3+
+* Gradle versions 5+
 * At least the minimal version of Java supported by your SonarQube server is in use 
 
 Bytecode created by javac compilation is required for Java analysis, including Android projects.
