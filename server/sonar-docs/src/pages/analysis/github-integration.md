@@ -358,16 +358,22 @@ Starting in Developer Edition, SonarQube can provide feedback about security vul
 
 Before you can configure GitHub code scanning alerts for vulnerability issues, you must first import your GitHub repository to SonarQube as explained above.
 
-You might notice a button in the GitHub **Security** tab labeled **Add more scanning tools**. This is used to configure third-party plugins. To use code scanning alerts from SonarQube, however, you only configure permissions within GitHub and SonarQube. You do not need to add any third-party plugins. 
+Once you've enabled this feature, you must run a SonarQube analysis to see your security vulnerabilities as GitHub code scanning alerts.
 
-### Enabling code scanning alerts in your GitHub App 
+### Configuring GitHub
 
 1. Go to **Settings > Developer settings > GitHub Apps** and select your GitHub App.
 2. Go to the **General > Webhook** section and make sure the **active** checkbox is checked.
-3. Add the following Webhook URL: `https://yourinstance.sonarqube.com/api/alm_integrations/webhook_github`. Replace `yourinstance` with your SonarQube instance.
+3. Add the following Webhook URL: `https://yourinstance.sonarqube.com/api/alm_integrations/webhook_github`. Replace `yourinstance.sonarqube.com` with your SonarQube instance.
 4. Set a **Webhook secret** (see [GitHub's webhook security recommendations](https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks)).
 5. Under **Permissions & events > Repository permissions > Code scanning alerts**, set the access level to **Read and write**. When you update this permission, GitHub sends an email to the GitHub organization's administrator, asking them to validate the changes on the installation of the GitHub App.
 6. Under **Permissions & events > Subscribe to events**, check the **Code scanning alert** checkbox.
+
+### Configuring SonarQube
+
+1. In your SonarQube project, go to **Administration > DevOps Platform Integrations > GitHub**
+2. Select your GitHub App and click **edit**
+3. Enter the webhook secret defined in your GitHub App.
 
 You can now analyze a project in SonarQube and check that the detected vulnerability issues are displayed on the GitHub interface, in your repository's **Security** tab **>** **Code scanning alerts**. 
 
@@ -390,15 +396,7 @@ That change is reflected in the code scanning alerts in GitHub:
 
 ![](/images/sq-github-code-scanning-sync-2.png)
 
-To enable the syncing of status changes from GitHub to SonarQube, however, you must enter your GitHub App's webhook secret in SonarQube.
-
-### Enabling synchronized status changes in SonarQube
-
-1. In your SonarQube project, go to **Administration > DevOps Platform Integrations > GitHub**
-2. Select your GitHub App and click **edit**
-3. Enter the webhook secret defined in your GitHub App.
-
-Now if you change an issue from **Open** to **Dismiss: Won't Fix** in GitHub for example, that change is reflected in SonarQube.
+Similarly, if you change an issue from **Open** to **Dismiss: Won't Fix** in GitHub for example, that change is reflected in SonarQube.
 
 ### Correspondence of statuses
 
