@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.report;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,7 @@ import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Startable;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -68,6 +70,10 @@ public class ReportPublisher implements Startable {
   private static final String BRANCH = "branch";
   private static final String ID = "id";
 
+  @VisibleForTesting
+  static final String SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE = "You are using a 32 bits JRE. "
+    + "The support of 32 bits JRE is deprecated and a future version of the scanner will remove it completely.";
+
   private final DefaultScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final InputModuleHierarchy moduleHierarchy;
@@ -82,10 +88,13 @@ public class ReportPublisher implements Startable {
   private final Path reportDir;
   private final ScannerReportWriter writer;
   private final ScannerReportReader reader;
+  private final AnalysisWarnings analysisWarnings;
+  private final JavaArchitectureInformationProvider javaArchitectureInformationProvider;
 
   public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration,
-    CeTaskReportDataHolder ceTaskReportDataHolder) {
+    CeTaskReportDataHolder ceTaskReportDataHolder, AnalysisWarnings analysisWarnings,
+    JavaArchitectureInformationProvider javaArchitectureInformationProvider) {
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
@@ -97,6 +106,8 @@ public class ReportPublisher implements Startable {
     this.properties = properties;
     this.ceTaskReportDataHolder = ceTaskReportDataHolder;
     this.reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
+    this.analysisWarnings = analysisWarnings;
+    this.javaArchitectureInformationProvider = javaArchitectureInformationProvider;
     this.writer = new ScannerReportWriter(reportDir.toFile());
     this.reader = new ScannerReportReader(reportDir.toFile());
   }
@@ -133,6 +144,7 @@ public class ReportPublisher implements Startable {
   }
 
   public void execute() {
+    logDeprecationWarningIf32bitJava();
     File report = generateReportFile();
     if (properties.shouldKeepReport()) {
       LOG.info("Analysis report generated in " + reportDir);
@@ -145,13 +157,10 @@ public class ReportPublisher implements Startable {
     logSuccess();
   }
 
-  private void logSuccess() {
-    if (analysisMode.isMediumTest()) {
-      LOG.info("ANALYSIS SUCCESSFUL");
-    } else if (!properties.shouldWaitForQualityGate()) {
-      LOG.info("ANALYSIS SUCCESSFUL, you can find the results at: {}", ceTaskReportDataHolder.getDashboardUrl());
-      LOG.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report");
-      LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
+  private void logDeprecationWarningIf32bitJava() {
+    if (!javaArchitectureInformationProvider.is64bitJavaVersion()) {
+      analysisWarnings.addUnique(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
+      LOG.warn(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
     }
   }
 
@@ -172,6 +181,16 @@ public class ReportPublisher implements Startable {
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare analysis report", e);
+    }
+  }
+
+  private void logSuccess() {
+    if (analysisMode.isMediumTest()) {
+      LOG.info("ANALYSIS SUCCESSFUL");
+    } else if (!properties.shouldWaitForQualityGate()) {
+      LOG.info("ANALYSIS SUCCESSFUL, you can find the results at: {}", ceTaskReportDataHolder.getDashboardUrl());
+      LOG.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report");
+      LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
     }
   }
 

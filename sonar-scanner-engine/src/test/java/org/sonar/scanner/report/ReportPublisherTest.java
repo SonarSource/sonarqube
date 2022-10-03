@@ -33,6 +33,7 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.impl.utils.JUnitTempFolder;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -57,7 +58,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.scanner.report.ReportPublisher.SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE;
 import static org.sonar.scanner.scan.branch.BranchType.BRANCH;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 
@@ -79,6 +82,8 @@ public class ReportPublisherTest {
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
   private ReportPublisher underTest;
+  private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private JavaArchitectureInformationProvider javaArchitectureInformationProvider = mock(JavaArchitectureInformationProvider.class);
 
   @Before
   public void setUp() {
@@ -91,7 +96,7 @@ public class ReportPublisherTest {
       .resolve("folder")
       .resolve("report-task.txt"));
     underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
   }
 
   @Test
@@ -114,6 +119,20 @@ public class ReportPublisherTest {
     underTest.execute();
 
     verify(wsClient).call(argThat(req -> (req).getWriteTimeOutInMs().orElse(0) == 60_000));
+  }
+
+  @Test
+  public void should_not_log_success_when_should_wait_for_QG() {
+    when(properties.shouldWaitForQualityGate()).thenReturn(true);
+
+    MockWsResponse submitMockResponse = new MockWsResponse();
+    submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
+    when(wsClient.call(any())).thenReturn(submitMockResponse);
+
+    underTest.start();
+    underTest.execute();
+
+    assertThat(logTester.logs()).noneMatch(s -> s.contains("ANALYSIS SUCCESSFUL"));
   }
 
   @Test
@@ -174,7 +193,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.branchType()).thenReturn(BRANCH);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -195,7 +214,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.pullRequestKey()).thenReturn("105");
 
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -357,6 +376,29 @@ public class ReportPublisherTest {
     assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("org.sonarsource.sonarqube:sonarqube");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
       .containsExactlyInAnyOrder("pullRequest=" + pullRequestId);
+  }
+
+  @Test
+  public void test_do_not_log_or_add_warning_if_using_64bit_jre() {
+    when(javaArchitectureInformationProvider.is64bitJavaVersion()).thenReturn(true);
+    when(mode.isMediumTest()).thenReturn(true);
+    underTest.start();
+    underTest.execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+
+    verifyNoInteractions(analysisWarnings);
+  }
+
+  @Test
+  public void test_log_and_add_warning_if_using_non64bit_jre() {
+    when(javaArchitectureInformationProvider.is64bitJavaVersion()).thenReturn(false);
+    when(mode.isMediumTest()).thenReturn(true);
+    underTest.start();
+    underTest.execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
+    verify(analysisWarnings).addUnique(SUPPORT_OF_32_BIT_JRE_IS_DEPRECATED_MESSAGE);
   }
 
 }

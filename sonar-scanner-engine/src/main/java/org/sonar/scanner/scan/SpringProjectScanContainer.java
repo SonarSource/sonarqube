@@ -88,6 +88,7 @@ import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
+import org.sonar.scanner.report.JavaArchitectureInformationProvider;
 import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
@@ -239,6 +240,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       // Report
       ReferenceBranchSupplier.class,
       ScannerMetrics.class,
+      JavaArchitectureInformationProvider.class,
       ReportPublisher.class,
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
