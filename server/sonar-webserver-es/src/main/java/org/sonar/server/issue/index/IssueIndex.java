@@ -68,7 +68,7 @@ import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import org.sonar.api.utils.DateUtils;
@@ -91,7 +91,6 @@ import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
-import org.sonar.server.security.SecurityStandards.OwaspAsvs;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
@@ -179,6 +178,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_CWE_TOP_25;
+import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
@@ -507,9 +507,9 @@ public class IssueIndex {
    *   </ul>
    * </p>
    *
-   * @param fieldName The PCI DSS version, e.g. pciDss-3.2
-   * @param facet The facet used for the filter
-   * @param values The PCI DSS categories to search for
+   * @param fieldName  The PCI DSS version, e.g. pciDss-3.2
+   * @param facet      The facet used for the filter
+   * @param values     The PCI DSS categories to search for
    * @param allFilters Object that holds all the filters for the Elastic search call
    */
   private static void addSecurityCategoryPrefixFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
@@ -627,11 +627,11 @@ public class IssueIndex {
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
     Set<TopAggregationDefinition<?>> facets = Stream.concat(
-        Stream.of(EFFORT_TOP_AGGREGATION),
-        facetNames.stream()
-          .map(FACETS_BY_NAME::get)
-          .filter(Objects::nonNull)
-          .map(Facet::getTopAggregationDef))
+      Stream.of(EFFORT_TOP_AGGREGATION),
+      facetNames.stream()
+        .map(FACETS_BY_NAME::get)
+        .filter(Objects::nonNull)
+        .map(Facet::getTopAggregationDef))
       .collect(MoreCollectors.toSet(facetNames.size()));
 
     return new RequestFiltersComputer(allFilters, facets);
@@ -836,11 +836,11 @@ public class IssueIndex {
       RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
       t ->
-        // add aggregation of type "missing" to return count of unresolved issues in the facet
-        t.subAggregation(
-          addEffortAggregationIfNeeded(query, AggregationBuilders
-            .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
-            .field(RESOLUTIONS.getFieldName()))));
+      // add aggregation of type "missing" to return count of unresolved issues in the facet
+      t.subAggregation(
+        addEffortAggregationIfNeeded(query, AggregationBuilders
+          .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
+          .field(RESOLUTIONS.getFieldName()))));
     esRequest.aggregation(aggregation);
   }
 
@@ -960,10 +960,10 @@ public class IssueIndex {
         ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
         t ->
-          // add sub-aggregation to return issue count for current user
-          aggregationHelper.getSubAggregationHelper()
-            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
-            .ifPresent(t::subAggregation));
+        // add sub-aggregation to return issue count for current user
+        aggregationHelper.getSubAggregationHelper()
+          .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
+          .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }
   }
@@ -1159,16 +1159,19 @@ public class IssueIndex {
       .forEach(pciDss -> request.aggregation(
         newSecurityReportSubAggregations(
           AggregationBuilders.filter(pciDss.category(), boolQuery().filter(prefixQuery(version.prefix(), pciDss.category() + "."))), version.prefix())));
-    return searchWithDistribution(request, version.label());
+    return searchWithDistribution(request, version.label(), null);
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReport(String projectUuid, boolean isViewOrApp, OwaspAsvsVersion version) {
+  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReport(String projectUuid, boolean isViewOrApp, RulesDefinition.OwaspAsvsVersion version, Integer level) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    Arrays.stream(OwaspAsvs.values())
+    Arrays.stream(SecurityStandards.OwaspAsvs.values())
       .forEach(owaspAsvs -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(owaspAsvs.category(), boolQuery().filter(prefixQuery(version.prefix(), owaspAsvs.category() + "."))), version.prefix())));
-    return searchWithDistribution(request, version.label());
+          AggregationBuilders.filter(
+            owaspAsvs.category(),
+            boolQuery().filter(termsQuery(version.prefix(), SecurityStandards.getRequirementsForCategoryAndLevel(owaspAsvs, level)))),
+          version.prefix())));
+    return searchWithDistribution(request, version.label(), level);
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
@@ -1182,12 +1185,12 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
-  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version) {
+  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable Integer level) {
     SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
       .source(sourceBuilder);
     SearchResponse response = client.search(request);
     return response.getAggregations().asList().stream()
-      .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version))
+      .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
       .collect(MoreCollectors.toList());
   }
 
@@ -1200,10 +1203,13 @@ public class IssueIndex {
       .collect(MoreCollectors.toList());
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, String version) {
-    Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
-    var children = stream.filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
-      .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null)).collect(toList());
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, String version, @Nullable Integer level) {
+    var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
+    List<SecurityStandardCategoryStatistics> children = list.stream()
+      .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
+      .filter(categoryBucket -> level == null || OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).contains(categoryBucket.getKeyAsString()))
+      .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
+      .collect(toList());
 
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }

@@ -24,7 +24,6 @@ import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -123,8 +122,6 @@ public final class SecurityStandards {
     1, OWASP_ASVS_40_LEVEL_1,
     2, OWASP_ASVS_40_LEVEL_2,
     3, OWASP_ASVS_40_LEVEL_3);
-
-  public static final Map<String, Integer> OWASP_ASVS_40_LEVEL_BY_REQUIREMENT = Collections.unmodifiableMap(getLevelByRequirementMap());
 
   public static final Map<OwaspAsvsVersion, Map<Integer, List<String>>> OWASP_ASVS_REQUIREMENTS_BY_LEVEL = Map.of(
     OwaspAsvsVersion.V4_0, OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL);
@@ -333,12 +330,10 @@ public final class SecurityStandards {
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
-  private static Map<String, Integer> getLevelByRequirementMap() {
-    Map<String, Integer> levelByRequirement = new HashMap<>();
-    OWASP_ASVS_40_LEVEL_3.forEach(req -> levelByRequirement.put(req, 3));
-    OWASP_ASVS_40_LEVEL_2.forEach(req -> levelByRequirement.put(req, 2));
-    OWASP_ASVS_40_LEVEL_1.forEach(req -> levelByRequirement.put(req, 1));
-    return levelByRequirement;
+  public static Set<String> getRequirementsForCategoryAndLevel(OwaspAsvs category, int level) {
+    return OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).stream()
+      .filter(req -> req.startsWith(category.category() + "."))
+      .collect(Collectors.toSet());
   }
 
   private static Set<String> getMatchingStandards(Set<String> securityStandards, String prefix) {

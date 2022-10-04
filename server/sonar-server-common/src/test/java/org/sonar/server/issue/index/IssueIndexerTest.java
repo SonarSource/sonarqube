@@ -138,7 +138,7 @@ public class IssueIndexerTest {
 
   @Test
   public void verify_security_standards_indexation() {
-    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863"))));
+    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863","owaspAsvs-4.0:2.1.1"))));
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
@@ -149,6 +149,7 @@ public class IssueIndexerTest {
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getCwe()).containsExactlyInAnyOrder("123", "863");
     assertThat(doc.getOwaspTop10()).containsExactlyInAnyOrder("a3");
+    assertThat(doc.getOwaspAsvs40()).containsExactlyInAnyOrder("2.1.1");
     assertThat(doc.getSansTop25()).containsExactlyInAnyOrder(SANS_TOP_25_POROUS_DEFENSES);
   }
 

@@ -37,6 +37,7 @@ public class SecurityStandardCategoryStatistics {
   private long totalRules;
   private boolean hasMoreRules;
   private final Optional<String> version;
+  private Optional<String> level = Optional.empty();
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots,
     long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
@@ -94,6 +95,15 @@ public class SecurityStandardCategoryStatistics {
 
   public Optional<String> getVersion() {
     return version;
+  }
+
+  public Optional<String> getLevel() {
+    return level;
+  }
+
+  public SecurityStandardCategoryStatistics setLevel(String level) {
+    this.level = Optional.of(level);
+    return this;
   }
 
   public SecurityStandardCategoryStatistics setTotalRules(long totalRules) {

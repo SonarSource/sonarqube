@@ -37,10 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
-import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_40_LEVEL_BY_REQUIREMENT;
 import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_REQUIREMENTS_BY_LEVEL;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
+import static org.sonar.server.security.SecurityStandards.getRequirementsForCategoryAndLevel;
 
 public class SecurityStandardsTest {
   @Test
@@ -151,14 +151,20 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void owaspAsvs40_level_by_requirements_check() {
-    assertEquals(286, OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.keySet().size());
-    assertEquals(Integer.valueOf(1), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("2.1.1"));
-    assertEquals(Integer.valueOf(1), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.5.3"));
-    assertEquals(Integer.valueOf(2), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("1.1.1"));
-    assertEquals(Integer.valueOf(2), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.5.4"));
-    assertEquals(Integer.valueOf(3), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("1.11.3"));
-    assertEquals(Integer.valueOf(3), OWASP_ASVS_40_LEVEL_BY_REQUIREMENT.get("14.1.5"));
+  public void owaspAsvs40_requirements_by_category_and_level_check() {
+    assertEquals(0, getRequirementsForCategoryAndLevel(OwaspAsvs.C1, 1).size());
+    assertEquals(31, getRequirementsForCategoryAndLevel(OwaspAsvs.C2, 1).size());
+    assertEquals(12, getRequirementsForCategoryAndLevel(OwaspAsvs.C3, 1).size());
+    assertEquals(9, getRequirementsForCategoryAndLevel(OwaspAsvs.C4, 1).size());
+    assertEquals(27, getRequirementsForCategoryAndLevel(OwaspAsvs.C5, 1).size());
+    assertEquals(1, getRequirementsForCategoryAndLevel(OwaspAsvs.C6, 1).size());
+    assertEquals(3, getRequirementsForCategoryAndLevel(OwaspAsvs.C7, 1).size());
+    assertEquals(7, getRequirementsForCategoryAndLevel(OwaspAsvs.C8, 1).size());
+    assertEquals(3, getRequirementsForCategoryAndLevel(OwaspAsvs.C9, 1).size());
+    assertEquals(3, getRequirementsForCategoryAndLevel(OwaspAsvs.C10, 1).size());
+    assertEquals(5, getRequirementsForCategoryAndLevel(OwaspAsvs.C11, 1).size());
+    assertEquals(11, getRequirementsForCategoryAndLevel(OwaspAsvs.C12, 1).size());
+    assertEquals(7, getRequirementsForCategoryAndLevel(OwaspAsvs.C13, 1).size());
+    assertEquals(16, getRequirementsForCategoryAndLevel(OwaspAsvs.C14, 1).size());
   }
-
 }

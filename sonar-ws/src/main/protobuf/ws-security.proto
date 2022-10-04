@@ -43,6 +43,7 @@ message SecurityStandardCategoryStatistics {
   optional int64 totalRules = 10;
   optional bool hasMoreRules = 11;
   optional string version = 12;
+  optional string level = 13;
 }
 
 message CweStatistics {

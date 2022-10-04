@@ -51,7 +51,7 @@ public class SecurityStandardCategoryStatisticsTest {
     SecurityStandardCategoryStatistics standardCategoryStatistics = new SecurityStandardCategoryStatistics(
       "cat", 1, empty(), 0,
       0, 5, new ArrayList<>(), "version"
-    );
+    ).setLevel("1");
 
     standardCategoryStatistics.setActiveRules(3);
     standardCategoryStatistics.setTotalRules(3);
@@ -67,6 +67,7 @@ public class SecurityStandardCategoryStatisticsTest {
     assertThat(standardCategoryStatistics.getTotalRules()).isEqualTo(3);
     assertThat(standardCategoryStatistics.getVersion()).isPresent();
     assertThat(standardCategoryStatistics.getVersion().get()).contains("version");
+    assertThat(standardCategoryStatistics.getLevel().get()).contains("1");
     assertThat(standardCategoryStatistics.hasMoreRules()).isFalse();
   }
 
