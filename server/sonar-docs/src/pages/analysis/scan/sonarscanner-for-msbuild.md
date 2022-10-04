@@ -23,7 +23,7 @@ title: SonarScanner for .NET
 
 [[info]]
 | Since version 5.0, the SonarScanner for MSBuild is now the SonarScanner for .NET. 
-| documentation is updated with that new name, artifacts and links will remain with the old name for now.
+| The documentation is updated with that new name, artifacts and links will remain with the old name for now.
 
 The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](https://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
 
@@ -61,7 +61,7 @@ It supports .Net Core on every platform (Windows, macOS, Linux).
   * On Linux/OSX you may need to set execute permissions on the files in `$install_directory/sonar-scanner-(version)/bin`.
 
 * Uncomment, and update the global settings to point to <!-- sonarqube -->your SonarQube server<!-- /sonarqube --><!-- sonarcloud -->SonarCloud<!-- /sonarcloud --> by editing `$install_directory/SonarQube.Analysis.xml`. Values set in this file will be applied to all analyses of all projects unless overwritten locally.  
-Consider setting file system permissions to restrict access to this file.:
+Consider setting file system permissions to restrict access to this file.
 
 ```xml
 <SonarQubeAnalysisProperties  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
@@ -78,9 +78,9 @@ Consider setting file system permissions to restrict access to this file.:
 dotnet tool install --global dotnet-sonarscanner --version x.x.x
 ```
 
-The _--version_ argument is optional. If it is omitted the latest version will be installed. Full list of releases is available on the [NuGet page](https://www.nuget.org/packages/dotnet-sonarscanner)
+The _--version_ argument is optional. If it is omitted the latest version will be installed. The full list of releases is available on the [NuGet page](https://www.nuget.org/packages/dotnet-sonarscanner).
 
-.NET Core Global Tool is available from .NET Core 2.1+
+.NET Core Global Tool is available from .NET Core 2.1+.
 
 <!-- sonarqube -->
 ### On Linux/OSX, if your SonarQube server is secured
@@ -102,9 +102,9 @@ There are two versions of the SonarScanner for .NET. In the following commands, 
 The first version is based on the "classic" .NET Framework. To use it, execute the following commands from the root folder of your project:
 
 ```
-SonarScanner.MSBuild.exe begin /k:"project-key" <!-- sonarcloud -->/o:"<organization>" <!-- /sonarcloud -->/d:sonar.login="<token>"
+SonarScanner.MSBuild.exe begin /k:"project-key" <!-- sonarcloud -->/o:"<organization>" <!-- /sonarcloud -->/d:sonar.login="myAuthenticationToken"
 MSBuild.exe <path to solution.sln> /t:Rebuild
-SonarScanner.MSBuild.exe end /d:sonar.login="<token>"
+SonarScanner.MSBuild.exe end /d:sonar.login="myAuthenticationToken"
 ```
 
 Note: On macOS or Linux, you can also use `mono <path to SonarScanner.MSBuild.exe>`.
