@@ -23,14 +23,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +53,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.not;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
@@ -198,13 +200,13 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       .map(RuleKey::toString)
       .collect(Collectors.toSet());
 
-    Map<String, String> projectKeyAndUuids = getProjectKeyAndUuids(profiles);
-
     if (activatedRules.isEmpty() && deactivatedRules.isEmpty()) {
       return;
     }
 
-    for (Map.Entry<String, String> entry : projectKeyAndUuids.entrySet()) {
+    Map<String, String> projectsUuidByKey = getProjectsUuidByKey(profiles, language);
+
+    for (Map.Entry<String, String> entry : projectsUuidByKey.entrySet()) {
       persistPushEvent(entry.getKey(), activatedRules.toArray(new RuleChange[0]), deactivatedRules, language, entry.getValue());
     }
   }
@@ -238,18 +240,65 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     return Optional.empty();
   }
 
-  private Map<String, String> getProjectKeyAndUuids(Collection<QProfileDto> profiles) {
-    Map<String, String> projectKeyAndUuids = new HashMap<>();
+  private Map<String, String> getProjectsUuidByKey(Collection<QProfileDto> profiles, String language) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      for (QProfileDto profileDto : profiles) {
-        List<ProjectQprofileAssociationDto> associationDtos = dbClient.qualityProfileDao().selectSelectedProjects(dbSession, profileDto, null);
-        for (ProjectQprofileAssociationDto associationDto : associationDtos) {
-          projectKeyAndUuids.put(associationDto.getProjectKey(), associationDto.getProjectUuid());
-        }
-      }
-      return projectKeyAndUuids;
+      Map<Boolean, List<QProfileDto>> profilesByDefaultStatus = classifyQualityProfilesByDefaultStatus(dbSession, profiles, language);
+
+      List<ProjectDto> defaultAssociatedProjects = getDefaultAssociatedQualityProfileProjects(dbSession, profilesByDefaultStatus.get(true), language);
+      List<ProjectDto> manuallyAssociatedProjects = getManuallyAssociatedQualityProfileProjects(dbSession, profilesByDefaultStatus.get(false));
+
+      return Stream
+        .concat(manuallyAssociatedProjects.stream(), defaultAssociatedProjects.stream())
+        .collect(Collectors.toMap(ProjectDto::getKey, ProjectDto::getUuid));
     }
   }
+
+  private Map<Boolean, List<QProfileDto>> classifyQualityProfilesByDefaultStatus(DbSession dbSession, Collection<QProfileDto> profiles, String language) {
+    String defaultQualityProfileUuid = dbClient.qualityProfileDao().selectDefaultProfileUuid(dbSession, language);
+    Predicate<QProfileDto> isDefaultQualityProfile = profile -> profile.getKee().equals(defaultQualityProfileUuid);
+
+    return profiles
+      .stream()
+      .collect(Collectors.partitioningBy(isDefaultQualityProfile));
+  }
+
+  private List<ProjectDto> getDefaultAssociatedQualityProfileProjects(DbSession dbSession, List<QProfileDto> defaultProfiles, String language) {
+    if (defaultProfiles.isEmpty()) {
+      return emptyList();
+    }
+
+    return getDefaultQualityProfileAssociatedProjects(dbSession, language);
+  }
+
+  private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
+    Set<String> associatedProjectUuids = dbClient.projectDao().selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(dbSession, language);
+    return dbClient.projectDao().selectByUuids(dbSession, associatedProjectUuids);
+  }
+
+  private List<ProjectDto> getManuallyAssociatedQualityProfileProjects(DbSession dbSession, List<QProfileDto> profiles) {
+    return profiles
+      .stream()
+      .map(profile -> getQualityProfileAssociatedProjects(dbSession, profile))
+      .flatMap(Collection::stream)
+      .collect(Collectors.toList());
+  }
+
+  private List<ProjectDto> getQualityProfileAssociatedProjects(DbSession dbSession, QProfileDto profile) {
+    Set<String> projectUuids = getQualityProfileAssociatedProjectUuids(dbSession, profile);
+    return dbClient.projectDao().selectByUuids(dbSession, projectUuids);
+  }
+
+  private Set<String> getQualityProfileAssociatedProjectUuids(DbSession dbSession, QProfileDto profile) {
+    List<ProjectQprofileAssociationDto> associations = dbClient.qualityProfileDao().selectSelectedProjects(dbSession, profile, null);
+
+    return associations
+      .stream()
+      .map(ProjectQprofileAssociationDto::getProjectUuid)
+      .collect(Collectors.toSet());
+  }
+
+
+
 
   private static byte[] serializeIssueToPushEvent(RuleSetChangedEvent event) {
     return GSON.toJson(event).getBytes(UTF_8);

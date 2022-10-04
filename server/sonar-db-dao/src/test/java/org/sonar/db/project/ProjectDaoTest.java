@@ -21,11 +21,13 @@ package org.sonar.db.project;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
@@ -38,7 +40,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,6 +53,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 public class ProjectDaoTest {
 
@@ -255,6 +264,61 @@ public class ProjectDaoTest {
     projectDaoWithAuditPersister.update(db.getSession(), dto1);
 
     verify(auditPersister, times(1)).updateComponent(any(), any());
+  }
+
+  @Test
+  public void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
+    String language = "xoo";
+    Set<ComponentDto> projects = insertProjects(nextInt(10));
+    insertDefaultQualityProfile(language);
+    insertProjectsLiveMeasures(language, projects);
+
+    Set<String> projectUuids = projectDao.selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(db.getSession(), language);
+
+    assertThat(projectUuids)
+      .containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
+  }
+
+  private void insertDefaultQualityProfile(String language) {
+    QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage(language));
+    db.qualityProfiles().setAsDefault(profile);
+  }
+
+  private static Set<String> extractComponentUuids(Collection<ComponentDto> components) {
+    return components
+      .stream()
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toSet());
+  }
+
+  private Set<ComponentDto> insertProjects(int number) {
+    return IntStream
+      .rangeClosed(0, number)
+      .mapToObj(x -> db.components().insertPrivateProject())
+      .collect(Collectors.toSet());
+  }
+
+  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ComponentDto project) {
+    return liveMeasure -> liveMeasure
+      .setMetricUuid(metric.getUuid())
+      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.uuid())
+      .setData(language + "=" + nextInt(10));
+  }
+
+  private Consumer<ComponentDto> insertLiveMeasure(String language, MetricDto metric) {
+    return project -> db.measures().insertLiveMeasure(project, metric, configureLiveMeasure(language, metric, project));
+  }
+
+  private void insertProjectsLiveMeasures(String language, Set<ComponentDto> projects) {
+    Consumer<MetricDto> configureMetric = metric -> metric
+      .setValueType(STRING.name())
+      .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+
+    MetricDto metric = db.measures().insertMetric(configureMetric);
+
+    projects
+      .forEach(insertLiveMeasure(language, metric));
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

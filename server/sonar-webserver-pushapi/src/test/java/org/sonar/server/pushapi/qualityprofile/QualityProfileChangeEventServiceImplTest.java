@@ -23,11 +23,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -41,7 +46,10 @@ import org.sonarqube.ws.Common;
 
 import static java.util.List.of;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -67,10 +75,7 @@ public class QualityProfileChangeEventServiceImplTest {
       .setDescriptionFormat(RuleDto.Format.MARKDOWN);
     db.rules().insert(rule1);
 
-    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(qualityProfileDto, rule1);
-
-    ActiveRuleChange activeRuleChange = new ActiveRuleChange(ACTIVATED, activeRuleDto, rule1);
-    activeRuleChange.setParameter("paramChangeKey", "paramChangeValue");
+    ActiveRuleChange activeRuleChange = changeActiveRule(qualityProfileDto, rule1, "paramChangeKey", "paramChangeValue");
 
     Collection<QProfileDto> profiles = Collections.singleton(qualityProfileDto);
 
@@ -79,8 +84,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.distributeRuleChangeEvent(profiles, of(activeRuleChange), "xoo");
 
-    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
-      .selectChunkByProjectUuids(db.getSession(), Set.of(project.getUuid()), 1l, null, 1);
+    Deque<PushEventDto> events = getProjectEvents(project.getUuid());
 
     assertThat(events).isNotEmpty().hasSize(1);
     assertThat(events.getFirst())
@@ -95,6 +99,80 @@ public class QualityProfileChangeEventServiceImplTest {
         "\"templateKey\":\"xoo:template-key\"," +
         "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]}]," +
         "\"deactivatedRules\":[]");
+  }
+
+  @Test
+  public void distributeRuleChangeEvent_when_project_has_only_default_quality_profiles() {
+    String language = "xoo";
+    ComponentDto project = db.components().insertPrivateProject();
+    RuleDto templateRule = insertTemplateRule();
+    QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
+    RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
+    ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue");
+    insertQualityProfileLiveMeasure(project, language, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+
+    db.getSession().commit();
+
+    underTest.distributeRuleChangeEvent(List.of(defaultQualityProfile), of(activeRuleChange), language);
+
+    Deque<PushEventDto> events = getProjectEvents(project.projectUuid());
+
+    assertThat(events)
+      .hasSize(1);
+
+    assertThat(events.getFirst())
+      .extracting(PushEventDto::getName, PushEventDto::getLanguage)
+      .contains("RuleSetChanged", "xoo");
+
+    String ruleSetChangedEvent = new String(events.getFirst().getPayload(), StandardCharsets.UTF_8);
+
+    assertThat(ruleSetChangedEvent)
+      .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]}]," +
+        "\"deactivatedRules\":[]");
+  }
+
+  private Deque<PushEventDto> getProjectEvents(String projectUuid) {
+    return db.getDbClient()
+      .pushEventDao()
+      .selectChunkByProjectUuids(db.getSession(), Set.of(projectUuid), 1L, null, 1);
+  }
+
+  private ActiveRuleChange changeActiveRule(QProfileDto defaultQualityProfile, RuleDto rule, String changeKey, String changeValue) {
+    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(defaultQualityProfile, rule);
+    ActiveRuleChange activeRuleChange = new ActiveRuleChange(ACTIVATED, activeRuleDto, rule);
+    return activeRuleChange.setParameter(changeKey, changeValue);
+  }
+
+  private RuleDto insertCustomRule(RuleDto templateRule, String language, String description) {
+    RuleDto rule = newCustomRule(templateRule, description)
+      .setLanguage(language)
+      .setRepositoryKey("repo")
+      .setRuleKey("ruleKey")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN);
+
+    db.rules().insert(rule);
+    return rule;
+  }
+
+  private QProfileDto insertDefaultQualityProfile(String language) {
+    Consumer<QProfileDto> configureQualityProfile = profile -> profile
+      .setIsBuiltIn(true)
+      .setLanguage(language);
+
+    QProfileDto defaultQualityProfile = db.qualityProfiles().insert(configureQualityProfile);
+    db.qualityProfiles().setAsDefault(defaultQualityProfile);
+
+    return defaultQualityProfile;
+  }
+
+  private RuleDto insertTemplateRule() {
+    RuleKey key = RuleKey.of("xoo", "template-key");
+    RuleDto templateRule = newTemplateRule(key);
+    db.rules().insert(templateRule);
+    return templateRule;
   }
 
   @Test
@@ -123,8 +201,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.publishRuleActivationToSonarLintClients(projectDao, activatedQualityProfile, deactivatedQualityProfile);
 
-    Deque<PushEventDto> events = db.getDbClient().pushEventDao()
-      .selectChunkByProjectUuids(db.getSession(), Set.of(projectDao.getUuid()), 1l, null, 1);
+    Deque<PushEventDto> events = getProjectEvents(projectDao.getUuid());
 
     assertThat(events).isNotEmpty().hasSize(1);
     assertThat(events.getFirst())
@@ -140,4 +217,24 @@ public class QualityProfileChangeEventServiceImplTest {
         "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
   }
 
+  private void insertQualityProfileLiveMeasure(ComponentDto project, String language, String metricKey) {
+    MetricDto metric = insertMetric(metricKey);
+
+    Consumer<LiveMeasureDto> configureLiveMeasure = liveMeasure -> liveMeasure
+      .setMetricUuid(metric.getUuid())
+      .setComponentUuid(project.uuid())
+      .setProjectUuid(project.uuid())
+      .setData(language + "=" + nextInt(10));
+
+    db.measures().insertLiveMeasure(project, metric, configureLiveMeasure);
+  }
+
+  private MetricDto insertMetric(String metricKey) {
+    Consumer<MetricDto> configureMetric = metric -> metric
+      .setUuid("uuid")
+      .setValueType(STRING.name())
+      .setKey(metricKey);
+
+    return db.measures().insertMetric(configureMetric);
+  }
 }

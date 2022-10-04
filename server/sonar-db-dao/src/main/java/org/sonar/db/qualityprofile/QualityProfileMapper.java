@@ -58,6 +58,9 @@ public interface QualityProfileMapper {
     @Param("languages") Collection<String> languages);
 
   @CheckForNull
+  String selectDefaultProfileUuid(@Param("language") String language);
+
+  @CheckForNull
   QProfileDto selectByNameAndLanguage(
     @Param("name") String name,
     @Param("language") String language);

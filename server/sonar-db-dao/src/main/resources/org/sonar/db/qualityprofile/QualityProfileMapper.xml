@@ -139,6 +139,12 @@
       and rp.language = dp.language
   </select>
 
+  <select id="selectDefaultProfileUuid" parameterType="string" resultType="string">
+    select dp.qprofile_uuid as kee
+    from default_qprofiles dp
+    where dp.language = #{language, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectDefaultBuiltInProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     SELECT
     <include refid="qProfileColumns"/>
@@ -402,4 +408,3 @@
     rp.uuid= #{rulesProfileUuid, jdbcType=VARCHAR}
   </select>
 </mapper>
-

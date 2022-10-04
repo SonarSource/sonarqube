@@ -155,6 +155,11 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
+  public String selectDefaultProfileUuid(DbSession dbSession, String language) {
+    return mapper(dbSession).selectDefaultProfileUuid(language);
+  }
+
+  @CheckForNull
   public QProfileDto selectAssociatedToProjectAndLanguage(DbSession dbSession, ProjectDto project, String language) {
     return mapper(dbSession).selectAssociatedToProjectUuidAndLanguage(project.getUuid(), language);
   }

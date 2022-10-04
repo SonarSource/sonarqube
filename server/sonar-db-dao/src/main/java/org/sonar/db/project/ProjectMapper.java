@@ -21,6 +21,7 @@ package org.sonar.db.project;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
@@ -61,4 +62,6 @@ public interface ProjectMapper {
   List<ProjectDto> selectApplicationsByKeys(@Param("kees") Collection<String> kees);
 
   List<String> selectAllProjectUuids();
+
+  Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(@Param("languageFilters") Set<String> languageFilters);
 }

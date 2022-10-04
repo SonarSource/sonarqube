@@ -343,6 +343,14 @@ public class QualityProfileDaoTest {
   }
 
   @Test
+  public void selectDefaultProfileUuid() {
+    createSharedData();
+
+    assertThat(underTest.selectDefaultProfileUuid(dbSession, "java")).isEqualTo("java_sonar_way");
+    assertThat(underTest.selectDefaultProfileUuid(dbSession, "js")).isNull();
+  }
+
+  @Test
   public void selectDefaultProfiles() {
     createSharedData();
 
