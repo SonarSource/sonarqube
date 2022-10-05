@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -78,6 +79,23 @@ public class ValidationInitActionTest {
     verify(samlAuthenticator).initLogin(matches(callbackUrl),
       matches(ValidationInitAction.VALIDATION_RELAY_STATE),
       any(), any());
+  }
+
+  @Test
+  public void do_filter_as_admin_with_init_issues() throws IOException, ServletException {
+    userSession.logIn().setSystemAdministrator();
+    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    FilterChain filterChain = mock(FilterChain.class);
+    String callbackUrl = "http://localhost:9000/api/validation_test";
+    when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
+      .thenReturn(callbackUrl);
+
+    doThrow(new IllegalStateException()).when(samlAuthenticator).initLogin(any(), any(), any(), any());
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verify(servletResponse).sendRedirect("/saml/validation");
   }
 
   @Test

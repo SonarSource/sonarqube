@@ -36,6 +36,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
+import static org.sonar.server.authentication.SamlValidationRedirectionFilter.SAML_VALIDATION_CONTROLLER_CONTEXT;
+import static org.sonar.server.authentication.SamlValidationRedirectionFilter.SAML_VALIDATION_KEY;
+
 public class ValidationInitAction extends ServletFilter implements SamlAction {
 
   public static final String VALIDATION_RELAY_STATE = "validation-query";
@@ -79,7 +82,11 @@ public class ValidationInitAction extends ServletFilter implements SamlAction {
       return;
     }
 
-    samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),
-      VALIDATION_RELAY_STATE, request, response);
+    try {
+      samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),
+        VALIDATION_RELAY_STATE, request, response);
+    } catch (IllegalStateException e) {
+      response.sendRedirect("/" + SAML_VALIDATION_CONTROLLER_CONTEXT + "/" + SAML_VALIDATION_KEY);
+    }
   }
 }

@@ -65,6 +65,16 @@ public class SamlStatusCheckerTest {
   }
 
   @Test
+  public void authentication_status_has_errors_when_no_idp_certificate_is_provided() {
+
+    samlAuthenticationStatus = getSamlAuthenticationStatus("error message");
+
+    assertEquals("error", samlAuthenticationStatus.getStatus());
+    assertFalse(samlAuthenticationStatus.getErrors().isEmpty());
+    assertEquals("error message", samlAuthenticationStatus.getErrors().get(0));
+  }
+
+  @Test
   public void authentication_status_is_success_when_no_errors() {
     setSettings();
 

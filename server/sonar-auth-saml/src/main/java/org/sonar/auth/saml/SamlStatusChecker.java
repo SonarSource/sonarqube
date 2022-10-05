@@ -67,6 +67,14 @@ public final class SamlStatusChecker {
 
   }
 
+  public static SamlAuthenticationStatus getSamlAuthenticationStatus(String errorMessage) {
+    SamlAuthenticationStatus samlAuthenticationStatus = new SamlAuthenticationStatus();
+    samlAuthenticationStatus.getErrors().add(errorMessage);
+    samlAuthenticationStatus.setStatus("error");
+
+    return samlAuthenticationStatus;
+  }
+
   private static Map<String, Collection<String>> getAttributesMapping(Auth auth, SamlSettings samlSettings) {
     Map<String, Collection<String>> attributesMapping = new HashMap<>();
 

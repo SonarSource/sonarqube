@@ -209,8 +209,12 @@ public class SamlAuthenticator {
   }
 
   public String getAuthenticationStatusPage(HttpServletRequest request, HttpServletResponse response) {
-    Auth auth = this.initSamlAuth(request, response);
-    return getSamlAuthStatusHtml(getSamlAuthenticationStatus(auth, samlSettings));
+    try {
+      Auth auth = this.initSamlAuth(request, response);
+      return getSamlAuthStatusHtml(getSamlAuthenticationStatus(auth, samlSettings));
+    } catch (IllegalStateException e) {
+      return getSamlAuthStatusHtml(getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage())));
+    }
   }
 }
 
