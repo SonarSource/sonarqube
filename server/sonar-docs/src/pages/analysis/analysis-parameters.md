@@ -44,7 +44,7 @@ Key | Description | Default
 Key | Description | Default
 ---|----|---
 `sonar.projectName`|Name of the project that will be displayed on the web interface.|`<name>` for Maven projects, otherwise project key. If not provided and there is already a name in the DB, it won't be overwritten.
-`sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided".
+`sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided". _Do not use_ your build number as `sonar.projectVersion`. 
 
 ### Authentication
 By default, user authentication is required to prevent anonymous users from browsing and analyzing projects on your instance, and you need to pass these parameters when running analyses. Authentication is enforced in the global Security(/instance-administration/security/) settings.
