@@ -58,6 +58,7 @@ export interface Query {
   'pciDss-3.2': string[];
   'pciDss-4.0': string[];
   [OWASP_ASVS_4_0]: string[];
+  owaspAsvsLevel: string;
   projects: string[];
   resolutions: string[];
   resolved: boolean;
@@ -99,6 +100,7 @@ export function parseQuery(query: RawQuery): Query {
     'pciDss-3.2': parseAsArray(query['pciDss-3.2'], parseAsString),
     'pciDss-4.0': parseAsArray(query['pciDss-4.0'], parseAsString),
     [OWASP_ASVS_4_0]: parseAsArray(query[OWASP_ASVS_4_0], parseAsString),
+    owaspAsvsLevel: parseAsString(query['owaspAsvsLevel']),
     projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
@@ -144,6 +146,7 @@ export function serializeQuery(query: Query): RawQuery {
     'pciDss-3.2': serializeStringArray(query['pciDss-3.2']),
     'pciDss-4.0': serializeStringArray(query['pciDss-4.0']),
     [OWASP_ASVS_4_0]: serializeStringArray(query[OWASP_ASVS_4_0]),
+    owaspAsvsLevel: serializeString(query['owaspAsvsLevel']),
     projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
     resolved: query.resolved ? undefined : 'false',
