@@ -59,30 +59,31 @@ Here is an example of a telemetry payload:
             "version": "3.7.0.4372"
         },
     ],
-    "externalAuthProviders": [
-        "github"
-    ],
     "installationDate": "2022-02-01T09:12:32+0000",
     "docker": true,
     "users": [{
             "userUuid": "UI9126NM8DFghgCCDUI9",
             "status": "active",
-            "lastActivity": "2022-03-22T13:18:56+0000"
+            "lastActivity": "2022-03-22T13:18:56+0000",
+            "identityProvider": "github"
         },
         {
             "userUuid": "YY456Uio878YHOJOM891",
             "status": "active",
             "lastActivity": "2022-09-06T14:08:46+0000"
+            "identityProvider": "sonarqube"
         },
         {
             "userUuid": "G5GH76gb65F69Jygf789",
             "status": "active",
             "lastActivity": "2022-09-07T00:28:14+0000",
-            "lastSonarlintActivity": "2022-09-07T00:28:14+0000"
+            "lastSonarlintActivity": "2022-09-07T00:28:14+0000",
+            "identityProvider": "SAML"
         },
         {
             "userUuid": "AG7HK457TYITdsYIH67Y",
-            "status": "inactive"
+            "status": "inactive",
+            "identityProvider": "sonarqube"
         }
     ],
     "projects": [
@@ -118,7 +119,9 @@ Here is an example of a telemetry payload:
             "pullRequestCount": 0,
             "scm": "git",
             "ci": "GitLab CI",
-            "alm": "gitlab_cloud"
+            "devopsPlatform": "gitlab_cloud",
+            "hasUnanalyzedC": "true",
+            "hasUnanalyzedCpp": "false"
         },
         {
             "projectUuid": "AWHotC4Cb9YxAwKuZDEk",
@@ -126,7 +129,9 @@ Here is an example of a telemetry payload:
             "pullRequestCount": 8,
             "scm": "git",
             "ci": "Azure DevOps",
-            "alm": "azure_devops_cloud"
+            "devopsPlatform": "azure_devops_cloud",
+            "hasUnanalyzedC": "false",
+            "hasUnanalyzedCpp": "true"
         },
         {
             "projectUuid": "AYAYr6o1Mi128diYBjFX",
@@ -134,7 +139,9 @@ Here is an example of a telemetry payload:
             "pullRequestCount": 0,
             "scm": "git",
             "ci": "Github Actions",
-            "alm": "github_cloud"
+            "devopsPlatform": "github_cloud",
+            "hasUnanalyzedC": "false",
+            "hasUnanalyzedCpp": "false"
         },
     ],
     "timestamp": "2022-09-07T01:15:23.901Z",
