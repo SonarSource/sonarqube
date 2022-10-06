@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { isEmpty, keyBy } from 'lodash';
+import { isEmpty, keyBy, throttle } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
 import { Alert } from '../../components/ui/Alert';
@@ -28,6 +28,8 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps
 } from './available-features/withAvailableFeatures';
 import './SystemAnnouncement.css';
+
+const THROTTLE_TIME_MS = 10000;
 
 interface State {
   displayMessage: boolean;
@@ -40,13 +42,13 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
   componentDidMount() {
     if (this.props.hasFeature(Feature.Announcement)) {
       this.getSettings();
-      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+      window.addEventListener('focus', this.handleVisibilityChange);
     }
   }
 
   componentWillUnmount() {
     if (this.props.hasFeature(Feature.Announcement)) {
-      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+      window.removeEventListener('focus', this.handleVisibilityChange);
     }
   }
 
@@ -65,11 +67,12 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
     });
   };
 
-  handleVisibilityChange = () => {
+  // eslint-disable-next-line react/sort-comp
+  handleVisibilityChange = throttle(() => {
     if (document.visibilityState === 'visible') {
       this.getSettings();
     }
-  };
+  }, THROTTLE_TIME_MS);
 
   render() {
     const { displayMessage, message } = this.state;

@@ -29,6 +29,12 @@ jest.mock('../../../api/settings', () => ({
   getValues: jest.fn()
 }));
 
+jest.mock('lodash', () => {
+  const lodash = jest.requireActual('lodash');
+  lodash.throttle = (fn: any) => () => fn();
+  return lodash;
+});
+
 it('should display system announcement', async () => {
   (getValues as jest.Mock)
     .mockResolvedValueOnce([
@@ -75,13 +81,13 @@ it('should display system announcement', async () => {
   renderSystemAnnouncement();
 
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  fireEvent(document, new Event('visibilitychange'));
+  fireEvent(window, new Event('focus'));
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  fireEvent(document, new Event('visibilitychange'));
+  fireEvent(window, new Event('focus'));
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  fireEvent(document, new Event('visibilitychange'));
+  fireEvent(window, new Event('focus'));
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  fireEvent(document, new Event('visibilitychange'));
+  fireEvent(window, new Event('focus'));
   expect(await screen.findByRole('alert')).toBeInTheDocument();
   expect(screen.getByText('Foo')).toBeInTheDocument();
 });
