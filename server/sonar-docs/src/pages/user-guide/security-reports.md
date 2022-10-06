@@ -10,6 +10,7 @@ Security Reports quickly give you the big picture on your application's security
 
 - [PCI DSS](https://www.pcisecuritystandards.org/) (versions 4.0 and 3.2.1)
 - [OWASP Top 10](https://owasp.org/Top10/) (versions 2021 and 2017)
+- [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) (version 4.0)
 - [CWE Top 25](https://cwe.mitre.org/top25/) (versions 2021, 2020, and 2019)
 
 They represent the bare minimum to comply with for anyone putting in place a secure development lifecycle.
