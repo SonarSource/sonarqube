@@ -42,7 +42,6 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PropertyNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -152,13 +151,13 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public List<PropertyDto> selectComponentProperties(DbSession session, String uuid) {
-    return getMapper(session).selectByComponentUuids(singletonList(uuid));
+  public List<PropertyDto> selectComponentProperties(DbSession session, String componentUuid) {
+    return getMapper(session).selectByComponentUuids(singletonList(componentUuid));
   }
 
-  public List<PropertyDto> selectComponentProperties(String uuid) {
+  public List<PropertyDto> selectComponentProperties(String componentUuid) {
     try (DbSession session = mybatis.openSession(false)) {
-      return selectComponentProperties(session, uuid);
+      return selectComponentProperties(session, componentUuid);
     }
   }
 

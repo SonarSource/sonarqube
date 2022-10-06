@@ -157,7 +157,7 @@ public class ShowAction implements ComponentsWsAction {
         String branch = dbClient.branchDao().selectByUuid(dbSession, component.getCopyComponentUuid())
           .map(BranchDto::getKey)
           .orElse(null);
-        componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, branch, null)
+        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, branch, null)
           .setNeedIssueSync(needIssueSync);
       }
       return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
