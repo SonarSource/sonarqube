@@ -25,6 +25,10 @@ import { Flow, FlowType } from '../../types/types';
 import BoxedGroupAccordion from '../controls/BoxedGroupAccordion';
 import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
+const FLOW_ORDER_MAP = {
+  [FlowType.DATA]: 0,
+  [FlowType.EXECUTION]: 1
+};
 export interface Props {
   flows: Flow[];
   selectedLocationIndex?: number;
@@ -35,6 +39,8 @@ export interface Props {
 
 export default function FlowsList(props: Props) {
   const { flows, selectedLocationIndex, selectedFlowIndex } = props;
+
+  flows.sort((f1, f2) => FLOW_ORDER_MAP[f1.type] - FLOW_ORDER_MAP[f2.type]);
 
   return (
     <div className="issue-flows little-padded-top" role="list">
