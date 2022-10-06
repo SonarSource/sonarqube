@@ -17,9 +17,9 @@ Additionally, if you have a Support contract, you might be asked by a Support re
 Your server id can be obtained from this page by expanding the **System** section. If you're running a commercial instance, you can also find this value on the License page (**[Administration > Configuration > License Manager](/#sonarqube-admin#/admin/extension/license/app)**)
 
 ## Logs
-Server-side logging is controlled by properties set in _$SONARQUBE_HOME/conf/sonar.properties_.
+Server-side logging is controlled by properties set in _$SONARQUBE_HOME/conf/sonar.properties_. The standard output of SonarQube logs can be converted to Json with the environment variable `SONAR_LOG_JSONOUTPUT=true`. A configuration of the log format is currently not possible.
 
-4 logs files are created: one per SonarQube process.
+Four logs files are created: one per SonarQube process.
 
 ### Log Level
 The server-side log level can be customized via the `sonar.log.level` property. Supported values are:
@@ -29,7 +29,7 @@ The server-side log level can be customized via the `sonar.log.level` property. 
 * **`TRACE`** - show advanced logs and all SQL and Elasticsearch requests. `TRACE` level logging slows down the server environment, and should be used only for tracking web request performance problems.
 
 ### Log Level by Process
-The server-side log level can be adjusted more precisely for the 4 processes of SonarQube Server via the following property:
+The server-side log level can be adjusted more precisely for the four processes of SonarQube Server via the following properties:
 
 * **`sonar.log.level.app`** - for the Main process of SonarQube (aka WrapperSimpleApp, the bootstrapper process starting the 3 others) 
 * **`sonar.log.level.web`** - for the WebServer
@@ -37,7 +37,7 @@ The server-side log level can be adjusted more precisely for the 4 processes of 
 * **`sonar.log.level.es`** - for the SearchServer
 
 ### Log Rotation
-To control log rolling, use the `sonar.log.rollingPolicy`
+To control log rolling, use the `sonar.log.rollingPolicy`.
 
 * **`time:[value]`** - for time-based rotation. For example, use `time:yyyy-MM-dd` for daily rotation, and * `time:yyyy-MM` for monthly rotation.
 * **`size:[value]`** - for size-based rotation. For example, `size:10MB`.
@@ -47,7 +47,7 @@ To control log rolling, use the `sonar.log.rollingPolicy`
 
 ### UI Access to Logs and Log Levels
 
-The System Info page gives you the ability to download your instance's current log files (log files rotate on a regular basis), and to tune the log level via controls at the top of the page. Changes made here are temporary, and last only until the next time the instance is restarted, at which point the level will be reset to the more permanent value set in _$SONARQUBE_HOME/conf/sonar.properties_. Regardless, if you change your log level _from_ `INFO`, but sure to change it back as soon as is practical; log files can get very large very quickly at lower log levels.
+The System Info page gives you the ability to download your instance's current log files (log files rotate on a regular basis), and to tune the log level via controls at the top of the page. Changes made here are temporary, and last only until the next time the instance is restarted, at which point the level will be reset to the more permanent value set in _$SONARQUBE_HOME/conf/sonar.properties_. Regardless, if you change your log level _from_ `INFO`, be certain to change it back as soon as it is practical; log files can get very large very quickly at lower log levels.
 
 ## Total Lines of Code
 The number of Lines of Code (for licensing purposes) in an instance can be found in the **System** section of the System Info page on, and on the License page (**[Administration > Configuration > License Manager](/#sonarqube-admin#/admin/extension/license/app)** in commercial editions. 
