@@ -40,6 +40,7 @@ const defaultTokens = [
 
 export default class UserTokensMock {
   tokens: Array<Partial<NewUserToken> & UserToken>;
+  failGeneration = false;
 
   constructor() {
     this.tokens = cloneDeep(defaultTokens);
@@ -66,6 +67,11 @@ export default class UserTokensMock {
     projectKey: string;
     expirationDate?: string;
   }) => {
+    if (this.failGeneration) {
+      this.failGeneration = false;
+      return Promise.reject('x_x');
+    }
+
     const token = {
       name,
       login,
@@ -94,6 +100,10 @@ export default class UserTokensMock {
     this.tokens.splice(index, 1);
 
     return Promise.resolve();
+  };
+
+  failNextTokenGeneration = () => {
+    this.failGeneration = true;
   };
 
   getTokens = () => {

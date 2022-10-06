@@ -29,7 +29,25 @@
 }
 
 .sonarlint-connection-content {
-  min-width: 500px;
+  min-width: 600px;
   width: 40%;
   margin: 0 auto;
+}
+
+.sonarlint-connection-page ol {
+  list-style: inside decimal;
+}
+
+.sonarlint-connection-page .field-label {
+  display: inline-block;
+  width: 150px;
+  color: var(--secondFontColor);
+  text-align: start;
+  flex-shrink: 0;
+}
+
+.sonarlint-connection-page .sonarlint-token-value {
+  background-color: var(--codeBackground);
+  border: 1px solid var(--barBorderColor);
+  padding: calc(var(--gridSize) / 2) var(--gridSize);
 }

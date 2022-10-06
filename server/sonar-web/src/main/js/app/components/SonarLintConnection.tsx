@@ -18,10 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { generateToken, getTokens } from '../../api/user-tokens';
+import Link from '../../components/common/Link';
 import { Button } from '../../components/controls/buttons';
+import { ClipboardButton } from '../../components/controls/clipboard';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
+import CheckIcon from '../../components/icons/CheckIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
 import {
@@ -29,12 +33,22 @@ import {
   getAvailableExpirationOptions,
   getNextTokenName
 } from '../../helpers/tokens';
+import { NewUserToken, TokenExpiration } from '../../types/token';
 import { LoggedInUser } from '../../types/users';
 import './SonarLintConnection.css';
+
+enum Status {
+  request,
+  tokenError,
+  connectionError,
+  success
+}
 
 interface Props {
   currentUser: LoggedInUser;
 }
+
+const TOKEN_PREFIX = 'SonarLint';
 
 const getNextAvailableTokenName = async (login: string, tokenNameBase: string) => {
   const tokens = await getTokens(login);
@@ -46,15 +60,14 @@ async function computeExpirationDate() {
   const options = await getAvailableExpirationOptions();
   const maxOption = options[options.length - 1];
 
-  return maxOption.value ? computeTokenExpirationDate(maxOption.value) : undefined;
+  return computeTokenExpirationDate(maxOption.value || TokenExpiration.OneYear);
 }
 
 export function SonarLintConnection({ currentUser }: Props) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [success, setSuccess] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [newTokenName, setNewTokenName] = React.useState('');
+  const [status, setStatus] = React.useState(Status.request);
+  const [newToken, setNewToken] = React.useState<NewUserToken | undefined>(undefined);
 
   const port = parseInt(searchParams.get('port') ?? '0', 10);
   const ideName = searchParams.get('ideName') ?? translate('sonarlint-connection.unspecified-ide');
@@ -69,20 +82,24 @@ export function SonarLintConnection({ currentUser }: Props) {
   const { login } = currentUser;
 
   const authorize = React.useCallback(async () => {
-    const newTokenName = await getNextAvailableTokenName(login, `sonarlint-${ideName}`);
+    const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
     const expirationDate = await computeExpirationDate();
-    const token = await generateToken({ name: newTokenName, login, expirationDate });
+    const token = await generateToken({ name: newTokenName, login, expirationDate }).catch(
+      () => undefined
+    );
+
+    if (!token) {
+      setStatus(Status.tokenError);
+      return;
+    }
+
+    setNewToken(token);
 
     try {
       await sendUserToken(port, token);
-      setSuccess(true);
-      setNewTokenName(newTokenName);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('-');
-      }
+      setStatus(Status.success);
+    } catch (_) {
+      setStatus(Status.connectionError);
     }
   }, [port, ideName, login]);
 
@@ -90,31 +107,119 @@ export function SonarLintConnection({ currentUser }: Props) {
     <div className="sonarlint-connection-page">
       <div className="sonarlint-connection-content boxed-group">
         <div className="boxed-group-inner text-center">
-          <h1 className="big-spacer-bottom">{translate('sonarlint-connection.title')}</h1>
-          {error && (
+          {status === Status.request && (
             <>
-              <p className="big big-spacer-bottom">{translate('sonarlint-connection.error')}</p>
-              <p className="monospaced huge-spacer-bottom">{error}</p>
-            </>
-          )}
-          {success && (
-            <p className="big">
-              {translateWithParameters('sonarlint-connection.success', newTokenName)}
-            </p>
-          )}
-
-          {!error && !success && (
-            <>
-              <p className="big big-spacer-bottom">
-                {translateWithParameters('sonarlint-connection.description', ideName)}
+              <h1 className="big-spacer-top big-spacer-bottom">
+                {translate('sonarlint-connection.request.title')}
+              </h1>
+              <img
+                alt=""
+                aria-hidden={true}
+                className="big-spacer-top big-spacer-bottom"
+                src="/images/SonarLint-connection-request.png"
+              />
+              <p className="big big-spacer-top big-spacer-bottom">
+                {translateWithParameters('sonarlint-connection.request.description', ideName)}
               </p>
               <p className="big huge-spacer-bottom">
-                {translate('sonarlint-connection.description2')}
+                {translate('sonarlint-connection.request.description2')}
               </p>
 
               <Button className="big-spacer-bottom" onClick={authorize}>
-                {translate('sonarlint-connection.action')}
+                <CheckIcon className="spacer-right" />
+                {translate('sonarlint-connection.request.action')}
               </Button>
+            </>
+          )}
+
+          {status === Status.tokenError && (
+            <>
+              <img
+                alt=""
+                aria-hidden={true}
+                className="big-spacer-top big-spacer-bottom padded-top"
+                src="/images/cross.svg"
+              />
+              <h1 className="big-spacer-bottom">
+                {translate('sonarlint-connection.token-error.title')}
+              </h1>
+              <p className="big big-spacer-top big-spacer-bottom">
+                {translate('sonarlint-connection.token-error.description')}
+              </p>
+              <p className="big huge-spacer-bottom">
+                <FormattedMessage
+                  id="sonarlint-connection.token-error.description2"
+                  defaultMessage={translate('sonarlint-connection.token-error.description2')}
+                  values={{
+                    link: (
+                      <Link to="/account/security">
+                        {translate('sonarlint-connection.token-error.description2.link')}
+                      </Link>
+                    )
+                  }}
+                />
+              </p>
+            </>
+          )}
+
+          {status === Status.connectionError && newToken && (
+            <>
+              <img
+                alt=""
+                aria-hidden={true}
+                className="big-spacer-top big-spacer-bottom padded-top"
+                src="/images/check.svg"
+              />
+              <h1 className="big-spacer-bottom">
+                {translate('sonarlint-connection.connection-error.title')}
+              </h1>
+              <p className="big big-spacer-top big-spacer-bottom">
+                {translate('sonarlint-connection.connection-error.description')}
+              </p>
+              <div className="display-flex-center">
+                <span className="field-label">
+                  {translate('sonarlint-connection.connection-error.token-name')}
+                </span>
+                {newToken.name}
+              </div>
+              <hr />
+              <div className="display-flex-center">
+                <span className="field-label">
+                  {translate('sonarlint-connection.connection-error.token-value')}
+                </span>
+                <span className="sonarlint-token-value">{newToken.token}</span>
+                <ClipboardButton className="big-spacer-left" copyValue={newToken.token} />
+              </div>
+              <div className="big-spacer-top">
+                <strong>{translate('sonarlint-connection.connection-error.next-steps')}</strong>
+              </div>
+              <ol className="big-spacer-top big-spacer-bottom">
+                <li>{translate('sonarlint-connection.connection-error.step1')}</li>
+                <li>{translate('sonarlint-connection.connection-error.step2')}</li>
+              </ol>
+            </>
+          )}
+
+          {status === Status.success && newToken && (
+            <>
+              <h1 className="big-spacer-top big-spacer-bottom">
+                {translate('sonarlint-connection.success.title')}
+              </h1>
+              <img
+                alt=""
+                aria-hidden={true}
+                className="big-spacer-bottom"
+                src="/images/SonarLint-connection-ok.png"
+              />
+              <p className="big big-spacer-top big-spacer-bottom">
+                {translateWithParameters('sonarlint-connection.success.description', newToken.name)}
+              </p>
+              <div className="big-spacer-top">
+                <strong>{translate('sonarlint-connection.success.last-step')}</strong>
+              </div>
+              <div className="big-spacer-top big-spacer-bottom">
+                {translate('sonarlint-connection.success.step')}
+              </div>
             </>
           )}
         </div>
