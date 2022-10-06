@@ -53,15 +53,21 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 |```
 |ALTER DATABASE YourSonarQubeDatabase SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
 |```
+|### Encryption
+|
+|_If your Microsoft SQL Server doesn't support encryption_, you must add `encrypt=false` to the JDBC URL connection string.
+|
+|_If your Microsoft SQL Server requires encryption but_ you don't want SonarQube to validate the certificate, you must add `trustServerCertificate=true` to the JDBC URL connection string.
+|
 |### Integrated Security
 |
 |To use integrated security: 
 |
 |1. Download the [Microsoft SQL JDBC Auth 11.2.0 package](https://github.com/microsoft/mssql-jdbc/releases/download/v11.2.0/mssql-jdbc_auth.zip) and copy `mssql-jdbc_auth-11.2.0.x64.dll` to any folder in your path. 
 |
-|2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
+|2. _If you're running SonarQube as a Windows service_, make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
 |
-|	**If you're running the SonarQube server from a command prompt,** the user under which the command prompt is running should have `db_owner` database role membership. 
+|	_If you're running the SonarQube server from a command prompt_, the user under which the command prompt is running should have `db_owner` database role membership. 
 |
 |3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out or SonarQube will use SQL authentication.
 |
