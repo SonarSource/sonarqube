@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -1089,6 +1090,55 @@ public class SearchActionTest {
   }
 
   @Test
+  public void only_vulnerabilities_are_returned_by_owaspAsvs40_with_level() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDto issueRule1 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:1.7.2", "owaspAsvs-4.0:12.3.1")));
+    RuleDto issueRule2 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5")));
+    RuleDto issueRule3 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5", "owaspAsvs-4.0:12.1.3")));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule1, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule2, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule3, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("owaspAsvs-4.0", "1")
+      .setParam("owaspAsvsLevel", "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).isEmpty();
+
+    result = ws.newRequest()
+      .setParam("owaspAsvs-4.0", "1")
+      .setParam("owaspAsvsLevel", "2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey());
+
+    result = ws.newRequest()
+      .setParam("owaspAsvs-4.0", "12")
+      .setParam("owaspAsvsLevel", "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey());
+
+    result = ws.newRequest()
+      .setParam("owaspAsvs-4.0", "12")
+      .setParam("owaspAsvsLevel", "2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto3.getKey());
+
+  }
+
+  @Test
   public void only_vulnerabilities_are_returned_by_pciDss32() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -1725,7 +1775,7 @@ public class SearchActionTest {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0", "owaspTop10",
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0", "owaspAsvsLevel", "owaspTop10",
       "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
 
     WebService.Param branch = def.param(PARAM_BRANCH);

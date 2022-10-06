@@ -109,6 +109,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_LEVEL;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
@@ -271,6 +272,10 @@ public class SearchAction implements IssuesWsAction {
       .setSince("5.5")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
+    action.createParam(PARAM_OWASP_ASVS_LEVEL)
+      .setDescription("Level of OWASP ASVS categories.")
+      .setSince("9.7")
+      .setPossibleValues(1,2,3);
     action.createParam(PARAM_PCI_DSS_32)
       .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
       .setSince("9.6")
@@ -567,6 +572,7 @@ public class SearchAction implements IssuesWsAction {
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
       .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))
       .setPciDss40(request.paramAsStrings(PARAM_PCI_DSS_40))
+      .setOwaspAsvsLevel(request.paramAsInt(PARAM_OWASP_ASVS_LEVEL))
       .setOwaspAsvs40(request.paramAsStrings(PARAM_OWASP_ASVS_40))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))

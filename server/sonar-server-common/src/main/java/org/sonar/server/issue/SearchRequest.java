@@ -71,6 +71,8 @@ public class SearchRequest {
   private List<String> cwe;
   private String timeZone;
 
+  private Integer owaspAsvsLevel;
+
   public SearchRequest() {
     // nothing to do here
   }
@@ -508,6 +510,15 @@ public class SearchRequest {
 
   public SearchRequest setInNewCodePeriod(@Nullable Boolean inNewCodePeriod) {
     this.inNewCodePeriod = inNewCodePeriod;
+    return this;
+  }
+
+  public Integer getOwaspAsvsLevel() {
+    return owaspAsvsLevel;
+  }
+
+  public SearchRequest setOwaspAsvsLevel(@Nullable Integer owaspAsvsLevel) {
+    this.owaspAsvsLevel = owaspAsvsLevel;
     return this;
   }
 }
