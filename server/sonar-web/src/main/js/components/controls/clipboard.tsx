@@ -32,7 +32,6 @@ export interface State {
 interface RenderProps {
   setCopyButton: (node: HTMLElement | null) => void;
   copySuccess: boolean;
-  role: string;
 }
 
 interface Props {
@@ -77,6 +76,9 @@ export class ClipboardBase extends React.PureComponent<Props, State> {
   handleSuccessCopy = () => {
     if (this.mounted) {
       this.setState({ copySuccess: true });
+      if (this.copyButton) {
+        this.copyButton.focus();
+      }
       setTimeout(() => {
         if (this.mounted) {
           this.setState({ copySuccess: false });
@@ -88,8 +90,7 @@ export class ClipboardBase extends React.PureComponent<Props, State> {
   render() {
     return this.props.children({
       setCopyButton: this.setCopyButton,
-      copySuccess: this.state.copySuccess,
-      role: 'button'
+      copySuccess: this.state.copySuccess
     });
   }
 }
