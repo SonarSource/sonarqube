@@ -1174,6 +1174,17 @@ public class IssueIndex {
     return searchWithDistribution(request, version.label(), level);
   }
 
+  public List<SecurityStandardCategoryStatistics> getOwaspAsvsReportGroupedByLevel(String projectUuid, boolean isViewOrApp, RulesDefinition.OwaspAsvsVersion version, int level) {
+    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    request.aggregation(
+      newSecurityReportSubAggregations(
+        AggregationBuilders.filter(
+          "l" + level,
+          boolQuery().filter(termsQuery(version.prefix(), SecurityStandards.OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(version).get(level)))),
+        version.prefix()));
+    return searchWithLevelDistribution(request, version.label(), Integer.toString(level));
+  }
+
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
@@ -1185,22 +1196,31 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
+  private List<SecurityStandardCategoryStatistics> searchWithLevelDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable String level) {
+    return getSearchResponse(sourceBuilder)
+      .getAggregations().asList().stream()
+      .map(c -> processSecurityReportIssueSearchResultsWithLevelDistribution((ParsedFilter) c, version, level))
+      .collect(MoreCollectors.toList());
+  }
+
   private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable Integer level) {
-    SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
-      .source(sourceBuilder);
-    SearchResponse response = client.search(request);
-    return response.getAggregations().asList().stream()
+    return getSearchResponse(sourceBuilder)
+      .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
       .collect(MoreCollectors.toList());
   }
 
   private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeDistribution, @Nullable String version) {
-    SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
-      .source(sourceBuilder);
-    SearchResponse response = client.search(request);
-    return response.getAggregations().asList().stream()
+    return getSearchResponse(sourceBuilder)
+      .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeDistribution, version))
       .collect(MoreCollectors.toList());
+  }
+
+  private SearchResponse getSearchResponse(SearchSourceBuilder sourceBuilder) {
+    SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
+      .source(sourceBuilder);
+    return client.search(request);
   }
 
   private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, String version, @Nullable Integer level) {
@@ -1208,6 +1228,16 @@ public class IssueIndex {
     List<SecurityStandardCategoryStatistics> children = list.stream()
       .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
       .filter(categoryBucket -> level == null || OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).contains(categoryBucket.getKeyAsString()))
+      .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
+      .collect(toList());
+
+    return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
+  }
+
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithLevelDistribution(ParsedFilter categoryFilter, String version, String level) {
+    var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
+    List<SecurityStandardCategoryStatistics> children = list.stream()
+      .filter(categoryBucket -> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(Integer.parseInt(level)).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
       .collect(toList());
 
