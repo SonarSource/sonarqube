@@ -55,20 +55,16 @@ export default function withKeyboardNavigation<P>(
         return true;
       }
       if (event.key === KeyboardKeys.UpArrow) {
-        event.preventDefault();
-        return this.skipIfFile(this.handleHighlightPrevious);
+        return this.skipIfFile(event, this.handleHighlightPrevious);
       } else if (event.key === KeyboardKeys.DownArrow) {
-        event.preventDefault();
-        return this.skipIfFile(this.handleHighlightNext);
+        return this.skipIfFile(event, this.handleHighlightNext);
       } else if (event.key === KeyboardKeys.RightArrow || event.key === KeyboardKeys.Enter) {
-        event.preventDefault();
-        return this.skipIfFile(this.handleSelectCurrent);
+        return this.skipIfFile(event, this.handleSelectCurrent);
       } else if (event.key === KeyboardKeys.LeftArrow) {
-        event.preventDefault();
         this.handleSelectParent();
         return false; // always hijack left / Why did you put this @wouter?
       }
-      return false;
+      return true;
     };
 
     getCurrentIndex = () => {
@@ -81,10 +77,11 @@ export default function withKeyboardNavigation<P>(
         : -1;
     };
 
-    skipIfFile = (handler: () => void) => {
+    skipIfFile = (event: KeyboardEvent, handler: () => void) => {
       if (this.props.isFile) {
         return true;
       }
+      event.preventDefault();
       handler();
       return false;
     };

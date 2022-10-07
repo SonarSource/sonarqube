@@ -118,7 +118,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
   componentWillUnmount() {
     this.mounted = false;
     if (this.container) {
-      this.container.removeEventListener('keydown', this.handleKeyboard);
+      this.container.removeEventListener('keydown', this.handleKeyboard, true);
     }
   }
 
