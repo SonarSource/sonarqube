@@ -36,6 +36,7 @@
   color: var(--baseFontColor);
   border-bottom: none;
   border-left: 4px solid;
+  box-sizing: border-box;
 }
 
 .hotspot-category strong {
