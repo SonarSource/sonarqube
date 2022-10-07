@@ -35,6 +35,7 @@ import {
   translate
 } from '../../helpers/l10n';
 import './DayPicker.css';
+import EscKeydownHandler from './EscKeydownHandler';
 import Select from './Select';
 import './styles.css';
 
@@ -163,71 +164,73 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
-        <span className={classNames('date-input-control', className)}>
-          <InputWrapper
-            className={classNames('date-input-control-input', inputClassName, {
-              'is-filled': value !== undefined
-            })}
-            id={id}
-            innerRef={(node: HTMLInputElement | null) => (this.input = node)}
-            name={name}
-            onFocus={this.openCalendar}
-            placeholder={placeholder}
-            readOnly={true}
-            type="text"
-            value={value}
-          />
-          <CalendarIcon className="date-input-control-icon" fill="" />
-          {value !== undefined && (
-            <ClearButton
-              aria-label={translate('reset_verb')}
-              className="button-tiny date-input-control-reset"
-              iconProps={{ size: 12 }}
-              onClick={this.handleResetClick}
+        <EscKeydownHandler onKeydown={this.closeCalendar}>
+          <span className={classNames('date-input-control', className)}>
+            <InputWrapper
+              className={classNames('date-input-control-input', inputClassName, {
+                'is-filled': value !== undefined
+              })}
+              id={id}
+              innerRef={(node: HTMLInputElement | null) => (this.input = node)}
+              name={name}
+              onFocus={this.openCalendar}
+              placeholder={placeholder}
+              readOnly={true}
+              type="text"
+              value={value}
             />
-          )}
-          {open && (
-            <div className="date-input-calendar">
-              <nav className="date-input-calendar-nav">
-                <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
-                  <ChevronLeftIcon />
-                </ButtonIcon>
-                <div className="date-input-calender-month">
-                  <Select
-                    aria-label={translate('select_month')}
-                    className="date-input-calender-month-select"
-                    onChange={this.handleCurrentMonthChange}
-                    options={monthOptions}
-                    value={monthOptions.find(month => month.value === currentMonth.getMonth())}
-                  />
-                  <Select
-                    aria-label={translate('select_year')}
-                    className="date-input-calender-month-select spacer-left"
-                    onChange={this.handleCurrentYearChange}
-                    options={yearOptions}
-                    value={yearOptions.find(year => year.value === currentMonth.getFullYear())}
-                  />
-                </div>
-                <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
-                  <ChevronRightIcon />
-                </ButtonIcon>
-              </nav>
-              <DayPicker
-                captionElement={<NullComponent />}
-                disabledDays={{ after, before: minDate }}
-                firstDayOfWeek={1}
-                modifiers={modifiers}
-                month={currentMonth}
-                navbarElement={<NullComponent />}
-                onDayClick={this.handleDayClick}
-                onDayMouseEnter={this.handleDayMouseEnter}
-                selectedDays={selectedDays}
-                weekdaysLong={weekdaysLong}
-                weekdaysShort={weekdaysShort}
+            <CalendarIcon className="date-input-control-icon" fill="" />
+            {value !== undefined && (
+              <ClearButton
+                aria-label={translate('reset_verb')}
+                className="button-tiny date-input-control-reset"
+                iconProps={{ size: 12 }}
+                onClick={this.handleResetClick}
               />
-            </div>
-          )}
-        </span>
+            )}
+            {open && (
+              <div className="date-input-calendar">
+                <nav className="date-input-calendar-nav">
+                  <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
+                    <ChevronLeftIcon />
+                  </ButtonIcon>
+                  <div className="date-input-calender-month">
+                    <Select
+                      aria-label={translate('select_month')}
+                      className="date-input-calender-month-select"
+                      onChange={this.handleCurrentMonthChange}
+                      options={monthOptions}
+                      value={monthOptions.find(month => month.value === currentMonth.getMonth())}
+                    />
+                    <Select
+                      aria-label={translate('select_year')}
+                      className="date-input-calender-month-select spacer-left"
+                      onChange={this.handleCurrentYearChange}
+                      options={yearOptions}
+                      value={yearOptions.find(year => year.value === currentMonth.getFullYear())}
+                    />
+                  </div>
+                  <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
+                    <ChevronRightIcon />
+                  </ButtonIcon>
+                </nav>
+                <DayPicker
+                  captionElement={<NullComponent />}
+                  disabledDays={{ after, before: minDate }}
+                  firstDayOfWeek={1}
+                  modifiers={modifiers}
+                  month={currentMonth}
+                  navbarElement={<NullComponent />}
+                  onDayClick={this.handleDayClick}
+                  onDayMouseEnter={this.handleDayMouseEnter}
+                  selectedDays={selectedDays}
+                  weekdaysLong={weekdaysLong}
+                  weekdaysShort={weekdaysShort}
+                />
+              </div>
+            )}
+          </span>
+        </EscKeydownHandler>
       </OutsideClickHandler>
     );
   }
