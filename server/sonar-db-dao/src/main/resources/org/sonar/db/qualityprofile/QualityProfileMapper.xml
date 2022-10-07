@@ -147,27 +147,13 @@
     INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
     WHERE
       rp.is_built_in = ${_true}
-      AND rp.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      AND rp.language IN <foreach collection="languages" open="(" close=")" item="language"
+                                  separator=",">#{language, jdbcType=VARCHAR}</foreach>
       AND NOT EXISTS (
         SELECT 1 FROM active_rules ar
         INNER JOIN rules r ON r.uuid = ar.rule_uuid AND r.status &lt;&gt; 'REMOVED'
         WHERE profile_uuid = rp.uuid
       )
-  </select>
-
-  <select id="selectBuiltInProfilesWithoutActiveRules" parameterType="map"
-    resultType="org.sonar.db.qualityprofile.QProfileDto">
-    SELECT
-    <include refid="qProfileColumns"/>
-    FROM org_qprofiles oqp
-    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.uuid
-    WHERE
-    rp.is_built_in = ${_true}
-    AND NOT EXISTS (
-    SELECT 1 FROM active_rules ar
-    INNER JOIN rules r ON r.uuid = ar.rule_uuid AND r.status &lt;&gt; 'REMOVED'
-    WHERE profile_uuid = rp.uuid
-    )
   </select>
 
   <select id="selectDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
@@ -177,7 +163,8 @@
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
     where
-      dp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      dp.language in <foreach collection="languages" open="(" close=")" item="language"
+                              separator=",">#{language, jdbcType=VARCHAR}</foreach>
       and rp.language = dp.language
   </select>
 
@@ -218,7 +205,8 @@
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       rp.name = #{name, jdbcType=VARCHAR}
-      and rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      and rp.language in <foreach collection="languages" open="(" close=")" item="language"
+                                  separator=",">#{language, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
@@ -290,7 +278,8 @@
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join project_qprofiles pqp ON pqp.profile_key = oqp.uuid
     where
-      rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      rp.language in <foreach collection="languages" open="(" close=")" item="language"
+                              separator=",">#{language, jdbcType=VARCHAR}</foreach>
       and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 

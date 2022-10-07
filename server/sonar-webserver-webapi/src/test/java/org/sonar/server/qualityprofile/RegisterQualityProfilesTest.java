@@ -183,7 +183,8 @@ public class RegisterQualityProfilesTest {
     RulesProfileDto ruleProfileWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileLongNameWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("That's a very very very very very very "
       + "very very very very long name").setLanguage(FOO_LANGUAGE.getKey()));
-    RulesProfileDto ruleProfileWithOneRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way 2").setLanguage(FOO_LANGUAGE.getKey()));
+    RulesProfileDto ruleProfileWithOneRuleToBeRenamed = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way 2").setLanguage(FOO_LANGUAGE.getKey()));
+    RulesProfileDto ruleProfileWithOneRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way 3").setLanguage(FOO_LANGUAGE.getKey()));
 
     QProfileDto qProfileWithoutRule = newQualityProfileDto()
       .setIsBuiltIn(true)
@@ -203,9 +204,16 @@ public class RegisterQualityProfilesTest {
       .setLanguage(FOO_LANGUAGE.getKey())
       .setRulesProfileUuid(ruleProfileWithOneRule.getUuid());
 
-    db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule, qProfileLongNameWithoutRule);
+    QProfileDto qProfileWithOneRuleToBeRenamed = newQualityProfileDto()
+      .setIsBuiltIn(true)
+      .setName(ruleProfileWithOneRuleToBeRenamed.getName())
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setRulesProfileUuid(ruleProfileWithOneRuleToBeRenamed.getUuid());
+
+    db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule, qProfileLongNameWithoutRule, qProfileWithOneRuleToBeRenamed);
     RuleDto ruleDto = db.rules().insert();
     db.qualityProfiles().activateRule(qProfileWithOneRule, ruleDto);
+    db.qualityProfiles().activateRule(qProfileWithOneRuleToBeRenamed, ruleDto);
     db.commit();
 
     // adding only one profile as the other does not exist in plugins
@@ -214,7 +222,7 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm:ss a")
       .withLocale(Locale.getDefault())
       .withZone(ZoneId.systemDefault());
 
@@ -226,7 +234,10 @@ public class RegisterQualityProfilesTest {
         qProfileWithoutRule.getName(), qProfileWithoutRule.getLanguage(), qProfileWithoutRule.getName() + expectedSuffix),
       format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
         + "since it does not have any active rules.",
-        qProfileLongNameWithoutRule.getName(), qProfileLongNameWithoutRule.getLanguage(), "That's a very very very very very ver..." + expectedSuffix));
+        qProfileLongNameWithoutRule.getName(), qProfileLongNameWithoutRule.getLanguage(), "That's a very very very very very ver..." + expectedSuffix),
+      format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
+        + "since it does not have any active rules.",
+        qProfileWithOneRuleToBeRenamed.getName(), qProfileWithOneRuleToBeRenamed.getLanguage(), qProfileWithOneRuleToBeRenamed.getName() + expectedSuffix));
 
     assertThat(dbClient.qualityProfileDao().selectByUuid(db.getSession(), qProfileWithoutRule.getKee()))
       .extracting(QProfileDto::isBuiltIn, QProfileDto::getName)
@@ -235,6 +246,10 @@ public class RegisterQualityProfilesTest {
     assertThat(dbClient.qualityProfileDao().selectByUuid(db.getSession(), qProfileLongNameWithoutRule.getKee()))
       .extracting(QProfileDto::isBuiltIn, QProfileDto::getName)
       .containsExactly(false, "That's a very very very very very ver..." + expectedSuffix);
+
+    assertThat(dbClient.qualityProfileDao().selectByUuid(db.getSession(), qProfileWithOneRuleToBeRenamed.getKee()))
+      .extracting(QProfileDto::isBuiltIn, QProfileDto::getName)
+      .containsExactly(false, qProfileWithOneRuleToBeRenamed.getName() + expectedSuffix);
 
     // the other profile did not change
     assertThat(dbClient.qualityProfileDao().selectByUuid(db.getSession(), qProfileWithOneRule.getKee()))

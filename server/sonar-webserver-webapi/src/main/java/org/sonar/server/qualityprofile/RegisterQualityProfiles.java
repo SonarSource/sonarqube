@@ -211,12 +211,12 @@ public class RegisterQualityProfiles implements Startable {
 
     var languages = pluginsBuiltInQProfiles.stream().map(QProfileName::getLanguage).collect(Collectors.toSet());
 
-    dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithoutActiveRules(dbSession)
+    dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession)
       .forEach(qProfileDto -> {
         var dbProfileName = QProfileName.createFor(qProfileDto.getLanguage(), qProfileDto.getName());
 
         // Built-in Quality Profile can be a leftover from plugin which has been removed
-        // Rename Quality Profile and unset built-in flag allowing empty Quality Profile for existing languages to be removed
+        // Rename Quality Profile and unset built-in flag allowing Quality Profile for existing languages to be removed
         // Quality Profiles for languages not existing anymore are marked as 'REMOVED' and won't be seen in UI
         if (!pluginsBuiltInQProfiles.contains(dbProfileName) && languages.contains(qProfileDto.getLanguage())) {
           String oldName = qProfileDto.getName();
@@ -237,9 +237,9 @@ public class RegisterQualityProfiles implements Startable {
   /**
    * Abbreviate Quality Profile name if it will be too long with prefix and append suffix
    */
-  private String generateNewProfileName(QProfileDto qProfileDto) {
+  private String generateNewProfileName(RulesProfileDto qProfileDto) {
     var shortName = StringUtils.abbreviate(qProfileDto.getName(), 40);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm:ss a")
       .withLocale(Locale.getDefault())
       .withZone(ZoneId.systemDefault());
     var now = formatter.format(Instant.ofEpochMilli(system2.now()));

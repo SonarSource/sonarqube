@@ -81,10 +81,6 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectBuiltInRuleProfilesWithActiveRules();
   }
 
-  public List<QProfileDto> selectBuiltInRuleProfilesWithoutActiveRules(DbSession dbSession) {
-    return mapper(dbSession).selectBuiltInProfilesWithoutActiveRules();
-  }
-
   @CheckForNull
   public RulesProfileDto selectRuleProfile(DbSession dbSession, String ruleProfileUuid) {
     return mapper(dbSession).selectRuleProfile(ruleProfileUuid);

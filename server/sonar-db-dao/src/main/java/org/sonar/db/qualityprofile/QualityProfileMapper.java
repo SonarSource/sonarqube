@@ -44,8 +44,6 @@ public interface QualityProfileMapper {
 
   List<RulesProfileDto> selectBuiltInRuleProfilesWithActiveRules();
 
-  List<QProfileDto> selectBuiltInProfilesWithoutActiveRules();
-
   @CheckForNull
   RulesProfileDto selectRuleProfile(@Param("uuid") String ruleProfileUuid);
 
