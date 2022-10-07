@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
   <A11ySkipTarget
     anchor="activity_main"
   />
-  <ProjectActivityPageHeader
+  <ProjectActivityPageFilters
     category=""
     project={
       Object {

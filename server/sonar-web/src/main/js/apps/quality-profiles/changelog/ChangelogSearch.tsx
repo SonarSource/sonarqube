@@ -22,21 +22,20 @@ import { Button } from '../../../components/controls/buttons';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { translate } from '../../../helpers/l10n';
 
-interface Props {
+interface ChangelogSearchProps {
   dateRange: { from?: Date; to?: Date } | undefined;
   onDateRangeChange: (range: { from?: Date; to?: Date }) => void;
   onReset: () => void;
 }
 
-export default class ChangelogSearch extends React.PureComponent<Props> {
-  render() {
-    return (
-      <div className="display-inline-block" id="quality-profile-changelog-form">
-        <DateRangeInput onChange={this.props.onDateRangeChange} value={this.props.dateRange} />
-        <Button className="spacer-left text-top" onClick={this.props.onReset}>
-          {translate('reset_verb')}
-        </Button>
-      </div>
-    );
-  }
+export default function ChangelogSearch(props: ChangelogSearchProps) {
+  const { dateRange } = props;
+  return (
+    <div className="display-flex-end" id="quality-profile-changelog-form">
+      <DateRangeInput onChange={props.onDateRangeChange} value={dateRange} />
+      <Button className="spacer-left text-top" onClick={props.onReset}>
+        {translate('reset_verb')}
+      </Button>
+    </div>
+  );
 }

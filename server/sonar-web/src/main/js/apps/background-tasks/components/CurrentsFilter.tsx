@@ -22,25 +22,29 @@ import Checkbox from '../../../components/controls/Checkbox';
 import { translate } from '../../../helpers/l10n';
 import { CURRENTS } from '../constants';
 
-interface Props {
+interface CurrentsFilterProps {
   value?: string;
+  id: string;
   onChange: (value: string) => void;
 }
 
-export default class CurrentsFilter extends React.PureComponent<Props> {
-  handleChange = (value: boolean) => {
-    const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
-    this.props.onChange(newValue);
-  };
+export default function CurrentsFilter(props: CurrentsFilterProps) {
+  const { id, value, onChange } = props;
+  const checked = value === CURRENTS.ONLY_CURRENTS;
 
-  render() {
-    const checked = this.props.value === CURRENTS.ONLY_CURRENTS;
-    return (
-      <div className="bt-search-form-field">
-        <Checkbox checked={checked} onCheck={this.handleChange}>
-          <span className="little-spacer-left">{translate('yes')}</span>
-        </Checkbox>
-      </div>
-    );
-  }
+  const handleChange = React.useCallback(
+    (value: boolean) => {
+      const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
+      onChange(newValue);
+    },
+    [onChange]
+  );
+
+  return (
+    <div className="bt-search-form-field">
+      <Checkbox id={id} checked={checked} onCheck={handleChange}>
+        <span className="little-spacer-left">{translate('yes')}</span>
+      </Checkbox>
+    </div>
+  );
 }

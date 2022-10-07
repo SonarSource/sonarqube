@@ -20,12 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from '../../../../helpers/dates';
-import ProjectActivityPageHeader from '../ProjectActivityPageHeader';
+import ProjectActivityPageFilters from '../ProjectActivityPageFilters';
 
 it('should render correctly the list of series', () => {
   expect(
     shallow(
-      <ProjectActivityPageHeader
+      <ProjectActivityPageFilters
         category=""
         from={parseDate('2016-10-27T12:21:15+0200')}
         project={{ qualifier: 'TRK' }}

@@ -119,7 +119,6 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
         </ul>
 
         <DateRangeInput
-          className="big-spacer-left"
           onChange={props.handleDateSelection}
           minDate={subDays(now(), HOUSEKEEPING_POLICY_VALUES[housekeepingPolicy])}
           maxDate={now()}

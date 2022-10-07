@@ -63,29 +63,43 @@ export default class DateRangeInput extends React.PureComponent<Props> {
     const { minDate, maxDate } = this.props;
 
     return (
-      <div className={classNames('display-inline-flex-center', this.props.className)}>
-        <DateInput
-          currentMonth={this.to}
-          data-test="from"
-          highlightTo={this.to}
-          minDate={minDate}
-          maxDate={maxDate && this.to ? min([maxDate, this.to]) : maxDate || this.to}
-          onChange={this.handleFromChange}
-          placeholder={translate('start_date')}
-          value={this.from}
-        />
-        <span className="note little-spacer-left little-spacer-right">{translate('to_')}</span>
-        <DateInput
-          currentMonth={this.from}
-          data-test="to"
-          highlightFrom={this.from}
-          minDate={minDate && this.from ? max([minDate, this.from]) : minDate || this.from}
-          maxDate={maxDate}
-          onChange={this.handleToChange}
-          placeholder={translate('end_date')}
-          ref={element => (this.toDateInput = element)}
-          value={this.to}
-        />
+      <div className={classNames('display-flex-end', this.props.className)}>
+        <div className="display-flex-column">
+          <label className="text-bold little-spacer-bottom" htmlFor="date-from">
+            {translate('start_date')}
+          </label>
+          <DateInput
+            currentMonth={this.to}
+            data-test="from"
+            id="date-from"
+            highlightTo={this.to}
+            minDate={minDate}
+            maxDate={maxDate && this.to ? min([maxDate, this.to]) : maxDate || this.to}
+            onChange={this.handleFromChange}
+            placeholder={translate('start_date')}
+            value={this.from}
+          />
+        </div>
+        <span className="note little-spacer-left little-spacer-right little-spacer-bottom">
+          {translate('to_')}
+        </span>
+        <div className="display-flex-column">
+          <label className="text-bold little-spacer-bottom" htmlFor="date-to">
+            {translate('end_date')}
+          </label>
+          <DateInput
+            currentMonth={this.from}
+            data-test="to"
+            id="date-to"
+            highlightFrom={this.from}
+            minDate={minDate && this.from ? max([minDate, this.from]) : minDate || this.from}
+            maxDate={maxDate}
+            onChange={this.handleToChange}
+            placeholder={translate('end_date')}
+            ref={element => (this.toDateInput = element)}
+            value={this.to}
+          />
+        </div>
       </div>
     );
   }

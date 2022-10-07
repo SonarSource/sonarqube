@@ -29,7 +29,7 @@ import { Query } from '../utils';
 import './projectActivity.css';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
-import ProjectActivityPageHeader from './ProjectActivityPageHeader';
+import ProjectActivityPageFilters from './ProjectActivityPageFilters';
 
 interface Props {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
@@ -62,7 +62,7 @@ export default function ProjectActivityApp(props: Props) {
 
       <A11ySkipTarget anchor="activity_main" />
 
-      <ProjectActivityPageHeader
+      <ProjectActivityPageFilters
         category={query.category}
         from={query.from}
         project={props.project}

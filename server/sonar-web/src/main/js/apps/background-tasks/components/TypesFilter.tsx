@@ -24,6 +24,7 @@ import { ALL_TYPES } from '../constants';
 
 interface Props {
   value: string;
+  id: string;
   onChange: Function;
   types: string[];
 }
@@ -34,7 +35,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
   };
 
   render() {
-    const { value, types } = this.props;
+    const { value, types, id } = this.props;
     const options = types.map(t => {
       return {
         value: t,
@@ -51,6 +52,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
       <Select
         aria-labelledby="background-task-type-filter-label"
         className="input-large"
+        id={id}
         isClearable={false}
         onChange={this.handleChange}
         options={allOptions}

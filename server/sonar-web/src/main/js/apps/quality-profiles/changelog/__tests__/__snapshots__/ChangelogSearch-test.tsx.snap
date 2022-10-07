@@ -2,7 +2,7 @@
 
 exports[`should render 1`] = `
 <div
-  className="display-inline-block"
+  className="display-flex-end"
   id="quality-profile-changelog-form"
 >
   <DateRangeInput

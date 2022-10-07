@@ -47,6 +47,7 @@ interface Props {
   maxDate?: Date;
   minDate?: Date;
   name?: string;
+  id?: string;
   onChange: (date: Date | undefined) => void;
   placeholder: string;
   value?: Date;
@@ -128,6 +129,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
       name,
       className,
       inputClassName,
+      id,
       placeholder
     } = this.props;
     const { lastHovered, currentMonth, open } = this.state;
@@ -166,6 +168,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
             className={classNames('date-input-control-input', inputClassName, {
               'is-filled': value !== undefined
             })}
+            id={id}
             innerRef={(node: HTMLInputElement | null) => (this.input = node)}
             name={name}
             onFocus={this.openCalendar}

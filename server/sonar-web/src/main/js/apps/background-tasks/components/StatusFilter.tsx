@@ -23,39 +23,44 @@ import { translate } from '../../../helpers/l10n';
 import { TaskStatuses } from '../../../types/tasks';
 import { STATUSES } from '../constants';
 
-interface Props {
+interface StatusFilterProps {
   value?: string;
+  id: string;
   onChange: (value?: string) => void;
 }
 
-export default class StatusFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: BasicSelectOption) => {
-    this.props.onChange(value);
-  };
+export default function StatusFilter(props: StatusFilterProps) {
+  const { id, value, onChange } = props;
 
-  render() {
-    const options: BasicSelectOption[] = [
-      { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
-      {
-        value: STATUSES.ALL_EXCEPT_PENDING,
-        label: translate('background_task.status.ALL_EXCEPT_PENDING')
-      },
-      { value: TaskStatuses.Pending, label: translate('background_task.status.PENDING') },
-      { value: TaskStatuses.InProgress, label: translate('background_task.status.IN_PROGRESS') },
-      { value: TaskStatuses.Success, label: translate('background_task.status.SUCCESS') },
-      { value: TaskStatuses.Failed, label: translate('background_task.status.FAILED') },
-      { value: TaskStatuses.Canceled, label: translate('background_task.status.CANCELED') }
-    ];
+  const options: BasicSelectOption[] = [
+    { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
+    {
+      value: STATUSES.ALL_EXCEPT_PENDING,
+      label: translate('background_task.status.ALL_EXCEPT_PENDING')
+    },
+    { value: TaskStatuses.Pending, label: translate('background_task.status.PENDING') },
+    { value: TaskStatuses.InProgress, label: translate('background_task.status.IN_PROGRESS') },
+    { value: TaskStatuses.Success, label: translate('background_task.status.SUCCESS') },
+    { value: TaskStatuses.Failed, label: translate('background_task.status.FAILED') },
+    { value: TaskStatuses.Canceled, label: translate('background_task.status.CANCELED') }
+  ];
 
-    return (
-      <Select
-        aria-labelledby="background-task-status-filter-label"
-        className="input-medium"
-        onChange={this.handleChange}
-        options={options}
-        value={options.find(o => o.value === this.props.value)}
-        isSearchable={false}
-      />
-    );
-  }
+  const handleChange = React.useCallback(
+    ({ value }: BasicSelectOption) => {
+      onChange(value);
+    },
+    [onChange]
+  );
+
+  return (
+    <Select
+      aria-labelledby="background-task-status-filter-label"
+      className="input-medium"
+      id={id}
+      onChange={handleChange}
+      options={options}
+      value={options.find(o => o.value === value)}
+      isSearchable={false}
+    />
+  );
 }

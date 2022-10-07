@@ -102,29 +102,49 @@ export default class Search extends React.PureComponent<Props> {
       <section className="big-spacer-top big-spacer-bottom">
         <ul className="bt-search-form">
           <li>
-            <h6 id="background-task-status-filter-label" className="bt-search-form-label">
-              {translate('status')}
-            </h6>
-            <StatusFilter onChange={this.handleStatusChange} value={status} />
+            <div className="display-flex-column">
+              <label
+                id="background-task-status-filter-label"
+                className="text-bold little-spacer-bottom"
+                htmlFor="status-filter">
+                {translate('status')}
+              </label>
+              <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
+            </div>
           </li>
           {types.length > 1 && (
             <li>
-              <h6 id="background-task-type-filter-label" className="bt-search-form-label">
-                {translate('type')}
-              </h6>
-              <TypesFilter onChange={this.handleTypeChange} types={types} value={taskType} />
+              <div className="display-flex-column">
+                <label
+                  id="background-task-type-filter-label"
+                  className="text-bold little-spacer-bottom"
+                  htmlFor="types-filter">
+                  {translate('type')}
+                </label>
+                <TypesFilter
+                  id="types-filter"
+                  onChange={this.handleTypeChange}
+                  types={types}
+                  value={taskType}
+                />
+              </div>
             </li>
           )}
           {!component && (
             <li>
-              <h6 className="bt-search-form-label">
-                {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
-              </h6>
-              <CurrentsFilter onChange={this.handleCurrentsChange} value={currents} />
+              <div className="display-flex-column">
+                <label className="text-bold little-spacer-bottom" htmlFor="currents-filter">
+                  {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
+                </label>
+                <CurrentsFilter
+                  id="currents-filter"
+                  onChange={this.handleCurrentsChange}
+                  value={currents}
+                />
+              </div>
             </li>
           )}
           <li>
-            <h6 className="bt-search-form-label">{translate('date')}</h6>
             <DateFilter
               maxExecutedAt={maxExecutedAt}
               minSubmittedAt={minSubmittedAt}

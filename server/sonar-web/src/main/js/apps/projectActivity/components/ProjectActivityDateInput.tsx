@@ -40,7 +40,7 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
 
   render() {
     return (
-      <div>
+      <div className="display-flex-end">
         <DateRangeInput
           onChange={this.handleChange}
           value={{ from: this.props.from, to: this.props.to }}

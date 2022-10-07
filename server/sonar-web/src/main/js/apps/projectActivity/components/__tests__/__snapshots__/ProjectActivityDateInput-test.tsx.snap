@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly the date inputs 1`] = `
-<div>
+<div
+  className="display-flex-end"
+>
   <DateRangeInput
     onChange={[Function]}
     value={
