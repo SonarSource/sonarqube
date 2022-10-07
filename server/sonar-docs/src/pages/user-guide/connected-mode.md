@@ -22,6 +22,6 @@ You can activate or deactivate Smart Notifications in SonarLint on the IDE side 
 See the following links for instructions on setting up Connected Mode for each supported IDE:
 
 * [Eclipse](https://github.com/SonarSource/sonarlint-eclipse/wiki/Connected-Mode)
-* [IntelliJ IDEA](https://www.sonarlint.org/intellij/#intellij-connected-mode)
+* [IntelliJ IDEA](https://github.com/SonarSource/sonarlint-intellij/wiki/Bind-to-SonarQube-or-SonarCloud)
 * [Visual Studio](https://github.com/SonarSource/sonarlint-visualstudio/wiki/Connected-Mode)
 * [VS Code](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode#connected-mode)
