@@ -57,7 +57,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void load_ws_definitions_at_startup() {
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{
       newWs("api/foo/index", a -> {
       }),
       newWs("api/bar/index", a -> {
@@ -75,7 +75,7 @@ public class WebServiceEngineTest {
 
   @DataProvider
   public static Object[][] responseData() {
-    return new Object[][] {
+    return new Object[][]{
       {"/api/ping", "pong", 200},
       {"api/ping", "pong", 200},
       {"api/ping.json", "pong", 200},
@@ -130,35 +130,31 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void POST_is_considered_as_GET_if_POST_is_not_supported() {
-    Request request = new TestRequest().setMethod("POST").setPath("api/ping");
+  public void fail_if_method_POST_is_not_allowed() {
+    Request request = new TestRequest().setMethod("POST").setPath("api/foo");
 
-    DumbResponse response = run(request, newPingWs(a -> {
-    }));
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setPost(false)));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("pong");
-    assertThat(response.status()).isEqualTo(200);
-  }
-
-  @Test
-  public void method_PUT_is_not_allowed() {
-    Request request = new TestRequest().setMethod("PUT").setPath("/api/ping");
-
-    DumbResponse response = run(request, newPingWs(a -> {
-    }));
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method PUT is not allowed\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method GET is required\"}]}");
     assertThat(response.status()).isEqualTo(405);
   }
 
+  @DataProvider
+  public static String[] verbs() {
+    return new String[]{
+      "PUT", "DELETE", "HEAD", "PATCH", "CONNECT", "OPTIONS", "TRACE"
+    };
+  }
+
   @Test
-  public void method_DELETE_is_not_allowed() {
-    Request request = new TestRequest().setMethod("DELETE").setPath("api/ping");
+  @UseDataProvider("verbs")
+  public void method_is_not_allowed(String verb) {
+    Request request = new TestRequest().setMethod(verb).setPath("/api/ping");
 
     DumbResponse response = run(request, newPingWs(a -> {
     }));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method DELETE is not allowed\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method " + verb + " is not allowed\"}]}");
     assertThat(response.status()).isEqualTo(405);
   }
 
@@ -315,7 +311,7 @@ public class WebServiceEngineTest {
     })));
 
     assertThat(response.stream().outputAsString()).isEqualTo(
-        "{\"scope\":\"PROJECT\",\"errors\":[{\"msg\":\"Bad request !\"}]}");
+      "{\"scope\":\"PROJECT\",\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.status()).isEqualTo(400);
     assertThat(response.mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
@@ -394,7 +390,7 @@ public class WebServiceEngineTest {
   public void fail_when_start_in_not_called() {
     Request request = new TestRequest().setPath("/api/ping");
     DumbResponse response = new DumbResponse();
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {newPingWs(a -> {
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{newPingWs(a -> {
     })});
 
     underTest.execute(request, response);

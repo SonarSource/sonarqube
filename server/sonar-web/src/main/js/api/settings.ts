@@ -20,7 +20,7 @@
 import { omitBy } from 'lodash';
 import { isCategoryDefinition } from '../apps/settings/utils';
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
   ExtendedSettingDefinition,
@@ -105,9 +105,9 @@ export function checkSecretKey(): Promise<{ secretKeyAvailable: boolean }> {
 }
 
 export function generateSecretKey(): Promise<{ secretKey: string }> {
-  return postJSON('/api/settings/generate_secret_key').catch(throwGlobalError);
+  return getJSON('/api/settings/generate_secret_key').catch(throwGlobalError);
 }
 
 export function encryptValue(value: string): Promise<{ encryptedValue: string }> {
-  return postJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
+  return getJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
 }
