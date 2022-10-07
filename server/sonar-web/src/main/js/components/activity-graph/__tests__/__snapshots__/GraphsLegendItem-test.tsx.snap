@@ -30,6 +30,7 @@ exports[`should render correctly a legend: with legend 1`] = `
     Foo
   </span>
   <ClearButton
+    aria-label="project_activity.graphs.custom.remove_metric.Foo"
     className="button-tiny spacer-left text-middle"
     iconProps={
       Object {

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { ClearButton } from '../../components/controls/buttons';
 import AlertWarnIcon from '../../components/icons/AlertWarnIcon';
 import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
+import { translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -40,22 +41,25 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
   };
 
   render() {
+    const { className, name, index } = this.props;
     const isActionable = this.props.removeMetric != null;
-    const legendClass = classNames(
-      { 'activity-graph-legend-actionable': isActionable },
-      this.props.className
-    );
+    const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
+
     return (
       <span className={legendClass}>
         {this.props.showWarning ? (
           <AlertWarnIcon className="spacer-right" />
         ) : (
-          <ChartLegendIcon className="text-middle spacer-right" index={this.props.index} />
+          <ChartLegendIcon className="text-middle spacer-right" index={index} />
         )}
-        <span className="text-middle">{this.props.name}</span>
+        <span className="text-middle">{name}</span>
         {isActionable && (
           <ClearButton
             className="button-tiny spacer-left text-middle"
+            aria-label={translateWithParameters(
+              'project_activity.graphs.custom.remove_metric',
+              name
+            )}
             iconProps={{ size: 12 }}
             onClick={this.handleClick}
           />
