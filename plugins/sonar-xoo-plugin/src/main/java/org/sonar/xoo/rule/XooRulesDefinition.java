@@ -253,9 +253,9 @@ public class XooRulesDefinition implements RulesDefinition {
 
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 6))) {
       hotspot
-        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "3.1.1", "4.2.2");
+        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "2.8.7", "3.1.1", "4.2.2");
       oneVulnerabilityIssuePerModule
-        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "11.1.2", "14.5.1");
+        .addOwaspAsvs(OwaspAsvsVersion.V4_0, "11.1.2", "14.5.1", "14.5.4");
     }
 
     NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
