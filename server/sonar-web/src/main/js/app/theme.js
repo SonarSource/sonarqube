@@ -150,8 +150,8 @@ module.exports = {
 
     info50: '#ECF6FE',
     info100: '#D9EDF7',
-    info500: '#0271B9',
     info400: '#4B9FD5',
+    info500: '#0271B9',
 
     success500: '#008A25',
     success500a20: 'rgba(0, 138, 37, 0.20)',

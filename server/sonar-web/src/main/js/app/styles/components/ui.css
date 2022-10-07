@@ -71,7 +71,7 @@
   vertical-align: middle;
   height: 20px;
   padding: 0 8px;
-  background-color: var(--blue);
+  background-color: var(--primary400);
   border-radius: 2px;
   line-height: 20px;
   font-size: var(--smallFontSize);
