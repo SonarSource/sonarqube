@@ -65,24 +65,32 @@ export default class GraphsHeader extends React.PureComponent<Props> {
 
     return (
       <div className={classNames(className, 'position-relative')}>
-        <Select
-          className="pull-left input-medium"
-          isSearchable={false}
-          onChange={this.handleGraphChange}
-          options={selectOptions}
-          value={selectOptions.find(option => option.value === graph)}
-        />
-        {isCustomGraph(graph) &&
-          addCustomMetric !== undefined &&
-          removeCustomMetric !== undefined && (
-            <AddGraphMetric
-              addMetric={addCustomMetric}
-              metrics={metrics}
-              metricsTypeFilter={metricsTypeFilter}
-              removeMetric={removeCustomMetric}
-              selectedMetrics={selectedMetrics}
+        <div className="display-flex-end">
+          <div className="display-flex-column">
+            <label className="text-bold little-spacer-bottom" htmlFor="graph-select">
+              {translate('project_activity.graphs.choose_type')}
+            </label>
+            <Select
+              id="graph-select"
+              className="input-medium"
+              isSearchable={false}
+              onChange={this.handleGraphChange}
+              options={selectOptions}
+              value={selectOptions.find(option => option.value === graph)}
             />
-          )}
+          </div>
+          {isCustomGraph(graph) &&
+            addCustomMetric !== undefined &&
+            removeCustomMetric !== undefined && (
+              <AddGraphMetric
+                addMetric={addCustomMetric}
+                metrics={metrics}
+                metricsTypeFilter={metricsTypeFilter}
+                removeMetric={removeCustomMetric}
+                selectedMetrics={selectedMetrics}
+              />
+            )}
+        </div>
       </div>
     );
   }
