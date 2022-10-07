@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -83,6 +84,7 @@ public class IssueQuery {
   private final Collection<String> pciDss32;
   private final Collection<String> pciDss40;
   private final Collection<String> owaspAsvs40;
+  private final Integer owaspAsvsLevel;
   private final Collection<String> owaspTop10For2021;
   private final Collection<String> sansTop25;
   private final Collection<String> cwe;
@@ -125,6 +127,7 @@ public class IssueQuery {
     this.pciDss32 = defaultCollection(builder.pciDss32);
     this.pciDss40 = defaultCollection(builder.pciDss40);
     this.owaspAsvs40 = defaultCollection(builder.owaspAsvs40);
+    this.owaspAsvsLevel = builder.owaspAsvsLevel;
     this.owaspTop10 = defaultCollection(builder.owaspTop10);
     this.owaspTop10For2021 = defaultCollection(builder.owaspTop10For2021);
     this.sansTop25 = defaultCollection(builder.sansTop25);
@@ -230,6 +233,11 @@ public class IssueQuery {
   public Collection<String> owaspAsvs40() {
     return owaspAsvs40;
   }
+
+  public Optional<Integer> getOwaspAsvsLevel() {
+    return Optional.ofNullable(owaspAsvsLevel);
+  }
+
   public Collection<String> owaspTop10() {
     return owaspTop10;
   }
@@ -353,6 +361,7 @@ public class IssueQuery {
     private Collection<String> pciDss32;
     private Collection<String> pciDss40;
     private Collection<String> owaspAsvs40;
+    private Integer owaspAsvsLevel;
     private Collection<String> owaspTop10;
     private Collection<String> owaspTop10For2021;
     private Collection<String> sansTop25;
@@ -480,6 +489,11 @@ public class IssueQuery {
 
     public Builder owaspAsvs40(@Nullable Collection<String> o) {
       this.owaspAsvs40 = o;
+      return this;
+    }
+
+    public Builder owaspAsvsLevel(@Nullable Integer level) {
+      this.owaspAsvsLevel = level;
       return this;
     }
 

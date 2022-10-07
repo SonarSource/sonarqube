@@ -125,6 +125,7 @@ public class SearchActionTest {
   private static final String PARAM_PCI_DSS_32 = "pciDss-3.2";
   private static final String PARAM_PCI_DSS_40 = "pciDss-4.0";
   private static final String PARAM_OWASP_ASVS_40 = "owaspAsvs-4.0";
+  private static final String PARAM_OWASP_ASVS_LEVEL = "owaspAsvsLevel";
   private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
   private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
@@ -1235,7 +1236,7 @@ public class SearchActionTest {
         newHotspotLocation(file.uuid(), "security hotspot flow message 1", 3, 3, 0, 10),
         newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 2", 5, 5, 0, 15),
         newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 3", 7, 7, 0, 18),
-        newHotspotLocation(null,"security hotspot flow message 4", 12, 12, 2, 8))
+        newHotspotLocation(null, "security hotspot flow message 4", 12, 12, 2, 8))
       .collect(toList());
 
     DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder().addFlow(DbIssues.Flow.newBuilder().addAllLocation(hotspotLocations));
@@ -1264,7 +1265,7 @@ public class SearchActionTest {
         tuple(file.getKey(), "security hotspot flow message 1", 3, 3, 0, 10),
         tuple(anotherFile.getKey(), "security hotspot flow message 2", 5, 5, 0, 15),
         tuple(anotherFile.getKey(), "security hotspot flow message 3", 7, 7, 0, 18),
-        tuple(file.getKey(),"security hotspot flow message 4", 12, 12, 2, 8));
+        tuple(file.getKey(), "security hotspot flow message 4", 12, 12, 2, 8));
   }
 
   @Test
@@ -1528,6 +1529,61 @@ public class SearchActionTest {
     assertThat(responseFor124.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspot4.getKey());
+  }
+
+  @Test
+  public void returns_hotspots_with_specified_owaspAsvs_level() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("cwe:117", "cwe:190")));
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:2.1.1")));
+    RuleDto rule4 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:1.1.1")));
+    RuleDto rule5 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:3.6.1")));
+    insertHotspot(project, file, rule1);
+    insertHotspot(project, file, rule2);
+    IssueDto hotspot3 = insertHotspot(project, file, rule3);
+    IssueDto hotspot4 = insertHotspot(project, file, rule4);
+    IssueDto hotspot5 = insertHotspot(project, file, rule5);
+    indexIssues();
+
+    SearchWsResponse responseFor1 = newRequest(project)
+      .setParam(PARAM_OWASP_ASVS_40, "1,2,3")
+      .setParam(PARAM_OWASP_ASVS_LEVEL, "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseFor1.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(hotspot3.getKey());
+
+    SearchWsResponse responseFor2 = newRequest(project)
+      .setParam(PARAM_OWASP_ASVS_40, "1,2,3")
+      .setParam(PARAM_OWASP_ASVS_LEVEL, "2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseFor2.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(hotspot3.getKey(), hotspot4.getKey());
+
+    SearchWsResponse responseFor3 = newRequest(project)
+      .setParam(PARAM_OWASP_ASVS_40, "1.1.1,2,3")
+      .setParam(PARAM_OWASP_ASVS_LEVEL, "3")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseFor3.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(hotspot3.getKey(), hotspot4.getKey(), hotspot5.getKey());
+
+    SearchWsResponse responseFor1111 = newRequest(project)
+      .setParam(PARAM_OWASP_ASVS_40, "1.1.1")
+      .setParam(PARAM_OWASP_ASVS_LEVEL, "1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseFor1111.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .isEmpty();
   }
 
   @Test
@@ -1877,8 +1933,8 @@ public class SearchActionTest {
 
     IssueDto[] hotspots = IntStream.range(0, 3)
       .mapToObj(i -> {
-        RuleKey ruleKey = RuleKey.of("repository-"+i,"rule-"+i);
-        RuleDto rule = newRule(SECURITY_HOTSPOT,ruleKey)
+        RuleKey ruleKey = RuleKey.of("repository-" + i, "rule-" + i);
+        RuleDto rule = newRule(SECURITY_HOTSPOT, ruleKey)
           .setSecurityStandards(Sets.newHashSet(SQCategory.WEAK_CRYPTOGRAPHY.getKey()));
         return insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
           .setAssigneeUuid("assignee-uuid")
@@ -2015,7 +2071,7 @@ public class SearchActionTest {
     });
   }
 
-  private RuleDto newRule(RuleType ruleType, RuleKey ruleKey){
+  private RuleDto newRule(RuleType ruleType, RuleKey ruleKey) {
     RuleDto ruleDto = RuleTesting.newRule(ruleKey)
       .setType(ruleType);
     dbTester.rules().insert(ruleDto);

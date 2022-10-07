@@ -330,10 +330,14 @@ public final class SecurityStandards {
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
-  public static Set<String> getRequirementsForCategoryAndLevel(OwaspAsvs category, int level) {
+  public static Set<String> getRequirementsForCategoryAndLevel(String category, int level) {
     return OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).stream()
-      .filter(req -> req.startsWith(category.category() + "."))
+      .filter(req -> req.startsWith(category + "."))
       .collect(Collectors.toSet());
+  }
+
+  public static Set<String> getRequirementsForCategoryAndLevel(OwaspAsvs category, int level) {
+    return getRequirementsForCategoryAndLevel(category.category(), level);
   }
 
   private static Set<String> getMatchingStandards(Set<String> securityStandards, String prefix) {

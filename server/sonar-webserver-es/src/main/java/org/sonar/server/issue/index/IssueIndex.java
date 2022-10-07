@@ -95,6 +95,7 @@ import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
+import org.springframework.util.CollectionUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -463,7 +464,7 @@ public class IssueIndex {
     // security category
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_32, PCI_DSS_32, query.pciDss32(), filters);
     addSecurityCategoryPrefixFilter(FIELD_ISSUE_PCI_DSS_40, PCI_DSS_40, query.pciDss40(), filters);
-    addSecurityCategoryPrefixFilter(FIELD_ISSUE_OWASP_ASVS_40, OWASP_ASVS_40, query.owaspAsvs40(), filters);
+    addOwaspAsvsFilter(FIELD_ISSUE_OWASP_ASVS_40, OWASP_ASVS_40, query, filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
@@ -478,6 +479,34 @@ public class IssueIndex {
     addNewCodeReferenceFilter(filters, query);
     addNewCodeReferenceFilterByProjectsFilter(filters, query);
     return filters;
+  }
+
+  private static void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
+    if (!CollectionUtils.isEmpty(query.owaspAsvs40())) {
+      Set<String> requirements = calculateRequirementsForOwaspAsvs40Params(query);
+      QueryBuilder securityCategoryFilter = termsQuery(fieldName, requirements);
+      allFilters.addFilter(
+        fieldName,
+        facet.getFilterScope(),
+        boolQuery()
+          .must(securityCategoryFilter)
+          .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+    }
+  }
+
+
+  private static Set<String> calculateRequirementsForOwaspAsvs40Params(IssueQuery query) {
+    int level = query.getOwaspAsvsLevel().orElse(3);
+    List<String> levelRequirements = OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level);
+    return query.owaspAsvs40().stream()
+      .flatMap(value -> {
+        // it's a specific category required
+        if (value.contains(".")) {
+          return Stream.of(value).filter(levelRequirements::contains);
+        } else {
+          return SecurityStandards.getRequirementsForCategoryAndLevel(value, level).stream();
+        }
+      }).collect(Collectors.toSet());
   }
 
   private static void addSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
@@ -627,11 +656,11 @@ public class IssueIndex {
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
     Set<TopAggregationDefinition<?>> facets = Stream.concat(
-      Stream.of(EFFORT_TOP_AGGREGATION),
-      facetNames.stream()
-        .map(FACETS_BY_NAME::get)
-        .filter(Objects::nonNull)
-        .map(Facet::getTopAggregationDef))
+        Stream.of(EFFORT_TOP_AGGREGATION),
+        facetNames.stream()
+          .map(FACETS_BY_NAME::get)
+          .filter(Objects::nonNull)
+          .map(Facet::getTopAggregationDef))
       .collect(MoreCollectors.toSet(facetNames.size()));
 
     return new RequestFiltersComputer(allFilters, facets);
@@ -836,11 +865,11 @@ public class IssueIndex {
       RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
       t ->
-      // add aggregation of type "missing" to return count of unresolved issues in the facet
-      t.subAggregation(
-        addEffortAggregationIfNeeded(query, AggregationBuilders
-          .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
-          .field(RESOLUTIONS.getFieldName()))));
+        // add aggregation of type "missing" to return count of unresolved issues in the facet
+        t.subAggregation(
+          addEffortAggregationIfNeeded(query, AggregationBuilders
+            .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
+            .field(RESOLUTIONS.getFieldName()))));
     esRequest.aggregation(aggregation);
   }
 
@@ -960,10 +989,10 @@ public class IssueIndex {
         ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
         t ->
-        // add sub-aggregation to return issue count for current user
-        aggregationHelper.getSubAggregationHelper()
-          .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
-          .ifPresent(t::subAggregation));
+          // add sub-aggregation to return issue count for current user
+          aggregationHelper.getSubAggregationHelper()
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[]{uuid})
+            .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }
   }

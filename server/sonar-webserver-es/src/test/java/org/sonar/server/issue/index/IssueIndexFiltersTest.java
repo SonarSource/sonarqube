@@ -776,6 +776,58 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
+  public void filter_by_owaspAsvs40_category() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2")),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("1")), "I1", "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("2")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("3")));
+  }
+
+  @Test
+  public void filter_by_owaspAsvs40_specific_requirement() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2", "2.2.2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.2.2")),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("1.1.1")), "I1", "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("2.2.2")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspAsvs40(singletonList("3.3.3")));
+  }
+
+  @Test
+  public void filter_by_owaspAsvs40_level() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("2.1.1", "1.1.1", "1.11.3")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("1.1.1", "1.11.3")),
+      newDoc("I3", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(singletonList("1.11.3")),
+      newDoc("IError1", file).setType(RuleType.VULNERABILITY).setOwaspAsvs40(asList("5.5.1", "7.2.2", "10.2.6")),
+      newDoc("IError2", file));
+
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().owaspAsvs40(singletonList("1.1.1")).owaspAsvsLevel(1));
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().owaspAsvs40(singletonList("1.1.1")).owaspAsvsLevel(2),
+      "I1", "I2");
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().owaspAsvs40(singletonList("1.1.1")).owaspAsvsLevel(3),
+      "I1", "I2");
+  }
+
+  @Test
   public void filter_by_owaspTop10() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);

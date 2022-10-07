@@ -199,6 +199,7 @@ public class SearchAction implements HotspotsWsAction {
     }
     if (!wsRequest.getOwaspAsvs40().isEmpty()) {
       builder.owaspAsvs40(wsRequest.getOwaspAsvs40());
+      wsRequest.getOwaspAsvsLevel().ifPresent(builder::owaspAsvsLevel);
     }
     if (!wsRequest.getOwaspTop10For2017().isEmpty()) {
       builder.owaspTop10(wsRequest.getOwaspTop10For2017());
@@ -269,6 +270,7 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Filters hotspots with lower or equal OWASP ASVS level to the parameter value. Should be used in combination with the 'owaspAsvs-4.0' parameter.")
       .setSince("9.7")
       .setPossibleValues(1, 2, 3)
+      .setRequired(false)
       .setExampleValue("2");
     action.createParam(PARAM_PCI_DSS_32)
       .setDescription("Comma-separated list of PCI DSS v3.2 categories.")
@@ -449,13 +451,6 @@ public class SearchAction implements HotspotsWsAction {
       checkArgument(wsRequest.getProjectKey().isPresent(),
         "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT_KEY);
     }
-    Set<Integer> validLevels = Set.of(1, 2, 3);
-    String levelsStringValue = "{1, 2, 3}";
-    wsRequest.getOwaspAsvsLevel().ifPresent(
-      oal -> checkArgument(validLevels.contains(oal),
-        "value \"%d\" is not valid for parameter %s. only one of %s is acceptable.",
-        oal, PARAM_OWASP_ASVS_LEVEL, levelsStringValue)
-    );
   }
 
   private static void addMainBranchFilter(@NotNull ComponentDto project, IssueQuery.Builder builder) {

@@ -105,9 +105,11 @@ public class IssueQueryTest {
   public void build_owasp_asvs_query() {
     IssueQuery query = IssueQuery.builder()
       .owaspAsvs40(List.of("1.2.3", "3.2.1"))
+      .owaspAsvsLevel(2)
       .build();
 
     assertThat(query.owaspAsvs40()).containsOnly("1.2.3", "3.2.1");
+    assertThat(query.getOwaspAsvsLevel()).isPresent().hasValue(2);
   }
 
   @Test
@@ -120,6 +122,7 @@ public class IssueQueryTest {
     assertThat(query.owaspTop10()).containsOnly("a1", "a2");
     assertThat(query.owaspTop10For2021()).containsOnly("a3", "a4");
   }
+
 
   @Test
   public void build_query_without_dates() {
