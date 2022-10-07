@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Dropdown from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { SourceLine } from '../../../types/types';
 import { ButtonPlain } from '../../controls/buttons';
 import SCMPopup from './SCMPopup';
@@ -39,7 +39,7 @@ export function LineSCM({ line, previousLine }: LineSCMProps) {
   );
 
   if (hasPopup) {
-    let ariaLabel = translate('source_viewer.click_for_scm_info');
+    let ariaLabel = translateWithParameters('source_viewer.click_for_scm_info', line.line);
     if (line.scmAuthor) {
       ariaLabel = `${translateWithParameters(
         'source_viewer.author_X',

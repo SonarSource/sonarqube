@@ -186,7 +186,8 @@ it('should show SCM information', async () => {
   ).toBeInTheDocument();
   await user.click(
     firstRowScreen.getByRole('button', {
-      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info'
+      name:
+        'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1'
     })
   );
 
@@ -210,40 +211,17 @@ it('should show SCM information', async () => {
   // SCM with no date
   row = await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ });
   expect(row).toBeInTheDocument();
-  const thirdRowScreen = within(row);
-  await user.click(
-    thirdRowScreen.getByRole('button', {
-      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info'
-    })
-  );
-
-  expect(
-    await thirdRowScreen.findByRole('heading', { level: 4, name: 'author' })
-  ).toBeInTheDocument();
-  expect(
-    thirdRowScreen.queryByRole('heading', {
-      level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on'
-    })
-  ).not.toBeInTheDocument();
-  expect(
-    thirdRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
-  ).toBeInTheDocument();
-
-  // SCM with no date no author
-  row = await screen.findByRole('row', { name: /\* 5$/ });
-  expect(row).toBeInTheDocument();
   const fourthRowScreen = within(row);
-  expect(fourthRowScreen.getByText('…')).toBeInTheDocument();
   await user.click(
     fourthRowScreen.getByRole('button', {
-      name: 'source_viewer.click_for_scm_info'
+      name:
+        'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4'
     })
   );
 
   expect(
-    fourthRowScreen.queryByRole('heading', { level: 4, name: 'author' })
-  ).not.toBeInTheDocument();
+    await fourthRowScreen.findByRole('heading', { level: 4, name: 'author' })
+  ).toBeInTheDocument();
   expect(
     fourthRowScreen.queryByRole('heading', {
       level: 4,
@@ -252,6 +230,30 @@ it('should show SCM information', async () => {
   ).not.toBeInTheDocument();
   expect(
     fourthRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
+  ).toBeInTheDocument();
+
+  // SCM with no date no author
+  row = await screen.findByRole('row', { name: /\* 5$/ });
+  expect(row).toBeInTheDocument();
+  const fithRowScreen = within(row);
+  expect(fithRowScreen.getByText('…')).toBeInTheDocument();
+  await user.click(
+    fithRowScreen.getByRole('button', {
+      name: 'source_viewer.click_for_scm_info.5'
+    })
+  );
+
+  expect(
+    fithRowScreen.queryByRole('heading', { level: 4, name: 'author' })
+  ).not.toBeInTheDocument();
+  expect(
+    fithRowScreen.queryByRole('heading', {
+      level: 4,
+      name: 'source_viewer.tooltip.scm.commited_on'
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    fithRowScreen.getByRole('heading', { level: 4, name: 'source_viewer.tooltip.scm.revision' })
   ).toBeInTheDocument();
 
   // No SCM Popup
