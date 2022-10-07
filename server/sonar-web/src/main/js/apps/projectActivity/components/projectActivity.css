@@ -68,12 +68,6 @@
   margin-bottom: 10px;
 }
 
-.project-activity-date {
-  margin-bottom: calc(2 * var(--gridSize));
-  font-size: var(--bigFontSize);
-  font-weight: bold;
-}
-
 .project-activity-analysis {
   position: relative;
   min-height: var(--smallControlHeight);

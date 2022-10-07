@@ -199,7 +199,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                   <Tooltip
                     mouseEnterDelay={0.5}
                     overlay={`${translate('version')} ${version.version}`}>
-                    <span className="analysis-version">{version.version}</span>
+                    <h2 className="analysis-version">{version.version}</h2>
                   </Tooltip>
                 </div>
               )}
@@ -209,9 +209,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                     className="project-activity-day"
                     data-day={toShortNotSoISOString(Number(day))}
                     key={day}>
-                    <div className="project-activity-date">
+                    <h3>
                       <DateFormatter date={Number(day)} long={true} />
-                    </div>
+                    </h3>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&
                         version.byDay[day].map(analysis => this.renderAnalysis(analysis))}

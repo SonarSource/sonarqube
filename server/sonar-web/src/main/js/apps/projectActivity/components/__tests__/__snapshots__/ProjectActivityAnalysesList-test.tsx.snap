@@ -20,11 +20,11 @@ exports[`should correctly filter analyses by category 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.4"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.4
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -35,14 +35,12 @@ exports[`should correctly filter analyses by category 1`] = `
         data-day="ISO.1477267200000"
         key="1477267200000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477267200000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -101,11 +99,11 @@ exports[`should correctly filter analyses by date range 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.5-SNAPSHOT"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.5-SNAPSHOT
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -116,14 +114,12 @@ exports[`should correctly filter analyses by date range 1`] = `
         data-day="ISO.1477526400000"
         key="1477526400000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477526400000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -182,11 +178,11 @@ exports[`should render correctly: application 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.5-SNAPSHOT"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.5-SNAPSHOT
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -197,14 +193,12 @@ exports[`should render correctly: application 1`] = `
         data-day="ISO.1477526400000"
         key="1477526400000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477526400000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -272,11 +266,11 @@ exports[`should render correctly: application 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.4"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.4
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -287,14 +281,12 @@ exports[`should render correctly: application 1`] = `
         data-day="ISO.1477440000000"
         key="1477440000000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477440000000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -338,14 +330,12 @@ exports[`should render correctly: application 1`] = `
         data-day="ISO.1477267200000"
         key="1477267200000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477267200000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -404,11 +394,11 @@ exports[`should render correctly: default 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.5-SNAPSHOT"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.5-SNAPSHOT
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -419,14 +409,12 @@ exports[`should render correctly: default 1`] = `
         data-day="ISO.1477526400000"
         key="1477526400000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477526400000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -494,11 +482,11 @@ exports[`should render correctly: default 1`] = `
         mouseEnterDelay={0.5}
         overlay="version 6.4"
       >
-        <span
+        <h2
           className="analysis-version"
         >
           6.4
-        </span>
+        </h2>
       </Tooltip>
     </div>
     <ul
@@ -509,14 +497,12 @@ exports[`should render correctly: default 1`] = `
         data-day="ISO.1477440000000"
         key="1477440000000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477440000000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
@@ -560,14 +546,12 @@ exports[`should render correctly: default 1`] = `
         data-day="ISO.1477267200000"
         key="1477267200000"
       >
-        <div
-          className="project-activity-date"
-        >
+        <h3>
           <DateFormatter
             date={1477267200000}
             long={true}
           />
-        </div>
+        </h3>
         <ul
           className="project-activity-analyses-list"
         >
