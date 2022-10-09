@@ -276,7 +276,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       request,
       data,
       Paging.forPageIndex(
-          request.getPage())
+        request.getPage())
         .withPageSize(request.getPageSize())
         .andTotal(data.getComponentCount()));
   }
@@ -289,24 +289,25 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setTotal(paging.total())
       .build();
 
+    boolean isMainBranch = data.getBaseComponent().getMainBranchProjectUuid() == null;
     response.setBaseComponent(
       toWsComponent(
         data.getBaseComponent(),
         data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
-        data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
+        data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
 
     for (ComponentDto componentDto : data.getComponents()) {
       if (componentDto.getCopyComponentUuid() != null) {
-        String branch = data.getBranchByReferenceUuid().get(componentDto.getCopyComponentUuid());
+        String refBranch = data.getBranchByReferenceUuid().get(componentDto.getCopyComponentUuid());
         response.addComponents(toWsComponent(
           componentDto,
           data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-          data.getReferenceComponentsByUuid(), branch, null));
+          data.getReferenceComponentsByUuid(), refBranch, null));
       } else {
         response.addComponents(toWsComponent(
           componentDto,
           data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-          data.getReferenceComponentsByUuid(), request.getBranch(), request.getPullRequest()));
+          data.getReferenceComponentsByUuid(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
       }
     }
 
@@ -342,7 +343,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPageSize(request.getPageSize())
       .setTotal(0);
     if (baseComponent != null) {
-      response.setBaseComponent(componentDtoToWsComponent(baseComponent, request.getBranch(), request.getPullRequest()));
+      boolean isMainBranch = baseComponent.getMainBranchProjectUuid() == null;
+      response.setBaseComponent(componentDtoToWsComponent(baseComponent, isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
     return response.build();
   }
@@ -467,7 +469,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private Map<String, String> searchReferenceBranchKeys(DbSession dbSession, Set<String> referenceUuids) {
-    return dbClient.branchDao().selectByUuids(dbSession, referenceUuids).stream().collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
+    return dbClient.branchDao().selectByUuids(dbSession, referenceUuids).stream()
+      .filter(b -> !b.isMain())
+      .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
   }
 
   private static boolean isPR(@Nullable String pullRequest) {

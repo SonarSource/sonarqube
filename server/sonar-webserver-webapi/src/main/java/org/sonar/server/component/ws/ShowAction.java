@@ -155,13 +155,18 @@ public class ShowAction implements ComponentsWsAction {
       boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
       if (component.getCopyComponentUuid() != null) {
         String branch = dbClient.branchDao().selectByUuid(dbSession, component.getCopyComponentUuid())
+          .filter(b -> !b.isMain())
           .map(BranchDto::getKey)
           .orElse(null);
         return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, branch, null)
           .setNeedIssueSync(needIssueSync);
+      } else if (component.getMainBranchProjectUuid() != null) {
+        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
+          .setNeedIssueSync(needIssueSync);
+      } else {
+        return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, null, null)
+          .setNeedIssueSync(needIssueSync);
       }
-      return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis, request.branch, request.pullRequest)
-        .setNeedIssueSync(needIssueSync);
     }
   }
 

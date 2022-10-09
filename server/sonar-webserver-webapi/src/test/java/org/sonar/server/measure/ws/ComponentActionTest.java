@@ -139,6 +139,23 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void branch_not_set_if_main_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "master")
+      .setParam(PARAM_METRIC_KEYS, "complexity")
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), "");
+  }
+
+  @Test
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);

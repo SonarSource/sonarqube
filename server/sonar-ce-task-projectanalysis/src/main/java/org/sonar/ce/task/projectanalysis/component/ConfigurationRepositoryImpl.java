@@ -33,9 +33,11 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
   private final Supplier<Configuration> configuration;
 
   public ConfigurationRepositoryImpl(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, ProjectConfigurationFactory f) {
-    String branchUuid = treeRootHolder.getRoot().getUuid();
-    String projectUuid = analysisMetadataHolder.getProject().getUuid();
-    this.configuration = Suppliers.memoize(() -> f.newProjectConfiguration(projectUuid, branchUuid));
+    this.configuration = Suppliers.memoize(() -> {
+      String branchUuid = treeRootHolder.getRoot().getUuid();
+      String projectUuid = analysisMetadataHolder.getProject().getUuid();
+      return f.newProjectConfiguration(projectUuid, branchUuid);
+    });
   }
 
   @Override

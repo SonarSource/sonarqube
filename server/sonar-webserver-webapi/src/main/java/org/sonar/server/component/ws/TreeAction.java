@@ -230,6 +230,7 @@ public class TreeAction implements ComponentsWsAction {
 
     Map<String, String> branchKeyByReferenceUuid = dbClient.branchDao().selectByUuids(dbSession, referenceComponentsByUuid.keySet())
       .stream()
+      .filter(b -> !b.isMain())
       .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
 
     response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
@@ -255,8 +256,10 @@ public class TreeAction implements ComponentsWsAction {
 
       if (referenceComponent != null) {
         wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
-      } else {
+      } else if (component.getMainBranchProjectUuid() != null) {
         wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
+      } else {
+        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, null, null);
       }
     }
 

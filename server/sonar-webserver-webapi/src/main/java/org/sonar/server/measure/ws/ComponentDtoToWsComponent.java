@@ -56,7 +56,7 @@ class ComponentDtoToWsComponent {
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
     Component.Builder wsComponent = Component.newBuilder()
-      .setKey(component.getKey())
+      .setKey(ComponentDto.removeBranchAndPullRequestFromKey(component.getKey()))
       .setName(component.name())
       .setQualifier(component.qualifier());
     ofNullable(branch).ifPresent(wsComponent::setBranch);

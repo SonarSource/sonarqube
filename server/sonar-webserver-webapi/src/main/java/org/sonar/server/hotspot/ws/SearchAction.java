@@ -638,7 +638,7 @@ public class SearchAction implements HotspotsWsAction {
     for (ComponentDto component : components) {
       String branchUuid = component.getCopyComponentUuid() != null ? component.getCopyComponentUuid() : component.branchUuid();
       BranchDto branchDto = searchResponseData.getBranch(branchUuid);
-      if (branchDto == null) {
+      if (branchDto == null && component.getCopyComponentUuid() == null) {
         throw new IllegalStateException("Could not find a branch for a component " + component.getKey() + " with uuid " + component.uuid());
       }
       responseBuilder.addComponents(responseFormatter.formatComponent(builder, component, branchDto));

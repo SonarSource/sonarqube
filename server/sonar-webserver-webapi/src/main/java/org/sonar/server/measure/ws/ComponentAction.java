@@ -40,6 +40,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -159,8 +160,8 @@ public class ComponentAction implements MeasuresWsAction {
       }
 
       Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
-      Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
-      return buildResponse(request, component, refComponent, measuresByMetric, metrics, period);
+      Optional<RefComponent> reference = getReference(dbSession, component);
+      return buildResponse(request, component, reference, measuresByMetric, metrics, period);
     }
   }
 
@@ -223,31 +224,33 @@ public class ComponentAction implements MeasuresWsAction {
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request, @Nullable String branch, @Nullable String pullRequest) {
     String componentKey = request.getComponent();
-
-    if (branch == null && pullRequest == null) {
-      return componentFinder.getByKey(dbSession, componentKey);
-    }
-
     checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
+  private Optional<RefComponent> getReference(DbSession dbSession, ComponentDto component) {
     if (component.getCopyComponentUuid() == null) {
       return Optional.empty();
     }
 
-    return dbClient.componentDao().selectByUuid(dbSession, component.getCopyComponentUuid());
+    Optional<ComponentDto> refComponent = dbClient.componentDao().selectByUuid(dbSession, component.getCopyComponentUuid());
+    if (refComponent.isEmpty()) {
+      return Optional.empty();
+    }
+    Optional<BranchDto> refBranch = dbClient.branchDao().selectByUuid(dbSession, refComponent.get().branchUuid());
+    return refBranch.map(rb -> new RefComponent(rb, refComponent.get()));
   }
 
-  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
+  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<RefComponent> reference,
     Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     boolean isMainBranch = component.getMainBranchProjectUuid() == null;
 
-    if (refComponent.isPresent()) {
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(),
-        refComponent.get()), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
+    if (reference.isPresent()) {
+      BranchDto refBranch = reference.get().getRefBranch();
+      ComponentDto refComponent = reference.get().getComponent();
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.uuid(), refComponent),
+        refBranch.isMain() ? null : refBranch.getBranchKey(), null));
     } else {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
@@ -341,6 +344,24 @@ public class ComponentAction implements MeasuresWsAction {
     private ComponentRequest setAdditionalFields(@Nullable List<String> additionalFields) {
       this.additionalFields = additionalFields;
       return this;
+    }
+  }
+
+  private static class RefComponent {
+    public RefComponent(BranchDto refBranch, ComponentDto refComponent) {
+      this.refBranch = refBranch;
+      this.refComponent = refComponent;
+    }
+
+    private BranchDto refBranch;
+    private ComponentDto refComponent;
+
+    public BranchDto getRefBranch() {
+      return refBranch;
+    }
+
+    public ComponentDto getComponent() {
+      return refComponent;
     }
   }
 }

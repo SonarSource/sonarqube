@@ -32,6 +32,7 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
 public class ComponentTesting {
 
@@ -161,6 +162,18 @@ public class ComponentTesting {
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     return newChildComponent(uuid, view, view)
       .setKey(view.getKey() + project.getKey())
+      .setName(project.name())
+      .setLongName(project.longName())
+      .setCopyComponentUuid(project.uuid())
+      .setScope(Scopes.FILE)
+      .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null);
+  }
+
+  public static ComponentDto newProjectBranchCopy(String uuid, ComponentDto project, ComponentDto view, String branch) {
+    return newChildComponent(uuid, view, view)
+      .setKey(generateBranchKey(view.getKey() + project.getKey(), branch))
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())

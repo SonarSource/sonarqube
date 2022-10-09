@@ -556,6 +556,23 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void dont_show_branch_if_main_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "master")
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), "");
+  }
+
+  @Test
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);

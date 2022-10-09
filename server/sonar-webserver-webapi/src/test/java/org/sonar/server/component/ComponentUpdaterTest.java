@@ -253,7 +253,7 @@ public class ComponentUpdaterTest {
       .build();
     assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create Project, key already exists: " + existing.getKey());
+      .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", existing.getKey(), existing.getKey());
   }
 
   @Test

@@ -39,12 +39,11 @@ public final class ComputationStepExecutor {
   @CheckForNull
   private final Listener listener;
 
-  @Autowired(required = false)
   public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter) {
     this(steps, taskInterrupter, null);
   }
 
-  @Autowired(required = false)
+  @Autowired
   public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter, @Nullable Listener listener) {
     this.steps = steps;
     this.taskInterrupter = taskInterrupter;

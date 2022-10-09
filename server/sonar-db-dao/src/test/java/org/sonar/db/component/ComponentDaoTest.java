@@ -2055,7 +2055,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByKeyCaseInsensitive_shouldFindProject_whenCaseIsDifferent() {
     String projectKey = randomAlphabetic(5).toLowerCase();
-    db.components().insertPrivateProject(c -> c.setDbKey(projectKey));
+    db.components().insertPrivateProject(c -> c.setKey(projectKey));
 
     ComponentDto result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey.toUpperCase()).orElse(null);
 
@@ -2066,7 +2066,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByKeyCaseInsensitive_shouldNotFindProject_whenKeyIsDifferent() {
     String projectKey = randomAlphabetic(5).toLowerCase();
-    db.components().insertPrivateProject(c -> c.setDbKey(projectKey));
+    db.components().insertPrivateProject(c -> c.setKey(projectKey));
 
     Optional<ComponentDto> result = underTest.selectByKeyCaseInsensitive(db.getSession(), projectKey + randomAlphabetic(1));
 

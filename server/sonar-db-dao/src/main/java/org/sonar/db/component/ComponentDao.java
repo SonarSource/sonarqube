@@ -195,6 +195,25 @@ public class ComponentDao implements Dao {
   }
 
   /**
+   * Returns components in the main branch
+   */
+  public Optional<ComponentDto> selectByKey(DbSession session, String key) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchOrPr(key, null, null));
+  }
+
+  public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchOrPr(key, branch, null));
+  }
+
+  public Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchOrPr(key, null, pullRequestId));
+  }
+
+  public Optional<ComponentDto> selectByKeyCaseInsensitive(DbSession session, String key) {
+    return Optional.ofNullable(mapper(session).selectByKeyCaseInsensitive(key));
+  }
+
+  /**
    * List of ancestors, ordered from root to parent. The list is empty
    * if the component is a tree root. Disabled components are excluded by design
    * as tree represents the more recent analysis.
@@ -226,26 +245,6 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectChildren(DbSession dbSession, String branchUuid, Collection<ComponentDto> components) {
     Set<String> uuidPaths = components.stream().map(c -> c.getUuidPath() + c.uuid() + ".").collect(Collectors.toSet());
     return mapper(dbSession).selectChildren(branchUuid, uuidPaths);
-  }
-
-  public ComponentDto selectOrFailByKey(DbSession session, String key) {
-    return selectByKey(session, key).orElseThrow(() -> new RowNotFoundException(String.format("Component key '%s' not found", key)));
-  }
-
-  public Optional<ComponentDto> selectByKey(DbSession session, String key) {
-    return Optional.ofNullable(mapper(session).selectByKey(key));
-  }
-
-  public Optional<ComponentDto> selectByKeyCaseInsensitive(DbSession session, String key) {
-    return Optional.ofNullable(mapper(session).selectByKeyCaseInsensitive(key));
-  }
-
-  public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, branch));
-  }
-
-  public Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
-    return Optional.ofNullable(mapper(session).selectByKeyAndPrKey(key, pullRequestId));
   }
 
   /*

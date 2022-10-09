@@ -285,6 +285,22 @@ public class ShowActionTest {
   }
 
   @Test
+  public void dont_show_branch_if_main_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    String branchKey = "master";
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_BRANCH, branchKey)
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getComponent())
+      .extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(project.getKey(), "");
+  }
+
+  @Test
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);

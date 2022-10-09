@@ -48,7 +48,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.TreeWsResponse;
 
@@ -67,6 +66,7 @@ import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectBranchCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
@@ -272,6 +272,28 @@ public class TreeActionTest {
   }
 
   @Test
+  public void project_branch_reference_from_portfolio() {
+    ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
+    db.components().insertPortfolioAndSnapshot(view);
+    ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setKey("project-key-1");
+    db.components().insertProjectAndSnapshot(project);
+    db.components().insertComponent(newProjectBranchCopy("project-uuid-1-copy", project, view, "branch1"));
+    db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
+    db.commit();
+    userSession.logIn()
+      .registerComponents(view, project);
+
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_STRATEGY, "children")
+      .setParam(PARAM_COMPONENT, view.getKey())
+      .setParam(Param.TEXT_QUERY, "name").executeProtobuf(TreeWsResponse.class);
+
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("KEY_view-uuidproject-key-1", "sub-view-key");
+    assertThat(response.getComponentsList()).extracting("refId").containsExactly("project-uuid-1", "");
+    assertThat(response.getComponentsList()).extracting("refKey").containsExactly("project-key-1", "");
+  }
+
+  @Test
   public void project_branch_reference_from_application_branch() {
     ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setKey("app-key"));
     String appBranchName = "app-branch";
@@ -352,6 +374,21 @@ public class TreeActionTest {
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), branchKey),
         tuple(file.getKey(), branchKey));
+  }
+
+  @Test
+  public void dont_show_branch_if_main_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "master")
+      .executeProtobuf(TreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), "");
   }
 
   @Test

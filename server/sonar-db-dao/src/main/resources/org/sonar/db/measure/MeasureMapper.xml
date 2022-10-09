@@ -28,7 +28,7 @@
   </select>
 
 
-  <select id="selectMeasureFromLargestBranchForAllProjects" parameterType="map" resultType="ProjectMeasure">
+  <select id="selectLastMeasureForAllProjects" parameterType="map" resultType="ProjectMeasure">
     select tie_breaker.projectUuid as projectUuid,
     s.build_date as lastAnalysis,
     ncloc as loc,
