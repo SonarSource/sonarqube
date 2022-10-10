@@ -30,7 +30,7 @@ a.icon-checkbox {
 }
 
 .icon-checkbox:focus {
-  outline: none;
+  outline: none !important;
 }
 
 .icon-checkbox:before {
