@@ -22,9 +22,8 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
-import { mockAppState } from '../../../../helpers/testMocks';
-import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { AppState } from '../../../../types/appstate';
+import { renderAppRoutes, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../../types/features';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-gates');
@@ -266,7 +265,7 @@ it('should be able to handle delete condition', async () => {
 });
 
 it('should explain condition on branch', async () => {
-  renderQualityGateApp(mockAppState({ branchesEnabled: true }));
+  renderQualityGateApp({ featureList: [Feature.BranchSupport] });
 
   expect(
     await screen.findByText('quality_gates.conditions.new_code.description')
@@ -487,6 +486,6 @@ describe('The Permissions section', () => {
   });
 });
 
-function renderQualityGateApp(appState?: AppState) {
-  renderAppRoutes('quality_gates', routes, { appState });
+function renderQualityGateApp(context?: RenderContext) {
+  renderAppRoutes('quality_gates', routes, context);
 }

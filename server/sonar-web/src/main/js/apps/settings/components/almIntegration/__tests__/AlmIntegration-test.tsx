@@ -25,7 +25,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../../api/alm-settings';
-import { mockAppState, mockLocation, mockRouter } from '../../../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
@@ -189,9 +189,8 @@ it('should detect the current ALM from the query', () => {
 function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
   return shallow<AlmIntegration>(
     <AlmIntegration
-      appState={mockAppState({ branchesEnabled: true })}
+      hasFeature={jest.fn().mockReturnValue(true)}
       location={mockLocation()}
-      hasFeature={jest.fn()}
       router={mockRouter()}
       {...props}
     />

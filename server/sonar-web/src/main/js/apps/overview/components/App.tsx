@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';
 import PullRequestOverview from '../pullRequests/PullRequestOverview';
 import EmptyOverview from './EmptyOverview';
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component: Component;
@@ -47,13 +48,8 @@ export class App extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      appState: { branchesEnabled },
-      branchLike,
-      branchLikes,
-      component,
-      projectBinding
-    } = this.props;
+    const { branchLike, branchLikes, component, projectBinding } = this.props;
+    const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
     if (this.isPortfolio()) {
       return null;
@@ -81,7 +77,7 @@ export class App extends React.PureComponent<Props> {
         {component.analysisDate && (
           <BranchOverview
             branch={branchLike}
-            branchesEnabled={branchesEnabled}
+            branchesEnabled={branchSupportEnabled}
             component={component}
             projectBinding={projectBinding}
           />
@@ -91,4 +87,4 @@ export class App extends React.PureComponent<Props> {
   }
 }
 
-export default withComponentContext(withAppStateContext(App));
+export default withComponentContext(withAvailableFeatures(App));

@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import JenkinsfileStep from './JenkinsfileStep';
@@ -35,10 +37,9 @@ import PreRequisitesStep from './PreRequisitesStep';
 import SelectAlmStep from './SelectAlmStep';
 import WebhookStep from './WebhookStep';
 
-export interface JenkinsTutorialProps {
+export interface JenkinsTutorialProps extends WithAvailableFeaturesProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  appState: AppState;
   component: Component;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
@@ -54,15 +55,9 @@ enum Steps {
 }
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const {
-    almBinding,
-    baseUrl,
-    appState,
-    component,
-    projectBinding,
-    willRefreshAutomatically
-  } = props;
+  const { almBinding, baseUrl, component, projectBinding, willRefreshAutomatically } = props;
   const hasSelectAlmStep = projectBinding?.alm === undefined;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
   const [step, setStep] = React.useState(alm ? Steps.PreRequisites : Steps.SelectAlm);
 
@@ -88,14 +83,14 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         <>
           <PreRequisitesStep
             alm={alm}
-            branchesEnabled={!!appState.branchesEnabled}
+            branchesEnabled={branchSupportEnabled}
             finished={step > Steps.PreRequisites}
             onDone={() => setStep(Steps.MultiBranchPipeline)}
             onOpen={() => setStep(Steps.PreRequisites)}
             open={step === Steps.PreRequisites}
           />
 
-          {appState.branchesEnabled ? (
+          {branchSupportEnabled ? (
             <MultiBranchPipelineStep
               alm={alm}
               almBinding={almBinding}
@@ -118,7 +113,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
           <WebhookStep
             alm={alm}
             almBinding={almBinding}
-            branchesEnabled={!!appState.branchesEnabled}
+            branchesEnabled={branchSupportEnabled}
             finished={step > Steps.Webhook}
             onDone={() => setStep(Steps.Jenkinsfile)}
             onOpen={() => setStep(Steps.Webhook)}
@@ -147,4 +142,4 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   );
 }
 
-export default withAppStateContext(JenkinsTutorial);
+export default withAvailableFeatures(JenkinsTutorial);

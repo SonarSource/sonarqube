@@ -19,20 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAppState } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { AllSet, AllSetProps } from '../AllSet';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
-    'without branch'
-  );
+  expect(shallowRender({ hasFeature: () => false })).toMatchSnapshot('without branch');
   expect(shallowRender({ willRefreshAutomatically: true })).toMatchSnapshot('with auto refresh');
 });
 
 function shallowRender(props: Partial<AllSetProps> = {}) {
   return shallow<AllSetProps>(
-    <AllSet alm={AlmKeys.GitHub} appState={mockAppState({ branchesEnabled: true })} {...props} />
+    <AllSet alm={AlmKeys.GitHub} hasFeature={jest.fn().mockReturnValue(true)} {...props} />
   );
 }

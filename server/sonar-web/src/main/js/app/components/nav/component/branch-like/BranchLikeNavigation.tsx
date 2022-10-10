@@ -22,16 +22,17 @@ import * as React from 'react';
 import { ButtonPlain } from '../../../../../components/controls/buttons';
 import Toggler from '../../../../../components/controls/Toggler';
 import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
-import { AppState } from '../../../../../types/appstate';
 import { BranchLike } from '../../../../../types/branch-like';
+import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
-import withAppStateContext from '../../../app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../available-features/withAvailableFeatures';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
 
-export interface BranchLikeNavigationProps {
-  appState: AppState;
+export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
   branchLikes: BranchLike[];
   component: Component;
   currentBranchLike: BranchLike;
@@ -40,7 +41,6 @@ export interface BranchLikeNavigationProps {
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const {
-    appState: { branchesEnabled },
     branchLikes,
     component,
     component: { configuration },
@@ -49,14 +49,15 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   } = props;
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   const canAdminComponent = configuration && configuration.showSettings;
   const hasManyBranches = branchLikes.length >= 2;
-  const isMenuEnabled = branchesEnabled && hasManyBranches;
+  const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
   const currentBranchLikeElement = (
     <CurrentBranchLike
-      branchesEnabled={Boolean(branchesEnabled)}
+      branchesEnabled={branchSupportEnabled}
       component={component}
       currentBranchLike={currentBranchLike}
       hasManyBranches={hasManyBranches}
@@ -100,4 +101,4 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   );
 }
 
-export default withAppStateContext(React.memo(BranchLikeNavigation));
+export default withAvailableFeatures(React.memo(BranchLikeNavigation));

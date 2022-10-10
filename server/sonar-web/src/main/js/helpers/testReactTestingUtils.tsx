@@ -24,6 +24,7 @@ import { IntlProvider } from 'react-intl';
 import { MemoryRouter, Outlet, parsePath, Route, Routes } from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
+import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
 import { ComponentContext } from '../app/components/componentContext/ComponentContext';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
@@ -33,6 +34,7 @@ import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { ComponentContextShape } from '../types/component';
+import { Feature } from '../types/features';
 import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
@@ -44,6 +46,7 @@ export interface RenderContext {
   languages?: Languages;
   currentUser?: CurrentUser;
   navigateTo?: string;
+  featureList?: Feature[];
 }
 
 export function renderAppWithAdminContext(
@@ -156,6 +159,7 @@ function renderRoutedApp(
     navigateTo = indexPath,
     metrics = DEFAULT_METRICS,
     appState = mockAppState(),
+    featureList = [],
     languages = {}
   }: RenderContext = {}
 ): RenderResult {
@@ -167,19 +171,21 @@ function renderRoutedApp(
       <IntlProvider defaultLocale="en" locale="en">
         <MetricsContext.Provider value={metrics}>
           <LanguagesContext.Provider value={languages}>
-            <CurrentUserContextProvider currentUser={currentUser}>
-              <AppStateContextProvider appState={appState}>
-                <IndexationContextProvider>
-                  <GlobalMessagesContainer />
-                  <MemoryRouter initialEntries={[path]}>
-                    <Routes>
-                      {children}
-                      <Route path="*" element={<CatchAll />} />
-                    </Routes>
-                  </MemoryRouter>
-                </IndexationContextProvider>
-              </AppStateContextProvider>
-            </CurrentUserContextProvider>
+            <AvailableFeaturesContext.Provider value={featureList}>
+              <CurrentUserContextProvider currentUser={currentUser}>
+                <AppStateContextProvider appState={appState}>
+                  <IndexationContextProvider>
+                    <GlobalMessagesContainer />
+                    <MemoryRouter initialEntries={[path]}>
+                      <Routes>
+                        {children}
+                        <Route path="*" element={<CatchAll />} />
+                      </Routes>
+                    </MemoryRouter>
+                  </IndexationContextProvider>
+                </AppStateContextProvider>
+              </CurrentUserContextProvider>
+            </AvailableFeaturesContext.Provider>
           </LanguagesContext.Provider>
         </MetricsContext.Provider>
       </IntlProvider>

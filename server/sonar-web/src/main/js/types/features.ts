@@ -23,5 +23,6 @@ export enum Feature {
   RegulatoryReport = 'regulatory-reports',
   ProjectImport = 'project-import',
   MultipleAlm = 'multiple-alm',
-  Announcement = 'announcement'
+  Announcement = 'announcement',
+  BranchSupport = 'branch-support'
 }

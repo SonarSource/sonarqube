@@ -23,7 +23,7 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import * as React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAppState, mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
@@ -220,10 +220,7 @@ function assertFinishStepIsCorrectlyRendered() {
 
 function renderAzurePipelinesTutorial(
   props: Partial<AzurePipelinesTutorialProps> = {},
-  {
-    appState = mockAppState({ branchesEnabled: true }),
-    languages = { c: mockLanguage({ key: 'c' }) }
-  }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
 ) {
   return renderApp(
     '/',
@@ -234,7 +231,7 @@ function renderAzurePipelinesTutorial(
       willRefreshAutomatically={true}
       {...props}
     />,
-    { appState, languages }
+    { languages }
   );
 }
 

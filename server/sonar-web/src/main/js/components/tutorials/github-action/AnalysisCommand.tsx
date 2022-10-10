@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { AppState } from '../../../types/appstate';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { BuildTools } from '../types';
 import CFamily from './commands/CFamily';
@@ -28,19 +30,15 @@ import Gradle from './commands/Gradle';
 import JavaMaven from './commands/JavaMaven';
 import Others from './commands/Others';
 
-export interface AnalysisCommandProps {
-  appState: AppState;
+export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
   component: Component;
   onDone: () => void;
 }
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
-  const {
-    buildTool,
-    component,
-    appState: { branchesEnabled }
-  } = props;
+  const { buildTool, component } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   if (!buildTool) {
     return null;
@@ -49,26 +47,46 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
   switch (buildTool) {
     case BuildTools.Maven:
       return (
-        <JavaMaven branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+        <JavaMaven
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          onDone={props.onDone}
+        />
       );
     case BuildTools.Gradle:
       return (
-        <Gradle branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+        <Gradle
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          onDone={props.onDone}
+        />
       );
     case BuildTools.DotNet:
       return (
-        <DotNet branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+        <DotNet
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          onDone={props.onDone}
+        />
       );
     case BuildTools.CFamily:
       return (
-        <CFamily branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+        <CFamily
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          onDone={props.onDone}
+        />
       );
     case BuildTools.Other:
       return (
-        <Others branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+        <Others
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          onDone={props.onDone}
+        />
       );
   }
   return null;
 }
 
-export default withAppStateContext(AnalysisCommand);
+export default withAvailableFeatures(AnalysisCommand);

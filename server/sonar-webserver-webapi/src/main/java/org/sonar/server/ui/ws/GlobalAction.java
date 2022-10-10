@@ -38,7 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
-import org.sonar.server.branch.BranchFeatureProxy;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.ui.PageRepository;
@@ -72,7 +71,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final Server server;
   private final WebServer webServer;
   private final DbClient dbClient;
-  private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
   private final WebAnalyticsLoader webAnalyticsLoader;
@@ -80,7 +78,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-    WebServer webServer, DbClient dbClient, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
+    WebServer webServer, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
     WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
     DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier) {
     this.pageRepository = pageRepository;
@@ -89,7 +87,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.server = server;
     this.webServer = webServer;
     this.dbClient = dbClient;
-    this.branchFeature = branchFeature;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
     this.webAnalyticsLoader = webAnalyticsLoader;
@@ -129,7 +126,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeQualifiers(json);
       writeVersion(json);
       writeDatabaseProduction(json);
-      writeBranchSupport(json);
       writeInstanceUsesDefaultAdminCredentials(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
@@ -181,10 +177,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeDatabaseProduction(JsonWriter json) {
     json.prop("productionDatabase", !dbClient.getDatabase().getDialect().getId().equals(H2.ID));
-  }
-
-  private void writeBranchSupport(JsonWriter json) {
-    json.prop("branchesEnabled", branchFeature.isEnabled());
   }
 
   private void writeInstanceUsesDefaultAdminCredentials(JsonWriter json) {

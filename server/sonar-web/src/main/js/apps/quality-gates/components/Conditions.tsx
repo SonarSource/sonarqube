@@ -19,7 +19,9 @@
  */
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { Button } from '../../../components/controls/buttons';
@@ -27,14 +29,13 @@ import ModalButton from '../../../components/controls/ModalButton';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   canEdit: boolean;
   conditions: ConditionType[];
   metrics: Dict<Metric>;
@@ -56,7 +57,6 @@ const FORBIDDEN_METRICS: string[] = [
 export class Conditions extends React.PureComponent<Props> {
   renderConditionsTable = (conditions: ConditionType[], scope: 'new' | 'overall') => {
     const {
-      appState,
       qualityGate,
       metrics,
       canEdit,
@@ -74,7 +74,7 @@ export class Conditions extends React.PureComponent<Props> {
         <caption>
           <h4>{translate(captionTranslationId, 'long')}</h4>
 
-          {appState.branchesEnabled && (
+          {this.props.hasFeature(Feature.BranchSupport) && (
             <p className="spacer-top spacer-bottom">
               {translate(captionTranslationId, 'description')}
             </p>
@@ -222,4 +222,4 @@ export class Conditions extends React.PureComponent<Props> {
   }
 }
 
-export default withMetricsContext(withAppStateContext(Conditions));
+export default withMetricsContext(withAvailableFeatures(Conditions));

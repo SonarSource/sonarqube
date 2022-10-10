@@ -2,6 +2,7 @@
 
 exports[`should render correctly for "cfamily" 1`] = `
 <CFamily
+  branchesEnabled={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -30,6 +31,7 @@ exports[`should render correctly for "cfamily" 1`] = `
 
 exports[`should render correctly for "dotnet" 1`] = `
 <DotNet
+  branchesEnabled={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -58,6 +60,7 @@ exports[`should render correctly for "dotnet" 1`] = `
 
 exports[`should render correctly for "gradle" 1`] = `
 <Gradle
+  branchesEnabled={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -86,6 +89,7 @@ exports[`should render correctly for "gradle" 1`] = `
 
 exports[`should render correctly for "maven" 1`] = `
 <JavaMaven
+  branchesEnabled={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -114,6 +118,7 @@ exports[`should render correctly for "maven" 1`] = `
 
 exports[`should render correctly for "other" 1`] = `
 <Others
+  branchesEnabled={false}
   component={
     Object {
       "breadcrumbs": Array [],

@@ -22,6 +22,9 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
@@ -30,6 +33,7 @@ import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
+import { Feature } from '../../../types/features';
 import {
   Component,
   NewCodePeriod,
@@ -42,7 +46,7 @@ import AppHeader from './AppHeader';
 import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
-interface Props {
+interface Props extends WithAvailableFeaturesProps {
   branchLike: Branch;
   branchLikes: BranchLike[];
   component: Component;
@@ -129,14 +133,14 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   fetchLeakPeriodSetting() {
-    const { branchLike, appState, component } = this.props;
+    const { branchLike, component } = this.props;
 
     this.setState({ loading: true });
 
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: appState.branchesEnabled ? undefined : branchLike.name,
+        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike.name,
         project: component.key
       })
     ]).then(
@@ -252,6 +256,7 @@ export class App extends React.PureComponent<Props, State> {
       selected,
       success
     } = this.state;
+    const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
     return (
       <>
@@ -262,14 +267,14 @@ export class App extends React.PureComponent<Props, State> {
             <DeferredSpinner />
           ) : (
             <div className="panel-white project-baseline">
-              {appState.branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+              {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
               {generalSetting && overrideGeneralSetting !== undefined && (
                 <ProjectBaselineSelector
                   analysis={analysis}
                   branch={branchLike}
                   branchList={branchList}
-                  branchesEnabled={appState.branchesEnabled}
+                  branchesEnabled={branchSupportEnabled}
                   component={component.key}
                   currentSetting={currentSetting}
                   currentSettingValue={currentSettingValue}
@@ -295,7 +300,7 @@ export class App extends React.PureComponent<Props, State> {
                   {translate('settings.state.saved')}
                 </span>
               </div>
-              {generalSetting && appState.branchesEnabled && (
+              {generalSetting && branchSupportEnabled && (
                 <div className="huge-spacer-top branch-baseline-selector">
                   <hr />
                   <h2>{translate('project_baseline.configure_branches')}</h2>
@@ -321,4 +326,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withComponentContext(withAppStateContext(App));
+export default withComponentContext(withAvailableFeatures(withAppStateContext(App)));

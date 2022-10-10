@@ -24,8 +24,9 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../api/alm-settings';
-import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
-import withAvailableFeatures from '../../../../app/components/available-features/withAvailableFeatures';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../../app/components/available-features/withAvailableFeatures';
 import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
@@ -34,13 +35,11 @@ import {
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
-import { AppState } from '../../../../types/appstate';
 import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   hasFeature: (feature: Feature) => boolean;
   location: Location;
   router: Router;
@@ -212,10 +211,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {
-      appState: { branchesEnabled },
-      hasFeature
-    } = this.props;
+    const { hasFeature } = this.props;
     const {
       currentAlmTab,
       definitionKeyForDeletion,
@@ -228,7 +224,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
     return (
       <AlmIntegrationRenderer
-        branchesEnabled={Boolean(branchesEnabled)}
+        branchesEnabled={this.props.hasFeature(Feature.BranchSupport)}
         multipleAlmEnabled={hasFeature(Feature.MultipleAlm)}
         onCancelDelete={this.handleCancelDelete}
         onConfirmDelete={this.handleConfirmDelete}
@@ -248,4 +244,4 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(withAvailableFeatures(AlmIntegration)));
+export default withRouter(withAvailableFeatures(AlmIntegration));

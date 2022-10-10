@@ -29,7 +29,7 @@ import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mo
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockTask } from '../../../helpers/mocks/tasks';
 import { HttpStatus } from '../../../helpers/request';
-import { mockAppState, mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
@@ -141,7 +141,7 @@ it("doesn't load branches portfolio", async () => {
 it('updates branches on change', async () => {
   const updateBranchStatus = jest.fn();
   const wrapper = shallowRender({
-    appState: mockAppState({ branchesEnabled: true }),
+    hasFeature: () => true,
     location: mockLocation({ query: { id: 'portfolioKey' } }),
     updateBranchStatus
   });
@@ -403,7 +403,7 @@ describe('should correctly validate the project binding depending on the context
       (validateProjectAlmBinding as jest.Mock).mockResolvedValueOnce(projectBindingErrors);
     }
 
-    const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
+    const wrapper = shallowRender({ hasFeature: () => true });
     await waitAndUpdate(wrapper);
     expect(wrapper.state().projectBindingErrors).toBe(projectBindingErrors);
 
@@ -435,7 +435,7 @@ it.each([
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
   return shallow<ComponentContainer>(
     <ComponentContainer
-      appState={mockAppState()}
+      hasFeature={jest.fn().mockReturnValue(false)}
       location={mockLocation({ query: { id: 'foo' } })}
       updateBranchStatus={jest.fn()}
       router={mockRouter()}

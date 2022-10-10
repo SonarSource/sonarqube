@@ -41,7 +41,7 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: false, canAdmin: true }) });
+  wrapper = shallowRender({ appState: mockAppState({ canAdmin: true }), hasFeature: () => false });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('without branch support');
 });
@@ -109,7 +109,8 @@ function shallowRender(props: Partial<App['props']> = {}) {
     <App
       branchLike={mockBranch()}
       branchLikes={[mockMainBranch()]}
-      appState={mockAppState({ branchesEnabled: true, canAdmin: true })}
+      appState={mockAppState({ canAdmin: true })}
+      hasFeature={jest.fn().mockReturnValue(true)}
       component={mockComponent()}
       {...props}
     />

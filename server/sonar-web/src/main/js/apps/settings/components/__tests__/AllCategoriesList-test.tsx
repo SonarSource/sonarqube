@@ -20,7 +20,6 @@
 import { screen } from '@testing-library/dom';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { AdditionalCategory } from '../AdditionalCategories';
 import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
@@ -34,7 +33,7 @@ jest.mock('../AdditionalCategories', () => ({
       availableGlobally: true,
       availableForProject: true,
       displayTab: true,
-      requiresBranchesEnabled: true
+      requiresBranchSupport: true
     },
     {
       key: 'CAT_2',
@@ -83,7 +82,7 @@ it('should correctly for project', () => {
 });
 
 it('should render correctly when branches are disabled', () => {
-  renderCategoriesList({ appState: mockAppState({ branchesEnabled: false }) });
+  renderCategoriesList({ hasFeature: () => false });
 
   expect(screen.queryByText('CAT_1_NAME')).not.toBeInTheDocument();
   expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
@@ -93,7 +92,7 @@ it('should render correctly when branches are disabled', () => {
 function renderCategoriesList(props?: Partial<CategoriesListProps>) {
   return renderComponent(
     <CategoriesList
-      appState={mockAppState({ branchesEnabled: true })}
+      hasFeature={jest.fn().mockReturnValue(true)}
       categories={['general']}
       defaultCategory="general"
       selectedCategory=""

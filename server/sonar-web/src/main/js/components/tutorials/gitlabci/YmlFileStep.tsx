@@ -19,18 +19,19 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import Step from '../components/Step';
 import { BuildTools, TutorialModes } from '../types';
 import PipeCommand from './commands/PipeCommand';
 
-export interface YmlFileStepProps {
-  appState: AppState;
+export interface YmlFileStepProps extends WithAvailableFeaturesProps {
   buildTool?: BuildTools;
   finished: boolean;
   onDone: () => void;
@@ -40,13 +41,8 @@ export interface YmlFileStepProps {
 }
 
 export function YmlFileStep(props: YmlFileStepProps) {
-  const {
-    appState: { branchesEnabled },
-    buildTool,
-    open,
-    finished,
-    projectKey
-  } = props;
+  const { buildTool, open, finished, projectKey } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   const renderForm = () => (
     <div className="boxed-group-inner">
@@ -82,12 +78,12 @@ export function YmlFileStep(props: YmlFileStepProps) {
               <div className="big-spacer-bottom abs-width-600">
                 <PipeCommand
                   buildTool={buildTool}
-                  branchesEnabled={branchesEnabled}
+                  branchesEnabled={branchSupportEnabled}
                   projectKey={projectKey}
                 />
               </div>
               <p className="little-spacer-bottom">
-                {branchesEnabled
+                {branchSupportEnabled
                   ? translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig')
                   : translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches')}
               </p>
@@ -112,4 +108,4 @@ export function YmlFileStep(props: YmlFileStepProps) {
   );
 }
 
-export default withAppStateContext(YmlFileStep);
+export default withAvailableFeatures(YmlFileStep);

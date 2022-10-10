@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import SentenceWithHighlights from './SentenceWithHighlights';
 
-export interface AllSetProps {
+export interface AllSetProps extends WithAvailableFeaturesProps {
   alm: AlmKeys;
-  appState: AppState;
   willRefreshAutomatically?: boolean;
 }
 
 export function AllSet(props: AllSetProps) {
-  const {
-    alm,
-    appState: { branchesEnabled },
-    willRefreshAutomatically
-  } = props;
+  const { alm, willRefreshAutomatically } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   return (
     <>
@@ -61,7 +59,7 @@ export function AllSet(props: AllSetProps) {
               <strong>{translate('onboarding.tutorial.ci_outro.commit')}</strong>
             </p>
             <p>
-              {branchesEnabled
+              {branchSupportEnabled
                 ? translate('onboarding.tutorial.ci_outro.commit.why', alm)
                 : translate('onboarding.tutorial.ci_outro.commit.why.no_branches')}
             </p>
@@ -96,4 +94,4 @@ export function AllSet(props: AllSetProps) {
   );
 }
 
-export default withAppStateContext(AllSet);
+export default withAvailableFeatures(AllSet);

@@ -215,16 +215,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void branch_support() {
-    init();
-    branchFeature.setEnabled(true);
-    assertJson(call()).isSimilarTo("{\"branchesEnabled\":true}");
-
-    branchFeature.setEnabled(false);
-    assertJson(call()).isSimilarTo("{\"branchesEnabled\":false}");
-  }
-
-  @Test
   public void return_need_issue_sync() {
     init();
     when(indexSyncProgressChecker.isIssueSyncInProgress(any())).thenReturn(true);
@@ -353,7 +343,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, branchFeature, userSession, editionProvider, webAnalyticsLoader,
+      webServer, dbClient, userSession, editionProvider, webAnalyticsLoader,
       indexSyncProgressChecker, defaultAdminCredentialsVerifier);
     ws = new WsActionTester(wsAction);
     wsAction.start();

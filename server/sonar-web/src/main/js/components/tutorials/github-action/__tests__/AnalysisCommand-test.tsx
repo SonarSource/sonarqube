@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAppState } from '../../../../helpers/testMocks';
 import { BuildTools } from '../../types';
 import { AnalysisCommand, AnalysisCommandProps } from '../AnalysisCommand';
 
@@ -38,7 +37,7 @@ it.each([
 function shallowRender(props: Partial<AnalysisCommandProps> = {}) {
   return shallow<AnalysisCommandProps>(
     <AnalysisCommand
-      appState={mockAppState()}
+      hasFeature={jest.fn().mockReturnValue(false)}
       component={mockComponent()}
       buildTool={BuildTools.DotNet}
       onDone={jest.fn()}

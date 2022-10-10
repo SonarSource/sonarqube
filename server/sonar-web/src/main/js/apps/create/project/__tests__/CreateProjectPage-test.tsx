@@ -128,6 +128,7 @@ function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
   return shallow<CreateProjectPage>(
     <CreateProjectPage
       appState={mockAppState()}
+      hasFeature={jest.fn().mockReturnValue(false)}
       location={mockLocation()}
       router={mockRouter()}
       {...props}

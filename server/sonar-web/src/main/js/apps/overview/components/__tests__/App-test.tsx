@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAppState } from '../../../../helpers/testMocks';
 import BranchOverview from '../../branches/BranchOverview';
 import { App } from '../App';
 
@@ -42,6 +41,11 @@ it('should render BranchOverview', () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <App appState={mockAppState()} branchLikes={[]} component={component} {...props} />
+    <App
+      hasFeature={jest.fn().mockReturnValue(false)}
+      branchLikes={[]}
+      component={component}
+      {...props}
+    />
   );
 }

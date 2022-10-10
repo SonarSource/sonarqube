@@ -496,7 +496,7 @@ exports[`should render correctly: gitlab tutorial 1`] = `
 
 exports[`should render correctly: jenkins tutorial 1`] = `
 <Fragment>
-  <withAppStateContext(JenkinsTutorial)
+  <withAvailableFeaturesContext(JenkinsTutorial)
     almBinding={
       Object {
         "alm": "github",

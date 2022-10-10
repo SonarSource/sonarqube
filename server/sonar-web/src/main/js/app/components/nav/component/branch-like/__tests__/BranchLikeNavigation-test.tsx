@@ -23,7 +23,6 @@ import { ButtonPlain } from '../../../../../../components/controls/buttons';
 import Toggler from '../../../../../../components/controls/Toggler';
 import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
-import { mockAppState } from '../../../../../../helpers/testMocks';
 import { click } from '../../../../../../helpers/testUtils';
 import { BranchLikeNavigation, BranchLikeNavigationProps } from '../BranchLikeNavigation';
 
@@ -33,12 +32,12 @@ it('should render correctly', () => {
 });
 
 it('should render the menu trigger if branches are enabled', () => {
-  const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
+  const wrapper = shallowRender({ hasFeature: () => true });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should properly toggle menu opening when clicking the anchor', () => {
-  const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
+  const wrapper = shallowRender({ hasFeature: () => true });
   expect(wrapper.find(Toggler).props().open).toBe(false);
 
   click(wrapper.find(ButtonPlain));
@@ -49,7 +48,7 @@ it('should properly toggle menu opening when clicking the anchor', () => {
 });
 
 it('should properly close menu when toggler asks for', () => {
-  const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
+  const wrapper = shallowRender({ hasFeature: () => true });
   expect(wrapper.find(Toggler).props().open).toBe(false);
 
   click(wrapper.find(ButtonPlain));
@@ -67,7 +66,7 @@ function shallowRender(props?: Partial<BranchLikeNavigationProps>) {
 
   return shallow(
     <BranchLikeNavigation
-      appState={mockAppState()}
+      hasFeature={jest.fn().mockReturnValue(false)}
       branchLikes={branchLikes}
       component={mockComponent()}
       currentBranchLike={branchLikes[0]}

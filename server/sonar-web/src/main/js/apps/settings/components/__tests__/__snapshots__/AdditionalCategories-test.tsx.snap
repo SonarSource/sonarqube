@@ -63,7 +63,7 @@ exports[`should render additional categories component correctly 3`] = `
 `;
 
 exports[`should render additional categories component correctly 4`] = `
-<withRouter(withAppStateContext(withAvailableFeaturesContext(AlmIntegration)))
+<withRouter(withAvailableFeaturesContext(AlmIntegration))
   categories={Array []}
   component={
     Object {

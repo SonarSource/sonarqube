@@ -19,18 +19,19 @@
  */
 import * as React from 'react';
 import { getFacet } from '../../../api/issues';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import { RuleDetails } from '../../../types/types';
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
 }
 
@@ -118,7 +119,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       </span>
     );
 
-    if (!this.props.appState.branchesEnabled) {
+    if (!this.props.hasFeature(Feature.BranchSupport)) {
       return totalItem;
     }
 
@@ -176,4 +177,4 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppStateContext(RuleDetailsIssues);
+export default withAvailableFeatures(RuleDetailsIssues);

@@ -50,7 +50,7 @@ export interface AdditionalCategory {
   key: string;
   name: string;
   renderComponent: (props: AdditionalCategoryComponentProps) => React.ReactNode;
-  requiresBranchesEnabled?: boolean;
+  requiresBranchSupport?: boolean;
 }
 
 export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
@@ -93,7 +93,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableGlobally: false,
     availableForProject: true,
     displayTab: true,
-    requiresBranchesEnabled: true
+    requiresBranchSupport: true
   },
   {
     key: AUTHENTICATION_CATEGORY,

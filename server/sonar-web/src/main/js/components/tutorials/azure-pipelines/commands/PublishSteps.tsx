@@ -19,22 +19,20 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../../app/components/available-features/withAvailableFeatures';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { AppState } from '../../../../types/appstate';
+import { Feature } from '../../../../types/features';
 import Link from '../../../common/Link';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
-export interface PublishStepsProps {
-  appState: AppState;
-}
+export interface PublishStepsProps extends WithAvailableFeaturesProps {}
 export function PublishSteps(props: PublishStepsProps) {
-  const {
-    appState: { branchesEnabled }
-  } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   return (
     <>
@@ -52,14 +50,14 @@ export function PublishSteps(props: PublishStepsProps) {
       <li>
         <SentenceWithHighlights
           translationKey={
-            branchesEnabled
+            branchSupportEnabled
               ? 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration'
               : 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration.no_branches'
           }
           highlightKeys={['tab', 'continuous_integration']}
         />
       </li>
-      {branchesEnabled && (
+      {branchSupportEnabled && (
         <>
           <hr />
           <FormattedMessage
@@ -83,4 +81,4 @@ export function PublishSteps(props: PublishStepsProps) {
   );
 }
 
-export default withAppStateContext(PublishSteps);
+export default withAvailableFeatures(PublishSteps);

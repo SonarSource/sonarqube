@@ -38,21 +38,22 @@ import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
 } from '../../types/alm-settings';
-import { AppState } from '../../types/appstate';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
+import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import { Component, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import withAppStateContext from './app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from './available-features/withAvailableFeatures';
 import withBranchStatusActions from './branch-status/withBranchStatusActions';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './componentContext/ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   location: Location;
   updateBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
   router: Router;
@@ -155,9 +156,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   fetchBranches = async (componentWithQualifier: Component) => {
-    const {
-      appState: { branchesEnabled }
-    } = this.props;
+    const { hasFeature } = this.props;
 
     const breadcrumb = componentWithQualifier.breadcrumbs.find(({ qualifier }) => {
       return ([ComponentQualifier.Application, ComponentQualifier.Project] as string[]).includes(
@@ -172,7 +171,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       const { key } = breadcrumb;
       const [branches, pullRequests] = await Promise.all([
         getBranches(key),
-        !branchesEnabled || breadcrumb.qualifier === ComponentQualifier.Application
+        !hasFeature(Feature.BranchSupport) ||
+        breadcrumb.qualifier === ComponentQualifier.Application
           ? Promise.resolve([])
           : getPullRequests(key)
       ]);
@@ -251,7 +251,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     if (
       component.qualifier === ComponentQualifier.Project &&
       component.analysisDate === undefined &&
-      this.props.appState.branchesEnabled
+      this.props.hasFeature(Feature.BranchSupport)
     ) {
       const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
         () => undefined
@@ -471,4 +471,4 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(withBranchStatusActions(ComponentContainer)));
+export default withRouter(withAvailableFeatures(withBranchStatusActions(ComponentContainer)));

@@ -19,8 +19,10 @@
  */
 import { Dictionary } from 'lodash';
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { AppState } from '../../../types/appstate';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
@@ -32,8 +34,7 @@ import mavenExample from './commands/Maven';
 import othersExample from './commands/Others';
 import { PreambuleYaml } from './PreambuleYaml';
 
-export interface AnalysisCommandProps {
-  appState: AppState;
+export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
   component: Component;
 }
@@ -47,17 +48,14 @@ const YamlTemplate: Dictionary<(branchesEnabled?: boolean, projectKey?: string) 
 };
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
-  const {
-    buildTool,
-    component,
-    appState: { branchesEnabled }
-  } = props;
+  const { buildTool, component } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   if (!buildTool) {
     return null;
   }
 
-  const yamlTemplate = YamlTemplate[buildTool](branchesEnabled, component.key);
+  const yamlTemplate = YamlTemplate[buildTool](branchSupportEnabled, component.key);
 
   return (
     <>
@@ -68,4 +66,4 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
   );
 }
 
-export default withAppStateContext(AnalysisCommand);
+export default withAvailableFeatures(AnalysisCommand);

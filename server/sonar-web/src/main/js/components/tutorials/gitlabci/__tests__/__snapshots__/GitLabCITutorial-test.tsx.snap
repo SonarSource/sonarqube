@@ -81,7 +81,7 @@ exports[`should render correctly 1`] = `
     onOpen={[Function]}
     open={false}
   />
-  <withAppStateContext(YmlFileStep)
+  <withAvailableFeaturesContext(YmlFileStep)
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}

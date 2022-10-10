@@ -51,7 +51,7 @@ exports[`should render almintegration correctly 1`] = `
           className="big-padded"
           key="almintegration"
         >
-          <withRouter(withAppStateContext(withAvailableFeaturesContext(AlmIntegration)))
+          <withRouter(withAvailableFeaturesContext(AlmIntegration))
             categories={
               Array [
                 "foo category",
@@ -179,7 +179,7 @@ exports[`should render default view correctly: All Categories List 1`] = `
     <div
       className="layout-page-side-inner"
     >
-      <withAppStateContext(CategoriesList)
+      <withAvailableFeaturesContext(CategoriesList)
         categories={
           Array [
             "foo category",

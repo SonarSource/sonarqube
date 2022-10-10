@@ -25,7 +25,6 @@ import { Extension } from './types';
 export interface AppState {
   authenticationError?: boolean;
   authorizationError?: boolean;
-  branchesEnabled?: boolean;
   canAdmin?: boolean;
   edition?: EditionKey;
   globalPages?: Extension[];

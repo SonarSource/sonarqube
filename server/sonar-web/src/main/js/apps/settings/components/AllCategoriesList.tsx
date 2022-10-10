@@ -21,16 +21,17 @@ import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
-import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { CATEGORY_OVERRIDES } from '../constants';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 
-export interface CategoriesListProps {
-  appState: AppState;
+export interface CategoriesListProps extends WithAvailableFeaturesProps {
   categories: string[];
   component?: Component;
   defaultCategory: string;
@@ -38,7 +39,7 @@ export interface CategoriesListProps {
 }
 
 export function CategoriesList(props: CategoriesListProps) {
-  const { appState, categories, component, defaultCategory, selectedCategory } = props;
+  const { categories, component, defaultCategory, selectedCategory } = props;
 
   const categoriesWithName = categories
     .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
@@ -55,7 +56,7 @@ export function CategoriesList(props: CategoriesListProps) {
             : // Global settings
               c.availableGlobally
         )
-        .filter(c => appState.branchesEnabled || !c.requiresBranchesEnabled)
+        .filter(c => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
     );
   const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
 
@@ -87,4 +88,4 @@ export function CategoriesList(props: CategoriesListProps) {
   );
 }
 
-export default withAppStateContext(CategoriesList);
+export default withAvailableFeatures(CategoriesList);

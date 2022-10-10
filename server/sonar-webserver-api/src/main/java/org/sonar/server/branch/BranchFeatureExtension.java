@@ -20,11 +20,12 @@
 package org.sonar.server.branch;
 
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.feature.SonarQubeFeature;
 
 /**
  * The branch plugin needs to implement this in order to know that the branch feature is supported
  */
 @ServerSide
-public interface BranchFeatureExtension extends BranchFeature {
+public interface BranchFeatureExtension extends SonarQubeFeature {
 
 }

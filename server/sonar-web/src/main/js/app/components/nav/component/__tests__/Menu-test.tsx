@@ -25,7 +25,6 @@ import {
   mockPullRequest
 } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockAppState } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Menu } from '../Menu';
@@ -139,7 +138,7 @@ function renderMenu(props: Partial<Menu['props']> = {}) {
   const mainBranch = mockMainBranch();
   return renderComponent(
     <Menu
-      appState={mockAppState()}
+      hasFeature={jest.fn().mockReturnValue(false)}
       branchLike={mainBranch}
       branchLikes={[mainBranch]}
       component={BASE_COMPONENT}

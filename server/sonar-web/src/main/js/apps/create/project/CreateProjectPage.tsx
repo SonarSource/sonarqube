@@ -21,12 +21,16 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
+import { Feature } from '../../../types/features';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
@@ -38,7 +42,7 @@ import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 import { CreateProjectModes } from './types';
 
-interface Props {
+interface Props extends WithAvailableFeaturesProps {
   appState: AppState;
   location: Location;
   router: Router;
@@ -144,7 +148,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
   renderProjectCreation(mode?: CreateProjectModes) {
     const {
-      appState: { canAdmin, branchesEnabled },
+      appState: { canAdmin },
       location,
       router
     } = this.props;
@@ -156,6 +160,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       gitlabSettings,
       loading
     } = this.state;
+    const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
     switch (mode) {
       case CreateProjectModes.AzureDevOps: {
@@ -221,7 +226,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       case CreateProjectModes.Manual: {
         return (
           <ManualProjectCreate
-            branchesEnabled={!!branchesEnabled}
+            branchesEnabled={branchSupportEnabled}
             onProjectCreate={this.handleProjectCreate}
           />
         );
@@ -272,4 +277,4 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(CreateProjectPage));
+export default withRouter(withAvailableFeatures(withAppStateContext(CreateProjectPage)));

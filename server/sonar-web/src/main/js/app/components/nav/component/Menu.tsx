@@ -29,11 +29,13 @@ import NavBarTabs from '../../../../components/ui/NavBarTabs';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
-import { AppState } from '../../../../types/appstate';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
+import { Feature } from '../../../../types/features';
 import { Component, Dict, Extension } from '../../../../types/types';
-import withAppStateContext from '../../app-state/withAppStateContext';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../available-features/withAvailableFeatures';
 import './Menu.css';
 
 const SETTINGS_URLS = [
@@ -52,8 +54,7 @@ const SETTINGS_URLS = [
   '/project/webhooks'
 ];
 
-interface Props {
-  appState: AppState;
+interface Props extends WithAvailableFeaturesProps {
   branchLike: BranchLike | undefined;
   branchLikes: BranchLike[] | undefined;
   component: Component;
@@ -389,7 +390,7 @@ export class Menu extends React.PureComponent<Props> {
 
   renderBranchesLink = (query: Query, isProject: boolean) => {
     if (
-      !this.props.appState.branchesEnabled ||
+      !this.props.hasFeature(Feature.BranchSupport) ||
       !isProject ||
       !this.getConfiguration().showSettings
     ) {
@@ -641,4 +642,4 @@ export class Menu extends React.PureComponent<Props> {
   }
 }
 
-export default withAppStateContext(Menu);
+export default withAvailableFeatures(Menu);
