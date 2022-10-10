@@ -80,6 +80,9 @@ function smoothScrollLeft(parent: Element | Window, position: number) {
   return smoothScroll(position, scroll.x, position => scrollElement(parent, position, scroll.y));
 }
 
+/**
+ * @deprecated use scrollIntoView instead
+ */
 export function scrollToElement(
   element: Element,
   options: {
@@ -121,6 +124,9 @@ export function scrollToElement(
   }
 }
 
+/**
+ * @deprecated use scrollIntoView instead
+ */
 export function scrollHorizontally(
   element: Element,
   options: {
