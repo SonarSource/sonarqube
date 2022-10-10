@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import theme from '../../../app/theme';
+import { ButtonPlain } from '../../../components/controls/buttons';
 import PinIcon from '../../../components/icons/PinIcon';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
-import { translate } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasure } from '../../../types/types';
 
@@ -31,9 +33,7 @@ interface Props {
 }
 
 export default class ComponentPin extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleClick = () => {
     this.props.openComponent({
       branchLike: this.props.branchLike,
       key: this.props.component.key,
@@ -43,14 +43,15 @@ export default class ComponentPin extends React.PureComponent<Props> {
   };
 
   render() {
+    const { name } = this.props.component;
     return (
-      <a
+      <ButtonPlain
         className="link-no-underline"
-        href="#"
+        preventDefault={true}
         onClick={this.handleClick}
-        title={translate('component_viewer.open_in_workspace')}>
-        <PinIcon />
-      </a>
+        title={translateWithParameters('component_viewer.open_in_workspace_X', name)}>
+        <PinIcon fill={theme.colors.primary} />
+      </ButtonPlain>
     );
   }
 }
