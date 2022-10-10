@@ -40,7 +40,7 @@
     "rehype-slug": "3.0.0",
     "remark": "11.0.2",
     "remark-custom-blocks": "2.5.1",
-    "remark-react": "7",
+    "remark-react": "7.0.1",
     "remark-rehype": "6.0.0",
     "unist-util-visit": "2.0.2",
     "valid-url": "1.0.9"
@@ -124,10 +124,11 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn install --immutable && yarn test --coverage --maxWorkers=4 --ci",
+    "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test",
+    "validate-ci": "yarn install --immutable && yarn dep-check && yarn test --coverage --maxWorkers=4 --ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
-    "update-cwes": "node scripts/update-cwes.js"
+    "update-cwes": "node scripts/update-cwes.js",
+    "dep-check": "node scripts/validate-package-json.js"
   },
   "engines": {
     "node": ">=8"

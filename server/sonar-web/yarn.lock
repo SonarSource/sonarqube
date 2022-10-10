@@ -2406,7 +2406,7 @@ __metadata:
     rehype-slug: 3.0.0
     remark: 11.0.2
     remark-custom-blocks: 2.5.1
-    remark-react: 7
+    remark-react: 7.0.1
     remark-rehype: 6.0.0
     testing-library-selector: 0.2.1
     typescript: 4.6.3
@@ -9431,7 +9431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-react@npm:7":
+"remark-react@npm:7.0.1":
   version: 7.0.1
   resolution: "remark-react@npm:7.0.1"
   dependencies:
