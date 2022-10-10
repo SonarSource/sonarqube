@@ -87,7 +87,7 @@ public class UserUpdaterCreateTest {
       .setPassword("PASSWORD")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
       .build(), u -> {
-      });
+    });
 
     assertThat(dto.getUuid()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
@@ -122,7 +122,7 @@ public class UserUpdaterCreateTest {
       .setLogin("us")
       .setName("User")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "us");
     assertThat(dto.getUuid()).isNotNull();
@@ -140,7 +140,7 @@ public class UserUpdaterCreateTest {
     UserDto user = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setName("John Doe")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, user.getLogin());
     assertThat(dto.getLogin()).startsWith("john-doe");
@@ -155,7 +155,7 @@ public class UserUpdaterCreateTest {
       .setLogin("")
       .setName("John Doe")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, user.getLogin());
     assertThat(dto.getLogin()).startsWith("john-doe");
@@ -171,7 +171,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.getExternalLogin()).isEqualTo("user");
@@ -188,7 +188,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity("github", "github-user", "ABCD"))
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -208,7 +208,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user", "user"))
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -229,7 +229,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "", null))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -244,7 +244,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList(""))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccounts()).isNull();
   }
@@ -259,7 +259,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u1"))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -275,7 +275,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-      }, otherUser);
+    }, otherUser);
 
     assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
   }
@@ -292,7 +292,7 @@ public class UserUpdaterCreateTest {
       });
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Use only letters, numbers, and .-_@ please.");
+      .hasMessage("Login should contain only letters, numbers, and .-_@");
   }
 
   @Test
@@ -307,7 +307,7 @@ public class UserUpdaterCreateTest {
       });
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Use only letters, numbers, and .-_@ please.");
+      .hasMessage("Login should contain only letters, numbers, and .-_@");
   }
 
   @Test
@@ -324,6 +324,23 @@ public class UserUpdaterCreateTest {
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login is too short (minimum is 2 characters)");
   }
+
+
+  @Test
+  public void fail_to_create_user_login_start_with_underscore() {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("_marbalous")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
+      });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login should not start with .-_@");
+  }
+
 
   @Test
   public void fail_to_create_user_with_too_long_login() {
@@ -394,7 +411,7 @@ public class UserUpdaterCreateTest {
         .setEmail("marius@mail.com")
         .setPassword("")
         .build(), u -> {
-        });
+      });
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors()).containsExactlyInAnyOrder("Name can't be empty", "Password can't be empty");
@@ -515,7 +532,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
-      });
+    });
 
     verify(newUserNotifier).onNewUser(newUserHandler.capture());
     assertThat(newUserHandler.getValue().getLogin()).isEqualTo("user");
@@ -533,7 +550,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList("user"));
     assertThat(groups.get("user")).containsOnly(defaultGroup.getName());

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -66,6 +67,8 @@ public class UserUpdater {
   private static final String PASSWORD_PARAM = "Password";
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
+  private static final Pattern START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS = Pattern.compile("^[\\.\\-_@].*$");
+  private static final Pattern CONTAINS_ONLY_AUTHORIZED_CHARACTERS = Pattern.compile("\\A\\w[\\w\\.\\-_@]+\\z");
 
   public static final int LOGIN_MIN_LENGTH = 2;
   public static final int LOGIN_MAX_LENGTH = 255;
@@ -313,15 +316,18 @@ public class UserUpdater {
 
   private static boolean validateLoginFormat(@Nullable String login, List<String> messages) {
     boolean isValid = checkNotEmptyParam(login, LOGIN_PARAM, messages);
-    if (!isNullOrEmpty(login)) {
+    if (isValid) {
       if (login.length() < LOGIN_MIN_LENGTH) {
         messages.add(format(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
         return false;
       } else if (login.length() > LOGIN_MAX_LENGTH) {
         messages.add(format(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
         return false;
-      } else if (!login.matches("\\A\\w[\\w\\.\\-_@]+\\z")) {
-        messages.add("Use only letters, numbers, and .-_@ please.");
+      } else if (START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS.matcher(login).matches()){
+        messages.add("Login should not start with .-_@");
+        return false;
+      } else if (!CONTAINS_ONLY_AUTHORIZED_CHARACTERS.matcher(login).matches()) {
+        messages.add("Login should contain only letters, numbers, and .-_@");
         return false;
       }
     }

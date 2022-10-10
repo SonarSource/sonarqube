@@ -344,7 +344,7 @@ public class HttpHeadersAuthenticationTest {
     setNotUserInToken();
 
     assertThatThrownBy(() -> underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response))
-      .hasMessage("Use only letters, numbers, and .-_@ please.")
+      .hasMessage("Login should contain only letters, numbers, and .-_@")
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", Source.sso());
 

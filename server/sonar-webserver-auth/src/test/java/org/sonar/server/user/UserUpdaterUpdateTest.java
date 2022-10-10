@@ -628,7 +628,19 @@ public class UserUpdaterUpdateTest {
 
     assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Use only letters, numbers, and .-_@ please.");
+      .hasMessage("Login should contain only letters, numbers, and .-_@");
+  }
+
+  @Test
+  public void fail_to_update_login_when_login_start_with_unauthorized_characters() {
+    UserDto user = db.users().insertUser();
+    createDefaultGroup();
+
+    UpdateUser updateUser = new UpdateUser().setLogin("_StartWithUnderscore");
+
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login should not start with .-_@");
   }
 
   @Test
