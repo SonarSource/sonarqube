@@ -93,6 +93,7 @@ function WorkspaceHeaderButton({ icon: Icon, onClick, tooltip }: WorkspaceHeader
   return (
     <ButtonIcon
       className="workspace-header-icon"
+      aria-label={translate(tooltip)}
       color="#fff"
       onClick={onClick}
       tooltip={translate(tooltip)}>
