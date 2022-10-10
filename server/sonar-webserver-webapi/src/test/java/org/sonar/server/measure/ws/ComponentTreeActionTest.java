@@ -573,6 +573,24 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void show_branch_on_empty_response_if_not_main_branch() {
+    ComponentDto mainProjectBranch = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
+    userSession.addProjectPermission(USER, mainProjectBranch);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, "develop")
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), "develop");
+  }
+
+  @Test
   public void pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);

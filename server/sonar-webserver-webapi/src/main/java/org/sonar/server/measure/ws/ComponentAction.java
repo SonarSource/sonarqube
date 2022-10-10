@@ -229,11 +229,12 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private Optional<RefComponent> getReference(DbSession dbSession, ComponentDto component) {
-    if (component.getCopyComponentUuid() == null) {
+    String copyComponentUuid = component.getCopyComponentUuid();
+    if (copyComponentUuid == null) {
       return Optional.empty();
     }
 
-    Optional<ComponentDto> refComponent = dbClient.componentDao().selectByUuid(dbSession, component.getCopyComponentUuid());
+    Optional<ComponentDto> refComponent = dbClient.componentDao().selectByUuid(dbSession, copyComponentUuid);
     if (refComponent.isEmpty()) {
       return Optional.empty();
     }
@@ -255,6 +256,12 @@ public class ComponentAction implements MeasuresWsAction {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
 
+    setAdditionalFields(request, metrics, period, response);
+
+    return response.build();
+  }
+
+  private static void setAdditionalFields(ComponentRequest request, Collection<MetricDto> metrics, Optional<Measures.Period> period, ComponentWsResponse.Builder response) {
     List<String> additionalFields = request.getAdditionalFields();
     if (additionalFields != null) {
       if (additionalFields.contains(ADDITIONAL_METRICS)) {
@@ -272,8 +279,6 @@ public class ComponentAction implements MeasuresWsAction {
         response.setPeriod(period.get());
       }
     }
-
-    return response.build();
   }
 
   private static ComponentRequest toComponentWsRequest(Request request) {
@@ -348,20 +353,21 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static class RefComponent {
-    public RefComponent(BranchDto refBranch, ComponentDto refComponent) {
-      this.refBranch = refBranch;
-      this.refComponent = refComponent;
-    }
 
-    private BranchDto refBranch;
-    private ComponentDto refComponent;
+    private final BranchDto refBranch;
+    private final ComponentDto component;
+
+    public RefComponent(BranchDto refBranch, ComponentDto component) {
+      this.refBranch = refBranch;
+      this.component = component;
+    }
 
     public BranchDto getRefBranch() {
       return refBranch;
     }
 
     public ComponentDto getComponent() {
-      return refComponent;
+      return component;
     }
   }
 }
