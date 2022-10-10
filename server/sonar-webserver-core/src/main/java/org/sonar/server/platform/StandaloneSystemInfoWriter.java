@@ -28,7 +28,6 @@ import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.telemetry.TelemetryDataJsonWriter;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 
 import static java.util.Arrays.stream;
 
