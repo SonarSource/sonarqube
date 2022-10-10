@@ -46,7 +46,7 @@ $SONAR_HOME/bin/linux-x86-64/sonar.sh force-stop
 
 ## Running SonarQube as a Service on Linux with SystemD
 
-On a Unix system using SystemD, you can install SonarQube as a service. You cannot run SonarQube as `root` in 'nix systems. Ideally, you will created a new account dedicated to the purpose of running SonarQube.
+On a Unix system using SystemD, you can install SonarQube as a service. You cannot run SonarQube as `root` in 'nix systems. Ideally, you will have created a new account dedicated to the purpose of running SonarQube.
 Let's suppose:
 
 * The user used to start the service is `sonarqube`
@@ -89,9 +89,9 @@ sudo systemctl start sonarqube.service
 
 ## Running SonarQube as a Service on Linux with initd
 
-The following has been tested on Ubuntu 8.10 and CentOS 6.2.
+The following has been tested on Ubuntu 20.04 and CentOS 6.2.
 
-Create the file /etc/init.d/sonar with this content:
+You cannot run SonarQube as `root` in 'nix systems. Ideally, you will have created a new account dedicated to the purpose of running SonarQube. Let's suppose the user used to start the service is `sonarqube`. Then create the file `/etc/init.d/sonar` _based on_ the following:
 
 ```
 #!/bin/sh
@@ -110,8 +110,8 @@ Create the file /etc/init.d/sonar with this content:
 # Short-Description: SonarQube system (www.sonarsource.org)
 # Description: SonarQube system (www.sonarsource.org)
 ### END INIT INFO
- 
-/usr/bin/sonar $*
+
+su sonarqube -c "/usr/bin/sonar $*"
 ```
 
 Register SonarQube at boot time (RedHat, CentOS, 64 bit):
@@ -120,6 +120,13 @@ Register SonarQube at boot time (RedHat, CentOS, 64 bit):
 sudo ln -s $SONAR_HOME/bin/linux-x86-64/sonar.sh /usr/bin/sonar
 sudo chmod 755 /etc/init.d/sonar
 sudo chkconfig --add sonar
+```
+Register SonarQube at boot time (Ubuntu, 64 bit):
+
+```
+sudo ln -s $SONAR_HOME/bin/linux-x86-64/sonar.sh /usr/bin/sonar
+sudo chmod 755 /etc/init.d/sonar
+sudo update-rc.d sonar defaults
 ```
 Once registration is done, run:
 ```
