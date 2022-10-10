@@ -25,7 +25,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { Component } from '../../../../types/types';
-import ProjectActivityAppContainer from '../ProjectActivityAppContainer';
+import ProjectActivityAppContainer from '../ProjectActivityApp';
 
 jest.mock('../../../../api/time-machine', () => {
   const { mockPaging } = jest.requireActual('../../../../helpers/testMocks');

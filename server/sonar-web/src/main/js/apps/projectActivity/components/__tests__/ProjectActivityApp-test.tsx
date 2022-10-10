@@ -19,80 +19,114 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
-import { parseDate } from '../../../../helpers/dates';
-import ProjectActivityApp from '../ProjectActivityApp';
+import { changeEvent, createEvent } from '../../../../api/projectActivity';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import {
+  mockAnalysisEvent,
+  mockLocation,
+  mockMetric,
+  mockRouter
+} from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
+import { ProjectActivityApp } from '../ProjectActivityApp';
 
-const ANALYSES = [
-  {
-    key: 'A1',
-    date: parseDate('2016-10-27T16:33:50+0200'),
-    events: [
-      {
-        key: 'E1',
-        category: 'VERSION',
-        name: '6.5-SNAPSHOT'
-      }
-    ]
-  },
-  {
-    key: 'A2',
-    date: parseDate('2016-10-27T12:21:15+0200'),
-    events: []
-  },
-  {
-    key: 'A3',
-    date: parseDate('2016-10-26T12:17:29+0200'),
-    events: [
-      {
-        key: 'E2',
-        category: 'VERSION',
-        name: '6.4'
-      },
-      {
-        key: 'E3',
-        category: 'OTHER',
-        name: 'foo'
-      }
-    ]
-  }
-];
+jest.mock('../../../../helpers/dates', () => ({
+  parseDate: jest.fn(date => `PARSED:${date}`)
+}));
 
-const DEFAULT_PROPS = {
-  addCustomEvent: jest.fn().mockResolvedValue(undefined),
-  addVersion: jest.fn().mockResolvedValue(undefined),
-  analyses: ANALYSES,
-  analysesLoading: false,
-  branch: { isMain: true },
-  changeEvent: jest.fn().mockResolvedValue(undefined),
-  deleteAnalysis: jest.fn().mockResolvedValue(undefined),
-  deleteEvent: jest.fn().mockResolvedValue(undefined),
-  graphLoading: false,
-  initializing: false,
-  project: {
-    key: 'foo',
-    leakPeriodDate: '2017-05-16T13:50:02+0200',
-    qualifier: 'TRK'
-  },
-  metrics: [{ id: '1', key: 'code_smells', name: 'Code Smells', type: 'INT' }],
-  measuresHistory: [
-    {
-      metric: 'code_smells',
-      history: [
-        { date: parseDate('Fri Mar 04 2016 10:40:12 GMT+0100 (CET)'), value: '1749' },
-        { date: parseDate('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' }
-      ]
-    }
-  ],
-  query: {
-    category: '',
-    customMetrics: [],
-    graph: DEFAULT_GRAPH,
-    project: 'org.sonarsource.sonarqube:sonarqube'
-  },
-  updateQuery: () => {}
-};
+jest.mock('../../../../api/time-machine', () => {
+  const { mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    getAllTimeMachineData: jest.fn().mockResolvedValue({
+      measures: [
+        {
+          metric: 'bugs',
+          history: [{ date: '2022-01-01', value: '10' }]
+        }
+      ],
+      paging: mockPaging({ total: 1 })
+    })
+  };
+});
+
+jest.mock('../../../../api/metrics', () => {
+  const { mockMetric } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()])
+  };
+});
+
+jest.mock('../../../../api/projectActivity', () => {
+  const { mockAnalysis, mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    ...jest.requireActual('../../../../api/projectActivity'),
+    createEvent: jest.fn(),
+    changeEvent: jest.fn(),
+    getProjectActivity: jest.fn().mockResolvedValue({
+      analyses: [mockAnalysis({ key: 'foo' })],
+      paging: mockPaging({ total: 1 })
+    })
+  };
+});
 
 it('should render correctly', () => {
-  expect(shallow(<ProjectActivityApp {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should filter metric correctly', () => {
+  const wrapper = shallowRender();
+  let metrics = wrapper
+    .instance()
+    .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Project }), [
+      mockMetric({ key: MetricKey.bugs }),
+      mockMetric({ key: MetricKey.security_review_rating })
+    ]);
+  expect(metrics).toHaveLength(1);
+  metrics = wrapper
+    .instance()
+    .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Portfolio }), [
+      mockMetric({ key: MetricKey.bugs }),
+      mockMetric({ key: MetricKey.security_hotspots_reviewed })
+    ]);
+  expect(metrics).toHaveLength(1);
+});
+
+it('should correctly create and update custom events', async () => {
+  const analysisKey = 'foo';
+  const name = 'bar';
+  const newName = 'baz';
+  const event = mockAnalysisEvent({ name });
+  (createEvent as jest.Mock).mockResolvedValueOnce({ analysis: analysisKey, ...event });
+  (changeEvent as jest.Mock).mockResolvedValueOnce({
+    analysis: analysisKey,
+    ...event,
+    name: newName
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  const instance = wrapper.instance();
+
+  instance.addCustomEvent(analysisKey, name);
+  expect(createEvent).toHaveBeenCalledWith(analysisKey, name, undefined);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().analyses[0].events[0]).toEqual(event);
+
+  instance.changeEvent(event.key, newName);
+  expect(changeEvent).toHaveBeenCalledWith(event.key, newName);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().analyses[0].events[0]).toEqual({ ...event, name: newName });
+});
+
+function shallowRender(props: Partial<ProjectActivityApp['props']> = {}) {
+  return shallow<ProjectActivityApp>(
+    <ProjectActivityApp
+      component={mockComponent({ breadcrumbs: [mockComponent()] })}
+      location={mockLocation()}
+      router={mockRouter()}
+      {...props}
+    />
+  );
+}

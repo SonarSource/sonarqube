@@ -34,7 +34,7 @@ import {
 import { GraphType, MeasureHistory, Point, Serie } from '../../../types/project-activity';
 import { Metric, ParsedAnalysis } from '../../../types/types';
 import { datesQueryChanged, historyQueryChanged, Query } from '../utils';
-import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityAppContainer';
+import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityApp';
 
 interface Props {
   analyses: ParsedAnalysis[];

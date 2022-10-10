@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectActivityAppContainer from './components/ProjectActivityAppContainer';
+import ProjectActivityApp from './components/ProjectActivityApp';
 
-const routes = () => <Route path="project/activity" element={<ProjectActivityAppContainer />} />;
+const routes = () => <Route path="project/activity" element={<ProjectActivityApp />} />;
 
 export default routes;

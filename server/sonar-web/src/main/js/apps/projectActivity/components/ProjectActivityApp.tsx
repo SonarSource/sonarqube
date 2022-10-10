@@ -18,94 +18,399 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { useSearchParams } from 'react-router-dom';
+import { getAllMetrics } from '../../../api/metrics';
+import {
+  changeEvent,
+  createEvent,
+  deleteAnalysis,
+  deleteEvent,
+  getProjectActivity,
+  ProjectActivityStatuses
+} from '../../../api/projectActivity';
+import { getAllTimeMachineData } from '../../../api/time-machine';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
+import {
+  DEFAULT_GRAPH,
+  getActivityGraph,
+  getHistoryMetrics,
+  isCustomGraph
+} from '../../../components/activity-graph/utils';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
-import { MeasureHistory } from '../../../types/project-activity';
-import { Component, Metric, ParsedAnalysis } from '../../../types/types';
-import { Query } from '../utils';
-import './projectActivity.css';
-import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
-import ProjectActivityGraphs from './ProjectActivityGraphs';
-import ProjectActivityPageFilters from './ProjectActivityPageFilters';
+import { serializeStringArray } from '../../../helpers/query';
+import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
+import { GraphType, MeasureHistory } from '../../../types/project-activity';
+import { Component, Metric, Paging, ParsedAnalysis, RawQuery } from '../../../types/types';
+import * as actions from '../actions';
+import {
+  customMetricsChanged,
+  parseQuery,
+  Query,
+  serializeQuery,
+  serializeUrlQuery
+} from '../utils';
+import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
 
 interface Props {
-  addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  addVersion: (analysis: string, version: string) => Promise<void>;
+  branchLike?: BranchLike;
+  component: Component;
+  location: Location;
+  router: Router;
+}
+
+export interface State {
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteAnalysis: (analysis: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
-  initializing: boolean;
-  project: Pick<Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
+  initialized: boolean;
   metrics: Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
-  updateQuery: (changes: Partial<Query>) => void;
 }
 
-export default function ProjectActivityApp(props: Props) {
-  const { analyses, measuresHistory, query } = props;
-  const { configuration } = props.project;
-  const canAdmin =
-    (props.project.qualifier === 'TRK' || props.project.qualifier === 'APP') &&
-    (configuration ? configuration.showHistory : false);
-  const canDeleteAnalyses = configuration ? configuration.showHistory : false;
-  return (
-    <div className="page page-limited" id="project-activity">
-      <Suggestions suggestions="project_activity" />
-      <Helmet defer={false} title={translate('project_activity.page')} />
+export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
-      <A11ySkipTarget anchor="activity_main" />
+const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
+const ACTIVITY_PAGE_SIZE = 500;
 
-      <ProjectActivityPageFilters
-        category={query.category}
-        from={query.from}
-        project={props.project}
-        to={query.to}
-        updateQuery={props.updateQuery}
+export class ProjectActivityApp extends React.PureComponent<Props, State> {
+  mounted = false;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      analyses: [],
+      analysesLoading: false,
+      graphLoading: true,
+      initialized: false,
+      measuresHistory: [],
+      metrics: [],
+      query: parseQuery(props.location.query)
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+
+    this.firstLoadData(this.state.query, this.props.component);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.location.query !== this.props.location.query) {
+      const query = parseQuery(this.props.location.query);
+      if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
+        if (this.state.initialized) {
+          this.updateGraphData(query.graph || DEFAULT_GRAPH, query.customMetrics);
+        } else {
+          this.firstLoadData(query, this.props.component);
+        }
+      }
+      this.setState({ query });
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  addCustomEvent = (analysisKey: string, name: string, category?: string) => {
+    return createEvent(analysisKey, name, category).then(({ analysis, ...event }) => {
+      if (this.mounted) {
+        this.setState(actions.addCustomEvent(analysis, event));
+      }
+    });
+  };
+
+  addVersion = (analysis: string, version: string) => {
+    return this.addCustomEvent(analysis, version, 'VERSION');
+  };
+
+  changeEvent = (eventKey: string, name: string) => {
+    return changeEvent(eventKey, name).then(({ analysis, ...event }) => {
+      if (this.mounted) {
+        this.setState(actions.changeEvent(analysis, event));
+      }
+    });
+  };
+
+  deleteAnalysis = (analysis: string) => {
+    return deleteAnalysis(analysis).then(() => {
+      if (this.mounted) {
+        this.updateGraphData(
+          this.state.query.graph || DEFAULT_GRAPH,
+          this.state.query.customMetrics
+        );
+        this.setState(actions.deleteAnalysis(analysis));
+      }
+    });
+  };
+
+  deleteEvent = (analysis: string, event: string) => {
+    return deleteEvent(event).then(() => {
+      if (this.mounted) {
+        this.setState(actions.deleteEvent(analysis, event));
+      }
+    });
+  };
+
+  fetchActivity = (
+    project: string,
+    statuses: ProjectActivityStatuses[],
+    p: number,
+    ps: number,
+    additional?: RawQuery
+  ) => {
+    const parameters = {
+      project,
+      statuses: serializeStringArray(statuses),
+      p,
+      ps,
+      ...getBranchLikeQuery(this.props.branchLike)
+    };
+    return getProjectActivity({ ...additional, ...parameters }).then(({ analyses, paging }) => ({
+      analyses: analyses.map(analysis => ({
+        ...analysis,
+        date: parseDate(analysis.date)
+      })) as ParsedAnalysis[],
+      paging
+    }));
+  };
+
+  fetchMeasuresHistory = (metrics: string[]): Promise<MeasureHistory[]> => {
+    if (metrics.length <= 0) {
+      return Promise.resolve([]);
+    }
+    return getAllTimeMachineData({
+      component: this.props.component.key,
+      metrics: metrics.join(),
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(({ measures }) =>
+      measures.map(measure => ({
+        metric: measure.metric,
+        history: measure.history.map(analysis => ({
+          date: parseDate(analysis.date),
+          value: analysis.value!
+        }))
+      }))
+    );
+  };
+
+  fetchAllActivities = (topLevelComponent: string) => {
+    this.setState({ analysesLoading: true });
+    this.loadAllActivities(topLevelComponent).then(
+      ({ analyses }) => {
+        if (this.mounted) {
+          this.setState({
+            analyses,
+            analysesLoading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ analysesLoading: false });
+        }
+      }
+    );
+  };
+
+  loadAllActivities = (
+    project: string,
+    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging }
+  ): Promise<{ analyses: ParsedAnalysis[]; paging: Paging }> => {
+    if (
+      prevResult &&
+      prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total
+    ) {
+      return Promise.resolve(prevResult);
+    }
+    const nextPage = prevResult ? prevResult.paging.pageIndex + 1 : 1;
+    return this.fetchActivity(
+      project,
+      [
+        ProjectActivityStatuses.STATUS_PROCESSED,
+        ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+      ],
+      nextPage,
+      ACTIVITY_PAGE_SIZE
+    ).then(result => {
+      if (!prevResult) {
+        return this.loadAllActivities(project, result);
+      }
+      return this.loadAllActivities(project, {
+        analyses: prevResult.analyses.concat(result.analyses),
+        paging: result.paging
+      });
+    });
+  };
+
+  getTopLevelComponent = (component: Component) => {
+    let current = component.breadcrumbs.length - 1;
+    while (
+      current > 0 &&
+      !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)
+    ) {
+      current--;
+    }
+    return component.breadcrumbs[current].key;
+  };
+
+  filterMetrics({ qualifier }: Component, metrics: Metric[]) {
+    return ['VW', 'SVW'].includes(qualifier)
+      ? metrics.filter(metric => metric.key !== MetricKey.security_hotspots_reviewed)
+      : metrics.filter(metric => metric.key !== MetricKey.security_review_rating);
+  }
+
+  firstLoadData(query: Query, component: Component) {
+    const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
+    const topLevelComponent = this.getTopLevelComponent(component);
+    Promise.all([
+      this.fetchActivity(
+        topLevelComponent,
+        [
+          ProjectActivityStatuses.STATUS_PROCESSED,
+          ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+        ],
+        1,
+        ACTIVITY_PAGE_SIZE_FIRST_BATCH,
+        serializeQuery(query)
+      ),
+      getAllMetrics(),
+      this.fetchMeasuresHistory(graphMetrics)
+    ]).then(
+      ([{ analyses }, metrics, measuresHistory]) => {
+        if (this.mounted) {
+          this.setState({
+            analyses,
+            graphLoading: false,
+            initialized: true,
+            measuresHistory,
+            metrics: this.filterMetrics(component, metrics)
+          });
+
+          this.fetchAllActivities(topLevelComponent);
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ initialized: true, graphLoading: false });
+        }
+      }
+    );
+  }
+
+  updateGraphData = (graph: GraphType, customMetrics: string[]) => {
+    const graphMetrics = getHistoryMetrics(graph, customMetrics);
+    this.setState({ graphLoading: true });
+    this.fetchMeasuresHistory(graphMetrics).then(
+      measuresHistory => {
+        if (this.mounted) {
+          this.setState({ graphLoading: false, measuresHistory });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ graphLoading: false, measuresHistory: [] });
+        }
+      }
+    );
+  };
+
+  updateQuery = (newQuery: Query) => {
+    const query = serializeUrlQuery({
+      ...this.state.query,
+      ...newQuery
+    });
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: {
+        ...query,
+        ...getBranchLikeQuery(this.props.branchLike),
+        id: this.props.component.key
+      }
+    });
+  };
+
+  shouldRedirect = () => {
+    const locationQuery = this.props.location.query;
+    if (!locationQuery) {
+      return false;
+    }
+    const filtered = Object.keys(locationQuery).some(
+      key => key !== 'id' && locationQuery[key] !== ''
+    );
+
+    const { graph, customGraphs } = getActivityGraph(
+      PROJECT_ACTIVITY_GRAPH,
+      this.props.component.key
+    );
+    const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
+
+    // if there is no filter, but there are saved preferences in the localStorage
+    // also don't redirect to custom if there is no metrics selected for it
+    return !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
+  };
+
+  render() {
+    return (
+      <ProjectActivityAppRenderer
+        addCustomEvent={this.addCustomEvent}
+        addVersion={this.addVersion}
+        analyses={this.state.analyses}
+        analysesLoading={this.state.analysesLoading}
+        changeEvent={this.changeEvent}
+        deleteAnalysis={this.deleteAnalysis}
+        deleteEvent={this.deleteEvent}
+        graphLoading={!this.state.initialized || this.state.graphLoading}
+        initializing={!this.state.initialized}
+        measuresHistory={this.state.measuresHistory}
+        metrics={this.state.metrics}
+        project={this.props.component}
+        query={this.state.query}
+        updateQuery={this.updateQuery}
       />
-
-      <div className="layout-page project-activity-page">
-        <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">
-          <ProjectActivityAnalysesList
-            addCustomEvent={props.addCustomEvent}
-            addVersion={props.addVersion}
-            analyses={analyses}
-            analysesLoading={props.analysesLoading}
-            canAdmin={canAdmin}
-            canDeleteAnalyses={canDeleteAnalyses}
-            changeEvent={props.changeEvent}
-            deleteAnalysis={props.deleteAnalysis}
-            deleteEvent={props.deleteEvent}
-            initializing={props.initializing}
-            leakPeriodDate={
-              props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-            }
-            project={props.project}
-            query={props.query}
-            updateQuery={props.updateQuery}
-          />
-        </div>
-        <div className="project-activity-layout-page-main">
-          <ProjectActivityGraphs
-            analyses={analyses}
-            leakPeriodDate={
-              props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-            }
-            loading={props.graphLoading}
-            measuresHistory={measuresHistory}
-            metrics={props.metrics}
-            project={props.project.key}
-            query={query}
-            updateQuery={props.updateQuery}
-          />
-        </div>
-      </div>
-    </div>
-  );
+    );
+  }
 }
+
+const isFiltered = (searchParams: URLSearchParams) => {
+  let filtered = false;
+  searchParams.forEach((value, key) => {
+    if (key !== 'id' && value !== '') {
+      filtered = true;
+    }
+  });
+  return filtered;
+};
+
+function RedirectWrapper(props: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filtered = isFiltered(searchParams);
+
+  const { graph, customGraphs } = getActivityGraph(PROJECT_ACTIVITY_GRAPH, props.component.key);
+  const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
+
+  // if there is no filter, but there are saved preferences in the localStorage
+  // also don't redirect to custom if there is no metrics selected for it
+  const shouldRedirect = !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
+
+  React.useEffect(() => {
+    if (shouldRedirect) {
+      const query = parseQuery(searchParams);
+      const newQuery = { ...query, graph };
+      if (isCustomGraph(newQuery.graph)) {
+        searchParams.set('custom_metrics', customGraphs.join(','));
+      }
+      searchParams.set('graph', graph);
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [customGraphs, graph, searchParams, setSearchParams, shouldRedirect]);
+
+  return shouldRedirect ? null : <ProjectActivityApp {...props} />;
+}
+
+export default withComponentContext(withRouter(RedirectWrapper));

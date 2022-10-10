@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { AnalysisEvent } from '../../types/types';
-import { State } from './components/ProjectActivityAppContainer';
+import { State } from './components/ProjectActivityApp';
 
 export function addCustomEvent(analysis: string, event: AnalysisEvent) {
   return (state: State) => ({
