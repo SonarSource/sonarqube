@@ -92,23 +92,19 @@ export function ActivityPanel(props: ActivityPanelProps) {
           <div className="display-flex-column flex-1">
             <div className="overview-panel-padded display-flex-column flex-1">
               <GraphsHeader graph={graph} metrics={metrics} updateGraph={props.onGraphChange} />
-              <div
-                aria-label={translateWithParameters(
+              <GraphsHistory
+                analyses={[]}
+                ariaLabel={translateWithParameters(
                   'overview.activity.graph_shows_data_for_x',
                   displayedMetrics.map(metricKey => localizeMetric(metricKey)).join(', ')
-                )}>
-                <div aria-hidden={true}>
-                  <GraphsHistory
-                    analyses={[]}
-                    graph={graph}
-                    graphs={graphs}
-                    leakPeriodDate={shownLeakPeriodDate}
-                    loading={Boolean(loading)}
-                    measuresHistory={measuresHistory}
-                    series={series}
-                  />
-                </div>
-              </div>
+                )}
+                graph={graph}
+                graphs={graphs}
+                leakPeriodDate={shownLeakPeriodDate}
+                loading={Boolean(loading)}
+                measuresHistory={measuresHistory}
+                series={series}
+              />
             </div>
 
             <div className="overview-panel-padded bordered-top text-right">

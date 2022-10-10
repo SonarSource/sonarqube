@@ -36,71 +36,64 @@ exports[`should render correctly 1`] = `
             }
             updateGraph={[MockFunction]}
           />
-          <div
-            aria-label="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
-          >
-            <div
-              aria-hidden={true}
-            >
-              <GraphsHistory
-                analyses={Array []}
-                graph="issues"
-                graphs={
-                  Array [
-                    Array [
+          <GraphsHistory
+            analyses={Array []}
+            ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
+            graph="issues"
+            graphs={
+              Array [
+                Array [
+                  Object {
+                    "data": Array [
                       Object {
-                        "data": Array [
-                          Object {
-                            "x": 2016-10-27T14:33:50.000Z,
-                            "y": 20,
-                          },
-                        ],
-                        "name": "bugs",
-                        "translatedName": "Bugs",
-                        "type": "PERCENT",
+                        "x": 2016-10-27T14:33:50.000Z,
+                        "y": 20,
                       },
                     ],
-                  ]
-                }
-                loading={false}
-                measuresHistory={
-                  Array [
+                    "name": "bugs",
+                    "translatedName": "Bugs",
+                    "type": "PERCENT",
+                  },
+                ],
+              ]
+            }
+            loading={false}
+            measuresHistory={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "history": Array [
                     Object {
-                      "bestValue": true,
-                      "history": Array [
-                        Object {
-                          "date": 2016-10-27T14:33:50.000Z,
-                          "value": "20",
-                        },
-                      ],
-                      "metric": "bugs",
-                      "period": Object {
-                        "bestValue": true,
-                        "index": 1,
-                        "value": "1.0",
-                      },
-                      "value": "1.0",
+                      "date": 2016-10-27T14:33:50.000Z,
+                      "value": "20",
                     },
-                  ]
-                }
-                series={
-                  Array [
+                  ],
+                  "metric": "bugs",
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            series={
+              Array [
+                Object {
+                  "data": Array [
                     Object {
-                      "data": Array [
-                        Object {
-                          "x": 2016-10-27T14:33:50.000Z,
-                          "y": 20,
-                        },
-                      ],
-                      "name": "bugs",
-                      "translatedName": "Bugs",
-                      "type": "PERCENT",
+                      "x": 2016-10-27T14:33:50.000Z,
+                      "y": 20,
                     },
-                  ]
-                }
-              />
-            </div>
-          </div>
+                  ],
+                  "name": "bugs",
+                  "translatedName": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+          />
         </div>
         <div
           className="overview-panel-padded bordered-top text-right"
@@ -212,71 +205,64 @@ exports[`should render correctly 2`] = `
             }
             updateGraph={[MockFunction]}
           />
-          <div
-            aria-label="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
-          >
-            <div
-              aria-hidden={true}
-            >
-              <GraphsHistory
-                analyses={Array []}
-                graph="issues"
-                graphs={
-                  Array [
-                    Array [
+          <GraphsHistory
+            analyses={Array []}
+            ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
+            graph="issues"
+            graphs={
+              Array [
+                Array [
+                  Object {
+                    "data": Array [
                       Object {
-                        "data": Array [
-                          Object {
-                            "x": 2016-10-27T14:33:50.000Z,
-                            "y": 20,
-                          },
-                        ],
-                        "name": "bugs",
-                        "translatedName": "Bugs",
-                        "type": "PERCENT",
+                        "x": 2016-10-27T14:33:50.000Z,
+                        "y": 20,
                       },
                     ],
-                  ]
-                }
-                loading={true}
-                measuresHistory={
-                  Array [
+                    "name": "bugs",
+                    "translatedName": "Bugs",
+                    "type": "PERCENT",
+                  },
+                ],
+              ]
+            }
+            loading={true}
+            measuresHistory={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "history": Array [
                     Object {
-                      "bestValue": true,
-                      "history": Array [
-                        Object {
-                          "date": 2016-10-27T14:33:50.000Z,
-                          "value": "20",
-                        },
-                      ],
-                      "metric": "bugs",
-                      "period": Object {
-                        "bestValue": true,
-                        "index": 1,
-                        "value": "1.0",
-                      },
-                      "value": "1.0",
+                      "date": 2016-10-27T14:33:50.000Z,
+                      "value": "20",
                     },
-                  ]
-                }
-                series={
-                  Array [
+                  ],
+                  "metric": "bugs",
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "1.0",
+                },
+              ]
+            }
+            series={
+              Array [
+                Object {
+                  "data": Array [
                     Object {
-                      "data": Array [
-                        Object {
-                          "x": 2016-10-27T14:33:50.000Z,
-                          "y": 20,
-                        },
-                      ],
-                      "name": "bugs",
-                      "translatedName": "Bugs",
-                      "type": "PERCENT",
+                      "x": 2016-10-27T14:33:50.000Z,
+                      "y": 20,
                     },
-                  ]
-                }
-              />
-            </div>
-          </div>
+                  ],
+                  "name": "bugs",
+                  "translatedName": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+          />
         </div>
         <div
           className="overview-panel-padded bordered-top text-right"

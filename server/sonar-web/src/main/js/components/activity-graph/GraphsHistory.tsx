@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEqual } from 'lodash';
+import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
 import { ParsedAnalysis } from '../../types/types';
@@ -30,6 +30,7 @@ import { getSeriesMetricType, hasHistoryData, isCustomGraph } from './utils';
 
 interface Props {
   analyses: ParsedAnalysis[];
+  ariaLabel?: string;
   graph: GraphType;
   graphs: Serie[][];
   graphEndDate?: Date;
@@ -79,7 +80,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { graph, loading, series } = this.props;
+    const { graph, loading, series, ariaLabel } = this.props;
     const isCustom = isCustomGraph(graph);
 
     if (loading) {
@@ -117,26 +118,37 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
     const showAreas = [GraphType.coverage, GraphType.duplications].includes(graph);
     return (
       <div className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow">
-        {this.props.graphs.map((graphSeries, idx) => (
-          <GraphHistory
-            events={events}
-            graph={graph}
-            graphEndDate={this.props.graphEndDate}
-            graphStartDate={this.props.graphStartDate}
-            isCustom={isCustom}
-            key={idx}
-            leakPeriodDate={this.props.leakPeriodDate}
-            measuresHistory={this.props.measuresHistory}
-            metricsType={getSeriesMetricType(graphSeries)}
-            removeCustomMetric={this.props.removeCustomMetric}
-            selectedDate={this.state.selectedDate}
-            series={graphSeries}
-            showAreas={showAreas}
-            updateGraphZoom={this.props.updateGraphZoom}
-            updateSelectedDate={this.props.updateSelectedDate}
-            updateTooltip={this.updateTooltip}
-          />
-        ))}
+        {this.props.graphs.map((graphSeries, idx) => {
+          return (
+            <GraphHistory
+              events={events}
+              graph={graph}
+              graphEndDate={this.props.graphEndDate}
+              graphStartDate={this.props.graphStartDate}
+              isCustom={isCustom}
+              key={idx}
+              leakPeriodDate={this.props.leakPeriodDate}
+              measuresHistory={this.props.measuresHistory}
+              metricsType={getSeriesMetricType(graphSeries)}
+              removeCustomMetric={this.props.removeCustomMetric}
+              selectedDate={this.state.selectedDate}
+              series={graphSeries}
+              graphDescription={
+                ariaLabel ||
+                translateWithParameters(
+                  'project_activity.graphs.explanation_x',
+                  uniqBy(graphSeries, 'name')
+                    .map(({ translatedName }) => translatedName)
+                    .join(', ')
+                )
+              }
+              showAreas={showAreas}
+              updateGraphZoom={this.props.updateGraphZoom}
+              updateSelectedDate={this.props.updateSelectedDate}
+              updateTooltip={this.updateTooltip}
+            />
+          );
+        })}
       </div>
     );
   }

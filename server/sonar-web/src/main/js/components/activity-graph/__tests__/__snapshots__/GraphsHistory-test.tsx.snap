@@ -5,6 +5,7 @@ exports[`should correctly render a graph 1`] = `
   className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow"
 >
   <GraphHistory
+    ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
     events={Array []}
     graph="issues"
     isCustom={false}
@@ -49,6 +50,7 @@ exports[`should correctly render multiple graphs 1`] = `
   className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow"
 >
   <GraphHistory
+    ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
     events={Array []}
     graph="issues"
     isCustom={false}
@@ -86,6 +88,7 @@ exports[`should correctly render multiple graphs 1`] = `
     updateTooltip={[Function]}
   />
   <GraphHistory
+    ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
     events={Array []}
     graph="issues"
     isCustom={false}

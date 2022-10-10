@@ -40,6 +40,7 @@ interface Props {
   showAreas: boolean;
   series: Serie[];
   selectedDate?: Date;
+  graphDescription: string;
   updateGraphZoom?: (from?: Date, to?: Date) => void;
   updateSelectedDate?: (selectedDate?: Date) => void;
   updateTooltip: (selectedDate?: Date) => void;
@@ -78,7 +79,8 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
       metricsType,
       selectedDate,
       series,
-      showAreas
+      showAreas,
+      graphDescription
     } = this.props;
     const { tooltipIdx, tooltipXPos } = this.state;
 
@@ -105,6 +107,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
                   series={series}
                   showAreas={showAreas}
                   startDate={graphStartDate}
+                  graphDescription={graphDescription}
                   updateSelectedDate={this.props.updateSelectedDate}
                   updateTooltip={this.updateTooltip}
                   updateZoom={this.props.updateGraphZoom}

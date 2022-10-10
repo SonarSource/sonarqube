@@ -30,6 +30,7 @@ import './AdvancedTimeline.css';
 import './LineChart.css';
 
 export interface Props {
+  graphDescription?: string;
   basisCurve?: boolean;
   endDate?: Date;
   disableZoom?: boolean;
@@ -595,22 +596,36 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   render() {
-    if (!this.props.width || !this.props.height) {
+    const {
+      width,
+      height,
+      padding,
+      disableZoom,
+      startDate,
+      endDate,
+      leakPeriodDate,
+      hideGrid,
+      hideXAxis,
+      showAreas,
+      graphDescription
+    } = this.props;
+    if (!width || !height) {
       return <div />;
     }
-    const zoomEnabled = !this.props.disableZoom && this.props.updateZoom != null;
-    const isZoomed = Boolean(this.props.startDate || this.props.endDate);
+    const zoomEnabled = !disableZoom && this.props.updateZoom != null;
+    const isZoomed = Boolean(startDate || endDate);
     return (
       <svg
+        aria-label={graphDescription}
         className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
-        height={this.props.height}
-        width={this.props.width}>
+        height={height}
+        width={width}>
         {zoomEnabled && this.renderClipPath()}
-        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-          {this.props.leakPeriodDate != null && this.renderLeak()}
-          {!this.props.hideGrid && this.renderHorizontalGrid()}
-          {!this.props.hideXAxis && this.renderXAxisTicks()}
-          {this.props.showAreas && this.renderAreas()}
+        <g transform={`translate(${padding[3]}, ${padding[0]})`}>
+          {leakPeriodDate != null && this.renderLeak()}
+          {!hideGrid && this.renderHorizontalGrid()}
+          {!hideXAxis && this.renderXAxisTicks()}
+          {showAreas && this.renderAreas()}
           {this.renderLines()}
           {this.renderDots()}
           {this.renderSelectedDate()}
