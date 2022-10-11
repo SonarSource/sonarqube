@@ -49,6 +49,7 @@ import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.measure.Rating;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -57,6 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -92,7 +94,7 @@ public class MeasureActionTest {
       new SvgGenerator()));
 
   @Before
-  public void before(){
+  public void before() {
     mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
   }
 
@@ -100,8 +102,7 @@ public class MeasureActionTest {
   public void int_measure() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(10_000d));
+    MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 10_000);
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -208,6 +209,24 @@ public class MeasureActionTest {
   }
 
   @Test
+  public void security_hotspots() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    MetricDto metric = createIntMetricAndMeasure(project, SECURITY_HOTSPOTS_KEY, 42);
+
+    TestResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute();
+
+    checkSvg(response, "security hotspots", "42", DEFAULT);
+
+    // Second call with If-None-Match must return 304
+    checkWithIfNoneMatchHeader(project, metric, response);
+
+  }
+
+  @Test
   public void display_deprecated_warning_quality_gate() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
@@ -226,8 +245,8 @@ public class MeasureActionTest {
   public void measure_on_non_main_branch() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false));
     userSession.registerComponents(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(5_000d));
+    MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 5_000);
+
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     db.measures().insertLiveMeasure(branch, metric, m -> m.setValue(10_000d));
 
@@ -255,8 +274,7 @@ public class MeasureActionTest {
   public void measure_on_application() {
     ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
-    db.measures().insertLiveMeasure(application, metric, m -> m.setValue(10_000d));
+    MetricDto metric = createIntMetricAndMeasure(application, BUGS_KEY, 10_000);
 
     TestResponse response = ws.newRequest()
       .setParam("project", application.getKey())
@@ -342,7 +360,7 @@ public class MeasureActionTest {
   }
 
   @DataProvider
-  public static Object[][] publicProject_forceAuth_accessGranted(){
+  public static Object[][] publicProject_forceAuth_accessGranted() {
     return new Object[][] {
       // public project, force auth : works depending on token's validity
       {true, true, true, true},
@@ -363,12 +381,11 @@ public class MeasureActionTest {
   @Test
   @UseDataProvider("publicProject_forceAuth_accessGranted")
   public void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
-                                                               boolean validToken, boolean accessGranted) throws ParseException {
+    boolean validToken, boolean accessGranted) throws ParseException {
     ComponentDto projectAsComponent = publicProject ? db.components().insertPublicProject() : db.components().insertPrivateProject();
     userSession.registerComponents(projectAsComponent);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+    MetricDto metric = createIntMetricAndMeasure(projectAsComponent, BUGS_KEY, 10_000);
 
-    db.measures().insertLiveMeasure(projectAsComponent, metric, m -> m.setValue(10_000d));
     ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectAsComponent.getKey())
       .orElseThrow(() -> new IllegalStateException("project not found"));
 
@@ -385,9 +402,9 @@ public class MeasureActionTest {
       .setParam("token", validToken ? token : "invalid-token")
       .execute();
 
-    if(accessGranted){
+    if (accessGranted) {
       checkSvg(response, "bugs", "10k", DEFAULT);
-    }else{
+    } else {
       checkError(response, "Project has not been found");
     }
   }
@@ -413,10 +430,11 @@ public class MeasureActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey());
     assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("project", project.getKey())
-        .setParam("metric", metric.getKey())
+      request
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -430,10 +448,12 @@ public class MeasureActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null));
 
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey());
+
     assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("project", project.getKey())
-        .setParam("metric", metric.getKey())
+      request
         .execute();
     })
       .isInstanceOf(IllegalStateException.class)
@@ -445,10 +465,12 @@ public class MeasureActionTest {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
 
+    TestRequest request = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", BUGS_KEY);
+
     assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("project", project.getKey())
-        .setParam("metric", BUGS_KEY)
+      request
         .execute();
     })
       .isInstanceOf(IllegalStateException.class)
@@ -506,5 +528,11 @@ public class MeasureActionTest {
 
   private MetricDto createQualityGateMetric() {
     return db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY).setValueType(LEVEL.name()));
+  }
+
+  private MetricDto createIntMetricAndMeasure(ComponentDto project, String key, Integer value) {
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(key).setValueType(INT.name()));
+    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(value.doubleValue()));
+    return metric;
   }
 }

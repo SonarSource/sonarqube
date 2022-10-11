@@ -53,6 +53,7 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
@@ -88,22 +89,23 @@ public class MeasureAction implements ProjectBadgesWsAction {
     .put(SQALE_RATING_KEY, "maintainability")
     .put(ALERT_STATUS_KEY, "quality gate")
     .put(RELIABILITY_RATING_KEY, "reliability")
+    .put(SECURITY_HOTSPOTS_KEY, "security hotspots")
     .put(SECURITY_RATING_KEY, "security")
     .put(TECHNICAL_DEBT_KEY, "technical debt")
     .put(VULNERABILITIES_KEY, "vulnerabilities")
     .build();
 
-  private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
     WARN, "warning",
     ERROR, "failed"));
 
-  private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(Map.of(
     OK, Color.QUALITY_GATE_OK,
     WARN, Color.QUALITY_GATE_WARN,
     ERROR, Color.QUALITY_GATE_ERROR));
 
-  private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(Map.of(
     A, Color.RATING_A,
     B, Color.RATING_B,
     C, Color.RATING_C,
@@ -200,8 +202,8 @@ public class MeasureAction implements ProjectBadgesWsAction {
     return svgGenerator.generateBadge(METRIC_NAME_BY_KEY.get(metric.getKey()), value, color);
   }
 
-  private static <PARAM> PARAM getNonNullValue(LiveMeasureDto measure, Function<LiveMeasureDto, PARAM> function) {
-    PARAM value = function.apply(measure);
+  private static <P> P getNonNullValue(LiveMeasureDto measure, Function<LiveMeasureDto, P> function) {
+    P value = function.apply(measure);
     checkState(value != null, "Measure has not been found");
     return value;
   }
