@@ -318,8 +318,9 @@ public class AddActionTest {
     userSession.logIn().setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-
-    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), userSession.getLogin()))
+    String key = project.getKey();
+    String login = userSession.getLogin();
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, key, login))
       .isInstanceOf(ForbiddenException.class);
   }
 

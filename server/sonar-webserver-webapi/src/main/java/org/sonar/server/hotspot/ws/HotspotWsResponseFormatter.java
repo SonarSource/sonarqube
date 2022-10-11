@@ -45,8 +45,8 @@ public class HotspotWsResponseFormatter {
     return builder.build();
   }
 
-  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, BranchDto branchDto) {
-    if (branchDto.isMain()) {
+  Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component, @Nullable BranchDto branchDto) {
+    if (branchDto == null || branchDto.isMain()) {
       return formatComponent(builder, component, null, null);
     }
     return formatComponent(builder, component, branchDto.getBranchKey(), branchDto.getPullRequestKey());

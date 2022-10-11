@@ -34,6 +34,7 @@ import org.sonar.server.ce.projectdump.ExportSubmitter;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -86,7 +87,8 @@ public class ExportActionTest {
   public void fails_if_not_project_administrator() {
     userSession.logIn();
 
-    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute())
+    TestRequest request = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey());
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -105,7 +107,8 @@ public class ExportActionTest {
   public void fails_to_trigger_task_if_anonymous() {
     userSession.anonymous();
 
-    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getKey()).execute())
+    TestRequest request = actionTester.newRequest().setMethod("POST").setParam("key", project.getKey());
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }

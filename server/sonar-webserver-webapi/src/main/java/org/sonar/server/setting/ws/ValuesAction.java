@@ -123,7 +123,6 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = ValuesRequest.from(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      // TODO can portfolios fail here?
       BranchDto branchDto = component.map(c -> componentFinder.getBranchByUuid(dbSession, c.branchUuid())).orElse(null);
 
       Set<String> keys = loadKeys(valuesRequest);
@@ -177,7 +176,7 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   @CheckForNull
-  private String getBranchKeySafely(@Nullable BranchDto branchDto) {
+  private static String getBranchKeySafely(@Nullable BranchDto branchDto) {
     if (branchDto != null) {
       return branchDto.isMain() ? null : branchDto.getBranchKey();
     }

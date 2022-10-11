@@ -772,8 +772,8 @@ public class ComponentActionTest {
     ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
-
-    assertThatThrownBy(() -> execute(directory.getKey()))
+    String dirKey = directory.getKey();
+    assertThatThrownBy(() -> execute(dirKey))
       .isInstanceOf(BadRequestException.class);
   }
 

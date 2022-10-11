@@ -39,6 +39,7 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.BranchType;
 import org.sonarqube.ws.ProjectBranches;
@@ -274,8 +275,8 @@ public class ListActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(USER, project);
-
-    assertThatThrownBy(() -> ws.newRequest().setParam("project", file.getKey()).execute())
+    TestRequest request = ws.newRequest().setParam("project", file.getKey());
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Project '" + file.getKey() + "' not found");
   }

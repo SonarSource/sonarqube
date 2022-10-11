@@ -143,7 +143,8 @@ public class UnsetBaselineActionTest {
     String branchName = randomAlphanumeric(248);
     db.components().insertProjectBranch(project, b -> b.setKey(branchName));
 
-    assertThatThrownBy(() ->  call(project.getKey(), branchName))
+    String key = project.getKey();
+    assertThatThrownBy(() ->  call(key, branchName))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }

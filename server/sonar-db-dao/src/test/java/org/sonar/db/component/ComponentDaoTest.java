@@ -299,7 +299,9 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_keys_throws_ISE_if_both_branch_and_pr_are_passed() {
-    assertThatThrownBy(() -> underTest.selectByKeys(db.getSession(), List.of("key"), "branch", "pr"))
+    DbSession session = db.getSession();
+    List<String> keys = List.of("key");
+    assertThatThrownBy(() -> underTest.selectByKeys(session, keys, "branch", "pr"))
       .isInstanceOf(IllegalStateException.class);
   }
 

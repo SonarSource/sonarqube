@@ -142,10 +142,10 @@ public class IssueIteratorFactoryTest {
       .map(project2Component -> dbTester.issues().insert(rule, project2, project2Component).getKey())
       .toArray(String[]::new);
 
-    assertThat(issuesByKey(factory -> factory.createForBranch(project1.uuid())).keySet())
-      .containsOnly(project1IssueKeys);
-    assertThat(issuesByKey(factory -> factory.createForBranch(project2.uuid())).keySet())
-      .containsOnly(project2IssueKeys);
+    assertThat(issuesByKey(factory -> factory.createForBranch(project1.uuid())))
+      .containsOnlyKeys(project1IssueKeys);
+    assertThat(issuesByKey(factory -> factory.createForBranch(project2.uuid())))
+      .containsOnlyKeys(project2IssueKeys);
     assertThat(issuesByKey(factory -> factory.createForBranch("does not exist")))
       .isEmpty();
   }

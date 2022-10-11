@@ -72,7 +72,6 @@ class ComponentTreeData {
     return componentCount;
   }
 
-  @CheckForNull
   public Map<String, ComponentDto> getReferenceComponentsByUuid() {
     return referenceComponentsByUuid;
   }
