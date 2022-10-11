@@ -48,17 +48,23 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const mostImportantIssue = sortByType(issues)[0];
   const issueTypes = uniq(issues.map(i => i.type));
 
+  const tooltipShowHide = translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show');
   let tooltipContent;
   if (issueTypes.length > 1) {
-    tooltipContent = translate('source_viewer.issues_on_line.multiple_issues');
+    tooltipContent = translateWithParameters(
+      'source_viewer.issues_on_line.multiple_issues',
+      tooltipShowHide
+    );
   } else if (issues.length === 1) {
     tooltipContent = translateWithParameters(
       'source_viewer.issues_on_line.issue_of_type_X',
+      tooltipShowHide,
       translate('issue.type', mostImportantIssue.type)
     );
   } else {
     tooltipContent = translateWithParameters(
       'source_viewer.issues_on_line.X_issues_of_type_Y',
+      tooltipShowHide,
       issues.length,
       translate('issue.type', mostImportantIssue.type, 'plural')
     );
@@ -66,14 +72,12 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
 
   return (
     <td className={className} data-line-number={line.line}>
-      <ButtonPlain
-        aria-label={translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show')}
-        onClick={props.onClick}>
-        <Tooltip overlay={tooltipContent}>
+      <Tooltip overlay={tooltipContent}>
+        <ButtonPlain aria-label={tooltipContent} aria-expanded={issuesOpen} onClick={props.onClick}>
           <IssueIcon type={mostImportantIssue.type} />
-        </Tooltip>
-        {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-      </ButtonPlain>
+          {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
+        </ButtonPlain>
+      </Tooltip>
     </td>
   );
 }

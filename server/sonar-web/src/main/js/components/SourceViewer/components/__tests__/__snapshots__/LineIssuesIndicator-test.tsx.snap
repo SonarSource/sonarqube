@@ -5,23 +5,23 @@ exports[`should render correctly: default 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <ButtonPlain
-    aria-label="source_viewer.issues_on_line.show"
-    onClick={[MockFunction]}
+  <Tooltip
+    overlay="source_viewer.issues_on_line.multiple_issues.source_viewer.issues_on_line.show"
   >
-    <Tooltip
-      overlay="source_viewer.issues_on_line.multiple_issues"
+    <ButtonPlain
+      aria-label="source_viewer.issues_on_line.multiple_issues.source_viewer.issues_on_line.show"
+      onClick={[MockFunction]}
     >
       <IssueIcon
         type="BUG"
       />
-    </Tooltip>
-    <span
-      className="source-line-issues-counter"
-    >
-      2
-    </span>
-  </ButtonPlain>
+      <span
+        className="source-line-issues-counter"
+      >
+        2
+      </span>
+    </ButtonPlain>
+  </Tooltip>
 </td>
 `;
 
@@ -30,23 +30,23 @@ exports[`should render correctly: multiple issues, same type 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <ButtonPlain
-    aria-label="source_viewer.issues_on_line.show"
-    onClick={[MockFunction]}
+  <Tooltip
+    overlay="source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.VULNERABILITY.plural"
   >
-    <Tooltip
-      overlay="source_viewer.issues_on_line.X_issues_of_type_Y.2.issue.type.VULNERABILITY.plural"
+    <ButtonPlain
+      aria-label="source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.VULNERABILITY.plural"
+      onClick={[MockFunction]}
     >
       <IssueIcon
         type="VULNERABILITY"
       />
-    </Tooltip>
-    <span
-      className="source-line-issues-counter"
-    >
-      2
-    </span>
-  </ButtonPlain>
+      <span
+        className="source-line-issues-counter"
+      >
+        2
+      </span>
+    </ButtonPlain>
+  </Tooltip>
 </td>
 `;
 
@@ -62,17 +62,17 @@ exports[`should render correctly: single issue 1`] = `
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
 >
-  <ButtonPlain
-    aria-label="source_viewer.issues_on_line.show"
-    onClick={[MockFunction]}
+  <Tooltip
+    overlay="source_viewer.issues_on_line.issue_of_type_X.source_viewer.issues_on_line.show.issue.type.VULNERABILITY"
   >
-    <Tooltip
-      overlay="source_viewer.issues_on_line.issue_of_type_X.issue.type.VULNERABILITY"
+    <ButtonPlain
+      aria-label="source_viewer.issues_on_line.issue_of_type_X.source_viewer.issues_on_line.show.issue.type.VULNERABILITY"
+      onClick={[MockFunction]}
     >
       <IssueIcon
         type="VULNERABILITY"
       />
-    </Tooltip>
-  </ButtonPlain>
+    </ButtonPlain>
+  </Tooltip>
 </td>
 `;

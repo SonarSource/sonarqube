@@ -288,11 +288,22 @@ it('should show issue indicator', async () => {
   const row = await screen.findByRole('row', { name: /.*\/ \*$/ });
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
-  await user.click(issueRow.getByRole('button', { name: 'source_viewer.issues_on_line.show' }));
+  await user.click(
+    issueRow.getByRole('button', {
+      name:
+        'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural'
+    })
+  );
   const firstIssueBox = issueRow.getByRole('region', { name: 'First Issue' });
   const secondIssueBox = issueRow.getByRole('region', { name: 'Second Issue' });
   expect(firstIssueBox).toBeInTheDocument();
   expect(secondIssueBox).toBeInTheDocument();
+  expect(
+    issueRow.getByRole('button', {
+      name:
+        'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.hide.2.issue.type.BUG.plural'
+    })
+  ).toBeInTheDocument();
 
   await user.click(firstIssueBox);
   expect(onIssueSelect).toBeCalledWith('first-issue');
