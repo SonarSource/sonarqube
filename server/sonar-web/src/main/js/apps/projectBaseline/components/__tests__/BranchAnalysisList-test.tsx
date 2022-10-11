@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import { toShortNotSoISOString } from '../../../../helpers/dates';
-import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/testMocks';
+import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchAnalysisList from '../BranchAnalysisList';
 

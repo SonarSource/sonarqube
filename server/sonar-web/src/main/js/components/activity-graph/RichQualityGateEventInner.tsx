@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { ResetButtonLink } from '../../../components/controls/buttons';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
-import Level from '../../../components/ui/Level';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
-import { AnalysisEvent } from '../../../types/types';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { getProjectUrl } from '../../helpers/urls';
+import { AnalysisEvent } from '../../types/project-activity';
+import Link from '../common/Link';
+import { ResetButtonLink } from '../controls/buttons';
+import DropdownIcon from '../icons/DropdownIcon';
+import Level from '../ui/Level';
 
 export type RichQualityGateEvent = AnalysisEvent & Required<Pick<AnalysisEvent, 'qualityGate'>>;
 

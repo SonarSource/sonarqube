@@ -31,7 +31,7 @@ import { getActivityGraph, saveActivityGraph } from '../../../../components/acti
 import { isDiffMetric } from '../../../../helpers/measures';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAnalysis } from '../../../../helpers/testMocks';
+import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -144,7 +144,7 @@ jest.mock('../../../../api/time-machine', () => {
 });
 
 jest.mock('../../../../api/projectActivity', () => {
-  const { mockAnalysis } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockAnalysis } = jest.requireActual('../../../../helpers/mocks/project-activity');
   return {
     getProjectActivity: jest.fn().mockResolvedValue({
       analyses: [

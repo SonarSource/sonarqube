@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAnalysisEvent } from '../../../../helpers/testMocks';
+import { mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import { Events, EventsProps } from '../Events';
 
 it('should render correctly', () => {

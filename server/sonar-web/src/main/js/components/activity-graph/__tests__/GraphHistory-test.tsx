@@ -44,7 +44,8 @@ it('should correctly render a graph', () => {
 function shallowRender(overrides: Partial<GraphHistory['props']> = {}) {
   return shallow(
     <GraphHistory
-      events={[]}
+      analyses={[]}
+      ariaLabel="foo"
       graph={DEFAULT_GRAPH}
       leakPeriodDate={parseDate('2017-05-16T13:50:02+0200')}
       isCustom={false}

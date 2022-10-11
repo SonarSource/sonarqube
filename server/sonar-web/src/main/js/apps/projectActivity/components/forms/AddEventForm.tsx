@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
-import { ParsedAnalysis } from '../../../../types/types';
+import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
   addEvent: (analysis: string, name: string, category?: string) => Promise<void>;

@@ -31,8 +31,14 @@ import {
   saveActivityGraph,
   splitSeriesInGraphs
 } from '../../../components/activity-graph/utils';
-import { GraphType, MeasureHistory, Point, Serie } from '../../../types/project-activity';
-import { Metric, ParsedAnalysis } from '../../../types/types';
+import {
+  GraphType,
+  MeasureHistory,
+  ParsedAnalysis,
+  Point,
+  Serie
+} from '../../../types/project-activity';
+import { Metric } from '../../../types/types';
 import { datesQueryChanged, historyQueryChanged, Query } from '../utils';
 import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityApp';
 

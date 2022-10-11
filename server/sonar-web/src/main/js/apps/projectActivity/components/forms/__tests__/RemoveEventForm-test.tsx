@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ConfirmModal from '../../../../../components/controls/ConfirmModal';
-import { mockAnalysisEvent } from '../../../../../helpers/testMocks';
+import { mockAnalysisEvent } from '../../../../../helpers/mocks/project-activity';
 import RemoveEventForm, { RemoveEventFormProps } from '../RemoveEventForm';
 
 it('should render correctly', () => {

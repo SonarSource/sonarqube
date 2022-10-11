@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/testMocks';
+import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/mocks/project-activity';
 import BranchAnalysisListRenderer, {
   BranchAnalysisListRendererProps
 } from '../BranchAnalysisListRenderer';

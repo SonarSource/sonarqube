@@ -26,7 +26,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
-import { ParsedAnalysis } from '../../../types/types';
+import { ParsedAnalysis } from '../../../types/project-activity';
 import { activityQueryChanged, getAnalysesByVersionByDay, Query } from '../utils';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 

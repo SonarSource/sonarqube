@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import EventInner from '../../apps/projectActivity/components/EventInner';
-import { AnalysisEvent } from '../../types/types';
+import { AnalysisEvent } from '../../types/project-activity';
+import EventInner from './EventInner';
 
 interface Props {
   addSeparator: boolean;

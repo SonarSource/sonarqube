@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AnalysisEvent } from '../../types/types';
+import { AnalysisEvent } from '../../types/project-activity';
 import { State } from './components/ProjectActivityApp';
 
 export function addCustomEvent(analysis: string, event: AnalysisEvent) {

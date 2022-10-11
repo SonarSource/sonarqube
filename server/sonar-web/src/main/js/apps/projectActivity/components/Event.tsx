@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import EventInner from '../../../components/activity-graph/EventInner';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../types/types';
-import EventInner from './EventInner';
+import { AnalysisEvent } from '../../../types/project-activity';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 

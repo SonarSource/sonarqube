@@ -32,8 +32,12 @@ import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { GraphType, MeasureHistory } from '../../../types/project-activity';
-import { Analysis as AnalysisType, Component, Metric } from '../../../types/types';
+import {
+  Analysis as AnalysisType,
+  GraphType,
+  MeasureHistory
+} from '../../../types/project-activity';
+import { Component, Metric } from '../../../types/types';
 import Analysis from './Analysis';
 
 export interface ActivityPanelProps {

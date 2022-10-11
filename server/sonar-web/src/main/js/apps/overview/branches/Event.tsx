@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { isDefinitionChangeEvent } from '../../../components/activity-graph/DefinitionChangeEventInner';
+import { isRichQualityGateEvent } from '../../../components/activity-graph/RichQualityGateEventInner';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../types/types';
-import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
-import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
+import { AnalysisEvent } from '../../../types/project-activity';
 
 interface Props {
   event: AnalysisEvent;

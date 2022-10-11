@@ -27,7 +27,7 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { ParsedAnalysis } from '../../../types/types';
+import { ParsedAnalysis } from '../../../types/project-activity';
 import Events from '../../projectActivity/components/Events';
 import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
 

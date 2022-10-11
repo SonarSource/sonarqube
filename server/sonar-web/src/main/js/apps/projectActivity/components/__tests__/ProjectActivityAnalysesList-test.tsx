@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
 import { parseDate } from '../../../../helpers/dates';
-import { mockParsedAnalysis } from '../../../../helpers/testMocks';
+import { mockParsedAnalysis } from '../../../../helpers/mocks/project-activity';
 import { ComponentQualifier } from '../../../../types/component';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 

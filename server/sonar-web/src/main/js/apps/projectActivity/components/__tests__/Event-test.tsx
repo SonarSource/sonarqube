@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { DeleteButton, EditButton } from '../../../../components/controls/buttons';
-import { mockAnalysisEvent } from '../../../../helpers/testMocks';
+import { mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import { click } from '../../../../helpers/testUtils';
 import { Event, EventProps } from '../Event';
 import ChangeEventForm from '../forms/ChangeEventForm';

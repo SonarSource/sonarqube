@@ -23,12 +23,8 @@ import GraphsHistory from '../../../../components/activity-graph/GraphsHistory';
 import { parseDate } from '../../../../helpers/dates';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import {
-  mockAnalysis,
-  mockAnalysisEvent,
-  mockMeasure,
-  mockMetric
-} from '../../../../helpers/testMocks';
+import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
+import { mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { GraphType } from '../../../../types/project-activity';
 import { ActivityPanel, ActivityPanelProps } from '../ActivityPanel';
 

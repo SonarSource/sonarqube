@@ -22,7 +22,7 @@ import * as React from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
-import { Analysis as TypeAnalysis } from '../../../types/types';
+import { Analysis as TypeAnalysis } from '../../../types/project-activity';
 import Event from './Event';
 
 export interface AnalysisProps {

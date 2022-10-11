@@ -21,12 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { changeEvent, createEvent } from '../../../../api/projectActivity';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import {
-  mockAnalysisEvent,
-  mockLocation,
-  mockMetric,
-  mockRouter
-} from '../../../../helpers/testMocks';
+import { mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
+import { mockLocation, mockMetric, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -59,7 +55,8 @@ jest.mock('../../../../api/metrics', () => {
 });
 
 jest.mock('../../../../api/projectActivity', () => {
-  const { mockAnalysis, mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockAnalysis } = jest.requireActual('../../../../helpers/mocks/project-activity');
   return {
     ...jest.requireActual('../../../../api/projectActivity'),
     createEvent: jest.fn(),

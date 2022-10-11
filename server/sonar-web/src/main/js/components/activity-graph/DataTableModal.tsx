@@ -20,7 +20,6 @@
 import { filter, slice, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import EventInner from '../../apps/projectActivity/components/EventInner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { ParsedAnalysis, Serie } from '../../types/project-activity';
@@ -29,6 +28,7 @@ import Modal from '../controls/Modal';
 import DateFormatter from '../intl/DateFormatter';
 import TimeFormatter from '../intl/TimeFormatter';
 import { Alert } from '../ui/Alert';
+import EventInner from './EventInner';
 import { getAnalysisEventsForDate } from './utils';
 
 export interface DataTableModalProps {

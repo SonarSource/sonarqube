@@ -37,10 +37,10 @@ exports[`should correctly render a graph 1`] = `
     </AutoSizer>
   </div>
   <div
-    className="spacer-top big-spacer-bottom small"
+    className="little-spacer-top big-spacer-bottom"
   >
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-end little-padded-right"
     >
       <ModalButton
         modal={[Function]}
@@ -90,10 +90,10 @@ exports[`should correctly render a graph: custom 1`] = `
     </AutoSizer>
   </div>
   <div
-    className="spacer-top big-spacer-bottom small"
+    className="little-spacer-top big-spacer-bottom"
   >
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-end little-padded-right"
     >
       <ModalButton
         modal={[Function]}

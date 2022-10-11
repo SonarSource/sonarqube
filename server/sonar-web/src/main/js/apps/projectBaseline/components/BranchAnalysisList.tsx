@@ -23,7 +23,8 @@ import * as React from 'react';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { Analysis, Dict, ParsedAnalysis } from '../../../types/types';
+import { Analysis, ParsedAnalysis } from '../../../types/project-activity';
+import { Dict } from '../../../types/types';
 import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
 
 interface Props {

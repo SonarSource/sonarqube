@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
-import { AnalysisEvent } from '../../../../types/types';
+import { AnalysisEvent } from '../../../../types/project-activity';
 
 interface Props {
   changeEvent: (event: string, name: string) => Promise<void>;

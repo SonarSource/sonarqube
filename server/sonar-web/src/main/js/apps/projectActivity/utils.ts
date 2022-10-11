@@ -30,8 +30,8 @@ import {
   serializeString,
   serializeStringArray
 } from '../../helpers/query';
-import { GraphType } from '../../types/project-activity';
-import { Dict, ParsedAnalysis, RawQuery } from '../../types/types';
+import { GraphType, ParsedAnalysis } from '../../types/project-activity';
+import { Dict, RawQuery } from '../../types/types';
 
 export interface Query {
   category: string;

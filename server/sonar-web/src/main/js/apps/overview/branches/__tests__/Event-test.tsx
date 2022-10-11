@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AnalysisEvent } from '../../../../types/types';
+import { AnalysisEvent } from '../../../../types/project-activity';
 import { Event } from '../Event';
 
 it('should render an event correctly', () => {

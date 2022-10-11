@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { AnalysisEvent } from '../../../types/types';
+import { AnalysisEvent } from '../../../types/project-activity';
 import Event from './Event';
 
 export interface EventsProps {

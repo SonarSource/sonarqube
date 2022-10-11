@@ -34,12 +34,8 @@ import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
-import {
-  Component,
-  NewCodePeriod,
-  NewCodePeriodSettingType,
-  ParsedAnalysis
-} from '../../../types/types';
+import { ParsedAnalysis } from '../../../types/project-activity';
+import { Component, NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 import '../styles.css';
 import { getSettingValue } from '../utils';
 import AppHeader from './AppHeader';

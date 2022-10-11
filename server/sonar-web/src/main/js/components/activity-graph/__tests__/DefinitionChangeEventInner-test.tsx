@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { click } from '../../../../helpers/testUtils';
+import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { click } from '../../../helpers/testUtils';
 import { DefinitionChangeEvent, DefinitionChangeEventInner } from '../DefinitionChangeEventInner';
 
 it('should render', () => {

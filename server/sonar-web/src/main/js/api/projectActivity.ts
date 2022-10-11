@@ -20,7 +20,8 @@
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { Analysis, Paging } from '../types/types';
+import { Analysis } from '../types/project-activity';
+import { Paging } from '../types/types';
 
 export enum ProjectActivityStatuses {
   STATUS_PROCESSED = 'P',

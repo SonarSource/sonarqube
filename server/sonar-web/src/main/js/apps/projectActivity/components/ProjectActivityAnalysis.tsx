@@ -30,7 +30,7 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { ParsedAnalysis } from '../../../types/types';
+import { ParsedAnalysis } from '../../../types/project-activity';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';

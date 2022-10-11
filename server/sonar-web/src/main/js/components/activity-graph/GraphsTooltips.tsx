@@ -20,8 +20,7 @@
 import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
-import { MeasureHistory, Serie } from '../../types/project-activity';
-import { AnalysisEvent } from '../../types/types';
+import { AnalysisEvent, MeasureHistory, Serie } from '../../types/project-activity';
 import DateTimeFormatter from '../intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';

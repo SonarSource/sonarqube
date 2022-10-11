@@ -31,8 +31,6 @@ import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
 import {
   AlmApplication,
-  Analysis,
-  AnalysisEvent,
   Condition,
   FlowLocation,
   Group,
@@ -43,7 +41,6 @@ import {
   MeasureEnhanced,
   Metric,
   Paging,
-  ParsedAnalysis,
   Period,
   ProfileInheritanceDetails,
   Rule,
@@ -63,52 +60,6 @@ export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): Alm
     installationUrl: 'https://github.com/apps/greg-sonarcloud/installations/new',
     key: 'github',
     name: 'GitHub',
-    ...overrides
-  };
-}
-
-export function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
-  return {
-    date: '2017-03-01T09:36:01+0100',
-    events: [],
-    key: 'foo',
-    projectVersion: '1.0',
-    ...overrides
-  };
-}
-
-export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
-  return {
-    date: new Date('2017-03-01T09:37:01+0100'),
-    events: [],
-    key: 'foo',
-    projectVersion: '1.0',
-    ...overrides
-  };
-}
-
-export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): AnalysisEvent {
-  return {
-    category: 'QUALITY_GATE',
-    key: 'E11',
-    description: 'Lorem ipsum dolor sit amet',
-    name: 'Lorem ipsum',
-    qualityGate: {
-      status: 'ERROR',
-      stillFailing: true,
-      failing: [
-        {
-          key: 'foo',
-          name: 'Foo',
-          branch: 'master'
-        },
-        {
-          key: 'bar',
-          name: 'Bar',
-          branch: 'feature/bar'
-        }
-      ]
-    },
     ...overrides
   };
 }

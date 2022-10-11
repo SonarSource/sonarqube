@@ -50,7 +50,8 @@ jest.mock('../../../../api/metrics', () => {
 });
 
 jest.mock('../../../../api/projectActivity', () => {
-  const { mockAnalysis, mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockAnalysis } = jest.requireActual('../../../../helpers/mocks/project-activity');
   return {
     ...jest.requireActual('../../../../api/projectActivity'),
     createEvent: jest.fn(),

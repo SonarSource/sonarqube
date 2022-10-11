@@ -42,8 +42,8 @@ import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
-import { GraphType, MeasureHistory } from '../../../types/project-activity';
-import { Component, Metric, Paging, ParsedAnalysis, RawQuery } from '../../../types/types';
+import { GraphType, MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
+import { Component, Metric, Paging, RawQuery } from '../../../types/types';
 import * as actions from '../actions';
 import {
   customMetricsChanged,

@@ -22,8 +22,8 @@ import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
 import { MetricKey } from '../../types/metrics';
-import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
-import { Dict, Metric, ParsedAnalysis } from '../../types/types';
+import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
+import { Dict, Metric } from '../../types/types';
 
 export const DEFAULT_GRAPH = GraphType.issues;
 

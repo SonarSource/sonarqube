@@ -17,6 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+interface BaseAnalysis {
+  buildString?: string;
+  detectedCI?: string;
+  events: AnalysisEvent[];
+  key: string;
+  manualNewCodePeriodBaseline?: boolean;
+  projectVersion?: string;
+}
+
+export interface Analysis extends BaseAnalysis {
+  date: string;
+}
+
+export interface ParsedAnalysis extends BaseAnalysis {
+  date: Date;
+}
+
+export interface AnalysisEvent {
+  category: string;
+  description?: string;
+  key: string;
+  name: string;
+  qualityGate?: {
+    failing: Array<{ branch: string; key: string; name: string }>;
+    status: string;
+    stillFailing: boolean;
+  };
+  definitionChange?: {
+    projects: Array<{
+      branch?: string;
+      changeType: string;
+      key: string;
+      name: string;
+      newBranch?: string;
+      oldBranch?: string;
+    }>;
+  };
+}
+
 export enum GraphType {
   issues = 'issues',
   coverage = 'coverage',

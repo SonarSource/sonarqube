@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAnalysis } from '../../../../helpers/testMocks';
+import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
 import { ComponentQualifier } from '../../../../types/component';
 import { Analysis, AnalysisProps } from '../Analysis';
 

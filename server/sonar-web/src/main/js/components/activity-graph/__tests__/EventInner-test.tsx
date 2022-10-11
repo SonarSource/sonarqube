@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAnalysisEvent } from '../../../../helpers/testMocks';
-import { BranchLike } from '../../../../types/branch-like';
+import { mockAnalysisEvent } from '../../../helpers/mocks/project-activity';
+import { BranchLike } from '../../../types/branch-like';
 import EventInner, { EventInnerProps } from '../EventInner';
 
-jest.mock('../../../../app/components/componentContext/ComponentContext', () => {
-  const { mockBranch } = jest.requireActual('../../../../helpers/mocks/branch-like');
+jest.mock('../../../app/components/componentContext/ComponentContext', () => {
+  const { mockBranch } = jest.requireActual('../../../helpers/mocks/branch-like');
   return {
     ComponentContext: {
       Consumer: ({

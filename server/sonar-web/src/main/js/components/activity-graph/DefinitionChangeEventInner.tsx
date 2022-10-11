@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { ButtonLink } from '../../../components/controls/buttons';
-import BranchIcon from '../../../components/icons/BranchIcon';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
-import { isMainBranch } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
-import { limitComponentName } from '../../../helpers/path';
-import { getProjectUrl } from '../../../helpers/urls';
-import { BranchLike } from '../../../types/branch-like';
-import { AnalysisEvent } from '../../../types/types';
+import { isMainBranch } from '../../helpers/branch-like';
+import { translate } from '../../helpers/l10n';
+import { limitComponentName } from '../../helpers/path';
+import { getProjectUrl } from '../../helpers/urls';
+import { BranchLike } from '../../types/branch-like';
+import { AnalysisEvent } from '../../types/project-activity';
+import Link from '../common/Link';
+import { ButtonLink } from '../controls/buttons';
+import BranchIcon from '../icons/BranchIcon';
+import DropdownIcon from '../icons/DropdownIcon';
 
 export type DefinitionChangeEvent = AnalysisEvent &
   Required<Pick<AnalysisEvent, 'definitionChange'>>;
