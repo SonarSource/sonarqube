@@ -78,7 +78,8 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
           try {
             formula.computeHierarchy(context);
           } catch (RuntimeException e) {
-            throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on " + context.getComponent().getKey(), e);
+            throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on "
+              + context.getComponent().getKey() + " (uuid: " + context.getComponent().uuid() + ")", e);
           }
         }
       }
@@ -98,7 +99,8 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
           try {
             formula.compute(context, issueCounter);
           } catch (RuntimeException e) {
-            throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on " + context.getComponent().getKey(), e);
+            throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on "
+              + context.getComponent().getKey() + " (uuid: " + context.getComponent().uuid() + ")", e);
           }
         }
       }

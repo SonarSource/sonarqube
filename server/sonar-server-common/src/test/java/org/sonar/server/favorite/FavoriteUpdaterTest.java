@@ -118,7 +118,7 @@ public class FavoriteUpdaterTest {
 
     assertThatThrownBy(() -> underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(String.format("Component '%s' is already a favorite", project.getKey()));
+      .hasMessage(String.format("Component '%s' (uuid: %s) is already a favorite", project.getKey(), project.uuid()));
   }
 
   private void assertFavorite(ComponentDto project, UserDto user) {

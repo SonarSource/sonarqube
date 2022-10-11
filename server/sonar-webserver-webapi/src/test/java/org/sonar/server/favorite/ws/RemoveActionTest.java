@@ -82,11 +82,11 @@ public class RemoveActionTest {
 
   @Test
   public void fail_if_not_already_a_favorite() {
-    insertProjectAndPermissions();
+    ComponentDto componentDto = insertProjectAndPermissions();
 
     assertThatThrownBy(() -> call(PROJECT_KEY))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Component '" + PROJECT_KEY + "' is not a favorite");
+      .hasMessage("Component '" + PROJECT_KEY + "' (uuid: "+componentDto.uuid()+") is not a favorite");
   }
 
   @Test

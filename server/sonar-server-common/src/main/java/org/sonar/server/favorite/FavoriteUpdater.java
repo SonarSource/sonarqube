@@ -51,7 +51,7 @@ public class FavoriteUpdater {
       .setUserUuid(userUuid)
       .setComponentUuid(componentDto.uuid())
       .build(), dbSession);
-    checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getKey());
+    checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' (uuid: %s) is already a favorite", componentDto.getKey(), componentDto.uuid());
 
     List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectByKeyAndUserUuidAndComponentQualifier(dbSession, PROP_FAVORITE_KEY, userUuid, componentDto.qualifier());
     if (existingFavorites.size() >= 100) {
@@ -81,6 +81,6 @@ public class FavoriteUpdater {
         .setComponentUuid(component.uuid())
         .setUserUuid(userUuid),
       userLogin, component.getKey(), component.name(), component.qualifier());
-    checkArgument(result == 1, "Component '%s' is not a favorite", component.getKey());
+    checkArgument(result == 1, "Component '%s' (uuid: %s) is not a favorite", component.getKey(), component.uuid());
   }
 }

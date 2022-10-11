@@ -270,12 +270,14 @@ public class DuplicationsParserTest {
     Duplication duplication1 = duplications.get(0);
     assertThat(duplication1.componentDto()).isEqualTo(file1);
     assertThat(duplication1.componentDto().getKey()).isEqualTo(file1.getKey());
+    assertThat(duplication1.componentDto().branchUuid()).isEqualTo(branch.uuid());
     assertThat(duplication1.from()).isEqualTo(31);
     assertThat(duplication1.size()).isEqualTo(5);
 
     Duplication duplication2 = duplications.get(1);
     assertThat(duplication2.componentDto()).isEqualTo(file2);
     assertThat(duplication2.componentDto().getKey()).isEqualTo(file2.getKey());
+    assertThat(duplication1.componentDto().branchUuid()).isEqualTo(branch.uuid());
     assertThat(duplication2.from()).isEqualTo(20);
     assertThat(duplication2.size()).isEqualTo(5);
   }
@@ -303,12 +305,14 @@ public class DuplicationsParserTest {
     Duplication duplication1 = duplications.get(0);
     assertThat(duplication1.componentDto()).isEqualTo(file1);
     assertThat(duplication1.componentDto().getKey()).isEqualTo(file1.getKey());
+    assertThat(duplication1.componentDto().branchUuid()).isEqualTo(pullRequest.uuid());
     assertThat(duplication1.from()).isEqualTo(31);
     assertThat(duplication1.size()).isEqualTo(5);
 
     Duplication duplication2 = duplications.get(1);
     assertThat(duplication2.componentDto()).isEqualTo(file2);
     assertThat(duplication2.componentDto().getKey()).isEqualTo(file2.getKey());
+    assertThat(duplication1.componentDto().branchUuid()).isEqualTo(pullRequest.uuid());
     assertThat(duplication2.from()).isEqualTo(20);
     assertThat(duplication2.size()).isEqualTo(5);
   }
