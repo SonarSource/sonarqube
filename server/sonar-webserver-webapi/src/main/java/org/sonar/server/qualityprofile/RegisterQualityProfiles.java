@@ -239,7 +239,7 @@ public class RegisterQualityProfiles implements Startable {
    */
   private String generateNewProfileName(RulesProfileDto qProfileDto) {
     var shortName = StringUtils.abbreviate(qProfileDto.getName(), 40);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm:ss a")
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm a")
       .withLocale(Locale.getDefault())
       .withZone(ZoneId.systemDefault());
     var now = formatter.format(Instant.ofEpochMilli(system2.now()));

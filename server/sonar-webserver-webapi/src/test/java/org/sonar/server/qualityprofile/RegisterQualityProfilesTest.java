@@ -222,7 +222,7 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm:ss a")
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy 'at' hh:mm a")
       .withLocale(Locale.getDefault())
       .withZone(ZoneId.systemDefault());
 
