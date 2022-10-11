@@ -67,11 +67,11 @@ export default class GraphsHeader extends React.PureComponent<Props> {
       <div className={classNames(className, 'position-relative')}>
         <div className="display-flex-end">
           <div className="display-flex-column">
-            <label className="text-bold little-spacer-bottom" htmlFor="graph-select">
+            <label className="text-bold little-spacer-bottom" id="graph-select-label">
               {translate('project_activity.graphs.choose_type')}
             </label>
             <Select
-              id="graph-select"
+              aria-labelledby="graph-select-label"
               className="input-medium"
               isSearchable={false}
               onChange={this.handleGraphChange}

@@ -18,7 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Analysis, AnalysisEvent, ParsedAnalysis } from '../../types/project-activity';
+import {
+  Analysis,
+  AnalysisEvent,
+  HistoryItem,
+  MeasureHistory,
+  ParsedAnalysis
+} from '../../types/project-activity';
+import { parseDate } from '../dates';
 
 export function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
   return {
@@ -62,6 +69,26 @@ export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): Analy
         }
       ]
     },
+    ...overrides
+  };
+}
+
+export function mockMeasureHistory(overrides: Partial<MeasureHistory> = {}): MeasureHistory {
+  return {
+    metric: 'code_smells',
+    history: [
+      mockHistoryItem(),
+      mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '1749' }),
+      mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '500' })
+    ],
+    ...overrides
+  };
+}
+
+export function mockHistoryItem(overrides: Partial<HistoryItem> = {}): HistoryItem {
+  return {
+    date: parseDate('2016-10-26T12:17:29+0200'),
+    value: '2286',
     ...overrides
   };
 }

@@ -75,6 +75,7 @@ export default class Checkbox extends React.PureComponent<Props> {
         <a
           aria-checked={thirdState ? 'mixed' : checked}
           aria-label={label}
+          aria-disabled={disabled}
           className={classNames('link-checkbox', this.props.className, {
             disabled
           })}
