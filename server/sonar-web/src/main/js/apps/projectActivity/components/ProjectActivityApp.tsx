@@ -192,7 +192,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         metric: measure.metric,
         history: measure.history.map(analysis => ({
           date: parseDate(analysis.date),
-          value: analysis.value!
+          value: analysis.value
         }))
       }))
     );
@@ -332,26 +332,6 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         id: this.props.component.key
       }
     });
-  };
-
-  shouldRedirect = () => {
-    const locationQuery = this.props.location.query;
-    if (!locationQuery) {
-      return false;
-    }
-    const filtered = Object.keys(locationQuery).some(
-      key => key !== 'id' && locationQuery[key] !== ''
-    );
-
-    const { graph, customGraphs } = getActivityGraph(
-      PROJECT_ACTIVITY_GRAPH,
-      this.props.component.key
-    );
-    const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
-
-    // if there is no filter, but there are saved preferences in the localStorage
-    // also don't redirect to custom if there is no metrics selected for it
-    return !filtered && graph != null && graph !== DEFAULT_GRAPH && !emptyCustomGraph;
   };
 
   render() {
