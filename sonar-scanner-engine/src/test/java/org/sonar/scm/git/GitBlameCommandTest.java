@@ -119,6 +119,37 @@ public class GitBlameCommandTest {
   }
 
   @Test
+  public void blame_different_author_and_committer() throws Exception {
+    File projectDir = createNewTempFolder();
+    javaUnzip("dummy-git-different-committer.zip", projectDir);
+    File baseDir = new File(projectDir, "dummy-git");
+
+    List<BlameLine> blame = blameCommand.blame(baseDir.toPath(), DUMMY_JAVA);
+
+    Date revisionDate1 = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
+    String revision1 = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
+    String author1 = "david@gageot.net";
+
+    // second commit, which has a commit date different than the author date
+    Date revisionDate2 = DateUtils.parseDateTime("2022-10-11T14:14:26+0200");
+    String revision2 = "7609f824d5ff7018bebf107cdbe4edcc901b574f";
+    String author2 = "duarte.meneses@sonarsource.com";
+
+    List<BlameLine> expectedBlame = new LinkedList<>();
+    for (int i = 0; i < 25; i++) {
+      expectedBlame.add(new BlameLine().revision(revision1).date(revisionDate1).author(author1));
+    }
+    for (int i = 0; i < 3; i++) {
+      expectedBlame.add(new BlameLine().revision(revision2).date(revisionDate2).author(author2));
+    }
+    for (int i = 0; i < 1; i++) {
+      expectedBlame.add(new BlameLine().revision(revision1).date(revisionDate1).author(author1));
+    }
+
+    assertThat(blame).isEqualTo(expectedBlame);
+  }
+
+  @Test
   public void git_blame_uses_safe_local_repository() throws Exception {
     File projectDir = createNewTempFolder();
     File baseDir = new File(projectDir, "dummy-git");

@@ -48,7 +48,7 @@ public class GitBlameCommand {
   private static final Logger LOG = Loggers.get(GitBlameCommand.class);
   private static final Pattern EMAIL_PATTERN = Pattern.compile("<(.*?)>");
   private static final String COMMITTER_TIME = "committer-time ";
-  private static final String COMMITTER_MAIL = "committer-mail ";
+  private static final String AUTHOR_MAIL = "author-mail ";
 
   private static final String MINIMUM_REQUIRED_GIT_VERSION = "2.24.0";
   private static final String DEFAULT_GIT_COMMAND = "git";
@@ -141,7 +141,7 @@ public class GitBlameCommand {
     private final List<BlameLine> blameLines = new LinkedList<>();
     private String sha1 = null;
     private String committerTime = null;
-    private String committerMail = null;
+    private String authorMail = null;
 
     public List<BlameLine> getBlameLines() {
       return blameLines;
@@ -154,31 +154,30 @@ public class GitBlameCommand {
         saveEntry();
       } else if (line.startsWith(COMMITTER_TIME)) {
         committerTime = line.substring(COMMITTER_TIME.length());
-      } else if (line.startsWith(COMMITTER_MAIL)) {
+      } else if (line.startsWith(AUTHOR_MAIL)) {
         Matcher matcher = EMAIL_PATTERN.matcher(line);
-        if (!matcher.find(COMMITTER_MAIL.length()) || matcher.groupCount() != 1) {
-          throw new IllegalStateException("Couldn't parse committer email from: " + line);
+        if (matcher.find(AUTHOR_MAIL.length())) {
+          authorMail = matcher.group(1);
         }
-        committerMail = matcher.group(1);
-        if (committerMail.equals("not.committed.yet")) {
+        if (authorMail.equals("not.committed.yet")) {
           throw new UncommittedLineException();
         }
       }
     }
 
     private void saveEntry() {
-      checkState(committerMail != null, "Did not find a committer email for an entry");
+      checkState(authorMail != null, "Did not find an author email for an entry");
       checkState(committerTime != null, "Did not find a committer time for an entry");
       checkState(sha1 != null, "Did not find a commit sha1 for an entry");
       try {
         blameLines.add(new BlameLine()
           .revision(sha1)
-          .author(committerMail)
+          .author(authorMail)
           .date(Date.from(Instant.ofEpochSecond(Long.parseLong(committerTime)))));
       } catch (NumberFormatException e) {
         throw new IllegalStateException("Invalid committer time found: " + committerTime);
       }
-      committerMail = null;
+      authorMail = null;
       sha1 = null;
       committerTime = null;
     }
