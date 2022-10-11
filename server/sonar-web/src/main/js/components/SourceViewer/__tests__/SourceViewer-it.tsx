@@ -20,6 +20,7 @@
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole } from 'testing-library-selector';
 import { SourceViewerServiceMock } from '../../../api/mocks/SourceViewerServiceMock';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
@@ -40,6 +41,11 @@ jest.mock('../helpers/lines', () => {
     LINES_TO_LOAD: 20
   };
 });
+
+const ui = {
+  codeSmellTypeButton: byRole('button', { name: 'issue.type.CODE_SMELL' }),
+  minorSeverityButton: byRole('button', { name: 'severity.MINOR' })
+};
 
 const handler = new SourceViewerServiceMock();
 
@@ -135,7 +141,7 @@ it('should be able to interact with issue action', async () => {
   await user.click(
     await screen.findByRole('button', { name: 'issue.type.type_x_click_to_change.issue.type.BUG' })
   );
-  expect(screen.getByRole('link', { name: 'issue.type.CODE_SMELL' })).toBeInTheDocument();
+  expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
 
   // Open severity
   await user.click(
@@ -143,11 +149,11 @@ it('should be able to interact with issue action', async () => {
       name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
     })
   );
-  expect(screen.getByRole('link', { name: 'severity.MINOR' })).toBeInTheDocument();
+  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
 
   // Close
   await user.keyboard('{Escape}');
-  expect(screen.queryByRole('link', { name: 'severity.MINOR' })).not.toBeInTheDocument();
+  expect(ui.minorSeverityButton.query()).not.toBeInTheDocument();
 
   // Change the severity
   await user.click(
@@ -155,8 +161,8 @@ it('should be able to interact with issue action', async () => {
       name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
     })
   );
-  expect(screen.getByRole('link', { name: 'severity.MINOR' })).toBeInTheDocument();
-  await user.click(screen.getByRole('link', { name: 'severity.MINOR' }));
+  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
+  await user.click(ui.minorSeverityButton.get());
   expect(
     screen.getByRole('button', {
       name: 'issue.severity.severity_x_click_to_change.severity.MINOR'

@@ -6,15 +6,16 @@ exports[`should render correctly with a tooltip 1`] = `
   placement="right"
 >
   <li>
-    <a
+    <ButtonPlain
+      aria-selected={false}
       className=""
-      href="#"
       onClick={[Function]}
       onFocus={[Function]}
       onMouseOver={[Function]}
+      preventDefault={true}
     >
       myitem
-    </a>
+    </ButtonPlain>
   </li>
 </Tooltip>
 `;
@@ -24,12 +25,13 @@ exports[`should render correctly with children 1`] = `
   placement="right"
 >
   <li>
-    <a
+    <ButtonPlain
+      aria-selected={false}
       className=""
-      href="#"
       onClick={[Function]}
       onFocus={[Function]}
       onMouseOver={[Function]}
+      preventDefault={true}
     >
       <i
         className="custom-icon"
@@ -37,7 +39,7 @@ exports[`should render correctly with children 1`] = `
       <p>
         seconditem
       </p>
-    </a>
+    </ButtonPlain>
   </li>
 </Tooltip>
 `;
@@ -47,15 +49,16 @@ exports[`should render correctly without children 1`] = `
   placement="right"
 >
   <li>
-    <a
+    <ButtonPlain
+      aria-selected={false}
       className=""
-      href="#"
       onClick={[Function]}
       onFocus={[Function]}
       onMouseOver={[Function]}
+      preventDefault={true}
     >
       myitem
-    </a>
+    </ButtonPlain>
   </li>
 </Tooltip>
 `;
@@ -65,15 +68,16 @@ exports[`should render with the active class 1`] = `
   placement="right"
 >
   <li>
-    <a
+    <ButtonPlain
+      aria-selected={true}
       className="active"
-      href="#"
       onClick={[Function]}
       onFocus={[Function]}
       onMouseOver={[Function]}
+      preventDefault={true}
     >
       myitem
-    </a>
+    </ButtonPlain>
   </li>
 </Tooltip>
 `;

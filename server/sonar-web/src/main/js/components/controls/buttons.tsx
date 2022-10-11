@@ -30,7 +30,7 @@ import Tooltip, { TooltipProps } from './Tooltip';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
-  'aria-label' | 'className' | 'disabled' | 'id' | 'style' | 'title'
+  'aria-label' | 'className' | 'disabled' | 'id' | 'style' | 'title' | 'onFocus' | 'onMouseOver'
 >;
 
 interface ButtonProps extends AllowedButtonAttributes {

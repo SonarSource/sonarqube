@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
+import { ButtonPlain } from '../controls/buttons';
 
 interface Props {
   active?: string;
@@ -32,8 +33,7 @@ interface Props {
 }
 
 export default class SelectListItem extends React.PureComponent<Props> {
-  handleSelect = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleSelect = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.item);
     }
@@ -49,7 +49,9 @@ export default class SelectListItem extends React.PureComponent<Props> {
     const children = this.props.children || this.props.item;
     return (
       <li>
-        <a
+        <ButtonPlain
+          preventDefault={true}
+          aria-selected={this.props.active === this.props.item}
           className={classNames(
             {
               active: this.props.active === this.props.item,
@@ -57,12 +59,11 @@ export default class SelectListItem extends React.PureComponent<Props> {
             },
             this.props.className
           )}
-          href="#"
           onClick={this.handleSelect}
           onFocus={this.handleHover}
           onMouseOver={this.handleHover}>
           {children}
-        </a>
+        </ButtonPlain>
       </li>
     );
   }
