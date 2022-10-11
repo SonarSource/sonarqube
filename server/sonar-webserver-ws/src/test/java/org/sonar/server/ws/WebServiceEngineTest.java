@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
@@ -55,7 +56,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void load_ws_definitions_at_startup() {
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{
       newWs("api/foo/index", a -> {
       }),
       newWs("api/bar/index", a -> {
@@ -171,25 +172,16 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void method_PUT_is_not_allowed() {
-    Request request = new TestRequest().setMethod("PUT").setPath("/api/ping");
+  public void method_is_not_allowed() {
+    for (String verb : Arrays.asList("PUT", "DELETE", "HEAD", "PATCH", "CONNECT", "OPTIONS", "TRACE")) {
 
-    DumbResponse response = run(request, newPingWs(a -> {
-    }));
+      Request request = new TestRequest().setMethod(verb).setPath("/api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method PUT is not allowed\"}]}");
-    assertThat(response.stream().status()).isEqualTo(405);
-  }
+      DumbResponse response = run(request, newPingWs(a -> {}));
 
-  @Test
-  public void method_DELETE_is_not_allowed() {
-    Request request = new TestRequest().setMethod("DELETE").setPath("api/ping");
-
-    DumbResponse response = run(request, newPingWs(a -> {
-    }));
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method DELETE is not allowed\"}]}");
-    assertThat(response.stream().status()).isEqualTo(405);
+      assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method " + verb + " is not allowed\"}]}");
+      assertThat(response.stream().status()).isEqualTo(405);
+    }
   }
 
   @Test
@@ -409,7 +401,7 @@ public class WebServiceEngineTest {
   public void fail_when_start_in_not_called() {
     Request request = new TestRequest().setPath("/api/ping");
     DumbResponse response = new DumbResponse();
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {newPingWs(a -> {
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{newPingWs(a -> {
     })});
 
     underTest.execute(request, response);

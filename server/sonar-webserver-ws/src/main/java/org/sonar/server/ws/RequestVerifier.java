@@ -37,11 +37,11 @@ public class RequestVerifier {
           throw new ServerException(SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
         }
         return;
-      case "PUT":
-      case "DELETE":
-        throw new ServerException(SC_METHOD_NOT_ALLOWED, String.format("HTTP method %s is not allowed", request.method()));
+      case "POST":
+        // no further verification (POST request are allowed to reach GET endpoints)
+        return;
       default:
-        // Nothing to do
+        throw new ServerException(SC_METHOD_NOT_ALLOWED, String.format("HTTP method %s is not allowed", request.method()));
     }
   }
 }
