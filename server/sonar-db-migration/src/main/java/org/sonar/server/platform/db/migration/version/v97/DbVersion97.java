@@ -35,7 +35,8 @@ public class DbVersion97 implements DbVersion {
       .add(6605, "Create index for 'branch_uuid' in 'components'", CreateIndexForComponentsBranchUuid.class)
 
       .add(6606, "Drop index for 'kee' in 'components'", DropIndexForComponentsKey.class)
-      .add(6607, "Remove branch information from 'kee' in 'components'", RemoveBranchInformationFromComponentsKey.class)
-      .add(6608, "Add unique index on 'kee','branch_uuid' in 'components'", CreateUniqueIndexForComponentsKeeAndBranchUuid.class);
+      .add(6607, "Fix copy component UUID", FixCopyComponentUuid.class)
+      .add(6608, "Remove branch information from 'kee' in 'components'", RemoveBranchInformationFromComponentsKey.class)
+      .add(6609, "Add unique index on 'kee','branch_uuid' in 'components'", CreateUniqueIndexForComponentsKeeAndBranchUuid.class);
   }
 }
