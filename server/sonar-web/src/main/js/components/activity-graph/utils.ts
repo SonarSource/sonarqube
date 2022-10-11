@@ -23,7 +23,7 @@ import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
 import { MetricKey } from '../../types/metrics';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
-import { Dict, Metric } from '../../types/types';
+import { Dict, Metric, ParsedAnalysis } from '../../types/types';
 
 export const DEFAULT_GRAPH = GraphType.issues;
 
@@ -157,6 +157,16 @@ export function getActivityGraph(
     graph: (get(namespace, project) as GraphType) || DEFAULT_GRAPH,
     customGraphs: customGraphs ? customGraphs.split(',') : []
   };
+}
+
+export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date) {
+  if (date) {
+    const analysis = analyses.find(a => a.date.valueOf() === date.valueOf());
+    if (analysis) {
+      return analysis.events;
+    }
+  }
+  return [];
 }
 
 function findMetric(key: string, metrics: Metric[] | Dict<Metric>) {

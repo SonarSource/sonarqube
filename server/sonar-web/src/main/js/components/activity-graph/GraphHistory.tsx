@@ -20,15 +20,21 @@
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from '../../components/charts/AdvancedTimeline';
+import { translate } from '../../helpers/l10n';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { MeasureHistory, Serie } from '../../types/project-activity';
-import { AnalysisEvent } from '../../types/types';
+import { ParsedAnalysis } from '../../types/types';
+import { Button } from '../controls/buttons';
+import ModalButton from '../controls/ModalButton';
+import DataTableModal from './DataTableModal';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
 import GraphsTooltips from './GraphsTooltips';
+import { getAnalysisEventsForDate } from './utils';
 
 interface Props {
-  events: AnalysisEvent[];
+  analyses: ParsedAnalysis[];
+  canShowDataAsTable?: boolean;
   graph: string;
   graphEndDate?: Date;
   graphStartDate?: Date;
@@ -69,7 +75,8 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      events,
+      analyses,
+      canShowDataAsTable = true,
       graph,
       graphEndDate,
       graphStartDate,
@@ -83,6 +90,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
       graphDescription
     } = this.props;
     const { tooltipIdx, tooltipXPos } = this.state;
+    const events = getAnalysisEventsForDate(analyses, selectedDate);
 
     return (
       <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
@@ -132,6 +140,24 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
             )}
           </AutoSizer>
         </div>
+        {canShowDataAsTable && (
+          <ModalButton
+            modal={({ onClose }) => (
+              <DataTableModal
+                analyses={analyses}
+                graphEndDate={graphEndDate}
+                graphStartDate={graphStartDate}
+                series={series}
+                onClose={onClose}
+              />
+            )}>
+            {({ onClick }) => (
+              <Button className="a11y-hidden" onClick={onClick}>
+                {translate('project_activity.graphs.open_in_table')}
+              </Button>
+            )}
+          </ModalButton>
+        )}
       </div>
     );
   }

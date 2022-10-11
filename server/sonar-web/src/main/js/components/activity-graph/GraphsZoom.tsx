@@ -23,7 +23,7 @@ import ZoomTimeLine from '../../components/charts/ZoomTimeLine';
 import { Serie } from '../../types/project-activity';
 import { hasHistoryData } from './utils';
 
-interface Props {
+interface GraphsZoomProps {
   graphEndDate?: Date;
   graphStartDate?: Date;
   leakPeriodDate?: Date;
@@ -34,13 +34,14 @@ interface Props {
   updateGraphZoom: (from?: Date, to?: Date) => void;
 }
 
-export default function GraphsZoom(props: Props) {
+export default function GraphsZoom(props: GraphsZoomProps) {
   if (props.loading || !hasHistoryData(props.series)) {
     return null;
   }
 
   return (
-    <div className="activity-graph-zoom">
+    // We hide this for screen readers; they should use date inputs instead.
+    <div className="activity-graph-zoom" aria-hidden={true}>
       <AutoSizer disableHeight={true}>
         {({ width }) => (
           <ZoomTimeLine

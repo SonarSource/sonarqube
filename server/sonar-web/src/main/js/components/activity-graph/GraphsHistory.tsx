@@ -31,6 +31,7 @@ import { getSeriesMetricType, hasHistoryData, isCustomGraph } from './utils';
 interface Props {
   analyses: ParsedAnalysis[];
   ariaLabel?: string;
+  canShowDataAsTable?: boolean;
   graph: GraphType;
   graphs: Serie[][];
   graphEndDate?: Date;
@@ -63,31 +64,19 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
     }
   }
 
-  getSelectedDateEvents = () => {
-    const { selectedDate } = this.state;
-    const { analyses } = this.props;
-    if (analyses && selectedDate) {
-      const analysis = analyses.find(a => a.date.valueOf() === selectedDate.valueOf());
-      if (analysis) {
-        return analysis.events;
-      }
-    }
-    return [];
-  };
-
   updateTooltip = (selectedDate?: Date) => {
     this.setState({ selectedDate });
   };
 
   render() {
-    const { graph, loading, series, ariaLabel } = this.props;
+    const { analyses, graph, loading, series, ariaLabel, canShowDataAsTable } = this.props;
     const isCustom = isCustomGraph(graph);
 
     if (loading) {
       return (
         <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
           <div className="text-center">
-            <DeferredSpinner loading={loading} />
+            <DeferredSpinner ariaLabel={translate('loading')} loading={loading} />
           </div>
         </div>
       );
@@ -114,14 +103,14 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const events = this.getSelectedDateEvents();
     const showAreas = [GraphType.coverage, GraphType.duplications].includes(graph);
     return (
       <div className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow">
         {this.props.graphs.map((graphSeries, idx) => {
           return (
             <GraphHistory
-              events={events}
+              analyses={analyses}
+              canShowDataAsTable={canShowDataAsTable}
               graph={graph}
               graphEndDate={this.props.graphEndDate}
               graphStartDate={this.props.graphStartDate}

@@ -5,8 +5,43 @@ exports[`should correctly render a graph 1`] = `
   className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow"
 >
   <GraphHistory
+    analyses={
+      Array [
+        Object {
+          "date": 2016-10-27T14:33:50.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "E1",
+              "name": "6.5-SNAPSHOT",
+            },
+          ],
+          "key": "A1",
+        },
+        Object {
+          "date": 2016-10-27T10:21:15.000Z,
+          "events": Array [],
+          "key": "A2",
+        },
+        Object {
+          "date": 2016-10-26T10:17:29.000Z,
+          "events": Array [
+            Object {
+              "category": "OTHER",
+              "key": "E2",
+              "name": "foo",
+            },
+            Object {
+              "category": "VERSION",
+              "key": "E3",
+              "name": "6.4",
+            },
+          ],
+          "key": "A3",
+        },
+      ]
+    }
     ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
-    events={Array []}
     graph="issues"
     isCustom={false}
     key="0"
@@ -50,8 +85,43 @@ exports[`should correctly render multiple graphs 1`] = `
   className="display-flex-justify-center display-flex-column display-flex-stretch flex-grow"
 >
   <GraphHistory
+    analyses={
+      Array [
+        Object {
+          "date": 2016-10-27T14:33:50.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "E1",
+              "name": "6.5-SNAPSHOT",
+            },
+          ],
+          "key": "A1",
+        },
+        Object {
+          "date": 2016-10-27T10:21:15.000Z,
+          "events": Array [],
+          "key": "A2",
+        },
+        Object {
+          "date": 2016-10-26T10:17:29.000Z,
+          "events": Array [
+            Object {
+              "category": "OTHER",
+              "key": "E2",
+              "name": "foo",
+            },
+            Object {
+              "category": "VERSION",
+              "key": "E3",
+              "name": "6.4",
+            },
+          ],
+          "key": "A3",
+        },
+      ]
+    }
     ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
-    events={Array []}
     graph="issues"
     isCustom={false}
     key="0"
@@ -88,8 +158,43 @@ exports[`should correctly render multiple graphs 1`] = `
     updateTooltip={[Function]}
   />
   <GraphHistory
+    analyses={
+      Array [
+        Object {
+          "date": 2016-10-27T14:33:50.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "E1",
+              "name": "6.5-SNAPSHOT",
+            },
+          ],
+          "key": "A1",
+        },
+        Object {
+          "date": 2016-10-27T10:21:15.000Z,
+          "events": Array [],
+          "key": "A2",
+        },
+        Object {
+          "date": 2016-10-26T10:17:29.000Z,
+          "events": Array [
+            Object {
+              "category": "OTHER",
+              "key": "E2",
+              "name": "foo",
+            },
+            Object {
+              "category": "VERSION",
+              "key": "E3",
+              "name": "6.4",
+            },
+          ],
+          "key": "A3",
+        },
+      ]
+    }
     ariaLabel="project_activity.graphs.explanation_x.metric.bugs.name"
-    events={Array []}
     graph="issues"
     isCustom={false}
     key="1"

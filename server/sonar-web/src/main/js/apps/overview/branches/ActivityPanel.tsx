@@ -98,6 +98,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
                   'overview.activity.graph_shows_data_for_x',
                   displayedMetrics.map(metricKey => localizeMetric(metricKey)).join(', ')
                 )}
+                canShowDataAsTable={false}
                 graph={graph}
                 graphs={graphs}
                 leakPeriodDate={shownLeakPeriodDate}

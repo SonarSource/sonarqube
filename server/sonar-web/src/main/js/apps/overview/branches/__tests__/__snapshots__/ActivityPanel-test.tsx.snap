@@ -39,6 +39,7 @@ exports[`should render correctly 1`] = `
           <GraphsHistory
             analyses={Array []}
             ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
+            canShowDataAsTable={false}
             graph="issues"
             graphs={
               Array [
@@ -208,6 +209,7 @@ exports[`should render correctly 2`] = `
           <GraphsHistory
             analyses={Array []}
             ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
+            canShowDataAsTable={false}
             graph="issues"
             graphs={
               Array [

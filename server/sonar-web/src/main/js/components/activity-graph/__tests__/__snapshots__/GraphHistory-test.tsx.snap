@@ -36,6 +36,19 @@ exports[`should correctly render a graph 1`] = `
       <Component />
     </AutoSizer>
   </div>
+  <div
+    className="spacer-top big-spacer-bottom small"
+  >
+    <div
+      className="display-flex-justify-center"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
+  </div>
 </div>
 `;
 
@@ -75,6 +88,19 @@ exports[`should correctly render a graph: custom 1`] = `
     <AutoSizer>
       <Component />
     </AutoSizer>
+  </div>
+  <div
+    className="spacer-top big-spacer-bottom small"
+  >
+    <div
+      className="display-flex-justify-center"
+    >
+      <ModalButton
+        modal={[Function]}
+      >
+        <Component />
+      </ModalButton>
+    </div>
   </div>
 </div>
 `;
