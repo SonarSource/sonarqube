@@ -185,7 +185,7 @@ subprojects {
       dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:9.6.1.17278'
       dependency 'com.sonarsource.security:sonar-security-js-frontend-plugin:9.6.1.17278'
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.10.0.3710'
-      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.6.1.5444'
+      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.7.0.5624'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.6.0.4844'
       dependency 'org.sonarsource.config:sonar-config-plugin:1.2.0.267'
       dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.46.0.54807'
