@@ -115,7 +115,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.distributeRuleChangeEvent(List.of(defaultQualityProfile), of(activeRuleChange), language);
 
-    Deque<PushEventDto> events = getProjectEvents(project.projectUuid());
+    Deque<PushEventDto> events = getProjectEvents(project.branchUuid());
 
     assertThat(events)
       .hasSize(1);
