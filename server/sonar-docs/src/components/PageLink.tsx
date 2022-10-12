@@ -43,7 +43,8 @@ export default function PageLink({ className, location, node }: Props) {
     <div>
       <Link
         className={classNames(className, { active: location.pathname === PREFIX + url })}
-        to={url}>
+        to={url}
+        title={title}>
         {title}
       </Link>
     </div>

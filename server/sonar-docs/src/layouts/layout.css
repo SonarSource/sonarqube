@@ -308,6 +308,9 @@ a.search-result .note {
   font-size: 14px;
   line-height: 26px;
   margin: 0;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .sub-menu-link:hover,
