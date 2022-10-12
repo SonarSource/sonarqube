@@ -19,21 +19,32 @@
  */
 package org.sonar.server.scannercache;
 
+import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 
 @ServerSide
 public class ScannerCache {
   private final DbClient dbClient;
   private final ScannerAnalysisCacheDao dao;
+  private final ProjectDao projectDao;
+  private final BranchDao branchDao;
 
-  public ScannerCache(DbClient dbClient, ScannerAnalysisCacheDao dao) {
+  public ScannerCache(DbClient dbClient, ScannerAnalysisCacheDao dao, ProjectDao projectDao, BranchDao branchDao) {
     this.dbClient = dbClient;
     this.dao = dao;
+    this.projectDao = projectDao;
+    this.branchDao = branchDao;
   }
 
   @CheckForNull
@@ -43,9 +54,48 @@ public class ScannerCache {
     }
   }
 
+  /**
+   * clear all the cache.
+   */
   public void clear() {
-    try (DbSession session = dbClient.openSession(false)) {
-      dao.removeAll(session);
+    doClear(null, null);
+  }
+
+  /**
+   * clear the project cache, that is the cache of all the branches of the project.
+   *
+   * @param projectKey the key of the project.
+   */
+  public void clearProject(String projectKey) {
+    doClear(projectKey, null);
+  }
+
+  /**
+   * clear the branch cache, that is the cache of this branch only.
+   *
+   * @param projectKey the key of the project.
+   * @param branchKey  the key of the specific branch.
+   */
+  public void clearBranch(String projectKey, String branchKey) {
+    doClear(projectKey, branchKey);
+  }
+
+  private void doClear(@Nullable final String projectKey, @Nullable final String branchKey) {
+    try (final DbSession session = dbClient.openSession(true)) {
+      if (projectKey == null) {
+        dao.removeAll(session);
+      } else {
+        Optional<ProjectDto> projectDto = projectDao.selectProjectByKey(session, projectKey);
+        projectDto.stream().flatMap(pDto -> {
+            if (branchKey == null) {
+              return branchDao.selectByProject(session, pDto).stream();
+            } else {
+              return branchDao.selectByKeys(session, pDto.getUuid(), Set.of(branchKey)).stream();
+            }
+          })
+          .map(BranchDto::getUuid)
+          .forEach(bUuid -> dao.remove(session, bUuid));
+      }
       session.commit();
     }
   }

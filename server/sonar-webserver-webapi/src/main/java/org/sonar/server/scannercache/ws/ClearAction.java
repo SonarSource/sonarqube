@@ -26,9 +26,12 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.scannercache.ScannerCache;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ClearAction implements AnalysisCacheWsAction {
+  public static final String PARAM_PROJECT_KEY = "project";
+  public static final String PARAM_BRANCH_KEY = "branch";
   private final UserSession userSession;
   private final ScannerCache cache;
 
@@ -39,19 +42,58 @@ public class ClearAction implements AnalysisCacheWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("clear")
+    WebService.NewAction clearDefinition = context.createAction("clear")
       .setInternal(true)
       .setPost(true)
-      .setDescription("Clear the scanner's cached data for all projects and branches. Requires global administration permission. ")
+      .setDescription("Clear all or part of the scanner's cached data. Requires global administration permission.")
       .setSince("9.4")
       .setHandler(this);
+    clearDefinition.createParam(PARAM_PROJECT_KEY)
+      .setRequired(false)
+      .setSince("9.7")
+      .setDescription("Filter which project's cached data will be cleared with the provided key.")
+      .setExampleValue("org.sonarsource.sonarqube:sonarqube-private");
+    clearDefinition.createParam(PARAM_BRANCH_KEY)
+      .setRequired(false)
+      .setSince("9.7")
+      .setDescription("Filter which project's branch's cached data will be cleared with the provided key. '" + PARAM_PROJECT_KEY + "' parameter must be set.")
+      .setExampleValue("6468");
+  }
+
+  private static class ClearRequestDto {
+    private final String projectKey;
+    private final String branchKey;
+
+    private ClearRequestDto(Request request) {
+      this.projectKey = request.param(PARAM_PROJECT_KEY);
+      this.branchKey = request.param(PARAM_BRANCH_KEY);
+    }
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     checkPermission();
-    cache.clear();
+    ClearRequestDto params = new ClearRequestDto(request);
+    validateParams(params);
+    if (params.projectKey != null) {
+      if (params.branchKey != null) {
+        cache.clearBranch(params.projectKey, params.branchKey);
+      } else {
+        cache.clearProject(params.projectKey);
+      }
+    } else {
+      cache.clear();
+    }
     response.noContent();
+  }
+
+  private static void validateParams(ClearRequestDto params) {
+    if (params.branchKey != null) {
+      checkArgument(
+        params.projectKey != null,
+        "{} needs to be specified when {} is present",
+        PARAM_PROJECT_KEY, PARAM_BRANCH_KEY);
+    }
   }
 
   private void checkPermission() {

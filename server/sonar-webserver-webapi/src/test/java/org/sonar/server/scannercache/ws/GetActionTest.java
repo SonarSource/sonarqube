@@ -31,8 +31,10 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
+import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.server.component.ComponentFinder;
@@ -56,7 +58,9 @@ public class GetActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final ScannerAnalysisCacheDao dao = new ScannerAnalysisCacheDao();
-  private final ScannerCache cache = new ScannerCache(dbTester.getDbClient(), dao);
+  private final ProjectDao projectDao = new ProjectDao(System2.INSTANCE, new NoOpAuditPersister());
+  private final BranchDao branchDao = new BranchDao(System2.INSTANCE);
+  private final ScannerCache cache = new ScannerCache(dbTester.getDbClient(), dao, projectDao, branchDao);
   private final ComponentFinder finder = new ComponentFinder(dbTester.getDbClient(), null);
   private final GetAction ws = new GetAction(dbTester.getDbClient(), userSession, finder, cache);
   private final WsActionTester wsTester = new WsActionTester(ws);
