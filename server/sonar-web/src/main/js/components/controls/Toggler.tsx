@@ -20,6 +20,7 @@
 import * as React from 'react';
 import DocumentClickHandler from './DocumentClickHandler';
 import EscKeydownHandler from './EscKeydownHandler';
+import FocusOutHandler from './FocusOutHandler';
 import OutsideClickHandler from './OutsideClickHandler';
 
 interface Props {
@@ -27,6 +28,7 @@ interface Props {
   closeOnClick?: boolean;
   closeOnClickOutside?: boolean;
   closeOnEscape?: boolean;
+  closeOnFocusOut?: boolean;
   onRequestClose: () => void;
   open: boolean;
   overlay: React.ReactNode;
@@ -38,15 +40,23 @@ export default class Toggler extends React.Component<Props> {
       closeOnClick = false,
       closeOnClickOutside = true,
       closeOnEscape = true,
+      closeOnFocusOut = true,
       onRequestClose,
       overlay
     } = this.props;
 
-    let renderedOverlay;
+    let renderedOverlay = overlay;
+
+    if (closeOnFocusOut) {
+      renderedOverlay = (
+        <FocusOutHandler onFocusOut={onRequestClose}>{renderedOverlay}</FocusOutHandler>
+      );
+    }
+
     if (closeOnEscape) {
-      renderedOverlay = <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>;
-    } else {
-      renderedOverlay = overlay;
+      renderedOverlay = (
+        <EscKeydownHandler onKeydown={onRequestClose}>{renderedOverlay}</EscKeydownHandler>
+      );
     }
 
     if (closeOnClick) {
