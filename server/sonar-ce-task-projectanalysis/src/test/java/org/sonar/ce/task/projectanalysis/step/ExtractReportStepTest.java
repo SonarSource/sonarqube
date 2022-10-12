@@ -102,7 +102,8 @@ public class ExtractReportStepTest {
     dbTester.getSession().commit();
     dbTester.getSession().close();
 
-    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+    TestComputationStepContext testComputationStepContext = new TestComputationStepContext();
+    assertThatThrownBy(() -> underTest.execute(testComputationStepContext))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Decompression failed because unzipped size reached threshold: 4000000000 bytes");
   }

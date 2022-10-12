@@ -24,7 +24,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.health.Health;
-import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 
 public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
   private static final String[] ORDERED_SECTION_NAMES = {
@@ -35,12 +34,6 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
     "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",
     "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties",
     "Search State", "Search Indexes"};
-
-  private final TelemetryDataJsonWriter dataJsonWriter;
-
-  AbstractSystemInfoWriter(TelemetryDataJsonWriter dataJsonWriter) {
-    this.dataJsonWriter = dataJsonWriter;
-  }
 
   protected void writeSections(Collection<ProtobufSystemInfo.Section> sections, JsonWriter json) {
     SystemInfoUtils

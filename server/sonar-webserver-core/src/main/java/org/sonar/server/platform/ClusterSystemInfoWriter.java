@@ -27,8 +27,6 @@ import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
-import org.sonar.server.telemetry.TelemetryDataJsonWriter;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 
 public class ClusterSystemInfoWriter extends AbstractSystemInfoWriter {
   private final GlobalInfoLoader globalInfoLoader;
@@ -37,8 +35,7 @@ public class ClusterSystemInfoWriter extends AbstractSystemInfoWriter {
   private final HealthChecker healthChecker;
 
   public ClusterSystemInfoWriter(GlobalInfoLoader globalInfoLoader, AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader,
-    HealthChecker healthChecker, TelemetryDataJsonWriter dataJsonWriter) {
-    super(dataJsonWriter);
+    HealthChecker healthChecker) {
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
     this.searchNodesInfoLoader = searchNodesInfoLoader;

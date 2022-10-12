@@ -30,8 +30,6 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.server.ce.http.CeHttpClientImpl;
 import org.sonar.server.health.TestStandaloneHealthChecker;
-import org.sonar.server.telemetry.TelemetryDataJsonWriter;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,8 +47,7 @@ public class StandaloneSystemInfoWriterTest {
   private final SystemInfoSection section2 = mock(SystemInfoSection.class);
   private final CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
   private final TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
-  private final TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
-  private final StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(ceHttpClient, healthChecker, dataJsonWriter, section1, section2);
+  private final StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(ceHttpClient, healthChecker, section1, section2);
 
   @Test
   public void write_json() {

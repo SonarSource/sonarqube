@@ -33,7 +33,6 @@ import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
-import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,9 +43,8 @@ public class ClusterSystemInfoWriterTest {
   private final AppNodesInfoLoader appNodesInfoLoader = mock(AppNodesInfoLoader.class);
   private final SearchNodesInfoLoader searchNodesInfoLoader = mock(SearchNodesInfoLoader.class);
   private final HealthChecker healthChecker = mock(HealthChecker.class);
-  private final TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
   private final ClusterSystemInfoWriter underTest = new ClusterSystemInfoWriter(globalInfoLoader, appNodesInfoLoader,
-    searchNodesInfoLoader, healthChecker, dataJsonWriter);
+    searchNodesInfoLoader, healthChecker);
 
   @Before
   public void before() throws InterruptedException {
