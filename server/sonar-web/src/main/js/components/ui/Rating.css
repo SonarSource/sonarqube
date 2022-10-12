@@ -22,7 +22,6 @@
   width: var(--controlHeight);
   height: var(--controlHeight);
   border-radius: var(--controlHeight);
-  border: 1px solid var(--blacka38);
   box-sizing: border-box;
   font-size: var(--bigFontSize);
   font-weight: 400;
@@ -45,30 +44,30 @@
 
 a > .rating-A,
 .rating-A {
-  color: var(--white);
-  background-color: var(--success500);
+  color: var(--blacka75);
+  background-color: var(--success300);
 }
 
 a > .rating-B,
 .rating-B {
-  color: var(--blacka87);
+  color: var(--blacka75);
   background-color: var(--successVariant);
 }
 
 a > .rating-C,
 .rating-C {
-  color: var(--blacka87);
+  color: var(--blacka75);
   background-color: var(--warningVariant);
 }
 
 a > .rating-D,
 .rating-D {
-  color: var(--blacka87);
+  color: var(--blacka75);
   background-color: var(--warningAccent);
 }
 
 a > .rating-E,
 .rating-E {
-  color: var(--white);
-  background-color: var(--error500);
+  color: var(--blacka75);
+  background-color: var(--error400);
 }

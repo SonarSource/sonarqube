@@ -39,11 +39,11 @@ export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SE
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const RATING_COLORS = [
-  { fill: colors.success500, fillTransparent: colors.success500a20, stroke: colors.success500 },
+  { fill: colors.success300, fillTransparent: colors.success300a20, stroke: colors.success500 },
   {
     fill: colors.successVariant,
     fillTransparent: colors.successVarianta20,
-    stroke: colors.successVariant
+    stroke: colors.successVariantDark
   },
   {
     fill: colors.warningVariant,
@@ -51,7 +51,7 @@ export const RATING_COLORS = [
     stroke: colors.warningVariantDark
   },
   { fill: colors.warningAccent, fillTransparent: colors.warningAccenta20, stroke: colors.warning },
-  { fill: colors.error500, fillTransparent: colors.error500a20, stroke: colors.error500 }
+  { fill: colors.error400, fillTransparent: colors.error400a20, stroke: colors.error700 }
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;

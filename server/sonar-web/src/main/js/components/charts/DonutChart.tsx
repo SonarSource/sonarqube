@@ -35,7 +35,7 @@ export interface DonutChartProps {
 }
 
 export default function DonutChart(props: DonutChartProps) {
-  const { height, padding = [0, 0, 0, 0], width } = props;
+  const { height, padding = [0, 0, 0, 0], width, padAngle, data, thickness } = props;
 
   const availableWidth = width - padding[1] - padding[3];
   const availableHeight = height - padding[0] - padding[2];
@@ -47,19 +47,19 @@ export default function DonutChart(props: DonutChartProps) {
     .sort(null)
     .value(d => d.value);
 
-  if (props.padAngle !== undefined) {
-    pie.padAngle(props.padAngle);
+  if (padAngle !== undefined) {
+    pie.padAngle(padAngle);
   }
 
-  const sectors = pie(props.data).map((d, i) => {
+  const sectors = pie(data).map((d, i) => {
     return (
       <Sector
         data={d}
-        fill={props.data[i].fill}
+        fill={data[i].fill}
         // eslint-disable-next-line react/no-array-index-key
         key={i}
         radius={radius}
-        thickness={props.thickness}
+        thickness={thickness}
       />
     );
   });

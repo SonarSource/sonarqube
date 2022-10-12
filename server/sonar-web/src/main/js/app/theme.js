@@ -153,21 +153,26 @@ module.exports = {
     info400: '#4B9FD5',
     info500: '#0271B9',
 
-    success500: '#008A25',
+    success300: '#6CD46C',
+    success300a20: 'rgba(108, 212, 108, 0.2)',
+    success500: '#008223',
     success500a20: 'rgba(0, 138, 37, 0.20)',
-    successVariant: '#B0D513',
-    successVarianta20: 'rgba(177, 213, 19, 0.20)',
+    successVariant: '#C6E056',
+    successVarianta20: 'rgba(198, 224, 86, 0.2)',
     successVariantDark: '#809E00',
 
     warning: '#B95E04',
-    warningVariant: '#EABE06',
-    warningVarianta20: 'rgba(234, 188, 6, 0.20)',
+    warningVariant: '#F4D348',
+    warningVarianta20: 'rgba(244, 211, 72, 0.2)',
     warningVariantDark: '#B18F00',
-    warningAccent: '#ED7D20',
-    warningAccenta20: 'rgba(237, 124, 32, 0.20)',
+    warningAccent: '#F69D53',
+    warningAccenta20: 'rgba(246, 157, 83, 0.2)',
 
+    error400: '#F0878E',
+    error400a20: 'rgba(240, 135, 142, 0.2)',
     error500: '#D02F3A',
     error500a20: 'rgba(208, 47, 58, 0.20)',
+    error700: '#B81723',
 
     neutral50: '#F3F3F3',
     neutral200: '#CCCCCC',
@@ -179,6 +184,7 @@ module.exports = {
     black: '#000000',
     blacka38: 'rgba(0, 0, 0, 0.38)',
     blacka60: 'rgba(0, 0, 0, 0.60)',
+    blacka75: 'rgba(0, 0, 0, 0.75)',
     blacka87: 'rgba(0, 0, 0, 0.87)'
   },
 

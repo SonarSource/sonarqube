@@ -103,7 +103,7 @@
 }
 
 .overview-quality-gate-badge-large.failed {
-  background: var(--red);
+  background: var(--error700);
 }
 
 .overview-quality-gate-badge-large.success {

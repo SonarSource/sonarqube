@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   data={
     Array [
       Object {
-        "fill": "#008A25",
+        "fill": "#008223",
         "value": 25,
       },
       Object {

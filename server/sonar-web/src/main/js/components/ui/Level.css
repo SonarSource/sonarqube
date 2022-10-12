@@ -26,7 +26,6 @@
   padding-left: 9px;
   padding-right: 9px;
   height: var(--controlHeight);
-  border: 1px solid var(--blacka38);
   border-radius: var(--controlHeight);
   box-sizing: border-box;
   color: #fff;
@@ -70,7 +69,7 @@ a > .level:hover {
 }
 
 .level-ERROR {
-  background-color: var(--error500);
+  background-color: var(--error700);
 }
 
 .level-NONE {
