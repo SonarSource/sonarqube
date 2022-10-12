@@ -185,7 +185,7 @@ public class QualityProfileDaoTest {
   public void selectRuleProfile() {
     RulesProfileDto rp = insertRulesProfile();
 
-    assertThat(underTest.selectRuleProfile(dbSession, rp.getUuid()).getName()).isEqualTo(rp.getName());
+    assertThat(underTest.selectRuleProfile(dbSession, rp.getUuid())).extracting(RulesProfileDto::getName).isEqualTo(rp.getName());
     assertThat(underTest.selectRuleProfile(dbSession, "missing")).isNull();
   }
 
@@ -236,8 +236,6 @@ public class QualityProfileDaoTest {
     ProjectDto project1 = db.components().insertPrivateProjectDto();
     ProjectDto project2 = db.components().insertPrivateProjectDto();
     ProjectDto project3 = db.components().insertPrivateProjectDto();
-
-    db.getDbClient().projectDao().selectByUuid(dbSession, project1.getUuid()).get();
 
     db.qualityProfiles().associateWithProject(project1, profile1);
     db.qualityProfiles().associateWithProject(project2, profile1);
@@ -365,7 +363,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectByNameAndLanguage() {
-    List<QProfileDto> sharedData = createSharedData();
+    createSharedData();
 
     QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, "Sonar Way", "java");
     assertThat(dto).isNotNull();
@@ -647,14 +645,10 @@ public class QualityProfileDaoTest {
     QProfileDto jsProfile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "java").getKee())
-      .isEqualTo(javaProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "js").getKee())
-      .isEqualTo(jsProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "cobol"))
-      .isNull();
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project2, "java"))
-      .isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "java")).extracting(QProfileDto::getKee).isEqualTo(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "js")).extracting(QProfileDto::getKee).isEqualTo(jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "cobol")).isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project2, "java")).isNull();
   }
 
   @Test
@@ -733,8 +727,8 @@ public class QualityProfileDaoTest {
 
     underTest.updateProjectProfileAssociation(dbSession, project, javaProfile2.getKee(), javaProfile1.getKee());
 
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "java").getKee()).isEqualTo(javaProfile2.getKee());
-    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "js").getKee()).isEqualTo(jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "java")).extracting(QProfileDto::getKee).isEqualTo(javaProfile2.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "js")).extracting(QProfileDto::getKee).isEqualTo(jsProfile.getKee());
   }
 
   @Test
@@ -755,8 +749,8 @@ public class QualityProfileDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
-    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"));
-    ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
+    db.components().insertPrivateProject(t -> t.setName("Project4 name"));
+    db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
@@ -808,7 +802,7 @@ public class QualityProfileDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
-    ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
+    db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
     db.qualityProfiles().insert(profile1);
@@ -833,8 +827,8 @@ public class QualityProfileDaoTest {
   @Test
   public void selectUuidsOfCustomRulesProfiles_returns_the_custom_profiles_with_specified_name() {
     QProfileDto outdatedProfile1 = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
-    QProfileDto differentLanguage = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
-    QProfileDto differentName = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+    db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
 
     Collection<String> keys = underTest.selectUuidsOfCustomRulesProfiles(dbSession, "java", "foo");
     assertThat(keys).containsOnly(outdatedProfile1.getRulesProfileUuid());
@@ -881,6 +875,37 @@ public class QualityProfileDaoTest {
     List<QProfileDto> result = db.getDbClient().qualityProfileDao().selectQProfilesByRuleProfile(db.getSession(), new RulesProfileDto().setUuid("unknown"));
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void selectProjectAssociations_shouldFindResult_whenQueryMatchingKey() {
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    QProfileDto qProfileDto = db.qualityProfiles().insert();
+
+    List<ProjectQprofileAssociationDto> results = underTest.selectProjectAssociations(dbSession, qProfileDto, "key");
+
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
+  }
+
+  @Test
+  public void selectSelectedProjects_shouldFindResult_whenQueryMatchingKey() {
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    QProfileDto qProfileDto = db.qualityProfiles().insert();
+    db.qualityProfiles().associateWithProject(db.components().getProjectDto(privateProject), qProfileDto);
+
+    List<ProjectQprofileAssociationDto> results = underTest.selectSelectedProjects(dbSession, qProfileDto, "key");
+
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
+  }
+
+  @Test
+  public void selectDeselectedProjects_shouldFindResult_whenQueryMatchingKey() {
+    ComponentDto privateProject = db.components().insertPrivateProject(project -> project.setName("project name"), project -> project.setKey("project_key"));
+    QProfileDto qProfileDto = db.qualityProfiles().insert();
+
+    List<ProjectQprofileAssociationDto> results = underTest.selectDeselectedProjects(dbSession, qProfileDto, "key");
+
+    assertThat(results).extracting(ProjectQprofileAssociationDto::getProjectUuid).containsOnly(privateProject.uuid());
   }
 
   private List<QProfileDto> createSharedData() {

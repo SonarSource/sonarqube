@@ -114,15 +114,15 @@ public interface QualityProfileMapper {
 
   List<ProjectQprofileAssociationDto> selectSelectedProjects(
     @Param("profileUuid") String profileUuid,
-    @Param("nameQuery") String nameQuery);
+    @Param("nameOrKeyQuery") String nameOrKeyQuery);
 
   List<ProjectQprofileAssociationDto> selectDeselectedProjects(
     @Param("profileUuid") String profileUuid,
-    @Param("nameQuery") String nameQuery);
+    @Param("nameOrKeyQuery") String nameOrKeyQuery);
 
   List<ProjectQprofileAssociationDto> selectProjectAssociations(
     @Param("profileUuid") String profileUuid,
-    @Param("nameQuery") String nameQuery);
+    @Param("nameOrKeyQuery") String nameOrKeyQuery);
 
   List<String> selectUuidsOfCustomRuleProfiles(@Param("language") String language, @Param("name") String name);
 

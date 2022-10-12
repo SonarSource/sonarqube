@@ -31,6 +31,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -241,11 +242,13 @@ public class ProjectsActionTest {
   }
 
   @Test
-  public void filter_on_name() {
+  public void filter_on_name_and_key() {
     ProjectDto project1 = db.components().insertPublicProjectDto(p -> p.setName("Project One"));
     ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
     ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
+    db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
+    ProjectDto project5 = db.components().insertPublicProjectDto(p -> p.setDbKey("Project the fifth"));
+
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2);
 
@@ -266,6 +269,11 @@ public class ProjectsActionTest {
         "      \"key\": \"" + project2.getKey() + "\",\n" +
         "      \"name\": \"" + project2.getName() + "\",\n" +
         "      \"selected\": true\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"key\": \"" + project5.getKey() + "\",\n" +
+        "      \"name\": \"" + project5.getName() + "\",\n" +
+        "      \"selected\": false\n" +
         "    }\n" +
         "  ]}\n");
   }
@@ -290,12 +298,8 @@ public class ProjectsActionTest {
 
   @Test
   public void fail_on_nonexistent_profile() {
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(PARAM_KEY, "unknown")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class);
+    TestRequest testRequest = ws.newRequest().setParam(PARAM_KEY, "unknown");
+    assertThatThrownBy(testRequest::execute).isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -306,10 +310,11 @@ public class ProjectsActionTest {
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "p", "ps", "q", "selected");
     Param profile = definition.param("key");
+    assertThat(profile).isNotNull();
     assertThat(profile.deprecatedKey()).isNullOrEmpty();
     assertThat(definition.param("p")).isNotNull();
     assertThat(definition.param("ps")).isNotNull();
-    Param query = definition.param("q");
+    assertThat(definition.param("q")).isNotNull();
   }
 
   private void associateProjectsWithProfile(QProfileDto profile, ProjectDto... projects) {
