@@ -325,7 +325,6 @@ public class UserUpdaterCreateTest {
       .hasMessage("Login is too short (minimum is 2 characters)");
   }
 
-
   @Test
   public void fail_to_create_user_login_start_with_underscore() {
     assertThatThrownBy(() -> {
@@ -341,6 +340,21 @@ public class UserUpdaterCreateTest {
       .hasMessage("Login should not start with .-_@");
   }
 
+  @Test
+  public void create_user_login_contains_underscore() {
+    createDefaultGroup();
+    String login = "name_with_underscores";
+    NewUser newUser = NewUser.builder()
+      .setLogin(login)
+      .setName("Marius")
+      .setEmail("marius@mail.com")
+      .setPassword("password")
+      .build();
+
+    underTest.createAndCommit(db.getSession(), newUser, u -> {});
+
+    assertThat(dbClient.userDao().selectByLogin(session, login)).isNotNull();
+  }
 
   @Test
   public void fail_to_create_user_with_too_long_login() {

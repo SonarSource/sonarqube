@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;

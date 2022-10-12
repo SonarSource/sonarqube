@@ -68,7 +68,7 @@ public class UserUpdater {
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
   private static final Pattern START_WITH_SPECIFIC_AUTHORIZED_CHARACTERS = Pattern.compile("^[\\.\\-_@].*$");
-  private static final Pattern CONTAINS_ONLY_AUTHORIZED_CHARACTERS = Pattern.compile("\\A\\w[\\w\\.\\-_@]+\\z");
+  private static final Pattern CONTAINS_ONLY_AUTHORIZED_CHARACTERS = Pattern.compile("\\A\\w[\\w\\.\\-@]+\\z");
 
   public static final int LOGIN_MIN_LENGTH = 2;
   public static final int LOGIN_MAX_LENGTH = 255;

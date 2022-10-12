@@ -79,7 +79,8 @@ public class ProjectFileIndexer {
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
-    SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
+    SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, InputModuleHierarchy inputModuleHierarchy,
+    GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
     FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, ScmConfiguration scmConfiguration) {
     this.componentStore = componentStore;
     this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
