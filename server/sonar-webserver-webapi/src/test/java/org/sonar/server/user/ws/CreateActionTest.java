@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.List;
 import java.util.Optional;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
@@ -163,6 +164,22 @@ public class CreateActionTest {
       .build());
 
     assertThat(response.getUser().getScmAccountsList()).containsOnly("j,n");
+  }
+
+
+  @Test
+  public void create_user_ignores_duplicates_containing_whitespace_characters_in_scm_account_values() {
+    logInAsSystemAdministrator();
+
+    CreateWsResponse response = call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(List.of("admin", "  admin  "))
+      .setPassword("1234")
+      .build());
+
+    assertThat(response.getUser().getScmAccountsList()).containsOnly("admin");
   }
 
   @Test

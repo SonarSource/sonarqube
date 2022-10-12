@@ -19,8 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -164,17 +164,24 @@ public class CreateAction implements UsersWsAction {
       .setPassword(request.param(PARAM_PASSWORD))
       .setName(request.param(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
-      .setScmAccounts(getScmAccounts(request))
+      .setScmAccounts(parseScmAccounts(request))
       .setLocal(request.mandatoryParamAsBoolean(PARAM_LOCAL))
       .build();
   }
 
-  private static List<String> getScmAccounts(Request request) {
+  public static List<String> parseScmAccounts(Request request) {
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
-      return request.multiParam(PARAM_SCM_ACCOUNT);
-    } else {
-      return Collections.emptyList();
+      return formatScmAccounts(request.multiParam(PARAM_SCM_ACCOUNT));
     }
+
+    return emptyList();
+  }
+
+  private static List<String> formatScmAccounts(List<String> scmAccounts) {
+    return scmAccounts
+      .stream()
+      .map(String::trim)
+      .collect(Collectors.toList());
   }
 
   static class CreateRequest {

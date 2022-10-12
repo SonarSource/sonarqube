@@ -203,6 +203,19 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void update_scm_account_ignores_duplicates_containing_whitespace_characters_in_scm_account_values() {
+    createUser();
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "   jon.snow  "))
+      .execute();
+
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    assertThat(user.getScmAccountsAsList()).containsExactlyInAnyOrder("jon.jon", "jon.snow");
+  }
+
+  @Test
   public void update_scm_account_ordered_case_insensitive() {
     createUser();
 

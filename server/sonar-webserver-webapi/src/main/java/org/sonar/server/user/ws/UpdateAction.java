@@ -20,8 +20,6 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +48,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.user.ws.CreateAction.parseScmAccounts;
 import static org.sonar.server.user.ws.EmailValidator.isValidIfPresent;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -159,16 +158,8 @@ public class UpdateAction implements UsersWsAction {
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
       .setName(request.param(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
-      .setScmAccounts(getScmAccounts(request))
+      .setScmAccounts(parseScmAccounts(request))
       .build();
-  }
-
-  private static List<String> getScmAccounts(Request request) {
-    if (request.hasParam(PARAM_SCM_ACCOUNT)) {
-      return new ArrayList<>(request.multiParam(PARAM_SCM_ACCOUNT));
-    } else {
-      return Collections.emptyList();
-    }
   }
 
   private static class UpdateRequest {
