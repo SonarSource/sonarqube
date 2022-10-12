@@ -86,6 +86,11 @@ An Administrator can manage tokens on a user's behalf via **[Administration > Se
 An Administrator can only create [user tokens](/user-guide/user-token/) on behalf of another user.
 Once established, a token is the only credential needed to run an analysis. Tokens should be passed as the value of the `sonar.login` property.
 
+See the [Authentication overview](/instance-administration/authentication/overview/) for details on
+
+  * revoking tokens for deactivated users.
+  * deleting personal user information.
+
 ### Token Maximum Lifetime
 
 *The ability to configure a maximum lifetime for tokens is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
