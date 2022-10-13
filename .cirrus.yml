@@ -415,6 +415,21 @@ qa_azure_task:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
+qa_github_task:
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *NIGHTLY_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 5Gb
+  env:
+    QA_CATEGORY: GITHUB
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
