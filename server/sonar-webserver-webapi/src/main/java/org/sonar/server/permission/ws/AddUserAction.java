@@ -54,7 +54,7 @@ public class AddUserAction implements PermissionsWsAction {
   private final Configuration configuration;
 
   public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-                       WsParameters wsParameters, PermissionService permissionService, Configuration configuration) {
+    WsParameters wsParameters, PermissionService permissionService, Configuration configuration) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
@@ -86,9 +86,10 @@ public class AddUserAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
+      String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
       checkProjectAdmin(userSession, configuration, project.orElse(null));
+      UserId user = wsSupport.findUser(dbSession, userLogin);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,

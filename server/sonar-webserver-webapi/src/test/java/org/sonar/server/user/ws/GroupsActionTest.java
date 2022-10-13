@@ -255,12 +255,21 @@ public class GroupsActionTest {
   }
 
   @Test
+  public void fail_on_missing_permission_and_non_existent_user() {
+    userSession.logIn().addPermission(SCAN);
+
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", "unknown"));
+    })
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
   public void fail_when_no_permission() {
     userSession.logIn("not-admin");
 
-    assertThatThrownBy(() -> {
-      call(ws.newRequest().setParam("login", USER_LOGIN));
-    })
+    TestRequest request = ws.newRequest().setParam("login", USER_LOGIN);
+    assertThatThrownBy(() -> call(request))
       .isInstanceOf(ForbiddenException.class);
   }
 

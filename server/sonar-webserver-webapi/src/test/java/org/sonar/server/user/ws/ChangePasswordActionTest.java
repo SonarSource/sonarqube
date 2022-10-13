@@ -155,6 +155,19 @@ public class ChangePasswordActionTest {
   }
 
   @Test
+  public void fail_to_update_someone_else_password_if_not_admin_and_user_doesnt_exist() throws ServletException, IOException {
+    UserTestData user = createLocalUser();
+    userSessionRule.logIn(user.getLogin());
+
+    assertThatThrownBy(() -> executeTest("unknown", "I dunno", NEW_PASSWORD))
+      .isInstanceOf(ForbiddenException.class);
+    verifyNoInteractions(jwtHttpHandler);
+
+    assertThat(findSessionTokenDto(db.getSession(), user.getSessionTokenUuid())).isPresent();
+    verifyNoInteractions(jwtHttpHandler);
+  }
+
+  @Test
   public void fail_to_update_unknown_user() {
     UserTestData admin = createLocalUser();
     userSessionRule.logIn(admin.getUserDto()).setSystemAdministrator();

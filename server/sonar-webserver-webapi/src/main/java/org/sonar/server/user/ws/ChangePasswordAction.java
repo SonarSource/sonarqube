@@ -47,6 +47,7 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.sonarqube.ws.WsUtils.checkArgument;
+import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PREVIOUS_PASSWORD;
@@ -110,28 +111,29 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     try (DbSession dbSession = dbClient.openSession(false)) {
       String login = getParamOrThrow(request, PARAM_LOGIN);
       String newPassword = getParamOrThrow(request, PARAM_PASSWORD);
-      UserDto user = getUserOrThrow(dbSession, login);
+      UserDto user;
+
       if (login.equals(userSession.getLogin())) {
+        user = getUserOrThrow(dbSession, login);
         String previousPassword = getParamOrThrow(request, PARAM_PREVIOUS_PASSWORD);
         checkPreviousPassword(dbSession, user, previousPassword);
         checkArgument(!previousPassword.equals(newPassword), "Password must be different from old password");
         deleteTokensAndRefreshSession(request, response, dbSession, user);
       } else {
         userSession.checkIsSystemAdministrator();
+        user = getUserOrThrow(dbSession, login);
         dbClient.sessionTokensDao().deleteByUser(dbSession, user);
       }
-      UpdateUser updateUser = new UpdateUser().setPassword(newPassword);
-      userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {});
+      updatePassword(dbSession, user, newPassword);
       setResponseStatus(response, HTTP_NO_CONTENT);
     } catch (BadRequestException badRequestException) {
       setResponseStatus(response, HTTP_BAD_REQUEST);
     }
   }
 
-
   private static String getParamOrThrow(ServletRequest request, String key) {
     String value = request.getParameter(key);
-    checkArgument(value != null && !value.isEmpty(), MSG_PARAMETER_MISSING, key);
+    checkArgument(!isNullOrEmpty(value), MSG_PARAMETER_MISSING, key);
     return value;
   }
 
@@ -161,6 +163,12 @@ public class ChangePasswordAction extends ServletFilter implements BaseUsersWsAc
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     jwtHttpHandler.removeToken(httpRequest, httpResponse);
     jwtHttpHandler.generateToken(user, httpRequest, httpResponse);
+  }
+
+  private void updatePassword(DbSession dbSession, UserDto user, String newPassword) {
+    UpdateUser updateUser = new UpdateUser().setPassword(newPassword);
+    userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
+    });
   }
 
   private static void setResponseStatus(ServletResponse response, int newStatusCode) {
