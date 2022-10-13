@@ -56,7 +56,6 @@ Configure the new SAML client
 ## SonarQube configuration
 Configure the SAML authentication: **[Administration > Configuration > General Settings > Authentication > SAML](/#sonarqube-admin#/admin/settings?category=authentication)**
 
-* **Enabled**: *true*
 * **Application ID**: The value of the "Client ID" you set in Keycloak (for example "sonarqube")
 * **Provider ID**: The value of the `EntityDescriptor > entityID` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube")
 * **SAML login url**: The value of `SingleSignOnService > Location` attribute in the XML configuration file (e.g., "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
@@ -72,3 +71,9 @@ Configure the SAML authentication: **[Administration > Configuration > General S
 You can find [here](https://manpages.ubuntu.com/manpages/focal/man1/pkcs8.1ssl.html) some instructions to convert different key formats.
 
 In the login form, the new button "Log in with SAML" allows users to connect with their SAML account.
+
+## Enabling and testing SAML authentication
+1. In the SonarQube SAML settings, enable SAML.
+  ![SAML OKTA SonarQube SAML](/images/saml-keycloak-sq-saml.png)
+
+Before enabling the SAML authentication on SonarQube, you can verify that the configuration is correct by clicking on the “Test Configuration” button. A SAML login will be initiated and useful information about the SAML response obtained from the Identity provider will be returned.                                                                                                                                                                                                                                                                                                                              

@@ -109,8 +109,6 @@ To integrate Okta (Identity Provider) with SonarQube (Service Provider), both si
 
 Go to **[Administration > Configuration > General Settings > Authentication > SAML](/#sonarqube-admin#/admin/settings?category=authentication)**
 
-- **Enabled**: *true*.
-
 - **Application ID**: The value of the *Audience URI (SP Entity ID)* you set in Okta (for example, `sonarqube`).
 
 - **Provider ID**: The value of *Identity Provider Issuer* provided in **View SAML setup instructions** from Okta.
@@ -136,3 +134,9 @@ Go to **[Administration > Configuration > General Settings > Authentication > SA
 The service provider private key and certificate can be either a new self-signed pair or any existing pair available in your infrastructure.
 
 In the login form, the new button **Log in with SAML** (or a custom name specified in the `sonar.auth.saml.providerName` setting) allows users to connect with their SAML account.
+
+## Enabling and testing SAML authentication
+1. In the SonarQube SAML settings, enable SAML.
+  ![SAML OKTA SonarQube SAML](/images/okta/saml-okta-sq-saml.png)
+
+Before enabling the SAML authentication on SonarQube, you can verify that the configuration is correct by clicking on the “Test Configuration” button. A SAML login will be initiated and useful information about the SAML response obtained from the Identity provider will be returned. 

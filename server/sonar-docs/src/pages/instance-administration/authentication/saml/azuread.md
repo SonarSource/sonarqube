@@ -82,3 +82,5 @@ For either case, the corresponding group name should exist in SonarQube under **
 1. In the login form, the new button **Log in with SAML** (or a custom name specified in the `sonar.auth.saml.providerName` setting) allows users to connect with their SAML account.
   
   ![SAML Azure AD SonarQube Login](/images/azure/saml-azure-sq-login.png)
+
+Before enabling the SAML authentication on SonarQube, you can verify that the configuration is correct by clicking on the “Test Configuration” button. A SAML login will be initiated and useful information about the SAML response obtained from the Identity provider will be returned. 
