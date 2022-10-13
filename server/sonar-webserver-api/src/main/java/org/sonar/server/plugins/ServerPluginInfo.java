@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.updatecenter.common.PluginManifest;
 
 public class ServerPluginInfo extends PluginInfo {

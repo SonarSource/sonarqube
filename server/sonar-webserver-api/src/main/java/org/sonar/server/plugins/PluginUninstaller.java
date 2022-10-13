@@ -36,7 +36,7 @@ import org.sonar.server.platform.ServerFileSystem;
 import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginUninstaller implements Startable {
   private static final Logger LOG = Loggers.get(PluginUninstaller.class);

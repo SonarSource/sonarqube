@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginJarExploder;
+import org.sonar.core.plugin.PluginType;
 
 /**
  * Entry point to install and load plugins on server startup. It manages

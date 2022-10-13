@@ -41,6 +41,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -123,8 +124,8 @@ public class MetadataPublisherTest {
     Date date = new Date();
     when(qProfiles.findAll()).thenReturn(Collections.singletonList(new QProfile("q1", "Q1", "java", date)));
     when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
-      "java", new ScannerPlugin("java", 12345L, null),
-      "php", new ScannerPlugin("php", 45678L, null)));
+      "java", new ScannerPlugin("java", 12345L, PluginType.BUNDLED,  null),
+      "php", new ScannerPlugin("php", 45678L, PluginType.BUNDLED, null)));
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
     when(referenceBranchSupplier.getFromProperties()).thenReturn("newCodeReference");

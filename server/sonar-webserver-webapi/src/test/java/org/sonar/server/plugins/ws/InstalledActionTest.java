@@ -42,7 +42,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
-import org.sonar.server.plugins.PluginType;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;

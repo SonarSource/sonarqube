@@ -37,8 +37,8 @@ import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT
 import static org.sonar.core.extension.PluginRiskConsent.ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.REQUIRED;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginConsentVerifierTest {
   @Rule

@@ -71,6 +71,7 @@ public class AnalysisContextReportPublisher {
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
       writePlugins(fileWriter);
+      writeBundledAnalyzers(fileWriter);
       writeGlobalSettings(fileWriter);
       writeProjectSettings(fileWriter);
       writeModulesSettings(fileWriter);
@@ -80,8 +81,15 @@ public class AnalysisContextReportPublisher {
   }
 
   private void writePlugins(BufferedWriter fileWriter) throws IOException {
-    fileWriter.write("SonarQube plugins:\n");
-    for (PluginInfo p : pluginRepo.getPluginInfos()) {
+    fileWriter.write("Plugins:\n");
+    for (PluginInfo p : pluginRepo.getExternalPluginsInfos()) {
+      fileWriter.append(String.format("  - %s %s (%s)", p.getName(), p.getVersion(), p.getKey())).append('\n');
+    }
+  }
+
+  private void writeBundledAnalyzers(BufferedWriter fileWriter) throws IOException {
+    fileWriter.write("Bundled analyzers:\n");
+    for (PluginInfo p : pluginRepo.getBundledPluginsInfos()) {
       fileWriter.append(String.format("  - %s %s (%s)", p.getName(), p.getVersion(), p.getKey())).append('\n');
     }
   }

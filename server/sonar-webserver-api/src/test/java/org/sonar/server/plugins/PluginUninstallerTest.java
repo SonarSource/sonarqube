@@ -32,6 +32,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
@@ -39,8 +40,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginUninstallerTest {
   @Rule

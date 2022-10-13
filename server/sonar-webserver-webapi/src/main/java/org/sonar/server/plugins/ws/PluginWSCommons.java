@@ -81,6 +81,7 @@ public class PluginWSCommons {
     ofNullable(installedPlugin).ifPresent(serverPlugin -> {
       builder.setFilename(installedPlugin.getJar().getFile().getName());
       builder.setHash(installedPlugin.getJar().getMd5());
+      builder.setType(installedPlugin.getType().name());
     });
 
     ofNullable(pluginInfo.getVersion()).ifPresent(v -> builder.setVersion(isNotBlank(pluginInfo.getDisplayVersion()) ? pluginInfo.getDisplayVersion() : v.getName()));

@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
-import org.sonar.server.plugins.PluginType;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.TestRequest;

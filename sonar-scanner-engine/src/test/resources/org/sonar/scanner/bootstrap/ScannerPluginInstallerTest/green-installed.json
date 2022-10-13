@@ -3,11 +3,13 @@
     {
       "key": "java",
       "hash": "def",
+      "type": "BUNDLED",
       "updatedAt": 200
     },
     {
       "key": "cobol",
       "hash": "ghi",
+      "type": "EXTERNAL",
       "updatedAt": 300
     }
   ]

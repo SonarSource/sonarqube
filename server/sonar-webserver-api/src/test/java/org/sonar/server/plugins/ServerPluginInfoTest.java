@@ -20,10 +20,11 @@
 package org.sonar.server.plugins;
 
 import org.junit.Test;
+import org.sonar.core.plugin.PluginType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class ServerPluginInfoTest {
   @Test

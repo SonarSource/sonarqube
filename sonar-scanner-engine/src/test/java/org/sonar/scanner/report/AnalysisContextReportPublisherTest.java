@@ -21,6 +21,7 @@ package org.sonar.scanner.report;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -53,8 +54,6 @@ import static org.mockito.Mockito.when;
 
 public class AnalysisContextReportPublisherTest {
 
-  private static final String BIZ = "BIZ";
-  private static final String FOO = "FOO";
   private static final String SONAR_SKIP = "sonar.skip";
   private static final String COM_FOO = "com.foo";
 
@@ -64,7 +63,7 @@ public class AnalysisContextReportPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
+  private final ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
   private AnalysisContextReportPublisher publisher;
   private System2 system2;
   private GlobalServerSettings globalServerSettings;
@@ -86,7 +85,7 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void shouldOnlyDumpPluginsByDefault() throws Exception {
-    when(pluginRepo.getPluginInfos()).thenReturn(singletonList(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
+    when(pluginRepo.getExternalPluginsInfos()).thenReturn(singletonList(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
 
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
@@ -138,7 +137,8 @@ public class AnalysisContextReportPublisherTest {
 
     List<String> lines = FileUtils.readLines(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(lines).containsExactly(
-      "SonarQube plugins:",
+      "Plugins:",
+      "Bundled analyzers:",
       "Global server settings:",
       "Project server settings:",
       "  - com.foo=bar",
@@ -238,7 +238,8 @@ public class AnalysisContextReportPublisherTest {
 
     List<String> lines = FileUtils.readLines(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(lines).containsExactly(
-      "SonarQube plugins:",
+      "Plugins:",
+      "Bundled analyzers:",
       "Global server settings:",
       "Project server settings:",
       "Project scanner properties:",
@@ -247,5 +248,30 @@ public class AnalysisContextReportPublisherTest {
       "Scanner properties of module: foo",
       "  - sonar.projectKey=foo"
     );
+  }
+
+  @Test
+  public void init_splitsPluginsByTypeInTheFile() throws IOException {
+    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
+    DefaultInputModule parent = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
+      .setProperty("sonar.projectKey", "parent")
+      .setProperty(SONAR_SKIP, "true"));
+    when(hierarchy.root()).thenReturn(parent);
+
+    when(pluginRepo.getExternalPluginsInfos()).thenReturn(List.of(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
+    when(pluginRepo.getBundledPluginsInfos()).thenReturn(List.of(new PluginInfo("java").setName("Java").setVersion(Version.create("9.7"))));
+
+    publisher.init(writer);
+
+    List<String> lines = FileUtils.readLines(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
+
+    System.out.println(lines);
+
+    assertThat(lines).contains("Plugins:",
+      "  - Xoo 1.0 (xoo)",
+      "Bundled analyzers:",
+      "  - Java 9.7 (java)");
   }
 }

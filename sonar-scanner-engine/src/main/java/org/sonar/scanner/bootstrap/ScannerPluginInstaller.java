@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonarqube.ws.client.GetRequest;
 
 import static java.lang.String.format;
@@ -75,12 +76,12 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private Loaded loadPlugins(Map<String, ScannerPlugin> result) {
     for (InstalledPlugin plugin : listInstalledPlugins()) {
       Optional<File> jarFile = pluginFiles.get(plugin);
-      if (!jarFile.isPresent()) {
+      if (jarFile.isEmpty()) {
         return new Loaded(false, plugin.key);
       }
 
       PluginInfo info = PluginInfo.create(jarFile.get());
-      result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, info));
+      result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, PluginType.valueOf(plugin.type), info));
     }
     return new Loaded(true, null);
   }
@@ -122,6 +123,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String key;
     String hash;
     long updatedAt;
+    String type;
 
     public InstalledPlugin() {
       // http://stackoverflow.com/a/18645370/229031

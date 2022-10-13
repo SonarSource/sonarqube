@@ -27,13 +27,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class ServerPluginRepositoryTest {
   private ServerPluginRepository repository = new ServerPluginRepository();

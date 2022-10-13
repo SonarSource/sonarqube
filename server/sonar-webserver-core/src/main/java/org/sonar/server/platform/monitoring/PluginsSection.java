@@ -23,7 +23,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.plugins.PluginType;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.updatecenter.common.Version;
 

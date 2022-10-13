@@ -45,8 +45,8 @@ import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
-import static org.sonar.server.plugins.PluginType.EXTERNAL;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginJarLoader {
   private static final Logger LOG = Loggers.get(PluginJarLoader.class);

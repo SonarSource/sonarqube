@@ -20,6 +20,7 @@
 package org.sonar.scanner.bootstrap;
 
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.updatecenter.common.Version;
 
 public class ScannerPlugin {
@@ -27,10 +28,12 @@ public class ScannerPlugin {
   private final String key;
   private final long updatedAt;
   private final PluginInfo info;
+  private final PluginType type;
 
-  public ScannerPlugin(String key, long updatedAt, PluginInfo info) {
+  public ScannerPlugin(String key, long updatedAt, PluginType type, PluginInfo info) {
     this.key = key;
     this.updatedAt = updatedAt;
+    this.type = type;
     this.info = info;
   }
 
@@ -54,4 +57,7 @@ public class ScannerPlugin {
     return updatedAt;
   }
 
+  public PluginType getType() {
+    return type;
+  }
 }

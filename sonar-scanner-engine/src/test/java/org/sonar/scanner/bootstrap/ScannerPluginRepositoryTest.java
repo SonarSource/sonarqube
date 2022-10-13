@@ -28,6 +28,7 @@ import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
+import org.sonar.core.plugin.PluginType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -47,7 +48,7 @@ public class ScannerPluginRepositoryTest {
   @Test
   public void install_and_load_plugins() {
     PluginInfo info = new PluginInfo("java");
-    ImmutableMap<String, ScannerPlugin> plugins = ImmutableMap.of("java", new ScannerPlugin("java", 1L, info));
+    ImmutableMap<String, ScannerPlugin> plugins = ImmutableMap.of("java", new ScannerPlugin("java", 1L, PluginType.EXTERNAL, info));
     Plugin instance = mock(Plugin.class);
     when(loader.load(anyMap())).thenReturn(ImmutableMap.of("java", instance));
     when(installer.installRemotes()).thenReturn(plugins);
@@ -59,6 +60,8 @@ public class ScannerPluginRepositoryTest {
     assertThat(underTest.getPluginInfo("java")).isSameAs(info);
     assertThat(underTest.getPluginInstance("java")).isSameAs(instance);
     assertThat(underTest.getPluginInstances()).containsOnly(instance);
+    assertThat(underTest.getBundledPluginsInfos()).isEmpty();
+    assertThat(underTest.getExternalPluginsInfos()).isEqualTo(underTest.getPluginInfos());
 
     underTest.stop();
     verify(loader).unload(anyCollection());

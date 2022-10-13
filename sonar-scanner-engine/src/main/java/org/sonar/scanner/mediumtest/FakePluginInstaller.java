@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.annotation.Priority;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.scanner.bootstrap.PluginInstaller;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 
@@ -37,7 +38,7 @@ public class FakePluginInstaller implements PluginInstaller {
   private final List<Object[]> mediumTestPlugins = new ArrayList<>();
 
   public FakePluginInstaller add(String pluginKey, File jarFile, long lastUpdatedAt) {
-    pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginKey, lastUpdatedAt, PluginInfo.create(jarFile)));
+    pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginKey, lastUpdatedAt, PluginType.BUNDLED, PluginInfo.create(jarFile)));
     return this;
   }
 

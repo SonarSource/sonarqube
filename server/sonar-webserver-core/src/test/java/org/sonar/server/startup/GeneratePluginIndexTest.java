@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.plugins.PluginType.BUNDLED;
+import static org.sonar.core.plugin.PluginType.BUNDLED;
 
 public class GeneratePluginIndexTest {
 

@@ -31,6 +31,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.plugin.PluginType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;

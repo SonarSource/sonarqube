@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;

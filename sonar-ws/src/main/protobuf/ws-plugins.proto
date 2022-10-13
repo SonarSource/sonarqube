@@ -123,6 +123,7 @@ message PluginDetails {
   optional bool sonarLintSupported = 15;
   optional string documentationPath = 16;
   optional int64 updatedAt = 17;
+  optional string type = 18;
 }
 
 // WS api/plugins/pending
