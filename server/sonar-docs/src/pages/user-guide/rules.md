@@ -2,24 +2,30 @@
 title: Rules
 url: /user-guide/rules/
 ---
-## Overview
-SonarQube executes rules on source code to generate issues. There are four types of rules:
+
+SonarQube evaluates your source code against its set of rules to generate issues.
+There are four types of rules:
+
 * Code Smell (Maintainability domain)
 * Bug (Reliability domain)
 * Vulnerability (Security domain)
 * Security Hotspot (Security domain)
 
-For Code Smells and Bugs, zero false-positives are expected. At least this is the target so that developers don't have to wonder if a fix is required.
+For Code Smells and Bugs, zero false-positives are expected. 
+At least this is the target so that developers don't have to wonder if a fix is required.
 
 For Vulnerabilities, the target is to have more than 80% of issues be true-positives.
 
-Security Hotspot rules draw attention to code that is security-sensitive. It is expected that more than 80% of the issues will be quickly resolved as "Reviewed" after review by a developer.
+Security Hotspot rules draw attention to code that is security-sensitive.
+It is expected that more than 80% of the issues will be quickly resolved as "Reviewed" after review by a developer.
 
 The Rules page is the entry point where you can discover all the existing rules or create new ones based on provided templates.
 
+
 ## Rules
 
-By default, when entering the top menu item "Rules", you will see all the available rules installed on your SonarQube instance. You have the ability to narrow the selection based on search criteria in the left pane:
+By default, when entering the top menu item "Rules", you will see all the available rules installed on your SonarQube instance.
+You have the ability to narrow the selection based on search criteria in the left pane:
 
 * **Language**: the language to which a rule applies.
 * **Type**: Bug, Vulnerability, Code Smell or Security Hotspot rules.
@@ -34,11 +40,14 @@ By default, when entering the top menu item "Rules", you will see all the availa
 * **Template**: display rule templates that allow to create custom rules (see later on this page).
 * **Quality Profile**: inclusion in or exclusion from a specific profile
 
-If a Quality Profile is selected, it is also possible to check for its active severity and whether it is inherited or not. See the Quality Profile documentation for more.
+If a Quality Profile is selected, it is also possible to check for its active severity and whether it is inherited or not.
+See [Quality Profiles](/instance-administration/quality-profiles/) for more information.
+
 
 ## Rule Details
 
-To see the details of a rule, either click on it, or use the right arrow key. Along with basic rule data, you'll also be able to see which, if any, profiles it's active in and how many open issues have been raised with it.
+To see the details of a rule, either click on it, or use the right arrow key.
+Along with basic rule data, you'll also be able to see which, if any, profiles it's active in and how many open issues have been raised with it.
 
 The following actions are available only if you have the right permissions ("Administer Quality Profiles and Gates"):
 
@@ -49,12 +58,12 @@ The following actions are available only if you have the right permissions ("Adm
   * You can extend rule descriptions to let users know how your organization is using a particular rule or to give more insight on a rule.
   * Note that the extension will be available to non-admin users as a normal part of the rule details.
 
-<!-- sonarqube -->
+
 ## Rule Templates and Custom Rules
 
 Rule Templates are provided by plugins as a basis for users to define their own custom rules in {instance}. To find templates, select the **Show Templates Only** facet from the the "Template" dropdown:
 
-![Rule templates.](/images/rule-templates.png)
+![Rule templates](/images/rule-templates.png)
 
 To create a custom rule from a template click the **Create** button next to the "Custom Rules" heading and fill in the following information:
 * Name
@@ -68,7 +77,9 @@ You can navigate from a template to the details of custom rules defined from it 
 
 ![Rule template details.](/images/rule-template-details.png)
 
+
 ### Custom Rules
+
 Custom Rules are considered like any other rule, except that you can edit or delete them:
 
 ![Custom rules.](/images/rules-custom.png)
@@ -78,7 +89,7 @@ Custom Rules are considered like any other rule, except that you can edit or del
 ## Extending Coding Rules
 
 Custom coding rules can be added. See [Adding Coding Rules](/extend/adding-coding-rules/) for detailed information and tutorials.
-<!-- /sonarqube -->
+
 
 ## Rule Types and Severities
 
@@ -101,7 +112,9 @@ If not...
 **Is the rule neither a Bug nor a Vulnerability?**  
 If so, then it's a Code Smell rule.
 
+
 ## How are severities assigned?
+
 To assign severity to a rule, we ask a further series of questions. The first one is basically:
 
 **What's the worst thing that could happen?**
@@ -117,25 +130,36 @@ Then we assess whether the impact and likelihood of the Worst Thing (see _How ar
 | Major    | ![](/images/cross.svg) | ![](/images/check.svg) |
 | Minor    | ![](/images/cross.svg) | ![](/images/cross.svg) |
 
+
 ## How are severity and likelihood decided?
+
 To assess the severity of a rule, we start from the Worst Thing (see _How are severities assigned?_, above) and ask category-specific questions.
 
+
 ### Bugs
+
 Impact: **Could the Worst Thing cause the application to crash or to corrupt stored data?**
 
 Likelihood: **What's the probability that the Worst Thing will happen?**
 
+
 ### Vulnerabilities
+
 Impact: **Could the exploitation of the Worst Thing result in significant damage to your assets or your users?**
 
 Likelihood: **What is the probability that an attacker will be able to exploit the Worst Thing?**
 
+
 ### Security Hotspots
+
 Security Hotspots are not assigned severities as it is unknown whether there is truly an underlying vulnerability until they are reviewed.
+
 
 ## What might change after a software update
 
-Sonar developers continually re-evaluate our rules to provide the best results. This process is evident in each release and means some rule-specific properties may change after an upgrade, even in a custom Quality Profile. This is normal and expected, and is no cause for alarm. The following are rule-specific properties that may change in an upgrade:
+Sonar developers continually re-evaluate our rules to provide the best results. As a result, the characteristics of some rules may change after an upgrade. This is normal and expected, and is no cause for alarm. 
+
+The following rule charactersitics that may change in an upgrade:
 
 - **Type:** Type (Bug, Vulnerability, Code Smell) updates happen on occasion. When a rule type is updated, its value will update automatically in every profile that uses it. Although the rule will be updated, issues previously raised by the rule will not be updated. For example, if a rule transitioned from Bug to Code Smell, the existing issues will retain their original Bug type, and new issues will get the new type, Code Smell.
 
