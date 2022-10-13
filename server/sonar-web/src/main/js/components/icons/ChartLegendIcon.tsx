@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
-import { colors } from '../../app/theme';
 import Icon from './Icon';
 
 interface Props {
   className?: string;
   index: number;
-  size?: number;
 }
 
-export default function ChartLegendIcon({ index, ...iconProps }: Props) {
-  const COLORS = [colors.blue, colors.darkBlue, '#24c6e0'];
+export default function ChartLegendIcon({ index, className }: Props) {
   return (
-    <Icon {...iconProps} aria-hidden={true}>
+    <Icon className={className} aria-hidden={true} width={21}>
       <path
-        d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
-        style={{ fill: COLORS[index] || COLORS[0] }}
+        className={classNames('line-chart-path line-chart-path-legend', 'line-chart-path-' + index)}
+        d="M0 8 L 21 8"
       />
     </Icon>
   );

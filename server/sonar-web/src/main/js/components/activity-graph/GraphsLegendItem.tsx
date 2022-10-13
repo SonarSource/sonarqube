@@ -41,13 +41,13 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
   };
 
   render() {
-    const { className, name, index } = this.props;
+    const { className, name, index, showWarning } = this.props;
     const isActionable = this.props.removeMetric != null;
     const legendClass = classNames({ 'activity-graph-legend-actionable': isActionable }, className);
 
     return (
       <span className={legendClass}>
-        {this.props.showWarning ? (
+        {showWarning ? (
           <AlertWarnIcon className="spacer-right" />
         ) : (
           <ChartLegendIcon className="text-middle spacer-right" index={index} />
