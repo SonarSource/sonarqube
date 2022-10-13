@@ -36,7 +36,7 @@ configurations {
     extendsFrom bundledPlugin
     transitive = true
   }
-  appLicenses.extendsFrom(compile, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2)
+  appLicenses.extendsFrom(compile, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2, bundledPlugin_deps)
   cyclonedx
 }
 
