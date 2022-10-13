@@ -247,7 +247,7 @@ public class ProjectsActionTest {
     ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
     ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
     db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
-    ProjectDto project5 = db.components().insertPublicProjectDto(p -> p.setDbKey("Project the fifth"));
+    ProjectDto project5 = db.components().insertPublicProjectDto(p -> p.setKey("Project the fifth"));
 
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2);
