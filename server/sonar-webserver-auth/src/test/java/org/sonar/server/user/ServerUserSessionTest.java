@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -44,7 +46,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -788,6 +789,64 @@ public class ServerUserSessionTest {
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", branch)).isTrue();
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", fileInBranch)).isTrue();
   }
+
+  @Test
+  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndNoUser(){
+    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
+    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(USER, projectDto);
+
+    assertThat(projectDtos).containsExactly(db.components().getProjectDto(publicProject));
+  }
+
+  @Test
+  public void keepAuthorizedProjects_shouldAcceptsPublicProjects_whenCalledWithPublicPermissionAndAnUser(){
+    UserDto userDto = db.users().insertUser();
+    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject));
+    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(USER, projectDto);
+
+    assertThat(projectDtos).containsExactly(db.components().getProjectDto(publicProject));
+  }
+
+  @Test
+  public void keepAuthorizedProjects_shouldAcceptsOnlyPrivateProject_whenCalledWithGoodPermissionAndAnUser(){
+    String permission = "aNewPermission";
+    UserDto userDto = db.users().insertUser();
+    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(userDto, permission,privateProject);
+    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
+    List<ProjectDto> projectDtos = newUserSession(userDto).keepAuthorizedProjects(permission, projectDto);
+
+    assertThat(projectDtos).containsExactly(db.components().getProjectDto(privateProject));
+  }
+
+  @Test
+  public void keepAuthorizedProjects_shouldRejectPrivateAndPublicProject_whenCalledWithWrongPermissionAndNoUser(){
+    String permission = "aNewPermission";
+    UserDto userDto = db.users().insertUser();
+    ComponentDto publicProject  = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(userDto, permission,privateProject);
+    ComponentDto privateProjectWithoutPermission = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(getProjectDto(publicProject), getProjectDto(privateProject), getProjectDto(privateProjectWithoutPermission));
+    List<ProjectDto> projectDtos = newUserSession(null).keepAuthorizedProjects(permission, projectDto);
+
+    assertThat(projectDtos).isEmpty();
+  }
+
+  private ProjectDto getProjectDto(ComponentDto publicProject) {
+    return db.components().getProjectDto(publicProject);
+  }
+
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {
     return new ServerUserSession(dbClient, userDto);
