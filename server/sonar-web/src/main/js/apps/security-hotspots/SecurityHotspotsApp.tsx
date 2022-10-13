@@ -120,7 +120,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
       SECURITY_STANDARDS.some(s => this.props.location.query[s] !== previous.location.query[s]) ||
-      this.props.location.query.file !== previous.location.query.file
+      this.props.location.query.files !== previous.location.query.files
     ) {
       this.fetchInitialData();
     }
@@ -317,7 +317,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     const filterByCWE: string | undefined = location.query.cwe;
 
-    const filterByFile: string | undefined = location.query.file;
+    const filterByFile: string | undefined = location.query.files;
 
     this.setState({ filterByCategory, filterByCWE, filterByFile, hotspotKeys });
 

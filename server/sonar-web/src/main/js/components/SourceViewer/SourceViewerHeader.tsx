@@ -36,11 +36,13 @@ import {
   getBranchLikeUrl,
   getCodeUrl,
   getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
   getPathUrlAsString
 } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
-import { IssueType, Measure, SourceViewerFile } from '../../types/types';
+import { IssueType } from '../../types/issues';
+import { Measure, SourceViewerFile } from '../../types/types';
 import Link from '../common/Link';
 import { WorkspaceContextShape } from '../workspace/context';
 import MeasuresOverlay from './components/MeasuresOverlay';
@@ -94,15 +96,19 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             const measure = componentMeasures.find(
               m => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric
             );
+
+            const linkUrl =
+              type === IssueType.SecurityHotspot
+                ? getComponentSecurityHotspotsUrl(sourceViewerFile.project, params)
+                : getComponentIssuesUrl(sourceViewerFile.project, params);
+
             return (
               <div className="source-viewer-header-measure" key={type}>
                 <span className="source-viewer-header-measure-label">
                   {translate('issue.type', type)}
                 </span>
                 <span className="source-viewer-header-measure-value">
-                  <Link to={getComponentIssuesUrl(sourceViewerFile.project, params)}>
-                    {formatMeasure((measure && measure.value) || 0, 'INT')}
-                  </Link>
+                  <Link to={linkUrl}>{formatMeasure((measure && measure.value) || 0, 'INT')}</Link>
                 </span>
               </div>
             );

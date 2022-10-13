@@ -442,8 +442,8 @@ exports[`should render correctly if issue details are passed 1`] = `
           to={
             Object {
               "hash": "",
-              "pathname": "/project/issues",
-              "search": "?files=foo%2Fbar.ts&resolved=false&types=SECURITY_HOTSPOT&id=project",
+              "pathname": "/security_hotspots",
+              "search": "?id=project&files=foo%2Fbar.ts",
             }
           }
         >

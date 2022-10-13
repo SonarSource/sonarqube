@@ -144,7 +144,7 @@ it('should handle file request', () => {
   const filepath = 'src/path/to/file.java';
 
   shallowRender({
-    location: mockLocation({ query: { file: filepath } })
+    location: mockLocation({ query: { files: filepath } })
   });
 
   expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ files: filepath }));
