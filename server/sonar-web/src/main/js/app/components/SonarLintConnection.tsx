@@ -190,10 +190,10 @@ export function SonarLintConnection({ currentUser }: Props) {
                 <span className="sonarlint-token-value">{newToken.token}</span>
                 <ClipboardButton className="big-spacer-left" copyValue={newToken.token} />
               </div>
-              <div className="big-spacer-top">
+              <div className="big huge-spacer-top">
                 <strong>{translate('sonarlint-connection.connection-error.next-steps')}</strong>
               </div>
-              <ol className="big-spacer-top big-spacer-bottom">
+              <ol className="big big-spacer-top big-spacer-bottom">
                 <li>{translate('sonarlint-connection.connection-error.step1')}</li>
                 <li>{translate('sonarlint-connection.connection-error.step2')}</li>
               </ol>
@@ -214,10 +214,10 @@ export function SonarLintConnection({ currentUser }: Props) {
               <p className="big big-spacer-top big-spacer-bottom">
                 {translateWithParameters('sonarlint-connection.success.description', newToken.name)}
               </p>
-              <div className="big-spacer-top">
+              <div className="big huge-spacer-top">
                 <strong>{translate('sonarlint-connection.success.last-step')}</strong>
               </div>
-              <div className="big-spacer-top big-spacer-bottom">
+              <div className="big big-spacer-top big-spacer-bottom">
                 {translate('sonarlint-connection.success.step')}
               </div>
             </>
