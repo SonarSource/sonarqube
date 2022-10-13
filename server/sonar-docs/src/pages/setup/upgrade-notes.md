@@ -4,9 +4,8 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 9.7 Upgrade notes
-
-**Database Connection Pool Changed**  
-Database connection pool has been changed, following properties will no longer have effect: sonar.jdbc.maxIdle, sonar.jdbc.minEvictableIdleTimeMillis, sonar.jdbc.timeBetweenEvictionRunsMillis. See documentation for changes in [monitoring database connection pool](/instance-administration/monitoring/). 
+**Database connection pool change**
+The database connection pool has been replaced for better performance. The `sonar.jdbc.maxIdle`, `sonar.jdbc.minEvictableIdleTimeMillis` and `sonar.jdbc.timeBetweenEvictionRunsMillis` properties no longer have any effect and should be removed from the configuration. Also, the JMX information that is provided to monitor the connection pool has evolved. See the [Monitoring documentation](/instance-administration/monitoring/) for more information [SONAR-17200](https://sonarsource.atlassian.net/browse/SONAR-17200).
 
 ## Release 9.6 Upgrade notes
 **Microsoft SQL Server changes in configuration and Integrated Authentication**  
