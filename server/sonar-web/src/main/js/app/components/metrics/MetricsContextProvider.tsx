@@ -36,7 +36,6 @@ export default class MetricsContextProvider extends React.PureComponent<{}, Stat
 
   componentDidMount() {
     this.mounted = true;
-
     this.fetchMetrics();
   }
 
@@ -46,7 +45,9 @@ export default class MetricsContextProvider extends React.PureComponent<{}, Stat
 
   fetchMetrics = async () => {
     const metricList = await getAllMetrics();
-    this.setState({ metrics: keyBy(metricList, 'key') });
+    if (this.mounted) {
+      this.setState({ metrics: keyBy(metricList, 'key') });
+    }
   };
 
   render() {
