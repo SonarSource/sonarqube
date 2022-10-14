@@ -222,6 +222,7 @@ public class PurgeDao implements Dao {
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<String> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
     commands.deleteLinks(rootUuid);
+    commands.deleteScannerCache(rootUuid);
     commands.deleteAnalyses(rootUuid);
     commands.deleteByRootAndModulesOrSubviews(rootAndModulesOrSubviews);
     commands.deleteIssues(rootUuid);

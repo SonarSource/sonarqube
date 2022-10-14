@@ -21,6 +21,7 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -35,11 +36,13 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
@@ -83,6 +86,7 @@ import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -1381,6 +1385,34 @@ public class PurgeDaoTest {
 
     assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, project)).isEmpty();
     assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, otherProject)).isNotEmpty();
+  }
+
+  @Test
+  public void deleteBranch_deletes_scanner_cache() throws IOException {
+    ProjectDto project = db.components().insertPublicProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project);
+    dbClient.scannerAnalysisCacheDao().insert(dbSession, branch.getUuid(), IOUtils.toInputStream("test1", UTF_8));
+    dbClient.scannerAnalysisCacheDao().insert(dbSession, project.getUuid(), IOUtils.toInputStream("test2", UTF_8));
+
+    underTest.deleteBranch(dbSession, branch.getUuid());
+
+    assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, branch.getUuid())).isNull();
+    DbInputStream mainBranchCache = dbClient.scannerAnalysisCacheDao().selectData(dbSession, project.getUuid());
+
+    assertThat(IOUtils.toString(mainBranchCache, UTF_8)).isEqualTo("test2");
+  }
+
+  @Test
+  public void deleteProject_deletes_scanner_cache() throws IOException {
+    ProjectDto project = db.components().insertPublicProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project);
+    dbClient.scannerAnalysisCacheDao().insert(dbSession, branch.getUuid(), IOUtils.toInputStream("test1", UTF_8));
+    dbClient.scannerAnalysisCacheDao().insert(dbSession, project.getUuid(), IOUtils.toInputStream("test2", UTF_8));
+
+    underTest.deleteProject(dbSession,project.getUuid(), Qualifiers.PROJECT, "project", "project");
+
+    assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, project.getUuid())).isNull();
+    assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, branch.getUuid())).isNull();
   }
 
   @Test
