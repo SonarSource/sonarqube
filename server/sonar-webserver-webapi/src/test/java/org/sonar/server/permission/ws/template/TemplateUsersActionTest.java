@@ -26,7 +26,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -151,6 +150,52 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
       .executeProtobuf(Permissions.UsersWsResponse.class);
 
     assertThat(response.getUsersList()).extracting("login").containsOnly("login-1");
+  }
+
+  @Test
+  public void search_using_text_query_with_email() {
+    loginAsAdmin();
+
+    UserDto user1 = insertUser(newUserDto().setLogin("orange").setName("name-1").setEmail("email-1"));
+    UserDto user2 = insertUser(newUserDto().setLogin("crANBerry").setName("name-2").setEmail("email-2"));
+    UserDto user3 = insertUser(newUserDto().setLogin("apple").setName("name-3").setEmail("email-3"));
+
+    String templateName = addUsersToSomeTemplate(user1, user2, user3);
+
+    Permissions.UsersWsResponse response = newRequest(null, null)
+      .setParam(PARAM_TEMPLATE_NAME, templateName)
+      .setParam(WebService.Param.TEXT_QUERY, "ran")
+      .executeProtobuf(Permissions.UsersWsResponse.class);
+
+    assertThat(response.getUsersList()).hasSize(2);
+    assertThat(response.getUsersList()).extracting("login").containsExactlyInAnyOrder("orange", "crANBerry");
+  }
+
+  @Test
+  public void search_using_text_query_with_login() {
+    loginAsAdmin();
+
+    UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("xYZ@1984.com"));
+    UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("xyz2@1984.com"));
+    UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("hello@1984.com"));
+
+    String templateName = addUsersToSomeTemplate(user1, user2, user3);
+
+    Permissions.UsersWsResponse response = newRequest(null, null)
+      .setParam(PARAM_TEMPLATE_NAME, templateName)
+      .setParam(WebService.Param.TEXT_QUERY, "xyz")
+      .executeProtobuf(Permissions.UsersWsResponse.class);
+
+    assertThat(response.getUsersList()).hasSize(2);
+    assertThat(response.getUsersList()).extracting("email").containsExactlyInAnyOrder("xYZ@1984.com", "xyz2@1984.com");
+  }
+
+  private String addUsersToSomeTemplate(UserDto user1, UserDto user2, UserDto user3) {
+    PermissionTemplateDto template = addTemplate();
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user3), template.getName());
+    return template.getName();
   }
 
   @Test

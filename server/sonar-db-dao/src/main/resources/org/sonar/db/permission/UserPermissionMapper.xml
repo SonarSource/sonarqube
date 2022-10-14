@@ -66,8 +66,8 @@
     <if test="query.searchQueryToSql != null">
       and (
       lower(u.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
-      or u.email like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
-      or u.login like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/')
+      or lower(u.email) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+      or lower(u.login) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/')
     </if>
     <!-- filter rows with user permissions -->
     <if test="query.withAtLeastOnePermission()">

@@ -136,7 +136,9 @@
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
-        AND lower(u.name) like #{query.searchQueryToSqlLowercase} ESCAPE '/'
+        AND (lower(u.name) like #{query.searchQueryToSqlLowercase} ESCAPE '/'
+        OR lower(u.login) like #{query.searchQueryToSqlLowercase} ESCAPE '/'
+        OR lower(u.email) like #{query.searchQueryToSqlLowercase} ESCAPE '/')
       </if>
       <if test="query.withAtLeastOnePermission()">
         and ptu.permission_reference is not null
