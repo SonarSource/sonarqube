@@ -62,30 +62,33 @@ export function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
 
   return (
     <Container>
-      <div className="display-flex-row">
-        <FilePath>
-          {displayProjectName && (
-            <>
-              <QualifierIcon
-                className="little-spacer-right"
-                qualifier={ComponentQualifier.Project}
-              />
-              <span className="little-spacer-right">{project.name}</span>
-            </>
-          )}
-          <QualifierIcon qualifier={qualifier} /> <span>{collapsedDirFromPath(path)}</span>
-          <span className="little-spacer-right">{fileFromPath(path)}</span>
-          <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
-        </FilePath>
-
-        {isLoggedIn(currentUser) && (
-          <div className="dropdown spacer-right">
-            <HotspotOpenInIdeButton hotspotKey={hotspot.key} projectKey={project.key} />
-          </div>
+      <FilePath>
+        {displayProjectName && (
+          <>
+            <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
+            <ProjectName className="little-spacer-right" title={project.name}>
+              {project.name}
+            </ProjectName>
+          </>
         )}
-      </div>
+        <QualifierIcon qualifier={qualifier} />
+        <span>
+          {collapsedDirFromPath(path)}
+          {fileFromPath(path)}
+        </span>
+        <ClipboardIconButton
+          className="button-link link-no-underline little-spacer-left"
+          copyValue={path}
+        />
+      </FilePath>
 
-      <ClipboardButton copyValue={permalink}>
+      {isLoggedIn(currentUser) && (
+        <div className="dropdown spacer-right flex-0">
+          <HotspotOpenInIdeButton hotspotKey={hotspot.key} projectKey={project.key} />
+        </div>
+      )}
+
+      <ClipboardButton className="flex-0" copyValue={permalink}>
         <span>{translate('hotspots.get_permalink')}</span>
         <LinkIcon className="spacer-left" />
       </ClipboardButton>
@@ -111,6 +114,14 @@ const FilePath = styled.div`
   svg {
     margin: 0 ${sizes.gridSize};
   }
+`;
+
+const ProjectName = styled.span`
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  white-space: nowrap;
 `;
 
 export default withCurrentUserContext(HotspotSnippetHeader);

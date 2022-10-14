@@ -2,37 +2,29 @@
 
 exports[`should render correctly: user logged in 1`] = `
 <Styled(div)>
+  <Styled(div)>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+    <span>
+      path/to/
+      component
+    </span>
+    <ClipboardIconButton
+      className="button-link link-no-underline little-spacer-left"
+      copyValue="path/to/component"
+    />
+  </Styled(div)>
   <div
-    className="display-flex-row"
+    className="dropdown spacer-right flex-0"
   >
-    <Styled(div)>
-      <QualifierIcon
-        qualifier="FIL"
-      />
-       
-      <span>
-        path/to/
-      </span>
-      <span
-        className="little-spacer-right"
-      >
-        component
-      </span>
-      <ClipboardIconButton
-        className="button-link link-no-underline"
-        copyValue="path/to/component"
-      />
-    </Styled(div)>
-    <div
-      className="dropdown spacer-right"
-    >
-      <HotspotOpenInIdeButton
-        hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        projectKey="hotspot-component"
-      />
-    </div>
+    <HotspotOpenInIdeButton
+      hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      projectKey="hotspot-component"
+    />
   </div>
   <ClipboardButton
+    className="flex-0"
     copyValue="http://localhost/security_hotspots?id=my-project&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
   >
     <span>
@@ -47,46 +39,39 @@ exports[`should render correctly: user logged in 1`] = `
 
 exports[`should render correctly: user logged in with project Name 1`] = `
 <Styled(div)>
-  <div
-    className="display-flex-row"
-  >
-    <Styled(div)>
-      <QualifierIcon
-        className="little-spacer-right"
-        qualifier="TRK"
-      />
-      <span
-        className="little-spacer-right"
-      >
-        Hotspot Component
-      </span>
-      <QualifierIcon
-        qualifier="FIL"
-      />
-       
-      <span>
-        path/to/
-      </span>
-      <span
-        className="little-spacer-right"
-      >
-        component
-      </span>
-      <ClipboardIconButton
-        className="button-link link-no-underline"
-        copyValue="path/to/component"
-      />
-    </Styled(div)>
-    <div
-      className="dropdown spacer-right"
+  <Styled(div)>
+    <QualifierIcon
+      className="little-spacer-right"
+      qualifier="TRK"
+    />
+    <Styled(span)
+      className="little-spacer-right"
+      title="Hotspot Component"
     >
-      <HotspotOpenInIdeButton
-        hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        projectKey="hotspot-component"
-      />
-    </div>
+      Hotspot Component
+    </Styled(span)>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+    <span>
+      path/to/
+      component
+    </span>
+    <ClipboardIconButton
+      className="button-link link-no-underline little-spacer-left"
+      copyValue="path/to/component"
+    />
+  </Styled(div)>
+  <div
+    className="dropdown spacer-right flex-0"
+  >
+    <HotspotOpenInIdeButton
+      hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      projectKey="hotspot-component"
+    />
   </div>
   <ClipboardButton
+    className="flex-0"
     copyValue="http://localhost/security_hotspots?id=my-project&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
   >
     <span>
@@ -101,29 +86,21 @@ exports[`should render correctly: user logged in with project Name 1`] = `
 
 exports[`should render correctly: user not logged in 1`] = `
 <Styled(div)>
-  <div
-    className="display-flex-row"
-  >
-    <Styled(div)>
-      <QualifierIcon
-        qualifier="FIL"
-      />
-       
-      <span>
-        path/to/
-      </span>
-      <span
-        className="little-spacer-right"
-      >
-        component
-      </span>
-      <ClipboardIconButton
-        className="button-link link-no-underline"
-        copyValue="path/to/component"
-      />
-    </Styled(div)>
-  </div>
+  <Styled(div)>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+    <span>
+      path/to/
+      component
+    </span>
+    <ClipboardIconButton
+      className="button-link link-no-underline little-spacer-left"
+      copyValue="path/to/component"
+    />
+  </Styled(div)>
   <ClipboardButton
+    className="flex-0"
     copyValue="http://localhost/security_hotspots?id=my-project&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
   >
     <span>
