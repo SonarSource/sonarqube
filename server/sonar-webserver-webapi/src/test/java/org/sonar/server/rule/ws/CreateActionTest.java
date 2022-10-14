@@ -51,7 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
@@ -94,10 +93,10 @@ public class CreateActionTest {
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
 
     String result = ws.newRequest()
-      .setParam("custom_key", "MY_CUSTOM")
-      .setParam("template_key", templateRule.getKey().toString())
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
+      .setParam("markdownDescription", "Description")
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("type", BUG.name())
@@ -131,7 +130,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_custom_rule_with_prevent_reactivation_param_to_true() {
+  public void create_custom_rule_with_preventReactivation_param_to_true() {
     logInAsQProfileAdministrator();
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
     db.rules().insert(templateRule);
@@ -145,12 +144,12 @@ public class CreateActionTest {
     db.rules().insert(customRule);
 
     TestResponse response = ws.newRequest()
-      .setParam("custom_key", "MY_CUSTOM")
-      .setParam("template_key", templateRule.getKey().toString())
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
+      .setParam("markdownDescription", "Description")
       .setParam("severity", "MAJOR")
-      .setParam("prevent_reactivation", "true")
+      .setParam("preventReactivation", "true")
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(409);
@@ -172,12 +171,12 @@ public class CreateActionTest {
     logInAsQProfileAdministrator();
 
     TestRequest request = ws.newRequest()
-      .setParam("custom_key", "MY_CUSTOM")
-      .setParam("template_key", "non:existing")
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", "non:existing")
       .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
+      .setParam("markdownDescription", "Description")
       .setParam("severity", "MAJOR")
-      .setParam("prevent_reactivation", "true");
+      .setParam("preventReactivation", "true");
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -191,16 +190,59 @@ public class CreateActionTest {
     RuleDto templateRule = db.rules().insert(r -> r.setIsTemplate(true).setStatus(RuleStatus.REMOVED));
 
     TestRequest request = ws.newRequest()
-      .setParam("custom_key", "MY_CUSTOM")
-      .setParam("template_key", templateRule.getKey().toString())
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
+      .setParam("markdownDescription", "Description")
       .setParam("severity", "MAJOR")
-      .setParam("prevent_reactivation", "true");
+      .setParam("preventReactivation", "true");
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The template key doesn't exist: " + templateRule.getKey());
+  }
+
+  @Test
+  public void throw_IllegalArgumentException_if_status_is_removed() {
+    logInAsQProfileAdministrator();
+
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
+
+    TestRequest request = ws.newRequest()
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdownDescription", "Description")
+      .setParam("severity", "MAJOR")
+      .setParam("status", "REMOVED")
+      .setParam("preventReactivation", "true");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'status' (REMOVED) must be one of: [BETA, DEPRECATED, READY]");
+  }
+
+  @Test
+  public void status_set_to_default() {
+    logInAsQProfileAdministrator();
+
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));
+    db.rules().insert(templateRule);
+
+    String result = ws.newRequest()
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdownDescription", "Description")
+      .setParam("status", "BETA")
+      .setParam("type", BUG.name())
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"rule\": {\n" +
+      "    \"severity\": \"MAJOR\"" +
+      "  }\n" +
+      "}\n");
   }
 
   @Test

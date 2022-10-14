@@ -21,9 +21,11 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -50,16 +52,16 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements RulesWsAction {
 
-  public static final String PARAM_CUSTOM_KEY = "custom_key";
+  public static final String PARAM_CUSTOM_KEY = "customKey";
   public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "markdown_description";
+  public static final String PARAM_DESCRIPTION = "markdownDescription";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
-  public static final String PARAM_TEMPLATE_KEY = "template_key";
+  public static final String PARAM_TEMPLATE_KEY = "templateKey";
   public static final String PARAM_TYPE = "type";
   public static final String PARAMS = "params";
 
-  public static final String PARAM_PREVENT_REACTIVATION = "prevent_reactivation";
+  public static final String PARAM_PREVENT_REACTIVATION = "preventReactivation";
   static final int KEY_MAXIMUM_LENGTH = 200;
   static final int NAME_MAXIMUM_LENGTH = 200;
 
@@ -93,12 +95,15 @@ public class CreateAction implements RulesWsAction {
       .setRequired(true)
       .setMaximumLength(KEY_MAXIMUM_LENGTH)
       .setDescription("Key of the custom rule")
-      .setExampleValue("Todo_should_not_be_used");
+      .setExampleValue("Todo_should_not_be_used")
+      .setDeprecatedKey("custom_key", "9.7");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)
+      .setRequired(true)
       .setDescription("Key of the template rule in order to create a custom rule (mandatory for custom rule)")
-      .setExampleValue("java:XPath");
+      .setExampleValue("java:XPath")
+      .setDeprecatedKey("template_key", "9.7");
 
     action
       .createParam(PARAM_NAME)
@@ -111,16 +116,21 @@ public class CreateAction implements RulesWsAction {
       .createParam(PARAM_DESCRIPTION)
       .setRequired(true)
       .setDescription("Rule description in <a href='/formatting/help'>markdown format</a>")
-      .setExampleValue("Description of my custom rule");
+      .setExampleValue("Description of my custom rule")
+      .setDeprecatedKey("markdown_description", "9.7");
 
     action
       .createParam(PARAM_SEVERITY)
       .setPossibleValues(Severity.ALL)
+      .setDefaultValue(Severity.MAJOR)
       .setDescription("Rule severity");
 
     action
       .createParam(PARAM_STATUS)
-      .setPossibleValues(RuleStatus.values())
+      .setPossibleValues(
+        Arrays.stream(RuleStatus.values())
+          .filter(status -> !RuleStatus.REMOVED.equals(status))
+          .collect(Collectors.toList()))
       .setDefaultValue(RuleStatus.READY)
       .setDescription("Rule status");
 
@@ -131,7 +141,8 @@ public class CreateAction implements RulesWsAction {
       .createParam(PARAM_PREVENT_REACTIVATION)
       .setBooleanPossibleValues()
       .setDefaultValue(false)
-      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned");
+      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned")
+      .setDeprecatedKey("prevent_reactivation", "9.7");
 
     action.createParam(PARAM_TYPE)
       .setPossibleValues(RuleType.names())
