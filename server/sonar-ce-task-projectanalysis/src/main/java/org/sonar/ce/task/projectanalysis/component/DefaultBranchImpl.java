@@ -19,14 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Implementation of {@link Branch} for default/main branch. It is used

@@ -134,7 +134,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
-    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+    Duration randomDuration = randomDuration();
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Could not find project uuid " + componentUuid);
   }
@@ -150,7 +151,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
-    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+    Duration randomDuration = randomDuration();
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Could not find a branch for project uuid " + componentUuid);
   }
@@ -169,12 +171,14 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     Arrays.asList(module, directory, file, view, subView, projectCopy, application)
       .forEach(component -> {
-        try {
-          when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
-          when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
-            .thenReturn(true);
 
-          underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
+      when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
+      when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
+        .thenReturn(true);
+
+        Duration randomDuration = randomDuration();
+        try {
+          underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock);
 
           fail("An IllegalArgumentException should have been thrown for component " + component);
         } catch (IllegalArgumentException e) {
@@ -196,7 +200,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .thenReturn(true);
     dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
 
-    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+    Duration randomDuration = randomDuration();
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration, ceTaskResultMock, throwableMock))
       .isInstanceOf(RowNotFoundException.class)
       .hasMessage("CeActivity with uuid '" + taskUuid + "' not found");
   }

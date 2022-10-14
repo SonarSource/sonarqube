@@ -37,7 +37,6 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 

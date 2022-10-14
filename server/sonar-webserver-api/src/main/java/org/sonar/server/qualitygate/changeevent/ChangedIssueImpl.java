@@ -53,8 +53,6 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
         return QGChangeEventListener.Status.REOPENED;
       case Issue.STATUS_TO_REVIEW:
         return QGChangeEventListener.Status.TO_REVIEW;
-      case Issue.STATUS_IN_REVIEW:
-        return QGChangeEventListener.Status.IN_REVIEW;
       case Issue.STATUS_REVIEWED:
         return QGChangeEventListener.Status.REVIEWED;
       case Issue.STATUS_RESOLVED:

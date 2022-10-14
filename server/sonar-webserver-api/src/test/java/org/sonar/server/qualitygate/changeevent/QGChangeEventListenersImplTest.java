@@ -343,8 +343,6 @@ public class QGChangeEventListenersImplTest {
   public void test_status_mapping_on_security_hotspots() {
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW)))
       .isEqualTo(QGChangeEventListener.Status.TO_REVIEW);
-    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW)))
-      .isEqualTo(QGChangeEventListener.Status.IN_REVIEW);
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)))
       .isEqualTo(QGChangeEventListener.Status.REVIEWED);
   }
