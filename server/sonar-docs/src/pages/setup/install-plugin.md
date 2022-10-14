@@ -21,7 +21,7 @@ If your instance has internet access and you're connected with a SonarQube user 
 - Find the plugin you want to install
 - Click **Install** and wait for the download to be processed
 
-Once the download is complete, a **Restart** button will be available to restart your instance.
+Once the download is complete, a **Restart** button will be available to restart your instance. Restarting will enable the new plugin. This restart will not take into account any change to sonar-properties settings.
 
 See [Marketplace](/instance-administration/marketplace/) for more details on how to configure your SonarQube Server to connect to the internet.
 
