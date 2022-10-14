@@ -17,14 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.scannercache;
+package org.sonar.ce.analysis.cache.cleaning;
 
-import org.apache.ibatis.annotations.Param;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-public interface ScannerAnalysisCacheMapper {
-  void removeAll();
+public class AnalysisCacheCleaningExecutorServiceImpl extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements AnalysisCacheCleaningExecutorService {
 
-  void remove(@Param("branchUuid") String branchUuid);
-
-  void cleanOlderThan(@Param("timestamp") long timestamp);
+  public AnalysisCacheCleaningExecutorServiceImpl() {
+    super(Executors.newSingleThreadScheduledExecutor(
+      new ThreadFactoryBuilder()
+        .setDaemon(true)
+        .setNameFormat("Analysis_cache_cleaning-%d")
+        .build()));
+  }
 }

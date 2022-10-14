@@ -24,6 +24,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbInputStream;
@@ -50,6 +52,11 @@ public class ScannerAnalysisCacheDao implements Dao {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to insert cache for branch " + branchUuid, e);
     }
+  }
+
+  public void cleanOlderThan7Days(DbSession session) {
+    long timestamp = LocalDateTime.now().minusDays(7).toInstant(ZoneOffset.UTC).toEpochMilli();
+    mapper(session).cleanOlderThan(timestamp);
   }
 
   @CheckForNull

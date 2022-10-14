@@ -25,13 +25,18 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,7 +47,7 @@ import static org.mockito.Mockito.when;
 public class ScannerAnalysisCacheDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  private final static UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbSession dbSession = dbTester.getSession();
   private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
 
@@ -87,6 +92,34 @@ public class ScannerAnalysisCacheDaoTest {
       .hasMessage("Fail to insert cache for branch uuid");
   }
 
+  @Test
+  public void cleanOlderThan7Days() {
+    var snapshotDao = dbTester.getDbClient().snapshotDao();
+    var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
+    snapshotDao.insert(dbSession, snapshot1);
+    underTest.insert(dbSession, snapshot1.getComponentUuid(), stringToInputStream("test data"));
+    var snapshot2 = createSnapshot(LocalDateTime.now().minusDays(6).toInstant(ZoneOffset.UTC).toEpochMilli());
+    snapshotDao.insert(dbSession, snapshot2);
+    underTest.insert(dbSession, snapshot2.getComponentUuid(), stringToInputStream("test data"));
+    var snapshot3 = createSnapshot(LocalDateTime.now().minusDays(8).toInstant(ZoneOffset.UTC).toEpochMilli());
+    snapshotDao.insert(dbSession, snapshot3);
+    underTest.insert(dbSession, snapshot3.getComponentUuid(), stringToInputStream("test data"));
+    var snapshot4 = createSnapshot(LocalDateTime.now().minusDays(30).toInstant(ZoneOffset.UTC).toEpochMilli());
+    snapshotDao.insert(dbSession, snapshot4);
+    underTest.insert(dbSession, snapshot4.getComponentUuid(), stringToInputStream("test data"));
+
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(4);
+
+    underTest.cleanOlderThan7Days(dbSession);
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(2);
+    assertThat(underTest.selectData(dbSession, snapshot1.getComponentUuid())).isNotNull();
+    assertThat(underTest.selectData(dbSession, snapshot2.getComponentUuid())).isNotNull();
+    assertThat(underTest.selectData(dbSession, snapshot3.getComponentUuid())).isNull();
+    assertThat(underTest.selectData(dbSession, snapshot4.getComponentUuid())).isNull();
+  }
+
   private static String dataStreamToString(DbInputStream dbInputStream) throws IOException {
     try (DbInputStream is = dbInputStream) {
       return IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -95,6 +128,19 @@ public class ScannerAnalysisCacheDaoTest {
 
   private static InputStream stringToInputStream(String str) {
     return new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static SnapshotDto createSnapshot(long buildtime) {
+    return new SnapshotDto()
+      .setUuid(uuidFactory.create())
+      .setComponentUuid(uuidFactory.create())
+      .setStatus("P")
+      .setLast(true)
+      .setProjectVersion("2.1-SNAPSHOT")
+      .setPeriodMode("days1")
+      .setPeriodParam("30")
+      .setPeriodDate(buildtime)
+      .setBuildDate(buildtime);
   }
 
 }

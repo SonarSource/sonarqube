@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.scannercache;
+package org.sonar.ce.analysis.cache.cleaning;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
+import org.sonar.core.platform.ListContainer;
 
-public interface ScannerAnalysisCacheMapper {
-  void removeAll();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void remove(@Param("branchUuid") String branchUuid);
-
-  void cleanOlderThan(@Param("timestamp") long timestamp);
+public class AnalysisCacheCleaningModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ListContainer container = new ListContainer();
+    new AnalysisCacheCleaningModule().configure(container);
+    assertThat(container.getAddedObjects()).hasSize(2);
+  }
 }

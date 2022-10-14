@@ -45,6 +45,7 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
+import org.sonar.ce.analysis.cache.cleaning.AnalysisCacheCleaningModule;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
@@ -446,7 +447,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       new WebhookModule(),
 
       QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class
+      QualityGateEvaluatorImpl.class,
+
+      new AnalysisCacheCleaningModule()
 
     );
 
