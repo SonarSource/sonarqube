@@ -257,7 +257,7 @@ qa_task:
       - QA_CATEGORY: Cat6
       - QA_CATEGORY: Cat7
       - QA_CATEGORY: Authentication
-      - QA_CATEGORY: Gov
+      - QA_CATEGORY: Enterprise
       - QA_CATEGORY: Dev
       - QA_CATEGORY: License
       - QA_CATEGORY: Branch
