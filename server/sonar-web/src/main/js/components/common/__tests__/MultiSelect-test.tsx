@@ -17,92 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { KeyboardKeys } from '../../../helpers/keycodes';
-import { mockEvent } from '../../../helpers/testUtils';
-import MultiSelect, { MultiSelectProps } from '../MultiSelect';
+import { byRole, byText } from 'testing-library-selector';
+import MultiSelect from '../MultiSelect';
 
-const props = {
-  selectedElements: ['bar'],
-  elements: [],
-  onSearch: () => Promise.resolve(),
-  onSelect: () => {},
-  onUnselect: () => {},
-  renderLabel: (element: string) => element,
-  placeholder: ''
+const ui = {
+  checkbox: (name: string) => byRole('checkbox', { name }),
+  search: byRole('searchbox', { name: 'search_verb' }),
+  noResult: byText('no_results_for_x.notfound')
 };
 
-const elements = ['foo', 'bar', 'baz'];
+it('should handle selection', async () => {
+  const user = userEvent.setup();
+  const rerender = renderMultiSelect();
+  expect(ui.checkbox('az').get()).toBeChecked();
+  await user.click(ui.checkbox('az').get());
+  expect(ui.checkbox('az').get()).not.toBeChecked();
 
-it('should render multiselect with selected elements', () => {
-  const multiselect = shallowRender();
-  // Will not only the selected element
-  expect(multiselect).toMatchSnapshot();
+  await user.type(ui.search.get(), 'create');
+  await user.click(ui.checkbox('create_new_element: create').get());
+  expect(ui.checkbox('create').get()).toBeChecked();
 
-  multiselect.setProps({ elements });
-  expect(multiselect).toMatchSnapshot();
-  multiselect.setState({ activeIdx: 2 });
-  expect(multiselect).toMatchSnapshot();
-  multiselect.setState({ query: 'test' });
-  expect(multiselect).toMatchSnapshot();
+  // Custom label
+  rerender({ renderLabel: label => `prefxed-${label}` });
+  expect(ui.checkbox('prefxed-create').get()).toBeChecked();
 });
 
-it('should render with the focus inside the search input', () => {
-  /*
-   * Need to attach to document body to have it set to `document.activeElement`
-   * See: https://github.com/jsdom/jsdom/issues/2723#issuecomment-580163361
-   */
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const multiselect = mount(<MultiSelect legend="multi select" {...props} />, {
-    attachTo: container
-  });
-
-  expect(multiselect.find('input').getDOMNode()).toBe(document.activeElement);
-
-  multiselect.unmount();
+it('should handle disable selection', () => {
+  renderMultiSelect({ allowSelection: false });
+  expect(ui.checkbox('az').get()).toBeChecked();
+  expect(ui.checkbox('cx').get()).toHaveAttribute('aria-disabled', 'true');
 });
 
-it.each([
-  [KeyboardKeys.DownArrow, 1, 1],
-  [KeyboardKeys.UpArrow, 1, 1],
-  [KeyboardKeys.LeftArrow, 1, 0]
-])('should handle keyboard event: %s', (key, stopPropagationCalls, preventDefaultCalls) => {
-  const wrapper = shallowRender();
+it('should handle search', async () => {
+  const user = userEvent.setup();
+  const rerender = renderMultiSelect();
+  expect(ui.checkbox('cx').get()).toBeInTheDocument();
+  await user.type(ui.search.get(), 'az');
+  expect(ui.checkbox('cx').query()).not.toBeInTheDocument();
+  expect(ui.checkbox('az').get()).toBeInTheDocument();
+  expect(ui.checkbox('az-new').get()).toBeInTheDocument();
 
-  const stopPropagation = jest.fn();
-  const preventDefault = jest.fn();
-  const event = mockEvent({ preventDefault, stopPropagation, key });
+  await user.clear(ui.search.get());
+  await user.type(ui.search.get(), 'notfound');
+  expect(ui.checkbox('create_new_element: notfound').get()).toBeInTheDocument();
 
-  wrapper.instance().handleKeyboard(event);
-
-  expect(stopPropagation).toBeCalledTimes(stopPropagationCalls);
-  expect(preventDefault).toBeCalledTimes(preventDefaultCalls);
+  rerender({ allowNewElements: false });
+  await user.clear(ui.search.get());
+  await user.type(ui.search.get(), 'notfound');
+  expect(ui.noResult.get()).toBeInTheDocument();
 });
 
-it('should handle keyboard event: enter', () => {
-  const wrapper = shallowRender();
+function renderMultiSelect(override?: Partial<MultiSelect['props']>) {
+  const initial = ['cx', 'dw', 'ev', 'fu', 'gt', 'hs'];
+  const initialSelected = ['az', 'by'];
 
-  wrapper.instance().toggleSelect = jest.fn();
+  function Parent(props?: Partial<MultiSelect['props']>) {
+    const [elements, setElements] = React.useState(initial);
+    const [selected, setSelected] = React.useState(['az', 'by']);
+    const onSearch = (query: string) => {
+      if (query === 'notfound') {
+        setElements([]);
+        setSelected([]);
+      } else if (query === '') {
+        setElements(initial);
+        setSelected(initialSelected);
+      } else {
+        setElements([...elements.filter(e => e.indexOf(query) !== -1), `${query}-new`]);
+        setSelected(selected.filter(e => e.indexOf(query) !== -1));
+      }
+      return Promise.resolve();
+    };
 
-  wrapper.instance().handleKeyboard(mockEvent({ key: KeyboardKeys.Enter }));
+    const onSelect = (element: string) => {
+      setSelected([...selected, element]);
+      setElements(elements.filter(e => e !== element));
+    };
 
-  expect(wrapper.instance().toggleSelect).toBeCalled();
-});
+    const onUnselect = (element: string) => {
+      setElements([...elements, element]);
+      setSelected(selected.filter(e => e !== element));
+    };
+    return (
+      <MultiSelect
+        selectedElements={selected}
+        elements={elements}
+        legend="multi select"
+        onSearch={onSearch}
+        onSelect={onSelect}
+        onUnselect={onUnselect}
+        placeholder=""
+        {...props}
+      />
+    );
+  }
 
-function shallowRender(overrides: Partial<MultiSelectProps> = {}) {
-  return shallow<MultiSelect>(
-    <MultiSelect
-      selectedElements={['bar']}
-      elements={[]}
-      legend="multi select"
-      onSearch={() => Promise.resolve()}
-      onSelect={jest.fn()}
-      onUnselect={jest.fn()}
-      renderLabel={(element: string) => element}
-      placeholder=""
-      {...overrides}
-    />
-  );
+  const { rerender } = render(<Parent {...override} />);
+  return function(reoverride?: Partial<MultiSelect['props']>) {
+    rerender(<Parent {...override} {...reoverride} />);
+  };
 }

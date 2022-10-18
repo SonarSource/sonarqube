@@ -22,32 +22,38 @@ import * as React from 'react';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 
-export interface MultiSelectOptionProps {
-  active?: boolean;
+export interface Element {
+  value: string;
+  selected: boolean;
   custom?: boolean;
+}
+
+export interface MultiSelectOptionProps {
   disabled?: boolean;
-  element: string;
-  onHover: (element: string) => void;
+  element: Element;
   onSelectChange: (selected: boolean, element: string) => void;
   renderLabel: (element: string) => React.ReactNode;
-  selected?: boolean;
 }
 
 export default function MultiSelectOption(props: MultiSelectOptionProps) {
-  const { active, custom, disabled, element, selected } = props;
-  const onHover = () => props.onHover(element);
+  const { disabled, element } = props;
+  const [active, setActive] = React.useState(false);
   const className = classNames({ active, disabled });
-  const label = props.renderLabel(element);
+  const label = props.renderLabel(element.value);
 
   return (
-    <li onFocus={onHover} onMouseOver={onHover}>
+    <li
+      onFocus={() => setActive(true)}
+      onBlur={() => setActive(false)}
+      onMouseLeave={() => setActive(false)}
+      onMouseOver={() => setActive(true)}>
       <Checkbox
-        checked={Boolean(selected)}
+        checked={element.selected}
         className={className}
         disabled={disabled}
-        id={element}
+        id={element.value}
         onCheck={props.onSelectChange}>
-        {custom ? (
+        {element.custom ? (
           <span
             aria-label={`${translate('create_new_element')}: ${label}`}
             className="little-spacer-left">
