@@ -19,7 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { components, GroupTypeBase, InputProps, Props as ReactSelectProps } from 'react-select';
+import {
+  components,
+  GroupTypeBase,
+  InputProps,
+  OptionTypeBase,
+  Props as ReactSelectProps
+} from 'react-select';
 import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
 import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
 import { mockReactSelectIndicatorProps } from '../../../helpers/mocks/react-select';
@@ -75,7 +81,7 @@ describe('Select', () => {
   });
 
   function shallowRender<
-    Option,
+    Option extends OptionTypeBase,
     IsMulti extends boolean = false,
     Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
   >(props: Partial<ReactSelectProps<Option, IsMulti, Group>> = {}) {

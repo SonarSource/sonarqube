@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ControlProps, GroupTypeBase, IndicatorProps, InputProps, OptionProps } from 'react-select';
+import {
+  ControlProps,
+  GroupTypeBase,
+  IndicatorProps,
+  InputProps,
+  OptionProps,
+  OptionTypeBase
+} from 'react-select';
 
 export function mockReactSelectOptionProps<
-  OptionType,
+  OptionType extends OptionTypeBase,
   IsMulti extends boolean,
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 >(
@@ -38,7 +45,7 @@ export function mockReactSelectInputProps(): InputProps {
 }
 
 export function mockReactSelectControlProps<
-  OptionType,
+  OptionType extends OptionTypeBase,
   IsMulti extends boolean,
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 >(): ControlProps<OptionType, IsMulti, GroupType> {
@@ -46,7 +53,7 @@ export function mockReactSelectControlProps<
 }
 
 export function mockReactSelectIndicatorProps<
-  OptionType,
+  OptionType extends OptionTypeBase,
   IsMulti extends boolean,
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 >(_option: OptionType): IndicatorProps<OptionType, IsMulti, GroupType> {

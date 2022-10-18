@@ -85,7 +85,7 @@ export function parseAsOptionalArray<T>(
 }
 
 export function serializeDate(value?: Date, serializer = toNotSoISOString): string | undefined {
-  if (value != null && value.toISOString) {
+  if (value != null) {
     return serializer(value);
   }
   return undefined;

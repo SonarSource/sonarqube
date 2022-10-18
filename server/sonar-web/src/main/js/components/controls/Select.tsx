@@ -96,12 +96,15 @@ export function multiValueRemove<
   return <div {...props.innerProps}>×</div>;
 }
 
-export type SelectOptionProps<T, IsMulti extends boolean> = OptionProps<T, IsMulti>;
+export type SelectOptionProps<T extends OptionTypeBase, IsMulti extends boolean> = OptionProps<
+  T,
+  IsMulti
+>;
 export const SelectOption = components.Option;
 
 /* Keeping it as a class to simplify a dozen tests */
 export default class Select<
-  Option,
+  Option extends OptionTypeBase,
   IsMulti extends boolean = false,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
 > extends React.Component<NamedProps<Option, IsMulti, Group> & StyleExtensionProps> {
@@ -124,7 +127,7 @@ export default class Select<
 }
 
 export function CreatableSelect<
-  Option,
+  Option extends OptionTypeBase,
   isMulti extends boolean,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
 >(props: AsyncCreatableProps<Option, isMulti, Group>) {
@@ -144,7 +147,7 @@ export function CreatableSelect<
 }
 
 export function SearchSelect<
-  Option,
+  Option extends OptionTypeBase,
   IsMulti extends boolean,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
 >(props: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps) {
@@ -165,7 +168,11 @@ export function SearchSelect<
   );
 }
 
-export function selectStyle<Option, IsMulti extends boolean, Group extends GroupTypeBase<Option>>(
+export function selectStyle<
+  Option extends OptionTypeBase,
+  IsMulti extends boolean,
+  Group extends GroupTypeBase<Option>
+>(
   props?: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps
 ): StylesConfig<Option, IsMulti, Group> {
   return {
