@@ -327,7 +327,7 @@ subprojects {
       dependency('org.mockito:mockito-core:4.8.0') {
         exclude 'org.hamcrest:hamcrest-core'
       }
-      dependency('org.mockito:mockito-inline:4.7.0')
+      dependency('org.mockito:mockito-inline:4.8.0')
       dependency 'org.mybatis:mybatis:3.5.11'
       dependency 'org.nanohttpd:nanohttpd:2.3.1'
       dependencySet(group: 'org.slf4j', version: '1.7.30') {
