@@ -2359,7 +2359,7 @@ __metadata:
     "@typescript-eslint/parser": 4.33.0
     autoprefixer: 10.4.12
     chalk: 4.1.2
-    classnames: 2.3.1
+    classnames: 2.3.2
     clipboard: 2.0.11
     core-js: 3.21.1
     d3-array: 2.4.0
@@ -3307,10 +3307,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:*, classnames@npm:2.3.1":
+"classnames@npm:*":
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
+  languageName: node
+  linkType: hard
+
+"classnames@npm:2.3.2":
+  version: 2.3.2
+  resolution: "classnames@npm:2.3.2"
+  checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
   languageName: node
   linkType: hard
 
