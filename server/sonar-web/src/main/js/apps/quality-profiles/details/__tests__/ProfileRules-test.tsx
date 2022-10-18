@@ -19,8 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import * as apiQP from '../../../../api/quality-profiles';
-import * as apiRules from '../../../../api/rules';
+import { getQualityProfile } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import ProfileRules from '../ProfileRules';
@@ -65,17 +64,29 @@ const apiResponseActive = {
   ]
 };
 
-// Mock api some api functions
-(apiRules as any).searchRules = (data: any) =>
-  Promise.resolve(data.activation === 'true' ? apiResponseActive : apiResponseAll);
-(apiQP as any).getQualityProfile = () =>
-  Promise.resolve({
-    compareToSonarWay: {
-      profile: 'sonarway',
-      profileName: 'Sonar way',
-      missingRuleCount: 4
-    }
-  });
+jest.mock('../../../../api/rules', () => ({
+  ...jest.requireActual('../../../../api/rules'),
+  searchRules: jest
+    .fn()
+    .mockImplementation((data: any) =>
+      Promise.resolve(data.activation === 'true' ? apiResponseActive : apiResponseAll)
+    )
+}));
+
+jest.mock('../../../../api/quality-profiles', () => ({
+  ...jest.requireActual('../../../../api/quality-profiles'),
+  getQualityProfile: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      compareToSonarWay: {
+        profile: 'sonarway',
+        profileName: 'Sonar way',
+        missingRuleCount: 4
+      }
+    })
+  )
+}));
+
+beforeEach(jest.clearAllMocks);
 
 it('should render the quality profiles rules with sonarway comparison', async () => {
   const wrapper = shallow(<ProfileRules profile={PROFILE} />);
@@ -112,26 +123,24 @@ it('should not show a button to activate more rules on built in profiles', () =>
 });
 
 it('should not show sonarway comparison for built in profiles', async () => {
-  (apiQP as any).getQualityProfile = jest.fn(() => Promise.resolve());
+  (getQualityProfile as jest.Mock).mockReturnValueOnce({});
   const wrapper = shallow(<ProfileRules profile={{ ...PROFILE, isBuiltIn: true }} />);
   await new Promise(setImmediate);
   wrapper.update();
-  expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(0);
+  expect(getQualityProfile).toHaveBeenCalledTimes(0);
   expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);
 });
 
 it('should not show sonarway comparison if there is no missing rules', async () => {
-  (apiQP as any).getQualityProfile = jest.fn(() =>
-    Promise.resolve({
-      compareToSonarWay: {
-        profile: 'sonarway',
-        profileName: 'Sonar way',
-        missingRuleCount: 0
-      }
-    })
-  );
+  (getQualityProfile as jest.Mock).mockReturnValueOnce({
+    compareToSonarWay: {
+      profile: 'sonarway',
+      profileName: 'Sonar way',
+      missingRuleCount: 0
+    }
+  });
   const wrapper = shallow(<ProfileRules profile={PROFILE} />);
   await waitAndUpdate(wrapper);
-  expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(1);
+  expect(getQualityProfile).toHaveBeenCalledTimes(1);
   expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);
 });

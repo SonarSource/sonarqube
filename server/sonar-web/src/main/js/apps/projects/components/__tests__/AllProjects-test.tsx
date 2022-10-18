@@ -51,11 +51,10 @@ jest.mock(
     }
 );
 
-jest.mock('../../utils', () => {
-  const utils = jest.requireActual('../../utils');
-  utils.fetchProjects = jest.fn(() => Promise.resolve({ projects: [] }));
-  return utils;
-});
+jest.mock('../../utils', () => ({
+  ...jest.requireActual('../../utils'),
+  fetchProjects: jest.fn(() => Promise.resolve({ projects: [] }))
+}));
 
 jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn(() => null),
