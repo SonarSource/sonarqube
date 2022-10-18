@@ -1862,12 +1862,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:2.3.3":
-  version: 2.3.3
-  resolution: "@types/dompurify@npm:2.3.3"
+"@types/dompurify@npm:2.3.4":
+  version: 2.3.4
+  resolution: "@types/dompurify@npm:2.3.4"
   dependencies:
     "@types/trusted-types": "*"
-  checksum: 427e2dc60d94d13d7860a293b926b376727cb2f545a3334a3f2e7de695a2bb23058dd15108e49e0651378229b443ee8ae0028034b6f2df9a9008c04fb7ad6f8f
+  checksum: ea55678bc9fd32fcdae904ca191f2b8cc5b475277937e5e4c024690b0c3b9c73accfb7391f56d26d0f53fcff496a013773293e189a07a79afdd2b2ed4efacd5f
   languageName: node
   linkType: hard
 
@@ -2346,7 +2346,7 @@ __metadata:
     "@types/d3-shape": 1.2.4
     "@types/d3-zoom": 1.7.3
     "@types/diff": 5.0.2
-    "@types/dompurify": 2.3.3
+    "@types/dompurify": 2.3.4
     "@types/enzyme": 3.10.12
     "@types/jest": 27.4.1
     "@types/lodash": 4.14.149
@@ -2372,7 +2372,7 @@ __metadata:
     d3-zoom: 1.8.3
     date-fns: 2.29.3
     diff: 5.1.0
-    dompurify: 2.3.10
+    dompurify: 2.4.0
     enzyme: 3.11.0
     enzyme-adapter-react-16: 1.15.6
     enzyme-to-json: 3.6.2
@@ -4109,10 +4109,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:2.3.10":
-  version: 2.3.10
-  resolution: "dompurify@npm:2.3.10"
-  checksum: ee343876b4c065e82d194818c66af76a6d2290264c7db583ad71761c11781fd626f0245f9f4670175d5707c4b8fcfb89adae80bed0418a9426a47ee7f36b0ffc
+"dompurify@npm:2.4.0":
+  version: 2.4.0
+  resolution: "dompurify@npm:2.4.0"
+  checksum: c93ea73cf8e3ba044588450198563e56ce6902e36d0e16e3699df2fa59e82c4fdd11d4ad04ef5024569ce96a35b46f29d0bbea522516add33cd39a7f56a8a675
   languageName: node
   linkType: hard
 
