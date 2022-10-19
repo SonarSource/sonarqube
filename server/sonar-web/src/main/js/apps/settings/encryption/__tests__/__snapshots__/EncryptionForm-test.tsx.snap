@@ -50,12 +50,11 @@ exports[`should render correctly 1`] = `
         id="encryption.form_note"
         values={
           Object {
-            "moreInformationLink": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/instance-administration/security/"
+            "moreInformationLink": <withAppStateContext(DocLink)
+              to="/instance-administration/security/"
             >
               more_information
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />

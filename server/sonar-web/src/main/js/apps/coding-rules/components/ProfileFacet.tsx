@@ -175,7 +175,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
             content={translate('coding_rules.facet.qprofile.help')}
             links={[
               {
-                href: '/documentation/instance-administration/quality-profiles/',
+                href: '/instance-administration/quality-profiles/',
                 label: translate('coding_rules.facet.qprofile.link')
               }
             ]}

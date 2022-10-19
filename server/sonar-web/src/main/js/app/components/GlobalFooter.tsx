@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DocLink from '../../components/common/DocLink';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import Link from '../../components/common/Link';
 import { Alert } from '../../components/ui/Alert';
@@ -74,7 +75,7 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           </a>
         </li>
         <li className="page-footer-menu-item">
-          <Link to="/documentation">{translate('footer.documentation')}</Link>
+          <DocLink to="/">{translate('footer.documentation')}</DocLink>
         </li>
         <li className="page-footer-menu-item">
           <a

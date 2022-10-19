@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
+import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
-import Link from '../../../common/Link';
 import { OSs } from '../../types';
 import { quote } from '../../utils';
 import DoneNextSteps from '../DoneNextSteps';
@@ -65,9 +65,9 @@ export default function ExecScanner(props: ExecScannerProps) {
           id="onboarding.analysis.sq_scanner.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/scan/sonarscanner/" target="_blank">
+              <DocLink to="/analysis/scan/sonarscanner/">
                 {translate('onboarding.analysis.sq_scanner.docs_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

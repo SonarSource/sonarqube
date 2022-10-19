@@ -20,17 +20,12 @@ exports[`should render correctly 1`] = `
   >
     hotspots.no_hotspots.description
   </div>
-  <ForwardRef(Link)
+  <withAppStateContext(DocLink)
     className="big-spacer-top"
-    target="_blank"
-    to={
-      Object {
-        "pathname": "/documentation/user-guide/security-hotspots/",
-      }
-    }
+    to="/user-guide/security-hotspots/"
   >
     hotspots.learn_more
-  </ForwardRef(Link)>
+  </withAppStateContext(DocLink)>
 </div>
 `;
 
@@ -54,17 +49,12 @@ exports[`should render correctly: file 1`] = `
   >
     hotspots.no_hotspots_for_file.description
   </div>
-  <ForwardRef(Link)
+  <withAppStateContext(DocLink)
     className="big-spacer-top"
-    target="_blank"
-    to={
-      Object {
-        "pathname": "/documentation/user-guide/security-hotspots/",
-      }
-    }
+    to="/user-guide/security-hotspots/"
   >
     hotspots.learn_more
-  </ForwardRef(Link)>
+  </withAppStateContext(DocLink)>
 </div>
 `;
 

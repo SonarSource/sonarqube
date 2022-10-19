@@ -22,12 +22,9 @@ import * as React from 'react';
 import SuggestionsProvider from '../SuggestionsProvider';
 
 jest.mock(
-  'Docs/EmbedDocsSuggestions.json',
+  '../EmbedDocsSuggestions.json',
   () => ({
-    pageA: [
-      { link: '/foo', text: 'Foo' },
-      { link: '/bar', text: 'Bar', scope: 'sonarcloud' }
-    ],
+    pageA: [{ link: '/foo', text: 'Foo' }],
     pageB: [{ link: '/qux', text: 'Qux' }]
   }),
   { virtual: true }

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
+import DocLink from '../../../../components/common/DocLink';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -70,9 +70,9 @@ export default function GithubForm(props: GithubFormProps) {
           id="settings.almintegration.github.info"
           values={{
             link: (
-              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+              <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
                 {translate('learn_more')}
-              </Link>
+              </DocLink>
             )
           }}
         />

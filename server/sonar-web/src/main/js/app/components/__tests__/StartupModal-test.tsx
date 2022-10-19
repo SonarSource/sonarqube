@@ -90,14 +90,6 @@ it('should render only the children', async () => {
     getWrapper({
       appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
-      location: mockLocation({ pathname: '/documentation/' })
-    })
-  );
-
-  await shouldNotHaveModals(
-    getWrapper({
-      appState: mockAppState({ canAdmin: false }),
-      currentUser: { ...LOGGED_IN_USER },
       location: mockLocation({ pathname: '/create-organization' })
     })
   );

@@ -45,7 +45,7 @@ it('should have at least one instance of all possible frontmatter fields', () =>
 
 /* eslint-disable no-console */
 it('should have valid links in trees files', () => {
-  const trees = ['SonarQubeNavigationTree.json', 'StaticNavigationTree.json'];
+  const trees = ['StaticNavigationTree.json'];
   let hasErrors = false;
   trees.forEach(file => {
     const tree = JSON.parse(fs.readFileSync(path.join(rootPath, '..', 'static', file), 'utf8'));
@@ -61,27 +61,6 @@ it('should have valid links in trees files', () => {
       }
     };
     tree.forEach(walk);
-  });
-  expect(hasErrors).toBe(false);
-});
-
-it('should have valid links in suggestions file', () => {
-  const file = 'EmbedDocsSuggestions.json';
-  const suggestions = JSON.parse(fs.readFileSync(path.join(rootPath, file), 'utf8'));
-  const hasErrors = Object.keys(suggestions).some(key => {
-    return suggestions[key].some(suggestion => {
-      if (!suggestion.link.startsWith('/documentation/')) {
-        console.log(
-          `[${suggestion.link}] should starts with "/documentation/" or be a valid url, in ${file}`
-        );
-        return true;
-      }
-      if (!urlExists(parsedFiles, suggestion.link.replace('/documentation', ''))) {
-        console.log(`[${suggestion.link}] is not a valid link, in ${file}`);
-        return true;
-      }
-      return false;
-    });
   });
   expect(hasErrors).toBe(false);
 });

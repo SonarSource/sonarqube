@@ -19,7 +19,6 @@
  */
 import { To } from 'react-router-dom';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
-import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
@@ -650,20 +649,6 @@ ${overrides.key ? 'key: ' + overrides.key : ''}
 
   return `${frontMatter}
 ${content}`;
-}
-
-export function mockDocumentationEntry(
-  overrides: Partial<DocumentationEntry> = {}
-): DocumentationEntry {
-  return {
-    content: 'Lorem ipsum dolor sit amet fredum',
-    relativeName: 'Lorem',
-    navTitle: undefined,
-    text: 'Lorem ipsum dolor sit amet fredum',
-    title: 'Lorem',
-    url: '/lorem/ipsum',
-    ...overrides
-  };
 }
 
 export function mockLanguage(overrides: Partial<Language> = {}): Language {

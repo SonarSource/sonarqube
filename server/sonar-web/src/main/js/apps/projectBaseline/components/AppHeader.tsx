@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
 import { translate } from '../../../helpers/l10n';
 
@@ -38,9 +39,9 @@ export default function AppHeader(props: AppHeaderProps) {
           id="project_baseline.page.description"
           values={{
             link: (
-              <Link to="/documentation/project-administration/new-code-period/">
+              <DocLink to="/project-administration/new-code-period/">
                 {translate('project_baseline.page.description.link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

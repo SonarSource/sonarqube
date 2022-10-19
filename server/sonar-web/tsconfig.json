@@ -3,7 +3,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "Docs/*": ["../sonar-docs/src/*"],
       "*": ["./src/main/js/@types/*"]
     }
   },

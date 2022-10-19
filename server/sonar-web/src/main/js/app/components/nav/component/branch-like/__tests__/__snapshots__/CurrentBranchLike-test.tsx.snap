@@ -127,6 +127,7 @@ exports[`projects should render correctly when branches support is disabled: alm
     links={
       Array [
         Object {
+          "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
         },
@@ -169,6 +170,7 @@ exports[`projects should render correctly when branches support is disabled: alm
     links={
       Array [
         Object {
+          "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
         },
@@ -211,6 +213,7 @@ exports[`projects should render correctly when branches support is disabled: def
     links={
       Array [
         Object {
+          "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
         },
@@ -278,14 +281,15 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
     links={
       Array [
         Object {
-          "href": "/documentation/branches/overview/",
+          "href": "/branches/overview/",
           "label": "branch_like_navigation.only_one_branch.documentation",
         },
         Object {
-          "href": "/documentation/analysis/pull-request/",
+          "href": "/analysis/pull-request/",
           "label": "branch_like_navigation.only_one_branch.pr_analysis",
         },
         Object {
+          "doc": false,
           "href": "/tutorials?id=my-project",
           "inPlace": true,
           "label": "branch_like_navigation.tutorial_for_ci",

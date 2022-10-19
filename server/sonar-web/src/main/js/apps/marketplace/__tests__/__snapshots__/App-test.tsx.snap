@@ -43,12 +43,11 @@ exports[`should render correctly: loaded 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             Object {
-              "link": <ForwardRef(Link)
-                target="_blank"
-                to="/documentation/instance-administration/marketplace/"
+              "link": <withAppStateContext(DocLink)
+                to="/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </ForwardRef(Link)>,
+              </withAppStateContext(DocLink)>,
             }
           }
         />
@@ -141,12 +140,11 @@ exports[`should render correctly: loading 1`] = `
           id="marketplace.page.plugins.description2"
           values={
             Object {
-              "link": <ForwardRef(Link)
-                target="_blank"
-                to="/documentation/instance-administration/marketplace/"
+              "link": <withAppStateContext(DocLink)
+                to="/instance-administration/marketplace/"
               >
                 marketplace.page.plugins.description2.link
-              </ForwardRef(Link)>,
+              </withAppStateContext(DocLink)>,
             }
           }
         />

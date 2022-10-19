@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
+import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
-import Link from '../../../common/Link';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
@@ -68,9 +68,7 @@ export default function JavaGradle(props: JavaGradleProps) {
             id="onboarding.analysis.java.gradle.latest_version"
             values={{
               link: (
-                <Link to="/documentation/analysis/scan/sonarscanner-for-gradle/" target="_blank">
-                  {translate('here')}
-                </Link>
+                <DocLink to="/analysis/scan/sonarscanner-for-gradle/">{translate('here')}</DocLink>
               )
             }}
           />
@@ -86,9 +84,9 @@ export default function JavaGradle(props: JavaGradleProps) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/scan/sonarscanner-for-gradle/" target="_blank">
+              <DocLink to="/analysis/scan/sonarscanner-for-gradle/">
                 {translate('onboarding.analysis.java.gradle.docs_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

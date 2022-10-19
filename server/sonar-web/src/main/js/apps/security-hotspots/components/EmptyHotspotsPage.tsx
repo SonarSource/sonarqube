@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
@@ -57,12 +57,9 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         {translate(`hotspots.${translationRoot}.description`)}
       </div>
       {!(filtered || isStaticListOfHotspots) && (
-        <Link
-          className="big-spacer-top"
-          target="_blank"
-          to={{ pathname: '/documentation/user-guide/security-hotspots/' }}>
+        <DocLink className="big-spacer-top" to="/user-guide/security-hotspots/">
           {translate('hotspots.learn_more')}
-        </Link>
+        </DocLink>
       )}
     </div>
   );

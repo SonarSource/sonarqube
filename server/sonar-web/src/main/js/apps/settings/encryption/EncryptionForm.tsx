@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { encryptValue } from '../../../api/settings';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { SubmitButton } from '../../../components/controls/buttons';
 import { ClipboardButton } from '../../../components/controls/clipboard';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -129,9 +129,9 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
               id="encryption.form_note"
               values={{
                 moreInformationLink: (
-                  <Link to="/documentation/instance-administration/security/" target="_blank">
+                  <DocLink to="/instance-administration/security/">
                     {translate('more_information')}
-                  </Link>
+                  </DocLink>
                 )
               }}
             />

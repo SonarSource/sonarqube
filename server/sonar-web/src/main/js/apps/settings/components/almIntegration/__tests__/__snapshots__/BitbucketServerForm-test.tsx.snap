@@ -36,12 +36,11 @@ exports[`should render correctly 1`] = `
         id="settings.almintegration.form.personal_access_token.bitbucket.help"
         values={
           Object {
-            "doc_link": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/analysis/bitbucket-integration/"
+            "doc_link": <withAppStateContext(DocLink)
+              to="/analysis/bitbucket-integration/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
             "pat": <ForwardRef(Link)
               target="_blank"
               to="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"

@@ -28,7 +28,7 @@ it('should render with no suggestions', () => {
   renderEmbedDocsPopup();
 
   expect(screen.getAllByRole('link')).toHaveLength(5);
-  expect(screen.getByText('embed_docs.documentation')).toHaveFocus();
+  expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
 it('should render with suggestions', () => {

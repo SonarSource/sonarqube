@@ -27,8 +27,8 @@ it('renders correctly', () => {
     shallowRender({
       links: [
         { href: 'http://link.tosome.place', label: 'external link' },
-        { href: '/documentation/guide', label: 'internal link' },
-        { href: '/projects', label: 'in place', inPlace: true }
+        { href: '/guide', label: 'internal link' },
+        { href: '/projects', label: 'in place', inPlace: true, doc: false }
       ]
     })
   ).toMatchSnapshot('with links');

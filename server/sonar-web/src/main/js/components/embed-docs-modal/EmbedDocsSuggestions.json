@@ -3,24 +3,24 @@
   "api_documentation": [],
   "background_tasks": [
     {
-      "link": "/documentation/analysis/background-tasks/",
+      "link": "/analysis/background-tasks/",
       "text": "About Background Tasks"
     }
   ],
   "code": [],
   "coding_rules": [
     {
-      "link": "/documentation/instance-administration/quality-profiles/",
+      "link": "/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "component_measures": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
     },
     {
-      "link": "/documentation/user-guide/metric-definitions/",
+      "link": "/user-guide/metric-definitions/",
       "text": "Metric Definitions"
     }
   ],
@@ -29,45 +29,45 @@
   "marketplace": [],
   "overview": [
     {
-      "link": "/documentation/analysis/pull-request/",
+      "link": "/analysis/pull-request/",
       "text": "Enable Pull Request Decoration"
     },
     {
-      "link": "/documentation/analysis/ci-integration-overview/",
+      "link": "/analysis/ci-integration-overview/",
       "text": "Set up CI analysis"
     },
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
     },
     {
-      "link": "/documentation/user-guide/connected-mode/",
+      "link": "/user-guide/connected-mode/",
       "text": "SonarLint Connected Mode"
     }
   ],
   "permission_templates": [],
   "profiles": [
     {
-      "link": "/documentation/instance-administration/quality-profiles/",
+      "link": "/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "project_activity": [],
   "project_baseline": [
     {
-      "link": "/documentation/project-administration/new-code-period/",
+      "link": "/project-administration/new-code-period/",
       "text": "Defining New Code"
     }
   ],
   "project_quality_gate": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
     }
   ],
   "project_quality_profiles": [
     {
-      "link": "/documentation/instance-administration/quality-profiles/",
+      "link": "/instance-administration/quality-profiles/",
       "text": "About Quality Profiles"
     }
   ],
@@ -75,33 +75,33 @@
   "projects": [],
   "pull_requests": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
     },
     {
-      "link": "/documentation/analysis/pull-request/",
+      "link": "/analysis/pull-request/",
       "text": "Analyzing Pull Requests"
     },
     {
-      "link": "/documentation/user-guide/connected-mode/",
+      "link": "/user-guide/connected-mode/",
       "text": "SonarLint connected mode"
     }
   ],
   "quality_gates": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
     }
   ],
   "quality_profiles": [
     {
-      "link": "/documentation/instance-administration/quality-profiles/",
+      "link": "/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "security_reports": [
     {
-      "link": "/documentation/user-guide/security-reports/",
+      "link": "/user-guide/security-reports/",
       "text": "About Security Reports"
     }
   ],
@@ -111,7 +111,7 @@
   "users": [],
   "webhooks": [
     {
-      "link": "/documentation/project-administration/webhooks/",
+      "link": "/project-administration/webhooks/",
       "text": "About Webhooks"
     }
   ]

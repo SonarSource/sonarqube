@@ -41,12 +41,11 @@ exports[`should render correctly: create 1`] = `
         id="settings.almintegration.form.personal_access_token.azure.help"
         values={
           Object {
-            "doc_link": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/analysis/azuredevops-integration/"
+            "doc_link": <withAppStateContext(DocLink)
+              to="/analysis/azuredevops-integration/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
             "pat": <ForwardRef(Link)
               target="_blank"
               to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
@@ -113,12 +112,11 @@ exports[`should render correctly: edit 1`] = `
         id="settings.almintegration.form.personal_access_token.azure.help"
         values={
           Object {
-            "doc_link": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/analysis/azuredevops-integration/"
+            "doc_link": <withAppStateContext(DocLink)
+              to="/analysis/azuredevops-integration/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
             "pat": <ForwardRef(Link)
               target="_blank"
               to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"

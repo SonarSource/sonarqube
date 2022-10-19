@@ -29,7 +29,6 @@ import ChangeAdminPasswordApp from '../../apps/change-admin-password/ChangeAdmin
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
-import documentationRoutes from '../../apps/documentation/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import { globalIssuesRoutes, projectIssuesRoutes } from '../../apps/issues/routes';
 import maintenanceRoutes from '../../apps/maintenance/routes';
@@ -73,6 +72,7 @@ import {
 } from '../components/available-features/AvailableFeaturesContext';
 import ComponentContainer from '../components/ComponentContainer';
 import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
+import DocumentationRedirect from '../components/DocumentationRedirect';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import PortfolioPage from '../components/extensions/PortfolioPage';
@@ -142,10 +142,6 @@ function renderRedirects() {
 
       {renderRedirect({ from: '/admin', to: '/admin/settings' })}
       {renderRedirect({ from: '/background_tasks', to: '/admin/background_tasks' })}
-      {renderRedirect({
-        from: '/documentation/analysis/languages/vb',
-        to: '/documentation/analysis/languages/vbnet/'
-      })}
       {renderRedirect({ from: '/groups', to: '/admin/groups' })}
       {renderRedirect({ from: '/extension/governance/portfolios', to: '/portfolios' })}
       {renderRedirect({ from: '/permission_templates', to: '/admin/permission_templates' })}
@@ -163,6 +159,7 @@ function renderRedirects() {
       {renderRedirect({ from: '/users', to: '/admin/users' })}
       {renderRedirect({ from: '/onboarding', to: '/projects/create' })}
       {renderRedirect({ from: '/markdown/help', to: '/formatting/help' })}
+      <Route path="/documentation/*" element={<DocumentationRedirect />} />
     </>
   );
 }
@@ -264,8 +261,6 @@ export default function startReactApp(
                         {accountRoutes()}
 
                         {codingRulesRoutes()}
-
-                        {documentationRoutes()}
 
                         <Route
                           path="extension/:pluginKey/:extensionKey"

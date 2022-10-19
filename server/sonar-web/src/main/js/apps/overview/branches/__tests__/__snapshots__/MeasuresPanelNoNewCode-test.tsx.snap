@@ -34,11 +34,11 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
         id="overview.measures.empty_link"
         values={
           Object {
-            "learn_more_link": <ForwardRef(Link)
-              to="/documentation/user-guide/clean-as-you-code/"
+            "learn_more_link": <withAppStateContext(DocLink)
+              to="/user-guide/clean-as-you-code/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />
@@ -81,11 +81,11 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
         id="overview.measures.empty_link"
         values={
           Object {
-            "learn_more_link": <ForwardRef(Link)
-              to="/documentation/user-guide/clean-as-you-code/"
+            "learn_more_link": <withAppStateContext(DocLink)
+              to="/user-guide/clean-as-you-code/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />
@@ -160,11 +160,11 @@ exports[`should render the default message 6`] = `
         id="overview.measures.empty_link"
         values={
           Object {
-            "learn_more_link": <ForwardRef(Link)
-              to="/documentation/user-guide/clean-as-you-code/"
+            "learn_more_link": <withAppStateContext(DocLink)
+              to="/user-guide/clean-as-you-code/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />

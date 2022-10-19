@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
+import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
-import Link from '../../../common/Link';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {
@@ -54,9 +54,9 @@ export default function JavaMaven(props: JavaMavenProps) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/scan/sonarscanner-for-maven/" target="_blank">
+              <DocLink to="/analysis/scan/sonarscanner-for-maven/">
                 {translate('onboarding.analysis.java.maven.docs_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

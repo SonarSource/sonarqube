@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import DocLink from '../../common/DocLink';
 
 export interface CompilationInfoProps {
   className?: string;
@@ -35,12 +36,9 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
           defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
           values={{
             link: (
-              <a
-                href="/documentation/analysis/languages/cfamily/"
-                rel="noopener noreferrer"
-                target="_blank">
+              <DocLink to="/analysis/languages/cfamily/">
                 {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
-              </a>
+              </DocLink>
             )
           }}
         />
@@ -51,12 +49,9 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
           defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
           values={{
             link: (
-              <a
-                href="/documentation/analysis/languages/cfamily/#analysis-cache"
-                rel="noopener noreferrer"
-                target="_blank">
+              <DocLink to="/analysis/languages/cfamily/#analysis-cache">
                 {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
-              </a>
+              </DocLink>
             )
           }}
         />

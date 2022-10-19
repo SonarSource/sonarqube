@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
-import Link from '../../common/Link';
+import DocLink from '../../common/DocLink';
 
 export interface DoneNextStepsProps {
   component: Component;
@@ -51,24 +51,18 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
           id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
           values={{
             link_branches: (
-              <Link
-                to="/documentation/branches/overview/"
-                target="_blank"
-                rel="noopener noreferrer">
+              <DocLink to="/branches/overview/">
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches'
                 )}
-              </Link>
+              </DocLink>
             ),
             link_pr_analysis: (
-              <Link
-                to="/documentation/analysis/pull-request/"
-                target="_blank"
-                rel="noopener noreferrer">
+              <DocLink to="/analysis/pull-request/">
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
                 )}
-              </Link>
+              </DocLink>
             )
           }}
         />

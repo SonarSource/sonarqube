@@ -54,7 +54,7 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
           content={translate('quality_gates.help')}
           links={[
             {
-              href: '/documentation/user-guide/quality-gates/',
+              href: '/user-guide/quality-gates/',
               label: translate('learn_more')
             }
           ]}

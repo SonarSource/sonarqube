@@ -19,34 +19,46 @@
  */
 import { cloneDeep } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
+import { BranchParameters } from '../../types/branch-like';
 import { SettingsKey, SettingValue } from '../../types/settings';
 import { getValue } from '../settings';
 
 export default class SettingsServiceMock {
-  settingValue?: SettingValue;
-  defaultValues: SettingValue = {
-    key: SettingsKey.AuditHouseKeeping,
-    value: HousekeepingPolicy.Weekly
-  };
+  settingValues: SettingValue[];
+  defaultValues: SettingValue[] = [
+    {
+      key: SettingsKey.AuditHouseKeeping,
+      value: HousekeepingPolicy.Weekly
+    }
+  ];
 
   constructor() {
-    this.settingValue = cloneDeep(this.defaultValues);
-    (getValue as jest.Mock).mockImplementation(this.getValuesHandler);
+    this.settingValues = cloneDeep(this.defaultValues);
+    (getValue as jest.Mock).mockImplementation(this.handleGetValues);
   }
 
-  getValuesHandler = () => {
-    return Promise.resolve(this.settingValue);
+  handleGetValues = (data: { key: string; component?: string } & BranchParameters) => {
+    const setting = this.settingValues.find(s => s.key === data.key);
+
+    return this.reply(setting);
   };
 
-  unsetHousekeepingPolicy() {
-    this.settingValue = undefined;
+  emptySettings() {
+    this.settingValues = [];
   }
 
   setYearlyHousekeepingPolicy() {
-    this.settingValue = { key: 'test', value: HousekeepingPolicy.Yearly };
+    const auditSetting = this.settingValues.find(s => s.key === SettingsKey.AuditHouseKeeping);
+    if (auditSetting) {
+      auditSetting.value = HousekeepingPolicy.Yearly;
+    }
   }
 
   resetSettingvalues = () => {
-    this.settingValue = cloneDeep(this.defaultValues);
+    this.settingValues = cloneDeep(this.defaultValues);
   };
+
+  reply<T>(response: T): Promise<T> {
+    return Promise.resolve(cloneDeep(response));
+  }
 }

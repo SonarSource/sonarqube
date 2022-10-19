@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import Link from '../../../../components/common/Link';
+import DocLink from '../../../../components/common/DocLink';
 import Toggle from '../../../../components/controls/Toggle';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
@@ -286,11 +286,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
         renderBooleanField({
           help: true,
           helpParams: {
-            doc_link: (
-              <Link to={ALM_DOCUMENTATION_PATHS[alm]} target="_blank">
-                {translate('learn_more')}
-              </Link>
-            )
+            doc_link: <DocLink to={ALM_DOCUMENTATION_PATHS[alm]}>{translate('learn_more')}</DocLink>
           },
           id: 'monorepo',
           onFieldChange: props.onFieldChange,

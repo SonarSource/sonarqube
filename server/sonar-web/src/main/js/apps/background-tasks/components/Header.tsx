@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import Workers from './Workers';
 
@@ -37,12 +37,9 @@ export default function Header(props: Props) {
       )}
       <p className="page-description">
         {translate('background_tasks.page.description')}
-        <Link
-          className="spacer-left"
-          target="_blank"
-          to={{ pathname: '/documentation/analysis/background-tasks/' }}>
+        <DocLink className="spacer-left" to="/analysis/background-tasks/">
           {translate('learn_more')}
-        </Link>
+        </DocLink>
       </p>
     </header>
   );

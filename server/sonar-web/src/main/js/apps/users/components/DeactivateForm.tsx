@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { deactivateUser } from '../../../api/users';
+import DocLink from '../../../components/common/DocLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
 import Modal from '../../../components/controls/Modal';
@@ -99,12 +100,9 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
                   id="delete-user-warning"
                   values={{
                     link: (
-                      <a
-                        href="/documentation/instance-administration/authentication/overview/"
-                        rel="noopener noreferrer"
-                        target="_blank">
+                      <DocLink to="/instance-administration/authentication/overview/">
                         {translate('users.delete_user.help.link')}
-                      </a>
+                      </DocLink>
                     )
                   }}
                 />

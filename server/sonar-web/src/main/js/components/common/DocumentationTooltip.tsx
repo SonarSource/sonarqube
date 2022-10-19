@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
+import DocLink from './DocLink';
 import Link from './Link';
 
 export interface DocumentationTooltipProps {
   children?: React.ReactNode;
   className?: string;
   content?: React.ReactNode;
-  links?: Array<{ href: string; label: string; inPlace?: boolean }>;
+  links?: Array<{ href: string; label: string; inPlace?: boolean; doc?: boolean }>;
   title?: string;
 }
 
@@ -49,7 +50,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
             <>
               <hr className="big-spacer-top big-spacer-bottom" />
 
-              {links.map(({ href, label, inPlace }) => (
+              {links.map(({ href, label, inPlace, doc = true }) => (
                 <div
                   className="little-spacer-bottom"
                   key={label}
@@ -58,9 +59,13 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
                   // they won't be "clickable"), we hide the whole links section.
                   // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
                   aria-hidden={true}>
-                  <Link to={href} target={inPlace ? undefined : '_blank'}>
-                    {label}
-                  </Link>
+                  {doc ? (
+                    <DocLink to={href}>{label}</DocLink>
+                  ) : (
+                    <Link to={href} target={inPlace ? undefined : '_blank'}>
+                      {label}
+                    </Link>
+                  )}
                 </div>
               ))}
             </>

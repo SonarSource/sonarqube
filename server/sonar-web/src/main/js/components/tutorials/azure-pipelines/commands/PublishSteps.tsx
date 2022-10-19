@@ -27,7 +27,7 @@ import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
-import Link from '../../../common/Link';
+import DocLink from '../../../common/DocLink';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface PublishStepsProps extends WithAvailableFeaturesProps {}
@@ -67,11 +67,11 @@ export function PublishSteps(props: PublishStepsProps) {
             )}
             values={{
               link: (
-                <Link to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]} target="_blank">
+                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
                   {translate(
                     'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
                   )}
-                </Link>
+                </DocLink>
               )
             }}
           />

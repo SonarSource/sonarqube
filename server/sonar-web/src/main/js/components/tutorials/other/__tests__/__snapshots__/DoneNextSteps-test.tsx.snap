@@ -25,20 +25,16 @@ exports[`should render correctly: default 1`] = `
       id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       values={
         Object {
-          "link_branches": <ForwardRef(Link)
-            rel="noopener noreferrer"
-            target="_blank"
-            to="/documentation/branches/overview/"
+          "link_branches": <withAppStateContext(DocLink)
+            to="/branches/overview/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches
-          </ForwardRef(Link)>,
-          "link_pr_analysis": <ForwardRef(Link)
-            rel="noopener noreferrer"
-            target="_blank"
-            to="/documentation/analysis/pull-request/"
+          </withAppStateContext(DocLink)>,
+          "link_pr_analysis": <withAppStateContext(DocLink)
+            to="/analysis/pull-request/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -71,20 +67,16 @@ exports[`should render correctly: project admin 1`] = `
       id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       values={
         Object {
-          "link_branches": <ForwardRef(Link)
-            rel="noopener noreferrer"
-            target="_blank"
-            to="/documentation/branches/overview/"
+          "link_branches": <withAppStateContext(DocLink)
+            to="/branches/overview/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches
-          </ForwardRef(Link)>,
-          "link_pr_analysis": <ForwardRef(Link)
-            rel="noopener noreferrer"
-            target="_blank"
-            to="/documentation/analysis/pull-request/"
+          </withAppStateContext(DocLink)>,
+          "link_pr_analysis": <withAppStateContext(DocLink)
+            to="/analysis/pull-request/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

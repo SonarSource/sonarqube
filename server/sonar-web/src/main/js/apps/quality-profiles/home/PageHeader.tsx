@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Actions } from '../../../api/quality-profiles';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { Button } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
@@ -106,14 +106,9 @@ export class PageHeader extends React.PureComponent<Props, State> {
           {translate('quality_profiles.intro1')}
           <br />
           {translate('quality_profiles.intro2')}
-          <Link
-            className="spacer-left"
-            target="_blank"
-            to={{
-              pathname: '/documentation/instance-administration/quality-profiles/'
-            }}>
+          <DocLink className="spacer-left" to="/instance-administration/quality-profiles/">
             {translate('learn_more')}
-          </Link>
+          </DocLink>
         </div>
 
         {this.state.restoreFormOpen && (

@@ -32,12 +32,11 @@ exports[`renders correctly 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner-for-maven/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner-for-maven/"
           >
             onboarding.analysis.java.maven.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

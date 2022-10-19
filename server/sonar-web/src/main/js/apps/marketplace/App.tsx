@@ -28,7 +28,7 @@ import {
   getPluginUpdates
 } from '../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../api/settings';
-import Link from '../../components/common/Link';
+import DocLink from '../../components/common/DocLink';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';
@@ -172,11 +172,9 @@ export class App extends React.PureComponent<Props, State> {
                   defaultMessage={translate('marketplace.page.plugins.description2')}
                   values={{
                     link: (
-                      <Link
-                        to="/documentation/instance-administration/marketplace/"
-                        target="_blank">
+                      <DocLink to="/instance-administration/marketplace/">
                         {translate('marketplace.page.plugins.description2.link')}
-                      </Link>
+                      </DocLink>
                     )
                   }}
                 />

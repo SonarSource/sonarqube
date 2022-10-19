@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -41,9 +41,9 @@ export default function PageHeader({ children, loading }: Props) {
           id="webhooks.description"
           values={{
             url: (
-              <Link to="/documentation/project-administration/webhooks/">
+              <DocLink to="/project-administration/webhooks/">
                 {translate('webhooks.documentation_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

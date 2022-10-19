@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
@@ -91,9 +92,9 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
             ),
             permission: <strong>Pull Requests: Read</strong>,
             doc_link: (
-              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
+              <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
                 {translate('learn_more')}
-              </Link>
+              </DocLink>
             )
           }}
         />

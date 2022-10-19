@@ -23,7 +23,7 @@ import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
-import Link from '../../../common/Link';
+import DocLink from '../../../common/DocLink';
 
 export default function AlertClassicEditor() {
   return (
@@ -33,9 +33,9 @@ export default function AlertClassicEditor() {
         defaultMessage={translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info')}
         values={{
           doc_link: (
-            <Link to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]} target="_blank">
+            <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
               {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
-            </Link>
+            </DocLink>
           )
         }}
       />

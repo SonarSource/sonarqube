@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import Link from '../../../../components/common/Link';
+import DocLink from '../../../../components/common/DocLink';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import BoxedTabs, { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Alert } from '../../../../components/ui/Alert';
@@ -142,12 +142,10 @@ export default function Authentication(props: Props) {
                   defaultMessage={translate('settings.authentication.help')}
                   values={{
                     link: (
-                      <Link
-                        to={`/documentation/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}
-                        rel="noopener noreferrer"
-                        target="_blank">
+                      <DocLink
+                        to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}>
                         {translate('settings.authentication.help.link')}
-                      </Link>
+                      </DocLink>
                     )
                   }}
                 />

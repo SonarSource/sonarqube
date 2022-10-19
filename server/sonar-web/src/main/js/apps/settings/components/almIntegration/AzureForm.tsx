@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -80,9 +81,9 @@ export default function AzureForm(props: AzureFormProps) {
               ),
               permission: <strong>{'Code > Read & Write'}</strong>,
               doc_link: (
-                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
+                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
                   {translate('learn_more')}
-                </Link>
+                </DocLink>
               )
             }}
           />

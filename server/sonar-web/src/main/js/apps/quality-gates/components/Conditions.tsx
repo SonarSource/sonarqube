@@ -184,7 +184,7 @@ export class Conditions extends React.PureComponent<Props> {
             content={translate('quality_gates.conditions.help')}
             links={[
               {
-                href: '/documentation/user-guide/clean-as-you-code/',
+                href: '/user-guide/clean-as-you-code/',
                 label: translate('quality_gates.conditions.help.link')
               }
             ]}

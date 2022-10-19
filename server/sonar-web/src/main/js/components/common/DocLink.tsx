@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import util from 'mdast-util-toc';
-import { Node } from 'unist';
+import * as React from 'react';
+import withAppStateContext, {
+  WithAppStateContextProps
+} from '../../app/components/app-state/withAppStateContext';
+import { getUrlForDoc } from '../../helpers/docs';
+import Link, { LinkProps } from './Link';
 
-/**
- * This is a simplified version of the remark-toc plugin: https://github.com/remarkjs/remark-toc
- * It *only* renders the TOC, and leaves all the rest out.
- */
-export default function onlyToc() {
-  return transformer;
+type Props = WithAppStateContextProps &
+  Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
 
-  function transformer(node: Node) {
-    const result = util(node, { heading: 'doctoc', maxDepth: 2 });
-
-    if (result.index === null || result.index === -1 || !result.map) {
-      node.children = [];
-    } else {
-      node.children = [result.map];
-    }
-  }
+export function DocLink({ appState, to, innerRef, ...props }: Props) {
+  const toStatic = getUrlForDoc(appState.version, to);
+  return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;
 }
+
+export default withAppStateContext(DocLink);

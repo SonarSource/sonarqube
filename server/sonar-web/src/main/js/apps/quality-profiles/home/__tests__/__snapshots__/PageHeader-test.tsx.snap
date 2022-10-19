@@ -15,17 +15,12 @@ exports[`should render correctly 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/documentation/instance-administration/quality-profiles/",
-        }
-      }
+      to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </header>
 `;
@@ -63,17 +58,12 @@ exports[`should render correctly 2`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/documentation/instance-administration/quality-profiles/",
-        }
-      }
+      to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </header>
 `;
@@ -117,17 +107,12 @@ exports[`should render correctly 3`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/documentation/instance-administration/quality-profiles/",
-        }
-      }
+      to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </header>
 `;
@@ -165,17 +150,12 @@ exports[`should show a create form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/documentation/instance-administration/quality-profiles/",
-        }
-      }
+      to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
   <CreateProfileForm
     languages={
@@ -253,17 +233,12 @@ exports[`should show a restore form 1`] = `
     quality_profiles.intro1
     <br />
     quality_profiles.intro2
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/documentation/instance-administration/quality-profiles/",
-        }
-      }
+      to="/instance-administration/quality-profiles/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
   <RestoreProfileForm
     onClose={[Function]}

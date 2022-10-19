@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -94,9 +95,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               id="overview.measures.empty_link"
               values={{
                 learn_more_link: (
-                  <Link to="/documentation/user-guide/clean-as-you-code/">
-                    {translate('learn_more')}
-                  </Link>
+                  <DocLink to="/user-guide/clean-as-you-code/">{translate('learn_more')}</DocLink>
                 )
               }}
             />

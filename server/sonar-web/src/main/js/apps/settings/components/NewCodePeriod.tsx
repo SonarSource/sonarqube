@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -160,9 +160,9 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                       id="settings.new_code_period.description"
                       values={{
                         link: (
-                          <Link to="/documentation/project-administration/new-code-period/">
+                          <DocLink to="/project-administration/new-code-period/">
                             {translate('learn_more')}
-                          </Link>
+                          </DocLink>
                         )
                       }}
                     />

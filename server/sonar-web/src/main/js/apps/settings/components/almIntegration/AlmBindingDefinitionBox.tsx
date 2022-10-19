@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
+import DocLink from '../../../../components/common/DocLink';
 import { Button } from '../../../../components/controls/buttons';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
@@ -230,9 +230,9 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                       )}
                       values={{
                         link: (
-                          <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                          <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
                             {translate('learn_more')}
-                          </Link>
+                          </DocLink>
                         )
                       }}
                     />

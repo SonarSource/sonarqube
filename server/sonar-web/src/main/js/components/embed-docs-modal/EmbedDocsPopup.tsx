@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { SuggestionLink } from '../../types/types';
+import DocLink from '../common/DocLink';
 import Link from '../common/Link';
 import { DropdownOverlay } from '../controls/Dropdown';
 import { SuggestionsContext } from './SuggestionsContext';
@@ -38,7 +39,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
    * If we have at least 1 suggestion, it will make the call first, and prevent 'documentation' from
    * getting the focus.
    */
-  focusFirstItem = (node: HTMLAnchorElement | null) => {
+  focusFirstItem: React.Ref<HTMLAnchorElement> = (node: HTMLAnchorElement | null) => {
     if (node && !this.firstItem) {
       this.firstItem = node;
       this.firstItem.focus();
@@ -59,16 +60,15 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     }
     return (
       <ul className="menu abs-width-240" role="group">
-        {this.renderTitle(translate('embed_docs.suggestion'))}
+        {this.renderTitle(translate('docs.suggestion'))}
         {suggestions.map((suggestion, i) => (
           <li key={suggestion.link}>
-            <Link
-              ref={i === 0 ? this.focusFirstItem : undefined}
+            <DocLink
+              innerRef={i === 0 ? this.focusFirstItem : undefined}
               onClick={this.props.onClose}
-              target="_blank"
               to={suggestion.link}>
               {suggestion.text}
-            </Link>
+            </DocLink>
           </li>
         ))}
       </ul>
@@ -96,13 +96,9 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
         <ul className="menu abs-width-240" role="group">
           <li>
-            <Link
-              ref={this.focusFirstItem}
-              onClick={this.props.onClose}
-              target="_blank"
-              to="/documentation">
-              {translate('embed_docs.documentation')}
-            </Link>
+            <DocLink innerRef={this.focusFirstItem} onClick={this.props.onClose} to="/">
+              {translate('docs.documentation')}
+            </DocLink>
           </li>
           <li>
             <Link onClick={this.props.onClose} to="/web_api">
@@ -116,17 +112,17 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
               className="display-flex-center"
               to="https://community.sonarsource.com/"
               target="_blank">
-              {translate('embed_docs.get_help')}
+              {translate('docs.get_help')}
             </Link>
           </li>
         </ul>
         <ul className="menu abs-width-240" role="group">
-          {this.renderTitle(translate('embed_docs.stay_connected'))}
+          {this.renderTitle(translate('docs.stay_connected'))}
           <li>
             {this.renderIconLink(
               'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
               'embed-doc/sq-icon.svg',
-              translate('embed_docs.news')
+              translate('docs.news')
             )}
           </li>
           <li>

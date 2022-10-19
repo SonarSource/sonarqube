@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { SubmitButton } from '../../../components/controls/buttons';
 import { ClipboardButton } from '../../../components/controls/clipboard';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -112,9 +112,9 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                 id="encryption.secret_key_description"
                 values={{
                   moreInformationLink: (
-                    <Link to="/documentation/instance-administration/security/" target="_blank">
+                    <DocLink to="/instance-administration/security/">
                       {translate('more_information')}
-                    </Link>
+                    </DocLink>
                   )
                 }}
               />

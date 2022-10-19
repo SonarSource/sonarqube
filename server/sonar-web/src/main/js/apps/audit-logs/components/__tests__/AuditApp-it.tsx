@@ -141,7 +141,7 @@ it('should not render if governance is not enable', () => {
 });
 
 it('should show right option when keeping log for month', async () => {
-  handler.unsetHousekeepingPolicy();
+  handler.emptySettings();
   renderAuditLogs();
   expect(await ui.pageTitle.find()).toBeInTheDocument();
   expect(ui.todayRadio.get()).toBeInTheDocument();

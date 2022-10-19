@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -76,9 +77,9 @@ export default function GitlabForm(props: GitlabFormProps) {
               permission: <strong>Reporter</strong>,
               scope: <strong>api</strong>,
               doc_link: (
-                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
+                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
                   {translate('learn_more')}
-                </Link>
+                </DocLink>
               )
             }}
           />

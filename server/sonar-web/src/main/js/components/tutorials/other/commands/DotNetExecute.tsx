@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
+import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
-import Link from '../../../common/Link';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface DotNetExecuteProps {
@@ -50,9 +50,9 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/scan/sonarscanner-for-msbuild/" target="_blank">
+              <DocLink to="/analysis/scan/sonarscanner-for-msbuild/">
                 {translate('onboarding.analysis.msbuild.docs_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

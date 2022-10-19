@@ -57,11 +57,11 @@ export const RATING_COLORS = [
 export const PROJECT_KEY_MAX_LEN = 400;
 
 export const ALM_DOCUMENTATION_PATHS = {
-  [AlmKeys.Azure]: '/documentation/analysis/azuredevops-integration/',
-  [AlmKeys.BitbucketServer]: '/documentation/analysis/bitbucket-integration/',
-  [AlmKeys.BitbucketCloud]: '/documentation/analysis/bitbucket-cloud-integration/',
-  [AlmKeys.GitHub]: '/documentation/analysis/github-integration/',
-  [AlmKeys.GitLab]: '/documentation/analysis/gitlab-integration/'
+  [AlmKeys.Azure]: '/analysis/azuredevops-integration/',
+  [AlmKeys.BitbucketServer]: '/analysis/bitbucket-integration/',
+  [AlmKeys.BitbucketCloud]: '/analysis/bitbucket-cloud-integration/',
+  [AlmKeys.GitHub]: '/analysis/github-integration/',
+  [AlmKeys.GitLab]: '/analysis/gitlab-integration/'
 };
 
 export const IMPORT_COMPATIBLE_ALMS = [

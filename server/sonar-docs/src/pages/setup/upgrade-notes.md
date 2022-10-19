@@ -3,6 +3,14 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.8 Upgrade notes
+**Dropping the embedded documentation**
+SonarQube no longer ships with an embedded version of the documentation. The documentation will now only be available at [docs.sonarqube.org](https://docs.sonarqube.org/). ([SONAR-17221](https://sonarsource.atlassian.net/browse/SONAR-17221))  
+* All in-app links will now point to the documentation website.
+* External links that pointed to `/documentation` will be correctly redirected to the corresponding page on the documentation website.
+
+[Full release notes](https://sonarsource.atlassian.net/issues/?jql=project%20%3D%2010139%20AND%20fixVersion%20%3D%2013884)
+
 ## Release 9.7 Upgrade notes
 **Change in the database connection pool**  
 The database connection pool has been replaced for better performance. The `sonar.jdbc.maxIdle`, `sonar.jdbc.minEvictableIdleTimeMillis` and `sonar.jdbc.timeBetweenEvictionRunsMillis` properties no longer have any effect and should be removed from the configuration. Also, the JMX information that is provided to monitor the connection pool has evolved. See the [Monitoring documentation](/instance-administration/monitoring/) for more information. ([SONAR-17200](https://sonarsource.atlassian.net/browse/SONAR-17200)).

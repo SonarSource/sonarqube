@@ -46,12 +46,11 @@ exports[`should render correctly: content 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/jenkins/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -106,12 +105,11 @@ exports[`should render correctly: content for branches disabled 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/jenkins/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -169,12 +167,11 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/jenkins/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/jenkins/"
           >
             onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
@@ -30,11 +30,9 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
     <>
       <p className="spacer-bottom">
         {translate('settings.analysis_scope.wildcards.introduction')}
-        <Link
-          className="spacer-left"
-          to="/documentation/project-administration/narrowing-the-focus/">
+        <DocLink className="spacer-left" to="/project-administration/narrowing-the-focus/">
           {translate('learn_more')}
-        </Link>
+        </DocLink>
       </p>
 
       <table className="data spacer-bottom">

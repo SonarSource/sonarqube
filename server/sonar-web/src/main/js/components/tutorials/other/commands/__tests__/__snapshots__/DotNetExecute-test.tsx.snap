@@ -28,12 +28,11 @@ exports[`should render correctly 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner-for-msbuild/"
           >
             onboarding.analysis.msbuild.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

@@ -60,11 +60,11 @@ it('should render the default message', () => {
           id="overview.measures.empty_link"
           values={
             Object {
-              "learn_more_link": <ForwardRef(Link)
-                to="/documentation/user-guide/clean-as-you-code/"
+              "learn_more_link": <withAppStateContext(DocLink)
+                to="/user-guide/clean-as-you-code/"
               >
                 learn_more
-              </ForwardRef(Link)>,
+              </withAppStateContext(DocLink)>,
             }
           }
         />

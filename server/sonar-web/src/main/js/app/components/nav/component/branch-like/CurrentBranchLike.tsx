@@ -96,7 +96,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             links={[
               {
                 href: 'https://redirect.sonarsource.com/editions/developer.html',
-                label: translate('learn_more')
+                label: translate('learn_more'),
+                doc: false
               }
             ]}
             title={
@@ -119,17 +120,18 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="only-one-branch-like"
             links={[
               {
-                href: '/documentation/branches/overview/',
+                href: '/branches/overview/',
                 label: translate('branch_like_navigation.only_one_branch.documentation')
               },
               {
-                href: '/documentation/analysis/pull-request/',
+                href: '/analysis/pull-request/',
                 label: translate('branch_like_navigation.only_one_branch.pr_analysis')
               },
               {
                 href: `/tutorials?id=${component.key}`,
                 label: translate('branch_like_navigation.tutorial_for_ci'),
-                inPlace: true
+                inPlace: true,
+                doc: false
               }
             ]}
             title={translate('branch_like_navigation.only_one_branch.title')}>

@@ -17,11 +17,11 @@ exports[`should render correctly: can admin 1`] = `
       id="project_baseline.page.description"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            to="/documentation/project-administration/new-code-period/"
+          "link": <withAppStateContext(DocLink)
+            to="/project-administration/new-code-period/"
           >
             project_baseline.page.description.link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -60,11 +60,11 @@ exports[`should render correctly: cannot admin 1`] = `
       id="project_baseline.page.description"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            to="/documentation/project-administration/new-code-period/"
+          "link": <withAppStateContext(DocLink)
+            to="/project-administration/new-code-period/"
           >
             project_baseline.page.description.link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
+import DocLink from '../../../../components/common/DocLink';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import ValidationInput, {
   ValidationInputErrorPlacement
@@ -127,14 +127,9 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
               defaultMessage={translate('settings.almintegration.form.secret.can_encrypt')}
               values={{
                 learn_more: (
-                  <Link
-                    target="_blank"
-                    to={{
-                      pathname:
-                        '/documentation/instance-administration/security/#settings-encryption'
-                    }}>
+                  <DocLink to="/instance-administration/security/#settings-encryption">
                     {translate('learn_more')}
-                  </Link>
+                  </DocLink>
                 )
               }}
             />

@@ -81,16 +81,11 @@ exports[`should render correctly: encryptable 1`] = `
         id="settings.almintegration.form.secret.can_encrypt"
         values={
           Object {
-            "learn_more": <ForwardRef(Link)
-              target="_blank"
-              to={
-                Object {
-                  "pathname": "/documentation/instance-administration/security/#settings-encryption",
-                }
-              }
+            "learn_more": <withAppStateContext(DocLink)
+              to="/instance-administration/security/#settings-encryption"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />

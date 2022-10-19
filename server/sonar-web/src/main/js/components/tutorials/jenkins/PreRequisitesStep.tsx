@@ -25,7 +25,7 @@ import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
-import Link from '../../common/Link';
+import DocLink from '../../common/DocLink';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 
@@ -72,9 +72,9 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
               id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
               values={{
                 link: (
-                  <Link target="_blank" to="/documentation/analysis/jenkins/">
+                  <DocLink to="/analysis/jenkins/">
                     {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
-                  </Link>
+                  </DocLink>
                 )
               }}
             />

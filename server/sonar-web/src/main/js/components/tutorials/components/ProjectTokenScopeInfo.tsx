@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import DocLink from '../../common/DocLink';
 import Link from '../../common/Link';
 import { Alert } from '../../ui/Alert';
 
@@ -40,11 +41,7 @@ export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeIn
               {translate('onboarding.token.text.user_account')}
             </Link>
           ),
-          doc_link: (
-            <Link target="_blank" to="/documentation/user-guide/user-token/">
-              {translate('documentation')}
-            </Link>
-          )
+          doc_link: <DocLink to="/user-guide/user-token/">{translate('documentation')}</DocLink>
         }}
       />
     </Alert>

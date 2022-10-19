@@ -6,12 +6,12 @@ exports[`should render correctly 1`] = `
     className="spacer-bottom"
   >
     settings.analysis_scope.wildcards.introduction
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      to="/documentation/project-administration/narrowing-the-focus/"
+      to="/project-administration/narrowing-the-focus/"
     >
       learn_more
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </p>
   <table
     className="data spacer-bottom"

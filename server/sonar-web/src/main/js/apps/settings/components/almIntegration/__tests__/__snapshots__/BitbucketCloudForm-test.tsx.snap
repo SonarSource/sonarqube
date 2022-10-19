@@ -45,12 +45,11 @@ exports[`should render correctly: default 1`] = `
       id="settings.almintegration.bitbucketcloud.info"
       values={
         Object {
-          "doc_link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/bitbucket-cloud-integration/"
+          "doc_link": <withAppStateContext(DocLink)
+            to="/analysis/bitbucket-cloud-integration/"
           >
             learn_more
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
           "oauth": <ForwardRef(Link)
             target="_blank"
             to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
@@ -131,12 +130,11 @@ exports[`should render correctly: invalid workspace ID 1`] = `
       id="settings.almintegration.bitbucketcloud.info"
       values={
         Object {
-          "doc_link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/bitbucket-cloud-integration/"
+          "doc_link": <withAppStateContext(DocLink)
+            to="/analysis/bitbucket-cloud-integration/"
           >
             learn_more
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
           "oauth": <ForwardRef(Link)
             target="_blank"
             to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"

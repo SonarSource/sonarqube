@@ -77,23 +77,21 @@ exports[`renders correctly: with links 1`] = `
           aria-hidden={true}
           className="little-spacer-bottom"
         >
-          <ForwardRef(Link)
-            target="_blank"
+          <withAppStateContext(DocLink)
             to="http://link.tosome.place"
           >
             external link
-          </ForwardRef(Link)>
+          </withAppStateContext(DocLink)>
         </div>
         <div
           aria-hidden={true}
           className="little-spacer-bottom"
         >
-          <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/guide"
+          <withAppStateContext(DocLink)
+            to="/guide"
           >
             internal link
-          </ForwardRef(Link)>
+          </withAppStateContext(DocLink)>
         </div>
         <div
           aria-hidden={true}

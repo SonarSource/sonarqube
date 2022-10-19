@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
-import Link from '../../../common/Link';
+import DocLink from '../../../common/DocLink';
 import { OSs } from '../../types';
 
 export interface ExecBuildWrapperProps {
@@ -56,9 +56,9 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
           id="onboarding.analysis.build_wrapper.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/languages/cfamily/" target="_blank">
+              <DocLink to="/analysis/languages/cfamily/">
                 {translate('onboarding.analysis.build_wrapper.docs_link')}
-              </Link>
+              </DocLink>
             )
           }}
         />

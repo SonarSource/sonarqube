@@ -43,12 +43,11 @@ exports[`should render correctly 1`] = `
       id="settings.almintegration.github.info"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/github-integration/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/github-integration/"
           >
             learn_more
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -147,12 +146,11 @@ exports[`should render correctly 2`] = `
       id="settings.almintegration.github.info"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/github-integration/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/github-integration/"
           >
             learn_more
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

@@ -13,13 +13,11 @@ exports[`should render correctly 1`] = `
       id="onboarding.tutorial.cfamilly.compilation_database_info"
       values={
         Object {
-          "link": <a
-            href="/documentation/analysis/languages/cfamily/"
-            rel="noopener noreferrer"
-            target="_blank"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/languages/cfamily/"
           >
             onboarding.tutorial.cfamilly.compilation_database_info.link
-          </a>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -30,13 +28,11 @@ exports[`should render correctly 1`] = `
       id="onboarding.tutorial.cfamilly.speed_caching"
       values={
         Object {
-          "link": <a
-            href="/documentation/analysis/languages/cfamily/#analysis-cache"
-            rel="noopener noreferrer"
-            target="_blank"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/languages/cfamily/#analysis-cache"
           >
             onboarding.tutorial.cfamilly.speed_caching.link
-          </a>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

@@ -33,12 +33,11 @@ exports[`should render correctly for "linux" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -103,12 +102,11 @@ exports[`should render correctly for "mac" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -173,12 +171,11 @@ exports[`should render correctly for "win" 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -243,12 +240,11 @@ exports[`should render correctly for cfamily 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -313,12 +309,11 @@ exports[`should render correctly for remote execution 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
+          "link": <withAppStateContext(DocLink)
+            to="/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

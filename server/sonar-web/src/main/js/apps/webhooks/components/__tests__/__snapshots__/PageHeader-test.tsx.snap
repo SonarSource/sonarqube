@@ -21,11 +21,11 @@ exports[`should render correctly 1`] = `
       id="webhooks.description"
       values={
         Object {
-          "url": <ForwardRef(Link)
-            to="/documentation/project-administration/webhooks/"
+          "url": <withAppStateContext(DocLink)
+            to="/project-administration/webhooks/"
           >
             webhooks.documentation_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

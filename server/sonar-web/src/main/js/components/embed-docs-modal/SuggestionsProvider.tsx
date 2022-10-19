@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import * as React from 'react';
 import { Dict, SuggestionLink } from '../../types/types';
+import suggestionsJson from './EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 
 type SuggestionsJson = Dict<SuggestionLink[]>;
@@ -40,8 +40,6 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
         suggestions = [...jsonList[key], ...suggestions];
       }
     });
-
-    suggestions = suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
 
     this.setState({ suggestions });
   };

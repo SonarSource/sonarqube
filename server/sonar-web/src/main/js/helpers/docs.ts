@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const path = require('path');
 
-module.exports = {
-  placeholder: true // doesn't matter, this is replaced by esbuild
-};
+const VERSION_PARSER = /^(\d+\.\d+).*$/;
+
+export function getUrlForDoc(version: string, to: string) {
+  const versionPrefix = VERSION_PARSER.exec(version);
+  const isSnapshot = version.indexOf('SNAPSHOT') !== -1;
+  const docPrefix =
+    versionPrefix && versionPrefix.length === 2 && !isSnapshot ? versionPrefix[1] : 'latest';
+
+  return `https://docs.sonarqube.org/${docPrefix}${to}`;
+}

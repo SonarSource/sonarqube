@@ -34,12 +34,11 @@ exports[`should render correctly 1`] = `
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
           Object {
-            "doc_link": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/analysis/gitlab-integration/"
+            "doc_link": <withAppStateContext(DocLink)
+              to="/analysis/gitlab-integration/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
             "pat": <ForwardRef(Link)
               target="_blank"
               to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
@@ -102,12 +101,11 @@ exports[`should render correctly 2`] = `
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
           Object {
-            "doc_link": <ForwardRef(Link)
-              target="_blank"
-              to="/documentation/analysis/gitlab-integration/"
+            "doc_link": <withAppStateContext(DocLink)
+              to="/analysis/gitlab-integration/"
             >
               learn_more
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
             "pat": <ForwardRef(Link)
               target="_blank"
               to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"

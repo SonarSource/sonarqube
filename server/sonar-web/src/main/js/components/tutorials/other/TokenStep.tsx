@@ -214,7 +214,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                     content={translate('onboarding.token.name.help')}
                     links={[
                       {
-                        href: '/documentation/user-guide/user-token/',
+                        href: '/user-guide/user-token/',
                         label: translate('learn_more')
                       }
                     ]}
@@ -282,7 +282,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 content={translate('onboarding.token.use_existing_token.help')}
                 links={[
                   {
-                    href: '/documentation/user-guide/user-token/',
+                    href: '/user-guide/user-token/',
                     label: translate('learn_more')
                   }
                 ]}
