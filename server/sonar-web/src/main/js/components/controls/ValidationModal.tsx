@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FormikValues } from 'formik';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import DeferredSpinner from '../ui/DeferredSpinner';
@@ -30,13 +31,12 @@ interface Props<V> extends ModalProps {
   header: string;
   initialValues: V;
   isDestructive?: boolean;
-  isInitialValid?: boolean;
   onClose: () => void;
   onSubmit: (data: V) => Promise<void>;
   validate: (data: V) => { [P in keyof V]?: string };
 }
 
-export default class ValidationModal<V> extends React.PureComponent<Props<V>> {
+export default class ValidationModal<V extends FormikValues> extends React.PureComponent<Props<V>> {
   handleSubmit = (data: V) => {
     return this.props.onSubmit(data).then(() => {
       this.props.onClose();
@@ -52,7 +52,6 @@ export default class ValidationModal<V> extends React.PureComponent<Props<V>> {
         size={this.props.size}>
         <ValidationForm
           initialValues={this.props.initialValues}
-          isInitialValid={this.props.isInitialValid}
           onSubmit={this.handleSubmit}
           validate={this.props.validate}>
           {props => (

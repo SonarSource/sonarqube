@@ -11,7 +11,6 @@ exports[`should render correctly 1`] = `
         "field": "foo",
       }
     }
-    isInitialValid={true}
     onSubmit={[Function]}
     validate={[MockFunction]}
   >
@@ -26,10 +25,16 @@ exports[`should render correctly 2`] = `
     Object {
       "dirty": false,
       "errors": Object {},
+      "getFieldHelpers": [Function],
+      "getFieldMeta": [Function],
+      "getFieldProps": [Function],
       "handleBlur": [Function],
       "handleChange": [Function],
       "handleReset": [Function],
       "handleSubmit": [Function],
+      "initialErrors": Object {},
+      "initialStatus": undefined,
+      "initialTouched": Object {},
       "initialValues": Object {
         "field": "foo",
       },
@@ -38,7 +43,6 @@ exports[`should render correctly 2`] = `
       "isValidating": false,
       "registerField": [Function],
       "resetForm": [Function],
-      "setError": [Function],
       "setErrors": [Function],
       "setFieldError": [Function],
       "setFieldTouched": [Function],
@@ -48,16 +52,16 @@ exports[`should render correctly 2`] = `
       "setSubmitting": [Function],
       "setTouched": [Function],
       "setValues": [Function],
+      "status": undefined,
       "submitCount": 0,
       "submitForm": [Function],
       "touched": Object {},
       "unregisterField": [Function],
-      "validate": [MockFunction],
       "validateField": [Function],
       "validateForm": [Function],
       "validateOnBlur": true,
       "validateOnChange": true,
-      "validationSchema": undefined,
+      "validateOnMount": true,
       "values": Object {
         "field": "foo",
       },

@@ -2,17 +2,14 @@
 
 exports[`should render and submit 1`] = `
 <Formik
-  enableReinitialize={false}
   initialValues={
     Object {
       "foo": "bar",
     }
   }
-  isInitialValid={false}
   onSubmit={[Function]}
   validate={[MockFunction]}
-  validateOnBlur={true}
-  validateOnChange={true}
+  validateOnMount={true}
 >
   <Component />
 </Formik>

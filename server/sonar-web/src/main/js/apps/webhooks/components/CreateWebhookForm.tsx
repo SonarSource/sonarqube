@@ -78,7 +78,6 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
           secret: (webhook && webhook.secret) || '',
           url: (webhook && webhook.url) || ''
         }}
-        isInitialValid={isUpdate}
         onClose={this.props.onClose}
         onSubmit={this.props.onDone}
         size="small"

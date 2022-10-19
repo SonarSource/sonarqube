@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Formik, FormikActions, FormikProps } from 'formik';
+import { Formik, FormikHelpers, FormikProps, FormikValues } from 'formik';
 import * as React from 'react';
 
 export type ChildrenProps<V> = Omit<FormikProps<V>, 'handleSubmit'>;
 
-interface Props<V> {
+interface Props<V extends FormikValues> {
   children: (props: ChildrenProps<V>) => React.ReactNode;
   initialValues: V;
-  isInitialValid?: boolean;
   onSubmit: (data: V) => Promise<void>;
   validate: (data: V) => { [P in keyof V]?: string } | Promise<{ [P in keyof V]?: string }>;
 }
 
-export default class ValidationForm<V> extends React.Component<Props<V>> {
+export default class ValidationForm<V extends FormikValues> extends React.Component<Props<V>> {
   mounted = false;
 
   componentDidMount() {
@@ -41,7 +40,7 @@ export default class ValidationForm<V> extends React.Component<Props<V>> {
     this.mounted = false;
   }
 
-  handleSubmit = (data: V, { setSubmitting }: FormikActions<V>) => {
+  handleSubmit = (data: V, { setSubmitting }: FormikHelpers<V>) => {
     const result = this.props.onSubmit(data);
     const stopSubmitting = () => {
       if (this.mounted) {
@@ -60,9 +59,9 @@ export default class ValidationForm<V> extends React.Component<Props<V>> {
     return (
       <Formik<V>
         initialValues={this.props.initialValues}
-        isInitialValid={this.props.isInitialValid}
         onSubmit={this.handleSubmit}
-        validate={this.props.validate}>
+        validate={this.props.validate}
+        validateOnMount={true}>
         {({ handleSubmit, ...props }) => (
           <form onSubmit={handleSubmit}>{this.props.children(props)}</form>
         )}

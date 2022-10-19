@@ -19,7 +19,7 @@
     "date-fns": "2.29.3",
     "diff": "5.1.0",
     "dompurify": "2.3.10",
-    "formik": "1.2.0",
+    "formik": "2.2.9",
     "lodash": "4.17.21",
     "lunr": "2.3.9",
     "mdast-util-toc": "5.0.2",

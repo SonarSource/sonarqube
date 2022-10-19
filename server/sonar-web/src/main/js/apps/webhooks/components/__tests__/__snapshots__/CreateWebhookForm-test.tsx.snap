@@ -11,7 +11,6 @@ exports[`should render correctly when creating a new webhook 1`] = `
       "url": "",
     }
   }
-  isInitialValid={false}
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
   size="small"
@@ -32,7 +31,6 @@ exports[`should render correctly when updating a webhook with a secret 1`] = `
       "url": "http://foo.bar",
     }
   }
-  isInitialValid={true}
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
   size="small"
@@ -53,7 +51,6 @@ exports[`should render correctly when updating a webhook without secret 1`] = `
       "url": "http://foo.bar",
     }
   }
-  isInitialValid={true}
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
   size="small"
