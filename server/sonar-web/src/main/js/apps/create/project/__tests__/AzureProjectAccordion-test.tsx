@@ -74,7 +74,7 @@ it('should open when clicked', () => {
     .props()
     .onClick();
 
-  expect(onOpen).toBeCalled();
+  expect(onOpen).toHaveBeenCalled();
 
   expect(
     wrapper
@@ -104,7 +104,7 @@ it('should close when clicked', () => {
     .props()
     .onClick();
 
-  expect(onOpen).not.toBeCalled();
+  expect(onOpen).not.toHaveBeenCalled();
 
   expect(
     wrapper
@@ -124,7 +124,7 @@ it('should trigger selection when repo is clicked', () => {
     .props()
     .onCheck(mockEvent());
 
-  expect(onSelectRepository).toBeCalledWith(repo);
+  expect(onSelectRepository).toHaveBeenCalledWith(repo);
 });
 
 function shallowRender(overrides: Partial<AzureProjectAccordionProps> = {}) {

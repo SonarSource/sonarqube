@@ -34,7 +34,7 @@ describe('class adders', () => {
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
     fct();
-    expect(toggle).toBeCalledWith(cls, true);
+    expect(toggle).toHaveBeenCalledWith(cls, true);
   });
 });
 
@@ -46,6 +46,6 @@ describe('class removers', () => {
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
     fct();
-    expect(toggle).toBeCalledWith(cls, false);
+    expect(toggle).toHaveBeenCalledWith(cls, false);
   });
 });

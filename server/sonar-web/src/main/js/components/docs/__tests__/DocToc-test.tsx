@@ -73,7 +73,7 @@ it('should trigger the handler when an anchor is clicked', () => {
   const onAnchorClick = jest.fn();
   const wrapper = renderComponent({ onAnchorClick });
   click(wrapper.find('a[href="#sit-amet"]'));
-  expect(onAnchorClick).toBeCalled();
+  expect(onAnchorClick).toHaveBeenCalled();
 });
 
 it('should highlight anchors when scrolling', () => {

@@ -72,14 +72,14 @@ it('should handle accepting the risk', async () => {
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
-  expect(getValue).toBeCalledWith({ key: SettingsKey.PluginRiskConsent });
+  expect(getValue).toHaveBeenCalledWith({ key: SettingsKey.PluginRiskConsent });
 
   wrapper.instance().acknowledgeRisk();
 
   await new Promise(setImmediate);
 
-  expect(setSimpleSettingValue).toBeCalled();
-  expect(getValue).toBeCalledWith({ key: SettingsKey.PluginRiskConsent });
+  expect(setSimpleSettingValue).toHaveBeenCalled();
+  expect(getValue).toHaveBeenCalledWith({ key: SettingsKey.PluginRiskConsent });
   expect(wrapper.state().riskConsent).toBe(RiskConsent.Accepted);
 });
 
@@ -87,16 +87,16 @@ it('should fetch plugin info', async () => {
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
-  expect(getInstalledPluginsWithUpdates).toBeCalled();
-  expect(getAvailablePlugins).toBeCalled();
+  expect(getInstalledPluginsWithUpdates).toHaveBeenCalled();
+  expect(getAvailablePlugins).toHaveBeenCalled();
 
   wrapper.setProps({ location: mockLocation({ query: { filter: 'updates' } }) });
   await waitAndUpdate(wrapper);
-  expect(getPluginUpdates).toBeCalled();
+  expect(getPluginUpdates).toHaveBeenCalled();
 
   wrapper.setProps({ location: mockLocation({ query: { filter: 'installed' } }) });
   await waitAndUpdate(wrapper);
-  expect(getInstalledPlugins).toBeCalled();
+  expect(getInstalledPlugins).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {

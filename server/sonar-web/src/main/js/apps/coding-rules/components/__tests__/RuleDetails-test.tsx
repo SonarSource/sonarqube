@@ -57,7 +57,7 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('loaded');
 
-  expect(getRuleDetails).toBeCalledWith(
+  expect(getRuleDetails).toHaveBeenCalledWith(
     expect.objectContaining({
       actives: true,
       key: 'squid:S1337'
@@ -72,7 +72,7 @@ it('should correctly handle prop changes', async () => {
   jest.clearAllMocks();
 
   wrapper.setProps({ ruleKey });
-  expect(getRuleDetails).toBeCalledWith(
+  expect(getRuleDetails).toHaveBeenCalledWith(
     expect.objectContaining({
       actives: true,
       key: ruleKey
@@ -119,7 +119,7 @@ it('should correctly handle activation', async () => {
 
   wrapper.instance().handleActivate();
   await waitAndUpdate(wrapper);
-  expect(onActivate).toBeCalledWith(
+  expect(onActivate).toHaveBeenCalledWith(
     'foo',
     'squid:S1337',
     expect.objectContaining({
@@ -137,7 +137,7 @@ it('should correctly handle deactivation', async () => {
 
   wrapper.instance().handleDeactivate();
   await waitAndUpdate(wrapper);
-  expect(onDeactivate).toBeCalledWith(selectedProfile.key, 'squid:S1337');
+  expect(onDeactivate).toHaveBeenCalledWith(selectedProfile.key, 'squid:S1337');
 });
 
 it('should correctly handle deletion', async () => {
@@ -147,8 +147,8 @@ it('should correctly handle deletion', async () => {
 
   wrapper.instance().handleDelete();
   await waitAndUpdate(wrapper);
-  expect(deleteRule).toBeCalledWith(expect.objectContaining({ key: 'squid:S1337' }));
-  expect(onDelete).toBeCalledWith('squid:S1337');
+  expect(deleteRule).toHaveBeenCalledWith(expect.objectContaining({ key: 'squid:S1337' }));
+  expect(onDelete).toHaveBeenCalledWith('squid:S1337');
 });
 
 function shallowRender(props: Partial<RuleDetails['props']> = {}) {

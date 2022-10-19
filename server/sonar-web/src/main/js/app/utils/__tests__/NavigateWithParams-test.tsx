@@ -32,7 +32,7 @@ it('should transform path parameters to search params', () => {
 
   renderNavigateWithParams(transformParams);
 
-  expect(transformParams).toBeCalled();
+  expect(transformParams).toHaveBeenCalled();
   expect(screen.getByText('/target?also=this&key=hello&subkey=test')).toBeInTheDocument();
 });
 

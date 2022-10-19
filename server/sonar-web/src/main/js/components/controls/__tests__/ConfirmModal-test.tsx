@@ -52,7 +52,7 @@ it('should confirm and close after confirm', async () => {
   );
   const modalContent = wrapper.find('SimpleModal').dive();
   submit(modalContent.find('form'));
-  expect(onConfirm).toBeCalledWith('data');
+  expect(onConfirm).toHaveBeenCalledWith('data');
   expect(modalContent.find('footer')).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);

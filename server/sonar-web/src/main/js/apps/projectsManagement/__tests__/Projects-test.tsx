@@ -40,13 +40,13 @@ it('selects and deselects project', () => {
     .find('ProjectRow')
     .first()
     .prop<Function>('onProjectCheck')(projects[0], true);
-  expect(onProjectSelected).toBeCalledWith('a');
+  expect(onProjectSelected).toHaveBeenCalledWith('a');
 
   wrapper
     .find('ProjectRow')
     .first()
     .prop<Function>('onProjectCheck')(projects[0], false);
-  expect(onProjectDeselected).toBeCalledWith('a');
+  expect(onProjectDeselected).toHaveBeenCalledWith('a');
 });
 
 function shallowRender(props?: any) {

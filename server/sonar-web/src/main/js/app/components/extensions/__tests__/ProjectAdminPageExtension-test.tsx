@@ -40,7 +40,7 @@ it('should render correctly when the extension is found', () => {
     }),
     { pluginKey: 'pluginId', extensionKey: 'extensionId' }
   );
-  expect(getExtensionStart).toBeCalledWith('pluginId/extensionId');
+  expect(getExtensionStart).toHaveBeenCalledWith('pluginId/extensionId');
 });
 
 it('should render correctly when the extension is not found', () => {

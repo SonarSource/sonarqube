@@ -41,7 +41,7 @@ it('should correctly submit the form', () => {
   if (formOnSubmit) {
     formOnSubmit(mockEvent());
   }
-  expect(onSubmit).not.toBeCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 
   // Input a new name.
   change(wrapper.find('#profile-name'), 'new name');
@@ -51,7 +51,7 @@ it('should correctly submit the form', () => {
   if (formOnSubmit) {
     formOnSubmit(mockEvent());
   }
-  expect(onSubmit).toBeCalledWith('new name');
+  expect(onSubmit).toHaveBeenCalledWith('new name');
 });
 
 function shallowRender(props: Partial<ProfileModalFormProps> = {}) {

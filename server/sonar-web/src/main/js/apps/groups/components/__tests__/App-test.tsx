@@ -137,7 +137,7 @@ it('should search for groups', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.find('SearchBox').prop<Function>('onChange')('foo');
-  expect(searchUsersGroups).toBeCalledWith({ q: 'foo' });
+  expect(searchUsersGroups).toHaveBeenCalledWith({ q: 'foo' });
   expect(wrapper.state('query')).toBe('foo');
 });
 

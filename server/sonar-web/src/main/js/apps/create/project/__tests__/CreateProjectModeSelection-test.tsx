@@ -67,23 +67,23 @@ it('should correctly pass the selected mode up', () => {
   const almButton = 'button.create-project-mode-type-alm';
 
   click(wrapper.find('button.create-project-mode-type-manual'));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.Manual);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.Manual);
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(0));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.AzureDevOps);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.AzureDevOps);
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(1));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketServer);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.BitbucketServer);
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(2));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitHub);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.GitHub);
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(3));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitLab);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.GitLab);
   onSelectMode.mockClear();
 
   wrapper = shallowRender(
@@ -92,7 +92,7 @@ it('should correctly pass the selected mode up', () => {
   );
 
   click(wrapper.find(almButton).at(1));
-  expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketCloud);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.BitbucketCloud);
   onSelectMode.mockClear();
 });
 

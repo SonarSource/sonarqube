@@ -43,7 +43,7 @@ it('should display the create form', () => {
     name: 'foo',
     url: 'http://foo.bar'
   });
-  expect(onCreate).lastCalledWith({ name: 'foo', url: 'http://foo.bar' });
+  expect(onCreate).toHaveBeenLastCalledWith({ name: 'foo', url: 'http://foo.bar' });
 });
 
 function getWrapper(props = {}) {

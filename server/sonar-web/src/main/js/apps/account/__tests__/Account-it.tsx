@@ -166,7 +166,7 @@ it('should handle a currentUser not logged in', () => {
   renderAccountApp(mockCurrentUser());
 
   // Make sure we're redirected to the login screen
-  expect(replace).toBeCalledWith('/sessions/new?return_to=%2Faccount');
+  expect(replace).toHaveBeenCalledWith('/sessions/new?return_to=%2Faccount');
 
   locationMock.mockRestore();
 });
@@ -241,7 +241,7 @@ describe('profile page', () => {
 
     await user.click(toggle);
 
-    expect(setKeyboardShortcutEnabled).toBeCalledWith(false);
+    expect(setKeyboardShortcutEnabled).toHaveBeenCalledWith(false);
   });
 });
 
@@ -288,15 +288,20 @@ describe('security page', () => {
       const tokenTypeLabel = `users.tokens.${tokenTypeOption}`;
       const tokenTypeShortLabel = `users.tokens.${tokenTypeOption}.short`;
 
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (tokenTypeOption === TokenType.Project) {
         await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeDisabled();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(screen.getAllByRole('textbox')).toHaveLength(4);
         await selectEvent.select(screen.getAllByRole('textbox')[2], ['Project Name 1']);
-        expect(generateButton).not.toBeDisabled();
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(generateButton).toBeEnabled();
       } else {
         await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
-        expect(generateButton).not.toBeDisabled();
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(generateButton).toBeEnabled();
       }
 
       await user.click(generateButton);
@@ -307,10 +312,15 @@ describe('security page', () => {
       expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
       const lastTokenCreated = tokenMock.getLastToken();
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (lastTokenCreated === undefined) {
         throw new Error("Couldn't find the latest generated token.");
       }
-      expect(screen.getByLabelText('users.new_token').textContent).toBe(lastTokenCreated.token);
+      // eslint-disable-next-line jest/no-conditional-in-test
+      expect(screen.getByLabelText('users.new_token')).toHaveTextContent(
+        // eslint-disable-next-line jest/no-conditional-in-test
+        lastTokenCreated.token ?? ''
+      );
 
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
 
@@ -319,7 +329,9 @@ describe('security page', () => {
       });
 
       expect(await within(row).findByText(tokenTypeShortLabel)).toBeInTheDocument();
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (tokenTypeOption === TokenType.Project) {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(await within(row).findByText('Project Name 1')).toBeInTheDocument();
       }
 
@@ -520,7 +532,7 @@ describe('notifications page', () => {
     await user.keyboard('[ArrowDown][ArrowDown][ArrowUp][Enter]');
 
     const addButton = screen.getByRole('button', { name: 'add_verb' });
-    expect(addButton).not.toBeDisabled();
+    expect(addButton).toBeEnabled();
 
     await user.click(addButton);
 
@@ -581,6 +593,9 @@ describe('projects page', () => {
     expect(within(project1).getAllByRole('link')).toHaveLength(6);
 
     const project2 = getProjectBlock('Project 2');
+
+    // FP
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(within(project2).getAllByRole('link')).toHaveLength(1);
   });
 
@@ -621,6 +636,8 @@ describe('projects page', () => {
 
     renderAccountApp(mockLoggedInUser(), projectsPagePath);
 
+    // FP
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(await screen.findAllByRole('heading', { name: /Project \d/ })).toHaveLength(1);
 
     const showMoreButton = await screen.findByRole('button', { name: 'show_more' });

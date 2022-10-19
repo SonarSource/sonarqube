@@ -45,7 +45,7 @@ it('should call onChange', () => {
   expect(select.prop('onChange')).toBeDefined();
 
   select.prop<Function>('onChange')({ value: 'baz', label: 'baz' });
-  expect(onChange).toBeCalledWith('baz');
+  expect(onChange).toHaveBeenCalledWith('baz');
 });
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {

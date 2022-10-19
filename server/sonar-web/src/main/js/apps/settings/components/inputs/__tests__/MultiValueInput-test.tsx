@@ -65,7 +65,7 @@ it('should remove value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallowRender({ onChange, value: ['foo', 'bar', 'baz'] });
   click(multiValueInput.find('.js-remove-value').at(1));
-  expect(onChange).toBeCalledWith(['foo', 'baz']);
+  expect(onChange).toHaveBeenCalledWith(['foo', 'baz']);
 });
 
 it('should change existing value', () => {
@@ -75,7 +75,7 @@ it('should change existing value', () => {
     .find(PrimitiveInput)
     .at(1)
     .prop('onChange')('qux');
-  expect(onChange).toBeCalledWith(['foo', 'qux', 'baz']);
+  expect(onChange).toHaveBeenCalledWith(['foo', 'qux', 'baz']);
 });
 
 it('should add new value', () => {
@@ -85,7 +85,7 @@ it('should add new value', () => {
     .find(PrimitiveInput)
     .at(1)
     .prop('onChange')('bar');
-  expect(onChange).toBeCalledWith(['foo', 'bar']);
+  expect(onChange).toHaveBeenCalledWith(['foo', 'bar']);
 });
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {

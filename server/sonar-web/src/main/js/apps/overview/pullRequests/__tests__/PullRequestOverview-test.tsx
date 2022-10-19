@@ -73,8 +73,8 @@ it('should render correctly for a passed QG', async () => {
 
   expect(wrapper.find('QualityGateConditions').exists()).toBe(false);
 
-  expect(getMeasuresWithMetrics).toBeCalled();
-  expect(fetchBranchStatus).toBeCalled();
+  expect(getMeasuresWithMetrics).toHaveBeenCalled();
+  expect(fetchBranchStatus).toHaveBeenCalled();
 });
 
 it('should render correctly if conditions are ignored', async () => {
@@ -107,7 +107,7 @@ it('should render correctly for a failed QG', async () => {
 it('should correctly fetch all required metrics for a passing QG', async () => {
   const wrapper = shallowRender({ conditions: [] });
   await waitAndUpdate(wrapper);
-  expect(getMeasuresWithMetrics).toBeCalledWith('my-project', PR_METRICS, expect.any(Object));
+  expect(getMeasuresWithMetrics).toHaveBeenCalledWith('my-project', PR_METRICS, expect.any(Object));
 });
 
 it('should correctly fetch all required metrics for a failing QG', async () => {
@@ -115,7 +115,7 @@ it('should correctly fetch all required metrics for a failing QG', async () => {
     conditions: [mockQualityGateStatusCondition({ level: 'ERROR', metric: 'foo' })]
   });
   await waitAndUpdate(wrapper);
-  expect(getMeasuresWithMetrics).toBeCalledWith(
+  expect(getMeasuresWithMetrics).toHaveBeenCalledWith(
     'my-project',
     [...PR_METRICS, 'foo'],
     expect.any(Object)

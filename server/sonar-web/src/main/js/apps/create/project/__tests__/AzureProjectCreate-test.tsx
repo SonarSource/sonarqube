@@ -54,14 +54,14 @@ it('should render correctly', () => {
 it('should correctly fetch binding info on mount', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalledWith('foo');
+  expect(checkPersonalAccessTokenIsValid).toHaveBeenCalledWith('foo');
 });
 
 it('should correctly handle a valid PAT', async () => {
   (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
+  expect(checkPersonalAccessTokenIsValid).toHaveBeenCalled();
   expect(wrapper.state().patIsValid).toBe(true);
 });
 
@@ -69,7 +69,7 @@ it('should correctly handle an invalid PAT', async () => {
   (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
+  expect(checkPersonalAccessTokenIsValid).toHaveBeenCalled();
   expect(wrapper.state().patIsValid).toBe(false);
 });
 
@@ -77,12 +77,12 @@ it('should correctly handle setting a new PAT', async () => {
   const router = mockRouter();
   const wrapper = shallowRender({ router });
   wrapper.instance().handlePersonalAccessTokenCreate('token');
-  expect(setAlmPersonalAccessToken).toBeCalledWith('foo', 'token');
+  expect(setAlmPersonalAccessToken).toHaveBeenCalledWith('foo', 'token');
   expect(wrapper.state().submittingToken).toBe(true);
 
   (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
+  expect(checkPersonalAccessTokenIsValid).toHaveBeenCalled();
   expect(wrapper.state().submittingToken).toBe(false);
   expect(wrapper.state().tokenValidationFailed).toBe(true);
 
@@ -91,7 +91,7 @@ it('should correctly handle setting a new PAT', async () => {
   wrapper.instance().handlePersonalAccessTokenCreate('correct token');
   await waitAndUpdate(wrapper);
   expect(wrapper.state().tokenValidationFailed).toBe(false);
-  expect(router.replace).toBeCalled();
+  expect(router.replace).toHaveBeenCalled();
 });
 
 it('should correctly fetch projects and repositories on mount', async () => {
@@ -103,9 +103,9 @@ it('should correctly fetch projects and repositories on mount', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getAzureProjects).toBeCalled();
-  expect(getAzureRepositories).toBeCalledTimes(1);
-  expect(getAzureRepositories).toBeCalledWith('foo', project.name);
+  expect(getAzureProjects).toHaveBeenCalled();
+  expect(getAzureRepositories).toHaveBeenCalledTimes(1);
+  expect(getAzureRepositories).toHaveBeenCalledWith('foo', project.name);
 });
 
 it('should handle opening a project', async () => {
@@ -132,7 +132,7 @@ it('should handle opening a project', async () => {
   wrapper.instance().handleOpenProject(projects[1].name);
   await waitAndUpdate(wrapper);
 
-  expect(getAzureRepositories).toBeCalledWith('foo', projects[1].name);
+  expect(getAzureRepositories).toHaveBeenCalledWith('foo', projects[1].name);
 
   expect(wrapper.state().repositories).toEqual({
     [projects[0].name]: firstProjectRepos,
@@ -152,7 +152,7 @@ it('should handle searching for repositories', async () => {
   wrapper.instance().handleSearchRepositories(query);
   expect(wrapper.state().searching).toBe(true);
 
-  expect(searchAzureRepositories).toBeCalledWith('foo', query);
+  expect(searchAzureRepositories).toHaveBeenCalledWith('foo', query);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().searching).toBe(false);
   expect(wrapper.state().searchResults).toEqual(repositories);
@@ -167,7 +167,7 @@ it('should handle searching for repositories', async () => {
   (searchAzureRepositories as jest.Mock).mockClear();
 
   wrapper.instance().handleSearchRepositories('');
-  expect(searchAzureRepositories).not.toBeCalled();
+  expect(searchAzureRepositories).not.toHaveBeenCalled();
   expect(wrapper.state().searchResults).toBeUndefined();
   expect(wrapper.state().searchQuery).toBeUndefined();
 });
@@ -184,10 +184,14 @@ it('should select and import a repository', async () => {
 
   wrapper.instance().handleImportRepository();
   expect(wrapper.state().importing).toBe(true);
-  expect(importAzureRepository).toBeCalledWith('foo', repository.projectName, repository.name);
+  expect(importAzureRepository).toHaveBeenCalledWith(
+    'foo',
+    repository.projectName,
+    repository.name
+  );
   await waitAndUpdate(wrapper);
 
-  expect(onProjectCreate).toBeCalledWith('baz');
+  expect(onProjectCreate).toHaveBeenCalledWith('baz');
   expect(wrapper.state().importing).toBe(false);
 });
 
@@ -201,12 +205,12 @@ it('should handle no settings', () => {
   wrapper.instance().checkPersonalAccessToken();
   wrapper.instance().handlePersonalAccessTokenCreate('');
 
-  expect(getAzureProjects).not.toBeCalled();
-  expect(getAzureRepositories).not.toBeCalled();
-  expect(searchAzureRepositories).not.toBeCalled();
-  expect(importAzureRepository).not.toBeCalled();
-  expect(checkPersonalAccessTokenIsValid).not.toBeCalled();
-  expect(setAlmPersonalAccessToken).not.toBeCalled();
+  expect(getAzureProjects).not.toHaveBeenCalled();
+  expect(getAzureRepositories).not.toHaveBeenCalled();
+  expect(searchAzureRepositories).not.toHaveBeenCalled();
+  expect(importAzureRepository).not.toHaveBeenCalled();
+  expect(checkPersonalAccessTokenIsValid).not.toHaveBeenCalled();
+  expect(setAlmPersonalAccessToken).not.toHaveBeenCalled();
 });
 
 function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {

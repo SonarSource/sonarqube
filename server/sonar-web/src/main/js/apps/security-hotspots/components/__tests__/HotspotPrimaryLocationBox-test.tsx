@@ -58,7 +58,7 @@ it('should handle click', () => {
 
   wrapper.find(ButtonLink).simulate('click');
 
-  expect(onCommentClick).toBeCalled();
+  expect(onCommentClick).toHaveBeenCalled();
 });
 
 it('should scroll on load if no secondary locations selected', () => {
@@ -69,7 +69,7 @@ it('should scroll on load if no secondary locations selected', () => {
   const scroll = jest.fn();
   shallowRender({ scroll });
 
-  expect(scroll).toBeCalled();
+  expect(scroll).toHaveBeenCalled();
 });
 
 it('should not scroll on load if a secondary location is selected', () => {
@@ -80,7 +80,7 @@ it('should not scroll on load if a secondary location is selected', () => {
   const scroll = jest.fn();
   shallowRender({ scroll, secondaryLocationSelected: true });
 
-  expect(scroll).not.toBeCalled();
+  expect(scroll).not.toHaveBeenCalled();
 });
 
 it('should not scroll on load if node is not defined', () => {
@@ -90,7 +90,7 @@ it('should not scroll on load if node is not defined', () => {
   const scroll = jest.fn();
   shallowRender({ scroll });
 
-  expect(scroll).not.toBeCalled();
+  expect(scroll).not.toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<HotspotPrimaryLocationBoxProps> = {}) {

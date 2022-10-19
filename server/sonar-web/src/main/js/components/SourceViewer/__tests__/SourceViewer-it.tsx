@@ -312,10 +312,10 @@ it('should show issue indicator', async () => {
   ).toBeInTheDocument();
 
   await user.click(firstIssueBox);
-  expect(onIssueSelect).toBeCalledWith('first-issue');
+  expect(onIssueSelect).toHaveBeenCalledWith('first-issue');
 
   await user.click(secondIssueBox);
-  expect(onIssueSelect).toBeCalledWith('second-issue');
+  expect(onIssueSelect).toHaveBeenCalledWith('second-issue');
 });
 
 it('should show coverage information', async () => {

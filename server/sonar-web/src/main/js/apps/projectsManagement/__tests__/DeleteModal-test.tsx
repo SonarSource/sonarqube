@@ -42,7 +42,7 @@ it('deletes all projects', async () => {
 
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
-  expect(bulkDeleteProjects).toBeCalledWith({
+  expect(bulkDeleteProjects).toHaveBeenCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: undefined,
     q: 'bla',
@@ -50,7 +50,7 @@ it('deletes all projects', async () => {
   });
 
   await new Promise(setImmediate);
-  expect(onConfirm).toBeCalled();
+  expect(onConfirm).toHaveBeenCalled();
 });
 
 it('deletes selected projects', async () => {
@@ -61,17 +61,17 @@ it('deletes selected projects', async () => {
 
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
-  expect(bulkDeleteProjects).toBeCalledWith({ projects: 'proj1,proj2' });
+  expect(bulkDeleteProjects).toHaveBeenCalledWith({ projects: 'proj1,proj2' });
 
   await new Promise(setImmediate);
-  expect(onConfirm).toBeCalled();
+  expect(onConfirm).toHaveBeenCalled();
 });
 
 it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   click(wrapper.find('ResetButtonLink'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

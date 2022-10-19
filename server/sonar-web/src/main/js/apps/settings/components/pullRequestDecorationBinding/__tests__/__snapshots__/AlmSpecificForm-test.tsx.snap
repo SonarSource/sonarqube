@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`it should render correctly for azure 1`] = `
+exports[`should render correctly for azure 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -99,7 +99,7 @@ exports[`it should render correctly for azure 1`] = `
 </Fragment>
 `;
 
-exports[`it should render correctly for bitbucket 1`] = `
+exports[`should render correctly for bitbucket 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -202,7 +202,7 @@ exports[`it should render correctly for bitbucket 1`] = `
 </Fragment>
 `;
 
-exports[`it should render correctly for bitbucket if an instance URL is provided 1`] = `
+exports[`should render correctly for bitbucket if an instance URL is provided 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -305,7 +305,7 @@ exports[`it should render correctly for bitbucket if an instance URL is provided
 </Fragment>
 `;
 
-exports[`it should render correctly for bitbucketcloud 1`] = `
+exports[`should render correctly for bitbucketcloud 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -358,7 +358,7 @@ exports[`it should render correctly for bitbucketcloud 1`] = `
 </Fragment>
 `;
 
-exports[`it should render correctly for github 1`] = `
+exports[`should render correctly for github 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -450,7 +450,7 @@ exports[`it should render correctly for github 1`] = `
 </Fragment>
 `;
 
-exports[`it should render correctly for github if an instance URL is provided 1`] = `
+exports[`should render correctly for github if an instance URL is provided 1`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -542,7 +542,7 @@ exports[`it should render correctly for github if an instance URL is provided 1`
 </Fragment>
 `;
 
-exports[`it should render correctly for github if an instance URL is provided 2`] = `
+exports[`should render correctly for github if an instance URL is provided 2`] = `
 <Fragment>
   <div
     className="settings-definition"
@@ -634,7 +634,7 @@ exports[`it should render correctly for github if an instance URL is provided 2`
 </Fragment>
 `;
 
-exports[`it should render correctly for gitlab 1`] = `
+exports[`should render correctly for gitlab 1`] = `
 <Fragment>
   <div
     className="settings-definition"

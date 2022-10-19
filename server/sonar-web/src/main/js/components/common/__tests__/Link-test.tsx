@@ -30,12 +30,12 @@ it('should correctly render an internal link', () => {
 
 it('should correctly render a link that opens in a new window, but is not considered external', () => {
   renderLink({ target: '_blank', to: '/path' });
-  expect(screen.getByRole('link').getAttribute('rel')).toBe('noopener noreferrer');
+  expect(screen.getByRole('link')).toHaveAttribute('rel', 'noopener noreferrer');
 });
 
 it('should correctly render an external link', () => {
   renderLink({ target: '_blank', to: 'http://example.com' });
-  expect(screen.getByRole('link').getAttribute('rel')).toBe('noopener noreferrer');
+  expect(screen.getByRole('link')).toHaveAttribute('rel', 'noopener noreferrer');
   expect(screen.getByLabelText('opens_in_new_window')).toBeInTheDocument();
 });
 

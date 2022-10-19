@@ -59,7 +59,7 @@ it('should work for WebAnalytics plugin', () => {
 
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
-  expect(installScript).toBeCalledWith(webAnalyticsJsPath, 'head');
+  expect(installScript).toHaveBeenCalledWith(webAnalyticsJsPath, 'head');
   (getWebAnalyticsPageHandlerFromCache as jest.Mock).mockReturnValueOnce(pageChange);
 
   wrapper.instance().trackPage();

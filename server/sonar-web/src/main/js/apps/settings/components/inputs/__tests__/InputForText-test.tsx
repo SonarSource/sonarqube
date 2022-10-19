@@ -40,7 +40,7 @@ it('should call onChange', () => {
   expect(textarea.prop('onChange')).toBeDefined();
 
   change(textarea, 'qux');
-  expect(onChange).toBeCalledWith('qux');
+  expect(onChange).toHaveBeenCalledWith('qux');
 });
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {

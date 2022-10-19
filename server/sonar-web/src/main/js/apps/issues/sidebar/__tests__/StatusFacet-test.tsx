@@ -30,14 +30,14 @@ it('should toggle status facet', () => {
   const onToggle = jest.fn();
   const wrapper = shallowRender({ onToggle });
   click(wrapper.children('FacetHeader'));
-  expect(onToggle).toBeCalledWith('statuses');
+  expect(onToggle).toHaveBeenCalledWith('statuses');
 });
 
 it('should clear status facet', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, statuses: ['CONFIRMED'] });
   wrapper.children('FacetHeader').prop<Function>('onClear')();
-  expect(onChange).toBeCalledWith({ statuses: [] });
+  expect(onChange).toHaveBeenCalledWith({ statuses: [] });
 });
 
 it('should select a status', () => {
@@ -52,7 +52,7 @@ it('should select a status', () => {
       .find(`FacetItemsList`)
       .find(`FacetItem[value="${status}"]`)
       .prop<Function>('onClick')(status, multiple);
-    expect(onChange).lastCalledWith({ statuses: expected });
+    expect(onChange).toHaveBeenLastCalledWith({ statuses: expected });
     wrapper.setProps({ statuses: expected });
   }
 });

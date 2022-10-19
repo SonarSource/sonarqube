@@ -48,7 +48,7 @@ it('should set value', () => {
 
   click(input.find('Button'));
   change(input.find(InputForString), 'secret');
-  expect(onChange).toBeCalledWith('secret');
+  expect(onChange).toHaveBeenCalledWith('secret');
 });
 
 it('should show input when empty, and enable handle typing', () => {

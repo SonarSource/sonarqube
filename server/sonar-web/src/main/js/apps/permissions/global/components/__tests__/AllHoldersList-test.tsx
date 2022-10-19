@@ -54,10 +54,10 @@ it('should correctly toggle user permissions', () => {
   const instance = wrapper.instance();
 
   instance.handleToggleUser(user, grantPermission);
-  expect(grantPermissionToUser).toBeCalledWith(user.login, grantPermission);
+  expect(grantPermissionToUser).toHaveBeenCalledWith(user.login, grantPermission);
 
   instance.handleToggleUser(user, revokePermission);
-  expect(revokePermissionFromUser).toBeCalledWith(user.login, revokePermission);
+  expect(revokePermissionFromUser).toHaveBeenCalledWith(user.login, revokePermission);
 });
 
 it('should correctly toggle group permissions', () => {
@@ -70,10 +70,10 @@ it('should correctly toggle group permissions', () => {
   const instance = wrapper.instance();
 
   instance.handleToggleGroup(group, grantPermission);
-  expect(grantPermissionToGroup).toBeCalledWith(group.name, grantPermission);
+  expect(grantPermissionToGroup).toHaveBeenCalledWith(group.name, grantPermission);
 
   instance.handleToggleGroup(group, revokePermission);
-  expect(revokePermissionFromGroup).toBeCalledWith(group.name, revokePermission);
+  expect(revokePermissionFromGroup).toHaveBeenCalledWith(group.name, revokePermission);
 });
 
 function shallowRender(props: Partial<AllHoldersList['props']> = {}) {

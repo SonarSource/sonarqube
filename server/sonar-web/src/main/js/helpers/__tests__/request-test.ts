@@ -53,13 +53,13 @@ describe('getJSON', () => {
     getJSON(url);
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(url, expect.objectContaining({ method: 'GET' }));
-    expect(response.json).toBeCalled();
+    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'GET' }));
+    expect(response.json).toHaveBeenCalled();
   });
 
   it('should get json with parameters', () => {
     getJSON(url, { data: 'test' });
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url + '?data=test',
       expect.objectContaining({ method: 'GET' })
     );
@@ -73,13 +73,13 @@ describe('getText', () => {
     getText(url);
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(url, expect.objectContaining({ method: 'GET' }));
-    expect(response.text).toBeCalled();
+    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'GET' }));
+    expect(response.text).toHaveBeenCalled();
   });
 
   it('should get text with parameters', () => {
     getText(url, { data: 'test' });
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url + '?data=test',
       expect.objectContaining({ method: 'GET' })
     );
@@ -115,7 +115,7 @@ describe('parseJSON', () => {
     const body = { test: 2 };
     const response = mockResponse({}, HttpStatus.Ok, body);
     const jsonResponse = parseJSON(response);
-    expect(response.json).toBeCalled();
+    expect(response.json).toHaveBeenCalled();
     return expect(jsonResponse).resolves.toEqual(body);
   });
 });
@@ -125,7 +125,7 @@ describe('parseText', () => {
     const body = 'test';
     const response = mockResponse({}, HttpStatus.Ok, body);
     const textResponse = parseText(response);
-    expect(response.text).toBeCalled();
+    expect(response.text).toHaveBeenCalled();
     return expect(textResponse).resolves.toBe(body);
   });
 });
@@ -137,13 +137,13 @@ describe('postJSON', () => {
     postJSON(url);
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(url, expect.objectContaining({ method: 'POST' }));
-    expect(response.json).toBeCalled();
+    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'POST' }));
+    expect(response.json).toHaveBeenCalled();
   });
 
   it('should post with a body and get json', () => {
     postJSON(url, { data: 'test' });
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url,
       expect.objectContaining({ body: 'data=test', method: 'POST' })
     );
@@ -157,13 +157,13 @@ describe('postJSONBody', () => {
     postJSONBody(url);
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(url, expect.objectContaining({ method: 'POST' }));
-    expect(response.json).toBeCalled();
+    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'POST' }));
+    expect(response.json).toHaveBeenCalled();
   });
 
   it('should post with a body and get json', () => {
     postJSONBody(url, { nested: { data: 'test', withArray: [1, 2] } });
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url,
       expect.objectContaining({
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -181,12 +181,12 @@ describe('post', () => {
     post(url, { data: 'test' });
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url,
       expect.objectContaining({ body: 'data=test', method: 'POST' })
     );
-    expect(response.json).not.toBeCalled();
-    expect(response.text).not.toBeCalled();
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.text).not.toHaveBeenCalled();
   });
 
   it('should handle array values', async () => {
@@ -195,7 +195,7 @@ describe('post', () => {
     post(url, { dataArray: ['1', '2'] });
     await new Promise(setImmediate);
 
-    expect(window.fetch).toBeCalledWith(
+    expect(window.fetch).toHaveBeenCalledWith(
       url,
       expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' })
     );
@@ -228,15 +228,15 @@ describe('requestTryAndRepeatUntil', () => {
 
     for (let i = 1; i < 5; i++) {
       jest.runAllTimers();
-      expect(apiCall).toBeCalledTimes(i);
+      expect(apiCall).toHaveBeenCalledTimes(i);
       await new Promise(setImmediate);
-      expect(stopRepeat).toBeCalledTimes(i);
+      expect(stopRepeat).toHaveBeenCalledTimes(i);
     }
     apiCall.mockResolvedValue({ repeat: false });
     jest.runAllTimers();
-    expect(apiCall).toBeCalledTimes(5);
+    expect(apiCall).toHaveBeenCalledTimes(5);
     await new Promise(setImmediate);
-    expect(stopRepeat).toBeCalledTimes(5);
+    expect(stopRepeat).toHaveBeenCalledTimes(5);
 
     await expect(promiseResult).resolves.toEqual({ repeat: false });
   });
@@ -253,14 +253,14 @@ describe('requestTryAndRepeatUntil', () => {
 
     for (let i = 1; i < 5; i++) {
       jest.runAllTimers();
-      expect(apiCall).toBeCalledTimes(i);
+      expect(apiCall).toHaveBeenCalledTimes(i);
       await new Promise(setImmediate);
     }
     apiCall.mockResolvedValue('Success');
     jest.runAllTimers();
-    expect(apiCall).toBeCalledTimes(5);
+    expect(apiCall).toHaveBeenCalledTimes(5);
     await new Promise(setImmediate);
-    expect(stopRepeat).toBeCalledTimes(1);
+    expect(stopRepeat).toHaveBeenCalledTimes(1);
 
     await expect(promiseResult).resolves.toBe('Success');
   });
@@ -275,16 +275,16 @@ describe('requestTryAndRepeatUntil', () => {
     );
 
     for (let i = 1; i < 3; i++) {
-      expect(apiCall).toBeCalledTimes(i);
+      expect(apiCall).toHaveBeenCalledTimes(i);
       await new Promise(setImmediate);
       jest.runAllTimers();
     }
-    expect(apiCall).toBeCalledTimes(3);
+    expect(apiCall).toHaveBeenCalledTimes(3);
     await expect(promiseResult).rejects.toBeUndefined();
 
     // It should not call anymore after 3 times
     jest.runAllTimers();
-    expect(apiCall).toBeCalledTimes(3);
+    expect(apiCall).toHaveBeenCalledTimes(3);
   });
 
   it('should slow down after 2 calls', async () => {
@@ -298,24 +298,24 @@ describe('requestTryAndRepeatUntil', () => {
 
     for (let i = 1; i < 3; i++) {
       jest.advanceTimersByTime(500);
-      expect(apiCall).toBeCalledTimes(i);
+      expect(apiCall).toHaveBeenCalledTimes(i);
       await new Promise(setImmediate);
     }
 
     jest.advanceTimersByTime(500);
-    expect(apiCall).toBeCalledTimes(2);
+    expect(apiCall).toHaveBeenCalledTimes(2);
     jest.advanceTimersByTime(2000);
-    expect(apiCall).toBeCalledTimes(2);
+    expect(apiCall).toHaveBeenCalledTimes(2);
     jest.advanceTimersByTime(500);
-    expect(apiCall).toBeCalledTimes(3);
+    expect(apiCall).toHaveBeenCalledTimes(3);
     await new Promise(setImmediate);
 
     jest.advanceTimersByTime(3000);
-    expect(apiCall).toBeCalledTimes(4);
+    expect(apiCall).toHaveBeenCalledTimes(4);
 
     await new Promise(setImmediate);
     jest.runAllTimers();
-    expect(apiCall).toBeCalledTimes(5);
+    expect(apiCall).toHaveBeenCalledTimes(5);
 
     await expect(promiseResult).rejects.toBeUndefined();
   });
@@ -333,17 +333,14 @@ describe('checkStatus', () => {
   });
 
   it('should handle required authentication', async () => {
-    await checkStatus(mockResponse({}, HttpStatus.Unauthorized)).catch(() => {
-      expect(handleRequiredAuthentication).toBeCalled();
-    });
+    await checkStatus(mockResponse({}, HttpStatus.Unauthorized)).catch(() => {});
+    expect(handleRequiredAuthentication).toHaveBeenCalled();
   });
 
   it('should bybass the redirect with a 401 error', async () => {
     const mockedResponse = mockResponse({}, HttpStatus.Unauthorized);
-    await checkStatus(mockedResponse, true).catch(response => {
-      expect(handleRequiredAuthentication).not.toBeCalled();
-      expect(response).toEqual(mockedResponse);
-    });
+    await expect(checkStatus(mockedResponse, true)).rejects.toBe(mockedResponse);
+    expect(handleRequiredAuthentication).not.toHaveBeenCalled();
   });
 });
 it('should export status codes', () => {

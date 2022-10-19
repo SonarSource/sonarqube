@@ -40,7 +40,7 @@ it('should correctly trigger a selection change', () => {
   const handleViewChange = jest.fn();
   const wrapper = shallowRender({ handleViewChange });
   wrapper.instance().handleChange({ icon: <ListIcon />, label: 'List View', value: 'list' });
-  expect(handleViewChange).toBeCalledWith('list');
+  expect(handleViewChange).toHaveBeenCalledWith('list');
 });
 
 function shallowRender(props: Partial<MeasureViewSelect['props']> = {}) {

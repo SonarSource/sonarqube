@@ -36,21 +36,21 @@ describe('getPeriodLabel', () => {
     expect(
       getPeriodLabel(mockPeriod({ mode: 'date', parameter: '2019-02-21T01:11:21+0100' }), formatter)
     ).toBe('overview.period.date.2019-02-21T01:11:21+0100');
-    expect(formatter).toBeCalledTimes(1);
+    expect(formatter).toHaveBeenCalledTimes(1);
   });
 
   it('should handle days', () => {
     expect(getPeriodLabel(mockPeriod({ mode: 'days', modeParam: '12' }), formatter)).toBe(
       'overview.period.days.12'
     );
-    expect(formatter).not.toBeCalled();
+    expect(formatter).not.toHaveBeenCalled();
   });
 
   it('should handle previous analysis', () => {
     expect(
       getPeriodLabel(mockPeriod({ mode: 'previous_analysis', parameter: 'param' }), formatter)
     ).toBe('overview.period.previous_analysis.param');
-    expect(formatter).not.toBeCalled();
+    expect(formatter).not.toHaveBeenCalled();
   });
 
   it('should handle previous version', () => {
@@ -60,7 +60,7 @@ describe('getPeriodLabel', () => {
     expect(
       getPeriodLabel(mockPeriod({ mode: 'previous_version', parameter: '7.9' }), formatter)
     ).toBe('overview.period.previous_version.7.9');
-    expect(formatter).not.toBeCalled();
+    expect(formatter).not.toHaveBeenCalled();
   });
 
   it('should handle version', () => {
@@ -70,7 +70,7 @@ describe('getPeriodLabel', () => {
     expect(
       getPeriodLabel(mockPeriod({ mode: 'previous_version', parameter: '7.9' }), formatter)
     ).toBe('overview.period.previous_version.7.9');
-    expect(formatter).not.toBeCalled();
+    expect(formatter).not.toHaveBeenCalled();
   });
 
   it('should handle manual baseline', () => {
@@ -80,7 +80,7 @@ describe('getPeriodLabel', () => {
     expect(getPeriodLabel(mockPeriod({ mode: 'manual_baseline' }), formatter)).toBe(
       'overview.period.manual_baseline.2019-04-23T02:12:32+0100'
     );
-    expect(formatter).toBeCalledTimes(1);
+    expect(formatter).toHaveBeenCalledTimes(1);
   });
 
   it('should handle SPECIFIC_ANALYSIS', () => {
@@ -90,7 +90,7 @@ describe('getPeriodLabel', () => {
     expect(getPeriodLabel(mockPeriod({ mode: 'SPECIFIC_ANALYSIS' }), formatter)).toBe(
       'overview.period.specific_analysis.2019-04-23T02:12:32+0100'
     );
-    expect(formatter).toBeCalledTimes(2);
+    expect(formatter).toHaveBeenCalledTimes(2);
   });
 
   it('should handle PREVIOUS_VERSION', () => {
@@ -100,6 +100,6 @@ describe('getPeriodLabel', () => {
     expect(getPeriodLabel(mockPeriod({ mode: 'PREVIOUS_VERSION' }), formatter)).toBe(
       'overview.period.previous_version.2019-04-23T02:12:32+0100'
     );
-    expect(formatter).toBeCalledTimes(1);
+    expect(formatter).toHaveBeenCalledTimes(1);
   });
 });

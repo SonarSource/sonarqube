@@ -88,15 +88,15 @@ it('correctly checks permissions', () => {
     component: mockComponent({ configuration: { showQualityProfiles: false } })
   });
   expect(wrapper.type()).toBeNull();
-  expect(handleRequiredAuthorization).toBeCalled();
+  expect(handleRequiredAuthorization).toHaveBeenCalled();
 });
 
 it('correctly fetches and treats profile data', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(searchQualityProfiles).toBeCalled();
-  expect(getProfileProjects).toBeCalledTimes(10);
+  expect(searchQualityProfiles).toHaveBeenCalled();
+  expect(getProfileProjects).toHaveBeenCalledTimes(10);
 
   expect(wrapper.state().projectProfiles).toEqual([
     expect.objectContaining({
@@ -161,7 +161,7 @@ it('correctly sets a profile', async () => {
   (dissociateProject as jest.Mock).mockClear();
   instance.handleSetProfile(undefined, 'ts_default');
   // It won't call the WS.
-  expect(dissociateProject).not.toBeCalled();
+  expect(dissociateProject).not.toHaveBeenCalled();
 
   // Associate a default profile that was already inherited.
   instance.handleSetProfile('ts_default', 'ts_default');

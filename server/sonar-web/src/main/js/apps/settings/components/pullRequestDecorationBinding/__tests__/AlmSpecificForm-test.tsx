@@ -29,7 +29,7 @@ it.each([
   [AlmKeys.BitbucketCloud],
   [AlmKeys.GitHub],
   [AlmKeys.GitLab]
-])('it should render correctly for %s', alm => {
+])('should render correctly for %s', alm => {
   expect(shallowRender(alm)).toMatchSnapshot();
 });
 
@@ -41,7 +41,7 @@ it.each([
   [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://example.com/api/v3' })]],
   [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://api.github.com' })]]
 ])(
-  'it should render correctly for %s if an instance URL is provided',
+  'should render correctly for %s if an instance URL is provided',
   (alm: AlmKeys, instances: AlmSettingsInstance[]) => {
     expect(shallowRender(alm, { instances })).toMatchSnapshot();
   }

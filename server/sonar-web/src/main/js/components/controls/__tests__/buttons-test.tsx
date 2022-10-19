@@ -30,9 +30,9 @@ describe('Button', () => {
     const wrapper = shallowRender({ onClick });
     expect(wrapper).toMatchSnapshot();
     click(wrapper.find('button'), mockEvent({ preventDefault, stopPropagation }));
-    expect(onClick).toBeCalled();
-    expect(preventDefault).toBeCalled();
-    expect(stopPropagation).not.toBeCalled();
+    expect(onClick).toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
+    expect(stopPropagation).not.toHaveBeenCalled();
   });
 
   it('should not stop propagation, but prevent default of the click event', () => {
@@ -40,8 +40,8 @@ describe('Button', () => {
     const stopPropagation = jest.fn();
     const wrapper = shallowRender({ preventDefault: false, stopPropagation: true });
     click(wrapper.find('button'), mockEvent({ preventDefault, stopPropagation }));
-    expect(preventDefault).not.toBeCalled();
-    expect(stopPropagation).toBeCalled();
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(stopPropagation).toHaveBeenCalled();
   });
 
   it('should disable buttons with a class', () => {
@@ -52,8 +52,8 @@ describe('Button', () => {
     expect(button.props().className).toContain('disabled');
     expect(button.props()['aria-disabled']).toBe(true);
     click(button, mockEvent({ preventDefault }));
-    expect(onClick).not.toBeCalled();
-    expect(preventDefault).toBeCalled();
+    expect(onClick).not.toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
   });
 
   function shallowRender(props: Partial<Button['props']> = {}) {

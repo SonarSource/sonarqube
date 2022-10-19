@@ -57,14 +57,14 @@ it('should properly call loadMore', () => {
   const loadMore = jest.fn();
   const wrapper = shallowRender({ loadMore });
   click(wrapper.find(Button));
-  expect(loadMore).toBeCalled();
+  expect(loadMore).toHaveBeenCalled();
 });
 
 it('should properly call reload', () => {
   const reload = jest.fn();
   const wrapper = shallowRender({ needReload: true, reload });
   click(wrapper.find(Button));
-  expect(reload).toBeCalled();
+  expect(reload).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ListFooterProps> = {}) {

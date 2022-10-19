@@ -41,7 +41,7 @@ it('should allow to search for a user on SQ', async () => {
   const wrapper = shallowRender();
   wrapper.find('SearchBox').prop<Function>('onChange')('o');
   await waitAndUpdate(wrapper);
-  expect(searchUsers).toBeCalledWith({ q: 'o', ps: 10 });
+  expect(searchUsers).toHaveBeenCalledWith({ q: 'o', ps: 10 });
   expect(wrapper.state('users')).toEqual([mockUser()]);
 });
 

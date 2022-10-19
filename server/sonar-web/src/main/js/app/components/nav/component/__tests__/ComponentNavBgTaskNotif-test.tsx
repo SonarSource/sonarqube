@@ -288,28 +288,42 @@ it.each([
     expect(wrapper.find(Alert).props().variant).toBe(alertVariant);
 
     // Formatted message values prop.
+    // eslint-disable-next-line jest/no-conditional-in-test
     if (/_X/.test(expectedMessage)) {
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.type).toBe(`background_task.type.${currentTask.type}`);
     } else {
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.type).toBeUndefined();
     }
 
+    // eslint-disable-next-line jest/no-conditional-in-test
     if (currentTask.branch) {
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.branch).toBe(currentTask.branch);
     } else {
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.branch).toBeUndefined();
     }
 
+    // eslint-disable-next-line jest/no-conditional-in-test
     if (showBackgroundTasks) {
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (onBackgroudTaskPage) {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(messageProps.values?.url).toBeUndefined();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(messageProps.values?.stacktrace).toBe('background_tasks.show_stacktrace');
       } else {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(messageProps.values?.url).toBeDefined();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(messageProps.values?.stacktrace).toBeUndefined();
       }
     } else {
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.url).toBeUndefined();
+      // eslint-disable-next-line jest/no-conditional-expect
       expect(messageProps.values?.stacktrace).toBeUndefined();
     }
   }

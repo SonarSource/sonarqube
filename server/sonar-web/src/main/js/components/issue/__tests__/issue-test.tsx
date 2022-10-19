@@ -51,33 +51,33 @@ it('should call the proper function with the proper props when pressing shortcut
 
   shallowRender({ onPopupToggle, issue, onCheck });
   keydown({ key: KeyboardKeys.KeyF, metaKey: true });
-  expect(onPopupToggle).not.toBeCalledWith(issue.key, 'transition', undefined);
+  expect(onPopupToggle).not.toHaveBeenCalledWith(issue.key, 'transition', undefined);
 
   keydown({ key: KeyboardKeys.KeyF });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'transition', undefined);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'transition', undefined);
 
   keydown({ key: KeyboardKeys.KeyA });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'assign', undefined);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'assign', undefined);
   keydown({ key: KeyboardKeys.Escape });
 
   keydown({ key: KeyboardKeys.KeyM });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'assign', false);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'assign', false);
 
   keydown({ key: KeyboardKeys.KeyI });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'set-severity', undefined);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'set-severity', undefined);
 
   keydown({ key: KeyboardKeys.KeyC, metaKey: true });
-  expect(onPopupToggle).not.toBeCalledWith(issue.key, 'comment', undefined);
+  expect(onPopupToggle).not.toHaveBeenCalledWith(issue.key, 'comment', undefined);
 
   keydown({ key: KeyboardKeys.KeyC });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'comment', undefined);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'comment', undefined);
   keydown({ key: KeyboardKeys.Escape });
 
   keydown({ key: KeyboardKeys.KeyT });
-  expect(onPopupToggle).toBeCalledWith(issue.key, 'edit-tags', undefined);
+  expect(onPopupToggle).toHaveBeenCalledWith(issue.key, 'edit-tags', undefined);
 
   keydown({ key: KeyboardKeys.Space });
-  expect(onCheck).toBeCalledWith(issue.key);
+  expect(onCheck).toHaveBeenCalledWith(issue.key);
 });
 
 function shallowRender(props: Partial<Issue['props']> = {}) {

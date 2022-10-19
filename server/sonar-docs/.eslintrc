@@ -3,9 +3,7 @@
 
   "rules": {
     // some dependencies are implictly provided by gatsby
-    "import/no-extraneous-dependencies": "off"
-  },
-  "parserOptions": {
-    "warnOnUnsupportedTypeScriptVersion": false
+    "import/no-extraneous-dependencies": "off",
+    "testing-library/render-result-naming-convention": "warn"
   }
 }

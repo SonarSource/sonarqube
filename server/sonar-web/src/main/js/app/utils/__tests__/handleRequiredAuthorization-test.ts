@@ -47,7 +47,7 @@ afterAll(() => {
 
 it('should not render for anonymous user', () => {
   handleRequiredAuthorization();
-  expect(replace).toBeCalledWith(
+  expect(replace).toHaveBeenCalledWith(
     '/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag&authorizationError=true'
   );
 });

@@ -49,9 +49,9 @@ it('should delete project', async () => {
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
-  expect(deleteProject).toBeCalledWith('foo');
+  expect(deleteProject).toHaveBeenCalledWith('foo');
   await new Promise(setImmediate);
-  expect(router.replace).toBeCalledWith('/');
+  expect(router.replace).toHaveBeenCalledWith('/');
 });
 
 it('should delete portfolio', async () => {
@@ -59,11 +59,11 @@ it('should delete portfolio', async () => {
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
-  expect(deletePortfolio).toBeCalledWith('foo');
-  expect(deleteProject).not.toBeCalled();
-  expect(deleteApplication).not.toBeCalled();
+  expect(deletePortfolio).toHaveBeenCalledWith('foo');
+  expect(deleteProject).not.toHaveBeenCalled();
+  expect(deleteApplication).not.toHaveBeenCalled();
   await new Promise(setImmediate);
-  expect(router.replace).toBeCalledWith('/portfolios');
+  expect(router.replace).toHaveBeenCalledWith('/portfolios');
 });
 
 it('should delete application', async () => {
@@ -71,9 +71,9 @@ it('should delete application', async () => {
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
-  expect(deleteApplication).toBeCalledWith('foo');
-  expect(deleteProject).not.toBeCalled();
-  expect(deletePortfolio).not.toBeCalled();
+  expect(deleteApplication).toHaveBeenCalledWith('foo');
+  expect(deleteProject).not.toHaveBeenCalled();
+  expect(deletePortfolio).not.toHaveBeenCalled();
   await new Promise(setImmediate);
-  expect(router.replace).toBeCalledWith('/');
+  expect(router.replace).toHaveBeenCalledWith('/');
 });

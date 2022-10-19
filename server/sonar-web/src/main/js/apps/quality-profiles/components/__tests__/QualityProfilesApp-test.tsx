@@ -37,8 +37,8 @@ it('should render correctly', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('loading');
 
-  expect(getExporters).toBeCalled();
-  expect(searchQualityProfiles).toBeCalled();
+  expect(getExporters).toHaveBeenCalled();
+  expect(searchQualityProfiles).toHaveBeenCalled();
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('full');

@@ -40,16 +40,16 @@ it('should fetch links and render', async () => {
   const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(getProjectLinks).toBeCalledWith('comp');
+  expect(getProjectLinks).toHaveBeenCalledWith('comp');
 });
 
 it('should fetch links when component changes', async () => {
   const wrapper = shallow(<App component={mockComponent({ key: 'comp' })} />);
   await waitAndUpdate(wrapper);
-  expect(getProjectLinks).lastCalledWith('comp');
+  expect(getProjectLinks).toHaveBeenLastCalledWith('comp');
 
   wrapper.setProps({ component: { key: 'another' } });
-  expect(getProjectLinks).lastCalledWith('another');
+  expect(getProjectLinks).toHaveBeenLastCalledWith('another');
 });
 
 it('should create link', async () => {
@@ -59,7 +59,7 @@ it('should create link', async () => {
   wrapper.find('Header').prop<Function>('onCreate')('bar', 'http://example.com/bar');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(createLink).toBeCalledWith({
+  expect(createLink).toHaveBeenCalledWith({
     name: 'bar',
     projectKey: 'comp',
     url: 'http://example.com/bar'
@@ -73,5 +73,5 @@ it('should delete link', async () => {
   wrapper.find('Table').prop<Function>('onDelete')('foo');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(deleteLink).toBeCalledWith('foo');
+  expect(deleteLink).toHaveBeenCalledWith('foo');
 });

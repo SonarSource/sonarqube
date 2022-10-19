@@ -120,7 +120,7 @@ it('should handle connection errors', async () => {
 it('should require authentication if user is not logged in', () => {
   renderSonarLintConnection({ currentUser: mockCurrentUser() });
 
-  expect(handleRequiredAuthentication).toBeCalled();
+  expect(handleRequiredAuthentication).toHaveBeenCalled();
 });
 
 it('should redirect if port is not provided', () => {

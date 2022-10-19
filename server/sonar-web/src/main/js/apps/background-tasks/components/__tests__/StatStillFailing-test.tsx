@@ -37,9 +37,9 @@ it('should render without the filter link', () => {
 it('should trigger filtering failures', () => {
   const onShowFailing = jest.fn();
   const result = shallowRender({ onShowFailing });
-  expect(onShowFailing).not.toBeCalled();
+  expect(onShowFailing).not.toHaveBeenCalled();
   click(result.find('ButtonLink'));
-  expect(onShowFailing).toBeCalled();
+  expect(onShowFailing).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<Props> = {}) {

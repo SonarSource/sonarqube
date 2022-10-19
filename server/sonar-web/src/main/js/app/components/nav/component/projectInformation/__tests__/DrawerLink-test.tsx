@@ -32,7 +32,7 @@ it('should call onPageChange when clicked', () => {
 
   wrapper.simulate('click');
 
-  expect(onPageChange).toBeCalledWith(to);
+  expect(onPageChange).toHaveBeenCalledWith(to);
 });
 
 function shallowRender(props: Partial<DrawerLinkProps<string>> = {}) {

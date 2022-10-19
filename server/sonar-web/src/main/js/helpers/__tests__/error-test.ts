@@ -48,7 +48,7 @@ it('should display the error message', async () => {
     })
     .catch(() => {});
 
-  expect(addGlobalErrorMessage).toBeCalledWith('error 1');
+  expect(addGlobalErrorMessage).toHaveBeenCalledWith('error 1');
 });
 
 it('should display the default error messsage', async () => {
@@ -62,19 +62,17 @@ it('should display the default error messsage', async () => {
     })
     .catch(() => {});
 
-  expect(addGlobalErrorMessage).toBeCalledWith('default_error_message');
+  expect(addGlobalErrorMessage).toHaveBeenCalledWith('default_error_message');
 });
 
-it('should handle weird response types', () => {
+it('should handle weird response types', async () => {
   const response = { weird: 'response type' };
 
-  return throwGlobalError(response)
-    .then(() => {
+  await expect(
+    throwGlobalError(response).then(() => {
       throw new Error('Should throw');
     })
-    .catch(error => {
-      expect(error).toBe(response);
-    });
+  ).rejects.toBe(response);
 });
 
 it('should unwrap response if necessary', async () => {

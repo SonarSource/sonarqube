@@ -29,14 +29,14 @@ it('should close', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   wrapper.find('WorkspaceNavItem').prop<Function>('onClose')();
-  expect(onClose).toBeCalledWith('foo');
+  expect(onClose).toHaveBeenCalledWith('foo');
 });
 
 it('should open', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
   wrapper.find('WorkspaceNavItem').prop<Function>('onOpen')();
-  expect(onOpen).toBeCalledWith('foo');
+  expect(onOpen).toHaveBeenCalledWith('foo');
 });
 
 function shallowRender(props?: Partial<Props>) {

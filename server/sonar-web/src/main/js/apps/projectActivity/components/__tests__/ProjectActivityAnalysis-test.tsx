@@ -109,12 +109,12 @@ it('should be clickable', () => {
   const updateSelectedDate = jest.fn();
   const wrapper = shallowRender({ analysis: mockParsedAnalysis({ date }), updateSelectedDate });
   click(wrapper);
-  expect(updateSelectedDate).toBeCalledWith(date);
+  expect(updateSelectedDate).toHaveBeenCalledWith(date);
 });
 
 it('should trigger a scroll to itself if selected', () => {
   mountRender({ parentScrollContainer: document.createElement('ul'), selected: true });
-  expect(scrollToElement).toBeCalled();
+  expect(scrollToElement).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ProjectActivityAnalysisProps> = {}) {

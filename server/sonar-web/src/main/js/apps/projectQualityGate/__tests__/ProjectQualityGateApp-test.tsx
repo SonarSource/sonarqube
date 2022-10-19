@@ -78,15 +78,15 @@ it('renders correctly', async () => {
 
 it('correctly checks user permissions', () => {
   shallowRender({ component: mockComponent({ configuration: { showQualityGates: false } }) });
-  expect(handleRequiredAuthorization).toBeCalled();
+  expect(handleRequiredAuthorization).toHaveBeenCalled();
 });
 
 it('correctly loads Quality Gate data', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(fetchQualityGates).toBeCalled();
-  expect(getGateForProject).toBeCalledWith({ project: 'foo' });
+  expect(fetchQualityGates).toHaveBeenCalled();
+  expect(getGateForProject).toHaveBeenCalledWith({ project: 'foo' });
 
   expect(wrapper.state().allQualityGates).toHaveLength(4);
   expect(wrapper.state().currentQualityGate?.id).toBe('gate2');
@@ -100,7 +100,7 @@ it('correctly fallbacks to the default Quality Gate', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(searchProjects).toBeCalled();
+  expect(searchProjects).toHaveBeenCalled();
 
   expect(wrapper.state().currentQualityGate?.id).toBe('gate3');
   expect(wrapper.state().selectedQualityGateId).toBe(USE_SYSTEM_DEFAULT);
@@ -116,7 +116,7 @@ it('correctly detects if the default Quality Gate was explicitly selected', asyn
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(searchProjects).toBeCalled();
+  expect(searchProjects).toHaveBeenCalled();
 
   expect(wrapper.state().currentQualityGate?.id).toBe('gate3');
   expect(wrapper.state().selectedQualityGateId).toBe('gate3');

@@ -54,12 +54,12 @@ it('removes user', async () => {
   expect(wrapper.find('SimpleModal').exists()).toBe(true);
 
   wrapper.find('SimpleModal').prop<Function>('onSubmit')();
-  expect(removeGroup).toBeCalledWith({
+  expect(removeGroup).toHaveBeenCalledWith({
     group: 'lambda',
     language: 'js',
     qualityProfile: 'Sonar way'
   });
 
   await new Promise(setImmediate);
-  expect(onDelete).toBeCalledWith(group);
+  expect(onDelete).toHaveBeenCalledWith(group);
 });

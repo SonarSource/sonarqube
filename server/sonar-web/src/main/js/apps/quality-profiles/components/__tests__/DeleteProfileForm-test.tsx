@@ -39,7 +39,7 @@ it('should correctly submit the form', () => {
   if (formOnSubmit) {
     formOnSubmit(mockEvent());
   }
-  expect(onDelete).toBeCalled();
+  expect(onDelete).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<DeleteProfileFormProps> = {}) {

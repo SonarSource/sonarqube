@@ -178,11 +178,11 @@ it('should navigate when up and down key are pressed', () => {
     <HotspotViewerTabs codeTabContent={<div>CodeTabContent</div>} hotspot={mockHotspot()} />
   );
 
-  expect(window.addEventListener).toBeCalled();
+  expect(window.addEventListener).toHaveBeenCalled();
 
   wrapper.unmount();
 
-  expect(window.removeEventListener).toBeCalled();
+  expect(window.removeEventListener).toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {

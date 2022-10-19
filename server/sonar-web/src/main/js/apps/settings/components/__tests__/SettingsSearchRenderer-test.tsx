@@ -67,7 +67,7 @@ it('should scroll to selected element', () => {
 
   shallowRender();
 
-  expect(scrollToElement).toBeCalled();
+  expect(scrollToElement).toHaveBeenCalled();
 });
 
 function shallowRender(overrides: Partial<SettingsSearchRendererProps> = {}) {

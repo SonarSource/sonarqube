@@ -61,12 +61,15 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 
   await new Promise(setImmediate);
-  expect(searchDeliveries as jest.Mock<any>).lastCalledWith({ webhook: webhook.key, ps: 10 });
+  expect(searchDeliveries as jest.Mock<any>).toHaveBeenLastCalledWith({
+    webhook: webhook.key,
+    ps: 10
+  });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('ListFooter').prop<Function>('loadMore')();
-  expect(searchDeliveries).lastCalledWith({ webhook: webhook.key, p: 2, ps: 10 });
+  expect(searchDeliveries).toHaveBeenLastCalledWith({ webhook: webhook.key, p: 2, ps: 10 });
 });
 
 function getWrapper(props = {}) {

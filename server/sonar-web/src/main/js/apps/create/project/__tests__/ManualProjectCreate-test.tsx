@@ -133,7 +133,7 @@ it('should submit form input', async () => {
   await user.keyboard('test');
   await user.click(screen.getByRole('button', { name: 'set_up' }));
   expect(createProject).toHaveBeenCalledWith({ name: 'test', project: 'test' });
-  expect(onProjectCreate).toBeCalled();
+  expect(onProjectCreate).toHaveBeenCalled();
 });
 
 it('should handle create failure', async () => {

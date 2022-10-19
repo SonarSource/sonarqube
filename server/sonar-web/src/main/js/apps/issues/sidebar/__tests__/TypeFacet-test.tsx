@@ -30,14 +30,14 @@ it('should toggle type facet', () => {
   const onToggle = jest.fn();
   const wrapper = shallowRender({ onToggle });
   click(wrapper.children('FacetHeader'));
-  expect(onToggle).toBeCalledWith('types');
+  expect(onToggle).toHaveBeenCalledWith('types');
 });
 
 it('should clear types facet', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, types: ['BUGS'] });
   wrapper.children('FacetHeader').prop<Function>('onClear')();
-  expect(onChange).toBeCalledWith({ types: [] });
+  expect(onChange).toHaveBeenCalledWith({ types: [] });
 });
 
 it('should select a type', () => {
@@ -51,7 +51,7 @@ it('should select a type', () => {
       .find(`FacetItemsList`)
       .find(`FacetItem[value="${type}"]`)
       .prop<Function>('onClick')(type, multiple);
-    expect(onChange).lastCalledWith({ types: expected });
+    expect(onChange).toHaveBeenLastCalledWith({ types: expected });
     wrapper.setProps({ types: expected });
   }
 });

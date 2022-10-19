@@ -28,7 +28,7 @@ it('should behave correctly', async () => {
   renderDeliveryAccordion();
   expect(screen.queryByText('children')).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { expanded: false }));
-  expect(screen.queryByText('children')).toBeInTheDocument();
+  expect(screen.getByText('children')).toBeInTheDocument();
 });
 
 it('should render header correctly', () => {

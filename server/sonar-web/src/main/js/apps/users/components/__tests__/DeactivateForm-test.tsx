@@ -29,15 +29,15 @@ jest.mock('../../../../api/users', () => ({
   deactivateUser: jest.fn().mockResolvedValue({})
 }));
 
-it.each([true, false])('should deactivate user with anonymize set to %s', anonymize => {
+it('should deactivate user with anonymize set to true', () => {
   const user = mockUser() as UserActive;
   renderDeactivateForm(user);
-  if (anonymize) {
-    screen.getByRole('checkbox').click();
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-  }
+
+  screen.getByRole('checkbox').click();
+  expect(screen.getByRole('alert')).toBeInTheDocument();
+
   screen.getByRole('button', { name: 'users.deactivate' }).click();
-  expect(deactivateUser).toBeCalledWith({ login: user.login, anonymize });
+  expect(deactivateUser).toHaveBeenCalledWith({ login: user.login, anonymize: true });
 });
 
 function renderDeactivateForm(user: UserActive) {

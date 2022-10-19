@@ -86,7 +86,7 @@ it('continues', async () => {
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   click(wrapper.dive().find('[className="js-continue"]'));
-  expect(onContinue).toBeCalledWith('abcd1234');
+  expect(onContinue).toHaveBeenCalledWith('abcd1234');
 });
 
 it('uses existing token', async () => {
@@ -95,7 +95,7 @@ it('uses existing token', async () => {
   await new Promise(setImmediate);
   wrapper.setState({ existingToken: 'abcd1234', selection: 'use-existing' });
   click(wrapper.dive().find('[className="js-continue"]'));
-  expect(onContinue).toBeCalledWith('abcd1234');
+  expect(onContinue).toHaveBeenCalledWith('abcd1234');
 });
 
 function shallowRender(props: Partial<TokenStep['props']> = {}) {

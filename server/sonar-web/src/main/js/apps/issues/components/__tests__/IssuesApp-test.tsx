@@ -134,8 +134,8 @@ it('should render a list of issue', async () => {
   expect(wrapper.state().referencedComponentsById).toEqual({ 'foo-uuid': referencedComponent });
   expect(wrapper.state().referencedComponentsByKey).toEqual({ 'foo-key': referencedComponent });
 
-  expect(addSideBarClass).toBeCalled();
-  expect(addWhitePageClass).toBeCalled();
+  expect(addSideBarClass).toHaveBeenCalled();
+  expect(addWhitePageClass).toHaveBeenCalled();
 });
 
 it('should handle my issue change properly', () => {
@@ -143,7 +143,7 @@ it('should handle my issue change properly', () => {
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   wrapper.instance().handleMyIssuesChange(true);
 
-  expect(push).toBeCalledWith({
+  expect(push).toHaveBeenCalledWith({
     pathname: '/issues',
     query: {
       id: 'foo',
@@ -164,14 +164,14 @@ it('should not render for anonymous user', () => {
     currentUser: mockCurrentUser({ isLoggedIn: false }),
     location: mockLocation({ query: { myIssues: true.toString() } })
   });
-  expect(handleRequiredAuthentication).toBeCalled();
+  expect(handleRequiredAuthentication).toHaveBeenCalled();
 });
 
 it('should handle reset properly', () => {
   const push = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   wrapper.instance().handleReset();
-  expect(push).toBeCalledWith({
+  expect(push).toHaveBeenCalledWith({
     pathname: '/issues',
     query: {
       id: 'foo',
@@ -193,16 +193,16 @@ it('should open standard facets for vulnerabilities and hotspots', () => {
 
   instance.handleFacetToggle('standards');
   expect(wrapper.state('openFacets').standards).toEqual(false);
-  expect(fetchFacet).not.toBeCalled();
+  expect(fetchFacet).not.toHaveBeenCalled();
 
   instance.handleFacetToggle('standards');
   expect(wrapper.state('openFacets').standards).toEqual(true);
   expect(wrapper.state('openFacets').sonarsourceSecurity).toEqual(true);
-  expect(fetchFacet).lastCalledWith('sonarsourceSecurity');
+  expect(fetchFacet).toHaveBeenLastCalledWith('sonarsourceSecurity');
 
   instance.handleFacetToggle('owaspTop10');
   expect(wrapper.state('openFacets').owaspTop10).toEqual(true);
-  expect(fetchFacet).lastCalledWith('owaspTop10');
+  expect(fetchFacet).toHaveBeenLastCalledWith('owaspTop10');
 });
 
 it('should correctly bind key events for issue navigation', async () => {
@@ -211,7 +211,7 @@ it('should correctly bind key events for issue navigation', async () => {
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   await waitAndUpdate(wrapper);
 
-  expect(addEventListenerSpy).toBeCalledTimes(2);
+  expect(addEventListenerSpy).toHaveBeenCalledTimes(2);
 
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
@@ -231,12 +231,12 @@ it('should correctly bind key events for issue navigation', async () => {
   expect(wrapper.state('selected')).toBe(ISSUES[3].key);
 
   keydown({ key: KeyboardKeys.RightArrow, ctrlKey: true });
-  expect(push).not.toBeCalled();
+  expect(push).not.toHaveBeenCalled();
   keydown({ key: KeyboardKeys.RightArrow });
-  expect(push).toBeCalledTimes(1);
+  expect(push).toHaveBeenCalledTimes(1);
 
   keydown({ key: KeyboardKeys.LeftArrow });
-  expect(push).toBeCalledTimes(2);
+  expect(push).toHaveBeenCalledTimes(2);
 
   addEventListenerSpy.mockReset();
 });
@@ -246,9 +246,9 @@ it('should correctly clean up on unmount', () => {
   const wrapper = shallowRender();
 
   wrapper.unmount();
-  expect(removeSideBarClass).toBeCalled();
-  expect(removeWhitePageClass).toBeCalled();
-  expect(removeEventListenerSpy).toBeCalledTimes(2);
+  expect(removeSideBarClass).toHaveBeenCalled();
+  expect(removeWhitePageClass).toHaveBeenCalled();
+  expect(removeEventListenerSpy).toHaveBeenCalledTimes(2);
 
   removeEventListenerSpy.mockReset();
 });
@@ -312,7 +312,7 @@ it('should correctly handle filter changes', () => {
     sonarsourceSecurity: true,
     standards: true
   });
-  expect(push).toBeCalled();
+  expect(push).toHaveBeenCalled();
   instance.handleFilterChange({ types: ['BUGS'] });
   expect(instance.state.openFacets).toEqual({
     types: true,
@@ -413,11 +413,11 @@ it('should refresh branch status if issues are updated', async () => {
   const updatedIssue: Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
   instance.handleIssueChange(updatedIssue);
   expect(wrapper.state().issues[0].type).toEqual(updatedIssue.type);
-  expect(fetchBranchStatus).toBeCalledWith(branchLike, component.key);
+  expect(fetchBranchStatus).toHaveBeenCalledWith(branchLike, component.key);
 
   fetchBranchStatus.mockClear();
   instance.handleBulkChangeDone();
-  expect(fetchBranchStatus).toBeCalled();
+  expect(fetchBranchStatus).toHaveBeenCalled();
 });
 
 it('should update the open issue when it is changed', async () => {
@@ -455,7 +455,7 @@ it('should handle createAfter query param with time', async () => {
   (searchIssues as jest.Mock).mockClear();
 
   wrapper.instance().fetchIssues({});
-  expect(searchIssues).toBeCalledWith(
+  expect(searchIssues).toHaveBeenCalledWith(
     expect.objectContaining({ createdAfter: '2020-10-21T17:21:00+0000' })
   );
 });

@@ -34,7 +34,7 @@ it('should handle click', () => {
 
   wrapper.simulate('click');
 
-  expect(onClick).toBeCalledWith(hotspot);
+  expect(onClick).toHaveBeenCalledWith(hotspot);
 });
 
 it('should handle click on the title', () => {
@@ -44,7 +44,7 @@ it('should handle click on the title', () => {
 
   wrapper.find('div.cursor-pointer').simulate('click');
 
-  expect(onLocationClick).toBeCalledWith();
+  expect(onLocationClick).toHaveBeenCalledWith();
 });
 
 function shallowRender(props: Partial<HotspotListItemProps> = {}) {

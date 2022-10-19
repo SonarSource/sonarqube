@@ -44,11 +44,11 @@ it('should scroll if hash is defined and updated', async () => {
 
   wrapper.find('h2').forEach(node => mount(node.getElement()));
 
-  expect(window.HTMLElement.prototype.scrollIntoView).toBeCalled();
+  expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled();
 
   wrapper.setProps({ location: mockLocation({ hash: '#email' }) });
 
-  expect(window.HTMLElement.prototype.scrollIntoView).toBeCalled();
+  expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<SubCategoryDefinitionsListProps> = {}) {

@@ -27,7 +27,7 @@ it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   click(wrapper.find('.js-modal-close'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 it('changes visibility', () => {
@@ -43,7 +43,7 @@ it('changes visibility', () => {
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));
-  expect(onConfirm).toBeCalledWith('private');
+  expect(onConfirm).toHaveBeenCalledWith('private');
 });
 
 function shallowRender(props: Partial<ChangeDefaultVisibilityForm['props']> = {}) {

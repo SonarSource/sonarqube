@@ -67,24 +67,24 @@ it('should open & close', () => {
   jest.runOnlyPendingTimers();
   wrapper.update();
   expect(wrapper.find('TooltipPortal').exists()).toBe(true);
-  expect(onShow).toBeCalled();
+  expect(onShow).toHaveBeenCalled();
 
   wrapper.find('#tooltip').simulate('pointerleave');
   jest.runOnlyPendingTimers();
   wrapper.update();
   expect(wrapper.find('TooltipPortal').exists()).toBe(false);
-  expect(onHide).toBeCalled();
+  expect(onHide).toHaveBeenCalled();
 
   onShow.mockReset();
   onHide.mockReset();
 
   wrapper.find('#tooltip').simulate('focus');
   expect(wrapper.find('TooltipPortal').exists()).toBe(true);
-  expect(onShow).toBeCalled();
+  expect(onShow).toHaveBeenCalled();
 
   wrapper.find('#tooltip').simulate('blur');
   expect(wrapper.find('TooltipPortal').exists()).toBe(false);
-  expect(onHide).toBeCalled();
+  expect(onHide).toHaveBeenCalled();
 });
 
 it('should not open when pointer goes away quickly', () => {

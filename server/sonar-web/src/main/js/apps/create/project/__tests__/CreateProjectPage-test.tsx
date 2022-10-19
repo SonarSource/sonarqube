@@ -39,7 +39,7 @@ beforeEach(jest.clearAllMocks);
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(getAlmSettings).toBeCalled();
+  expect(getAlmSettings).toHaveBeenCalled();
 });
 
 it.each([

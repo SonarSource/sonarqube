@@ -31,7 +31,7 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.concise-issue-box'));
-  expect(onClick).toBeCalledWith(issue.key);
+  expect(onClick).toHaveBeenCalledWith(issue.key);
 
   expect(shallowRender({ issue: mockIssue(true), selected: true })).toMatchSnapshot();
 });

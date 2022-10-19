@@ -53,7 +53,7 @@ it('should call onChange', () => {
 
   toggle.prop<Function>('onChange')(false);
 
-  expect(onChange).toBeCalledWith(false);
+  expect(onChange).toHaveBeenCalledWith(false);
 });
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {

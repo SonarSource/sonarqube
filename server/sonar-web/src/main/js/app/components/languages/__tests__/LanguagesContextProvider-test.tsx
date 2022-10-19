@@ -32,7 +32,7 @@ it('should call language', async () => {
   (getLanguages as jest.Mock).mockResolvedValueOnce(languages);
   const wrapper = shallowRender();
 
-  expect(getLanguages).toBeCalled();
+  expect(getLanguages).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
   expect(wrapper.state()).toEqual({ languages });
 });

@@ -51,7 +51,7 @@ it('should call onSelect when clicked', () => {
     .at(0)
     .simulate('click');
 
-  expect(onSelect).toBeCalledWith(user);
+  expect(onSelect).toHaveBeenCalledWith(user);
 });
 
 function shallowRender(props?: Partial<HotspotAssigneeSelectRendererProps>) {

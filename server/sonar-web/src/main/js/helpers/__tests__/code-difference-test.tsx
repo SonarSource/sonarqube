@@ -24,6 +24,7 @@ import applyCodeDifferences from '../code-difference';
 it('should apply diff view correctly', () => {
   const { container } = renderDom(properCodeSnippet);
   applyCodeDifferences(container);
+  // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
   expect(container.getElementsByClassName('code-difference-scrollable')).toMatchSnapshot(
     'differenciatedCode'
   );
@@ -32,12 +33,14 @@ it('should apply diff view correctly', () => {
 it('should not apply diff view if 3 examples are present', () => {
   const { container } = renderDom(codeSnippetWith3Examples);
   applyCodeDifferences(container);
+  // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
   expect(container.getElementsByClassName('code-difference-scrollable').length).toEqual(0);
 });
 
 it('should not apply diff view if compliant code is absent', () => {
   const { container } = renderDom(codeSnippetWithoutCompliantCode);
   applyCodeDifferences(container);
+  // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
   expect(container.getElementsByClassName('code-difference-scrollable').length).toEqual(0);
 });
 

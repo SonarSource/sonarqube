@@ -74,7 +74,7 @@ describe('scrollToElement', () => {
 
     scrollToElement(element, { smooth: false });
 
-    expect(window.scrollTo).toBeCalledWith(0, 445);
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 445);
   });
 
   it('should scroll window up to element', () => {
@@ -88,7 +88,7 @@ describe('scrollToElement', () => {
 
     scrollToElement(element, { smooth: false });
 
-    expect(window.scrollTo).toBeCalledWith(0, -10);
+    expect(window.scrollTo).toHaveBeenCalledWith(0, -10);
   });
 
   it('should scroll window down to element smoothly', () => {
@@ -104,7 +104,7 @@ describe('scrollToElement', () => {
 
     jest.runAllTimers();
 
-    expect(window.scrollTo).toBeCalledTimes(10);
+    expect(window.scrollTo).toHaveBeenCalledTimes(10);
   });
 });
 
@@ -156,7 +156,7 @@ describe('scrollHorizontally', () => {
 
     scrollHorizontally(element, { smooth: false });
 
-    expect(window.scrollTo).toBeCalledWith(445, 0);
+    expect(window.scrollTo).toHaveBeenCalledWith(445, 0);
   });
 
   it('should scroll window left to element', () => {
@@ -170,7 +170,7 @@ describe('scrollHorizontally', () => {
 
     scrollHorizontally(element, { smooth: false });
 
-    expect(window.scrollTo).toBeCalledWith(-10, 0);
+    expect(window.scrollTo).toHaveBeenCalledWith(-10, 0);
   });
 
   it('should scroll window right to element smoothly', () => {
@@ -186,7 +186,7 @@ describe('scrollHorizontally', () => {
 
     jest.runAllTimers();
 
-    expect(window.scrollTo).toBeCalledTimes(10);
+    expect(window.scrollTo).toHaveBeenCalledTimes(10);
   });
 });
 
@@ -207,11 +207,11 @@ it('correctly queues and processes multiple scroll calls', async () => {
   await Promise.resolve(setImmediate);
   await Promise.resolve(setImmediate);
 
-  expect(window.scrollTo).toBeCalledTimes(11);
+  expect(window.scrollTo).toHaveBeenCalledTimes(11);
 
   scrollHorizontally(element1, {});
   jest.runAllTimers();
-  expect(window.scrollTo).toBeCalledTimes(21);
+  expect(window.scrollTo).toHaveBeenCalledTimes(21);
 });
 
 const mockGetBoundingClientRect = (overrides: Partial<ClientRect>) => () =>

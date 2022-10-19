@@ -127,11 +127,11 @@ it('should correctly propagate a request to switch the status filter', () => {
   const wrapper = shallowRender({ onSwitchStatusFilter });
 
   wrapper.instance().handleSwitchFilterToStatusOfUpdatedHotspot();
-  expect(onSwitchStatusFilter).not.toBeCalled();
+  expect(onSwitchStatusFilter).not.toHaveBeenCalled();
 
   wrapper.setState({ lastStatusChangedTo: HotspotStatusOption.FIXED });
   wrapper.instance().handleSwitchFilterToStatusOfUpdatedHotspot();
-  expect(onSwitchStatusFilter).toBeCalledWith(HotspotStatusOption.FIXED);
+  expect(onSwitchStatusFilter).toHaveBeenCalledWith(HotspotStatusOption.FIXED);
 });
 
 it('should correctly close the success modal', () => {

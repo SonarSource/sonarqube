@@ -86,7 +86,7 @@ it('should edit tags', () => {
     .prop('overlay') as RuleDetailsTagsPopup;
 
   overlay.props.setTags(['foo', 'bar']);
-  expect(onTagsChange).toBeCalledWith(['foo', 'bar']);
+  expect(onTagsChange).toHaveBeenCalledWith(['foo', 'bar']);
 });
 
 function shallowRender(props: Partial<RuleDetailsMeta['props']> = {}) {

@@ -53,7 +53,7 @@ it('updates qualifier', () => {
   wrapper.find('Select[name="projects-qualifier"]').simulate('change', {
     value: 'VW'
   });
-  expect(onQualifierChanged).toBeCalledWith('VW');
+  expect(onQualifierChanged).toHaveBeenCalledWith('VW');
 });
 
 it('renders optionrenderer and singlevaluerenderer', () => {
@@ -74,7 +74,7 @@ it('selects provisioned', () => {
   const onProvisionedChanged = jest.fn();
   const wrapper = shallowRender({ onProvisionedChanged });
   wrapper.find('Checkbox[id="projects-provisioned"]').prop<Function>('onCheck')(true);
-  expect(onProvisionedChanged).toBeCalledWith(true);
+  expect(onProvisionedChanged).toHaveBeenCalledWith(true);
 });
 
 it('does not render provisioned filter for portfolios', () => {
@@ -89,17 +89,17 @@ it('updates analysis date', () => {
   const wrapper = shallowRender({ onDateChanged });
 
   wrapper.find('DateInput').prop<Function>('onChange')('2017-04-08T00:00:00.000Z');
-  expect(onDateChanged).toBeCalledWith('2017-04-08T00:00:00.000Z');
+  expect(onDateChanged).toHaveBeenCalledWith('2017-04-08T00:00:00.000Z');
 
   wrapper.find('DateInput').prop<Function>('onChange')(undefined);
-  expect(onDateChanged).toBeCalledWith(undefined);
+  expect(onDateChanged).toHaveBeenCalledWith(undefined);
 });
 
 it('searches', () => {
   const onSearch = jest.fn();
   const wrapper = shallowRender({ onSearch });
   wrapper.find('SearchBox').prop<Function>('onChange')('foo');
-  expect(onSearch).toBeCalledWith('foo');
+  expect(onSearch).toHaveBeenCalledWith('foo');
 });
 
 it('checks all or none projects', () => {
@@ -108,10 +108,10 @@ it('checks all or none projects', () => {
   const wrapper = shallowRender({ onAllDeselected, onAllSelected });
 
   wrapper.find('Checkbox[id="projects-selection"]').prop<Function>('onCheck')(true);
-  expect(onAllSelected).toBeCalled();
+  expect(onAllSelected).toHaveBeenCalled();
 
   wrapper.find('Checkbox[id="projects-selection"]').prop<Function>('onCheck')(false);
-  expect(onAllDeselected).toBeCalled();
+  expect(onAllDeselected).toHaveBeenCalled();
 });
 
 it('deletes projects', () => {
@@ -120,7 +120,7 @@ it('deletes projects', () => {
   click(wrapper.find('.js-delete'));
   expect(wrapper.find('DeleteModal')).toMatchSnapshot();
   wrapper.find('DeleteModal').prop<Function>('onConfirm')();
-  expect(onDeleteProjects).toBeCalled();
+  expect(onDeleteProjects).toHaveBeenCalled();
 });
 
 it('bulk applies permission template', () => {

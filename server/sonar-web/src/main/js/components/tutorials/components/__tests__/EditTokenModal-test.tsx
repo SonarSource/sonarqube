@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor } from '@testing-library/dom';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import * as React from 'react';
@@ -58,9 +58,7 @@ it('should behave correctly', async () => {
   expect(screen.getByText('onboarding.token.text.PROJECT_ANALYSIS_TOKEN')).toBeInTheDocument();
 
   // Renders form correctly.
-  await waitFor(() =>
-    expect(screen.getByLabelText('onboarding.token.name.label')).toBeInTheDocument()
-  );
+  await screen.findByLabelText('onboarding.token.name.label');
   // Should be getByLabelText(), but this is due to a limitation with React Select.
   expect(screen.getByText('users.tokens.expires_in')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'continue' })).toBeInTheDocument();
@@ -118,9 +116,7 @@ it('should allow setting a preferred token type', async () => {
   });
   const user = userEvent.setup();
 
-  await waitFor(() =>
-    expect(screen.getByLabelText('onboarding.token.name.label')).toBeInTheDocument()
-  );
+  await screen.findByLabelText('onboarding.token.name.label');
 
   await clickButton(user, 'onboarding.token.generate');
   const lastToken = tokenMock.getLastToken();
@@ -136,9 +132,7 @@ it('should fallback to project tokens if the user cannot generate global tokens'
   });
   const user = userEvent.setup();
 
-  await waitFor(() =>
-    expect(screen.getByLabelText('onboarding.token.name.label')).toBeInTheDocument()
-  );
+  await screen.findByLabelText('onboarding.token.name.label');
 
   await clickButton(user, 'onboarding.token.generate');
   const lastToken = tokenMock.getLastToken();

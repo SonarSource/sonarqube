@@ -73,7 +73,7 @@ it('should load sources on mount', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toBeCalledWith(
+  expect(getSources).toHaveBeenCalledWith(
     expect.objectContaining({
       key: hotspot.component.key,
       branch: branch.name,
@@ -108,7 +108,7 @@ it('should not load sources on mount when the hotspot is not associated to any l
 
   await waitAndUpdate(wrapper);
 
-  expect(getSources).not.toBeCalled();
+  expect(getSources).not.toHaveBeenCalled();
   expect(wrapper.state().lastLine).toBeUndefined();
   expect(wrapper.state().sourceLines).toHaveLength(0);
 });
@@ -126,7 +126,7 @@ it('should handle end-of-file on mount', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toBeCalled();
+  expect(getSources).toHaveBeenCalled();
   expect(wrapper.state().lastLine).toBe(14);
   expect(wrapper.state().sourceLines).toHaveLength(10);
 });
@@ -158,7 +158,7 @@ describe('Expansion', () => {
 
     await waitAndUpdate(wrapper);
 
-    expect(getSources).toBeCalledWith(
+    expect(getSources).toHaveBeenCalledWith(
       expect.objectContaining({
         branch: branch.name
       })

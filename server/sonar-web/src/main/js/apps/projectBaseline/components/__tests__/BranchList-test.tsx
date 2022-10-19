@@ -56,7 +56,7 @@ it('should handle reset', () => {
 
   wrapper.instance().resetToDefault('master');
 
-  expect(resetNewCodePeriod).toBeCalledWith({
+  expect(resetNewCodePeriod).toHaveBeenCalledWith({
     project: component.key,
     branch: 'master'
   });

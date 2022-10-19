@@ -50,14 +50,14 @@ it('should render correctly', () => {
 
 it('should not fetch task warnings if it does not have to', () => {
   shallowRender();
-  expect(getTask).not.toBeCalled();
+  expect(getTask).not.toHaveBeenCalled();
 });
 
 it('should fetch task warnings if it has to', async () => {
   const wrapper = shallowRender({ taskId: 'abcd1234', warnings: undefined });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(getTask).toBeCalledWith('abcd1234', ['warnings']);
+  expect(getTask).toHaveBeenCalledWith('abcd1234', ['warnings']);
 });
 
 it('should correctly handle dismissing warnings', async () => {
@@ -79,23 +79,23 @@ it('should correctly handle dismissing warnings', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(dismissAnalysisWarning).toBeCalledWith('foo', 'bar');
-  expect(onWarningDismiss).toBeCalled();
+  expect(dismissAnalysisWarning).toHaveBeenCalledWith('foo', 'bar');
+  expect(onWarningDismiss).toHaveBeenCalled();
 });
 
 it('should correctly handle updates', async () => {
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
-  expect(getTask).not.toBeCalled();
+  expect(getTask).not.toHaveBeenCalled();
 
   wrapper.setProps({ taskId: '1', warnings: undefined });
   await waitAndUpdate(wrapper);
-  expect(getTask).toBeCalled();
+  expect(getTask).toHaveBeenCalled();
 
   (getTask as jest.Mock).mockClear();
   wrapper.setProps({ taskId: undefined, warnings: [mockTaskWarning()] });
-  expect(getTask).not.toBeCalled();
+  expect(getTask).not.toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<AnalysisWarningsModal['props']> = {}) {

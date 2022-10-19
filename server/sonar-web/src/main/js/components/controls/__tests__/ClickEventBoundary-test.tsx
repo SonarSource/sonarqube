@@ -31,8 +31,8 @@ it('should correctly capture a click event', () => {
   const wrapper = shallowRender({ onClick: parentOnClick }, { onClick: childOnClick });
   // Don't use our click() helper, so we make sure the bubbling works correctly.
   wrapper.find('button').simulate('click');
-  expect(childOnClick).toBeCalled();
-  expect(parentOnClick).not.toBeCalled();
+  expect(childOnClick).toHaveBeenCalled();
+  expect(parentOnClick).not.toHaveBeenCalled();
 });
 
 function shallowRender(parentProps = {}, childProps = {}) {

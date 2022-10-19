@@ -50,13 +50,13 @@ it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallow(<Stacktrace onClose={onClose} task={task} />);
   click(wrapper.find('.js-modal-close'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 it('fetches scanner context on mount', async () => {
   const wrapper = shallow(<Stacktrace onClose={jest.fn()} task={task} />);
   expect(wrapper.state()).toEqual({ loading: true });
-  expect(getTask).toBeCalledWith('123', ['stacktrace']);
+  expect(getTask).toHaveBeenCalledWith('123', ['stacktrace']);
   await new Promise(setImmediate);
   expect(wrapper.state()).toEqual({ loading: false, stacktrace: 'stacktrace' });
 });

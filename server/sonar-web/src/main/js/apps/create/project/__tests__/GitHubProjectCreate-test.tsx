@@ -72,8 +72,8 @@ it('should redirect when no code', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(getGithubClientId).toBeCalled();
-  expect(window.location.replace).toBeCalled();
+  expect(getGithubClientId).toHaveBeenCalled();
+  expect(window.location.replace).toHaveBeenCalled();
 });
 
 it('should redirect when no code - github.com', async () => {
@@ -82,8 +82,8 @@ it('should redirect when no code - github.com', async () => {
   });
   await waitAndUpdate(wrapper);
 
-  expect(getGithubClientId).toBeCalled();
-  expect(window.location.replace).toBeCalledWith(
+  expect(getGithubClientId).toHaveBeenCalled();
+  expect(window.location.replace).toHaveBeenCalledWith(
     'github.com/login/oauth/authorize?client_id=client-id-124&redirect_uri=http://localhost/projects/create?mode=github'
   );
 });
@@ -94,7 +94,7 @@ it('should not redirect when invalid clientId', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().error).toBe(true);
-  expect(window.location.replace).not.toBeCalled();
+  expect(window.location.replace).not.toHaveBeenCalled();
 });
 
 it('should fetch organizations when code', async () => {
@@ -110,8 +110,8 @@ it('should fetch organizations when code', async () => {
   });
   await waitAndUpdate(wrapper);
 
-  expect(replace).toBeCalled();
-  expect(getGithubOrganizations).toBeCalled();
+  expect(replace).toHaveBeenCalled();
+  expect(getGithubOrganizations).toHaveBeenCalled();
   expect(wrapper.state().organizations).toBe(organizations);
 });
 
@@ -133,7 +133,7 @@ it('should handle org selection', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().selectedOrganization).toBe(organizations[0]);
-  expect(getGithubRepositories).toBeCalled();
+  expect(getGithubRepositories).toHaveBeenCalled();
 
   expect(wrapper.state().repositories).toBe(repositories);
 });
@@ -158,7 +158,7 @@ it('should load more', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getGithubRepositories).toBeCalled();
+  expect(getGithubRepositories).toHaveBeenCalled();
   expect(wrapper.state().repositories).toEqual([...startRepos, ...repositories]);
 });
 
@@ -182,7 +182,7 @@ it('should handle search', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getGithubRepositories).toBeCalledWith({
+  expect(getGithubRepositories).toHaveBeenCalledWith({
     almSetting: 'a',
     organization: 'o1',
     page: 1,
@@ -212,7 +212,7 @@ it('should handle importing', async () => {
   const wrapper = shallowRender({ onProjectCreate });
 
   wrapper.instance().handleImportRepository();
-  expect(importGithubRepository).not.toBeCalled();
+  expect(importGithubRepository).not.toHaveBeenCalled();
 
   const selectedOrganization = { key: 'org1', name: 'org1' };
   const selectedRepository = mockGitHubRepository();
@@ -223,12 +223,12 @@ it('should handle importing', async () => {
 
   wrapper.instance().handleImportRepository();
   await waitAndUpdate(wrapper);
-  expect(importGithubRepository).toBeCalledWith(
+  expect(importGithubRepository).toHaveBeenCalledWith(
     'a',
     selectedOrganization.key,
     selectedRepository.key
   );
-  expect(onProjectCreate).toBeCalledWith(project.key);
+  expect(onProjectCreate).toHaveBeenCalledWith(project.key);
 });
 
 function shallowRender(props: Partial<GitHubProjectCreate['props']> = {}) {

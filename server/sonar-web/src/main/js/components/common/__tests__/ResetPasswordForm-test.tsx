@@ -32,12 +32,12 @@ it('should trigger on password change prop', () => {
   const onPasswordChange = jest.fn();
   const wrapper = shallowRender({ onPasswordChange });
   wrapper.instance().handleSuccessfulChange();
-  expect(onPasswordChange).not.toBeCalled();
+  expect(onPasswordChange).not.toHaveBeenCalled();
   wrapper.instance().oldPassword = { value: '' } as HTMLInputElement;
   wrapper.instance().password = { value: '' } as HTMLInputElement;
   wrapper.instance().passwordConfirmation = { value: '' } as HTMLInputElement;
   wrapper.instance().handleSuccessfulChange();
-  expect(onPasswordChange).toBeCalled();
+  expect(onPasswordChange).toHaveBeenCalled();
 });
 
 it('should not trigger password change', () => {
@@ -46,7 +46,7 @@ it('should not trigger password change', () => {
   wrapper.instance().password = { value: 'test', focus: () => {} } as HTMLInputElement;
   wrapper.instance().passwordConfirmation = { value: 'test1' } as HTMLInputElement;
   wrapper.instance().handleChangePassword(mockEvent());
-  expect(changePassword).not.toBeCalled();
+  expect(changePassword).not.toHaveBeenCalled();
   expect(wrapper.state().errors).toBeDefined();
 });
 
@@ -55,7 +55,7 @@ it('should trigger password change', async () => {
   const wrapper = shallowRender({ user });
   wrapper.instance().handleChangePassword(mockEvent());
   await waitAndUpdate(wrapper);
-  expect(changePassword).not.toBeCalled();
+  expect(changePassword).not.toHaveBeenCalled();
 
   wrapper.instance().oldPassword = { value: 'testold' } as HTMLInputElement;
   wrapper.instance().password = { value: 'test' } as HTMLInputElement;
@@ -63,7 +63,7 @@ it('should trigger password change', async () => {
   wrapper.instance().handleChangePassword(mockEvent());
   await waitAndUpdate(wrapper);
 
-  expect(changePassword).toBeCalledWith({
+  expect(changePassword).toHaveBeenCalledWith({
     login: user.login,
     password: 'test',
     previousPassword: 'testold'

@@ -38,12 +38,12 @@ it('should render form', async () => {
   change(wrapper.find('[name="name"]'), 'foo');
   change(wrapper.find('[name="description"]'), 'bar');
   submit(wrapper.find('form'));
-  expect(onSubmit).toBeCalledWith({ description: 'bar', name: 'foo' });
+  expect(onSubmit).toHaveBeenCalledWith({ description: 'bar', name: 'foo' });
 
   await new Promise(setImmediate);
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 
   onClose.mockClear();
   click(wrapper.find('ResetButtonLink'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });

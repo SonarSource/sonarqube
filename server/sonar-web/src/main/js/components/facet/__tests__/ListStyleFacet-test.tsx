@@ -33,42 +33,42 @@ it('should select items', () => {
 
   // select one item
   instance.handleItemClick('b', false);
-  expect(onChange).lastCalledWith({ foo: ['b'] });
+  expect(onChange).toHaveBeenLastCalledWith({ foo: ['b'] });
   wrapper.setProps({ values: ['b'] });
 
   // select another item
   instance.handleItemClick('a', false);
-  expect(onChange).lastCalledWith({ foo: ['a'] });
+  expect(onChange).toHaveBeenLastCalledWith({ foo: ['a'] });
   wrapper.setProps({ values: ['a'] });
 
   // unselect item
   instance.handleItemClick('a', false);
-  expect(onChange).lastCalledWith({ foo: [] });
+  expect(onChange).toHaveBeenLastCalledWith({ foo: [] });
   wrapper.setProps({ values: [] });
 
   // select multiple items
   wrapper.setProps({ values: ['b'] });
   instance.handleItemClick('c', true);
-  expect(onChange).lastCalledWith({ foo: ['b', 'c'] });
+  expect(onChange).toHaveBeenLastCalledWith({ foo: ['b', 'c'] });
   wrapper.setProps({ values: ['b', 'c'] });
 
   // unselect item
   instance.handleItemClick('c', true);
-  expect(onChange).lastCalledWith({ foo: ['b'] });
+  expect(onChange).toHaveBeenLastCalledWith({ foo: ['b'] });
 });
 
 it('should toggle', () => {
   const onToggle = jest.fn();
   const wrapper = shallowRender({ onToggle });
   wrapper.find('FacetHeader').prop<Function>('onClick')();
-  expect(onToggle).toBeCalled();
+  expect(onToggle).toHaveBeenCalled();
 });
 
 it('should clear', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, values: ['a'] });
   wrapper.find('FacetHeader').prop<Function>('onClear')();
-  expect(onChange).toBeCalledWith({ foo: [] });
+  expect(onChange).toHaveBeenCalledWith({ foo: [] });
 });
 
 it('should search', async () => {
@@ -83,8 +83,8 @@ it('should search', async () => {
   wrapper.find('SearchBox').prop<Function>('onChange')('query');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(onSearch).lastCalledWith('query');
-  expect(loadSearchResultCount).lastCalledWith(['d', 'e']);
+  expect(onSearch).toHaveBeenLastCalledWith('query');
+  expect(loadSearchResultCount).toHaveBeenLastCalledWith(['d', 'e']);
 
   // load more results
   onSearch.mockResolvedValue({
@@ -95,7 +95,7 @@ it('should search', async () => {
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(onSearch).lastCalledWith('query', 2);
+  expect(onSearch).toHaveBeenLastCalledWith('query', 2);
 
   // clear search
   onSearch.mockClear();
@@ -103,24 +103,24 @@ it('should search', async () => {
   wrapper.find('SearchBox').prop<Function>('onChange')('');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(onSearch).not.toBeCalled();
-  expect(loadSearchResultCount).not.toBeCalled();
+  expect(onSearch).not.toHaveBeenCalled();
+  expect(loadSearchResultCount).not.toHaveBeenCalled();
 
   // search for no results
   onSearch.mockResolvedValue({ results: [], paging: { pageIndex: 1, pageSize: 2, total: 0 } });
   wrapper.find('SearchBox').prop<Function>('onChange')('blabla');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(onSearch).lastCalledWith('blabla');
-  expect(loadSearchResultCount).not.toBeCalled();
+  expect(onSearch).toHaveBeenLastCalledWith('blabla');
+  expect(loadSearchResultCount).not.toHaveBeenCalled();
 
   // search fails
   onSearch.mockRejectedValue(undefined);
   wrapper.find('SearchBox').prop<Function>('onChange')('blabla');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot(); // should render previous results
-  expect(onSearch).lastCalledWith('blabla');
-  expect(loadSearchResultCount).not.toBeCalled();
+  expect(onSearch).toHaveBeenLastCalledWith('blabla');
+  expect(loadSearchResultCount).not.toHaveBeenCalled();
 });
 
 it('should limit the number of items', () => {

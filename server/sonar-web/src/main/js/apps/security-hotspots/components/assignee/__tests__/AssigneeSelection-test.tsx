@@ -67,7 +67,7 @@ it('should handle keydown', () => {
 
   // press enter to select the highlighted user
   wrapper.instance().handleKeyDown(mockKeyboardEvent(KeyboardKeys.Enter));
-  expect(onSelect).toBeCalledWith(suggestedUsers[1]);
+  expect(onSelect).toHaveBeenCalledWith(suggestedUsers[1]);
 });
 
 it('should handle search', async () => {
@@ -80,11 +80,11 @@ it('should handle search', async () => {
   expect(wrapper.state().suggestedUsers.length).toBe(1);
   wrapper.instance().handleSearch('j');
 
-  expect(searchUsers).not.toBeCalled();
+  expect(searchUsers).not.toHaveBeenCalled();
 
   wrapper.instance().handleSearch('jo');
   expect(wrapper.state().loading).toBe(true);
-  expect(searchUsers).toBeCalledWith({ q: 'jo' });
+  expect(searchUsers).toHaveBeenCalledWith({ q: 'jo' });
 
   await waitAndUpdate(wrapper);
 
@@ -94,7 +94,7 @@ it('should handle search', async () => {
   jest.clearAllMocks();
 
   wrapper.instance().handleSearch('');
-  expect(searchUsers).not.toBeCalled();
+  expect(searchUsers).not.toHaveBeenCalled();
   expect(wrapper.state().suggestedUsers.length).toBe(1);
 });
 

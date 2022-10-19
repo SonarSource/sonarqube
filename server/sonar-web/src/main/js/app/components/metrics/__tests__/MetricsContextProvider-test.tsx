@@ -34,7 +34,7 @@ it('should call metric', async () => {
   (getAllMetrics as jest.Mock).mockResolvedValueOnce(Object.values(metrics));
   const wrapper = shallowRender();
 
-  expect(getAllMetrics).toBeCalled();
+  expect(getAllMetrics).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
   expect(wrapper.state()).toEqual({ metrics });
 });

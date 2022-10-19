@@ -112,7 +112,7 @@ it('should handle assignee search', async () => {
   const wrapper = shallowRender({ onAssigneeSelect });
 
   wrapper.instance().handleAssigneeSearch('a', jest.fn());
-  expect(searchAssignees).not.toBeCalled();
+  expect(searchAssignees).not.toHaveBeenCalled();
 
   const result = await new Promise((resolve: (opts: AssigneeOption[]) => void) => {
     wrapper.instance().handleAssigneeSearch('someone', resolve);

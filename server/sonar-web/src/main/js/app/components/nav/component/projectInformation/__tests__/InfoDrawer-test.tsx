@@ -32,7 +32,7 @@ it('should call onClose when button is clicked', () => {
   const wrapper = shallowRender({ onClose, displayed: true });
   wrapper.find(ClearButton).simulate('click');
 
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<InfoDrawerProps> = {}) {

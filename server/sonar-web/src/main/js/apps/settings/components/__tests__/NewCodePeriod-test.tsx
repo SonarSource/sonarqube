@@ -107,8 +107,8 @@ it('should submit correctly', async () => {
 
   wrapper.find('form').simulate('submit', { preventDefault });
 
-  expect(preventDefault).toBeCalledTimes(1);
-  expect(setNewCodePeriod).toBeCalledWith({ type: 'PREVIOUS_VERSION', value: undefined });
+  expect(preventDefault).toHaveBeenCalledTimes(1);
+  expect(setNewCodePeriod).toHaveBeenCalledWith({ type: 'PREVIOUS_VERSION', value: undefined });
   await waitAndUpdate(wrapper);
   expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
 });
@@ -125,8 +125,8 @@ it('should submit correctly with days', async () => {
 
   wrapper.find('form').simulate('submit', { preventDefault });
 
-  expect(preventDefault).toBeCalledTimes(1);
-  expect(setNewCodePeriod).toBeCalledWith({ type: 'NUMBER_OF_DAYS', value: '66' });
+  expect(preventDefault).toHaveBeenCalledTimes(1);
+  expect(setNewCodePeriod).toHaveBeenCalledWith({ type: 'NUMBER_OF_DAYS', value: '66' });
   await waitAndUpdate(wrapper);
   expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
 });

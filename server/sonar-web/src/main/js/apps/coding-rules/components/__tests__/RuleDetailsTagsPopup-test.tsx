@@ -34,7 +34,7 @@ it('should render tags', () => {
 it('should search tags', async () => {
   const wrapper = shallowRender();
   wrapper.prop<Function>('onSearch')('sys');
-  expect(getRuleTags).toBeCalledWith({ ps: 11, q: 'sys' });
+  expect(getRuleTags).toHaveBeenCalledWith({ ps: 11, q: 'sys' });
   await new Promise(setImmediate);
   wrapper.update();
   // should not contain system tags
@@ -46,10 +46,10 @@ it('should select & unselect tags', () => {
   const wrapper = shallowRender({ setTags });
 
   wrapper.prop<Function>('onSelect')('another');
-  expect(setTags).lastCalledWith(['foo', 'another']);
+  expect(setTags).toHaveBeenLastCalledWith(['foo', 'another']);
 
   wrapper.prop<Function>('onUnselect')('foo');
-  expect(setTags).lastCalledWith([]);
+  expect(setTags).toHaveBeenLastCalledWith([]);
 });
 
 function shallowRender(props?: Partial<Props>) {

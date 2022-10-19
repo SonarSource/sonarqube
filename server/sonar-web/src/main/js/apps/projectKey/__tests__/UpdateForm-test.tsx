@@ -30,6 +30,7 @@ it('should render', () => {
   expect(getForm(shallowRender())).toMatchSnapshot('form');
 });
 
+// eslint-disable-next-line jest/expect-expect
 it('should correctly update the form', () => {
   const component = mockComponent();
   const wrapper = shallowRender({ component });
@@ -49,6 +50,7 @@ it('should correctly update the form', () => {
   expectButtonDisabled(wrapper, SubmitButton).toBe(true);
 });
 
+// eslint-disable-next-line jest/expect-expect
 it('should correctly reset the form', () => {
   const component = mockComponent();
   const wrapper = shallowRender({ component });
@@ -66,6 +68,7 @@ function expectButtonDisabled(
   wrapper: ShallowWrapper,
   button: React.ComponentType<{ disabled?: boolean }>
 ) {
+  // eslint-disable-next-line jest/valid-expect
   return expect(
     getForm(wrapper)
       .find(button)
@@ -74,6 +77,7 @@ function expectButtonDisabled(
 }
 
 function expectProjectKeyInputValue(wrapper: ShallowWrapper) {
+  // eslint-disable-next-line jest/valid-expect
   return expect(
     getForm(wrapper)
       .find(ProjectKeyInput)

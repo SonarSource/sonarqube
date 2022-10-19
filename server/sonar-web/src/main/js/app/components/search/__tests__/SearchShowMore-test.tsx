@@ -37,14 +37,14 @@ it('should trigger showing more', () => {
       stopPropagation() {}
     }
   });
-  expect(onMoreClick).toBeCalledWith('TRK');
+  expect(onMoreClick).toHaveBeenCalledWith('TRK');
 });
 
 it('should select on mouse over', () => {
   const onSelect = jest.fn();
   const wrapper = shallowRender({ onSelect });
   wrapper.find('a').simulate('mouseenter', { currentTarget: { dataset: { qualifier: 'TRK' } } });
-  expect(onSelect).toBeCalledWith('qualifier###TRK');
+  expect(onSelect).toHaveBeenCalledWith('qualifier###TRK');
 });
 
 function shallowRender(props: Partial<SearchShowMore['props']> = {}) {

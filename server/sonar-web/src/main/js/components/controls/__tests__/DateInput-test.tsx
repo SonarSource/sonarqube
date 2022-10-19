@@ -66,17 +66,17 @@ it('should select a day', () => {
   wrapper.setState({ open: true });
 
   instance.handleDayClick(dateA, { disabled: true, outside: undefined, today: undefined });
-  expect(onChange).not.toBeCalled();
+  expect(onChange).not.toHaveBeenCalled();
   expect(wrapper.state().open).toBe(true);
 
   instance.handleDayClick(dateA, { outside: undefined, today: undefined });
-  expect(onChange).lastCalledWith(dateA);
+  expect(onChange).toHaveBeenLastCalledWith(dateA);
   wrapper.update();
   expect(wrapper.state().open).toBe(false);
   expect(wrapper).toMatchSnapshot();
 
   instance.handleResetClick();
-  expect(onChange).lastCalledWith(undefined);
+  expect(onChange).toHaveBeenLastCalledWith(undefined);
 });
 
 it('should hightlightFrom range', () => {

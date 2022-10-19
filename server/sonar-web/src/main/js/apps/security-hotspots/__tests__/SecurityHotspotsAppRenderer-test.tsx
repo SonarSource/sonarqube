@@ -113,7 +113,7 @@ describe('side effect', () => {
   it('should trigger scrolling', () => {
     shallowRender({ selectedHotspot: mockRawHotspot() });
 
-    expect(scrollToElement).toBeCalledWith(
+    expect(scrollToElement).toHaveBeenCalledWith(
       fakeElement,
       expect.objectContaining({ parent: fakeParent })
     );
@@ -121,7 +121,7 @@ describe('side effect', () => {
 
   it('should not trigger scrolling if no selected hotspot', () => {
     shallowRender();
-    expect(scrollToElement).not.toBeCalled();
+    expect(scrollToElement).not.toHaveBeenCalled();
   });
 
   it('should not trigger scrolling if no parent', () => {
@@ -129,7 +129,7 @@ describe('side effect', () => {
     mockUseRef.mockReset();
     mockUseRef.mockImplementationOnce(() => ({ current: null }));
     shallowRender({ selectedHotspot: mockRawHotspot() });
-    expect(scrollToElement).not.toBeCalled();
+    expect(scrollToElement).not.toHaveBeenCalled();
   });
 });
 

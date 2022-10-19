@@ -50,7 +50,7 @@ it('should properly deal with comment/status/submit events', async () => {
 
   await user.click(screen.getByRole('button', { name: 'hotspots.status.change_status' }));
 
-  expect(setSecurityHotspotStatus).toBeCalledWith(hotspot.key, {
+  expect(setSecurityHotspotStatus).toHaveBeenCalledWith(hotspot.key, {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE,
     comment

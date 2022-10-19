@@ -172,7 +172,7 @@ it('should not break when conditional tags are misused', () => {
   Break
   <!-- static -->Static <!-- /sonarcloud -->stuff`;
   expect(filterContent(content)).toMatchSnapshot();
-  expect(console.error).toBeCalledTimes(2);
+  expect(console.error).toHaveBeenCalledTimes(2);
 
   console.error = originalConsoleError;
 });

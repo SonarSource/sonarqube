@@ -85,13 +85,13 @@ it('should load data correctly', async () => {
   expect(wrapper.state().loading).toBe(true);
   expect(wrapper.state().loadingMeasure).toBe(true);
 
-  expect(getStandards).toBeCalled();
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getStandards).toHaveBeenCalled();
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({
       branch: branch.name
     })
   );
-  expect(getMeasures).toBeCalledWith(
+  expect(getMeasures).toHaveBeenCalledWith(
     expect.objectContaining({
       branch: branch.name
     })
@@ -119,7 +119,7 @@ it('should handle category request', () => {
     location: mockLocation({ query: { [SecurityStandard.OWASP_TOP10]: 'a1' } })
   });
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ [SecurityStandard.OWASP_TOP10]: 'a1' })
   );
 });
@@ -132,7 +132,7 @@ it('should handle cwe request', () => {
     location: mockLocation({ query: { [SecurityStandard.CWE]: '1004' } })
   });
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ [SecurityStandard.CWE]: '1004' })
   );
 });
@@ -147,7 +147,7 @@ it('should handle file request', () => {
     location: mockLocation({ query: { files: filepath } })
   });
 
-  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ files: filepath }));
+  expect(getSecurityHotspots).toHaveBeenCalledWith(expect.objectContaining({ files: filepath }));
 });
 
 it('should load data correctly when hotspot key list is forced', async () => {
@@ -169,7 +169,7 @@ it('should load data correctly when hotspot key list is forced', async () => {
   });
 
   await waitAndUpdate(wrapper);
-  expect(getSecurityHotspotList).toBeCalledWith(hotspotKeys, {
+  expect(getSecurityHotspotList).toHaveBeenCalledWith(hotspotKeys, {
     projectKey: 'my-project',
     branch: 'branch-6.7'
   });
@@ -247,7 +247,7 @@ it('should handle loading more', async () => {
   wrapper.instance().handleLoadMore();
 
   expect(wrapper.state().loadingMore).toBe(true);
-  expect(getSecurityHotspots).toBeCalledTimes(2);
+  expect(getSecurityHotspots).toHaveBeenCalledTimes(2);
 
   await waitAndUpdate(wrapper);
 
@@ -302,7 +302,7 @@ it('should handle hotspot update', async () => {
     wrapper.state().hotspots.findIndex(h => h.key === wrapper.state().selectedHotspot?.key)
   ).toBe(selectedHotspotIndex);
 
-  expect(getMeasures).toBeCalled();
+  expect(getMeasures).toHaveBeenCalled();
 
   (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots,
@@ -318,7 +318,7 @@ it('should handle hotspot update', async () => {
     .find(SecurityHotspotsAppRenderer)
     .props()
     .onUpdateHotspot(key);
-  expect(fetchBranchStatusMock).toBeCalledWith(branchLike, componentKey);
+  expect(fetchBranchStatusMock).toHaveBeenCalledWith(branchLike, componentKey);
 });
 
 it('should handle status filter change', async () => {
@@ -331,19 +331,19 @@ it('should handle status filter change', async () => {
 
   const wrapper = shallowRender();
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ status: HotspotStatus.TO_REVIEW, resolution: undefined })
   );
 
   await waitAndUpdate(wrapper);
 
-  expect(getMeasures).toBeCalledTimes(1);
+  expect(getMeasures).toHaveBeenCalledTimes(1);
 
   // Set filter to SAFE:
   wrapper.instance().handleChangeFilters({ status: HotspotStatusFilter.SAFE });
-  expect(getMeasures).toBeCalledTimes(1);
+  expect(getMeasures).toHaveBeenCalledTimes(1);
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE })
   );
 
@@ -354,7 +354,7 @@ it('should handle status filter change', async () => {
   // Set filter to FIXED (use the other method to check this one):
   wrapper.instance().handleChangeStatusFilter(HotspotStatusFilter.FIXED);
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.FIXED })
   );
 
@@ -373,18 +373,20 @@ it('should handle leakPeriod filter change', async () => {
 
   const wrapper = shallowRender();
 
-  expect(getSecurityHotspots).toBeCalledWith(
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({ status: HotspotStatus.TO_REVIEW, resolution: undefined })
   );
 
   await waitAndUpdate(wrapper);
 
-  expect(getMeasures).toBeCalledTimes(1);
+  expect(getMeasures).toHaveBeenCalledTimes(1);
 
   wrapper.instance().handleChangeFilters({ inNewCodePeriod: true });
 
-  expect(getMeasures).toBeCalledTimes(2);
-  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ inNewCodePeriod: true }));
+  expect(getMeasures).toHaveBeenCalledTimes(2);
+  expect(getSecurityHotspots).toHaveBeenCalledWith(
+    expect.objectContaining({ inNewCodePeriod: true })
+  );
 });
 
 it('should handle hotspot click', () => {

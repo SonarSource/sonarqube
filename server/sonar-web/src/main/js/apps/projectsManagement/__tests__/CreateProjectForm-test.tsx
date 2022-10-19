@@ -53,7 +53,7 @@ it('creates project', async () => {
   expect(wrapper).toMatchSnapshot();
 
   submit(wrapper.find('form'));
-  expect(createProject).toBeCalledWith({
+  expect(createProject).toHaveBeenCalledWith({
     name: 'name',
     project: 'key',
     visibility: 'private'

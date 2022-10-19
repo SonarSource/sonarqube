@@ -38,7 +38,7 @@ it('should open rule', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
   wrapper.find(Link).simulate('click', mockEvent({ button: 0 }));
-  expect(onOpen).toBeCalledWith('javascript:S1067');
+  expect(onOpen).toHaveBeenCalledWith('javascript:S1067');
 });
 
 it('handle activation', () => {
@@ -48,7 +48,7 @@ it('handle activation', () => {
   const wrapper = shallowRender({ onActivate, rule, selectedProfile: profile });
 
   wrapper.instance().handleActivate('MAJOR');
-  expect(onActivate).toBeCalledWith(profile.key, rule.key, {
+  expect(onActivate).toHaveBeenCalledWith(profile.key, rule.key, {
     severity: 'MAJOR',
     inherit: 'NONE'
   });
@@ -61,14 +61,14 @@ it('handle deactivation', async () => {
   const wrapper = shallowRender({ onDeactivate, rule, selectedProfile: profile });
 
   wrapper.instance().handleDeactivate();
-  expect(deactivateRule).toBeCalledWith(
+  expect(deactivateRule).toHaveBeenCalledWith(
     expect.objectContaining({
       key: profile.key,
       rule: rule.key
     })
   );
   await waitAndUpdate(wrapper);
-  expect(onDeactivate).toBeCalledWith(profile.key, rule.key);
+  expect(onDeactivate).toHaveBeenCalledWith(profile.key, rule.key);
 });
 
 describe('renderActions', () => {

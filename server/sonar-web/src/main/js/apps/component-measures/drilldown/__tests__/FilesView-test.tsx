@@ -87,16 +87,16 @@ it('should correctly bind key events for file navigation', () => {
   });
 
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(handleSelect).toBeCalledWith(FILES[0]);
+  expect(handleSelect).toHaveBeenCalledWith(FILES[0]);
 
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(handleSelect).toBeCalledWith(FILES[2]);
+  expect(handleSelect).toHaveBeenCalledWith(FILES[2]);
 
   keydown({ key: KeyboardKeys.RightArrow, ctrlKey: true });
-  expect(handleOpen).not.toBeCalled();
+  expect(handleOpen).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.RightArrow });
-  expect(handleOpen).toBeCalled();
+  expect(handleOpen).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<FilesView['props']> = {}) {

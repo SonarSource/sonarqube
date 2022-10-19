@@ -49,7 +49,11 @@ it('should display the update webhook form', () => {
     name: webhook.name,
     url: webhook.url
   });
-  expect(onUpdate).lastCalledWith({ webhook: webhook.key, name: webhook.name, url: webhook.url });
+  expect(onUpdate).toHaveBeenLastCalledWith({
+    webhook: webhook.key,
+    name: webhook.name,
+    url: webhook.url
+  });
 });
 
 it('should display the delete webhook form', () => {
@@ -58,7 +62,7 @@ it('should display the delete webhook form', () => {
   click(wrapper.find('.js-webhook-delete'));
   expect(wrapper.find('DeleteWebhookForm').exists()).toBe(true);
   wrapper.find('DeleteWebhookForm').prop<Function>('onSubmit')();
-  expect(onDelete).lastCalledWith(webhook.key);
+  expect(onDelete).toHaveBeenLastCalledWith(webhook.key);
 });
 
 it('should display the deliveries form', () => {

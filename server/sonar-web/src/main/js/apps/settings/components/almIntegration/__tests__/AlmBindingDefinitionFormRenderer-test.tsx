@@ -61,7 +61,7 @@ it('should submit properly', () => {
 
   wrapper.find('form').simulate('submit', event);
 
-  expect(event.preventDefault).toBeCalled();
+  expect(event.preventDefault).toHaveBeenCalled();
   expect(onSubmit).toHaveBeenCalled();
 });
 

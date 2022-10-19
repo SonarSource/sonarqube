@@ -49,8 +49,8 @@ it('renames branch', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
-  expect(onRename).toBeCalled();
-  expect(renameBranch).toBeCalledWith('foo', 'dev');
+  expect(onRename).toHaveBeenCalled();
+  expect(renameBranch).toHaveBeenCalledWith('foo', 'dev');
 });
 
 it('cancels', () => {
@@ -60,7 +60,7 @@ it('cancels', () => {
   click(wrapper.find('ResetButtonLink'));
 
   return doAsync().then(() => {
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 });
 
@@ -73,7 +73,7 @@ it('stops loading on WS error', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
-  expect(onRename).not.toBeCalled();
+  expect(onRename).not.toHaveBeenCalled();
 });
 
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {

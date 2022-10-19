@@ -149,9 +149,9 @@ describe('search engine', () => {
 
   it('should trigger a search if query is set', () => {
     const wrapper = shallowRender({ query: undefined });
-    expect(wrapper.instance().index.search).not.toBeCalled();
+    expect(wrapper.instance().index.search).not.toHaveBeenCalled();
     wrapper.setProps({ query: 'si:+mply text' });
-    expect(wrapper.instance().index.search).toBeCalledWith('simply~1 simply* text~1 text*');
+    expect(wrapper.instance().index.search).toHaveBeenCalledWith('simply~1 simply* text~1 text*');
   });
 });
 
@@ -217,7 +217,7 @@ describe('tokenContextPluginCallback', () => {
   it('should only register the plugin once', () => {
     tokenContextPlugin(mockLunrBuilder());
     tokenContextPlugin(mockLunrBuilder());
-    expect((lunr as any).Pipeline.registerFunction).toBeCalledTimes(1);
+    expect((lunr as any).Pipeline.registerFunction).toHaveBeenCalledTimes(1);
   });
 });
 

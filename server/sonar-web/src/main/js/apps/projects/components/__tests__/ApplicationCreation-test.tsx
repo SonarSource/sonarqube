@@ -50,7 +50,7 @@ it('should show form and callback when submitted - admin', async () => {
 
   await openAndSubmitForm(wrapper);
 
-  expect(routerPush).toBeCalledWith({
+  expect(routerPush).toHaveBeenCalledWith({
     pathname: '/project/admin/extension/developer-server/application-console',
     search: queryToSearch({
       id: 'new app'
@@ -67,7 +67,7 @@ it('should show form and callback when submitted - user', async () => {
 
   await openAndSubmitForm(wrapper);
 
-  expect(routerPush).toBeCalledWith({
+  expect(routerPush).toHaveBeenCalledWith({
     pathname: '/dashboard',
     search: queryToSearch({
       id: 'new app'
@@ -84,7 +84,7 @@ async function openAndSubmitForm(wrapper: ShallowWrapper) {
   await creationForm
     .props()
     .onCreate({ key: 'new app', qualifier: ComponentQualifier.Application });
-  expect(getComponentNavigation).toBeCalled();
+  expect(getComponentNavigation).toHaveBeenCalled();
   expect(wrapper.find(CreateApplicationForm).exists()).toBe(false);
 }
 

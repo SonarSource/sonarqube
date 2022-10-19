@@ -71,7 +71,7 @@ it('Should fetch data', async () => {
 
   (getIssueFlowSnippets as jest.Mock).mockClear();
   wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });
-  expect(getIssueFlowSnippets).toBeCalledWith('foo');
+  expect(getIssueFlowSnippets).toHaveBeenCalledWith('foo');
 });
 
 it('Should handle no access rights', async () => {

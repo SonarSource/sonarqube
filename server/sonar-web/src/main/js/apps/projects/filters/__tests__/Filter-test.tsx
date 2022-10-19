@@ -67,13 +67,13 @@ it('should handle click when value is single', () => {
 
   // select
   wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option2' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: 'option2' });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: 'option2' });
 
   onQueryChange.mockClear();
 
   // deselect
   wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option1' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: null });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: null });
 });
 
 it('should handle click when value is array', () => {
@@ -82,13 +82,13 @@ it('should handle click when value is array', () => {
 
   // select one
   wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option2' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: 'option2' });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: 'option2' });
 
   onQueryChange.mockClear();
 
   // select other
   wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option3' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: 'option3' });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: 'option3' });
 
   onQueryChange.mockClear();
 
@@ -96,7 +96,7 @@ it('should handle click when value is array', () => {
   wrapper
     .instance()
     .handleClick(mockEvent({ ctrlKey: true, currentTarget: { dataset: { key: 'option3' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: 'option1,option2,option3' });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: 'option1,option2,option3' });
 
   onQueryChange.mockClear();
 
@@ -104,7 +104,7 @@ it('should handle click when value is array', () => {
   wrapper
     .instance()
     .handleClick(mockEvent({ metaKey: true, currentTarget: { dataset: { key: 'option2' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: 'option1' });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: 'option1' });
 });
 
 it('should handle click when value is array with one value', () => {
@@ -115,13 +115,13 @@ it('should handle click when value is array with one value', () => {
   wrapper
     .instance()
     .handleClick(mockEvent({ ctrlKey: true, currentTarget: { dataset: { key: 'option1' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: null });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: null });
 
   onQueryChange.mockClear();
 
   // deselect one
   wrapper.instance().handleClick(mockEvent({ currentTarget: { dataset: { key: 'option1' } } }));
-  expect(onQueryChange).toBeCalledWith({ foo: null });
+  expect(onQueryChange).toHaveBeenCalledWith({ foo: null });
 });
 
 function shallowRender(overrides: Partial<Filter['props']> = {}) {

@@ -40,8 +40,8 @@ beforeEach(() => {
 
 it('renders for logged in user', () => {
   renderFavoriteFilter();
-  expect(screen.queryByText('my_favorites')).toBeInTheDocument();
-  expect(screen.queryByText('all')).toBeInTheDocument();
+  expect(screen.getByText('my_favorites')).toBeInTheDocument();
+  expect(screen.getByText('all')).toBeInTheDocument();
 });
 
 it.each([

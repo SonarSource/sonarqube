@@ -46,5 +46,5 @@ afterAll(() => {
 
 it('should not render for anonymous user', () => {
   handleRequiredAuthentication();
-  expect(replace).toBeCalledWith('/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag');
+  expect(replace).toHaveBeenCalledWith('/sessions/new?return_to=%2Fpath%3Fid%3D12%23tag');
 });

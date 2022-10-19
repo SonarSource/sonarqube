@@ -45,38 +45,38 @@ describe('updateIssue', () => {
 
   it('makes successful optimistic updates', async () => {
     updateIssue(onChange, successPromise(), oldIssue, newIssue);
-    expect(onChange).toBeCalledWith(newIssue);
+    expect(onChange).toHaveBeenCalledWith(newIssue);
 
     await new Promise(setImmediate);
 
-    expect(onChange).toBeCalledTimes(1);
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it('makes successful non-optimistic updates', async () => {
     updateIssue(onChange, successPromise());
-    expect(onChange).not.toBeCalled();
+    expect(onChange).not.toHaveBeenCalled();
 
     await new Promise(setImmediate);
-    expect(onChange).toBeCalledWith(parsedIssue);
-    expect(onChange).toBeCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(parsedIssue);
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it('makes unsuccessful optimistic updates', async () => {
     updateIssue(onChange, errorPromise(), oldIssue, newIssue);
-    expect(onChange).toBeCalledWith(newIssue);
+    expect(onChange).toHaveBeenCalledWith(newIssue);
 
     await new Promise(setImmediate);
 
-    expect(onChange).toBeCalledWith(oldIssue);
-    expect(onChange).toBeCalledTimes(2);
+    expect(onChange).toHaveBeenCalledWith(oldIssue);
+    expect(onChange).toHaveBeenCalledTimes(2);
   });
 
   it('makes unsuccessful non-optimistic updates', async () => {
     updateIssue(onChange, errorPromise());
-    expect(onChange).not.toBeCalled();
+    expect(onChange).not.toHaveBeenCalled();
 
     await new Promise(setImmediate);
-    expect(parseIssueFromResponse).not.toBeCalled();
-    expect(throwGlobalError).toBeCalled();
+    expect(parseIssueFromResponse).not.toHaveBeenCalled();
+    expect(throwGlobalError).toHaveBeenCalled();
   });
 });

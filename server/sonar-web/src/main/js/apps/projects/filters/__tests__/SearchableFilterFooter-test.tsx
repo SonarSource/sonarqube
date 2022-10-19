@@ -52,5 +52,5 @@ it('should properly handle a change of the facet value', () => {
     />
   );
   wrapper.find(Select).simulate('change', { value: 'js' });
-  expect(onQueryChange).toBeCalledWith({ languages: 'java,js' });
+  expect(onQueryChange).toHaveBeenCalledWith({ languages: 'java,js' });
 });

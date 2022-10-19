@@ -51,10 +51,10 @@ it('should change', () => {
   const wrapper = shallow(<DateRangeInput onChange={onChange} />);
 
   wrapper.find('DateInput[data-test="from"]').prop<Function>('onChange')(dateA);
-  expect(onChange).lastCalledWith({ from: dateA, to: undefined });
+  expect(onChange).toHaveBeenLastCalledWith({ from: dateA, to: undefined });
   wrapper.setProps({ value: { from: dateA } });
 
   wrapper.find('DateInput[data-test="to"]').prop<Function>('onChange')(dateB);
   wrapper.update();
-  expect(onChange).lastCalledWith({ from: dateA, to: dateB });
+  expect(onChange).toHaveBeenLastCalledWith({ from: dateA, to: dateB });
 });

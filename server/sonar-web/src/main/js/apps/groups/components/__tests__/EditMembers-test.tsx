@@ -33,6 +33,6 @@ it('should edit members', () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('EditMembersModal').prop<Function>('onClose')();
-  expect(onEdit).toBeCalled();
+  expect(onEdit).toHaveBeenCalled();
   expect(wrapper).toMatchSnapshot();
 });

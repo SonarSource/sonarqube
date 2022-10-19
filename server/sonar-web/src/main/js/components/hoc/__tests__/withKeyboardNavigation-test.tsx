@@ -65,32 +65,32 @@ it('should correctly bind key events for component navigation', () => {
   );
 
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
-  expect(onSelect).not.toBeCalled();
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[2]);
+  expect(onSelect).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.UpArrow });
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
-  expect(onSelect).not.toBeCalled();
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[0]);
+  expect(onSelect).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[2]);
 
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[0]);
 
   keydown({ key: KeyboardKeys.RightArrow, metaKey: true });
-  expect(onSelect).not.toBeCalled();
+  expect(onSelect).not.toHaveBeenCalled();
   keydown({ key: KeyboardKeys.RightArrow });
-  expect(onSelect).toBeCalledWith(COMPONENTS[0]);
+  expect(onSelect).toHaveBeenCalledWith(COMPONENTS[0]);
 
   keydown({ key: KeyboardKeys.Enter });
-  expect(onSelect).toBeCalledWith(COMPONENTS[0]);
+  expect(onSelect).toHaveBeenCalledWith(COMPONENTS[0]);
 
   keydown({ key: KeyboardKeys.LeftArrow, metaKey: true });
-  expect(onGoToParent).not.toBeCalled();
+  expect(onGoToParent).not.toHaveBeenCalled();
   keydown({ key: KeyboardKeys.LeftArrow });
-  expect(onGoToParent).toBeCalled();
+  expect(onGoToParent).toHaveBeenCalled();
 });
 
 it('should support not cycling through elements, and triggering a callback on reaching the last element', () => {
@@ -107,18 +107,18 @@ it('should support not cycling through elements, and triggering a callback on re
   );
 
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[0]);
   keydown({ key: KeyboardKeys.DownArrow });
   keydown({ key: KeyboardKeys.DownArrow });
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
-  expect(onEndOfList).toBeCalled();
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[2]);
+  expect(onEndOfList).toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.UpArrow });
   keydown({ key: KeyboardKeys.UpArrow });
   keydown({ key: KeyboardKeys.UpArrow });
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
+  expect(onHighlight).toHaveBeenCalledWith(COMPONENTS[0]);
 });
 
 it('should correctly bind key events for codeview navigation', () => {
@@ -136,22 +136,22 @@ it('should correctly bind key events for codeview navigation', () => {
     })
   );
 
-  expect(onHighlight).not.toBeCalled();
+  expect(onHighlight).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.DownArrow });
-  expect(onHighlight).not.toBeCalled();
+  expect(onHighlight).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.UpArrow });
-  expect(onHighlight).not.toBeCalled();
+  expect(onHighlight).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.RightArrow });
-  expect(onSelect).not.toBeCalled();
+  expect(onSelect).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.Enter });
-  expect(onSelect).not.toBeCalled();
+  expect(onSelect).not.toHaveBeenCalled();
 
   keydown({ key: KeyboardKeys.LeftArrow });
-  expect(onGoToParent).toBeCalled();
+  expect(onGoToParent).toHaveBeenCalled();
 });
 
 function applyProps(props: Partial<WithKeyboardNavigationProps> = {}) {

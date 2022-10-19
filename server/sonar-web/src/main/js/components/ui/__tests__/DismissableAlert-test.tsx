@@ -59,7 +59,7 @@ it('should not render if it was dismissed', () => {
 it('should correctly allow dismissing', () => {
   const wrapper = shallowRender();
   click(wrapper.find(ButtonIcon));
-  expect(save).toBeCalledWith(DISMISSED_ALERT_STORAGE_KEY, 'true', 'foo');
+  expect(save).toHaveBeenCalledWith(DISMISSED_ALERT_STORAGE_KEY, 'true', 'foo');
 });
 
 function shallowRender(props: Partial<DismissableAlertProps> = {}) {

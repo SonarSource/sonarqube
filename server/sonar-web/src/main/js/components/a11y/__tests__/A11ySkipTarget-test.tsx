@@ -35,7 +35,7 @@ it('should render correctly, and (un)register the link when (un)mounted', () => 
   );
 
   expect(wrapper).toMatchSnapshot();
-  expect(addA11ySkipLink).toBeCalledWith(link);
+  expect(addA11ySkipLink).toHaveBeenCalledWith(link);
   wrapper.unmount();
-  expect(removeA11ySkipLink).toBeCalledWith(link);
+  expect(removeA11ySkipLink).toHaveBeenCalledWith(link);
 });

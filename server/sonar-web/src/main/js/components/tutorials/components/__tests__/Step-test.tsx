@@ -53,5 +53,5 @@ it('re-opens', () => {
     />
   );
   click(wrapper);
-  expect(onOpen).toBeCalled();
+  expect(onOpen).toHaveBeenCalled();
 });

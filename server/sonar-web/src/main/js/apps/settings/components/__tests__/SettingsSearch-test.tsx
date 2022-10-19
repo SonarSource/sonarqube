@@ -59,7 +59,7 @@ describe('instance', () => {
     await waitAndUpdate(wrapper);
     expect(wrapper.state().searchQuery).toBe('query');
 
-    expect(wrapper.instance().index.search).toBeCalled();
+    expect(wrapper.instance().index.search).toHaveBeenCalled();
     expect(wrapper.state().showResults).toBe(true);
     expect(wrapper.state().results).toHaveLength(2);
   });
@@ -70,7 +70,7 @@ describe('instance', () => {
     await waitAndUpdate(wrapper);
     expect(wrapper.state().searchQuery).toBe('');
 
-    expect(wrapper.instance().index.search).toBeCalled();
+    expect(wrapper.instance().index.search).toHaveBeenCalled();
     expect(wrapper.state().showResults).toBe(false);
   });
 
@@ -100,12 +100,12 @@ describe('instance', () => {
   it('should handle "enter" keyboard event', () => {
     wrapper.setState({ selectedResult: undefined });
     wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
-    expect(router.push).not.toBeCalled();
+    expect(router.push).not.toHaveBeenCalled();
 
     wrapper.setState({ selectedResult: 'foo' });
     wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
 
-    expect(router.push).toBeCalledWith({
+    expect(router.push).toHaveBeenCalledWith({
       hash: '#foo',
       pathname: '/admin/settings',
       search: queryToSearch({ category: 'foo category' })

@@ -43,7 +43,7 @@ it('checks project', () => {
   const onProjectCheck = jest.fn();
   const wrapper = shallowRender({ onProjectCheck });
   wrapper.find('Checkbox').prop<Function>('onCheck')(false);
-  expect(onProjectCheck).toBeCalledWith(project, false);
+  expect(onProjectCheck).toHaveBeenCalledWith(project, false);
 });
 
 function shallowRender(props?: any) {

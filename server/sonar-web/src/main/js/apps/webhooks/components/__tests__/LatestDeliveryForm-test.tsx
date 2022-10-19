@@ -49,7 +49,7 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 
   await new Promise(setImmediate);
-  expect(getDelivery).lastCalledWith({ deliveryId: delivery.id });
+  expect(getDelivery).toHaveBeenLastCalledWith({ deliveryId: delivery.id });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });

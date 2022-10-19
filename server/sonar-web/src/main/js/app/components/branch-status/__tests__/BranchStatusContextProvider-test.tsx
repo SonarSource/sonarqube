@@ -43,7 +43,7 @@ describe('fetchBranchStatus', () => {
 
     wrapper.instance().fetchBranchStatus(mockBranch({ name: branchName }), projectKey);
 
-    expect(getQualityGateProjectStatus).toBeCalledWith({ projectKey, branch: branchName });
+    expect(getQualityGateProjectStatus).toHaveBeenCalledWith({ projectKey, branch: branchName });
 
     await waitAndUpdate(wrapper);
 

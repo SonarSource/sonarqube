@@ -40,13 +40,13 @@ it('should call onChange', () => {
   const itemOnClick = wrapper.find('ListStyleFacet').prop<Function>('onItemClick');
 
   itemOnClick('');
-  expect(onChange).lastCalledWith({ assigned: false, assignees: [] });
+  expect(onChange).toHaveBeenLastCalledWith({ assigned: false, assignees: [] });
 
   itemOnClick('bar');
-  expect(onChange).lastCalledWith({ assigned: true, assignees: ['bar'] });
+  expect(onChange).toHaveBeenLastCalledWith({ assigned: true, assignees: ['bar'] });
 
   itemOnClick('baz', true);
-  expect(onChange).lastCalledWith({ assigned: true, assignees: ['baz', 'foo'] });
+  expect(onChange).toHaveBeenLastCalledWith({ assigned: true, assignees: ['baz', 'foo'] });
 });
 
 describe('test behavior', () => {

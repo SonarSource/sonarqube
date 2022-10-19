@@ -114,20 +114,20 @@ it('should correctly scroll to clicked headings', () => {
 
   // Node Ref isn't set yet.
   instance.handleAnchorClick('#unknown', mockEvent());
-  expect(scrollToElement).not.toBeCalled();
+  expect(scrollToElement).not.toHaveBeenCalled();
 
   // Set node Ref.
   instance.node = { querySelector } as HTMLElement;
 
   // Unknown element.
   instance.handleAnchorClick('#unknown', mockEvent());
-  expect(scrollToElement).not.toBeCalled();
+  expect(scrollToElement).not.toHaveBeenCalled();
 
   // Known element, should scroll.
   instance.handleAnchorClick('#id', mockEvent({ preventDefault }));
-  expect(scrollToElement).toBeCalledWith(element, { bottomOffset: 720 });
-  expect(preventDefault).toBeCalled();
-  expect(historyPushState).toBeCalledWith(null, '', '#id');
+  expect(scrollToElement).toHaveBeenCalledWith(element, { bottomOffset: 720 });
+  expect(preventDefault).toHaveBeenCalled();
+  expect(historyPushState).toHaveBeenCalledWith(null, '', '#id');
 });
 
 it('should correctly scroll to a specific heading if passed as a prop', () => {
@@ -139,11 +139,11 @@ it('should correctly scroll to a specific heading if passed as a prop', () => {
   const instance = wrapper.instance();
   instance.node = { querySelector } as HTMLElement;
 
-  expect(scrollToElement).not.toBeCalled();
+  expect(scrollToElement).not.toHaveBeenCalled();
 
   jest.runAllTimers();
 
-  expect(scrollToElement).toBeCalledWith(element, { bottomOffset: 720 });
+  expect(scrollToElement).toHaveBeenCalledWith(element, { bottomOffset: 720 });
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });

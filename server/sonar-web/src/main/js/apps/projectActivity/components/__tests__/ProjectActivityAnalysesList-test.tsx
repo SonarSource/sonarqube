@@ -83,7 +83,7 @@ it('should correctly update the selected date', () => {
   const updateQuery = jest.fn();
   const wrapper = shallowRender({ updateQuery });
   wrapper.instance().updateSelectedDate(selectedDate);
-  expect(updateQuery).toBeCalledWith({ selectedDate });
+  expect(updateQuery).toHaveBeenCalledWith({ selectedDate });
 });
 
 it('should correctly reset scroll if filters change', () => {

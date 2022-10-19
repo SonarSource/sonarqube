@@ -86,7 +86,7 @@ describe('callback', () => {
   it('should be called when org is selected', () => {
     const value = 'o1';
     wrapper.find(Select).simulate('change', { value });
-    expect(onSelectOrganization).toBeCalledWith(value);
+    expect(onSelectOrganization).toHaveBeenCalledWith(value);
   });
 
   it('should be called when searchbox is changed', () => {
@@ -95,7 +95,7 @@ describe('callback', () => {
       .find(SearchBox)
       .props()
       .onChange(value);
-    expect(onSearch).toBeCalledWith(value);
+    expect(onSearch).toHaveBeenCalledWith(value);
   });
 
   it('should be called when repo is selected', () => {
@@ -104,7 +104,7 @@ describe('callback', () => {
       .find(Radio)
       .props()
       .onCheck(value);
-    expect(onSelectRepository).toBeCalledWith(value);
+    expect(onSelectRepository).toHaveBeenCalledWith(value);
   });
 });
 

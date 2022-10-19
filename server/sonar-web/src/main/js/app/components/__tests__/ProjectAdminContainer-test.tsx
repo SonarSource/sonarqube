@@ -33,7 +33,7 @@ it('should render correctly', () => {
 
 it('should redirect for authorization if needed', () => {
   mountRender({ component: mockComponent({ configuration: { showSettings: false } }) });
-  expect(handleRequiredAuthorization).toBeCalled();
+  expect(handleRequiredAuthorization).toHaveBeenCalled();
 });
 
 function mountRender(props: Partial<ProjectAdminContainer['props']> = {}) {

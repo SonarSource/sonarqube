@@ -68,7 +68,7 @@ it('should render additional child in line', () => {
     verticalBuffer: 5
   });
 
-  expect(renderAdditionalChildInLine).toBeCalledWith(sourceline);
+  expect(renderAdditionalChildInLine).toHaveBeenCalledWith(sourceline);
 });
 
 it('should render correctly when at the top of the file', () => {

@@ -44,18 +44,18 @@ jest.mock('../../../../api/settings', () => ({
 it('should render default view correctly', async () => {
   const wrapper = shallowRender();
 
-  expect(addSideBarClass).toBeCalled();
-  expect(addWhitePageClass).toBeCalled();
+  expect(addSideBarClass).toHaveBeenCalled();
+  expect(addWhitePageClass).toHaveBeenCalled();
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  expect(getDefinitions).toBeCalledWith(undefined);
+  expect(getDefinitions).toHaveBeenCalledWith(undefined);
 
   wrapper.unmount();
 
-  expect(removeSideBarClass).toBeCalled();
-  expect(removeWhitePageClass).toBeCalled();
+  expect(removeSideBarClass).toHaveBeenCalled();
+  expect(removeWhitePageClass).toHaveBeenCalled();
 });
 
 it('should fetch definitions for component', async () => {
@@ -63,7 +63,7 @@ it('should fetch definitions for component', async () => {
   const wrapper = shallowRender({ component: mockComponent({ key }) });
 
   await waitAndUpdate(wrapper);
-  expect(getDefinitions).toBeCalledWith(key);
+  expect(getDefinitions).toHaveBeenCalledWith(key);
 });
 
 function shallowRender(props: Partial<SettingsApp['props']> = {}) {

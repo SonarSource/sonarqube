@@ -41,7 +41,7 @@ it('should call onChange', () => {
   expect(input.prop('onChange')).toBeDefined();
 
   change(input, 'qux');
-  expect(onChange).toBeCalledWith('qux');
+  expect(onChange).toHaveBeenCalledWith('qux');
 });
 
 it('should handle enter', () => {
@@ -49,7 +49,7 @@ it('should handle enter', () => {
   shallowRender({ onSave })
     .instance()
     .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Enter } }));
-  expect(onSave).toBeCalled();
+  expect(onSave).toHaveBeenCalled();
 });
 
 it('should handle esc', () => {
@@ -57,7 +57,7 @@ it('should handle esc', () => {
   shallowRender({ onCancel })
     .instance()
     .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.Escape } }));
-  expect(onCancel).toBeCalled();
+  expect(onCancel).toHaveBeenCalled();
 });
 
 it('should ignore other keys', () => {
@@ -66,8 +66,8 @@ it('should ignore other keys', () => {
   shallowRender({ onCancel, onSave })
     .instance()
     .handleKeyDown(mockEvent({ nativeEvent: { key: KeyboardKeys.LeftArrow } }));
-  expect(onSave).not.toBeCalled();
-  expect(onCancel).not.toBeCalled();
+  expect(onSave).not.toHaveBeenCalled();
+  expect(onCancel).not.toHaveBeenCalled();
 });
 
 function shallowRender(overrides: Partial<SimpleInputProps> = {}) {

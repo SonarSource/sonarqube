@@ -50,7 +50,7 @@ it('should callback to load search results', () => {
     { key: '2', name: 'seecond' }
   ]);
 
-  expect(loadSearchResultCount).toBeCalledWith('projects', { projects: ['1', '2'] });
+  expect(loadSearchResultCount).toHaveBeenCalledWith('projects', { projects: ['1', '2'] });
 });
 
 it('should handle search for projects globally', async () => {
@@ -59,8 +59,8 @@ it('should handle search for projects globally', async () => {
 
   await wrapper.instance().handleSearch(query);
 
-  expect(searchProjects).toBeCalled();
-  expect(getTree).not.toBeCalled();
+  expect(searchProjects).toHaveBeenCalled();
+  expect(getTree).not.toHaveBeenCalled();
 });
 
 it('should handle search for projects in portfolio', async () => {
@@ -71,8 +71,8 @@ it('should handle search for projects in portfolio', async () => {
 
   await wrapper.instance().handleSearch(query);
 
-  expect(searchProjects).not.toBeCalled();
-  expect(getTree).toBeCalled();
+  expect(searchProjects).not.toHaveBeenCalled();
+  expect(getTree).toHaveBeenCalled();
 });
 
 describe("ListStyleFacet's renderers", () => {

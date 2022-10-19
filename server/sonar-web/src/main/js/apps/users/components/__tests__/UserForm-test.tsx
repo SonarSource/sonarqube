@@ -83,7 +83,7 @@ it('should correctly create a new user', () => {
 
   submit(wrapper.dive().find('form'));
 
-  expect(createUser).toBeCalledWith({
+  expect(createUser).toHaveBeenCalledWith({
     email,
     login,
     name,
@@ -101,7 +101,7 @@ it('should correctly update a local user', () => {
 
   submit(wrapper.find('form'));
 
-  expect(updateUser).toBeCalledWith({
+  expect(updateUser).toHaveBeenCalledWith({
     email,
     login,
     name,
@@ -120,7 +120,7 @@ it('should correctly update a non-local user', () => {
 
   submit(wrapper.find('form'));
 
-  expect(updateUser).toBeCalledWith(
+  expect(updateUser).toHaveBeenCalledWith(
     expect.not.objectContaining({
       email,
       name

@@ -34,7 +34,7 @@ it('closes', () => {
   );
   const wrapper = shallowRender({ children, onClose });
   click(wrapper.find('Button'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 it('submits', async () => {
@@ -49,7 +49,7 @@ it('submits', async () => {
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('Button'));
-  expect(onSubmit).toBeCalled();
+  expect(onSubmit).toHaveBeenCalled();
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);

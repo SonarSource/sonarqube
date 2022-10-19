@@ -49,7 +49,7 @@ it('should reset', () => {
       onReset={onReset}
     />
   );
-  expect(onReset).not.toBeCalled();
+  expect(onReset).not.toHaveBeenCalled();
   click(output.find('Button'));
-  expect(onReset).toBeCalled();
+  expect(onReset).toHaveBeenCalled();
 });

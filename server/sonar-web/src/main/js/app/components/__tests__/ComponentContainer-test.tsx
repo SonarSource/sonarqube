@@ -121,7 +121,7 @@ it('loads the project binding, if any', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getProjectAlmBinding).toBeCalled();
+  expect(getProjectAlmBinding).toHaveBeenCalled();
   expect(wrapper.state().projectBinding).toBeUndefined();
 
   wrapper.setProps({ location: mockLocation({ query: { id: 'bar' } }) });
@@ -132,10 +132,13 @@ it('loads the project binding, if any', async () => {
 it("doesn't load branches portfolio", async () => {
   const wrapper = shallowRender({ location: mockLocation({ query: { id: 'portfolioKey' } }) });
   await waitAndUpdate(wrapper);
-  expect(getBranches).not.toBeCalled();
-  expect(getPullRequests).not.toBeCalled();
-  expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
-  expect(getComponentNavigation).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
+  expect(getBranches).not.toHaveBeenCalled();
+  expect(getPullRequests).not.toHaveBeenCalled();
+  expect(getComponentData).toHaveBeenCalledWith({ component: 'portfolioKey', branch: undefined });
+  expect(getComponentNavigation).toHaveBeenCalledWith({
+    component: 'portfolioKey',
+    branch: undefined
+  });
 });
 
 it('updates branches on change', async () => {
@@ -153,10 +156,10 @@ it('updates branches on change', async () => {
     loading: false
   });
   wrapper.instance().handleBranchesChange();
-  expect(getBranches).toBeCalledWith('projectKey');
-  expect(getPullRequests).toBeCalledWith('projectKey');
+  expect(getBranches).toHaveBeenCalledWith('projectKey');
+  expect(getPullRequests).toHaveBeenCalledWith('projectKey');
   await waitAndUpdate(wrapper);
-  expect(updateBranchStatus).toBeCalledTimes(2);
+  expect(updateBranchStatus).toHaveBeenCalledTimes(2);
 });
 
 it('fetches status', async () => {
@@ -166,7 +169,7 @@ it('fetches status', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getTasksForComponent).toBeCalledWith('portfolioKey');
+  expect(getTasksForComponent).toHaveBeenCalledWith('portfolioKey');
 });
 
 it('filters correctly the pending tasks for a main branch', () => {
@@ -338,7 +341,7 @@ it('should redirect if the user has no access', async () => {
   );
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(handleRequiredAuthorization).toBeCalled();
+  expect(handleRequiredAuthorization).toHaveBeenCalled();
 });
 
 it('should redirect if the component is a portfolio', async () => {
@@ -354,7 +357,7 @@ it('should redirect if the component is a portfolio', async () => {
     router: mockRouter({ replace })
   });
   await waitAndUpdate(wrapper);
-  expect(replace).toBeCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
+  expect(replace).toHaveBeenCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
 });
 
 it('should display display the unavailable page if the component needs issue sync', async () => {
@@ -382,7 +385,7 @@ it('should correctly reload last task warnings if anything got dismissed', async
   (getAnalysisStatus as jest.Mock).mockClear();
 
   wrapper.instance().handleWarningDismiss();
-  expect(getAnalysisStatus).toBeCalledTimes(1);
+  expect(getAnalysisStatus).toHaveBeenCalledTimes(1);
 });
 
 describe('should correctly validate the project binding depending on the context', () => {
@@ -407,7 +410,7 @@ describe('should correctly validate the project binding depending on the context
     await waitAndUpdate(wrapper);
     expect(wrapper.state().projectBindingErrors).toBe(projectBindingErrors);
 
-    expect(validateProjectAlmBinding).toBeCalledTimes(n);
+    expect(validateProjectAlmBinding).toHaveBeenCalledTimes(n);
   });
 });
 

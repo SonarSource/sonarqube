@@ -31,7 +31,7 @@ it('should call onClose', () => {
   const wrapper = shallowRender({ onClose });
 
   click(wrapper.find('ClearButton'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<Props> = {}) {

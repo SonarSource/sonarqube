@@ -36,13 +36,13 @@ export default class HeaderListProvider extends React.Component<Props, State> {
     headers: PropTypes.object
   };
 
-  getChildContext = () => {
+  getChildContext() {
     return {
       headers: {
         setHeaders: this.setHeaders
       }
     };
-  };
+  }
 
   setHeaders = (headers: MarkdownHeading[]) => {
     this.setState({ headers });

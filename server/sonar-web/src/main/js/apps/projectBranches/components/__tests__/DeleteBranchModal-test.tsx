@@ -53,8 +53,8 @@ it('deletes branch', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
-  expect(onDelete).toBeCalled();
-  expect(deleteBranch).toBeCalledWith({ branch: 'feature/foo', project: 'foo' });
+  expect(onDelete).toHaveBeenCalled();
+  expect(deleteBranch).toHaveBeenCalledWith({ branch: 'feature/foo', project: 'foo' });
 });
 
 it('deletes pull request', async () => {
@@ -67,8 +67,8 @@ it('deletes pull request', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
-  expect(onDelete).toBeCalled();
-  expect(deletePullRequest).toBeCalledWith({ project: 'foo', pullRequest: '1001' });
+  expect(onDelete).toHaveBeenCalled();
+  expect(deletePullRequest).toHaveBeenCalledWith({ project: 'foo', pullRequest: '1001' });
 });
 
 it('cancels', () => {
@@ -78,7 +78,7 @@ it('cancels', () => {
   click(wrapper.find('ResetButtonLink'));
 
   return doAsync().then(() => {
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 });
 
@@ -91,8 +91,8 @@ it('stops loading on WS error', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
-  expect(onDelete).not.toBeCalled();
-  expect(deleteBranch).toBeCalledWith({ branch: 'feature/foo', project: 'foo' });
+  expect(onDelete).not.toHaveBeenCalled();
+  expect(deleteBranch).toHaveBeenCalledWith({ branch: 'feature/foo', project: 'foo' });
 });
 
 function shallowRender(

@@ -36,7 +36,7 @@ jest.mock('../../../../helpers/extensions', () => ({
 it('should not render when no component is passed', () => {
   renderProjectPageExtension();
   expect(screen.queryByText('page_not_found')).not.toBeInTheDocument();
-  expect(getExtensionStart).not.toBeCalledWith('pluginId/extensionId');
+  expect(getExtensionStart).not.toHaveBeenCalledWith('pluginId/extensionId');
 });
 
 it('should render correctly when the extension is found', () => {
@@ -44,7 +44,7 @@ it('should render correctly when the extension is found', () => {
     mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
     { params: { pluginKey: 'pluginId', extensionKey: 'extensionId' } }
   );
-  expect(getExtensionStart).toBeCalledWith('pluginId/extensionId');
+  expect(getExtensionStart).toHaveBeenCalledWith('pluginId/extensionId');
 });
 
 it('should render correctly when the extension is not found', () => {

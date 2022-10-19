@@ -69,7 +69,7 @@ it('opens selected project on enter', () => {
   });
 
   keydown({ key: KeyboardKeys.Enter });
-  expect(router.push).toBeCalledWith({
+  expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
     search: queryToSearch({ id: selectedKey })
   });
@@ -88,7 +88,7 @@ it('opens selected portfolio on enter', () => {
   });
 
   keydown({ key: KeyboardKeys.Enter });
-  expect(router.push).toBeCalledWith({
+  expect(router.push).toHaveBeenCalledWith({
     pathname: '/portfolio',
     search: queryToSearch({ id: selectedKey })
   });
@@ -107,7 +107,7 @@ it('opens selected subportfolio on enter', () => {
   });
 
   keydown({ key: KeyboardKeys.Enter });
-  expect(router.push).toBeCalledWith({
+  expect(router.push).toHaveBeenCalledWith({
     pathname: '/portfolio',
     search: queryToSearch({ id: selectedKey })
   });

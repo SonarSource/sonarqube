@@ -62,7 +62,7 @@ it('should properly handle the search for tags', async () => {
   await new Promise(resolve => {
     wrapper.instance().handleTagsSearch('query', resolve);
   });
-  expect(searchIssueTags).toBeCalled();
+  expect(searchIssueTags).toHaveBeenCalled();
 });
 
 it.each([

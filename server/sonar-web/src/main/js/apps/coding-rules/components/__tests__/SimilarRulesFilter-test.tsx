@@ -33,28 +33,28 @@ it('should filter by similar language', () => {
   const onFilterChange = jest.fn();
   const wrapper = mountRenderAction('language', { onFilterChange });
   click(wrapper);
-  expect(onFilterChange).toBeCalledWith({ languages: ['js'] });
+  expect(onFilterChange).toHaveBeenCalledWith({ languages: ['js'] });
 });
 
 it('should filter by similar type', () => {
   const onFilterChange = jest.fn();
   const wrapper = mountRenderAction('type', { onFilterChange });
   click(wrapper);
-  expect(onFilterChange).toBeCalledWith({ types: ['CODE_SMELL'] });
+  expect(onFilterChange).toHaveBeenCalledWith({ types: ['CODE_SMELL'] });
 });
 
 it('should filter by similar severity', () => {
   const onFilterChange = jest.fn();
   const wrapper = mountRenderAction('severity', { onFilterChange });
   click(wrapper);
-  expect(onFilterChange).toBeCalledWith({ severities: ['MAJOR'] });
+  expect(onFilterChange).toHaveBeenCalledWith({ severities: ['MAJOR'] });
 });
 
 it('should filter by similar tag', () => {
   const onFilterChange = jest.fn();
   const wrapper = mountRenderAction('tag', { onFilterChange });
   click(wrapper);
-  expect(onFilterChange).toBeCalledWith({ tags: ['x'] });
+  expect(onFilterChange).toHaveBeenCalledWith({ tags: ['x'] });
 });
 
 function mountRenderAction(actionName: string, props: Partial<SimilarRulesFilter['props']> = {}) {

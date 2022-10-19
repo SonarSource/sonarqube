@@ -45,7 +45,7 @@ it('should load settings values', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getValues).toBeCalledWith({ keys: ['yes', 'yesagain'], component: undefined });
+  expect(getValues).toHaveBeenCalledWith({ keys: ['yes', 'yesagain'], component: undefined });
 
   expect(wrapper.state().settings).toEqual([
     { definition: definitions[0], settingValue: settings[0] },
@@ -63,13 +63,13 @@ it('should reload on category change', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getValues).toBeCalledWith({ keys: ['yes', 'yesagain'], component: 'comp-key' });
+  expect(getValues).toHaveBeenCalledWith({ keys: ['yes', 'yesagain'], component: 'comp-key' });
 
   wrapper.setProps({ category: 'other' });
 
   await waitAndUpdate(wrapper);
 
-  expect(getValues).toBeCalledWith({ keys: ['nope'], component: 'comp-key' });
+  expect(getValues).toHaveBeenCalledWith({ keys: ['nope'], component: 'comp-key' });
 });
 
 function shallowRender(props: Partial<CategoryDefinitionsList['props']> = {}) {

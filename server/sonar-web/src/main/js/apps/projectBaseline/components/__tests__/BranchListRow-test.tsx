@@ -70,7 +70,7 @@ it('should callback to open modal when clicked', () => {
     .first()
     .simulate('click');
 
-  expect(openEditModal).toBeCalledWith(branch);
+  expect(openEditModal).toHaveBeenCalledWith(branch);
 });
 
 it('should callback to reset when clicked', () => {
@@ -86,7 +86,7 @@ it('should callback to reset when clicked', () => {
     .at(1)
     .simulate('click');
 
-  expect(resetToDefault).toBeCalledWith(branchName);
+  expect(resetToDefault).toHaveBeenCalledWith(branchName);
 });
 
 function shallowRender(props: Partial<BranchListRowProps> = {}) {

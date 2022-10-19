@@ -82,8 +82,8 @@ it('should correctly handle form interactions', async () => {
 
   // Expect correct calls to be made when submitting.
   submit(wrapper.find('form'));
-  expect(onPersonalAccessTokenCreated).toBeCalled();
-  expect(setAlmPersonalAccessToken).toBeCalledWith('key', 'token', undefined);
+  expect(onPersonalAccessTokenCreated).toHaveBeenCalled();
+  expect(setAlmPersonalAccessToken).toHaveBeenCalledWith('key', 'token', undefined);
 });
 
 it('should correctly handle form for bitbucket interactions', async () => {
@@ -106,8 +106,8 @@ it('should correctly handle form for bitbucket interactions', async () => {
 
   // Expect correct calls to be made when submitting.
   submit(wrapper.find('form'));
-  expect(onPersonalAccessTokenCreated).toBeCalled();
-  expect(setAlmPersonalAccessToken).toBeCalledWith('key', 'token', 'username');
+  expect(onPersonalAccessTokenCreated).toHaveBeenCalled();
+  expect(setAlmPersonalAccessToken).toHaveBeenCalledWith('key', 'token', 'username');
 });
 
 it('should show error when issue', async () => {

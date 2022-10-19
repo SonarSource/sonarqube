@@ -32,16 +32,16 @@ it('should render and submit', async () => {
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.dive();
-  expect(render).toBeCalledWith(
+  expect(render).toHaveBeenCalledWith(
     expect.objectContaining({ dirty: false, errors: {}, values: { foo: 'bar' } })
   );
 
   wrapper.prop<Function>('onSubmit')({ foo: 'bar' }, { setSubmitting });
-  expect(setSubmitting).toBeCalledWith(false);
+  expect(setSubmitting).toHaveBeenCalledWith(false);
 
   onSubmit.mockResolvedValue(undefined).mockClear();
   setSubmitting.mockClear();
   wrapper.prop<Function>('onSubmit')({ foo: 'bar' }, { setSubmitting });
   await new Promise(setImmediate);
-  expect(setSubmitting).toBeCalledWith(false);
+  expect(setSubmitting).toHaveBeenCalledWith(false);
 });

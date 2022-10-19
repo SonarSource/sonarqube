@@ -26,5 +26,5 @@ it('searches', () => {
   const wrapper = shallow(<SearchFilterContainer onQueryChange={onQueryChange} query={{}} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.find('SearchBox').prop<Function>('onChange')('foo');
-  expect(onQueryChange).toBeCalledWith({ search: 'foo' });
+  expect(onQueryChange).toHaveBeenCalledWith({ search: 'foo' });
 });

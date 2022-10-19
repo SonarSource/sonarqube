@@ -80,7 +80,7 @@ it('should render correctly', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getProjectActivity).toBeCalled();
+  expect(getProjectActivity).toHaveBeenCalled();
   expect(wrapper.state().analyses).toHaveLength(4);
 });
 
@@ -89,7 +89,7 @@ it('should reload analyses after range change', () => {
 
   wrapper.instance().handleRangeChange({ value: 30 });
 
-  expect(getProjectActivity).toBeCalledWith({
+  expect(getProjectActivity).toHaveBeenCalledWith({
     branch: 'master',
     project: 'project1',
     from: toShortNotSoISOString(subDays(new Date(), 30))

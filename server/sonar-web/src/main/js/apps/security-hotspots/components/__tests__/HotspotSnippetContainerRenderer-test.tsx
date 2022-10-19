@@ -88,7 +88,7 @@ describe('scrolling', () => {
     scrollHandler(targetElement);
     jest.runAllTimers();
 
-    expect(scrollToElement).toBeCalled();
+    expect(scrollToElement).toHaveBeenCalled();
   });
 
   it('should not scroll if parent is undefined', () => {
@@ -103,7 +103,7 @@ describe('scrolling', () => {
     scrollHandler(targetElement);
     jest.runAllTimers();
 
-    expect(scrollToElement).not.toBeCalled();
+    expect(scrollToElement).not.toHaveBeenCalled();
   });
 });
 
@@ -133,23 +133,23 @@ describe('expand', () => {
       .mockReturnValueOnce({ height: 112 } as DOMRect);
 
     await animateExpansion(ref, onExpandBlock, 'up');
-    expect(onExpandBlock).toBeCalledWith('up');
+    expect(onExpandBlock).toHaveBeenCalledWith('up');
 
-    expect(snippet.style.maxHeight).toBe('42px');
-    expect(table.style.marginTop).toBe('-57px');
+    expect(snippet).toHaveStyle({ maxHeight: '42px' });
+    expect(table).toHaveStyle({ marginTop: '-57px' });
 
     jest.advanceTimersByTime(100);
 
-    expect(snippet.style.maxHeight).toBe('99px');
-    expect(table.style.marginTop).toBe('0px');
+    expect(snippet).toHaveStyle({ maxHeight: '99px' });
+    expect(table).toHaveStyle({ marginTop: '0px' });
 
-    expect(scrollableNode.scrollTo).not.toBeCalled();
+    expect(scrollableNode.scrollTo).not.toHaveBeenCalled();
 
     jest.runAllTimers();
 
     await animateExpansion(ref, onExpandBlock, 'down');
-    expect(onExpandBlock).toBeCalledWith('down');
-    expect(snippet.style.maxHeight).toBe('112px');
+    expect(onExpandBlock).toHaveBeenCalledWith('down');
+    expect(snippet).toHaveStyle({ maxHeight: '112px' });
 
     jest.useRealTimers();
   });

@@ -33,7 +33,7 @@ it('should open creation modal', () => {
   expect(wrapper.find('CreationModal').exists()).toBe(true);
 
   wrapper.find('CreationModal').prop<Function>('onSubmit')('foo', 'http://example.com/foo');
-  expect(onCreate).toBeCalledWith('foo', 'http://example.com/foo');
+  expect(onCreate).toHaveBeenCalledWith('foo', 'http://example.com/foo');
 
   wrapper.find('CreationModal').prop<Function>('onClose')();
   wrapper.update();

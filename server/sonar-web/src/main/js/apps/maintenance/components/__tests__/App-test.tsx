@@ -95,12 +95,17 @@ describe('Maintenance', () => {
 
       const title = await screen.findByRole('heading', { name: heading });
       expect(title).toBeInTheDocument();
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (body) {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(screen.getByText(body)).toBeInTheDocument();
       }
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (linkInfo) {
         const link = screen.getByRole('link', { name: linkInfo.name });
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toBeInTheDocument();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toHaveAttribute('href', linkInfo.href);
       }
     }
@@ -188,18 +193,26 @@ describe('Setup', () => {
 
       const title = await screen.findByRole('heading', { name: heading });
       expect(title).toBeInTheDocument();
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (bodyText.length) {
         bodyText.forEach(text => {
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(screen.getByText(text)).toBeInTheDocument();
         });
       }
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (payload) {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(screen.getByText(payload.message)).toBeInTheDocument();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(screen.getByText('background_tasks.table.started')).toBeInTheDocument();
       }
+      // eslint-disable-next-line jest/no-conditional-in-test
       if (linkInfo) {
         const link = screen.getByRole('link', { name: linkInfo.name });
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toBeInTheDocument();
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toHaveAttribute('href', linkInfo.href);
       }
     }

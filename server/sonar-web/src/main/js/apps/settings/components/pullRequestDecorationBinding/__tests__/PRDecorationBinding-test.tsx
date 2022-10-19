@@ -96,7 +96,7 @@ it('should handle reset', async () => {
   wrapper.instance().handleReset();
   await waitAndUpdate(wrapper);
 
-  expect(deleteProjectAlmBinding).toBeCalledWith(PROJECT_KEY);
+  expect(deleteProjectAlmBinding).toHaveBeenCalledWith(PROJECT_KEY);
   expect(wrapper.state().formData).toEqual({ key: '', repository: '', slug: '', monorepo: false });
   expect(wrapper.state().isChanged).toBe(false);
 });
@@ -124,7 +124,7 @@ describe('handleSubmit', () => {
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
-    expect(setProjectGithubBinding).toBeCalledWith({
+    expect(setProjectGithubBinding).toHaveBeenCalledWith({
       almSetting: githubKey,
       project: PROJECT_KEY,
       repository,
@@ -148,7 +148,7 @@ describe('handleSubmit', () => {
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
-    expect(setProjectAzureBinding).toBeCalledWith({
+    expect(setProjectAzureBinding).toHaveBeenCalledWith({
       almSetting: azureKey,
       project: PROJECT_KEY,
       projectName: slug,
@@ -169,7 +169,7 @@ describe('handleSubmit', () => {
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
-    expect(setProjectBitbucketBinding).toBeCalledWith({
+    expect(setProjectBitbucketBinding).toHaveBeenCalledWith({
       almSetting: bitbucketKey,
       project: PROJECT_KEY,
       repository,
@@ -192,7 +192,7 @@ describe('handleSubmit', () => {
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
-    expect(setProjectGitlabBinding).toBeCalledWith({
+    expect(setProjectGitlabBinding).toHaveBeenCalledWith({
       almSetting: gitlabKey,
       project: PROJECT_KEY,
       repository,
@@ -210,13 +210,13 @@ describe('handleSubmit', () => {
     wrapper.setState({ formData: { key: bitbucketKey, repository, monorepo }, instances: [] });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
-    expect(setProjectBitbucketCloudBinding).not.toBeCalled();
+    expect(setProjectBitbucketCloudBinding).not.toHaveBeenCalled();
 
     wrapper.setState({ formData: { key: bitbucketKey, repository, monorepo }, instances });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
-    expect(setProjectBitbucketCloudBinding).toBeCalledWith({
+    expect(setProjectBitbucketCloudBinding).toHaveBeenCalledWith({
       almSetting: bitbucketKey,
       project: PROJECT_KEY,
       repository,

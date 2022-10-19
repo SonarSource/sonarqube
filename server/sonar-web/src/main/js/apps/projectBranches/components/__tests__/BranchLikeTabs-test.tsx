@@ -126,7 +126,7 @@ it('should correctly propagate an update of purge settings', () => {
     .props()
     .onUpdatePurgeSetting();
 
-  expect(onBranchesChange).toBeCalled();
+  expect(onBranchesChange).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<BranchLikeTabs['props']> = {}) {

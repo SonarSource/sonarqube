@@ -45,7 +45,7 @@ it('should filter properly', () => {
   const onFilter = jest.fn();
   const wrapper = shallowRender({ issue, onFilter });
   wrapper.find('SelectList').prop<Function>('onSelect')('assignee');
-  expect(onFilter).toBeCalledWith('assignee', issue);
+  expect(onFilter).toHaveBeenCalledWith('assignee', issue);
 });
 
 function shallowRender(props: Partial<SimilarIssuesPopup['props']> = {}) {

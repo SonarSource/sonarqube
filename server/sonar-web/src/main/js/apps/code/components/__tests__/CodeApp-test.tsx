@@ -98,7 +98,7 @@ it('should refresh branch status if issues are updated', async () => {
   await waitAndUpdate(wrapper);
 
   instance.handleIssueChange(mockIssue());
-  expect(fetchBranchStatus).toBeCalledWith(branchLike, 'foo');
+  expect(fetchBranchStatus).toHaveBeenCalledWith(branchLike, 'foo');
 });
 
 it('should load more behave correctly', async () => {

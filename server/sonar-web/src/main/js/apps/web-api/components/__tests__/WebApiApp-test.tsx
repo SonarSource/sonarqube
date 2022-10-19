@@ -49,15 +49,15 @@ it('should render correctly', async () => {
 
   const wrapper = shallowRender();
 
-  expect(addSideBarClass).toBeCalled();
-  expect(fetchWebApi).toBeCalled();
+  expect(addSideBarClass).toHaveBeenCalled();
+  expect(fetchWebApi).toHaveBeenCalled();
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('ScreenPositionHelper').dive()).toMatchSnapshot();
 
   wrapper.unmount();
-  expect(removeSideBarClass).toBeCalled();
+  expect(removeSideBarClass).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<WebApiApp['props']> = {}) {

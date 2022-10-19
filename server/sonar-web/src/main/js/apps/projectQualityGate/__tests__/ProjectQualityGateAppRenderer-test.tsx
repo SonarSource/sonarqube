@@ -95,7 +95,7 @@ it('should correctly handle form submission', () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit });
   submit(wrapper.find('form'));
-  expect(onSubmit).toBeCalled();
+  expect(onSubmit).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ProjectQualityGateAppRendererProps> = {}) {

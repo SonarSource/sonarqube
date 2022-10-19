@@ -36,7 +36,7 @@ it('should show more', () => {
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find(ButtonLink));
-  expect(showMore).toBeCalled();
+  expect(showMore).toHaveBeenCalled();
 });
 
 it('should show less', () => {
@@ -46,7 +46,7 @@ it('should show less', () => {
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find(ButtonLink));
-  expect(showLess).toBeCalled();
+  expect(showLess).toHaveBeenCalled();
 });
 
 it('should not render "show less"', () => {

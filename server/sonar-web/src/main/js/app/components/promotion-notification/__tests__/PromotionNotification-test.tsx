@@ -50,9 +50,9 @@ it('should remove the toaster when click on dismiss', async () => {
     updateDismissedNotices
   });
   wrapper.find('.toaster-actions ButtonLink').simulate('click');
-  expect(dismissNotice).toBeCalled();
+  expect(dismissNotice).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
-  expect(updateDismissedNotices).toBeCalled();
+  expect(updateDismissedNotices).toHaveBeenCalled();
 });
 
 it('should remove the toaster and navigate to sonarlint when click on learn more', async () => {
@@ -62,9 +62,9 @@ it('should remove the toaster and navigate to sonarlint when click on learn more
     updateDismissedNotices
   });
   wrapper.find('.toaster-actions .button-primary').simulate('click');
-  expect(dismissNotice).toBeCalled();
+  expect(dismissNotice).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
-  expect(updateDismissedNotices).toBeCalled();
+  expect(updateDismissedNotices).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<PromotionNotificationProps> = {}) {

@@ -44,9 +44,9 @@ it('should render correctly', () => {
 
 it('should correctly open a new window', () => {
   const wrapper = shallowRender();
-  expect(window.open).not.toBeCalled();
+  expect(window.open).not.toHaveBeenCalled();
   click(wrapper.find('a'));
-  expect(window.open).toBeCalled();
+  expect(window.open).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<FormattingTips['props']> = {}) {

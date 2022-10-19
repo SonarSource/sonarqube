@@ -33,7 +33,7 @@ it('should call onChange when clicked', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ disabled: false, onChange, value: true });
   click(wrapper.find(Button));
-  expect(onChange).toBeCalledWith(false);
+  expect(onChange).toHaveBeenCalledWith(false);
 });
 
 function shallowRender(props?: Partial<Toggle['props']>) {

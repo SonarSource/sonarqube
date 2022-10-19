@@ -41,7 +41,7 @@ it('should call back on load', async () => {
   const onLoad = jest.fn();
   const wrapper = shallowRender({ onLoad });
   await waitAndUpdate(wrapper);
-  expect(onLoad).toBeCalledWith({ name: 'Foo' });
+  expect(onLoad).toHaveBeenCalledWith({ name: 'Foo' });
 });
 
 function shallowRender(props?: Partial<WorkspaceRuleDetails['props']>) {

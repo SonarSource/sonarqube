@@ -88,7 +88,7 @@ it('should delete comment', async () => {
   await waitAndUpdate(wrapper);
 
   expect(deleteSecurityHotspotComment).toHaveBeenCalledWith('me1');
-  expect(wrapper.instance().props.onCommentUpdate).toBeCalledTimes(1);
+  expect(wrapper.instance().props.onCommentUpdate).toHaveBeenCalledTimes(1);
 });
 
 it('should edit comment', async () => {
@@ -98,7 +98,7 @@ it('should edit comment', async () => {
   await waitAndUpdate(wrapper);
 
   expect(editSecurityHotspotComment).toHaveBeenCalledWith('me1', 'new');
-  expect(wrapper.instance().props.onCommentUpdate).toBeCalledTimes(1);
+  expect(wrapper.instance().props.onCommentUpdate).toHaveBeenCalledTimes(1);
 });
 
 it('should correctly toggle the show full history state', () => {

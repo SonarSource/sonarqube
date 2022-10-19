@@ -40,7 +40,7 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('.project-info-deprecated-rules').exists()).toBe(true);
   expect(wrapper.find('.project-info-deleted-profile').exists()).toBe(true);
-  expect(searchRules).toBeCalled();
+  expect(searchRules).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<MetaQualityProfiles['props']> = {}) {

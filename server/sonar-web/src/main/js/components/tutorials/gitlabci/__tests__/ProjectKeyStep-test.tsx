@@ -51,7 +51,7 @@ it('should correctly callback with selected build tool', () => {
   const wrapper = shallowRender({ setBuildTool });
   selectBuildTool(wrapper, BuildTools.Maven);
 
-  expect(setBuildTool).toBeCalledWith(BuildTools.Maven);
+  expect(setBuildTool).toHaveBeenCalledWith(BuildTools.Maven);
 });
 
 function selectBuildTool(wrapper: ShallowWrapper<ProjectKeyStepProps>, tool: BuildTools) {

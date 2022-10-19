@@ -133,7 +133,7 @@ it('should update timeline when width changes', () => {
   expect(wrapper.state().xScale).toEqual(expect.any(Function));
   expect(wrapper.state().selectedDateXPos).not.toBe(selectedDateXPos);
   expect(wrapper.state().selectedDateXPos).toEqual(expect.any(Number));
-  expect(updateTooltip).toBeCalled();
+  expect(updateTooltip).toHaveBeenCalled();
 });
 
 it('should update tootlips when selected date changes', () => {
@@ -148,7 +148,7 @@ it('should update tootlips when selected date changes', () => {
   expect(wrapper.state().selectedDate).toBe(selectedDate);
   expect(wrapper.state().selectedDateXPos).not.toBe(selectedDateXPos);
   expect(wrapper.state().selectedDateXPos).toEqual(expect.any(Number));
-  expect(updateTooltip).toBeCalled();
+  expect(updateTooltip).toHaveBeenCalled();
 });
 
 it('should handle scroll correcly', () => {
@@ -176,8 +176,8 @@ it('should handle scroll correcly', () => {
       })
     } as any) as SVGElement
   } as any) as React.WheelEvent<SVGElement>);
-  expect(preventDefault).toBeCalled();
-  expect(updateZoom).toBeCalledWith(new Date('2019-10-01T06:24:00.000Z'), undefined);
+  expect(preventDefault).toHaveBeenCalled();
+  expect(updateZoom).toHaveBeenCalledWith(new Date('2019-10-01T06:24:00.000Z'), undefined);
 
   updateZoom = jest.fn();
   preventDefault = jest.fn();
@@ -204,8 +204,8 @@ it('should handle scroll correcly', () => {
       })
     } as any) as SVGElement
   } as any) as React.WheelEvent<SVGElement>);
-  expect(preventDefault).toBeCalled();
-  expect(updateZoom).toBeCalledWith(undefined, new Date('2019-10-02T20:48:00.000Z'));
+  expect(preventDefault).toHaveBeenCalled();
+  expect(updateZoom).toHaveBeenCalledWith(undefined, new Date('2019-10-02T20:48:00.000Z'));
 });
 
 it('should handle mouse out correcly', () => {
@@ -235,12 +235,12 @@ it('should handle click correcly', () => {
   wrapper.setState({ selectedDate: new Date() });
 
   wrapper.instance().handleClick();
-  expect(updateSelectedDate).toBeCalledWith(wrapper.state().selectedDate);
+  expect(updateSelectedDate).toHaveBeenCalledWith(wrapper.state().selectedDate);
 
   wrapper.setProps({ updateSelectedDate: undefined });
   updateSelectedDate.mockClear();
   wrapper.instance().handleClick();
-  expect(updateSelectedDate).not.toBeCalled();
+  expect(updateSelectedDate).not.toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<AdvancedTimeline['props']>) {

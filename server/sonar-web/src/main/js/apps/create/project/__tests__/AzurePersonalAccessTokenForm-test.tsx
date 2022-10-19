@@ -53,7 +53,7 @@ it('should correctly handle form interactions', () => {
 
   // Expect correct calls to be made when submitting.
   submit(wrapper.find('form'));
-  expect(onPersonalAccessTokenCreate).toBeCalled();
+  expect(onPersonalAccessTokenCreate).toHaveBeenCalled();
 
   // If validation fails, we toggle the submitting flag and call useEffect()
   // to set the `touched` flag to false again. Trigger a re-render, and mock

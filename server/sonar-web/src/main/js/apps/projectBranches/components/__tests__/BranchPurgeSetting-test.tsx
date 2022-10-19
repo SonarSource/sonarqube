@@ -55,7 +55,7 @@ it('should correctly call the webservice if the user changes the value', async (
   expect(excludeBranchFromPurge).toHaveBeenCalled();
   expect(wrapper.state().excludedFromPurge).toBe(true);
   await waitAndUpdate(wrapper);
-  expect(onUpdatePurgeSetting).toBeCalled();
+  expect(onUpdatePurgeSetting).toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<BranchPurgeSetting['props']>) {

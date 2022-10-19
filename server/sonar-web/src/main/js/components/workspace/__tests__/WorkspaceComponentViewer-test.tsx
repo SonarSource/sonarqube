@@ -41,7 +41,7 @@ it('should close', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   wrapper.find('WorkspaceHeader').prop<Function>('onClose')();
-  expect(onClose).toBeCalledWith('foo');
+  expect(onClose).toHaveBeenCalledWith('foo');
 });
 
 it('should call back after load', () => {
@@ -52,7 +52,7 @@ it('should call back after load', () => {
     path: 'src/foo.js',
     q: 'FIL'
   });
-  expect(onLoad).toBeCalledWith({ key: 'foo', name: 'src/foo.js', qualifier: 'FIL' });
+  expect(onLoad).toHaveBeenCalledWith({ key: 'foo', name: 'src/foo.js', qualifier: 'FIL' });
 });
 
 it('should refresh branch status if issues are updated', async () => {
@@ -67,9 +67,9 @@ it('should refresh branch status if issues are updated', async () => {
   await waitAndUpdate(wrapper);
 
   instance.handleIssueChange(mockIssue());
-  expect(getParents).toBeCalledWith(component.key);
+  expect(getParents).toHaveBeenCalledWith(component.key);
   await waitAndUpdate(wrapper);
-  expect(fetchBranchStatus).toBeCalledWith(branchLike, 'bar');
+  expect(fetchBranchStatus).toHaveBeenCalledWith(branchLike, 'bar');
 });
 
 function shallowRender(props?: Partial<Props>) {

@@ -273,12 +273,15 @@ describe('getMinDecimalsCountToBeDistinctFromThreshold', () => {
     expect(getMinDecimalsCountToBeDistinctFromThreshold(2.5005, 2.5)).toBe(4);
     expect(getMinDecimalsCountToBeDistinctFromThreshold(85.01, 85)).toBe(2);
     expect(getMinDecimalsCountToBeDistinctFromThreshold(84.95, 85)).toBe(2);
+    // eslint-disable-next-line no-loss-of-precision
     expect(getMinDecimalsCountToBeDistinctFromThreshold(84.999999999999554, 85)).toBe(
       '9999999999995'.length
     );
+    // eslint-disable-next-line no-loss-of-precision
     expect(getMinDecimalsCountToBeDistinctFromThreshold(85.0000000000000954, 85)).toBe(
       '00000000000009'.length
     );
+    // eslint-disable-next-line no-loss-of-precision
     expect(getMinDecimalsCountToBeDistinctFromThreshold(85.00000000000000009, 85)).toBe(1);
   });
 });

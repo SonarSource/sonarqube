@@ -83,7 +83,7 @@ it('should render bubbles with click handlers', () => {
       click(bubble.dive().find('a'));
       expect(bubble.dive()).toMatchSnapshot();
     });
-  expect(onBubbleClick).toBeCalledTimes(2);
+  expect(onBubbleClick).toHaveBeenCalledTimes(2);
   expect(onBubbleClick).toHaveBeenLastCalledWith(mockComponentMeasureEnhanced());
 });
 
@@ -128,8 +128,8 @@ it('should correctly handle zooming', () => {
     const stopPropagation = jest.fn();
     const preventDefault = jest.fn();
     resetZoomClick(mockEvent({ stopPropagation, preventDefault }));
-    expect(stopPropagation).toBeCalled();
-    expect(preventDefault).toBeCalled();
+    expect(stopPropagation).toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
     expect(call).toHaveBeenCalledWith(zoomBehavior);
 
     resolve();

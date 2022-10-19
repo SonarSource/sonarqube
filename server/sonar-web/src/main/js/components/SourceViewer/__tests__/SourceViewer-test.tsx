@@ -76,8 +76,8 @@ it('should load sources before', async () => {
   wrapper.instance().loadSourcesBefore();
   expect(wrapper.state().loadingSourcesBefore).toBe(true);
 
-  expect(defaultLoadIssues).toBeCalledTimes(1);
-  expect(getSources).toBeCalledTimes(2);
+  expect(defaultLoadIssues).toHaveBeenCalledTimes(1);
+  expect(getSources).toHaveBeenCalledTimes(2);
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loadingSourcesBefore).toBe(false);
@@ -103,8 +103,8 @@ it('should load sources after', async () => {
   wrapper.instance().loadSourcesAfter();
   expect(wrapper.state().loadingSourcesAfter).toBe(true);
 
-  expect(defaultLoadIssues).toBeCalledTimes(1);
-  expect(getSources).toBeCalledTimes(2);
+  expect(defaultLoadIssues).toHaveBeenCalledTimes(1);
+  expect(getSources).toHaveBeenCalledTimes(2);
 
   await waitAndUpdate(wrapper);
 

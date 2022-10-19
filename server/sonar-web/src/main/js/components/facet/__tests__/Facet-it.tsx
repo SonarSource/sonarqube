@@ -45,7 +45,7 @@ it('should render and function correctly', () => {
   const facet1 = screen.getByRole('checkbox', { name: 'Foo/Bar 10' });
   expect(facet1).toHaveClass('active');
   facet1.click();
-  expect(onFacetClick).toBeCalledWith('bar', false);
+  expect(onFacetClick).toHaveBeenCalledWith('bar', false);
 
   const facet2 = screen.getByRole('checkbox', { name: 'Foo/Baz' });
   expect(facet2).not.toHaveClass('active');

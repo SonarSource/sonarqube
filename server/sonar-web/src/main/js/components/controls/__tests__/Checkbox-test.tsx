@@ -48,7 +48,7 @@ describe.each([
 
   it('should accept partial state', () => {
     renderCheckbox({ label: 'me', thirdState: true, children, checked: false });
-    expect(screen.getByRole('checkbox', { name: 'me' })).toHaveAttribute('aria-checked', 'mixed');
+    expect(screen.getByRole('checkbox', { name: 'me' })).not.toBeChecked();
   });
 
   it('should render loading state', () => {

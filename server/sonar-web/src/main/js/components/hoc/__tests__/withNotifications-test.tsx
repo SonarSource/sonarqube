@@ -69,7 +69,7 @@ it('should fetch notifications and render', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(getNotifications).toBeCalled();
+  expect(getNotifications).toHaveBeenCalled();
 });
 
 it('should add and remove a notification', () => {

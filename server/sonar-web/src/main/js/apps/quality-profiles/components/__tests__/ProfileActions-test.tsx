@@ -114,11 +114,11 @@ describe('copy a profile', () => {
       .find(ProfileModalForm)
       .props()
       .onSubmit(name);
-    expect(copyProfile).toBeCalledWith(PROFILE.key, name);
+    expect(copyProfile).toHaveBeenCalledWith(PROFILE.key, name);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).toBeCalled();
-    expect(push).toBeCalledWith({
+    expect(updateProfiles).toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
       search: queryToSearch({ name, language: 'js' })
     });
@@ -141,10 +141,10 @@ describe('copy a profile', () => {
     wrapper.instance().handleProfileCopy(name);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).not.toBeCalled();
+    expect(updateProfiles).not.toHaveBeenCalled();
     await waitAndUpdate(wrapper);
 
-    expect(push).not.toBeCalled();
+    expect(push).not.toHaveBeenCalled();
     expect(wrapper.state().openModal).toBe(ProfileActionModals.Copy);
   });
 });
@@ -168,9 +168,9 @@ describe('extend a profile', () => {
       .find(ProfileModalForm)
       .props()
       .onSubmit(name);
-    expect(createQualityProfile).toBeCalledWith({ language: profile.language, name });
+    expect(createQualityProfile).toHaveBeenCalledWith({ language: profile.language, name });
     await waitAndUpdate(wrapper);
-    expect(changeProfileParent).toBeCalledWith(
+    expect(changeProfileParent).toHaveBeenCalledWith(
       expect.objectContaining({
         key: 'newProfile'
       }),
@@ -178,10 +178,10 @@ describe('extend a profile', () => {
     );
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).toBeCalled();
+    expect(updateProfiles).toHaveBeenCalled();
     await waitAndUpdate(wrapper);
 
-    expect(push).toBeCalledWith({
+    expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
       search: queryToSearch({ name, language: 'js' })
     });
@@ -204,9 +204,9 @@ describe('extend a profile', () => {
     wrapper.instance().handleProfileExtend(name);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).not.toBeCalled();
-    expect(changeProfileParent).not.toBeCalled();
-    expect(push).not.toBeCalled();
+    expect(updateProfiles).not.toHaveBeenCalled();
+    expect(changeProfileParent).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
     expect(wrapper.state().openModal).toBe(ProfileActionModals.Extend);
   });
 });
@@ -229,11 +229,11 @@ describe('rename a profile', () => {
       .find(ProfileModalForm)
       .props()
       .onSubmit(name);
-    expect(renameProfile).toBeCalledWith(PROFILE.key, name);
+    expect(renameProfile).toHaveBeenCalledWith(PROFILE.key, name);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).toBeCalled();
-    expect(push).toBeCalledWith({
+    expect(updateProfiles).toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
       search: queryToSearch({ name, language: 'js' })
     });
@@ -256,10 +256,10 @@ describe('rename a profile', () => {
     wrapper.instance().handleProfileRename(name);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).not.toBeCalled();
+    expect(updateProfiles).not.toHaveBeenCalled();
     await waitAndUpdate(wrapper);
 
-    expect(push).not.toBeCalled();
+    expect(push).not.toHaveBeenCalled();
     expect(wrapper.state().openModal).toBe(ProfileActionModals.Rename);
   });
 });
@@ -282,11 +282,11 @@ describe('delete a profile', () => {
       .find(DeleteProfileForm)
       .props()
       .onDelete();
-    expect(deleteProfile).toBeCalledWith(profile);
+    expect(deleteProfile).toHaveBeenCalledWith(profile);
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).toBeCalled();
-    expect(replace).toBeCalledWith(PROFILE_PATH);
+    expect(updateProfiles).toHaveBeenCalled();
+    expect(replace).toHaveBeenCalledWith(PROFILE_PATH);
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
 
@@ -305,10 +305,10 @@ describe('delete a profile', () => {
     wrapper.instance().handleProfileDelete();
     await waitAndUpdate(wrapper);
 
-    expect(updateProfiles).not.toBeCalled();
+    expect(updateProfiles).not.toHaveBeenCalled();
     await waitAndUpdate(wrapper);
 
-    expect(replace).not.toBeCalled();
+    expect(replace).not.toHaveBeenCalled();
     expect(wrapper.state().openModal).toBe(ProfileActionModals.Delete);
   });
 });

@@ -33,14 +33,14 @@ it('should call onChange', () => {
   const wrapper = shallowRender({ onChange });
 
   change(wrapper.find('textarea'), '{"a": 1}');
-  expect(onChange).toBeCalledWith('{"a": 1}');
+  expect(onChange).toHaveBeenCalledWith('{"a": 1}');
 });
 
 it('should handle formatting for invalid JSON', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, value: '{"a": 1b}' });
   wrapper.instance().format();
-  expect(onChange).not.toBeCalled();
+  expect(onChange).not.toHaveBeenCalled();
 
   expect(wrapper.state().formatError).toBe(true);
   expect(wrapper).toMatchSnapshot();
@@ -50,7 +50,7 @@ it('should handle formatting for valid JSON', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, value: '{"a": 1}' });
   wrapper.instance().format();
-  expect(onChange).toBeCalledWith(`{
+  expect(onChange).toHaveBeenCalledWith(`{
     "a": 1
 }`);
 
@@ -61,7 +61,7 @@ it('should handle ignore formatting if empty', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange, value: '' });
   wrapper.instance().format();
-  expect(onChange).not.toBeCalled();
+  expect(onChange).not.toHaveBeenCalled();
 
   expect(wrapper.state().formatError).toBe(false);
 });

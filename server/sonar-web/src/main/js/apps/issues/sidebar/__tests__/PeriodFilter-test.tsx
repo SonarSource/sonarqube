@@ -43,7 +43,7 @@ it('should filter when clicked', async () => {
 
   await user.click(screen.getByText('issues.new_code'));
 
-  expect(onChange).toBeCalledWith({
+  expect(onChange).toHaveBeenCalledWith({
     createdAfter: undefined,
     createdAt: undefined,
     createdBefore: undefined,
@@ -60,7 +60,7 @@ it('should be clearable', async () => {
 
   await user.click(screen.getByText('clear'));
 
-  expect(onChange).toBeCalledWith({
+  expect(onChange).toHaveBeenCalledWith({
     inNewCodePeriod: undefined
   });
 });

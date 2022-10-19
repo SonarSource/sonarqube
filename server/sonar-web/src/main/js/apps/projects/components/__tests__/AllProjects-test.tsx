@@ -76,7 +76,7 @@ it('renders', () => {
 
 it('fetches projects', () => {
   shallowRender();
-  expect(fetchProjects).lastCalledWith(
+  expect(fetchProjects).toHaveBeenLastCalledWith(
     {
       coverage: undefined,
       duplications: undefined,
@@ -105,15 +105,15 @@ it('changes sort', () => {
   const push = jest.fn();
   const wrapper = shallowRender({}, push);
   wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
-  expect(push).lastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
-  expect(save).lastCalledWith(LS_PROJECTS_SORT, 'size');
+  expect(push).toHaveBeenLastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
+  expect(save).toHaveBeenLastCalledWith(LS_PROJECTS_SORT, 'size');
 });
 
 it('changes perspective to leak', () => {
   const push = jest.fn();
   const wrapper = shallowRender({}, push);
   wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
-  expect(push).lastCalledWith({
+  expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
     query: { view: 'leak' }
   });
@@ -128,7 +128,7 @@ it('updates sorting when changing perspective from leak', () => {
   wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
     view: undefined
   });
-  expect(push).lastCalledWith({
+  expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
     query: { sort: 'coverage', view: undefined }
   });

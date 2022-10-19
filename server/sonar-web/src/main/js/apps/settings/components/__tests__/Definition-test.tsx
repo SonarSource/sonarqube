@@ -103,7 +103,7 @@ describe('handleSave', () => {
     wrapper.instance().handleSave();
 
     expect(wrapper.state().loading).toBe(false);
-    expect(setSettingValue).not.toBeCalled();
+    expect(setSettingValue).not.toHaveBeenCalled();
   });
 
   it('should handle an empty value', () => {
@@ -115,7 +115,7 @@ describe('handleSave', () => {
 
     expect(wrapper.state().loading).toBe(false);
     expect(wrapper.state().validationMessage).toBe('settings.state.value_cant_be_empty');
-    expect(setSettingValue).not.toBeCalled();
+    expect(setSettingValue).not.toHaveBeenCalled();
   });
 
   it('should save and update setting value', async () => {
@@ -132,8 +132,8 @@ describe('handleSave', () => {
 
     await waitAndUpdate(wrapper);
 
-    expect(setSettingValue).toBeCalledWith(definition, 'new value', undefined);
-    expect(getValue).toBeCalledWith({ key: definition.key, component: undefined });
+    expect(setSettingValue).toHaveBeenCalledWith(definition, 'new value', undefined);
+    expect(getValue).toHaveBeenCalledWith({ key: definition.key, component: undefined });
     expect(wrapper.state().changedValue).toBeUndefined();
     expect(wrapper.state().loading).toBe(false);
     expect(wrapper.state().success).toBe(true);
@@ -156,8 +156,8 @@ it('should reset and update setting value', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(resetSettingValue).toBeCalledWith({ keys: definition.key, component: undefined });
-  expect(getValue).toBeCalledWith({ key: definition.key, component: undefined });
+  expect(resetSettingValue).toHaveBeenCalledWith({ keys: definition.key, component: undefined });
+  expect(getValue).toHaveBeenCalledWith({ key: definition.key, component: undefined });
   expect(wrapper.state().changedValue).toBeUndefined();
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().success).toBe(true);

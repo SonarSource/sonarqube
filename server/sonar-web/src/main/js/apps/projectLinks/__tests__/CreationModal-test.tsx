@@ -33,5 +33,5 @@ it('should create link', () => {
   expect(form).toMatchSnapshot();
 
   submit(wrapper);
-  expect(onSubmit).toBeCalledWith('foo', 'http://example.com/foo');
+  expect(onSubmit).toHaveBeenCalledWith('foo', 'http://example.com/foo');
 });

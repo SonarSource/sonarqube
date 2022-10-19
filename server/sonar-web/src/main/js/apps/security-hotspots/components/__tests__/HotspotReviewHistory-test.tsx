@@ -64,7 +64,7 @@ it('should correctly handle comment updating', () => {
       .at(0)
       .props()
       .onRequestClose();
-    expect(setEditedCommentKey).toBeCalledWith('');
+    expect(setEditedCommentKey).toHaveBeenCalledWith('');
 
     const editOnClick = wrapper
       .find(EditButton)
@@ -140,7 +140,7 @@ it('should correctly handle comment deleting', () => {
     }
 
     deleteButtonOnClick();
-    expect(onDeleteComment).toBeCalledWith('comment-1');
+    expect(onDeleteComment).toHaveBeenCalledWith('comment-1');
 
     resolve();
   });

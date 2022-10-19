@@ -61,7 +61,7 @@ it('should close', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   wrapper.find('WorkspaceHeader').prop<Function>('onClose')();
-  expect(onClose).toBeCalledWith('foo');
+  expect(onClose).toHaveBeenCalledWith('foo');
 });
 
 it('should call back after load', () => {
@@ -69,7 +69,7 @@ it('should call back after load', () => {
   const wrapper = shallowRender({ onLoad });
   const details = wrapper.findWhere(w => w.name().includes('WorkspaceRuleDetails'));
   details.prop<Function>('onLoad')({ name: 'Foo' });
-  expect(onLoad).toBeCalledWith({ key: 'foo', name: 'Foo' });
+  expect(onLoad).toHaveBeenCalledWith({ key: 'foo', name: 'Foo' });
 });
 
 function shallowRender(props?: Partial<Props>) {

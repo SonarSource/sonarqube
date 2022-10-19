@@ -89,7 +89,7 @@ it('should handle zoom update correctly', () => {
       .range([0, 150]),
     [3, 50]
   );
-  expect(updateZoom).toBeCalledWith(
+  expect(updateZoom).toHaveBeenCalledWith(
     new Date('1970-08-08T03:21:36.001Z'),
     new Date('1980-01-01T08:00:00.001Z')
   );
@@ -104,7 +104,7 @@ it('should handle zoom update correctly', () => {
       .range([0, 150]),
     [-1, 151]
   );
-  expect(updateZoom).toBeCalledWith(undefined, undefined);
+  expect(updateZoom).toHaveBeenCalledWith(undefined, undefined);
 });
 
 function shallowRender(props: Partial<ZoomTimeLine['props']> = {}) {

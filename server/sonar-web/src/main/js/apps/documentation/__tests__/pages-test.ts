@@ -115,7 +115,7 @@ it('should not break the whole doc when one page cannot be parsed', () => {
   const pages = getPages();
   expect(pages.length).toBe(2);
   expect(pages[0].content).toBe('');
-  expect(console.error).toBeCalledTimes(1);
+  expect(console.error).toHaveBeenCalledTimes(1);
 
   console.error = originalConsoleError;
 });

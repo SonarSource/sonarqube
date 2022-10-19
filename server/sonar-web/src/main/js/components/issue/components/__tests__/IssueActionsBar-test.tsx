@@ -105,7 +105,7 @@ describe('callback', () => {
 
     instance.setIssueProperty('author', 'popup', apiCallMock, 'Jay');
     expect(togglePopupMock).toHaveBeenCalledTimes(1);
-    expect(apiCallMock).toBeCalledTimes(1);
+    expect(apiCallMock).toHaveBeenCalledTimes(1);
   });
 
   it('toggleComment should call togglePopup and update state', () => {

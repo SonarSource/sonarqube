@@ -37,7 +37,7 @@ it('creates project', () => {
   const onProjectCreate = jest.fn();
   const wrapper = shallowRender({ onProjectCreate });
   click(wrapper.find('#create-project'));
-  expect(onProjectCreate).toBeCalledWith();
+  expect(onProjectCreate).toHaveBeenCalledWith();
 });
 
 it('changes default visibility', () => {
@@ -49,7 +49,7 @@ it('changes default visibility', () => {
   const modalWrapper = wrapper.find('ChangeDefaultVisibilityForm');
   expect(modalWrapper).toMatchSnapshot();
   modalWrapper.prop<Function>('onConfirm')('private');
-  expect(onChangeDefaultProjectVisibility).toBeCalledWith('private');
+  expect(onChangeDefaultProjectVisibility).toHaveBeenCalledWith('private');
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();

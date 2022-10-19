@@ -52,7 +52,7 @@ describe('restore access', () => {
     wrapper.instance().handleDropdownOpen();
     await waitAndUpdate(wrapper);
 
-    expect(getComponentNavigation).toBeCalledWith({ component: 'foo' });
+    expect(getComponentNavigation).toHaveBeenCalledWith({ component: 'foo' });
     expect(wrapper.find('.js-restore-access').exists()).toBe(true);
   });
 
@@ -79,7 +79,7 @@ describe('restore access', () => {
     wrapper.instance().handleDropdownOpen();
     await waitAndUpdate(wrapper);
 
-    expect(getComponentNavigation).toBeCalledWith({ component: 'foo' });
+    expect(getComponentNavigation).toHaveBeenCalledWith({ component: 'foo' });
     expect(wrapper.find('.js-restore-access').exists()).toBe(true);
   });
 });

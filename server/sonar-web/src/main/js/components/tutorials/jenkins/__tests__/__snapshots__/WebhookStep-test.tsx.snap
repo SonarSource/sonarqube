@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`it should render correctly for azure: content 1`] = `
+exports[`should render correctly for azure: content 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -36,7 +36,7 @@ exports[`it should render correctly for azure: content 1`] = `
 </div>
 `;
 
-exports[`it should render correctly for azure: wrapper 1`] = `
+exports[`should render correctly for azure: wrapper 1`] = `
 <Step
   finished={false}
   onOpen={[MockFunction]}
@@ -47,7 +47,7 @@ exports[`it should render correctly for azure: wrapper 1`] = `
 />
 `;
 
-exports[`it should render correctly for bitbucket: content 1`] = `
+exports[`should render correctly for bitbucket: content 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -103,7 +103,7 @@ exports[`it should render correctly for bitbucket: content 1`] = `
 </div>
 `;
 
-exports[`it should render correctly for bitbucket: wrapper 1`] = `
+exports[`should render correctly for bitbucket: wrapper 1`] = `
 <Step
   finished={false}
   onOpen={[MockFunction]}
@@ -114,7 +114,7 @@ exports[`it should render correctly for bitbucket: wrapper 1`] = `
 />
 `;
 
-exports[`it should render correctly for bitbucketcloud: content 1`] = `
+exports[`should render correctly for bitbucketcloud: content 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -169,7 +169,7 @@ exports[`it should render correctly for bitbucketcloud: content 1`] = `
 </div>
 `;
 
-exports[`it should render correctly for bitbucketcloud: wrapper 1`] = `
+exports[`should render correctly for bitbucketcloud: wrapper 1`] = `
 <Step
   finished={false}
   onOpen={[MockFunction]}
@@ -180,7 +180,7 @@ exports[`it should render correctly for bitbucketcloud: wrapper 1`] = `
 />
 `;
 
-exports[`it should render correctly for github: content 1`] = `
+exports[`should render correctly for github: content 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -234,7 +234,7 @@ exports[`it should render correctly for github: content 1`] = `
 </div>
 `;
 
-exports[`it should render correctly for github: wrapper 1`] = `
+exports[`should render correctly for github: wrapper 1`] = `
 <Step
   finished={false}
   onOpen={[MockFunction]}
@@ -245,7 +245,7 @@ exports[`it should render correctly for github: wrapper 1`] = `
 />
 `;
 
-exports[`it should render correctly for gitlab: content 1`] = `
+exports[`should render correctly for gitlab: content 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -285,7 +285,7 @@ exports[`it should render correctly for gitlab: content 1`] = `
 </div>
 `;
 
-exports[`it should render correctly for gitlab: wrapper 1`] = `
+exports[`should render correctly for gitlab: wrapper 1`] = `
 <Step
   finished={false}
   onOpen={[MockFunction]}

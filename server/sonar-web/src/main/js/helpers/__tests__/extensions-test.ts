@@ -73,7 +73,7 @@ describe('getExtensionStart', () => {
     const result = getExtensionStart('bar');
 
     await new Promise(setImmediate);
-    expect(exposeLibraries).toBeCalled();
+    expect(exposeLibraries).toHaveBeenCalled();
 
     (window as any).registerExtension('bar', start, true);
 

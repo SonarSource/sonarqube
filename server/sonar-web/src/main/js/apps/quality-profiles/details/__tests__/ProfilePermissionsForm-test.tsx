@@ -49,7 +49,7 @@ it('correctly adds users', async () => {
 
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot();
-  expect(addUser).toBeCalledWith(
+  expect(addUser).toHaveBeenCalledWith(
     expect.objectContaining({
       language: PROFILE.language,
       qualityProfile: PROFILE.name,
@@ -58,7 +58,7 @@ it('correctly adds users', async () => {
   );
 
   await waitAndUpdate(wrapper);
-  expect(onUserAdd).toBeCalledWith(user);
+  expect(onUserAdd).toHaveBeenCalledWith(user);
 });
 
 it('correctly adds groups', async () => {
@@ -71,7 +71,7 @@ it('correctly adds groups', async () => {
 
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot();
-  expect(addGroup).toBeCalledWith(
+  expect(addGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       language: PROFILE.language,
       qualityProfile: PROFILE.name,
@@ -80,7 +80,7 @@ it('correctly adds groups', async () => {
   );
 
   await waitAndUpdate(wrapper);
-  expect(onGroupAdd).toBeCalledWith(group);
+  expect(onGroupAdd).toHaveBeenCalledWith(group);
 });
 
 function shallowRender(props: Partial<ProfilePermissionsForm['props']> = {}) {

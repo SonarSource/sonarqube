@@ -71,14 +71,14 @@ it('changes sorting', () => {
     onChange
   }).instance() as ProjectsSortingSelect;
   instance.handleSortChange({ label: 'size', value: 'size' });
-  expect(onChange).toBeCalledWith('size', true);
+  expect(onChange).toHaveBeenCalledWith('size', true);
 });
 
 it('reverses sorting', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ selectedSort: '-size', onChange });
   click(wrapper.find('ButtonIcon'));
-  expect(onChange).toBeCalledWith('size', false);
+  expect(onChange).toHaveBeenCalledWith('size', false);
 
   const node = document.createElement('div');
   node.focus = jest.fn();
@@ -86,7 +86,7 @@ it('reverses sorting', () => {
 
   click(wrapper.find('ButtonIcon'));
 
-  expect(node.focus).toBeCalled();
+  expect(node.focus).toHaveBeenCalled();
 });
 
 function shallowRender(overrides: Partial<ProjectsSortingSelect['props']> = {}) {

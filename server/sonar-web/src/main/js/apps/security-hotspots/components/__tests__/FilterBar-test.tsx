@@ -65,7 +65,7 @@ it('should trigger onChange for status', () => {
     .props();
 
   onChange({ value: HotspotStatusFilter.SAFE });
-  expect(onChangeFilters).toBeCalledWith({ status: HotspotStatusFilter.SAFE });
+  expect(onChangeFilters).toHaveBeenCalledWith({ status: HotspotStatusFilter.SAFE });
 });
 
 it('should trigger onChange for self-assigned toggle', () => {
@@ -75,7 +75,7 @@ it('should trigger onChange for self-assigned toggle', () => {
   const { onCheck } = wrapper.find(ButtonToggle).props();
 
   onCheck(AssigneeFilterOption.ALL);
-  expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
+  expect(onChangeFilters).toHaveBeenCalledWith({ assignedToMe: false });
 });
 
 it('should trigger onChange for leak period', () => {
@@ -88,7 +88,7 @@ it('should trigger onChange for leak period', () => {
     .props();
 
   onChange({ value: true });
-  expect(onChangeFilters).toBeCalledWith({ inNewCodePeriod: true });
+  expect(onChangeFilters).toHaveBeenCalledWith({ inNewCodePeriod: true });
 });
 
 function shallowRender(props: Partial<FilterBarProps> = {}) {

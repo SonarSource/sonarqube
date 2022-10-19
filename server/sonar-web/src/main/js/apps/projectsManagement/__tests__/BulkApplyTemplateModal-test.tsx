@@ -39,7 +39,7 @@ beforeEach(() => {
 
 it('fetches permission templates on component mount', () => {
   shallow(render());
-  expect(getPermissionTemplates).toBeCalled();
+  expect(getPermissionTemplates).toHaveBeenCalled();
 });
 
 it('bulk applies template to all results', async () => {
@@ -58,7 +58,7 @@ it('bulk applies template to all results', async () => {
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('SubmitButton'));
-  expect(bulkApplyTemplate).toBeCalledWith({
+  expect(bulkApplyTemplate).toHaveBeenCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: true,
     q: 'bla',
@@ -89,7 +89,7 @@ it('bulk applies template to selected results', async () => {
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
   await new Promise(setImmediate);
-  expect(bulkApplyTemplate).toBeCalledWith({
+  expect(bulkApplyTemplate).toHaveBeenCalledWith({
     projects: 'proj1,proj2',
     qualifiers: 'VW',
     templateId: 'foo'
@@ -103,7 +103,7 @@ it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallow(render({ onClose }));
   click(wrapper.find('ResetButtonLink'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function render(props?: { [P in keyof Props]?: Props[P] }) {

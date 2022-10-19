@@ -47,5 +47,5 @@ it('returns new worker count', async () => {
   submit(wrapper.find('form'));
 
   await new Promise(setImmediate);
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });

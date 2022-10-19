@@ -31,14 +31,14 @@ it('should correctly confirm', () => {
   const onConfirm = jest.fn();
   const wrapper = shallowRender({ onConfirm });
   wrapper.find(ConfirmModal).prop('onConfirm')();
-  expect(onConfirm).toBeCalledWith('foo', 'bar');
+  expect(onConfirm).toHaveBeenCalledWith('foo', 'bar');
 });
 
 it('should correctly cancel', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   wrapper.find(ConfirmModal).prop('onClose')();
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<RemoveEventFormProps> = {}) {

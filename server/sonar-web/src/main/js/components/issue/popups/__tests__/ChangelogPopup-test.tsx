@@ -45,7 +45,7 @@ beforeEach(() => {
 it('should render the changelog popup correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getIssueChangelog).toBeCalledWith('issuekey');
+  expect(getIssueChangelog).toHaveBeenCalledWith('issuekey');
   expect(wrapper).toMatchSnapshot();
 });
 

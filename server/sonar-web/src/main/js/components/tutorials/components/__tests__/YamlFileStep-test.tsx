@@ -33,7 +33,7 @@ it('should render child correctly', () => {
   const wrapper = shallowRender({ children });
   expect(wrapper).toMatchSnapshot('C unavailable');
   wrapper.find(RenderOptions).simulate('check', BuildTools.DotNet);
-  expect(children).toBeCalledWith(BuildTools.DotNet);
+  expect(children).toHaveBeenCalledWith(BuildTools.DotNet);
 });
 
 function shallowRender(props: Partial<YamlFileStepProps> = {}) {

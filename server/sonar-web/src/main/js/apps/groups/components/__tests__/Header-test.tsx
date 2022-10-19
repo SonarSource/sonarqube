@@ -31,5 +31,5 @@ it('should create new group', () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('Form').prop<Function>('onSubmit')({ name: 'foo', description: 'bar' });
-  expect(onCreate).toBeCalledWith({ name: 'foo', description: 'bar' });
+  expect(onCreate).toHaveBeenCalledWith({ name: 'foo', description: 'bar' });
 });

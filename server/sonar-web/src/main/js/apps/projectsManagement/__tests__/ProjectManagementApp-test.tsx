@@ -57,15 +57,15 @@ beforeEach(() => {
 it('fetches all projects on mount', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
-  expect(getValue).toBeCalled();
+  expect(getComponents).toHaveBeenLastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
+  expect(getValue).toHaveBeenCalled();
   expect(wrapper.state().defaultProjectVisibility).toBe('public');
 });
 
 it('selects provisioned', () => {
   const wrapper = shallowRender();
   wrapper.find('withAppStateContext(Search)').prop<Function>('onProvisionedChanged')(true);
-  expect(getComponents).lastCalledWith({
+  expect(getComponents).toHaveBeenLastCalledWith({
     ...defaultSearchParameters,
     onProvisionedOnly: true,
     qualifiers: 'TRK'
@@ -76,13 +76,17 @@ it('changes qualifier and resets provisioned', () => {
   const wrapper = shallowRender();
   wrapper.setState({ provisioned: true });
   wrapper.find('withAppStateContext(Search)').prop<Function>('onQualifierChanged')('VW');
-  expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'VW' });
+  expect(getComponents).toHaveBeenLastCalledWith({ ...defaultSearchParameters, qualifiers: 'VW' });
 });
 
 it('searches', () => {
   const wrapper = shallowRender();
   wrapper.find('withAppStateContext(Search)').prop<Function>('onSearch')('foo');
-  expect(getComponents).lastCalledWith({ ...defaultSearchParameters, q: 'foo', qualifiers: 'TRK' });
+  expect(getComponents).toHaveBeenLastCalledWith({
+    ...defaultSearchParameters,
+    q: 'foo',
+    qualifiers: 'TRK'
+  });
 });
 
 it('should handle date filtering', () => {
@@ -105,7 +109,7 @@ it('should handle default project visibility change', async () => {
   expect(wrapper.state().defaultProjectVisibility).toBe('public');
   wrapper.instance().handleDefaultProjectVisibilityChange('private');
 
-  expect(changeProjectDefaultVisibility).toBeCalledWith('private');
+  expect(changeProjectDefaultVisibility).toHaveBeenCalledWith('private');
   await waitAndUpdate(wrapper);
   expect(wrapper.state().defaultProjectVisibility).toBe('private');
 });
@@ -113,7 +117,11 @@ it('should handle default project visibility change', async () => {
 it('loads more', () => {
   const wrapper = shallowRender();
   wrapper.find('ListFooter').prop<Function>('loadMore')();
-  expect(getComponents).lastCalledWith({ ...defaultSearchParameters, p: 2, qualifiers: 'TRK' });
+  expect(getComponents).toHaveBeenLastCalledWith({
+    ...defaultSearchParameters,
+    p: 2,
+    qualifiers: 'TRK'
+  });
 });
 
 it('selects and deselects projects', async () => {

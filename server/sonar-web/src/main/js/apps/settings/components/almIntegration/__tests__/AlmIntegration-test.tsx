@@ -61,13 +61,13 @@ it('should validate existing configurations', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(validateAlmSettings).toBeCalledTimes(6);
-  expect(validateAlmSettings).toBeCalledWith('a1');
-  expect(validateAlmSettings).toBeCalledWith('b1');
-  expect(validateAlmSettings).toBeCalledWith('bc1');
-  expect(validateAlmSettings).toBeCalledWith('gh1');
-  expect(validateAlmSettings).toBeCalledWith('gh2');
-  expect(validateAlmSettings).toBeCalledWith('gl1');
+  expect(validateAlmSettings).toHaveBeenCalledTimes(6);
+  expect(validateAlmSettings).toHaveBeenCalledWith('a1');
+  expect(validateAlmSettings).toHaveBeenCalledWith('b1');
+  expect(validateAlmSettings).toHaveBeenCalledWith('bc1');
+  expect(validateAlmSettings).toHaveBeenCalledWith('gh1');
+  expect(validateAlmSettings).toHaveBeenCalledWith('gh2');
+  expect(validateAlmSettings).toHaveBeenCalledWith('gl1');
 });
 
 it('should handle alm selection', async () => {
@@ -81,7 +81,7 @@ it('should handle alm selection', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().currentAlmTab).toBe(AlmKeys.GitHub);
-  expect(router.push).toBeCalled();
+  expect(router.push).toHaveBeenCalled();
 });
 
 it('should handle delete', async () => {
@@ -170,7 +170,7 @@ it('should fetch settings', async () => {
 
   await wrapper.instance().fetchPullRequestDecorationSetting();
 
-  expect(getAlmDefinitions).toBeCalled();
+  expect(getAlmDefinitions).toHaveBeenCalled();
   expect(wrapper.state().definitions).toEqual(definitions);
   expect(wrapper.state().loadingAlmDefinitions).toBe(false);
 });

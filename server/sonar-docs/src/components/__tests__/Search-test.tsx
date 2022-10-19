@@ -118,7 +118,9 @@ it('should search', () => {
   );
   wrapper.instance().handleChange({ currentTarget: { value: 'simply text+:' } } as any);
   expect(wrapper).toMatchSnapshot();
-  expect(lunr).toBeCalled();
+  expect(lunr).toHaveBeenCalled();
   expect(wrapper.instance().index).toBeDefined();
-  expect((wrapper.instance().index as any).search).toBeCalledWith('simply~1 simply* text~1 text*');
+  expect((wrapper.instance().index as any).search).toHaveBeenCalledWith(
+    'simply~1 simply* text~1 text*'
+  );
 });

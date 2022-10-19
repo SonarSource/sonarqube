@@ -32,7 +32,7 @@ it('should call onPageChange when clicked', () => {
 
   wrapper.find('.back-button').simulate('click');
 
-  expect(onPageChange).toBeCalledTimes(1);
+  expect(onPageChange).toHaveBeenCalledTimes(1);
 });
 
 function shallowRender(props: Partial<InfoDrawerPageProps> = {}) {

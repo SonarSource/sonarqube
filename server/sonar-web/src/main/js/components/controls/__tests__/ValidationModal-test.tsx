@@ -41,10 +41,10 @@ it('should handle submit', async () => {
   const wrapper = shallowRender({ onClose, onSubmit });
 
   wrapper.instance().handleSubmit(data);
-  expect(onSubmit).toBeCalledWith(data);
+  expect(onSubmit).toHaveBeenCalledWith(data);
 
   await waitAndUpdate(wrapper);
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ValidationModal<{ field: string }>['props']> = {}) {

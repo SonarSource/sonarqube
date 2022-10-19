@@ -41,7 +41,7 @@ it('should correctly check a key', async () => {
   const wrapper = shallowRender();
   wrapper.instance().checkSecretKey();
   await waitAndUpdate(wrapper);
-  expect(checkSecretKey).toBeCalled();
+  expect(checkSecretKey).toHaveBeenCalled();
   expect(wrapper.state().secretKeyAvailable).toBe(true);
 });
 
@@ -49,7 +49,7 @@ it('should correctly generate a key', async () => {
   const wrapper = shallowRender();
   wrapper.instance().generateSecretKey();
   await waitAndUpdate(wrapper);
-  expect(generateSecretKey).toBeCalled();
+  expect(generateSecretKey).toHaveBeenCalled();
   expect(wrapper.state().secretKey).toBe('secret');
   expect(wrapper.state().secretKeyAvailable).toBe(false);
 });

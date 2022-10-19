@@ -72,9 +72,9 @@ describe('Dropdown', () => {
         <Button />
       </Dropdown>
     );
-    expect(onOpen).not.toBeCalled();
+    expect(onOpen).not.toHaveBeenCalled();
     click(wrapper.find('Button'));
-    expect(onOpen).toBeCalled();
+    expect(onOpen).toHaveBeenCalled();
   });
 
   function checkToggle(wrapper: ShallowWrapper, selector = 'Button') {

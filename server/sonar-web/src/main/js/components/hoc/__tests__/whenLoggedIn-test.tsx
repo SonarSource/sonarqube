@@ -40,7 +40,7 @@ it('should render for logged in user', () => {
 it('should not render for anonymous user', () => {
   const wrapper = shallowRender(false);
   expect(getRenderedType(wrapper)).toBeNull();
-  expect(handleRequiredAuthentication).toBeCalled();
+  expect(handleRequiredAuthentication).toHaveBeenCalled();
 });
 
 function getRenderedType(wrapper: ShallowWrapper) {

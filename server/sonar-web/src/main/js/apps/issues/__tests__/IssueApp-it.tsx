@@ -50,7 +50,7 @@ it('should be able to bulk change', async () => {
   renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
 
   // Check that the bulk button has correct behavior
-  expect(await screen.findByRole('button', { name: 'bulk_change' })).toHaveAttribute('disabled');
+  expect(await screen.findByRole('button', { name: 'bulk_change' })).toBeDisabled();
   await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
   expect(
     screen.getByRole('button', { name: 'issues.bulk_change_X_issues.500' })
@@ -75,7 +75,7 @@ it('should be able to bulk change', async () => {
 
   await user.click(screen.getByRole('textbox', { name: 'issue.comment.formlink' }));
   await user.keyboard('New Comment');
-  expect(screen.getByRole('button', { name: 'apply' })).toHaveAttribute('disabled');
+  expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
   await selectEvent.select(screen.getByRole('textbox', { name: 'issue.set_type' }), [
     'issue.type.BUG'
@@ -207,6 +207,9 @@ it('should open issue and navigate', async () => {
 
   // check for extended description
   const extendedDescriptions = screen.getAllByText('Extended Description');
+
+  // FP
+  // eslint-disable-next-line jest-dom/prefer-in-document
   expect(extendedDescriptions).toHaveLength(1);
 
   // Select the previous issue (with a simple rule) through keyboard shortcut

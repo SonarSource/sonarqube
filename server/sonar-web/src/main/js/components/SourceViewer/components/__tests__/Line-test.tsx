@@ -52,13 +52,13 @@ it('handles the opening and closing of issues', () => {
   const instance = wrapper.instance();
 
   instance.handleIssuesIndicatorClick();
-  expect(onIssuesClose).toBeCalledWith(line);
-  expect(onIssueUnselect).toBeCalled();
+  expect(onIssuesClose).toHaveBeenCalledWith(line);
+  expect(onIssueUnselect).toHaveBeenCalled();
 
   wrapper.setProps({ openIssues: false });
   instance.handleIssuesIndicatorClick();
-  expect(onIssuesOpen).toBeCalledWith(line);
-  expect(onIssueSelect).toBeCalledWith(issue.key);
+  expect(onIssuesOpen).toHaveBeenCalledWith(line);
+  expect(onIssueSelect).toHaveBeenCalledWith(issue.key);
 });
 
 function shallowRender(props: Partial<Line['props']> = {}) {

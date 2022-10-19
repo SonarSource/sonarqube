@@ -79,7 +79,7 @@ it('should fetch more projects and preserve search', async () => {
   expect(wrapper.state().loadingMore).toBe(false);
   expect(wrapper.state().projects).toEqual(projects);
 
-  expect(getGitlabProjects).toBeCalledWith(expect.objectContaining({ query: 'query' }));
+  expect(getGitlabProjects).toHaveBeenCalledWith(expect.objectContaining({ query: 'query' }));
 });
 
 it('should search for projects', async () => {
@@ -120,7 +120,7 @@ it('should search for projects', async () => {
   expect(wrapper.state().searchQuery).toBe(query);
   expect(wrapper.state().projects).toEqual([projects[3], projects[4]]);
 
-  expect(getGitlabProjects).toBeCalledWith(expect.objectContaining({ query }));
+  expect(getGitlabProjects).toHaveBeenCalledWith(expect.objectContaining({ query }));
 });
 
 it('should import', async () => {
@@ -150,7 +150,7 @@ it('should import', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().importingGitlabProjectId).toBeUndefined();
-  expect(onProjectCreate).toBeCalledWith(createdProjectkey);
+  expect(onProjectCreate).toHaveBeenCalledWith(createdProjectkey);
 });
 
 it('should do nothing with missing settings', async () => {

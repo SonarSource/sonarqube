@@ -63,7 +63,7 @@ it('should correclty handle user actions', () => {
   keydown({ key: KeyboardKeys.UpArrow });
   expect(list.state().selected).toBe('seconditem');
   keydown({ key: KeyboardKeys.Enter });
-  expect(onSelect).toBeCalledWith('seconditem');
+  expect(onSelect).toHaveBeenCalledWith('seconditem');
   list.instance().componentWillUnmount!();
 });
 

@@ -319,6 +319,9 @@ describe('The Project section', () => {
     const reloadButton = screen.getByRole('button', { name: 'reload' });
     expect(reloadButton).toBeInTheDocument();
     await user.click(reloadButton);
+
+    // FP
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
 
     // change tabs to show deselected projects
@@ -345,6 +348,9 @@ describe('The Project section', () => {
     expect(searchInput).toBeInTheDocument();
     await user.click(searchInput);
     await user.keyboard('test2{Enter}');
+
+    // FP
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
   });
 
@@ -424,6 +430,9 @@ describe('The Permissions section', () => {
       name: 'cancel'
     });
     await user.click(cancelButton);
+
+    // FP
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(screen.getAllByRole('listitem')).toHaveLength(1);
 
     // Delete the user permission

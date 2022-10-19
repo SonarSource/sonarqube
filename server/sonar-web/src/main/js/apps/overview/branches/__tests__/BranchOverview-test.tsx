@@ -203,8 +203,8 @@ describe('project overview', () => {
   it("should correctly load a project's status", async () => {
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
-    expect(getQualityGateProjectStatus).toBeCalled();
-    expect(getMeasuresWithPeriodAndMetrics).toBeCalled();
+    expect(getQualityGateProjectStatus).toHaveBeenCalled();
+    expect(getMeasuresWithPeriodAndMetrics).toHaveBeenCalled();
 
     // Check the conditions got correctly enhanced with measure meta data.
     const { qgStatuses } = wrapper.state();
@@ -270,9 +270,9 @@ describe('application overview', () => {
   it("should correctly load an application's status", async () => {
     const wrapper = shallowRender({ component });
     await waitAndUpdate(wrapper);
-    expect(getApplicationQualityGate).toBeCalled();
-    expect(getApplicationLeak).toBeCalled();
-    expect(getMeasuresWithPeriodAndMetrics).toBeCalled();
+    expect(getApplicationQualityGate).toHaveBeenCalled();
+    expect(getApplicationLeak).toHaveBeenCalled();
+    expect(getMeasuresWithPeriodAndMetrics).toHaveBeenCalled();
 
     // Check the conditions got correctly enhanced with measure meta data.
     const { qgStatuses } = wrapper.state();
@@ -339,8 +339,8 @@ describe('application overview', () => {
 it("should correctly load a component's history", async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getProjectActivity).toBeCalled();
-  expect(getAllTimeMachineData).toBeCalled();
+  expect(getProjectActivity).toHaveBeenCalled();
+  expect(getAllTimeMachineData).toHaveBeenCalled();
 
   const { measuresHistory } = wrapper.state();
   expect(measuresHistory).toHaveLength(6);
@@ -370,11 +370,15 @@ it.each([
 
 it('should correctly handle graph type storage', () => {
   const wrapper = shallowRender();
-  expect(getActivityGraph).toBeCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo');
+  expect(getActivityGraph).toHaveBeenCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo');
   expect(wrapper.state().graph).toBe(GraphType.coverage);
 
   wrapper.instance().handleGraphChange(GraphType.issues);
-  expect(saveActivityGraph).toBeCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo', GraphType.issues);
+  expect(saveActivityGraph).toHaveBeenCalledWith(
+    BRANCH_OVERVIEW_ACTIVITY_GRAPH,
+    'foo',
+    GraphType.issues
+  );
   expect(wrapper.state().graph).toBe(GraphType.issues);
 });
 

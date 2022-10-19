@@ -62,7 +62,7 @@ it('shows clear button only when there is a value', () => {
 it('attaches ref', () => {
   const ref = jest.fn();
   mount(<SearchBox innerRef={ref} onChange={jest.fn()} placeholder="placeholder" value="f" />);
-  expect(ref).toBeCalled();
+  expect(ref).toHaveBeenCalled();
   expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLInputElement);
 });
 
@@ -70,14 +70,14 @@ it('resets', () => {
   const onChange = jest.fn();
   const wrapper = shallow(<SearchBox onChange={onChange} placeholder="placeholder" value="f" />);
   click(wrapper.find('.search-box-clear'));
-  expect(onChange).toBeCalledWith('');
+  expect(onChange).toHaveBeenCalledWith('');
 });
 
 it('changes', () => {
   const onChange = jest.fn();
   const wrapper = shallow(<SearchBox onChange={onChange} placeholder="placeholder" value="f" />);
   change(wrapper.find('.search-box-input'), 'foo');
-  expect(onChange).toBeCalledWith('foo');
+  expect(onChange).toHaveBeenCalledWith('foo');
 });
 
 it('does not change when value is too short', () => {
@@ -86,5 +86,5 @@ it('does not change when value is too short', () => {
     <SearchBox minLength={3} onChange={onChange} placeholder="placeholder" value="" />
   );
   change(wrapper.find('.search-box-input'), 'fo');
-  expect(onChange).not.toBeCalled();
+  expect(onChange).not.toHaveBeenCalled();
 });

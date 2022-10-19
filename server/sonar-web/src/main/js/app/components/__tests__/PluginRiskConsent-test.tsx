@@ -50,7 +50,7 @@ it('should redirect non-admin users', () => {
     router: mockRouter({ replace })
   });
   expect(wrapper.type()).toBeNull();
-  expect(replace).toBeCalled();
+  expect(replace).toHaveBeenCalled();
 });
 
 it('should handle acknowledgement and redirect', async () => {
@@ -63,7 +63,7 @@ it('should handle acknowledgement and redirect', async () => {
 
   await new Promise(setImmediate);
 
-  expect(setSimpleSettingValue).toBeCalled();
+  expect(setSimpleSettingValue).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<PluginRiskConsentProps> = {}) {

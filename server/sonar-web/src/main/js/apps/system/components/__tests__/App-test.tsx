@@ -52,7 +52,7 @@ it('should fetch system info', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getSystemInfo).toBeCalled();
+  expect(getSystemInfo).toHaveBeenCalled();
   expect(wrapper.state().sysInfoData).toBe(sysInfoData);
 });
 
@@ -62,7 +62,7 @@ it('should toggle cards and update the URL', () => {
 
   // Open
   wrapper.instance().toggleSysInfoCards('foo');
-  expect(replace).toBeCalledWith(
+  expect(replace).toHaveBeenCalledWith(
     expect.objectContaining({
       query: { expand: 'foo' }
     })
@@ -72,7 +72,7 @@ it('should toggle cards and update the URL', () => {
   replace.mockClear();
   wrapper.setProps({ location: mockLocation({ query: { expand: 'foo,bar' } }) });
   wrapper.instance().toggleSysInfoCards('foo');
-  expect(replace).toBeCalledWith(
+  expect(replace).toHaveBeenCalledWith(
     expect.objectContaining({
       query: { expand: 'bar' }
     })

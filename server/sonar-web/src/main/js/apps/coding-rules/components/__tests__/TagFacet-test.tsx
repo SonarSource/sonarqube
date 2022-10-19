@@ -37,7 +37,7 @@ it('should handle search', async () => {
 
   await wrapper.instance().handleSearch(query);
 
-  expect(getRuleTags).toBeCalledWith({ ps: 50, q: query });
+  expect(getRuleTags).toHaveBeenCalledWith({ ps: 50, q: query });
 });
 
 describe('ListStyleFacet Renderers', () => {

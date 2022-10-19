@@ -74,7 +74,7 @@ describe('Bulk Apply', () => {
 
     await user.click(screen.getByRole('checkbox', { name: 'check_all' }));
 
-    expect(bulkApplyButton).not.toBeDisabled();
+    expect(bulkApplyButton).toBeEnabled();
 
     await user.click(bulkApplyButton);
 

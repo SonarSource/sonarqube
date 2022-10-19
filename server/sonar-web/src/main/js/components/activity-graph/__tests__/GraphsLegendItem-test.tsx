@@ -41,7 +41,7 @@ it('should correctly handle clicks', () => {
   const removeMetric = jest.fn();
   const wrapper = shallowRender({ removeMetric });
   click(wrapper.find(ClearButton));
-  expect(removeMetric).toBeCalledWith('bugs');
+  expect(removeMetric).toHaveBeenCalledWith('bugs');
 });
 
 function shallowRender(props: Partial<GraphsLegendItem['props']> = {}) {

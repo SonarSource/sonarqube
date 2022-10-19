@@ -44,13 +44,13 @@ it('should call onFieldChange', () => {
   shallowRender({ onFieldChange: onInputChange })
     .find('input')
     .simulate('change', { currentTarget: { value: '' } });
-  expect(onInputChange).toBeCalled();
+  expect(onInputChange).toHaveBeenCalled();
 
   const onTextAreaChange = jest.fn();
   shallowRender({ isTextArea: true, onFieldChange: onTextAreaChange })
     .find('textarea')
     .simulate('change', { currentTarget: { value: '' } });
-  expect(onTextAreaChange).toBeCalled();
+  expect(onTextAreaChange).toHaveBeenCalled();
 });
 
 it('should correctly toggle visibility for secret fields', () => {

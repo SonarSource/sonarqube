@@ -36,8 +36,8 @@ it('should render and change key', async () => {
 
   wrapper.find('UpdateForm').prop<Function>('onKeyChange')('bar');
   await new Promise(setImmediate);
-  expect(changeKey).toBeCalledWith({ from: 'foo', to: 'bar' });
-  expect(withRouterProps.router.replace).toBeCalledWith({
+  expect(changeKey).toHaveBeenCalledWith({ from: 'foo', to: 'bar' });
+  expect(withRouterProps.router.replace).toHaveBeenCalledWith({
     pathname: '/project/key',
     query: { id: 'bar' }
   });

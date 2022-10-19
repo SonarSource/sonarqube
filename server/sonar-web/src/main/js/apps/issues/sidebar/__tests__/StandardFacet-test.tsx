@@ -70,21 +70,21 @@ jest.mock('../../../../helpers/security-standard', () => ({
 
 it('should render closed', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(getStandards).not.toBeCalled();
+  expect(getStandards).not.toHaveBeenCalled();
 });
 
 it('should toggle standards facet', () => {
   const onToggle = jest.fn();
   const wrapper = shallowRender({ onToggle });
   click(wrapper.children('FacetHeader'));
-  expect(onToggle).toBeCalledWith('standards');
+  expect(onToggle).toHaveBeenCalledWith('standards');
 });
 
 it('should clear standards facet', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange });
   wrapper.children('FacetHeader').prop<Function>('onClear')();
-  expect(onChange).toBeCalledWith({
+  expect(onChange).toHaveBeenCalledWith({
     cwe: [],
     owaspTop10: [],
     'owaspTop10-2021': [],
@@ -112,7 +112,7 @@ it('should render sub-facets', () => {
       sonarsourceSecurityStats: { 'sql-injection': 12 }
     })
   ).toMatchSnapshot();
-  expect(getStandards).toBeCalled();
+  expect(getStandards).toHaveBeenCalled();
 });
 
 it('should show sonarsource facet more button', () => {
@@ -192,7 +192,7 @@ it('should select items', () => {
       .find(`FacetBox[property="${facet}"]`)
       .find(`FacetItem[value="${value}"]`)
       .prop<Function>('onClick')(value, multiple);
-    expect(onChange).lastCalledWith({ [facet]: expectedValue });
+    expect(onChange).toHaveBeenLastCalledWith({ [facet]: expectedValue });
   }
 });
 
@@ -200,11 +200,11 @@ it('should toggle sub-facets', () => {
   const onToggle = jest.fn();
   const wrapper = shallowRender({ onToggle, open: true });
   click(wrapper.find('FacetBox[property="owaspTop10"]').children('FacetHeader'));
-  expect(onToggle).lastCalledWith('owaspTop10');
+  expect(onToggle).toHaveBeenLastCalledWith('owaspTop10');
   click(wrapper.find('FacetBox[property="sansTop25"]').children('FacetHeader'));
-  expect(onToggle).lastCalledWith('sansTop25');
+  expect(onToggle).toHaveBeenLastCalledWith('sansTop25');
   click(wrapper.find('FacetBox[property="sonarsourceSecurity"]').children('FacetHeader'));
-  expect(onToggle).lastCalledWith('sonarsourceSecurity');
+  expect(onToggle).toHaveBeenLastCalledWith('sonarsourceSecurity');
 });
 
 it('should display correct selection', () => {

@@ -43,13 +43,13 @@ it('should render correctly', () => {
 it('should fetch alm bindings on mount', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getAlmSettings).toBeCalled();
+  expect(getAlmSettings).toHaveBeenCalled();
 });
 
 it('should not fetch alm bindings if user cannot create projects', async () => {
   const wrapper = shallowRender({ currentUser: mockLoggedInUser({ permissions: { global: [] } }) });
   await waitAndUpdate(wrapper);
-  expect(getAlmSettings).not.toBeCalled();
+  expect(getAlmSettings).not.toHaveBeenCalled();
 });
 
 it('should filter alm bindings appropriately', async () => {

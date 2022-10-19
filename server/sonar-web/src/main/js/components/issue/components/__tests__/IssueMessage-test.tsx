@@ -54,7 +54,7 @@ it('should open why is this an issue workspace', () => {
   const wrapper = shallowRender();
   wrapper.find(ButtonLink).simulate('click');
 
-  expect(openRule).toBeCalled();
+  expect(openRule).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<IssueMessageProps> = {}) {

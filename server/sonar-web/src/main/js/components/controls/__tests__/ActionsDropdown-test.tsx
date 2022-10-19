@@ -59,7 +59,7 @@ describe('ActionsDropdownItem', () => {
     const onClick = jest.fn();
     const wrapper = shallowRender({ onClick });
     click(wrapper.find('a'));
-    expect(onClick).toBeCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 
   function shallowRender(props: Partial<ActionsDropdownItem['props']> = {}) {

@@ -30,14 +30,14 @@ it('should close', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
   click(wrapper.find('ClearButton'));
-  expect(onClose).toBeCalled();
+  expect(onClose).toHaveBeenCalled();
 });
 
 it('should open', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
   click(wrapper.find('.workspace-nav-item-link'));
-  expect(onOpen).toBeCalled();
+  expect(onOpen).toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<Props>) {

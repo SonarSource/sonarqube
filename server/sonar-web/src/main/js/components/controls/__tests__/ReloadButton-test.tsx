@@ -32,7 +32,7 @@ it('should handle click', () => {
   const wrapper = shallowRender({ onClick });
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('a'));
-  expect(onClick).toBeCalled();
+  expect(onClick).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ReloadButton['props']> = {}) {

@@ -39,10 +39,10 @@ it('should correctly handle facet header clicks', () => {
   const wrapper = shallowRender({ onChange, onToggle });
 
   wrapper.find(FacetHeader).props().onClear!();
-  expect(onChange).toBeCalledWith({ scopes: [] });
+  expect(onChange).toHaveBeenCalledWith({ scopes: [] });
 
   wrapper.find(FacetHeader).props().onClick!();
-  expect(onToggle).toBeCalledWith('scopes');
+  expect(onToggle).toHaveBeenCalledWith('scopes');
 });
 
 it('should correctly handle facet item clicks', () => {

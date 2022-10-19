@@ -48,9 +48,9 @@ it('should render React extensions correctly', async () => {
 
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(getExtensionStart).toBeCalledWith('foo');
+  expect(getExtensionStart).toHaveBeenCalledWith('foo');
   await waitAndUpdate(wrapper);
-  expect(start).toBeCalled();
+  expect(start).toHaveBeenCalled();
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -63,11 +63,11 @@ it('should handle Function extensions correctly', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(start).toBeCalled();
+  expect(start).toHaveBeenCalled();
 
   wrapper.setProps({ extension: { key: 'bar', name: 'Bar' } });
   await waitAndUpdate(wrapper);
-  expect(stop).toBeCalled();
+  expect(stop).toHaveBeenCalled();
 });
 
 it('should unmount an extension before starting a new one', async () => {

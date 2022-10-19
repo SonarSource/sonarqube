@@ -95,14 +95,14 @@ beforeEach(() => {
 it('should render correctly for SonarQube', async () => {
   const wrapper = shallowRender();
   expect(wrapper.find('DeferredSpinner').exists()).toBe(true);
-  expect(addSideBarClass).toBeCalled();
+  expect(addSideBarClass).toHaveBeenCalled();
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('ScreenPositionHelper').dive()).toMatchSnapshot();
 
   wrapper.unmount();
-  expect(removeSideBarClass).toBeCalled();
+  expect(removeSideBarClass).toHaveBeenCalled();
 });
 
 it("should show a 404 if the page doesn't exist", async () => {

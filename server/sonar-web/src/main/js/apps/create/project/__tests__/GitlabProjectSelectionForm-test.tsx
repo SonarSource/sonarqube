@@ -55,7 +55,7 @@ describe('appropriate callback', () => {
       .first()
       .simulate('click');
 
-    expect(onImport).toBeCalled();
+    expect(onImport).toHaveBeenCalled();
   });
 
   it('should be assigned to the list footer', () => {

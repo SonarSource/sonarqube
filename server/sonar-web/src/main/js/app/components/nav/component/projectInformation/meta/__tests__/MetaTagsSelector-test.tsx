@@ -38,7 +38,7 @@ it('searches tags on mount', () => {
     Promise.resolve({ tags: ['foo', 'bar'] })
   );
   mount(<MetaTagsSelector selectedTags={[]} setProjectTags={jest.fn()} />);
-  expect(searchProjectTags).toBeCalledWith({ ps: 9, q: '' });
+  expect(searchProjectTags).toHaveBeenCalledWith({ ps: 9, q: '' });
 });
 
 it('selects and deselects tags', () => {

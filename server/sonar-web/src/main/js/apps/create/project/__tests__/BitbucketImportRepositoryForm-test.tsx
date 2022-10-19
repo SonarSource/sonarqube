@@ -42,7 +42,7 @@ it('should correctly handle search', () => {
   const onSearch = jest.fn();
   const wrapper = shallowRender({ onSearch });
   change(wrapper.find(SearchBox), 'foo');
-  expect(onSearch).toBeCalledWith('foo');
+  expect(onSearch).toHaveBeenCalledWith('foo');
 });
 
 function shallowRender(props: Partial<BitbucketImportRepositoryFormProps> = {}) {

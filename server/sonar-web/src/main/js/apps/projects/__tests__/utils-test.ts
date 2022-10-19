@@ -86,7 +86,7 @@ describe('formatDuration', () => {
 describe('fetchProjects', () => {
   it('correctly converts the passed arguments to the desired query format', async () => {
     await utils.fetchProjects({}, true);
-    expect(searchProjects).toBeCalledWith({
+    expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.FACETS.join(),
       filter: 'isFavorite',
@@ -95,7 +95,7 @@ describe('fetchProjects', () => {
     });
 
     await utils.fetchProjects({ view: 'leak' }, false, 3);
-    expect(searchProjects).toBeCalledWith({
+    expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.LEAK_FACETS.join(),
       p: 3,

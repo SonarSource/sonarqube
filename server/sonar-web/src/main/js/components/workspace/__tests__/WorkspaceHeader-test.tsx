@@ -29,7 +29,7 @@ it('should resize', () => {
   const onResize = jest.fn();
   const wrapper = shallowRender({ onResize });
   wrapper.find('DraggableCore').prop<Function>('onDrag')({}, { deltaY: 15 });
-  expect(onResize).toBeCalledWith(15);
+  expect(onResize).toHaveBeenCalledWith(15);
 });
 
 function shallowRender(props?: Partial<Props>) {

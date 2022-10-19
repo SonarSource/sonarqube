@@ -47,7 +47,7 @@ it('should fetch issues and render', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(getFacet).toBeCalledWith(
+  expect(getFacet).toHaveBeenCalledWith(
     {
       resolved: 'false',
       rules: 'foo'

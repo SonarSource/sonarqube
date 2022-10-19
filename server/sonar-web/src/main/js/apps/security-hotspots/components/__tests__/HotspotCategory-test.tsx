@@ -56,12 +56,12 @@ it('should handle collapse and expand', () => {
 
   wrapper.find('.hotspot-category-header').simulate('click');
 
-  expect(onToggleExpand).toBeCalledWith(categoryKey, false);
+  expect(onToggleExpand).toHaveBeenCalledWith(categoryKey, false);
 
   wrapper.setProps({ expanded: false });
   wrapper.find('.hotspot-category-header').simulate('click');
 
-  expect(onToggleExpand).toBeCalledWith(categoryKey, true);
+  expect(onToggleExpand).toHaveBeenCalledWith(categoryKey, true);
 });
 
 function shallowRender(props: Partial<HotspotCategoryProps> = {}) {

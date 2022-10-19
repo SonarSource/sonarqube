@@ -40,7 +40,9 @@ it('should handle search', async () => {
 
   await wrapper.instance().handleSearch(query);
 
-  expect(searchRules).toBeCalledWith(expect.objectContaining({ languages: 'js,java', q: query }));
+  expect(searchRules).toHaveBeenCalledWith(
+    expect.objectContaining({ languages: 'js,java', q: query })
+  );
 });
 
 describe('ListStyleFacet Renderers', () => {

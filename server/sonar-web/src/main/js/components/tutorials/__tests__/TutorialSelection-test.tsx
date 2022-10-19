@@ -97,8 +97,8 @@ it('should fetch the correct baseUrl', async () => {
 
   let wrapper = shallowRender();
 
-  expect(getValue).toBeCalled();
-  expect(getHostUrl).toBeCalled();
+  expect(getValue).toHaveBeenCalled();
+  expect(getHostUrl).toHaveBeenCalled();
 
   // No baseURL, fallback to the URL in the browser.
   await waitAndUpdate(wrapper);
@@ -133,18 +133,18 @@ it("should correctly determine the user's permission", async () => {
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().currentUserCanScanProject).toBe(true);
-  expect(getScannableProjects).not.toBeCalled();
+  expect(getScannableProjects).not.toHaveBeenCalled();
 
   // Project scan permission.
   wrapper = shallowRender({ component });
   await waitAndUpdate(wrapper);
-  expect(getScannableProjects).toBeCalled();
+  expect(getScannableProjects).toHaveBeenCalled();
   expect(wrapper.state().currentUserCanScanProject).toBe(true);
 
   // No scan permission.
   wrapper = shallowRender({ component });
   await waitAndUpdate(wrapper);
-  expect(getScannableProjects).toBeCalledTimes(2);
+  expect(getScannableProjects).toHaveBeenCalledTimes(2);
   expect(wrapper.state().currentUserCanScanProject).toBe(false);
 });
 

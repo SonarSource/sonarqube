@@ -54,7 +54,7 @@ it('should correctly handle selecting repos', () => {
     .at(0)
     .props()
     .onCheck('');
-  expect(onSelectRepository).toBeCalledWith(repo);
+  expect(onSelectRepository).toHaveBeenCalledWith(repo);
 });
 
 function shallowRender(props: Partial<BitbucketProjectAccordionProps> = {}) {

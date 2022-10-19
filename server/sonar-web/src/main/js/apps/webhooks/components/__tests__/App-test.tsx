@@ -90,7 +90,7 @@ it('should correctly handle webhook creation', async () => {
   const webhook = { name: 'baz', url: 'http://baz' };
   const wrapper = shallow(<App />);
   (wrapper.instance() as App).handleCreate({ ...webhook });
-  expect(createWebhook).lastCalledWith({
+  expect(createWebhook).toHaveBeenLastCalledWith({
     ...webhook,
     project: undefined
   });
@@ -107,7 +107,7 @@ it('should correctly handle webhook creation', async () => {
 it('should correctly handle webhook deletion', async () => {
   const wrapper = shallow(<App />);
   (wrapper.instance() as App).handleDelete('2');
-  expect(deleteWebhook).lastCalledWith({ webhook: '2' });
+  expect(deleteWebhook).toHaveBeenLastCalledWith({ webhook: '2' });
 
   await new Promise(setImmediate);
   wrapper.update();
@@ -118,7 +118,7 @@ it('should correctly handle webhook update', async () => {
   const newValues = { webhook: '1', name: 'Cfoo', url: 'http://cfoo' };
   const wrapper = shallow(<App />);
   (wrapper.instance() as App).handleUpdate(newValues);
-  expect(updateWebhook).lastCalledWith(newValues);
+  expect(updateWebhook).toHaveBeenLastCalledWith(newValues);
 
   await new Promise(setImmediate);
   wrapper.update();

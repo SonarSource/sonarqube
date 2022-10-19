@@ -63,7 +63,7 @@ it('should correctly enhance leaf components', async () => {
   const updateLoading = jest.fn();
   const wrapper = shallowRender({ updateLoading });
 
-  expect(updateLoading).toBeCalledWith({ bubbles: true });
+  expect(updateLoading).toHaveBeenCalledWith({ bubbles: true });
   expect(getComponentLeaves).toHaveBeenCalledWith(
     'foo',
     [

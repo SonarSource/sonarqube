@@ -32,7 +32,7 @@ it('changes visibility', () => {
     .first()
     .props()
     .onCheck('private');
-  expect(onChange).toBeCalledWith('private');
+  expect(onChange).toHaveBeenCalledWith('private');
 
   wrapper.setProps({ visibility: 'private' });
   expect(wrapper).toMatchSnapshot();
@@ -42,7 +42,7 @@ it('changes visibility', () => {
     .first()
     .props()
     .onCheck('public');
-  expect(onChange).toBeCalledWith('public');
+  expect(onChange).toHaveBeenCalledWith('public');
 });
 
 it('renders disabled', () => {

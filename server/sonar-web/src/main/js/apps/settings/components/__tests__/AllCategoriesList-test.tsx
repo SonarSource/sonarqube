@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/dom';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
@@ -69,7 +69,7 @@ it('should render correctly', () => {
   expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
   expect(screen.queryByText('CAT_3_NAME')).not.toBeInTheDocument();
   expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
-  expect(screen.getByText('CAT_2_NAME').className).toBe('active');
+  expect(screen.getByText('CAT_2_NAME')).toHaveClass('active', { exact: true });
 });
 
 it('should correctly for project', () => {

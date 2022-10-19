@@ -36,7 +36,7 @@ it.each([
   [AlmKeys.BitbucketServer, mockProjectBitbucketBindingResponse()],
   [AlmKeys.GitHub, mockProjectGithubBindingResponse()],
   [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })]
-])('it should render correctly for %s', (alm, projectBinding) => {
+])('should render correctly for %s', (alm, projectBinding) => {
   const wrapper = shallowRender({ alm, projectBinding });
   expect(wrapper).toMatchSnapshot('wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content');

@@ -129,6 +129,6 @@ describe('sendUserToken', () => {
 
     await expect(async () => {
       await sendUserToken(64122, { ...token, isExpired: false });
-    }).rejects.toThrowError('400 I no likez. Meh');
+    }).rejects.toThrow('400 I no likez. Meh');
   });
 });

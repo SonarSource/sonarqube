@@ -51,8 +51,8 @@ it('should handle search', async () => {
   const results = await new Promise(resolve => {
     wrapper.instance().handleSearch(query, resolve);
   });
-  expect(searchUsers).toBeCalledWith(expect.objectContaining({ q: query }));
-  expect(searchGroups).toBeCalledWith(expect.objectContaining({ q: query }));
+  expect(searchUsers).toHaveBeenCalledWith(expect.objectContaining({ q: query }));
+  expect(searchGroups).toHaveBeenCalledWith(expect.objectContaining({ q: query }));
 
   expect(results).toHaveLength(2);
 });

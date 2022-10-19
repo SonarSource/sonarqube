@@ -49,8 +49,8 @@ it('should update correctly', () => {
 
   wrapper.setProps({ profile: { key: 'otherKey', name: 'new profile', language: 'js' } });
 
-  expect(searchGroups).toBeCalledTimes(2);
-  expect(searchUsers).toBeCalledTimes(2);
+  expect(searchGroups).toHaveBeenCalledTimes(2);
+  expect(searchUsers).toHaveBeenCalledTimes(2);
 });
 
 it('opens add users form', async () => {
@@ -107,12 +107,12 @@ it('removes group', () => {
 
 it('fetches users and groups on mount', () => {
   mount(<ProfilePermissions profile={{ key: 'sonar-way', name: 'Sonar way', language: 'js' }} />);
-  expect(searchUsers).toBeCalledWith({
+  expect(searchUsers).toHaveBeenCalledWith({
     language: 'js',
     qualityProfile: 'Sonar way',
     selected: 'selected'
   });
-  expect(searchGroups).toBeCalledWith({
+  expect(searchGroups).toHaveBeenCalledWith({
     language: 'js',
     qualityProfile: 'Sonar way',
     selected: 'selected'

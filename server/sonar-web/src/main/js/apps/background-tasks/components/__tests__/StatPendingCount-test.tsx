@@ -46,9 +46,9 @@ it('should not show cancel pending button', () => {
 it('should trigger cancelling pending', () => {
   const onCancelAllPending = jest.fn();
   const result = shallowRender({ onCancelAllPending });
-  expect(onCancelAllPending).not.toBeCalled();
+  expect(onCancelAllPending).not.toHaveBeenCalled();
   result.find('ConfirmButton').prop<Function>('onConfirm')();
-  expect(onCancelAllPending).toBeCalled();
+  expect(onCancelAllPending).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<Props> = {}) {

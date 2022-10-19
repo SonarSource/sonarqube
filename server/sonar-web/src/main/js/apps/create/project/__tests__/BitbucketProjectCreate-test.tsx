@@ -79,12 +79,12 @@ it('should correctly fetch projects and repos', async () => {
   await wrapper.instance().handlePersonalAccessTokenCreated();
 
   // Opens first project on mount.
-  expect(getBitbucketServerProjects).toBeCalledWith('foo');
+  expect(getBitbucketServerProjects).toHaveBeenCalledWith('foo');
   expect(wrapper.state().projects).toHaveLength(2);
 
   // Check repos got loaded.
   await waitAndUpdate(wrapper);
-  expect(getBitbucketServerRepositories).toBeCalledWith('foo', 'Project 1');
+  expect(getBitbucketServerRepositories).toHaveBeenCalledWith('foo', 'Project 1');
   expect(wrapper.state().projectRepositories).toEqual(
     expect.objectContaining({
       project1: expect.objectContaining({
@@ -106,9 +106,9 @@ it('should correctly import a repo', async () => {
 
   instance.handleSelectRepository(repo);
   instance.handleImportRepository();
-  expect(importBitbucketServerProject).toBeCalledWith('foo', repo.projectKey, repo.slug);
+  expect(importBitbucketServerProject).toHaveBeenCalledWith('foo', repo.projectKey, repo.slug);
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith('baz');
+  expect(onProjectCreate).toHaveBeenCalledWith('baz');
 });
 
 it('should correctly handle search', async () => {
@@ -117,12 +117,12 @@ it('should correctly handle search', async () => {
 
   // Don't trigger search on empty query.
   instance.handleSearch('');
-  expect(searchForBitbucketServerRepositories).not.toBeCalled();
+  expect(searchForBitbucketServerRepositories).not.toHaveBeenCalled();
   expect(wrapper.state().searching).toBe(false);
   expect(wrapper.state().searchResults).toBeUndefined();
 
   instance.handleSearch('bar');
-  expect(searchForBitbucketServerRepositories).toBeCalledWith('foo', 'bar');
+  expect(searchForBitbucketServerRepositories).toHaveBeenCalledWith('foo', 'bar');
   expect(wrapper.state().searching).toBe(true);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().searching).toBe(false);

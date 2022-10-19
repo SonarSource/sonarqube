@@ -46,7 +46,7 @@ describe('HotspotOpenInIdeButton', () => {
     wrapper.find(Button).simulate('click');
 
     await new Promise(setImmediate);
-    expect(sonarlint.openHotspot).toBeCalledWith(port, projectKey, hotspotKey);
+    expect(sonarlint.openHotspot).toHaveBeenCalledWith(port, projectKey, hotspotKey);
   });
 
   it('should gracefully handle zero IDE detected', async () => {

@@ -50,16 +50,16 @@ describe('Search', () => {
     const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
     const searchInput = component.find('SearchBox');
     searchInput.prop<Function>('onChange')('some search query');
-    expect(searchSpy).toBeCalledWith({ query: 'some search query' });
+    expect(searchSpy).toHaveBeenCalledWith({ query: 'some search query' });
   });
 
   it('should reload', () => {
     const reloadSpy = jest.fn();
     const component = shallow(<Search {...defaultProps} onReload={reloadSpy} />);
     const reloadButton = component.find('.js-reload');
-    expect(reloadSpy).not.toBeCalled();
+    expect(reloadSpy).not.toHaveBeenCalled();
     click(reloadButton);
-    expect(reloadSpy).toBeCalled();
+    expect(reloadSpy).toHaveBeenCalled();
   });
 });
 
