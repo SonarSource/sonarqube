@@ -2034,13 +2034,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:15.7.4":
-  version: 15.7.4
-  resolution: "@types/prop-types@npm:15.7.4"
-  checksum: ef6e1899e59b876c273811b1bd845022fc66d5a3d11cb38a25b6c566b30514ae38fe20a40f67622f362a4f4f7f9224e22d8da101cff3d6e97e11d7b4c307cfc1
-  languageName: node
-  linkType: hard
-
 "@types/react-dom@npm:16.9.16":
   version: 16.9.16
   resolution: "@types/react-dom@npm:16.9.16"
@@ -2357,7 +2350,6 @@ __metadata:
     "@types/enzyme": 3.10.12
     "@types/jest": 27.4.1
     "@types/lodash": 4.14.149
-    "@types/prop-types": 15.7.4
     "@types/react": 16.14.28
     "@types/react-dom": 16.9.16
     "@types/react-helmet": 5.0.15
@@ -2412,7 +2404,6 @@ __metadata:
     postcss-calc: 7.0.2
     postcss-custom-properties: 9.1.1
     prettier: 1.19.1
-    prop-types: 15.8.1
     react: 16.13.0
     react-day-picker: 7.4.10
     react-dom: 16.13.0
@@ -8866,17 +8857,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1, prop-types@npm:^15.8.1":
-  version: 15.8.1
-  resolution: "prop-types@npm:15.8.1"
-  dependencies:
-    loose-envify: ^1.4.0
-    object-assign: ^4.1.1
-    react-is: ^16.13.1
-  checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
-  languageName: node
-  linkType: hard
-
 "prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
@@ -8885,6 +8865,17 @@ __metadata:
     object-assign: ^4.1.1
     react-is: ^16.8.1
   checksum: 5eef82fdda64252c7e75aa5c8cc28a24bbdece0f540adb60ce67c205cf978a5bd56b83e4f269f91c6e4dcfd80b36f2a2dec24d362e278913db2086ca9c6f9430
+  languageName: node
+  linkType: hard
+
+"prop-types@npm:^15.8.1":
+  version: 15.8.1
+  resolution: "prop-types@npm:15.8.1"
+  dependencies:
+    loose-envify: ^1.4.0
+    object-assign: ^4.1.1
+    react-is: ^16.13.1
+  checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
   languageName: node
   linkType: hard
 
