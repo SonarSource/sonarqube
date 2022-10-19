@@ -1735,6 +1735,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cheerio@npm:0.22.31":
+  version: 0.22.31
+  resolution: "@types/cheerio@npm:0.22.31"
+  dependencies:
+    "@types/node": "*"
+  checksum: 8d73d22fdd384c290514dad6f9f4a436f5a90bc836bbe9b46fe4f557041a03484f0547291d0347185a806149f465355fc225dc87477b8cf5af5be307bb75e6a4
+  languageName: node
+  linkType: hard
+
 "@types/cheerio@npm:^0.22.22":
   version: 0.22.30
   resolution: "@types/cheerio@npm:0.22.30"
@@ -1862,13 +1871,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/enzyme@npm:3.10.5":
-  version: 3.10.5
-  resolution: "@types/enzyme@npm:3.10.5"
+"@types/enzyme@npm:3.10.12":
+  version: 3.10.12
+  resolution: "@types/enzyme@npm:3.10.12"
   dependencies:
     "@types/cheerio": "*"
     "@types/react": "*"
-  checksum: 41a940c819c09b726ccdc88b750e0e20ff66d5e24fa474fb1a271a232d9ffba14fa1308ea4338e7ec71e98d39e419ce89179f5f68f40a9a95b3fea86ba59275d
+  checksum: 356e9142566b68c9b324ae71a7b93f03512a1c009a1d337a25ce4f495590f3e79de08aa4a0016d6224cb228c27832d92b6d7d3276ba5962302c41d0577e8a912
   languageName: node
   linkType: hard
 
@@ -2335,6 +2344,7 @@ __metadata:
     "@testing-library/jest-dom": 5.16.3
     "@testing-library/react": 12.1.4
     "@testing-library/user-event": 14.0.4
+    "@types/cheerio": 0.22.31
     "@types/classnames": 2.3.0
     "@types/d3-array": 1.2.4
     "@types/d3-hierarchy": 1.1.4
@@ -2344,7 +2354,7 @@ __metadata:
     "@types/d3-zoom": 1.7.3
     "@types/diff": 5.0.2
     "@types/dompurify": 2.3.3
-    "@types/enzyme": 3.10.5
+    "@types/enzyme": 3.10.12
     "@types/jest": 27.4.1
     "@types/lodash": 4.14.149
     "@types/prop-types": 15.7.4
