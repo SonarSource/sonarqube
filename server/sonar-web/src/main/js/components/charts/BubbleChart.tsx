@@ -20,8 +20,8 @@
 import classNames from 'classnames';
 import { max, min } from 'd3-array';
 import { scaleLinear, ScaleLinear } from 'd3-scale';
-import { event, select } from 'd3-selection';
-import { zoom, ZoomBehavior, zoomIdentity } from 'd3-zoom';
+import { select } from 'd3-selection';
+import { D3ZoomEvent, zoom, ZoomBehavior, zoomIdentity } from 'd3-zoom';
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
@@ -103,9 +103,9 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     select(this.node).call(this.zoom as any);
   };
 
-  zoomed = () => {
+  zoomed = (event: D3ZoomEvent<SVGSVGElement, void>) => {
     const { padding } = this.props;
-    const { x, y, k } = event.transform as { x: number; y: number; k: number };
+    const { x, y, k } = event.transform;
     this.setState({
       transform: {
         x: x + padding[3] * (k - 1),

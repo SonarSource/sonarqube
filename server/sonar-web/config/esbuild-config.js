@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const path = require('path');
 const autoprefixer = require('autoprefixer');
 const postCssPlugin = require('esbuild-plugin-postcss2').default;
 const postCssCalc = require('postcss-calc');
@@ -25,14 +24,10 @@ const postCssCustomProperties = require('postcss-custom-properties');
 const documentationPlugin = require('./esbuild-documentation-plugin');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
-const alias = require('esbuild-plugin-alias');
 const { getCustomProperties, TARGET_BROWSERS } = require('./utils');
 
 module.exports = release => {
   const plugins = [
-    alias({
-      'd3-selection': path.resolve(__dirname, '../node_modules/d3-selection/src/index.js')
-    }),
     postCssPlugin({
       plugins: [
         autoprefixer,

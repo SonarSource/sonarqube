@@ -26,7 +26,7 @@ module.exports = {
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {
-    '^.+\\.tsx?$': [
+    '^.+\\.(t|j)sx?$': [
       '@swc/jest',
       {
         jsc: {
@@ -35,6 +35,7 @@ module.exports = {
       }
     ]
   },
+  transformIgnorePatterns: ['/node_modules/(?!(d3-.+))/'],
   reporters: [
     'default',
     [

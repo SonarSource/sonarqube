@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { select } from 'd3-selection';
-import { zoom } from 'd3-zoom';
+import { D3ZoomEvent, zoom } from 'd3-zoom';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { AutoSizer, AutoSizerProps } from 'react-virtualized/dist/commonjs/AutoSizer';
@@ -34,14 +34,15 @@ jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => ({
 }));
 
 jest.mock('d3-selection', () => ({
-  event: { transform: { x: 10, y: 10, k: 20 } },
   select: jest.fn().mockReturnValue({ call: jest.fn() })
 }));
 
-jest.mock('d3-zoom', () => ({
-  ...jest.requireActual('d3-zoom'),
-  zoom: jest.fn()
-}));
+jest.mock('d3-zoom', () => {
+  return {
+    zoomidentity: { k: 1, tx: 0, ty: 0 },
+    zoom: jest.fn()
+  };
+});
 
 beforeEach(jest.clearAllMocks);
 
@@ -108,7 +109,11 @@ it('should correctly handle zooming', () => {
     );
 
     // Call zoom event handler.
-    wrapper.instance().zoomed();
+    const mockZoomEvent = { transform: { x: 10, y: 10, k: 20 } } as D3ZoomEvent<
+      SVGSVGElement,
+      void
+    >;
+    wrapper.instance().zoomed(mockZoomEvent);
     expect(wrapper.state().transform).toEqual({
       x: 105,
       y: 105,
