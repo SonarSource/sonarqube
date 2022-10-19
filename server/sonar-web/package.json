@@ -70,7 +70,7 @@
     "@types/react-helmet": "5.0.15",
     "@types/react-modal": "3.13.1",
     "@types/react-select": "4.0.16",
-    "@types/react-virtualized": "9.21.20",
+    "@types/react-virtualized": "9.21.21",
     "@types/valid-url": "1.0.3",
     "@typescript-eslint/eslint-plugin": "4.33.0",
     "@typescript-eslint/parser": "4.33.0",

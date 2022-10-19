@@ -2082,13 +2082,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-virtualized@npm:9.21.20":
-  version: 9.21.20
-  resolution: "@types/react-virtualized@npm:9.21.20"
+"@types/react-virtualized@npm:9.21.21":
+  version: 9.21.21
+  resolution: "@types/react-virtualized@npm:9.21.21"
   dependencies:
     "@types/prop-types": "*"
-    "@types/react": "*"
-  checksum: 70fd77d9a0fc498b4eb29a195f218fd10f6ca935025813d53d3937e1464580bfbfd3a0c84806530f21cf810c1f6cf1789656052a9714b23de46702b1ac1b73c5
+    "@types/react": ^17
+  checksum: 7f360746ae926c93ba07d830a33940ab1598f6966263594896d0dc746d704f9c0e0d1692cf543e925bcca7b007d70d3cc53379a9b1810f60c2d43ee5cfdb591e
   languageName: node
   linkType: hard
 
@@ -2355,7 +2355,7 @@ __metadata:
     "@types/react-helmet": 5.0.15
     "@types/react-modal": 3.13.1
     "@types/react-select": 4.0.16
-    "@types/react-virtualized": 9.21.20
+    "@types/react-virtualized": 9.21.21
     "@types/valid-url": 1.0.3
     "@typescript-eslint/eslint-plugin": 4.33.0
     "@typescript-eslint/parser": 4.33.0
