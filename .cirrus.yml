@@ -24,7 +24,7 @@ env:
   BUDDY_WORKS_TOKEN: ENCRYPTED[9ba648f3167b6f0c0befbba2f816bfffd53260fef06fb0fe8bba0a19ae4808c8b1567c5dcee2a2ee5299a5969058f495]
   ELASTIC_PWD: ENCRYPTED[78c127034b9f06bc1b5ad7a520de2da094f3eaf1dcb35f12b0f178fa90ce2fd157bd6f9feece9bf3a54b4e3805bc39fb]
   CIRRUS_LOG_TIMESTAMP: true
-  # No need to clone the full history.
+  # No need to clone the full history.
   # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
   # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
   CIRRUS_CLONE_DEPTH: 50
@@ -172,8 +172,8 @@ yarn_lint_task:
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 6Gb
+    cpu: 6
+    memory: 10Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -233,7 +233,7 @@ validate_task:
     cpu: 7.5
     memory: 28Gb
   env:
-    # For the analysis, we need the full history.
+    # For the analysis, we need the full history.
     CIRRUS_CLONE_DEPTH: 0
   script:
     - ./private/cirrus/cirrus-validate.sh
