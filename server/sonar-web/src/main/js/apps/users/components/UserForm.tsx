@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { uniq } from 'lodash';
 import * as React from 'react';
 import { createUser, updateUser } from '../../../api/users';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
@@ -108,7 +107,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       login: this.state.login,
       name: this.state.name,
       password: this.state.password,
-      scmAccount: uniq(this.state.scmAccounts)
+      scmAccount: this.state.scmAccounts
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();
@@ -121,7 +120,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       email: user!.local ? this.state.email : undefined,
       login: this.state.login,
       name: user!.local ? this.state.name : undefined,
-      scmAccount: uniq(this.state.scmAccounts)
+      scmAccount: this.state.scmAccounts
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();

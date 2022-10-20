@@ -88,7 +88,7 @@ it('should correctly create a new user', () => {
     login,
     name,
     password,
-    scmAccount: ['gh', 'bitbucket']
+    scmAccount: ['gh', 'gh', 'bitbucket']
   });
 });
 
@@ -105,7 +105,7 @@ it('should correctly update a local user', () => {
     email,
     login,
     name,
-    scmAccount: ['gh', 'bitbucket']
+    scmAccount: ['gh', 'gh', 'bitbucket']
   });
 });
 

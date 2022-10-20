@@ -76,7 +76,8 @@ public class UpdateAction implements UsersWsAction {
       .setDescription("Update a user.<br/>" +
         "Requires Administer System permission")
       .setSince("3.7")
-      .setChangelog(new Change("5.2", "User's password can only be changed using the 'change_password' action."))
+      .setChangelog(
+        new Change("5.2", "User's password can only be changed using the 'change_password' action."))
       .setPost(true)
       .setHandler(this)
       .setResponseExample(getClass().getResource("update-example.json"));

@@ -39,6 +39,7 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -190,29 +191,33 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_scm_account_ignores_duplicates() {
+  public void fail_when_duplicates_characters_in_scm_account_values() {
     createUser();
 
-    ws.newRequest()
-      .setParam("login", "john")
-      .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "jon.snow"))
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "jon.snow"))
+        .execute();
+    }).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate SCM account: 'jon.snow'");
+    ;
 
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsExactlyInAnyOrder("jon.jon", "jon.snow");
   }
 
   @Test
-  public void update_scm_account_ignores_duplicates_containing_whitespace_characters_in_scm_account_values() {
+  public void fail_when_whitespace_characters_in_scm_account_values() {
     createUser();
 
-    ws.newRequest()
-      .setParam("login", "john")
-      .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "   jon.snow  "))
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "   jon.snow  "))
+        .execute();
+    }).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("SCM account cannot start or end with whitespace: '   jon.snow  '");
+    ;
 
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsExactlyInAnyOrder("jon.jon", "jon.snow");
   }
 
   @Test
@@ -256,10 +261,10 @@ public class UpdateActionTest {
   public void fail_on_disabled_user() {
     db.users().insertUser(u -> u.setLogin("john").setActive(false));
 
+    TestRequest request = ws.newRequest()
+      .setParam("login", "john");
     assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("login", "john")
-        .execute();
+      request.execute();
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User 'john' doesn't exist");
@@ -269,11 +274,11 @@ public class UpdateActionTest {
   public void fail_on_invalid_email() {
     createUser();
 
+    TestRequest request = ws.newRequest()
+      .setParam("login", "john")
+      .setParam("email", "invalid-email");
     assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("login", "john")
-        .setParam("email", "invalid-email")
-        .execute();
+      request.execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Email 'invalid-email' is not valid");

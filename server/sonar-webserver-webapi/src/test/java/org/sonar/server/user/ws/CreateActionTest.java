@@ -104,12 +104,12 @@ public class CreateActionTest {
 
     // exists in index
     assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-        .source(new SearchSourceBuilder()
-          .query(boolQuery()
-            .must(termQuery(FIELD_LOGIN, "john"))
-            .must(termQuery(FIELD_NAME, "John"))
-            .must(termQuery(FIELD_EMAIL, "john@email.com"))
-            .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
+      .source(new SearchSourceBuilder()
+        .query(boolQuery()
+          .must(termQuery(FIELD_LOGIN, "john"))
+          .must(termQuery(FIELD_NAME, "John"))
+          .must(termQuery(FIELD_EMAIL, "john@email.com"))
+          .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
       .getHits().getHits()).hasSize(1);
 
     // exists in db
@@ -166,20 +166,38 @@ public class CreateActionTest {
     assertThat(response.getUser().getScmAccountsList()).containsOnly("j,n");
   }
 
-
   @Test
-  public void create_user_ignores_duplicates_containing_whitespace_characters_in_scm_account_values() {
+  public void fail_when_whitespace_characters_in_scm_account_values() {
     logInAsSystemAdministrator();
 
-    CreateWsResponse response = call(CreateRequest.builder()
-      .setLogin("john")
-      .setName("John")
-      .setEmail("john@email.com")
-      .setScmAccounts(List.of("admin", "  admin  "))
-      .setPassword("1234")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("john")
+        .setName("John")
+        .setEmail("john@email.com")
+        .setScmAccounts(List.of("admin", "  admin  "))
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("SCM account cannot start or end with whitespace: '  admin  '");
+  }
 
-    assertThat(response.getUser().getScmAccountsList()).containsOnly("admin");
+  @Test
+  public void fail_when_duplicates_characters_in_scm_account_values() {
+    logInAsSystemAdministrator();
+
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("john")
+        .setName("John")
+        .setEmail("john@email.com")
+        .setScmAccounts(List.of("admin", "admin"))
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate SCM account: 'admin'");
   }
 
   @Test
@@ -296,13 +314,14 @@ public class CreateActionTest {
   public void fail_when_password_is_set_on_none_local_user() {
     logInAsSystemAdministrator();
 
+    TestRequest request =tester.newRequest()
+      .setParam("login","john")
+      .setParam("name","John")
+      .setParam("password", "1234")
+      .setParam("local", "false");
+
     assertThatThrownBy(() -> {
-      call(CreateRequest.builder()
-        .setLogin("john")
-        .setName("John")
-        .setPassword("1234")
-        .setLocal(false)
-        .build());
+      request.execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Password should only be set on local user");
@@ -312,13 +331,15 @@ public class CreateActionTest {
   public void fail_when_email_is_invalid() {
     logInAsSystemAdministrator();
 
+    CreateRequest request = CreateRequest.builder()
+      .setLogin("pipo")
+      .setName("John")
+      .setPassword("1234")
+      .setEmail("invalid-email")
+      .build();
+
     assertThatThrownBy(() -> {
-      call(CreateRequest.builder()
-        .setLogin("pipo")
-        .setName("John")
-        .setPassword("1234")
-        .setEmail("invalid-email")
-        .build());
+      call(request);
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Email 'invalid-email' is not valid");
@@ -362,7 +383,7 @@ public class CreateActionTest {
     ofNullable(createRequest.getEmail()).ifPresent(e2 -> request.setParam("email", e2));
     ofNullable(createRequest.getPassword()).ifPresent(e1 -> request.setParam("password", e1));
     ofNullable(createRequest.getScmAccounts()).ifPresent(e -> request.setMultiParam("scmAccount", e));
-    request.setParam("local", createRequest.isLocal() ? "true" : "false");
+    request.setParam("local", Boolean.toString(createRequest.isLocal()));
     return request.executeProtobuf(CreateWsResponse.class);
   }
 

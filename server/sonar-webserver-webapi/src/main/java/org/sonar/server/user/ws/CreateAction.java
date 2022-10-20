@@ -19,8 +19,9 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -161,8 +162,8 @@ public class CreateAction implements UsersWsAction {
   private static CreateRequest toWsRequest(Request request) {
     return CreateRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
+      .setName(request.mandatoryParam(PARAM_NAME))
       .setPassword(request.param(PARAM_PASSWORD))
-      .setName(request.param(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
       .setScmAccounts(parseScmAccounts(request))
       .setLocal(request.mandatoryParamAsBoolean(PARAM_LOCAL))
@@ -171,17 +172,27 @@ public class CreateAction implements UsersWsAction {
 
   public static List<String> parseScmAccounts(Request request) {
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
-      return formatScmAccounts(request.multiParam(PARAM_SCM_ACCOUNT));
+      List<String> scmAccounts = request.multiParam(PARAM_SCM_ACCOUNT);
+      validateScmAccounts(scmAccounts);
+      return scmAccounts;
     }
-
     return emptyList();
   }
 
-  private static List<String> formatScmAccounts(List<String> scmAccounts) {
-    return scmAccounts
-      .stream()
-      .map(String::trim)
-      .collect(Collectors.toList());
+  private static void validateScmAccounts(List<String> scmAccounts) {
+    scmAccounts.forEach(CreateAction::validateScmAccountFormat);
+    validateNoDuplicates(scmAccounts);
+  }
+
+  private static void validateScmAccountFormat(String scmAccount) {
+    checkArgument(scmAccount.equals(scmAccount.strip()), "SCM account cannot start or end with whitespace: '%s'", scmAccount);
+  }
+
+  private static void validateNoDuplicates(List<String> scmAccounts) {
+    Set<String> duplicateCheck = new HashSet<>();
+    for (String account : scmAccounts) {
+      checkArgument(duplicateCheck.add(account), "Duplicate SCM account: '%s'", account);
+    }
   }
 
   static class CreateRequest {
