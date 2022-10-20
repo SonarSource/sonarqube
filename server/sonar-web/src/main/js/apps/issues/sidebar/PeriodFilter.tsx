@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
@@ -42,8 +41,6 @@ const PROPERTY = 'period';
 export default function PeriodFilter(props: PeriodFilterProps) {
   const { fetching, newCodeSelected, stats = {} } = props;
 
-  const [open, setOpen] = React.useState(true);
-
   const { onChange } = props;
   const handleClick = React.useCallback(() => {
     // We need to clear creation date filters they conflict with the new code period
@@ -56,32 +53,18 @@ export default function PeriodFilter(props: PeriodFilterProps) {
     });
   }, [newCodeSelected, onChange]);
 
-  const handleClear = React.useCallback(() => {
-    onChange({ [Period.NewCode]: undefined });
-  }, [onChange]);
-
   return (
     <FacetBox property={PROPERTY}>
-      <FacetHeader
-        fetching={fetching}
-        name={translate('issues.facet', PROPERTY)}
-        onClear={handleClear}
-        onClick={() => setOpen(!open)}
-        open={open}
-        values={newCodeSelected ? [translate('issues.new_code')] : undefined}
-      />
-
-      {open && (
-        <FacetItemsList>
-          <FacetItem
-            active={newCodeSelected}
-            name={translate('issues.new_code')}
-            onClick={handleClick}
-            stat={formatFacetStat(stats[Period.NewCode])}
-            value={Period.NewCode}
-          />
-        </FacetItemsList>
-      )}
+      <FacetItemsList>
+        <FacetItem
+          active={newCodeSelected}
+          loading={fetching}
+          name={translate('issues.new_code')}
+          onClick={handleClick}
+          stat={formatFacetStat(stats[Period.NewCode])}
+          value={Period.NewCode}
+        />
+      </FacetItemsList>
     </FacetBox>
   );
 }

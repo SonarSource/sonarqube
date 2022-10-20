@@ -23,18 +23,6 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import PeriodFilter, { PeriodFilterProps } from '../PeriodFilter';
 
-it('should be collapsible', async () => {
-  const user = userEvent.setup();
-
-  renderPeriodFilter();
-
-  expect(screen.getByText('issues.new_code')).toBeInTheDocument();
-
-  await user.click(screen.getByText('issues.facet.period'));
-
-  expect(screen.queryByText('issues.new_code')).not.toBeInTheDocument();
-});
-
 it('should filter when clicked', async () => {
   const user = userEvent.setup();
   const onChange = jest.fn();
@@ -49,19 +37,6 @@ it('should filter when clicked', async () => {
     createdBefore: undefined,
     createdInLast: undefined,
     inNewCodePeriod: true
-  });
-});
-
-it('should be clearable', async () => {
-  const user = userEvent.setup();
-  const onChange = jest.fn();
-
-  renderPeriodFilter({ onChange, newCodeSelected: true });
-
-  await user.click(screen.getByText('clear'));
-
-  expect(onChange).toHaveBeenCalledWith({
-    inNewCodePeriod: undefined
   });
 });
 
