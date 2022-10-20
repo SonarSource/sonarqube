@@ -20,12 +20,13 @@
 package org.sonar.scanner.report;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
@@ -39,9 +40,12 @@ import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scm.git.ChangedFile;
 import org.sonar.scm.git.GitScmProvider;
 
 import static java.util.Optional.empty;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class ChangedLinesPublisher implements ReportPublisherStep {
   private static final Logger LOG = Loggers.get(ChangedLinesPublisher.class);
@@ -88,9 +92,9 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer, String targetScmBranch) {
     Path rootBaseDir = project.getBaseDir();
     Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
-      .collect(Collectors.toMap(DefaultInputFile::path, f -> f));
+      .collect(toMap(DefaultInputFile::path, identity()));
 
-    Map<Path, Set<Integer>> pathSetMap = ((GitScmProvider) provider).branchChangedLines(targetScmBranch, rootBaseDir, changedFiles); // TODO: Extend ScmProvider abstract
+    Map<Path, Set<Integer>> pathSetMap = getBranchChangedLinesByScm(provider, targetScmBranch, rootBaseDir, toChangedFilesByPathMap(changedFiles.values()));
     int count = 0;
 
     if (pathSetMap == null) {
@@ -125,5 +129,21 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
     ScannerReport.ChangedLines.Builder builder = ScannerReport.ChangedLines.newBuilder();
     builder.addAllLine(changedLines);
     writer.writeComponentChangedLines(fileRef, builder.build());
+  }
+
+  @CheckForNull
+  private static Map<Path, Set<Integer>> getBranchChangedLinesByScm(ScmProvider scmProvider, String targetScmBranch, Path rootBaseDir, Map<Path, ChangedFile> changedFiles) {
+    if (scmProvider instanceof GitScmProvider) {
+      return ((GitScmProvider) scmProvider).branchChangedLinesWithFileMovementDetection(targetScmBranch, rootBaseDir, changedFiles);
+    }
+
+    return scmProvider.branchChangedLines(targetScmBranch, rootBaseDir, changedFiles.keySet());
+  }
+
+  private static Map<Path, ChangedFile> toChangedFilesByPathMap(Collection<DefaultInputFile> files) {
+    return files
+      .stream()
+      .map(ChangedFile::of)
+      .collect(toMap(ChangedFile::getAbsolutFilePath, identity()));
   }
 }

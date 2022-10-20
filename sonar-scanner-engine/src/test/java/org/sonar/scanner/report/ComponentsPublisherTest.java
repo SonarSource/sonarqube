@@ -31,11 +31,11 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.ProjectInfo;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
@@ -107,6 +107,9 @@ public class ComponentsPublisherTest {
     DefaultInputFile testFile = new TestInputFileBuilder("foo", "module1/test/FooTest.java", 7).setType(Type.TEST).setStatus(InputFile.Status.ADDED).setLines(4).build();
     store.put("module1", testFile);
 
+    DefaultInputFile movedFile = new TestInputFileBuilder("foo", "module1/src/MovedFile.java", "module0/src/MovedFile.java", 9).setStatus(InputFile.Status.CHANGED).setLines(4).build();
+    store.put("module1", movedFile);
+
     ComponentsPublisher publisher = new ComponentsPublisher(project, store);
     publisher.publish(writer);
 
@@ -114,6 +117,7 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 9)).isTrue();
 
     // not marked for publishing
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isFalse();
@@ -125,6 +129,9 @@ public class ComponentsPublisherTest {
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
     assertThat(rootProtobuf.getLinkCount()).isZero();
+
+    Component movedFileProtobuf = reader.readComponent(9);
+    assertThat(movedFileProtobuf.getOldRelativeFilePath()).isEqualTo("module0/src/MovedFile.java");
 
     assertThat(reader.readComponent(4).getStatus()).isEqualTo(FileStatus.SAME);
     assertThat(reader.readComponent(6).getStatus()).isEqualTo(FileStatus.CHANGED);

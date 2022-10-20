@@ -178,12 +178,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   @CheckForNull
-  public String oldPath() {
-    return indexedFile.oldPath();
-  }
-  
-  public boolean isMovedFile() {
-    return indexedFile.isMovedFile();
+  public String oldRelativePath() {
+    return indexedFile.oldRelativePath();
   }
 
   @Override

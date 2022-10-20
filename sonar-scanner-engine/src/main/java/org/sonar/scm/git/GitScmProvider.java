@@ -27,16 +27,15 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -62,7 +61,6 @@ import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -71,6 +69,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.ADD;
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.MODIFY;
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
@@ -79,6 +82,7 @@ public class GitScmProvider extends ScmProvider {
 
   private static final Logger LOG = Loggers.get(GitScmProvider.class);
   private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
+  private static final String NO_MERGE_BASE_FOUND_MESSAGE = "No merge base found between HEAD and %s";
   private final BlameCommand blameCommand;
   private final AnalysisWarnings analysisWarnings;
   private final GitIgnoreCommand gitIgnoreCommand;
@@ -90,7 +94,7 @@ public class GitScmProvider extends ScmProvider {
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
-    this.documentationLink =  "/documentation/analysis/scm-integration/";
+    this.documentationLink = "/documentation/analysis/scm-integration/";
   }
 
   @Override
@@ -117,48 +121,13 @@ public class GitScmProvider extends ScmProvider {
   @CheckForNull
   @Override
   public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
-    try (Repository repo = buildRepo(rootBaseDir)) {
-      Ref targetRef = resolveTargetRef(targetBranchName, repo);
-      if (targetRef == null) {
-        addWarningTargetNotFound(targetBranchName);
-        return null;
-      }
-
-      if (isDiffAlgoInvalid(repo.getConfig())) {
-        LOG.warn("The diff algorithm configured in git is not supported. "
-          + "No information regarding changes in the branch will be collected, which can lead to unexpected results.");
-        return null;
-      }
-
-      Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
-      if (!mergeBaseCommit.isPresent()) {
-        LOG.warn("No merge base found between HEAD and " + targetRef.getName());
-        return null;
-      }
-      AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit.get());
-
-      // we compare a commit with HEAD, so no point ignoring line endings (it will be whatever is committed)
-      try (Git git = newGit(repo)) {
-        List<DiffEntry> diffEntries = git.diff()
-          .setShowNameAndStatusOnly(true)
-          .setOldTree(mergeBaseTree)
-          .setNewTree(prepareNewTree(repo))
-          .call();
-
-        return diffEntries.stream()
-          .filter(diffEntry -> diffEntry.getChangeType() == DiffEntry.ChangeType.ADD || diffEntry.getChangeType() == DiffEntry.ChangeType.MODIFY)
-          .map(diffEntry -> repo.getWorkTree().toPath().resolve(diffEntry.getNewPath()))
-          .collect(Collectors.toSet());
-      }
-    } catch (IOException | GitAPIException e) {
-      LOG.warn(e.getMessage(), e);
-    }
-    return null;
+    return Optional.ofNullable((branchChangedFilesWithFileMovementDetection(targetBranchName, rootBaseDir)))
+      .map(GitScmProvider::extractAbsoluteFilePaths)
+      .orElse(null);
   }
 
-  // TODO: Adjust ScmProvider abstract
   @CheckForNull
-  public Collection<ChangedFile> branchModifiedFiles(String targetBranchName, Path rootBaseDir) {
+  public Collection<ChangedFile> branchChangedFilesWithFileMovementDetection(String targetBranchName, Path rootBaseDir) {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
@@ -174,7 +143,7 @@ public class GitScmProvider extends ScmProvider {
 
       Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
       if (mergeBaseCommit.isEmpty()) {
-        LOG.warn("No merge base found between HEAD and " + targetRef.getName());
+        LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
         return null;
       }
       AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit.get());
@@ -201,11 +170,12 @@ public class GitScmProvider extends ScmProvider {
     Map<String, String> renamedFilePaths = computeRenamedFilePaths(repository, diffEntries);
     Set<String> changedFilePaths = computeChangedFilePaths(diffEntries);
 
+    return collectChangedFiles(workingDirectory, renamedFilePaths, changedFilePaths);
+  }
+
+  private static List<ChangedFile> collectChangedFiles(Path workingDirectory, Map<String, String> renamedFilePaths, Set<String> changedFilePaths) {
     List<ChangedFile> changedFiles = new LinkedList<>();
-
-    Consumer<String> collectChangedFiles = filePath -> changedFiles.add(new ChangedFile(filePath, workingDirectory.resolve(filePath), renamedFilePaths.getOrDefault(filePath, null)));
-    changedFilePaths.forEach(collectChangedFiles);
-
+    changedFilePaths.forEach(filePath -> changedFiles.add(ChangedFile.of(workingDirectory.resolve(filePath), renamedFilePaths.get(filePath))));
     return changedFiles;
   }
 
@@ -217,7 +187,7 @@ public class GitScmProvider extends ScmProvider {
       .compute()
       .stream()
       .filter(entry -> RENAME.equals(entry.getChangeType()))
-      .collect(Collectors.toUnmodifiableMap(DiffEntry::getNewPath, DiffEntry::getOldPath));
+      .collect(toUnmodifiableMap(DiffEntry::getNewPath, DiffEntry::getOldPath));
   }
 
   private static Set<String> computeChangedFilePaths(List<DiffEntry> diffEntries) {
@@ -225,10 +195,10 @@ public class GitScmProvider extends ScmProvider {
       .stream()
       .filter(isAllowedChangeType(ADD, MODIFY))
       .map(DiffEntry::getNewPath)
-      .collect(Collectors.toSet());
+      .collect(toSet());
   }
 
-  private static Predicate<DiffEntry> isAllowedChangeType(ChangeType ...changeTypes) {
+  private static Predicate<DiffEntry> isAllowedChangeType(ChangeType... changeTypes) {
     Function<ChangeType, Predicate<DiffEntry>> isChangeType = type -> entry -> type.equals(entry.getChangeType());
 
     return Arrays
@@ -240,41 +210,11 @@ public class GitScmProvider extends ScmProvider {
   @CheckForNull
   @Override
   public Map<Path, Set<Integer>> branchChangedLines(String targetBranchName, Path projectBaseDir, Set<Path> changedFiles) {
-    try (Repository repo = buildRepo(projectBaseDir)) {
-      Ref targetRef = resolveTargetRef(targetBranchName, repo);
-      if (targetRef == null) {
-        addWarningTargetNotFound(targetBranchName);
-        return null;
-      }
-
-      if (isDiffAlgoInvalid(repo.getConfig())) {
-        // we already print a warning when branchChangedFiles is called
-        return null;
-      }
-
-      // force ignore different line endings when comparing a commit with the workspace
-      repo.getConfig().setBoolean("core", null, "autocrlf", true);
-
-      Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
-      if (!mergeBaseCommit.isPresent()) {
-        LOG.warn("No merge base found between HEAD and " + targetRef.getName());
-        return null;
-      }
-
-      Map<Path, Set<Integer>> changedLines = new HashMap<>();
-
-      for (Path path : changedFiles) {
-        collectChangedLines(repo, mergeBaseCommit.get(), changedLines, path);
-      }
-      return changedLines;
-    } catch (Exception e) {
-      LOG.warn("Failed to get changed lines from git", e);
-    }
-    return null;
+    return branchChangedLinesWithFileMovementDetection(targetBranchName, projectBaseDir, toChangedFileByPathsMap(changedFiles));
   }
 
-  // TODO: Adjust ScmProvider abstract
-  public Map<Path, Set<Integer>> branchChangedLines(String targetBranchName, Path projectBaseDir,  Map<Path, DefaultInputFile> changedFiles) {
+  @CheckForNull
+  public Map<Path, Set<Integer>> branchChangedLinesWithFileMovementDetection(String targetBranchName, Path projectBaseDir, Map<Path, ChangedFile> changedFiles) {
     try (Repository repo = buildRepo(projectBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
@@ -293,13 +233,13 @@ public class GitScmProvider extends ScmProvider {
       Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
 
       if (mergeBaseCommit.isEmpty()) {
-        LOG.warn("No merge base found between HEAD and " + targetRef.getName());
+        LOG.warn(composeNoMergeBaseFoundWarning(targetRef.getName()));
         return null;
       }
 
       Map<Path, Set<Integer>> changedLines = new HashMap<>();
 
-      for (Map.Entry<Path, DefaultInputFile> entry : changedFiles.entrySet()) {
+      for (Map.Entry<Path, ChangedFile> entry : changedFiles.entrySet()) {
         collectChangedLines(repo, mergeBaseCommit.get(), changedLines, entry.getKey(), entry.getValue());
       }
 
@@ -307,45 +247,22 @@ public class GitScmProvider extends ScmProvider {
     } catch (Exception e) {
       LOG.warn("Failed to get changed lines from git", e);
     }
+
     return null;
   }
 
+  private static String composeNoMergeBaseFoundWarning(String targetRef) {
+    return format(NO_MERGE_BASE_FOUND_MESSAGE, targetRef);
+  }
+
   private void addWarningTargetNotFound(String targetBranchName) {
-    analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
+    analysisWarnings.addUnique(format(COULD_NOT_FIND_REF
       + ". You may see unexpected issues and changes. "
       + "Please make sure to fetch this ref before pull request analysis and refer to"
       + " <a href=\"%s\" target=\"_blank\">the documentation</a>.", targetBranchName, documentationLink));
   }
 
-  private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFile) {
-    ChangedLinesComputer computer = new ChangedLinesComputer();
-
-    try (DiffFormatter diffFmt = new DiffFormatter(new BufferedOutputStream(computer.receiver()))) {
-      // copied from DiffCommand so that we can use a custom DiffFormatter which ignores white spaces.
-      diffFmt.setRepository(repo);
-      diffFmt.setProgressMonitor(NullProgressMonitor.INSTANCE);
-      diffFmt.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-
-      Path workTree = repo.getWorkTree().toPath();
-      String relativePath = workTree.relativize(changedFile).toString();
-      PathFilter pathFilter = PathFilter.create(toGitPath(relativePath));
-      diffFmt.setPathFilter(pathFilter);
-
-      AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit);
-      List<DiffEntry> diffEntries = diffFmt.scan(mergeBaseTree, new FileTreeIterator(repo));
-      diffFmt.format(diffEntries);
-      diffFmt.flush();
-      diffEntries.stream()
-        .filter(diffEntry -> diffEntry.getChangeType() == DiffEntry.ChangeType.ADD || diffEntry.getChangeType() == DiffEntry.ChangeType.MODIFY)
-        .findAny()
-        .ifPresent(diffEntry -> changedLines.put(changedFile, computer.changedLines()));
-    } catch (Exception e) {
-      LOG.warn("Failed to get changed lines from git for file " + changedFile, e);
-    }
-  }
-
-  // TODO: Adjust ScmProvider abstract
-  private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFilePath, DefaultInputFile changedFileData) {
+  private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFilePath, ChangedFile changedFile) {
     ChangedLinesComputer computer = new ChangedLinesComputer();
 
     try (DiffFormatter diffFmt = new DiffFormatter(new BufferedOutputStream(computer.receiver()))) {
@@ -353,10 +270,10 @@ public class GitScmProvider extends ScmProvider {
       diffFmt.setProgressMonitor(NullProgressMonitor.INSTANCE);
       diffFmt.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
 
-      diffFmt.setDetectRenames(changedFileData.isMovedFile());
+      diffFmt.setDetectRenames(changedFile.isMovedFile());
 
       Path workTree = repo.getWorkTree().toPath();
-      TreeFilter treeFilter = getTreeFilter(changedFileData, workTree);
+      TreeFilter treeFilter = getTreeFilter(changedFile, workTree);
       diffFmt.setPathFilter(treeFilter);
 
       AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit);
@@ -384,15 +301,22 @@ public class GitScmProvider extends ScmProvider {
     return path.replaceAll(Pattern.quote(File.separator), "/");
   }
 
-  private TreeFilter getTreeFilter(DefaultInputFile changedFile, Path baseDir) {
-    String oldPath = toGitPath(changedFile.oldPath());
-    String path = toGitPath(relativizeFilePath(baseDir, changedFile.path()));
+  private static TreeFilter getTreeFilter(ChangedFile changedFile, Path baseDir) {
+    String path = toGitPath(relativizeFilePath(baseDir, changedFile.getAbsolutFilePath()));
+    String oldRelativePath = changedFile.getOldRelativeFilePathReference();
 
-    if (changedFile.isMovedFile()) {
-      return PathFilterGroup.createFromStrings(path, oldPath);
+    if (oldRelativePath != null) {
+      return PathFilterGroup.createFromStrings(path, toGitPath(oldRelativePath));
     }
 
     return PathFilter.create(path);
+  }
+
+  private static Set<Path> extractAbsoluteFilePaths(Collection<ChangedFile> changedFiles) {
+    return changedFiles
+      .stream()
+      .map(ChangedFile::getAbsolutFilePath)
+      .collect(toSet());
   }
 
   @CheckForNull
@@ -504,6 +428,12 @@ public class GitScmProvider extends ScmProvider {
       LOG.info("Merge base sha1: {}", base.getName());
       return Optional.of(base);
     }
+  }
+
+  private static Map<Path, ChangedFile> toChangedFileByPathsMap(Set<Path> changedFiles) {
+    return changedFiles
+      .stream()
+      .collect(toMap(identity(), ChangedFile::of, (x, y) -> y, LinkedHashMap::new));
   }
 
   private static String relativizeFilePath(Path baseDirectory, Path filePath) {

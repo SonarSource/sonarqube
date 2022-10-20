@@ -20,19 +20,12 @@
 package org.sonar.ce.task.projectanalysis.filemove;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.annotation.concurrent.Immutable;
 import org.apache.ibatis.session.ResultHandler;
-import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -41,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep.DbComponent;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -48,6 +42,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.FileMoveRowDto;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -95,28 +91,30 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
     if (targetBranchDbFilesByUuid.isEmpty()) {
       registerNewlyAddedFiles(reportFilesByUuid);
       context.getStatistics().add("addedFiles", reportFilesByUuid.size());
-      LOG.debug("Previous snapshot has no file. No file move detection.");
+      LOG.debug("Target branch has no files. No file move detection.");
       return;
     }
 
-    Map<String, Component> movedFilesByUuid = getMovedFilesByUuid(reportFilesByUuid);
-    context.getStatistics().add("movedFiles", movedFilesByUuid.size());
+    Collection<Component> movedFiles = getMovedFilesByUuid(reportFilesByUuid);
+    context.getStatistics().add("movedFiles", movedFiles.size());
 
     Map<String, Component> newlyAddedFilesByUuid = getNewlyAddedFilesByUuid(reportFilesByUuid, targetBranchDbFilesByUuid);
     context.getStatistics().add("addedFiles", newlyAddedFilesByUuid.size());
 
-    registerMovedFiles(movedFilesByUuid.values(), targetBranchDbFilesByUuid.values());
+    Map<String, DbComponent> dbFilesByPathReference = toDbFilesByPathReferenceMap(targetBranchDbFilesByUuid.values());
+
+    registerMovedFiles(movedFiles, dbFilesByPathReference);
     registerNewlyAddedFiles(newlyAddedFilesByUuid);
   }
 
-  private void registerMovedFiles(Collection<Component> movedFiles, Collection<DbComponent> dbFiles) {
+  private void registerMovedFiles(Collection<Component> movedFiles, Map<String, DbComponent> dbFilesByPathReference) {
     movedFiles
-      .forEach(registerMovedFile(dbFiles));
+      .forEach(movedFile -> registerMovedFile(dbFilesByPathReference, movedFile));
   }
 
-  private Consumer<Component> registerMovedFile(Collection<DbComponent> dbFiles) {
-    return movedFile -> retrieveDbFile(dbFiles, movedFile)
-        .ifPresent(dbFile -> movedFilesRepository.setOriginalPullRequestFile(movedFile, toOriginalFile(dbFile)));
+  private void registerMovedFile(Map<String, DbComponent> dbFiles, Component movedFile) {
+    retrieveDbFile(dbFiles, movedFile)
+      .ifPresent(dbFile -> movedFilesRepository.setOriginalPullRequestFile(movedFile, toOriginalFile(dbFile)));
   }
 
   private void registerNewlyAddedFiles(Map<String, Component> newAddedFilesByUuid) {
@@ -125,66 +123,61 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
       .forEach(addedFileRepository::register);
   }
 
-  @NotNull
-  private Map<String, Component> getNewlyAddedFilesByUuid(Map<String, Component> reportFilesByUuid, Map<String, DbComponent> dbFilesByUuid) {
+  private static Map<String, Component> getNewlyAddedFilesByUuid(Map<String, Component> reportFilesByUuid, Map<String, DbComponent> dbFilesByUuid) {
     return reportFilesByUuid
       .values()
       .stream()
-      .filter(file -> Objects.isNull(file.getOldName()))
+      .filter(file -> Objects.isNull(file.getFileAttributes().getOldRelativePath()))
       .filter(file -> !dbFilesByUuid.containsKey(file.getUuid()))
-      .collect(toMap(Component::getUuid, Function.identity()));
+      .collect(toMap(Component::getUuid, identity()));
   }
 
-  private Map<String, Component> getMovedFilesByUuid(Map<String, Component> reportFilesByUuid) {
+  private static Collection<Component> getMovedFilesByUuid(Map<String, Component> reportFilesByUuid) {
     return reportFilesByUuid
       .values()
       .stream()
-      .filter(file -> Objects.nonNull(file.getOldName()))
-      .collect(toMap(Component::getUuid, Function.identity()));
+      .filter(file -> Objects.nonNull(file.getFileAttributes().getOldRelativePath()))
+      .collect(toList());
   }
 
-  private Optional<DbComponent> retrieveDbFile(Collection<DbComponent> dbFiles, Component file) {
-    return dbFiles
-      .stream()
-      .filter(dbFile -> dbFile.getPath().equals(file.getOldName()))
-      .findFirst();
-  }
-
-  public Set<String> difference(Set<String> set1, Set<String> set2) {
-    if (set1.isEmpty() || set2.isEmpty()) {
-      return set1;
-    }
-
-    return Sets.difference(set1, set2).immutableCopy();
+  private static Optional<DbComponent> retrieveDbFile(Map<String, DbComponent> dbFilesByPathReference, Component file) {
+    return Optional.ofNullable(dbFilesByPathReference.get(file.getFileAttributes().getOldRelativePath()));
   }
 
   private Map<String, DbComponent> getTargetBranchDbFilesByUuid(AnalysisMetadataHolder analysisMetadataHolder) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String targetBranchUuid = getTargetBranchUuid(dbSession, analysisMetadataHolder.getProject().getUuid(), analysisMetadataHolder.getBranch().getTargetBranchName());
-
-      return getTargetBranchDbFiles(dbSession, targetBranchUuid)
-        .stream()
-        .collect(toMap(DbComponent::getUuid, Function.identity()));
+      return getTargetBranchUuid(dbSession, analysisMetadataHolder.getProject().getUuid(), analysisMetadataHolder.getBranch().getTargetBranchName())
+        .map(targetBranchUUid -> getTargetBranchDbFilesByUuid(dbSession, targetBranchUUid))
+        .orElse(Map.of());
     }
   }
 
-  private List<DbComponent> getTargetBranchDbFiles(DbSession dbSession, String targetBranchUuid) {
-     List<DbComponent> files = new LinkedList<>();
-
-    ResultHandler<FileMoveRowDto> storeFileMove = resultContext -> {
-      FileMoveRowDto row = resultContext.getResultObject();
-      files.add(new DbComponent(row.getKey(), row.getUuid(), row.getPath(), row.getLineCount()));
-    };
-
-    dbClient.componentDao().scrollAllFilesForFileMove(dbSession, targetBranchUuid, storeFileMove);
-
+  private Map<String, DbComponent> getTargetBranchDbFilesByUuid(DbSession dbSession, String targetBranchUuid) {
+    Map<String, DbComponent> files = new HashMap<>();
+    dbClient.componentDao().scrollAllFilesForFileMove(dbSession, targetBranchUuid, accumulateFilesForFileMove(files));
     return files;
   }
 
-  private String getTargetBranchUuid(DbSession dbSession, String projectUuid, String targetBranchName) {
-      return dbClient.branchDao().selectByBranchKey(dbSession, projectUuid, targetBranchName)
-        .map(BranchDto::getUuid)
-        .orElseThrow(() -> new IllegalStateException("Pull Request has no target branch"));
+  private static ResultHandler<FileMoveRowDto> accumulateFilesForFileMove(Map<String, DbComponent> accumulator) {
+    return resultContext -> {
+      DbComponent component = rowToDbComponent(resultContext.getResultObject());
+      accumulator.put(component.getUuid(), component);
+    };
+  }
+
+  private static DbComponent rowToDbComponent(FileMoveRowDto row) {
+    return new DbComponent(row.getKey(), row.getUuid(), row.getPath(), row.getLineCount());
+  }
+
+  private Optional<String> getTargetBranchUuid(DbSession dbSession, String projectUuid, String targetBranchName) {
+    return dbClient.branchDao().selectByBranchKey(dbSession, projectUuid, targetBranchName)
+      .map(BranchDto::getUuid);
+  }
+
+  private static Map<String, DbComponent> toDbFilesByPathReferenceMap(Collection<DbComponent> dbFiles) {
+    return dbFiles
+      .stream()
+      .collect(toMap(DbComponent::getPath, identity()));
   }
 
   private static Map<String, Component> getReportFilesByUuid(Component root) {
@@ -203,36 +196,5 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
 
   private static OriginalFile toOriginalFile(DbComponent dbComponent) {
     return new OriginalFile(dbComponent.getUuid(), dbComponent.getKey());
-  }
-
-  @Immutable
-  private static final class DbComponent {
-    private final String key;
-    private final String uuid;
-    private final String path;
-    private final int lineCount;
-
-    private DbComponent(String key, String uuid, String path, int lineCount) {
-      this.key = key;
-      this.uuid = uuid;
-      this.path = path;
-      this.lineCount = lineCount;
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    public String getUuid() {
-      return uuid;
-    }
-
-    public String getPath() {
-      return path;
-    }
-
-    public int getLineCount() {
-      return lineCount;
-    }
   }
 }

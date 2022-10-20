@@ -55,6 +55,7 @@ public class DefaultInputFileTest {
 
   private static final String PROJECT_RELATIVE_PATH = "module1/src/Foo.php";
   private static final String MODULE_RELATIVE_PATH = "src/Foo.php";
+  private static final String OLD_RELATIVE_PATH = "src/previous/Foo.php";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -102,11 +103,23 @@ public class DefaultInputFileTest {
   }
 
   @Test
+  public void test_moved_file() {
+    DefaultIndexedFile indexedFileForMovedFile = new DefaultIndexedFile(baseDir.resolve(PROJECT_RELATIVE_PATH), "ABCDE", PROJECT_RELATIVE_PATH, MODULE_RELATIVE_PATH, InputFile.Type.TEST, "php", 0,
+      sensorStrategy, OLD_RELATIVE_PATH);
+    Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFileForMovedFile, (f) -> f.setMetadata(metadata))
+      .setStatus(InputFile.Status.ADDED)
+      .setCharset(StandardCharsets.ISO_8859_1);
+
+    assertThat(inputFile.oldRelativePath()).isEqualTo(OLD_RELATIVE_PATH);
+  }
+
+  @Test
   public void test_content() throws IOException {
     Path testFile = baseDir.resolve(PROJECT_RELATIVE_PATH);
     Files.createDirectories(testFile.getParent());
     String content = "test é string";
-    Files.write(testFile, content.getBytes(StandardCharsets.ISO_8859_1));
+    Files.writeString(testFile, content, StandardCharsets.ISO_8859_1);
 
     assertThat(Files.readAllLines(testFile, StandardCharsets.ISO_8859_1).get(0)).hasSize(content.length());
 
@@ -171,12 +184,12 @@ public class DefaultInputFileTest {
   @Test
   public void test_toString() {
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
-    assertThat(file.toString()).isEqualTo(MODULE_RELATIVE_PATH);
+    assertThat(file).hasToString(MODULE_RELATIVE_PATH);
   }
 
   @Test
   public void checkValidPointer() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(1, 0).line()).isOne();
     assertThat(file.newPointer(1, 0).lineOffset()).isZero();
@@ -213,7 +226,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidPointerUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
+    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{8, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(0).line()).isOne();
     assertThat(file.newPointer(0).lineOffset()).isZero();
@@ -299,7 +312,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidRangeUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     TextRange newRange = file.newRange(10, 13);
     assertThat(newRange.start().line()).isEqualTo(2);
@@ -310,7 +323,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void testRangeOverlap() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
+    Metadata metadata = new Metadata(2, 2, "", new int[]{0, 10}, new int[]{9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     // Don't fail
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)))).isTrue();

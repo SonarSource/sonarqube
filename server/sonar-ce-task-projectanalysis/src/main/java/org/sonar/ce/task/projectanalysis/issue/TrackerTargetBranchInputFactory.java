@@ -47,7 +47,6 @@ public class TrackerTargetBranchInputFactory {
     this.targetBranchComponentUuids = targetBranchComponentUuids;
     this.dbClient = dbClient;
     this.movedFilesRepository = movedFilesRepository;
-    // TODO detect file moves?
   }
 
   public boolean hasTargetBranchAnalysis() {
@@ -60,16 +59,16 @@ public class TrackerTargetBranchInputFactory {
   }
 
   private String getTargetBranchComponentUuid(Component component) {
-    Optional<String> targetBranchOriginalComponentUuid = getOriginalComponentUuid(component);
+    Optional<String> targetBranchOriginalComponentKey = getOriginalComponentKey(component);
 
-    if (targetBranchOriginalComponentUuid.isPresent()) {
-      return targetBranchComponentUuids.getTargetBranchComponentUuid(targetBranchOriginalComponentUuid.get());
+    if (targetBranchOriginalComponentKey.isPresent()) {
+      return targetBranchComponentUuids.getTargetBranchComponentUuid(targetBranchOriginalComponentKey.get());
     }
 
     return targetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey());
   }
 
-  private Optional<String> getOriginalComponentUuid(Component component) {
+  private Optional<String> getOriginalComponentKey(Component component) {
     return movedFilesRepository
       .getOriginalPullRequestFile(component)
       .map(OriginalFile::getKey);

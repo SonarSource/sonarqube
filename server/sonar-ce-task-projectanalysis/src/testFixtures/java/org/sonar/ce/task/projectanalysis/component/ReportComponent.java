@@ -36,7 +36,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class ReportComponent implements Component {
 
-  private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null, 1, false);
+  private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null, 1, false, null);
 
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1)
     .setKey("PROJECT_KEY")

@@ -52,7 +52,7 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
     return retrieveOriginalFileFromCache(originalPullRequestFiles, file);
   }
 
-  private void storeOriginalFileInCache(Map<String, OriginalFile> originalFiles, Component file, OriginalFile originalFile) {
+  private static void storeOriginalFileInCache(Map<String, OriginalFile> originalFiles, Component file, OriginalFile originalFile) {
     requireNonNull(file, "file can't be null");
     requireNonNull(originalFile, "originalFile can't be null");
     checkArgument(file.getType() == Component.Type.FILE, "file must be of type FILE");
@@ -67,7 +67,7 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
     }
   }
 
-  private Optional<OriginalFile> retrieveOriginalFileFromCache(Map<String, OriginalFile> originalFiles, Component file) {
+  private static Optional<OriginalFile> retrieveOriginalFileFromCache(Map<String, OriginalFile> originalFiles, Component file) {
     requireNonNull(file, "file can't be null");
 
     if (file.getType() != Component.Type.FILE) {

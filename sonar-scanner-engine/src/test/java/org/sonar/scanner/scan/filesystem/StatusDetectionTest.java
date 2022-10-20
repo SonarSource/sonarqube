@@ -65,7 +65,7 @@ public class StatusDetectionTest {
   @Test
   public void detect_status_branches_confirm() {
     Path filePath = Paths.get("module", "src", "Foo.java");
-    ScmChangedFiles changedFiles = new ScmChangedFiles(List.of(new ChangedFile(filePath.toString(), filePath)));
+    ScmChangedFiles changedFiles = new ScmChangedFiles(List.of(ChangedFile.of(filePath)));
 
     StatusDetection statusDetection = new StatusDetection(projectRepositories, changedFiles);
     assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);

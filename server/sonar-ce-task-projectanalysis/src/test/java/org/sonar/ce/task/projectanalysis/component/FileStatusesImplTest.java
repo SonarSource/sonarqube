@@ -79,7 +79,7 @@ public class FileStatusesImplTest {
   @Test
   public void isDataUnchanged_returns_false_if_any_SAME_status_is_incorrect() {
     Component file1 = ReportComponent.builder(Component.Type.FILE, 2, "FILE1_KEY").setStatus(Component.Status.SAME)
-      .setFileAttributes(new FileAttributes(false, null, 10, true)).build();
+      .setFileAttributes(new FileAttributes(false, null, 10, true, null)).build();
     Component file2 = ReportComponent.builder(Component.Type.FILE, 3, "FILE2_KEY").setStatus(Component.Status.SAME).build();
 
     addDbFileHash(file1, "hash1");
@@ -104,7 +104,7 @@ public class FileStatusesImplTest {
     analysisMetadataHolder.setBaseAnalysis(null);
 
     Component file1 = ReportComponent.builder(Component.Type.FILE, 2, "FILE1_KEY").setStatus(Component.Status.SAME)
-      .setFileAttributes(new FileAttributes(false, null, 10, true)).build();
+      .setFileAttributes(new FileAttributes(false, null, 10, true, null)).build();
     Component file2 = ReportComponent.builder(Component.Type.FILE, 3, "FILE2_KEY").setStatus(Component.Status.SAME).build();
 
     addReportFileHash(file1, "hash1");
@@ -125,7 +125,7 @@ public class FileStatusesImplTest {
   @Test
   public void isDataUnchanged_returns_false_if_not_set_by_analyzer() {
     Component file1 = ReportComponent.builder(Component.Type.FILE, 2, "FILE1_KEY").setStatus(Component.Status.SAME)
-      .setFileAttributes(new FileAttributes(false, null, 10, false)).build();
+      .setFileAttributes(new FileAttributes(false, null, 10, false,null)).build();
     Component file2 = ReportComponent.builder(Component.Type.FILE, 3, "FILE2_KEY").setStatus(Component.Status.SAME).build();
 
     addDbFileHash(file1, "hash1");
@@ -148,7 +148,7 @@ public class FileStatusesImplTest {
   @Test
   public void isDataUnchanged_returns_true_if_set_by_analyzer_and_all_SAME_status_are_correct() {
     Component file1 = ReportComponent.builder(Component.Type.FILE, 2, "FILE1_KEY").setStatus(Component.Status.SAME)
-      .setFileAttributes(new FileAttributes(false, null, 10, true)).build();
+      .setFileAttributes(new FileAttributes(false, null, 10, true,null)).build();
     Component file2 = ReportComponent.builder(Component.Type.FILE, 3, "FILE2_KEY").setStatus(Component.Status.SAME).build();
     Component file3 = ReportComponent.builder(Component.Type.FILE, 4, "FILE3_KEY").setStatus(Component.Status.CHANGED).build();
 

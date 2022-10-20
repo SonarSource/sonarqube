@@ -38,19 +38,19 @@ public class FileAttributes {
   private final String languageKey;
   private final boolean markedAsUnchanged;
   private final int lines;
-  private String oldName;
+  private String oldRelativePath;
 
   public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
     this(unitTest, languageKey, lines, false, null);
   }
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines, boolean markedAsUnchanged, @Nullable String oldName) {
+  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines, boolean markedAsUnchanged, @Nullable String oldRelativePath) {
     this.unitTest = unitTest;
     this.languageKey = languageKey;
     this.markedAsUnchanged = markedAsUnchanged;
     checkArgument(lines > 0, "Number of lines must be greater than zero");
     this.lines = lines;
-    this.oldName = formatOldName(oldName);
+    this.oldRelativePath = formatOldRelativePath(oldRelativePath);
   }
 
   public boolean isMarkedAsUnchanged() {
@@ -66,9 +66,12 @@ public class FileAttributes {
     return languageKey;
   }
 
+  /**
+   * The old relative path of a file when a move is detected by the SCM in the scope of a Pull Request.
+   */
   @CheckForNull
-  public String getOldName() {
-    return oldName;
+  public String getOldRelativePath() {
+    return oldRelativePath;
   }
 
   /**
@@ -85,11 +88,11 @@ public class FileAttributes {
       ", unitTest=" + unitTest +
       ", lines=" + lines +
       ", markedAsUnchanged=" + markedAsUnchanged +
-      ", oldName=" + oldName +
+      ", oldRelativePath='" + oldRelativePath + '\'' +
       '}';
   }
 
-  private String formatOldName(@Nullable String name) {
-    return abbreviate(trimToNull(name), MAX_COMPONENT_NAME_LENGTH);
+  private static String formatOldRelativePath(@Nullable String path) {
+    return abbreviate(trimToNull(path), MAX_COMPONENT_NAME_LENGTH);
   }
 }

@@ -356,7 +356,7 @@ public class FileMoveDetectionStep implements ComputationStep {
         matchesPerFileForScore.put(match.getDbUuid(), match);
         matchesPerFileForScore.put(match.getReportUuid(), match);
       }
-      // validate non ambiguous matches (ie. the match is the only match of either the db file and the report file)
+      // validate non-ambiguous matches (i.e. the match is the only match of either the db file and the report file)
       for (Match match : matchesToValidate) {
         int dbFileMatchesCount = matchesPerFileForScore.get(match.getDbUuid()).size();
         int reportFileMatchesCount = matchesPerFileForScore.get(match.getReportUuid()).size();
@@ -372,13 +372,13 @@ public class FileMoveDetectionStep implements ComputationStep {
   }
 
   @Immutable
-  private static final class DbComponent {
+  public static final class DbComponent {
     private final String key;
     private final String uuid;
     private final String path;
     private final int lineCount;
 
-    private DbComponent(String key, String uuid, String path, int lineCount) {
+    public DbComponent(String key, String uuid, String path, int lineCount) {
       this.key = key;
       this.uuid = uuid;
       this.path = path;

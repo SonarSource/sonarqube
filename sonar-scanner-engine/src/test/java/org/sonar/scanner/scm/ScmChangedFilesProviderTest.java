@@ -28,9 +28,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scm.git.ChangedFile;
+import org.sonar.scm.git.GitScmProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,13 +45,12 @@ public class ScmChangedFilesProviderTest {
   @Mock
   private BranchConfiguration branchConfiguration;
   @Mock
-  private InputModuleHierarchy inputModuleHierarchy;
-  @Mock
   private ScmProvider scmProvider;
 
-  private Path rootBaseDir = Paths.get("root");
+  private final Path rootBaseDir = Paths.get("root");
+  private final DefaultInputProject project = mock(DefaultInputProject.class);
+
   private ScmChangedFilesProvider provider;
-  private DefaultInputProject project = mock(DefaultInputProject.class);
 
   @Before
   public void setUp() {
@@ -124,6 +123,21 @@ public class ScmChangedFilesProviderTest {
   }
 
   @Test
+  public void testGitScmProvider(){
+    GitScmProvider gitScmProvider = mock(GitScmProvider.class);
+
+    when(scmConfiguration.provider()).thenReturn(gitScmProvider);
+    when(branchConfiguration.isPullRequest()).thenReturn(true);
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
+
+    ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
+
+    assertThat(scmChangedFiles.get()).isEmpty();
+    verify(scmConfiguration).provider();
+
+  }
+
+  @Test
   public void testReturnChangedFiles() {
     when(branchConfiguration.targetBranchName()).thenReturn("target");
     when(branchConfiguration.isPullRequest()).thenReturn(true);
@@ -132,7 +146,7 @@ public class ScmChangedFilesProviderTest {
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
 
     Path filePath = Paths.get("changedFile").toAbsolutePath();
-    ChangedFile changedFile = new ChangedFile(filePath.toString(), filePath);
+    ChangedFile changedFile = ChangedFile.of(filePath);
     assertThat(scmChangedFiles.get()).containsOnly(changedFile);
     verify(scmProvider).branchChangedFiles("target", rootBaseDir);
   }

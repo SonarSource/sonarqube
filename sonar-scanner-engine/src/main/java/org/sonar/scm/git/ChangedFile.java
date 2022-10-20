@@ -23,37 +23,62 @@ import java.nio.file.Path;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
+@Immutable
 public class ChangedFile {
-  @Nullable
-  private final String oldFilePath;
-  private final String filePath;
   private final Path absoluteFilePath;
+  private final String oldRelativeFilePathReference;
 
-  public ChangedFile(String filePath, Path absoluteFilePath) {
-    this(filePath, absoluteFilePath, null);
-  }
-
-  public ChangedFile(String filePath, Path absoluteFilePath, @Nullable String oldFilePath) {
-    this.filePath = filePath;
-    this.oldFilePath = oldFilePath;
-    this.absoluteFilePath =  absoluteFilePath;
-  }
-
-  @CheckForNull
-  public String getOldFilePath() {
-    return oldFilePath;
-  }
-
-  public boolean isMoved() {
-    return Objects.nonNull(this.getOldFilePath());
-  }
-
-  public String getFilePath() {
-    return filePath;
+  private ChangedFile(Path absoluteFilePath, @Nullable String oldRelativeFilePathReference) {
+    this.absoluteFilePath = absoluteFilePath;
+    this.oldRelativeFilePathReference = oldRelativeFilePathReference;
   }
 
   public Path getAbsolutFilePath() {
     return absoluteFilePath;
+  }
+
+  @CheckForNull
+  public String getOldRelativeFilePathReference() {
+    return oldRelativeFilePathReference;
+  }
+
+  public boolean isMovedFile() {
+    return this.getOldRelativeFilePathReference() != null;
+  }
+
+  public static ChangedFile of(Path path) {
+    return new ChangedFile(path, null);
+  }
+
+  public static ChangedFile of(Path path, @Nullable String oldRelativeFilePathReference) {
+    return new ChangedFile(path, oldRelativeFilePathReference);
+  }
+
+  public static ChangedFile of(DefaultInputFile file) {
+    return new ChangedFile(file.path(), file.oldRelativePath());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ChangedFile that = (ChangedFile) o;
+
+    return Objects.equals(oldRelativeFilePathReference, that.oldRelativeFilePathReference)
+      && Objects.equals(absoluteFilePath, that.absoluteFilePath);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(oldRelativeFilePathReference, absoluteFilePath);
   }
 }

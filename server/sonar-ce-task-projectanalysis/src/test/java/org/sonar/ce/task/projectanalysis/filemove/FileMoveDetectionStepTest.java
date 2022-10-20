@@ -49,6 +49,7 @@ import org.sonar.core.hash.SourceLineHashesComputer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.source.FileSourceDto;
@@ -59,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
+import static org.sonar.db.component.BranchType.*;
 
 public class FileMoveDetectionStepTest {
 
@@ -212,8 +214,6 @@ public class FileMoveDetectionStepTest {
   };
 
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
@@ -222,15 +222,16 @@ public class FileMoveDetectionStepTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private final DbClient dbClient = dbTester.getDbClient();
   private ComponentDto project;
 
-  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
-  private CapturingScoreMatrixDumper scoreMatrixDumper = new CapturingScoreMatrixDumper();
-  private RecordingMutableAddedFileRepository addedFileRepository = new RecordingMutableAddedFileRepository();
+  private final AnalysisMetadataHolderRule analysisMetadataHolder = mock(AnalysisMetadataHolderRule.class);
+  private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private final FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
+  private final CapturingScoreMatrixDumper scoreMatrixDumper = new CapturingScoreMatrixDumper();
+  private final RecordingMutableAddedFileRepository addedFileRepository = new RecordingMutableAddedFileRepository();
 
-  private FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
+  private final FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
     fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper, addedFileRepository);
 
   @Before
@@ -245,8 +246,8 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
-  public void execute_detects_no_move_on_first_analysis() {
-    analysisMetadataHolder.setBaseAnalysis(null);
+  public void execute_detects_no_move_if_in_pull_request_scope() {
+    prepareAnalysis(PULL_REQUEST, ANALYSIS);
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -256,8 +257,19 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
+  public void execute_detects_no_move_on_first_analysis() {
+    prepareAnalysis(BRANCH, null);
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatistics(context, 0, null, null, null);
+  }
+
+  @Test
   public void execute_detects_no_move_if_baseSnapshot_has_no_file_and_report_has_no_file() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -269,7 +281,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_baseSnapshot_has_no_file() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     setFilesInReport(file1, file2);
@@ -284,7 +296,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_there_is_no_file_in_report() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     insertFiles( /* no components */);
     setFilesInReport();
 
@@ -298,7 +310,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_file_key_exists_in_both_DB_and_report() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     insertFiles(file1.getUuid(), file2.getUuid());
@@ -316,7 +328,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
     ComponentDto[] dtos = insertFiles(file1.getUuid());
@@ -336,7 +348,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, LESS_CONTENT1);
     insertFiles(file1.getKey());
@@ -356,7 +368,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
     insertFiles(file1.getKey());
@@ -374,7 +386,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_has_no_path_in_DB() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
     insertFiles(key -> newComponentDto(key).setPath(null), file1.getKey());
@@ -392,7 +404,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT_EMPTY);
     insertFiles(file1.getKey());
@@ -411,7 +423,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
     Component file3 = fileComponent(FILE_3_REF, CONTENT1);
@@ -430,7 +442,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     Component file3 = fileComponent(FILE_3_REF, CONTENT1);
@@ -450,7 +462,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_two_files_are_empty_in_DB() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     insertFiles(file1.getUuid(), file2.getUuid());
@@ -474,7 +486,7 @@ public class FileMoveDetectionStepTest {
     // - file2 deleted
     // - file4 untouched
     // - file5 renamed to file6 with a small change
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     Component file3 = fileComponent(FILE_3_REF, CONTENT1);
@@ -505,7 +517,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_does_not_compute_any_distance_if_all_files_sizes_are_all_too_different() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     Component file3 = fileComponent(FILE_3_REF, arrayOf(118));
@@ -535,7 +547,7 @@ public class FileMoveDetectionStepTest {
    */
   @Test
   public void real_life_use_case() throws Exception {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    prepareBranchAnalysis(ANALYSIS);
     for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/ce/task/projectanalysis/filemove/FileMoveDetectionStepTest/v1"), null, false)) {
       insertFiles("uuid_" + f.getName().hashCode());
       insertContentOfFileInDb("uuid_" + f.getName().hashCode(), readLines(f));
@@ -656,7 +668,20 @@ public class FileMoveDetectionStepTest {
     }
   }
 
-  private static void verifyStatistics(TestComputationStepContext context,
+  private void prepareBranchAnalysis(Analysis analysis) {
+    prepareAnalysis(BRANCH, analysis);
+  }
+
+  private void prepareAnalysis(BranchType branch, Analysis analysis) {
+    mockBranchType(branch);
+    analysisMetadataHolder.setBaseAnalysis(analysis);
+  }
+
+  private void mockBranchType(BranchType branchType) {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(branchType == PULL_REQUEST);
+  }
+
+  public static void verifyStatistics(TestComputationStepContext context,
     @Nullable Integer expectedReportFiles, @Nullable Integer expectedDbFiles,
     @Nullable Integer expectedAddedFiles, @Nullable Integer expectedMovedFiles) {
     context.getStatistics().assertValue("reportFiles", expectedReportFiles);
@@ -665,7 +690,7 @@ public class FileMoveDetectionStepTest {
     context.getStatistics().assertValue("movedFiles", expectedMovedFiles);
   }
 
-  private static class RecordingMutableAddedFileRepository implements MutableAddedFileRepository {
+  public static class RecordingMutableAddedFileRepository implements MutableAddedFileRepository {
     private final List<Component> components = new ArrayList<>();
 
     @Override

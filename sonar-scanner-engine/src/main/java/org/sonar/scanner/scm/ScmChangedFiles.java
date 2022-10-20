@@ -21,21 +21,26 @@ package org.sonar.scanner.scm;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.scm.git.ChangedFile;
 
+import static java.util.Collections.emptyMap;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
 @Immutable
 public class ScmChangedFiles {
   @Nullable
   private final Collection<ChangedFile> changedFiles;
+  private final Map<Path, ChangedFile> changedFilesByPath;
 
   public ScmChangedFiles(@Nullable Collection<ChangedFile> changedFiles) {
     this.changedFiles = changedFiles;
+    this.changedFilesByPath = toChangedFilesByPathMap(changedFiles);
   }
 
   public boolean isChanged(Path file) {
@@ -43,7 +48,7 @@ public class ScmChangedFiles {
       throw new IllegalStateException("Scm didn't provide valid data");
     }
 
-    return this.findFile(file).isPresent();
+    return this.getChangedFile(file).isPresent();
   }
 
   public boolean isValid() {
@@ -56,20 +61,20 @@ public class ScmChangedFiles {
   }
 
   @CheckForNull
-  public String getFileOldPath(Path absoluteFilePath) {
-    return this.findFile(absoluteFilePath)
-      .filter(ChangedFile::isMoved)
-      .map(ChangedFile::getOldFilePath)
+  public String getOldRelativeFilePath(Path absoluteFilePath) {
+    return this.getChangedFile(absoluteFilePath)
+      .filter(ChangedFile::isMovedFile)
+      .map(ChangedFile::getOldRelativeFilePathReference)
       .orElse(null);
   }
 
-  private Optional<ChangedFile> findFile(Path absoluteFilePath) {
-    Predicate<ChangedFile> isTargetFile = file -> file.getAbsolutFilePath().equals(absoluteFilePath);
+  private Optional<ChangedFile> getChangedFile(Path absoluteFilePath) {
+    return Optional.ofNullable(changedFilesByPath.get(absoluteFilePath));
+  }
 
-    return Optional.ofNullable(this.get())
-      .orElseGet(List::of)
-      .stream()
-      .filter(isTargetFile)
-      .findFirst();
+  private static Map<Path, ChangedFile> toChangedFilesByPathMap(@Nullable Collection<ChangedFile> changedFiles) {
+    return Optional.ofNullable(changedFiles)
+      .map(files -> files.stream().collect(toMap(ChangedFile::getAbsolutFilePath, identity())))
+      .orElse(emptyMap());
   }
 }

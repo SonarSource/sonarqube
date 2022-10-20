@@ -111,7 +111,7 @@ public class AddedFileRepositoryImplTest {
 
     assertThatThrownBy(() -> underTest.register(component))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("No file can be registered on first analysis");
+      .hasMessage("No file can be registered on first branch analysis");
   }
 
   private static Component newComponent(Component.Type type) {

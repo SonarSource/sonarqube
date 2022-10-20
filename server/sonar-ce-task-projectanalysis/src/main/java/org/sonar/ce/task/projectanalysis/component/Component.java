@@ -88,11 +88,6 @@ public interface Component {
   String getName();
 
   /**
-   * Get component old relative path.
-   */
-  String getOldName();
-
-  /**
    * The component short name. For files and directories this is the parent relative path (ie filename for files). For projects and view this is the same as {@link #getName()}
    */
   String getShortName();

@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -48,7 +47,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Type type;
   private final Path absolutePath;
   private final SensorStrategy sensorStrategy;
-  private final String oldFilePath;
+  private final String oldRelativeFilePath;
 
   /**
    * Testing purposes only!
@@ -64,7 +63,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
-    SensorStrategy sensorStrategy, @Nullable String oldFilePath) {
+    SensorStrategy sensorStrategy, @Nullable String oldRelativeFilePath) {
     super(batchId);
     this.projectKey = projectKey;
     this.projectRelativePath = PathUtils.sanitize(projectRelativePath);
@@ -73,7 +72,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.language = language;
     this.sensorStrategy = sensorStrategy;
     this.absolutePath = absolutePath;
-    this.oldFilePath = oldFilePath;
+    this.oldRelativeFilePath = oldRelativeFilePath;
   }
 
   @Override
@@ -105,12 +104,8 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   }
 
   @CheckForNull
-  public String oldPath() {
-    return oldFilePath;
-  }
-
-  public boolean isMovedFile() {
-    return Objects.nonNull(this.oldPath());
+  public String oldRelativePath() {
+    return oldRelativeFilePath;
   }
 
   @Override

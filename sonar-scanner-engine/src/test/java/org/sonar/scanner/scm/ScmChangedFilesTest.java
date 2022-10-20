@@ -35,7 +35,7 @@ public class ScmChangedFilesTest {
   @Test
   public void testGetter() {
     Path filePath = Paths.get("files");
-    ChangedFile file = new ChangedFile(filePath.toString(), filePath);
+    ChangedFile file = ChangedFile.of(filePath);
     Collection<ChangedFile> files = Collections.singletonList(file);
     scmChangedFiles = new ScmChangedFiles(files);
     assertThat(scmChangedFiles.get()).containsOnly(file);
@@ -54,7 +54,7 @@ public class ScmChangedFilesTest {
   @Test
   public void testConfirm() {
     Path filePath = Paths.get("files");
-    Collection<ChangedFile> files = Collections.singletonList(new ChangedFile(filePath.toString(), filePath));
+    Collection<ChangedFile> files = Collections.singletonList(ChangedFile.of(filePath));
     scmChangedFiles = new ScmChangedFiles(files);
     assertThat(scmChangedFiles.isValid()).isTrue();
     assertThat(scmChangedFiles.isChanged(Paths.get("files"))).isTrue();

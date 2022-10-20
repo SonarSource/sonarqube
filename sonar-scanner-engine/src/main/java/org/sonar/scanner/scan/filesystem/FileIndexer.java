@@ -136,7 +136,7 @@ public class FileIndexer {
       language != null ? language.key() : null,
       scannerComponentIdGenerator.getAsInt(),
       sensorStrategy,
-      scmChangedFiles.getFileOldPath(realAbsoluteFile)
+      scmChangedFiles.getOldRelativeFilePath(realAbsoluteFile)
     );
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()));

@@ -61,9 +61,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -206,6 +208,35 @@ public class GitScmProviderTest {
   }
 
   @Test
+  public void branchChangedFilesWithFileMovementDetection_correctly_detects_several_file_moves_in_pull_request_base_branch() throws IOException, GitAPIException {
+    String fileM1 = "file-m1.xoo";
+    String newFileM1 = "new-file-m1.xoo";
+    String fileM2 = "file-m2.xoo";
+    String newFileM2 = "new-file-m2.xoo";
+
+    Path newFileM1AbsolutPath = worktree.resolve(newFileM1);
+    Path newFileM2AbsolutPath = worktree.resolve(newFileM2);
+
+    createAndCommitFile(fileM1);
+    createAndCommitFile(fileM2);
+
+    createBranch();
+
+    editLineOfFile(fileM1, 1);
+    commit(fileM1);
+
+    moveAndCommitFile(fileM1, newFileM1);
+    moveAndCommitFile(fileM2, newFileM2);
+
+    assertThat(newScmProvider().branchChangedFilesWithFileMovementDetection("master", worktree))
+      .extracting(ChangedFile::getAbsolutFilePath, ChangedFile::getOldRelativeFilePathReference)
+      .containsExactlyInAnyOrder(
+        tuple(newFileM1AbsolutPath, fileM1),
+        tuple(newFileM2AbsolutPath, fileM2)
+      );
+  }
+
+  @Test
   public void branchChangedFiles_should_not_fail_with_patience_diff_algo() throws IOException {
     Path gitConfig = worktree.resolve(".git").resolve("config");
     Files.write(gitConfig, "[diff]\nalgorithm = patience\n".getBytes(StandardCharsets.UTF_8));
@@ -260,7 +291,7 @@ public class GitScmProviderTest {
     assertThat(newScmProvider().branchChangedLines("master", worktree, changedFiles))
       .containsOnly(
         entry(worktree.resolve("lao.txt"), new HashSet<>(Arrays.asList(2, 3, 11, 12, 13))),
-        entry(worktree.resolve("file-m1.xoo"), new HashSet<>(Arrays.asList(4))),
+        entry(worktree.resolve("file-m1.xoo"), new HashSet<>(List.of(4))),
         entry(worktree.resolve("file-b2.xoo"), new HashSet<>(Arrays.asList(1, 2, 3))));
 
     assertThat(newScmProvider().branchChangedLines("master", worktree, Collections.singleton(worktree.resolve("nonexistent"))))
@@ -388,6 +419,45 @@ public class GitScmProviderTest {
   }
 
   @Test
+  public void branchChangedLinesWithFileMovementDetection_detects_modified_lines_on_renamed_pr_files_compared_to_original_files_on_target_branch() throws GitAPIException, IOException {
+    String fileM1 = "file-m1.xoo";
+    String newFileM1 = "new-file-m1.xoo";
+    String fileM2 = "file-m2.xoo";
+    String newFileM2 = "new-file-m2.xoo";
+
+    Path newFileM1AbsolutPath = worktree.resolve(newFileM1);
+    Path newFileM2AbsolutPath = worktree.resolve(newFileM2);
+
+    createAndCommitFile(fileM1);
+    createAndCommitFile(fileM2);
+
+    createBranch();
+
+    editLineOfFile(fileM1, 2);
+    commit(fileM1);
+
+    editLineOfFile(fileM2, 1);
+    commit(fileM2);
+
+    moveAndCommitFile(fileM1, newFileM1);
+    moveAndCommitFile(fileM2, newFileM2);
+
+    Map<Path, ChangedFile> changedFiles = Map.of(
+      newFileM1AbsolutPath, ChangedFile.of(newFileM1AbsolutPath, fileM1),
+      newFileM2AbsolutPath, ChangedFile.of(newFileM2AbsolutPath, fileM2)
+    );
+
+    Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLinesWithFileMovementDetection("master",
+      worktree.resolve("project1"), changedFiles);
+
+    assertThat(changedLines)
+      .containsOnly(
+        entry(newFileM1AbsolutPath, Set.of(2)),
+        entry(newFileM2AbsolutPath, Set.of(1))
+      );
+  }
+
+  @Test
   public void branchChangedFiles_when_git_work_tree_is_above_project_basedir() throws IOException, GitAPIException {
     git.branchCreate().setName("b1").call();
     git.checkout().setName("b1").call();
@@ -422,7 +492,7 @@ public class GitScmProviderTest {
     git.branchCreate().setName("b1").setStartPoint(forkPoint.getName()).call();
     git.checkout().setName("b1").call();
 
-    String newFileContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8).replaceAll("\n", "\r\n");
+    String newFileContent = Files.readString(filePath).replaceAll("\n", "\r\n");
     Files.write(filePath, newFileContent.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
     commit("file-m1.xoo");
 
@@ -531,7 +601,7 @@ public class GitScmProviderTest {
   }
 
   @Test
-  public void branchChangedFiles_should_throw_when_repo_nonexistent() throws IOException {
+  public void branchChangedFiles_should_throw_when_repo_nonexistent() {
     assertThatThrownBy(() -> newScmProvider().branchChangedFiles("master", temp.newFolder().toPath()))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Not inside a Git work tree: ");
@@ -612,8 +682,10 @@ public class GitScmProviderTest {
   public void branchChangedLines_omits_files_with_git_api_errors() throws IOException, GitAPIException {
     String f1 = "file-in-first-commit.xoo";
     String f2 = "file2-in-first-commit.xoo";
+    String f3 = "file3-in-first-commit.xoo";
 
     createAndCommitFile(f2);
+    createAndCommitFile(f3);
 
     git.branchCreate().setName("b1").call();
     git.checkout().setName("b1").call();
@@ -621,26 +693,30 @@ public class GitScmProviderTest {
     // both files modified
     addLineToFile(f1, 1);
     addLineToFile(f2, 2);
+    addLineToFile(f3, 3);
 
     commit(f1);
     commit(f2);
+    commit(f3);
 
     AtomicInteger callCount = new AtomicInteger(0);
     GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
       @Override
       AbstractTreeIterator prepareTreeParser(Repository repo, RevCommit commit) throws IOException {
-        if (callCount.getAndIncrement() == 1) {
+        if (callCount.getAndIncrement() == 2) {
           throw new RuntimeException("error");
         }
         return super.prepareTreeParser(repo, commit);
       }
     };
-    Set<Path> changedFiles = new LinkedHashSet<>();
-    changedFiles.add(worktree.resolve(f1));
-    changedFiles.add(worktree.resolve(f2));
+
+    Set<Path> changedFiles = new LinkedHashSet<>(List.of(worktree.resolve(f1), worktree.resolve(f2), worktree.resolve(f3)));
 
     assertThat(provider.branchChangedLines("master", worktree, changedFiles))
-      .isEqualTo(Collections.singletonMap(worktree.resolve(f1), Collections.singleton(1)));
+      .containsOnly(
+        entry(worktree.resolve(f1), Collections.singleton(1)),
+        entry(worktree.resolve(f2), Collections.singleton(2))
+      );
   }
 
   @Test
@@ -796,6 +872,27 @@ public class GitScmProviderTest {
   private void commit(String relativePath, Instant date) throws GitAPIException {
     PersonIdent person = new PersonIdent("joe", "joe@example.com", Date.from(date), TimeZone.getDefault());
     git.commit().setAuthor(person).setCommitter(person).setMessage(relativePath).call();
+  }
+
+  private void createBranch() throws IOException, GitAPIException {
+    ObjectId forkPoint = git.getRepository().exactRef("HEAD").getObjectId();
+    git.branchCreate().setName(BRANCH_NAME).setStartPoint(forkPoint.getName()).call();
+    git.checkout().setName(BRANCH_NAME).call();
+  }
+
+  private void editLineOfFile(String relativePath, int lineNumber) throws IOException {
+    Path filePath = worktree.resolve(relativePath);
+    List<String> lines = Files.readAllLines(filePath);
+    lines.set(lineNumber - 1, randomizedLine(relativePath));
+    Files.write(filePath, lines, StandardOpenOption.TRUNCATE_EXISTING);
+  }
+
+  private void moveAndCommitFile(String filename, String newFilename) throws GitAPIException, IOException {
+    Path file = worktree.resolve(filename);
+    Files.move(file, file.resolveSibling(newFilename));
+    git.add().addFilepattern(filename).setUpdate(true).call();
+    git.add().addFilepattern(newFilename).call();
+    git.commit().setAuthor("joe", "joe@example.com").setMessage(format("Move file from [%s] to [%s]", filename, newFilename)).call();
   }
 
   private GitScmProvider newScmProvider() {
