@@ -35,12 +35,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonarqube.ws.Plugins.InstalledPluginsWsResponse;
 import org.sonarqube.ws.Plugins.PluginDetails;
@@ -53,6 +55,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.buildPluginDetails;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -62,11 +65,13 @@ public class InstalledAction implements PluginsWsAction {
   private static final String FIELD_CATEGORY = "category";
   private static final String PARAM_TYPE = "type";
 
+  private final UserSession userSession;
   private final ServerPluginRepository serverPluginRepository;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final DbClient dbClient;
 
-  public InstalledAction(ServerPluginRepository serverPluginRepository, UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
+  public InstalledAction(ServerPluginRepository serverPluginRepository, UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
+    this.userSession = userSession;
     this.serverPluginRepository = serverPluginRepository;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.dbClient = dbClient;
@@ -75,9 +80,11 @@ public class InstalledAction implements PluginsWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("installed")
-      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.")
+      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.<br/>" +
+        "Requires authentication.")
       .setSince("5.2")
       .setChangelog(
+        new Change("9.7", "Authentication check added"),
         new Change("8.0", "The 'documentationPath' field is added"),
         new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"),
         new Change("6.6", "The 'filename' field is added"),
@@ -91,7 +98,7 @@ public class InstalledAction implements PluginsWsAction {
       .setDescription(format("Comma-separated list of the additional fields to be returned in response. No additional field is returned by default. Possible values are:" +
         "<ul>" +
         "<li>%s - category as defined in the Update Center. A connection to the Update Center is needed</li>" +
-        "</lu>", FIELD_CATEGORY))
+        "</ul>", FIELD_CATEGORY))
       .setSince("5.6");
 
     action.createParam(PARAM_TYPE)
@@ -103,6 +110,10 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    if (!userSession.isLoggedIn() && !userSession.hasPermission(GlobalPermission.SCAN)) {
+      throw insufficientPrivilegesException();
+    }
+
     String typeParam = request.param(PARAM_TYPE);
     SortedSet<ServerPlugin> installedPlugins = loadInstalledPlugins(typeParam);
     Map<String, PluginDto> dtosByKey;

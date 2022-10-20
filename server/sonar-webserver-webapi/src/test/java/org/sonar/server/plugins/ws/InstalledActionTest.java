@@ -41,11 +41,14 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto.Type;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
 import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -54,10 +57,11 @@ import org.sonar.updatecenter.common.Version;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -71,10 +75,12 @@ public class InstalledActionTest {
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
   private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
-  private InstalledAction underTest = new InstalledAction(serverPluginRepository, updateCenterMatrixFactory, db.getDbClient());
+  private InstalledAction underTest = new InstalledAction(serverPluginRepository, userSession, updateCenterMatrixFactory, db.getDbClient());
   private WsActionTester tester = new WsActionTester(underTest);
 
   @DataProvider
@@ -484,6 +490,14 @@ public class InstalledActionTest {
         "  ]" +
         "}");
     assertThat(response).containsOnlyOnce("name2");
+  }
+
+  @Test
+  public void fail_if_not_logged_in() {
+    userSession.anonymous();
+    TestRequest testRequest = tester.newRequest();
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private ServerPlugin plugin(String key, String name) throws IOException {
