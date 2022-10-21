@@ -7,6 +7,10 @@ url: /setup/upgrade-notes/
 **Change in the database connection pool**  
 The database connection pool has been replaced for better performance. The `sonar.jdbc.maxIdle`, `sonar.jdbc.minEvictableIdleTimeMillis` and `sonar.jdbc.timeBetweenEvictionRunsMillis` properties no longer have any effect and should be removed from the configuration. Also, the JMX information that is provided to monitor the connection pool has evolved. See the [Monitoring documentation](/instance-administration/monitoring/) for more information. ([SONAR-17200](https://sonarsource.atlassian.net/browse/SONAR-17200)).
 
+**JavaScript, TypeScript, and CSS analysis now requires Node.js 14.17+**  
+In order to analyze Javascript, Typescript, and CSS code, Node.js 14.17+ must be installed on the machine running the scan.
+We recommend that you use the latest Node.js LTS, which is currently Node.js 16.
+
 [Full release notes](https://sonarsource.atlassian.net/issues/?jql=project%20%3D%2010139%20AND%20fixVersion%20%3D%2013800)
 
 ## Release 9.6 Upgrade notes
