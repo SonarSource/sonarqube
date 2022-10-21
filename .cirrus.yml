@@ -1,5 +1,5 @@
 aws_credentials:
-  role_arn: arn:aws:iam::275878209202:role/CirrusCI-prod
+  role_arn: arn:aws:iam::275878209202:role/CirrusCI
   role_session_name: cirrus
   region: eu-central-1
 
@@ -60,7 +60,7 @@ saml_nightly_task_template: &SAML_NIGHTLY_TASK_TEMPLATE
 docker_build_container_template: &CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
   region: eu-central-1
-  cluster_name: CirrusCI-prod
+  cluster_name: CirrusCI
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
   builder_instance_type: t2.small
