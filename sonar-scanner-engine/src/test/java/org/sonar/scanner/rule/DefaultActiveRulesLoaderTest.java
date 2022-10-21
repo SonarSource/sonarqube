@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -41,6 +42,7 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.Rules.SearchResponse.Builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -90,6 +92,15 @@ public class DefaultActiveRulesLoaderTest {
     verifyNoMoreInteractions(wsClient);
   }
 
+  @Test
+  public void exception_thrown_when_elasticsearch_index_inconsistent() {
+    WsTestUtil.mockStream(wsClient, urlOfPage(1), prepareCorruptedResponse());
+    assertThatThrownBy(() -> loader.load("c+-test_c+-values-17445"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
+        "Check documentation for more information https://docs.sonarqube.org/latest/setup/troubleshooting");
+  }
+
   private String urlOfPage(int page) {
     return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt,deprecatedKeys&activation=true"
       + ("") + "&qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
@@ -128,6 +139,25 @@ public class DefaultActiveRulesLoaderTest {
     rules.setActives(actives);
     rules.setPs(numberOfRules);
     rules.setTotal(total);
+    return new ByteArrayInputStream(rules.build().toByteArray());
+  }
+
+  private InputStream prepareCorruptedResponse() {
+    Builder rules = SearchResponse.newBuilder();
+    Actives.Builder actives = Actives.newBuilder();
+
+    IntStream.rangeClosed(1, 3)
+      .mapToObj(i -> RuleKey.of("java", "S" + i))
+      .forEach(key -> {
+
+        Rule.Builder ruleBuilder = Rule.newBuilder();
+        ruleBuilder.setKey(key.toString());
+        rules.addRules(ruleBuilder);
+      });
+
+    rules.setActives(actives);
+    rules.setPs(3);
+    rules.setTotal(3);
     return new ByteArrayInputStream(rules.build().toByteArray());
   }
 }

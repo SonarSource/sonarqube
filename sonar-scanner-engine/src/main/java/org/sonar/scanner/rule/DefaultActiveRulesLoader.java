@@ -31,6 +31,7 @@ import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
@@ -96,10 +97,14 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     List<LoadedActiveRule> loadedRules = new LinkedList<>();
 
     List<Rule> rulesList = response.getRulesList();
-    Map<String, ActiveList> actives = response.getActives().getActives();
+    Map<String, ActiveList> actives = response.getActives().getActivesMap();
 
     for (Rule r : rulesList) {
       ActiveList activeList = actives.get(r.getKey());
+      if (activeList == null) {
+        throw MessageException.of("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
+          "Check documentation for more information https://docs.sonarqube.org/latest/setup/troubleshooting");
+      }
       Active active = activeList.getActiveList(0);
 
       LoadedActiveRule loadedRule = new LoadedActiveRule();
