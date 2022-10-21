@@ -29,4 +29,12 @@ public interface MutableMovedFilesRepository extends MovedFilesRepository {
    * @throws IllegalStateException if {@code file} already has an original file
    */
   void setOriginalFile(Component file, OriginalFile originalFile);
+
+  /**
+   * Registers the original file for the specified file that has been renamed/moved inside the scope of a Pull Request.
+   *
+   * @throws IllegalArgumentException if {@code file} type is not {@link Component.Type#FILE}
+   * @throws IllegalStateException if {@code file} already has an original file
+   */
+  void setOriginalPullRequestFile(Component file, OriginalFile originalFile);
 }

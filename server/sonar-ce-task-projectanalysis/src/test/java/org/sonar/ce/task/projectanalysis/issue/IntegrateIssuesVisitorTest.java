@@ -154,7 +154,7 @@ public class IntegrateIssuesVisitorTest {
       ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
       new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
-    TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient);
+    TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient, movedFilesRepository);
     TrackerReferenceBranchInputFactory mergeInputFactory = new TrackerReferenceBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);

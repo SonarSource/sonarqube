@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbTester;
@@ -43,11 +44,12 @@ public class TrackerTargetBranchInputFactoryTest {
 
   private final ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
   private final TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
+  private final MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
   private TrackerTargetBranchInputFactory underTest;
 
   @Before
   public void setUp() {
-    underTest = new TrackerTargetBranchInputFactory(componentIssuesLoader, targetBranchComponentUuids, db.getDbClient());
+    underTest = new TrackerTargetBranchInputFactory(componentIssuesLoader, targetBranchComponentUuids, db.getDbClient(), movedFilesRepository);
   }
 
   @Test

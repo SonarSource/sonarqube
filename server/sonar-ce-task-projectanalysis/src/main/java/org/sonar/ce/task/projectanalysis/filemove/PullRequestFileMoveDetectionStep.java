@@ -26,7 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.concurrent.Immutable;
 import org.apache.ibatis.session.ResultHandler;
@@ -39,6 +41,7 @@ import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -102,17 +105,18 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
     Map<String, Component> newlyAddedFilesByUuid = getNewlyAddedFilesByUuid(reportFilesByUuid, targetBranchDbFilesByUuid);
     context.getStatistics().add("addedFiles", newlyAddedFilesByUuid.size());
 
-    // Do we need to register the moved file in the moved files repo and use the data in the related steps/visitors?
-//    registerMovedFiles(movedFilesByUuid, targetBranchDbFilesByUuid);
+    registerMovedFiles(movedFilesByUuid.values(), targetBranchDbFilesByUuid.values());
     registerNewlyAddedFiles(newlyAddedFilesByUuid);
   }
 
-  private void registerMovedFiles(Map<String, Component> movedFilesByUuid, Map<String, DbComponent> dbFilesByUuid) {
-    movedFilesByUuid
-      .forEach((movedFileUuid, movedFile) -> {
-        DbComponent oldFile = getOldFile(dbFilesByUuid.values(), movedFile.getOldName());
-        movedFilesRepository.setOriginalFile(movedFile, toOriginalFile(oldFile));
-      });
+  private void registerMovedFiles(Collection<Component> movedFiles, Collection<DbComponent> dbFiles) {
+    movedFiles
+      .forEach(registerMovedFile(dbFiles));
+  }
+
+  private Consumer<Component> registerMovedFile(Collection<DbComponent> dbFiles) {
+    return movedFile -> retrieveDbFile(dbFiles, movedFile)
+        .ifPresent(dbFile -> movedFilesRepository.setOriginalPullRequestFile(movedFile, toOriginalFile(dbFile)));
   }
 
   private void registerNewlyAddedFiles(Map<String, Component> newAddedFilesByUuid) {
@@ -139,12 +143,11 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
       .collect(toMap(Component::getUuid, Function.identity()));
   }
 
-  private DbComponent getOldFile(Collection<DbComponent> dbFiles, String oldFilePath) {
+  private Optional<DbComponent> retrieveDbFile(Collection<DbComponent> dbFiles, Component file) {
     return dbFiles
       .stream()
-      .filter(file -> file.getPath().equals(oldFilePath))
-      .findFirst()
-      .get();
+      .filter(dbFile -> dbFile.getPath().equals(file.getOldName()))
+      .findFirst();
   }
 
   public Set<String> difference(Set<String> set1, Set<String> set2) {
@@ -166,7 +169,7 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   }
 
   private List<DbComponent> getTargetBranchDbFiles(DbSession dbSession, String targetBranchUuid) {
-     List<DbComponent> files = new LinkedList();
+     List<DbComponent> files = new LinkedList<>();
 
     ResultHandler<FileMoveRowDto> storeFileMove = resultContext -> {
       FileMoveRowDto row = resultContext.getResultObject();
@@ -198,8 +201,8 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
     return builder.build();
   }
 
-  private static MovedFilesRepository.OriginalFile toOriginalFile(DbComponent dbComponent) {
-    return new MovedFilesRepository.OriginalFile(dbComponent.getUuid(), dbComponent.getKey());
+  private static OriginalFile toOriginalFile(DbComponent dbComponent) {
+    return new OriginalFile(dbComponent.getUuid(), dbComponent.getKey());
   }
 
   @Immutable

@@ -30,24 +30,46 @@ import static java.util.Objects.requireNonNull;
 
 public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesRepository {
   private final Map<String, OriginalFile> originalFiles = new HashMap<>();
+  private final Map<String, OriginalFile> originalPullRequestFiles = new HashMap<>();
 
   @Override
   public void setOriginalFile(Component file, OriginalFile originalFile) {
+    storeOriginalFileInCache(originalFiles, file, originalFile);
+  }
+
+  @Override
+  public void setOriginalPullRequestFile(Component file, OriginalFile originalFile) {
+    storeOriginalFileInCache(originalPullRequestFiles, file, originalFile);
+  }
+
+  @Override
+  public Optional<OriginalFile> getOriginalFile(Component file) {
+    return retrieveOriginalFileFromCache(originalFiles, file);
+  }
+
+  @Override
+  public Optional<OriginalFile> getOriginalPullRequestFile(Component file) {
+    return retrieveOriginalFileFromCache(originalPullRequestFiles, file);
+  }
+
+  private void storeOriginalFileInCache(Map<String, OriginalFile> originalFiles, Component file, OriginalFile originalFile) {
     requireNonNull(file, "file can't be null");
     requireNonNull(originalFile, "originalFile can't be null");
     checkArgument(file.getType() == Component.Type.FILE, "file must be of type FILE");
 
     OriginalFile existingOriginalFile = originalFiles.get(file.getKey());
+
     checkState(existingOriginalFile == null || existingOriginalFile.equals(originalFile),
       "Original file %s already registered for file %s. Unable to register %s.", existingOriginalFile, file, originalFile);
+
     if (existingOriginalFile == null) {
       originalFiles.put(file.getKey(), originalFile);
     }
   }
 
-  @Override
-  public Optional<OriginalFile> getOriginalFile(Component file) {
+  private Optional<OriginalFile> retrieveOriginalFileFromCache(Map<String, OriginalFile> originalFiles, Component file) {
     requireNonNull(file, "file can't be null");
+
     if (file.getType() != Component.Type.FILE) {
       return Optional.empty();
     }

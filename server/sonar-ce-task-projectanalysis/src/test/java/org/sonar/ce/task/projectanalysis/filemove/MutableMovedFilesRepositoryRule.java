@@ -50,8 +50,19 @@ public class MutableMovedFilesRepositoryRule extends ExternalResource implements
   }
 
   @Override
+  public void setOriginalPullRequestFile(Component file, OriginalFile originalFile) {
+    this.delegate.setOriginalPullRequestFile(file, originalFile);
+    this.componentsWithOriginal.add(file);
+  }
+
+  @Override
   public Optional<OriginalFile> getOriginalFile(Component file) {
     return this.delegate.getOriginalFile(file);
+  }
+
+  @Override
+  public Optional<OriginalFile> getOriginalPullRequestFile(Component file) {
+    return this.delegate.getOriginalPullRequestFile(file);
   }
 
   public Set<Component> getComponentsWithOriginal() {

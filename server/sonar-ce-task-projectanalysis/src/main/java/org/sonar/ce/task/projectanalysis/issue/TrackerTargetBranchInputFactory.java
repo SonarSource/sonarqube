@@ -21,8 +21,11 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -36,12 +39,14 @@ public class TrackerTargetBranchInputFactory {
   private final ComponentIssuesLoader componentIssuesLoader;
   private final DbClient dbClient;
   private final TargetBranchComponentUuids targetBranchComponentUuids;
+  private final MovedFilesRepository movedFilesRepository;
 
   public TrackerTargetBranchInputFactory(ComponentIssuesLoader componentIssuesLoader, TargetBranchComponentUuids targetBranchComponentUuids,
-    DbClient dbClient) {
+    DbClient dbClient, MovedFilesRepository movedFilesRepository) {
     this.componentIssuesLoader = componentIssuesLoader;
     this.targetBranchComponentUuids = targetBranchComponentUuids;
     this.dbClient = dbClient;
+    this.movedFilesRepository = movedFilesRepository;
     // TODO detect file moves?
   }
 
@@ -50,8 +55,24 @@ public class TrackerTargetBranchInputFactory {
   }
 
   public Input<DefaultIssue> createForTargetBranch(Component component) {
-    String targetBranchComponentUuid = targetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey());
+    String targetBranchComponentUuid = getTargetBranchComponentUuid(component);
     return new TargetLazyInput(component.getType(), targetBranchComponentUuid);
+  }
+
+  private String getTargetBranchComponentUuid(Component component) {
+    Optional<String> targetBranchOriginalComponentUuid = getOriginalComponentUuid(component);
+
+    if (targetBranchOriginalComponentUuid.isPresent()) {
+      return targetBranchComponentUuids.getTargetBranchComponentUuid(targetBranchOriginalComponentUuid.get());
+    }
+
+    return targetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey());
+  }
+
+  private Optional<String> getOriginalComponentUuid(Component component) {
+    return movedFilesRepository
+      .getOriginalPullRequestFile(component)
+      .map(OriginalFile::getKey);
   }
 
   private class TargetLazyInput extends LazyInput<DefaultIssue> {

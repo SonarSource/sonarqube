@@ -34,6 +34,14 @@ public interface MovedFilesRepository {
    */
   Optional<OriginalFile> getOriginalFile(Component file);
 
+  /**
+   * The original file for the specified component if it was registered as a moved file inside the scope of a Pull Request.
+   * <p>
+   * Calling this method with a Component which is not a file, will always return {@link Optional#empty()}.
+   * </p>
+   */
+  Optional<OriginalFile> getOriginalPullRequestFile(Component file);
+
   final class OriginalFile {
     private final String uuid;
     private final String key;
