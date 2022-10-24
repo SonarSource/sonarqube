@@ -8,17 +8,7 @@
   "prHourlyLimit": 0,
   "separateMinorPatch": false,
   "separateMajorMinor": false,
-  "ignoreDeps": [
-    "remark-custom-blocks",
-    "mdast-util-toc",
-    "rehype-raw",
-    "rehype-react",
-    "rehype-slug",
-    "remark",
-    "remark-react",
-    "remark-rehype",
-    "unist-util-visit",
-    
+  "ignoreDeps": [    
     "io.spring.dependency-management",
     "com.jfrog.artifactory",
     "org.ajoberstar.grgit",
