@@ -78,7 +78,7 @@ public class SamlAuthenticator {
       .setProviderLogin(login)
       .setName(this.getName(auth));
     this.getEmail(auth).ifPresent(userIdentityBuilder::setEmail);
-    userIdentityBuilder.setGroups(this.getGroups(auth));
+    this.getGroups(auth).ifPresent(userIdentityBuilder::setGroups);
 
     return userIdentityBuilder.build();
   }
@@ -169,8 +169,8 @@ public class SamlAuthenticator {
     return samlSettings.getUserEmail().map(userEmailField -> getFirstAttribute(auth, userEmailField));
   }
 
-  private Set<String> getGroups(Auth auth) {
-    return samlSettings.getGroupName().map(groupsField -> getGroups(auth, groupsField)).orElse(emptySet());
+  private Optional<Set<String>> getGroups(Auth auth) {
+    return samlSettings.getGroupName().map(groupsField -> getGroups(auth, groupsField));
   }
 
   private static String getNonNullFirstAttribute(Auth auth, String key) {
