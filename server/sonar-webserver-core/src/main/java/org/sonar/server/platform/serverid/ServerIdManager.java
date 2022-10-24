@@ -20,9 +20,9 @@
 package org.sonar.server.platform.serverid;
 
 import java.util.Optional;
-import org.sonar.api.Startable;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ServerId;
@@ -36,8 +36,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
-import static org.sonar.core.platform.ServerId.Format.DEPRECATED;
-import static org.sonar.core.platform.ServerId.Format.NO_DATABASE_ID;
 import static org.sonar.server.property.InternalProperties.SERVER_ID_CHECKSUM;
 
 public class ServerIdManager implements Startable {
@@ -86,12 +84,6 @@ public class ServerIdManager implements Startable {
   }
 
   private boolean keepServerId(ServerId serverId, Optional<String> checksum) {
-    ServerId.Format format = serverId.getFormat();
-    if (format == DEPRECATED || format == NO_DATABASE_ID) {
-      LOGGER.info("Server ID is changed to new format.");
-      return false;
-    }
-
     if (checksum.isPresent()) {
       String expectedChecksum = serverIdChecksum.computeFor(serverId.toString());
       if (!expectedChecksum.equals(checksum.get())) {
@@ -105,9 +97,6 @@ public class ServerIdManager implements Startable {
   }
 
   private ServerId replaceCurrentServerId(ServerId currentServerId) {
-    if (currentServerId.getFormat() == DEPRECATED) {
-      return serverIdFactory.create();
-    }
     return serverIdFactory.create(currentServerId);
   }
 

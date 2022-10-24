@@ -38,6 +38,9 @@ public class AutoDbMigration implements Startable {
     if (serverUpgradeStatus.isFreshInstall()) {
       Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
       migrationEngine.execute();
+    } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isAutoDbUpgrade()) {
+      Loggers.get(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
+      migrationEngine.execute();
     } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isBlueGreen()) {
       Loggers.get(getClass()).info("Automatically perform DB migration on blue/green deployment");
       migrationEngine.execute();

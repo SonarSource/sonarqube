@@ -178,7 +178,9 @@ public class ProcessProperties {
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 
     // whether the blue/green deployment of server is enabled
-    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", DEFAULT_FALSE);
+    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", DEFAULT_FALSE),
+
+    AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE);
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property

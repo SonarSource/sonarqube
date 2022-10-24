@@ -37,12 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.DEPRECATED_SERVER_ID_LENGTH;
-import static org.sonar.core.platform.ServerId.NOT_UUID_DATASET_ID_LENGTH;
-import static org.sonar.core.platform.ServerId.SPLIT_CHARACTER;
-import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.Format.DEPRECATED;
 import static org.sonar.core.platform.ServerId.Format.NO_DATABASE_ID;
 import static org.sonar.core.platform.ServerId.Format.WITH_DATABASE_ID;
+import static org.sonar.core.platform.ServerId.NOT_UUID_DATASET_ID_LENGTH;
+import static org.sonar.core.platform.ServerId.SPLIT_CHARACTER;
+import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 
 @RunWith(DataProviderRunner.class)
 public class ServerIdTest {

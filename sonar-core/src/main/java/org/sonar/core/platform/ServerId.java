@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
-import org.sonar.core.util.UuidFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.platform.ServerId.Format.DEPRECATED;
@@ -110,8 +109,8 @@ public final class ServerId {
 
   public static ServerId of(@Nullable String databaseId, String datasetId) {
     if (databaseId != null) {
-      int databaseIdLength = databaseId.length();
-      checkArgument(databaseIdLength == DATABASE_ID_LENGTH, "Illegal databaseId length (%s)", databaseIdLength);
+    int databaseIdLength = databaseId.length();
+    checkArgument(databaseIdLength == DATABASE_ID_LENGTH, "Illegal databaseId length (%s)", databaseIdLength);
     }
     int datasetIdLength = datasetId.length();
     checkArgument(datasetIdLength == DEPRECATED_SERVER_ID_LENGTH
@@ -120,9 +119,6 @@ public final class ServerId {
     return new ServerId(databaseId, datasetId);
   }
 
-  public static ServerId create(UuidFactory uuidFactory) {
-    return new ServerId(null, uuidFactory.create());
-  }
 
   /**
    * Checks whether the specified value is a date according to the old format of the {@link CoreProperties#SERVER_ID}.

@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.serverid;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.After;
 import org.junit.Rule;
@@ -46,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,19 +56,17 @@ import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 @RunWith(DataProviderRunner.class)
 public class ServerIdManagerTest {
 
-  private static final ServerId OLD_FORMAT_SERVER_ID = ServerId.parse("20161123150657");
-  private static final ServerId NO_DATABASE_ID_SERVER_ID = ServerId.parse(randomAlphanumeric(UUID_DATASET_ID_LENGTH));
   private static final ServerId WITH_DATABASE_ID_SERVER_ID = ServerId.of(randomAlphanumeric(DATABASE_ID_LENGTH), randomAlphanumeric(NOT_UUID_DATASET_ID_LENGTH));
   private static final String CHECKSUM_1 = randomAlphanumeric(12);
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ServerIdChecksum serverIdChecksum = mock(ServerIdChecksum.class);
-  private ServerIdFactory serverIdFactory = mock(ServerIdFactory.class);
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private WebServer webServer = mock(WebServer.class);
+  private final ServerIdChecksum serverIdChecksum = mock(ServerIdChecksum.class);
+  private final ServerIdFactory serverIdFactory = mock(ServerIdFactory.class);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final WebServer webServer = mock(WebServer.class);
   private ServerIdManager underTest;
 
   @After
@@ -83,39 +78,26 @@ public class ServerIdManagerTest {
 
   @Test
   public void web_leader_persists_new_server_id_if_missing() {
-    mockCreateNewServerId(WITH_DATABASE_ID_SERVER_ID);
+    mockCreateNewServerId();
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
     when(webServer.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    verifyCreateNewServerIdFromScratch();
-  }
-
-  @Test
-  public void web_leader_persists_new_server_id_if_format_is_old_date() {
-    insertServerId(OLD_FORMAT_SERVER_ID);
-    mockCreateNewServerId(WITH_DATABASE_ID_SERVER_ID);
-    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
-
-    test(SERVER);
-
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
     verifyCreateNewServerIdFromScratch();
   }
 
   @Test
   public void web_leader_persists_new_server_id_if_value_is_empty() {
     insertServerId("");
-    mockCreateNewServerId(WITH_DATABASE_ID_SERVER_ID);
+    mockCreateNewServerId();
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
     when(webServer.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
     verifyCreateNewServerIdFromScratch();
   }
 
@@ -128,39 +110,7 @@ public class ServerIdManagerTest {
 
     test(SERVER);
 
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-  }
-
-  @Test
-  public void web_leader_creates_server_id_from_scratch_if_checksum_fails_for_serverId_in_deprecated_format() {
-    ServerId currentServerId = OLD_FORMAT_SERVER_ID;
-    insertServerId(currentServerId);
-    insertChecksum("invalid");
-    mockChecksumOf(currentServerId, "valid");
-    mockCreateNewServerId(WITH_DATABASE_ID_SERVER_ID);
-    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
-
-    test(SERVER);
-
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    verifyCreateNewServerIdFromScratch();
-  }
-
-  @Test
-  public void web_leader_creates_server_id_from_current_serverId_without_databaseId_if_checksum_fails() {
-    ServerId currentServerId = ServerId.parse(randomAlphanumeric(UUID_DATASET_ID_LENGTH));
-    insertServerId(currentServerId);
-    insertChecksum("does_not_match_WITH_DATABASE_ID_SERVER_ID");
-    mockChecksumOf(currentServerId, "matches_WITH_DATABASE_ID_SERVER_ID");
-    mockCreateNewServerIdFrom(currentServerId, WITH_DATABASE_ID_SERVER_ID);
-    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
-
-    test(SERVER);
-
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    verifyCreateNewServerIdFrom(currentServerId);
+    verifyDb(CHECKSUM_1);
   }
 
   @Test
@@ -169,13 +119,13 @@ public class ServerIdManagerTest {
     insertServerId(currentServerId);
     insertChecksum("does_not_match_WITH_DATABASE_ID_SERVER_ID");
     mockChecksumOf(currentServerId, "matches_WITH_DATABASE_ID_SERVER_ID");
-    mockCreateNewServerIdFrom(currentServerId, WITH_DATABASE_ID_SERVER_ID);
+    mockCreateNewServerIdFrom(currentServerId);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
     when(webServer.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
     verifyCreateNewServerIdFrom(currentServerId);
   }
 
@@ -187,21 +137,20 @@ public class ServerIdManagerTest {
 
     test(SERVER);
 
-    verifyDb(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
   }
 
   @Test
-  @UseDataProvider("allFormatsOfServerId")
-  public void web_follower_does_not_fail_if_server_id_matches_checksum(ServerId serverId) {
-    insertServerId(serverId);
+  public void web_follower_does_not_fail_if_server_id_matches_checksum() {
+    insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(CHECKSUM_1);
-    mockChecksumOf(serverId, CHECKSUM_1);
+    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
     when(webServer.isStartupLeader()).thenReturn(false);
 
     test(SERVER);
 
     // no changes
-    verifyDb(serverId, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
   }
 
   @Test
@@ -220,12 +169,11 @@ public class ServerIdManagerTest {
   }
 
   @Test
-  @UseDataProvider("allFormatsOfServerId")
-  public void web_follower_fails_if_checksum_does_not_match(ServerId serverId) {
+  public void web_follower_fails_if_checksum_does_not_match() {
     String dbChecksum = "boom";
-    insertServerId(serverId);
+    insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(dbChecksum);
-    mockChecksumOf(serverId, CHECKSUM_1);
+    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
     when(webServer.isStartupLeader()).thenReturn(false);
 
     try {
@@ -234,21 +182,20 @@ public class ServerIdManagerTest {
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Server ID is invalid");
       // no changes
-      verifyDb(serverId, dbChecksum);
+      verifyDb(dbChecksum);
     }
   }
 
   @Test
-  @UseDataProvider("allFormatsOfServerId")
-  public void compute_engine_does_not_fail_if_server_id_is_valid(ServerId serverId) {
-    insertServerId(serverId);
+  public void compute_engine_does_not_fail_if_server_id_is_valid() {
+    insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(CHECKSUM_1);
-    mockChecksumOf(serverId, CHECKSUM_1);
+    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
 
     test(COMPUTE_ENGINE);
 
     // no changes
-    verifyDb(serverId, CHECKSUM_1);
+    verifyDb(CHECKSUM_1);
   }
 
   @Test
@@ -264,12 +211,11 @@ public class ServerIdManagerTest {
   }
 
   @Test
-  @UseDataProvider("allFormatsOfServerId")
-  public void compute_engine_fails_if_server_id_is_invalid(ServerId serverId) {
+  public void compute_engine_fails_if_server_id_is_invalid() {
     String dbChecksum = "boom";
-    insertServerId(serverId);
+    insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(dbChecksum);
-    mockChecksumOf(serverId, CHECKSUM_1);
+    mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
 
     try {
       test(SERVER);
@@ -277,17 +223,8 @@ public class ServerIdManagerTest {
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Server ID is invalid");
       // no changes
-      verifyDb(serverId, dbChecksum);
+      verifyDb(dbChecksum);
     }
-  }
-
-  @DataProvider
-  public static Object[][] allFormatsOfServerId() {
-    return new Object[][]{
-      {OLD_FORMAT_SERVER_ID},
-      {NO_DATABASE_ID_SERVER_ID},
-      {WITH_DATABASE_ID_SERVER_ID}
-    };
   }
 
   private void expectEmptyServerIdException(ThrowingCallable callback) {
@@ -302,22 +239,22 @@ public class ServerIdManagerTest {
       .hasMessage("Property sonar.core.id is missing in database");
   }
 
-  private void verifyDb(ServerId expectedServerId, String expectedChecksum) {
+  private void verifyDb(String expectedChecksum) {
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID))
       .extracting(PropertyDto::getValue)
-      .isEqualTo(expectedServerId.toString());
+      .isEqualTo(ServerIdManagerTest.WITH_DATABASE_ID_SERVER_ID.toString());
     assertThat(dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.SERVER_ID_CHECKSUM))
       .hasValue(expectedChecksum);
   }
 
-  private void mockCreateNewServerId(ServerId newServerId) {
-    when(serverIdFactory.create()).thenReturn(newServerId);
+  private void mockCreateNewServerId() {
+    when(serverIdFactory.create()).thenReturn(WITH_DATABASE_ID_SERVER_ID);
     when(serverIdFactory.create(any())).thenThrow(new IllegalStateException("new ServerId should not be created from current server id"));
   }
 
-  private void mockCreateNewServerIdFrom(ServerId currentServerId, ServerId newServerId) {
+  private void mockCreateNewServerIdFrom(ServerId currentServerId) {
     when(serverIdFactory.create()).thenThrow(new IllegalStateException("new ServerId should be created from current server id"));
-    when(serverIdFactory.create(eq(currentServerId))).thenReturn(newServerId);
+    when(serverIdFactory.create(currentServerId)).thenReturn(ServerIdManagerTest.WITH_DATABASE_ID_SERVER_ID);
   }
 
   private void verifyCreateNewServerIdFromScratch() {
