@@ -247,6 +247,7 @@ public class SamlIdentityProviderTest {
 
     assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.userIdentity.getGroups()).isEmpty();
+    assertThat(callbackContext.userIdentity.shouldSyncGroups()).isFalse();
   }
 
   @Test
