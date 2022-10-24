@@ -63,7 +63,7 @@ docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   zone: us-central1-a
   namespace: default
   cpu: 1
-  memory: 1Gb
+  memory: 2Gb
 
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
